@@ -1,5 +1,5 @@
 @extends('layouts.master')
-@section('title', 'Dashboard - New Users')
+@section('title', 'Dashboard - Edit Users')
 
 @section('css-pages')
 <!-- daterange picker -->
@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
 @endsection
 
-@section('header-menu', 'Tambah Pengguna Baru')
+@section('header-menu', 'Edit Pengguna')
 
 @section('content')
 <!-- Content Header (Page header) -->
@@ -45,7 +45,7 @@
                             Kembali</a>
                     </div>
                     <div class="card-body">
-                        <form id="add-user" method="post" action="/setting/users/create">
+                        <form id="edit-user" method="post" action="/setting/users/update/{{ $userById->UserID }}">
                             @csrf
                             <div class="row">
                                 <div class="col-md-6 col-12">
@@ -53,7 +53,7 @@
                                         <label for="email">Email</label>
                                         <input type="email" name="email" class="form-control 
                                         @if($errors->has('email')) is-invalid @endif" id="email"
-                                            placeholder="Masukan email pengguna" value="{{ old('email') }}">
+                                            placeholder="Masukan email pengguna" value="{{ $userById->Email }}">
                                         @if($errors->has('email'))
                                         <span class="error invalid-feedback">{{ $errors->first('email') }}</span>
                                         @endif
@@ -64,7 +64,7 @@
                                         <label for="name">Nama</label>
                                         <input type="text" name="name"
                                             class="form-control @if($errors->has('name')) is-invalid @endif" id="name"
-                                            placeholder="Masukan nama pengguna" value="{{ old('name') }}">
+                                            placeholder="Masukan nama pengguna" value="{{ $userById->Name }}">
                                         @if($errors->has('name'))
                                         <span class="error invalid-feedback">{{ $errors->first('name') }}</span>
                                         @endif
@@ -78,7 +78,7 @@
                                         <label for="phonenumber">Nomor Telepon</label>
                                         <input type="number" name="phonenumber"
                                             class="form-control @if($errors->has('phonenumber')) is-invalid @endif"
-                                            id="phonenumber" placeholder="Masukan nomor telepon pengguna" value="{{ old('phonenumber') }}">
+                                            id="phonenumber" placeholder="Masukan nomor telepon pengguna" value="{{ $userById->PhoneNumber }}">
                                         @if($errors->has('phonenumber'))
                                         <span class="error invalid-feedback">{{ $errors->first('phonenumber') }}</span>
                                         @endif
@@ -89,12 +89,12 @@
                                         <label for="role-id">Role</label>
                                         <select class="form-control @if($errors->has('role_id')) is-invalid @endif"
                                             name="role_id" id="role-id">
-                                            <option value="IT">IT</option>
-                                            <option value="FI">Finance</option>
-                                            <option value="BM">Business</option>
-                                            <option value="HR">Human Resource</option>
-                                            <option value="AH">Admin HO</option>
-                                            <option value="AD">Admin Depo</option>
+                                            <option value="IT" {{ ($userById->RoleID) == "IT" ? 'selected' : '' }} >IT</option>
+                                            <option value="FI" {{ ($userById->RoleID) == "FI" ? 'selected' : '' }}>Finance</option>
+                                            <option value="BM" {{ ($userById->RoleID) == "BM" ? 'selected' : '' }}>Business</option>
+                                            <option value="HR" {{ ($userById->RoleID) == "HR" ? 'selected' : '' }}>Human Resource</option>
+                                            <option value="AH" {{ ($userById->RoleID) == "AH" ? 'selected' : '' }}>Admin HO</option>
+                                            <option value="AD" {{ ($userById->RoleID) == "AD" ? 'selected' : '' }}>Admin Depo</option>
                                         </select>
                                         @if($errors->has('role_id'))
                                         <span class="error invalid-feedback">{{ $errors->first('role_id') }}</span>
@@ -109,31 +109,20 @@
                                         <label for="depo">Depo</label>
                                         <select class="form-control @if($errors->has('depo')) is-invalid @endif"
                                             name="depo" id="depo">
-                                            <option value="ALL">ALL</option>
-                                            <option value="CRS">Ciracas</option>
-                                            <option value="CKG">Cakung</option>
-                                            <option value="BDG">Bandung</option>
+                                            <option value="ALL" {{ ($userById->Depo == "ALL" ? 'selected' : '') }}>ALL</option>
+                                            <option value="CRS" {{ ($userById->Depo == "CRS" ? 'selected' : '') }}>Ciracas</option>
+                                            <option value="CKG" {{ ($userById->Depo == "CKG" ? 'selected' : '') }}>Cakung</option>
+                                            <option value="BDG" {{ ($userById->Depo == "BDG" ? 'selected' : '') }}>Bandung</option>
                                         </select>
                                         @if($errors->has('depo'))
                                         <span class="error invalid-feedback">{{ $errors->first('depo') }}</span>
                                         @endif
                                     </div>
                                 </div>
-                                <div class="col-md-6 col-12">
-                                    <div class="form-group">
-                                        <label for="password">Password</label>
-                                        <input type="password" name="password"
-                                            class="form-control @if($errors->has('password')) is-invalid @endif"
-                                            id="password" placeholder="Masukan password pengguna">
-                                        @if($errors->has('password'))
-                                        <span class="error invalid-feedback">{{ $errors->first('password') }}</span>
-                                        @endif
-                                    </div>
-                                </div>
                             </div>
 
                             <div class="form-group float-right">
-                                <button type="submit" class="btn btn-success">Tambah</button>
+                                <button type="submit" class="btn btn-warning">Simpan</button>
                             </div>
                         </form>
                     </div>

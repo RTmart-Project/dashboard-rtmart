@@ -44,6 +44,10 @@ $(document).ready(function () {
                 {
                     data: 'CreatedDate',
                     name: 'CreatedDate'
+                },
+                {
+                    data: 'Action',
+                    name: 'Action'
                 }
             ],
             buttons: [{
@@ -63,7 +67,11 @@ $(document).ready(function () {
             }],
             "lengthChange": false,
             "responsive": true,
-            "autoWidth": false
+            "autoWidth": false,
+            "columnDefs": [{
+                "targets": [7],
+                "orderable": false
+            }]
         });
     }
 
@@ -158,5 +166,28 @@ $(document).ready(function () {
     // Event listener saat tombol filter diklik
     $("#setting-users #filter").click(function () {
         $('#setting-users .table-datatables').DataTable().ajax.reload();
+    });
+
+    $("#setting-users table").on('click', '.reset-password', function (e) {
+        e.preventDefault();
+        const name = $(this).data("user-name");
+        const userId = $(this).data("user-id");
+        $.confirm({
+            title: 'Reset Password!',
+            content: `Yakin ingin reset password <b>${name}</b> ?`,
+            closeIcon: true,
+            buttons: {
+                Yakin: {
+                    btnClass: 'btn-red',
+                    draggable: true,
+                    dragWindowGap: 0,
+                    action: function () {
+                        window.location = '/setting/users/reset-password/' + userId
+                    }
+                },
+                tidak: function () {
+                }
+            }
+        });
     });
 });

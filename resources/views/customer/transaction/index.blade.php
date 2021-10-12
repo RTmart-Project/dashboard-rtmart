@@ -1,5 +1,5 @@
 @extends('layouts.master')
-@section('title', 'Dashboard - Merchant Account')
+@section('title', 'Dashboard - Customer Transaction')
 
 @section('css-pages')
 <!-- daterange picker -->
@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="{{url('/')}}/main/css/custom/select-filter.css">
 @endsection
 
-@section('header-menu', 'Data Akun Merchant')
+@section('header-menu', 'Data Transaksi Customer')
 
 @section('content')
 <!-- Content Header (Page header) -->
@@ -41,11 +41,11 @@
         <div class="row">
             <div class="col-md-4">
                 <div class="info-box">
-                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-store"></i></span>
+                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-money-bill-wave"></i></span>
                     <div class="info-box-content">
-                        <span class="info-box-text">Total Merchant</span>
+                        <span class="info-box-text">Total Transaksi</span>
                         <span class="info-box-number">
-                            {{Helper::formatCurrency($countTotalMerchant, '')}}
+                            {{Helper::formatCurrency($countTotalTransaction, '')}}
                         </span>
                     </div>
                 </div>
@@ -53,11 +53,11 @@
 
             <div class="col-md-4">
                 <div class="info-box">
-                    <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-store"></i></span>
+                    <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-money-bill-wave"></i></span>
                     <div class="info-box-content">
-                        <span class="info-box-text">Bulan Ini</span>
+                        <span class="info-box-text">Transaksi Bulan Ini</span>
                         <span class="info-box-number">
-                            {{Helper::formatCurrency($countNewMerchantThisMonth, '+', ' Merchant')}}
+                            {{Helper::formatCurrency($countTransactionThisMonth, '+', ' Transaction')}}
                         </span>
                     </div>
                 </div>
@@ -65,49 +65,39 @@
 
             <div class="col-md-4">
                 <div class="info-box">
-                    <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-store"></i></span>
+                    <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-money-bill-wave"></i></span>
                     <div class="info-box-content">
-                        <span class="info-box-text">Hari Ini</span>
+                        <span class="info-box-text">Transaksi Hari Ini</span>
                         <span class="info-box-number">
-                            {{Helper::formatCurrency($countNewMerchantThisDay, '+', ' Merchant')}}
+                            {{Helper::formatCurrency($countTransactionThisDay, '+', ' Transaction')}}
                         </span>
                     </div>
                 </div>
             </div>
         </div>
-
         <!-- Table -->
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header p-2">
-                        <ul class="nav nav-pills" id="tab-topup">
-                            <li class="nav-item">
-                                <a class="nav-link active" href="#merchant-account" data-toggle="tab">
-                                    Akun Merchant
-                                </a>
-                            </li>
-                        </ul>
-                    </div><!-- /.card-header -->
                     <div class="card-body mt-2">
                         <div class="tab-content">
-                            <!-- All -->
-                            <div class="tab-pane active" id="merchant-account">
+
+                            <div class="tab-pane active" id="customer-transaction">
                                 <div class="row">
                                     <div class="col-12">
                                         <table class="table table-datatables">
                                             <thead>
                                                 <tr>
+                                                    <th>Order ID</th>
+                                                    <th>Customer ID</th>
+                                                    <th>Nama</th>
+                                                    <th>No. Telp</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
-                                                    <th>No. Telp</th>
-                                                    <th>Tgl Registrasi</th>
-                                                    <th>Kelurahan</th>
-                                                    <th>Kecamatan</th>
-                                                    <th>Kota</th>
-                                                    <th>Provinsi</th>
-                                                    <th>Referral</th>
-                                                    <th>Depo</th>
+                                                    <th>Total Price</th>
+                                                    <th>Status Order</th>
+                                                    <th>Tgl Transaksi</th>
+                                                    <th>Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -147,14 +137,8 @@
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!-- Main JS -->
 <script src="{{url('/')}}/main/js/custom/select-filter.js"></script>
-<script src="{{url('/')}}/main/js/merchant/account/account.js"></script>
+<script src="{{url('/')}}/main/js/customer/transaction/transaction.js"></script>
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
 <script>
-// Recall Responsive DataTables
-$('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
-    $('.table-datatables:visible').each(function(e) {
-        $(this).DataTable().columns.adjust().responsive.recalc();
-    });
-});
 </script>
 @endsection

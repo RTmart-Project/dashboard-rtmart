@@ -67,7 +67,7 @@ $(document).ready(function () {
                         if (type === 'export') {
                             return data;
                         } else {
-                            var currencySeperatorFormat = data.replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+                            var currencySeperatorFormat = thousands_separators(data)
                             return currencySeperatorFormat;
                         }
                     }

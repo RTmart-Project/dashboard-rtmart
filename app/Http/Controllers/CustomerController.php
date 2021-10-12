@@ -98,4 +98,100 @@ class CustomerController extends Controller
                 ->make(true);
         }
     }
+
+    public function transaction()
+    {
+        $customerTransaction = DB::table('tx_product_order')
+            ->select('OrderID', 'CreatedDate');
+
+        $thisDay = date('d');
+        $thisMonth = date('m');
+        $thisYear = date('Y');
+
+        $countTotalTransaction = $customerTransaction->count();
+
+        $countTransactionThisMonth = $customerTransaction
+            ->whereYear('CreatedDate', '=', $thisYear)
+            ->whereMonth('CreatedDate', '=', $thisMonth)
+            ->count();
+
+        $countTransactionThisDay = $customerTransaction
+            ->whereYear('CreatedDate', '=', $thisYear)
+            ->whereMonth('CreatedDate', '=', $thisMonth)
+            ->whereDay('CreatedDate', '=', $thisDay)
+            ->count();
+
+        return view('customer.transaction.index', [
+            'countTotalTransaction' => $countTotalTransaction,
+            'countTransactionThisMonth' => $countTransactionThisMonth,
+            'countTransactionThisDay' => $countTransactionThisDay
+        ]);
+    }
+
+    public function getTransactions(Request $request)
+    {
+        $fromDate = $request->input('fromDate');
+        $toDate = $request->input('toDate');
+        $paymentMethodId = $request->input('paymentMethodId');
+
+        $sqlAllAccount = DB::table('tx_product_order')
+            ->leftJoin('ms_customer_account', 'ms_customer_account.CustomerID', '=', 'tx_product_order.CustomerID')
+            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_product_order.MerchantID')
+            ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_product_order.StatusOrderID')
+            ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_product_order.PaymentMethodID')
+            ->select('tx_product_order.*', 'ms_customer_account.FullName', 'ms_customer_account.PhoneNumber', 'ms_merchant_account.StoreName', 'ms_status_order.StatusOrder');
+
+        // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
+        if ($fromDate != '' && $toDate != '') {
+            $sqlAllAccount->whereDate('tx_product_order.CreatedDate', '>=', $fromDate)
+                ->whereDate('tx_product_order.CreatedDate', '<=', $toDate);
+        }
+
+        if ($paymentMethodId != null) {
+            $sqlAllAccount->where('tx_product_order.PaymentMethodID', '=', $paymentMethodId);
+        }
+
+        // Get data response
+        $data = $sqlAllAccount->get();
+
+        // Return Data Using DataTables with Ajax
+        if ($request->ajax()) {
+            return Datatables::of($data)
+                ->editColumn('CreatedDate', function ($data) {
+                    return date('Y-m-d', strtotime($data->CreatedDate));
+                })
+                ->addColumn('Action', function ($data) {
+                    $actionBtn = '<a href="/customer/transaction/detail/' . $data->OrderID . '" class="btn-sm btn-info detail-order">Detail Order</a>';
+                    return $actionBtn;
+                })
+                ->rawColumns(['CreatedDate', 'Action'])
+                ->make(true);
+        }
+    }
+
+    public function transactionDetails($orderId)
+    {
+        $customer = DB::table('tx_product_order')
+            ->join('ms_customer_account', 'ms_customer_account.CustomerID', '=', 'tx_product_order.CustomerID')
+            ->where('tx_product_order.OrderID', '=', $orderId)
+            ->select('*')
+            ->first();
+
+        return view('customer.transaction.details', [
+            'orderId' => $orderId,
+            'customer' => $customer
+        ]);
+    }
+
+    public function getTransactionDetails(Request $request, $orderId)
+    {
+        $orderById = DB::table('tx_product_order_detail')
+            ->where('OrderID', '=', $orderId)
+            ->select('*')->get();
+
+        if ($request->ajax()) {
+            return DataTables::of($orderById)
+                ->make(true);
+        }
+    }
 }

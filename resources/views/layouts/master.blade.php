@@ -44,7 +44,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
         </nav>
         <!-- /.navbar -->
         <!-- Main Sidebar Container -->
-        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+        <aside class="main-sidebar sidebar-dark-danger elevation-4">
             @include('layouts.sidebar')
         </aside>
 
@@ -74,7 +74,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js"
         integrity="sha512-Zq9o+E00xhhR/7vJ49mxFNJ0KQw1E1TMWkPTxrWcnpfEFDEXgUiwJHIKit93EW/XxE31HSI5GEOW06G6BF1AtA=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
+    <!-- Thousand Separator -->
+    <script src="{{url('/')}}/main/js/helper/thousands-separators.js"></script>
     <script>
     $(document).ready(function() {
         const messageNotifSuccess = $('body .wrapper').data("notif-success");

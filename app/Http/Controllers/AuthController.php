@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Yajra\DataTables\Facades\DataTables;
 
 class AuthController extends Controller
@@ -68,6 +70,12 @@ class AuthController extends Controller
         // Return Data Using DataTables with Ajax
         if ($request->ajax()) {
             return Datatables::of($data)
+                ->addColumn('Action', function ($data) {
+                    $actionBtn = '<a href="/setting/users/edit/' . $data->UserID . '" class="btn-sm btn-warning">Edit</a>
+                    <a data-user-name="' . $data->Name . '" data-user-id="' . $data->UserID . '" href="#" class="btn-sm btn-danger reset-password">Reset Password</a>';
+                    return $actionBtn;
+                })
+                ->rawColumns(['Action'])
                 ->make(true);
         }
     }
@@ -125,6 +133,77 @@ class AuthController extends Controller
             return redirect()->route('setting.users')->with('success', 'Berhasil, data user baru telah ditambahkan');
         } else {
             return redirect()->route('setting.users')->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
+        }
+    }
+
+    public function editUser($user)
+    {
+        $userById = DB::table('ms_user')
+            ->where('UserID', '=', $user)
+            ->select('*')->first();
+
+        return view('setting.user.edit', [
+            'userById' => $userById
+        ]);
+    }
+
+    public function updateUser(Request $request, $user)
+    {
+        $request->validate([
+            'email' => [
+                'required',
+                'string',
+                'email',
+                Rule::unique('ms_user', 'Email')->ignore($user, 'UserID')
+            ],
+            'name' => 'required|string',
+            'phonenumber' => [
+                'required',
+                'numeric',
+                Rule::unique('ms_user', 'PhoneNumber')->ignore($user, 'UserID')
+            ],
+            'role_id' => 'required|string|in:IT,FI,BM,HR,AH,AD',
+            'depo' => 'required|string|in:ALL,CRS,CKG,BDG'
+        ]);
+
+        $currentTime = date("Y-m-d H:i:s");
+
+        $data = [
+            'Email' => $request->input('email'),
+            'Name' => $request->input('name'),
+            'PhoneNumber' => $request->input('phonenumber'),
+            'RoleID' => $request->input('role_id'),
+            'Depo' => $request->input('depo'),
+            'LastDate' => $currentTime
+        ];
+
+        $updateUser = DB::table('ms_user')
+            ->where('UserID', '=', $user)
+            ->update($data);
+
+        if ($updateUser) {
+            return redirect()->route('setting.users')->with('success', 'Data user telah diubah');
+        } else {
+            return redirect()->route('setting.users')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
+        }
+    }
+
+    public function resetPassword($user)
+    {
+        $newPassword = Hash::make("rtmart2020");
+
+        $data = [
+            'Password' => $newPassword
+        ];
+
+        $updatePassword = DB::table('ms_user')
+            ->where('UserID', '=', $user)
+            ->update($data);
+
+        if ($updatePassword) {
+            return redirect()->route('setting.users')->with('success', 'Password user telah diubah');
+        } else {
+            return redirect()->route('setting.users')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
         }
     }
 }

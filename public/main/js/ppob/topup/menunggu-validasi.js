@@ -72,6 +72,10 @@ $(document).ready(function () {
             "lengthChange": false,
             "responsive": true,
             "autoWidth": false,
+            "columnDefs": [{
+                "targets": [8],
+                "orderable": false
+            }],
             "aoColumnDefs": [
                 {
                     "aTargets": [5],
@@ -79,7 +83,7 @@ $(document).ready(function () {
                         if (type === 'export') {
                             return data;
                         } else {
-                            var currencySeperatorFormat = data.replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+                            var currencySeperatorFormat = thousands_separators(data)
                             return currencySeperatorFormat;
                         }
                     }

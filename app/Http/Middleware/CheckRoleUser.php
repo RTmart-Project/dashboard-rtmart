@@ -22,6 +22,6 @@ class CheckRoleUser
             return $next($request);
         }
 
-        return route('home');
+        return redirect()->route('home');
     }
 }

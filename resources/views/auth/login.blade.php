@@ -29,7 +29,7 @@
             <!-- /.login-logo -->
             <div class="card card-outline card-danger">
                 <div class="card-header text-center">
-                    <a href="{{url('/')}}" class="h1"><b></b>RTMart</a>
+                    <a href="{{url('/')}}" class="h1"><img src="{{ url('/') }}/dist/img/rtmart.png" alt="RTmart" height="50"></a>
                 </div>
                 <div class="card-body">
                     <p class="login-box-msg">Masuk ke dashboard RTMart</p>

@@ -14,6 +14,7 @@ $(document).ready(function () {
                 data: function (d) {
                     d.fromDate = $('#merchant-account #from_date').val();
                     d.toDate = $('#merchant-account #to_date').val();
+                    d.distributorId = $('#merchant-account .select-filter-custom select').val();
                 }
             },
             columns: [
@@ -53,6 +54,10 @@ $(document).ready(function () {
                     data: 'ReferralCode',
                     name: 'ReferralCode'
                 },
+                {
+                    data: 'DistributorName',
+                    name: 'DistributorName'
+                }
             ],
             buttons: [{
                 extend: 'excelHtml5',
@@ -86,7 +91,7 @@ $(document).ready(function () {
                                 class="btn btn-sm btn-warning ml-2">Refresh</button>
                             <div class="select-filter-custom ml-2">
                                 <select>
-                                    <option value="all">All</option>
+                                    <option value="">All</option>
                                 </select>
                             </div>
                         </div>`);
@@ -165,6 +170,8 @@ $(document).ready(function () {
         $('#merchant-account #from_date').val('');
         $('#merchant-account #to_date').val('');
         $('#merchant-account .table-datatables').DataTable().search('');
+        $('#merchant-account .select-filter-custom select').val('').change();
+        $('#merchant-account .select-filter-custom select option[value=]').attr('selected', 'selected');
         $('#merchant-account .table-datatables').DataTable().ajax.reload(null, false);
     });
 
@@ -178,18 +185,20 @@ $(document).ready(function () {
         type: "get",
         url: "/distributor/account/get",
         success: function (data) {
-            let option = "<option>All</option>";
+            let option;
             for (const item of data) {
                 option += `<option value="${item.DistributorID}">${item.DistributorName}</option>`;
             }
-            $('#merchant-account .select-filter-custom select').html(option);
+            $('#merchant-account .select-filter-custom select').append(option);
             customDropdownFilter.createCustomDropdowns();
+            // $('#merchant-account .select-filter-custom select').val("All").change();
         }
     });
 
-    // Event listener saat tombol filter diklik
+    // Event listener saat tombol select option diklik
     $("#merchant-account .select-filter-custom select").change(function () {
-        console.log($('.select-filter-custom select').val());
+        $('#merchant-account .table-datatables').DataTable().ajax.reload();
+        // console.log($('#merchant-account .select-filter-custom select').val())
     });
 
 });
