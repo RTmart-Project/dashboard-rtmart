@@ -20,7 +20,8 @@ $(document).ready(function () {
             columns: [
                 {
                     data: 'StockOrderID',
-                    name: 'StockOrderID'},
+                    name: 'StockOrderID'
+                },
                 {
                     data: 'MerchantID',
                     name: 'MerchantID'
@@ -80,11 +81,11 @@ $(document).ready(function () {
             "lengthChange": false,
             "responsive": true,
             "autoWidth": false,
-            "columnDefs": [{
-                "targets": [10],
-                "orderable": false
-            }],
             "aoColumnDefs": [
+                {
+                    "aTargets": [10],
+                    "orderable": false
+                },
                 {
                     "aTargets": [6],
                     "mRender": function (data, type, full) {

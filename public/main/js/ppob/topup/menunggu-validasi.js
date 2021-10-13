@@ -72,11 +72,11 @@ $(document).ready(function () {
             "lengthChange": false,
             "responsive": true,
             "autoWidth": false,
-            "columnDefs": [{
-                "targets": [8],
-                "orderable": false
-            }],
             "aoColumnDefs": [
+                {
+                    "aTargets": [8],
+                    "orderable": false
+                },
                 {
                     "aTargets": [5],
                     "mRender": function (data, type, full) {
