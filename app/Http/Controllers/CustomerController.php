@@ -161,7 +161,7 @@ class CustomerController extends Controller
                     return date('Y-m-d', strtotime($data->CreatedDate));
                 })
                 ->addColumn('Action', function ($data) {
-                    $actionBtn = '<a href="/customer/transaction/detail/' . $data->OrderID . '" class="btn-sm btn-info detail-order">Detail Order</a>';
+                    $actionBtn = '<a href="/customer/transaction/detail/' . $data->OrderID . '" class="btn-sm btn-info detail-order">Detail</a>';
                     return $actionBtn;
                 })
                 ->rawColumns(['CreatedDate', 'Action'])

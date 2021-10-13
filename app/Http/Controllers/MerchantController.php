@@ -168,7 +168,7 @@ class MerchantController extends Controller
                     return date('Y-m-d', strtotime($data->CreatedDate));
                 })
                 ->addColumn('Action', function ($data) {
-                    $actionBtn = '<a href="/merchant/restock/detail/' . $data->StockOrderID . '" class="btn-sm btn-info detail-order">Detail Restock</a>';
+                    $actionBtn = '<a href="/merchant/restock/detail/' . $data->StockOrderID . '" class="btn-sm btn-info detail-order">Detail</a>';
                     return $actionBtn;
                 })
                 ->rawColumns(['CreatedDate', 'Action'])
