@@ -74,6 +74,10 @@ $(document).ready(function () {
             "autoWidth": false,
             "aoColumnDefs": [
                 {
+                    "aTargets": [8],
+                    "orderable": false
+                },
+                {
                     "aTargets": [5],
                     "mRender": function (data, type, full) {
                         if (type === 'export') {
