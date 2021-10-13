@@ -76,10 +76,6 @@ $(document).ready(function () {
             "lengthChange": false,
             "responsive": true,
             "autoWidth": false,
-            "columnDefs": [{
-                "targets": [9],
-                "orderable": false
-            }],
             "aoColumnDefs": [
                 {
                     "aTargets": [6],

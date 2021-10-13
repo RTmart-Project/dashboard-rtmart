@@ -80,10 +80,6 @@ $(document).ready(function () {
             "lengthChange": false,
             "responsive": true,
             "autoWidth": false,
-            "columnDefs": [{
-                "targets": [10],
-                "orderable": false
-            }],
             "aoColumnDefs": [
                 {
                     "aTargets": [6],
