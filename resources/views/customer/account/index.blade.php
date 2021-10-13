@@ -103,7 +103,8 @@
                                                     <th>No. Telp</th>
                                                     <th>Tgl Registrasi</th>
                                                     <th>Alamat</th>
-                                                    <th>Merchant</th>
+                                                    <th>Merchant ID</th>
+                                                    <th>Nama Toko</th>
                                                     <th>Referral</th>
                                                 </tr>
                                             </thead>

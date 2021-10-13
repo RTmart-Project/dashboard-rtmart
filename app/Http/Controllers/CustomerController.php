@@ -45,7 +45,8 @@ class CustomerController extends Controller
         // Get data account, jika tanggal filter kosong tampilkan semua data.
         $sqlAllAccount = DB::table('ms_customer_account')
             ->leftJoin('ms_area', 'ms_area.AreaID', '=', 'ms_customer_account.AreaID')
-            ->select('ms_customer_account.*', 'ms_area.AreaName', 'ms_area.Subdistrict', 'ms_area.City', 'ms_area.Province');
+            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'ms_customer_account.MerchantID')
+            ->select('ms_customer_account.*', 'ms_merchant_account.StoreName', 'ms_area.AreaName', 'ms_area.Subdistrict', 'ms_area.City', 'ms_area.Province');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {

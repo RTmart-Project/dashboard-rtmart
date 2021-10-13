@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="{{url('/')}}/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="{{url('/')}}/dist/css/adminlte.min.css">
-
+    <!-- BG Login -->
     <link rel="stylesheet" href="{{url('/')}}/main/css/custom/login.css">
     <!-- IziToast -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css"

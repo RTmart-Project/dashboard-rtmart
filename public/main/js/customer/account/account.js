@@ -42,6 +42,10 @@ $(document).ready(function () {
                     name: 'MerchantID'
                 },
                 {
+                    data: 'StoreName',
+                    name: 'StoreName'
+                },
+                {
                     data: 'ReferralCode',
                     name: 'ReferralCode'
                 },
