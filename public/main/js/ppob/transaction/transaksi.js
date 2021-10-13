@@ -54,6 +54,7 @@ $(document).ready(function () {
                     name: 'StatusName'
                 }
             ],
+            "order": [[ 0, "desc" ]],
             buttons: [{
                 extend: 'excelHtml5',
                 filename: function () {

@@ -42,6 +42,7 @@ $(document).ready(function () {
                     name: 'SaldoPPOB'
                 },
             ],
+            "order": [[ 0, "desc" ]],
             buttons: [{
                 extend: 'excelHtml5',
                 filename: function () {

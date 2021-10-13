@@ -50,6 +50,7 @@ $(document).ready(function () {
                     name: 'TransferPhoto'
                 },
             ],
+            "order": [[ 0, "desc" ]],
             buttons: [{
                 extend: 'excelHtml5',
                 filename: function () {

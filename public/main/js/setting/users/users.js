@@ -50,6 +50,7 @@ $(document).ready(function () {
                     name: 'Action'
                 }
             ],
+            "order": [[ 6, "desc" ]],
             buttons: [{
                 extend: 'excelHtml5',
                 filename: function () {

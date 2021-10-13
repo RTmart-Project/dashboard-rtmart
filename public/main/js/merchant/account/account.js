@@ -35,20 +35,8 @@ $(document).ready(function () {
                     name: 'CreatedDate'
                 },
                 {
-                    data: 'AreaName',
-                    name: 'AreaName'
-                },
-                {
-                    data: 'Subdistrict',
-                    name: 'Subdistrict'
-                },
-                {
-                    data: 'City',
-                    name: 'City'
-                },
-                {
-                    data: 'Province',
-                    name: 'Province'
+                    data: 'StoreAddress',
+                    name: 'StoreAddress'
                 },
                 {
                     data: 'ReferralCode',
@@ -59,6 +47,7 @@ $(document).ready(function () {
                     name: 'DistributorName'
                 }
             ],
+            "order": [[ 3, "desc" ]],
             buttons: [{
                 extend: 'excelHtml5',
                 filename: function () {

@@ -16,6 +16,7 @@ $(document).ready(function () {
                     d.toDate = $('#merchant-otp #to_date').val();
                 }
             },
+            "order": [[ 3, "desc" ]],
             columns: [
                 {
                     data: 'PhoneNumber',

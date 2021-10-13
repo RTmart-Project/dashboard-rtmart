@@ -95,6 +95,16 @@ class CustomerController extends Controller
         // Return Data Using DataTables with Ajax
         if ($request->ajax()) {
             return Datatables::of($data)
+                ->editColumn('IsVerified', function ($data) {
+                    if ($data->IsVerified == "0") {
+                        $isVerified = '<span class="badge badge-danger">Belum Terverifikasi</span>';
+                    } elseif ($data->IsVerified == "1") {
+                        $isVerified = '<span class="badge badge-success">Terverifikasi</span>';
+                    }
+
+                    return $isVerified;
+                })
+                ->rawColumns(['IsVerified'])
                 ->make(true);
         }
     }

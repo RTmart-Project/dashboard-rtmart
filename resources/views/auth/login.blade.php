@@ -15,6 +15,8 @@
     <link rel="stylesheet" href="{{url('/')}}/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="{{url('/')}}/dist/css/adminlte.min.css">
+
+    <link rel="stylesheet" href="{{url('/')}}/main/css/custom/login.css">
     <!-- IziToast -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css"
         integrity="sha512-O03ntXoVqaGUTAeAmvQ2YSzkCvclZEcPQu1eqloPaHfJ5RuNGiS4l+3duaidD801P50J28EHyonCV06CUlTSag=="
@@ -22,7 +24,7 @@
 </head>
 
 <body>
-    <div class="wrapper hold-transition login-page" @if (session('success')) data-notif-success="{{session('success')}}"
+    <div class="wrapper hold-transition login-page bg_login" @if (session('success')) data-notif-success="{{session('success')}}"
         @else data-notif-success="" @endif @if (session('failed')) data-notif-failed="{{session('failed')}}" @else
         data-notif-failed="" @endif>
         <div class="login-box">

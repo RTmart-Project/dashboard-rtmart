@@ -102,10 +102,7 @@
                                                     <th>Nama Toko</th>
                                                     <th>No. Telp</th>
                                                     <th>Tgl Registrasi</th>
-                                                    <th>Kelurahan</th>
-                                                    <th>Kecamatan</th>
-                                                    <th>Kota</th>
-                                                    <th>Provinsi</th>
+                                                    <th>Alamat</th>
                                                     <th>Referral</th>
                                                     <th>Depo</th>
                                                 </tr>
