@@ -8,6 +8,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DistributorController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PaymentMethodController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\TestController;
 
 /*
@@ -24,6 +25,18 @@ use App\Http\Controllers\TestController;
 Route::group(['middleware' => ['auth']], function () {
     // Home
     Route::get('/home', [HomeController::class, 'home'])->name('home');
+
+    // Product
+    Route::get('/master/product/list', [ProductController::class, 'list'])->name('product.list');
+    Route::get('/master/product/list/get', [ProductController::class, 'getLists'])->name('product.getLists');
+    Route::get('/master/product/category', [ProductController::class, 'category'])->name('product.category');
+    Route::get('/master/product/category/get', [ProductController::class, 'getCategories'])->name('product.getCategories');
+    Route::get('/master/product/uom', [ProductController::class, 'uom'])->name('product.uom');
+    Route::get('/master/product/uom/get', [ProductController::class, 'getUoms'])->name('product.getUoms');
+    Route::get('/master/product/type', [ProductController::class, 'type'])->name('product.type');
+    Route::get('/master/product/type/get', [ProductController::class, 'getTypes'])->name('product.getTypes');
+    Route::get('/master/product/brand', [ProductController::class, 'brand'])->name('product.brand');
+    Route::get('/master/product/brand/get', [ProductController::class, 'getBrands'])->name('product.getBrands');
 
     // PPOB
     Route::get('/ppob/topup', [PpobController::class, 'topup'])->name('ppob');
