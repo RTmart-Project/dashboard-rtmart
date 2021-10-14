@@ -50,7 +50,7 @@ $(document).ready(function () {
                     modifier: {
                         page: 'all'
                     },
-                    columns: [0, 1],
+                    columns: [0, 1, 2, 3, 4],
                     orthogonal: 'export'
                 },
             }],

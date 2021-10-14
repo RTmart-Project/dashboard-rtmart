@@ -89,8 +89,12 @@ $(document).ready(function () {
                         if (type === 'export') {
                             return data;
                         } else {
-                            var currencySeperatorFormat = thousands_separators(data)
-                            return currencySeperatorFormat;
+                            if (data != "" && data != null) {
+                                var currencySeperatorFormat = thousands_separators(data)
+                                return currencySeperatorFormat;
+                            } else {
+                                return data;
+                            }
                         }
                     }
                 }

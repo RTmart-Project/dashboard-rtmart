@@ -42,7 +42,7 @@ $(document).ready(function () {
             buttons: [{
                 extend: 'excelHtml5',
                 filename: function () {
-                    return exportDatatableHelper.generateFilename('OtpMerchant');
+                    return exportDatatableHelper.generateFilename('OtpCustomer');
                 },
                 text: 'Export',
                 titleAttr: 'Excel',
@@ -50,7 +50,7 @@ $(document).ready(function () {
                     modifier: {
                         page: 'all'
                     },
-                    columns: [0, 1],
+                    columns: [0, 1, 2, 3, 4],
                     orthogonal: 'export'
                 },
             }],

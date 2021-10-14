@@ -147,10 +147,10 @@ class CustomerController extends Controller
 
         $sqlAllAccount = DB::table('tx_product_order')
             ->leftJoin('ms_customer_account', 'ms_customer_account.CustomerID', '=', 'tx_product_order.CustomerID')
-            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_product_order.MerchantID')
+            ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_product_order.MerchantID')
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_product_order.StatusOrderID')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_product_order.PaymentMethodID')
-            ->select('tx_product_order.*', 'ms_customer_account.FullName', 'ms_customer_account.PhoneNumber', 'ms_merchant_account.StoreName', 'ms_status_order.StatusOrder');
+            ->select('tx_product_order.OrderID', 'tx_product_order.CustomerID', 'tx_product_order.MerchantID', 'tx_product_order.TotalPrice', 'ms_customer_account.FullName', 'tx_product_order.CreatedDate', 'ms_customer_account.PhoneNumber', 'ms_merchant_account.StoreName', 'ms_status_order.StatusOrder');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {

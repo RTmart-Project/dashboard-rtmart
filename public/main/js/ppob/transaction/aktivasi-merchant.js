@@ -46,7 +46,7 @@ $(document).ready(function () {
             buttons: [{
                 extend: 'excelHtml5',
                 filename: function () {
-                    return exportDatatableHelper.generateFilename('TransaksiPPOBMerchant');
+                    return exportDatatableHelper.generateFilename('AktivasiPPOBMerchant');
                 },
                 text: 'Export',
                 titleAttr: 'Excel',

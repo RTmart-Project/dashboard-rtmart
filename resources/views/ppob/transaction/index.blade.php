@@ -194,6 +194,7 @@
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!-- Main JS -->
+<script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
 <script src="{{url('/')}}/main/js/ppob/transaction/transaksi.js"></script>
 <script src="{{url('/')}}/main/js/ppob/transaction/aktivasi-merchant.js"></script>
 <script src="{{url('/')}}/main/js/helper/keep-tab-refresh.js"></script>
