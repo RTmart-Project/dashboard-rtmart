@@ -48,14 +48,4 @@ $(document).ready(function () {
             "autoWidth": false
         });
     }
-
-    $('#product-brand table').on('click', '.lihat-gambar', function (e) {
-        e.preventDefault();
-        const urlImg = $(this).attr("href");
-        const brandName = $(this).data("brand-name");
-        $.dialog({
-            title: `${brandName}`,
-            content: `<img  style="object-fit: contain; height: 350px; width: 100%;" src="${urlImg}">`,
-        });
-    });
 });

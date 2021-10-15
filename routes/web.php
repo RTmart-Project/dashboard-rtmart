@@ -26,17 +26,33 @@ Route::group(['middleware' => ['auth']], function () {
     // Home
     Route::get('/home', [HomeController::class, 'home'])->name('home');
 
-    // Product
+    // Product List
     Route::get('/master/product/list', [ProductController::class, 'list'])->name('product.list');
     Route::get('/master/product/list/get', [ProductController::class, 'getLists'])->name('product.getLists');
+
+    // Product Category
     Route::get('/master/product/category', [ProductController::class, 'category'])->name('product.category');
     Route::get('/master/product/category/get', [ProductController::class, 'getCategories'])->name('product.getCategories');
+    Route::get('/master/product/category/add', [ProductController::class, 'addCategory'])->name('product.addCategory');
+    Route::post('/master/product/category/insert', [ProductController::class, 'insertCategory'])->name('product.insertCategory');
+
+    // Product UOM
     Route::get('/master/product/uom', [ProductController::class, 'uom'])->name('product.uom');
     Route::get('/master/product/uom/get', [ProductController::class, 'getUoms'])->name('product.getUoms');
+    Route::get('/master/product/uom/add', [ProductController::class, 'addUom'])->name('product.addUom');
+    Route::post('/master/product/uom/insert', [ProductController::class, 'insertUom'])->name('product.insertUom');
+
+    // Product Type
     Route::get('/master/product/type', [ProductController::class, 'type'])->name('product.type');
     Route::get('/master/product/type/get', [ProductController::class, 'getTypes'])->name('product.getTypes');
+    Route::get('/master/product/type/add', [ProductController::class, 'addType'])->name('product.addType');
+    Route::post('/master/product/type/insert', [ProductController::class, 'insertType'])->name('product.insertType');
+
+    // Product Brand
     Route::get('/master/product/brand', [ProductController::class, 'brand'])->name('product.brand');
     Route::get('/master/product/brand/get', [ProductController::class, 'getBrands'])->name('product.getBrands');
+    Route::get('/master/product/brand/add', [ProductController::class, 'addBrand'])->name('product.addBrand');
+    Route::post('/master/product/brand/insert', [ProductController::class, 'insertBrand'])->name('product.insertBrand');
 
     // PPOB
     Route::get('/ppob/topup', [PpobController::class, 'topup'])->name('ppob');

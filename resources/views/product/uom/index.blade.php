@@ -39,6 +39,10 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
+                    <div class="card-header">
+                        <a href="{{ route('product.addUom') }}" class="btn btn-sm btn-success"><i class="fas fa-plus"></i> Tambah
+                            UOM</a>
+                    </div>
                     <div class="card-body mt-2">
                         <div class="tab-content">
                             <div class="tab-pane active" id="product-uom">

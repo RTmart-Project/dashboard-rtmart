@@ -39,31 +39,31 @@
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="{{ route('product.list') }}" class="nav-link {{ Request::is('*product/list') ? 'active' : '' }}">
+                                    <a href="{{ route('product.list') }}" class="nav-link {{ Request::is('*product/list*') ? 'active' : '' }}">
                                         <i class="far fa-dot-circle nav-icon"></i>
                                         <p>Product List</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{ route('product.category') }}" class="nav-link {{ Request::is('*product/category') ? 'active' : '' }}">
+                                    <a href="{{ route('product.category') }}" class="nav-link {{ Request::is('*product/category*') ? 'active' : '' }}">
                                         <i class="far fa-dot-circle nav-icon"></i>
                                         <p>Product Categpry</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{ route('product.uom') }}" class="nav-link {{ Request::is('*product/uom') ? 'active' : '' }}">
+                                    <a href="{{ route('product.uom') }}" class="nav-link {{ Request::is('*product/uom*') ? 'active' : '' }}">
                                         <i class="far fa-dot-circle nav-icon"></i>
                                         <p>Product UOM</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{ route('product.type') }}" class="nav-link {{ Request::is('*product/type') ? 'active' : '' }}">
+                                    <a href="{{ route('product.type') }}" class="nav-link {{ Request::is('*product/type*') ? 'active' : '' }}">
                                         <i class="far fa-dot-circle nav-icon"></i>
                                         <p>Product Type</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{ route('product.brand') }}" class="nav-link {{ Request::is('*product/brand') ? 'active' : '' }}">
+                                    <a href="{{ route('product.brand') }}" class="nav-link {{ Request::is('*product/brand*') ? 'active' : '' }}">
                                         <i class="far fa-dot-circle nav-icon"></i>
                                         <p>Brand</p>
                                     </a>

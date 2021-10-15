@@ -39,6 +39,11 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
+                    <div class="card-header">
+                        <a href="{{ route('product.addCategory') }}" class="btn btn-sm btn-success"><i class="fas fa-plus"></i> Tambah
+                            Kategori</a>
+                    </div>
+
                     <div class="card-body mt-2">
                         <div class="tab-content">
                             <div class="tab-pane active" id="product-category">
@@ -48,7 +53,7 @@
                                             <thead>
                                                 <tr>
                                                     <th>ID Kategori Produk</th>
-                                                    <th>Nama Kategori Produk</th>
+                                                    <th>Nama Kategori Produk</th>   
                                                 </tr>
                                             </thead>
                                             <tbody>
