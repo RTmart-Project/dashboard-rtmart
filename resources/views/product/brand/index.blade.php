@@ -54,6 +54,7 @@
                                                     <th>ID Merek</th>
                                                     <th>Nama Merek</th>
                                                     <th>Gambar</th>
+                                                    <th>Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody>

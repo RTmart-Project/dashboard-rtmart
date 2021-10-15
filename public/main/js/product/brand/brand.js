@@ -26,6 +26,10 @@ $(document).ready(function () {
                 {
                     data: 'BrandImage',
                     name: 'BrandImage'
+                },
+                {
+                    data: 'Action',
+                    name: 'Action'
                 }
             ],
             buttons: [{

@@ -35,24 +35,32 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/master/product/category/get', [ProductController::class, 'getCategories'])->name('product.getCategories');
     Route::get('/master/product/category/add', [ProductController::class, 'addCategory'])->name('product.addCategory');
     Route::post('/master/product/category/insert', [ProductController::class, 'insertCategory'])->name('product.insertCategory');
+    Route::get('/master/product/category/edit/{category}', [ProductController::class, 'editCategory'])->name('product.editCategory');
+    Route::post('/master/product/category/update/{category}', [ProductController::class, 'updateCategory'])->name('product.updateCategory');
 
     // Product UOM
     Route::get('/master/product/uom', [ProductController::class, 'uom'])->name('product.uom');
     Route::get('/master/product/uom/get', [ProductController::class, 'getUoms'])->name('product.getUoms');
     Route::get('/master/product/uom/add', [ProductController::class, 'addUom'])->name('product.addUom');
     Route::post('/master/product/uom/insert', [ProductController::class, 'insertUom'])->name('product.insertUom');
+    Route::get('/master/product/uom/edit/{uom}', [ProductController::class, 'editUom'])->name('product.editUom');
+    Route::post('/master/product/uom/update/{uom}', [ProductController::class, 'updateUom'])->name('product.updateUom');
 
     // Product Type
     Route::get('/master/product/type', [ProductController::class, 'type'])->name('product.type');
     Route::get('/master/product/type/get', [ProductController::class, 'getTypes'])->name('product.getTypes');
     Route::get('/master/product/type/add', [ProductController::class, 'addType'])->name('product.addType');
     Route::post('/master/product/type/insert', [ProductController::class, 'insertType'])->name('product.insertType');
+    Route::get('/master/product/type/edit/{type}', [ProductController::class, 'editType'])->name('product.editType');
+    Route::post('/master/product/type/update/{type}', [ProductController::class, 'updateType'])->name('product.updateType');
 
     // Product Brand
     Route::get('/master/product/brand', [ProductController::class, 'brand'])->name('product.brand');
     Route::get('/master/product/brand/get', [ProductController::class, 'getBrands'])->name('product.getBrands');
     Route::get('/master/product/brand/add', [ProductController::class, 'addBrand'])->name('product.addBrand');
     Route::post('/master/product/brand/insert', [ProductController::class, 'insertBrand'])->name('product.insertBrand');
+    Route::get('/master/product/brand/edit/{brand}', [ProductController::class, 'editBrand'])->name('product.editBrand');
+    Route::post('/master/product/brand/update/{brand}', [ProductController::class, 'updateBrand'])->name('product.updateBrand');
 
     // PPOB
     Route::get('/ppob/topup', [PpobController::class, 'topup'])->name('ppob');

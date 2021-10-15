@@ -53,6 +53,7 @@
                                                 <tr>
                                                     <th>ID UOM Produk</th>
                                                     <th>Nama UOM Produk</th>
+                                                    <th>Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody>

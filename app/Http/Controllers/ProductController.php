@@ -56,6 +56,11 @@ class ProductController extends Controller
         // Return Data Using DataTables with Ajax
         if ($request->ajax()) {
             return Datatables::of($data)
+                ->addColumn('Action', function ($data) {
+                    $actionBtn = '<a href="/master/product/category/edit/' . $data->ProductCategoryID . '" class="btn-sm btn-warning">Edit</a>';
+                    return $actionBtn;
+                })
+                ->rawColumns(['Action'])
                 ->make(true);
         }
     }
@@ -84,6 +89,38 @@ class ProductController extends Controller
         }
     }
 
+    public function editCategory($category)
+    {
+        $categoryById = DB::table('ms_product_category')
+            ->where('ProductCategoryID', '=', $category)
+            ->select('*')->first();
+
+        return view('product.category.edit', [
+            'categoryById' => $categoryById
+        ]);
+    }
+
+    public function updateCategory(Request $request, $category)
+    {
+        $request->validate([
+            'category_name' => 'required|string'
+        ]);
+
+        $data = [
+            'ProductCategoryName' => $request->input('category_name')
+        ];
+
+        $updateCategory = DB::table('ms_product_category')
+            ->where('ProductCategoryID', '=', $category)
+            ->update($data);
+
+        if ($updateCategory) {
+            return redirect()->route('product.category')->with('success', 'Data kategori berhasil diubah');
+        } else {
+            return redirect()->route('product.category')->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
+        }
+    }
+
     public function uom()
     {
         return view('product.uom.index');
@@ -100,6 +137,11 @@ class ProductController extends Controller
         // Return Data Using DataTables with Ajax
         if ($request->ajax()) {
             return Datatables::of($data)
+                ->addColumn('Action', function ($data) {
+                    $actionBtn = '<a href="/master/product/uom/edit/' . $data->ProductUOMID . '" class="btn-sm btn-warning">Edit</a>';
+                    return $actionBtn;
+                })
+                ->rawColumns(['Action'])
                 ->make(true);
         }
     }
@@ -128,6 +170,38 @@ class ProductController extends Controller
         }
     }
 
+    public function editUom($uom)
+    {
+        $uomById = DB::table('ms_product_uom')
+            ->where('ProductUOMID', '=', $uom)
+            ->select('*')->first();
+
+        return view('product.uom.edit', [
+            'uomById' => $uomById
+        ]);
+    }
+
+    public function updateUom(Request $request, $uom)
+    {
+        $request->validate([
+            'uom_name' => 'required|string'
+        ]);
+
+        $data = [
+            'ProductUOMName' => $request->input('uom_name')
+        ];
+
+        $updateUom = DB::table('ms_product_uom')
+            ->where('ProductUOMID', '=', $uom)
+            ->update($data);
+
+        if ($updateUom) {
+            return redirect()->route('product.uom')->with('success', 'Data UOM berhasil diubah');
+        } else {
+            return redirect()->route('product.uom')->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
+        }
+    }
+
     public function type()
     {
         return view('product.type.index');
@@ -144,6 +218,11 @@ class ProductController extends Controller
         // Return Data Using DataTables with Ajax
         if ($request->ajax()) {
             return Datatables::of($data)
+                ->addColumn('Action', function ($data) {
+                    $actionBtn = '<a href="/master/product/type/edit/' . $data->ProductTypeID . '" class="btn-sm btn-warning">Edit</a>';
+                    return $actionBtn;
+                })
+                ->rawColumns(['Action'])
                 ->make(true);
         }
     }
@@ -185,6 +264,38 @@ class ProductController extends Controller
         }
     }
 
+    public function editType($type)
+    {
+        $typeById = DB::table('ms_product_type')
+            ->where('ProductTypeID', '=', $type)
+            ->select('*')->first();
+
+        return view('product.type.edit', [
+            'typeById' => $typeById
+        ]);
+    }
+
+    public function updateType(Request $request, $type)
+    {
+        $request->validate([
+            'type_name' => 'required|string'
+        ]);
+
+        $data = [
+            'ProductTypeName' => $request->input('type_name')
+        ];
+
+        $updateType = DB::table('ms_product_type')
+            ->where('ProductTypeID', '=', $type)
+            ->update($data);
+
+        if ($updateType) {
+            return redirect()->route('product.type')->with('success', 'Data Tipe berhasil diubah');
+        } else {
+            return redirect()->route('product.type')->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
+        }
+    }
+
     public function brand()
     {
         return view('product.brand.index');
@@ -208,7 +319,11 @@ class ProductController extends Controller
                     }
                     return '<img src="' . $baseImageUrl . 'brand/' . $data->BrandImage . '" alt="Brand Image" height="70">';
                 })
-                ->rawColumns(['BrandImage'])
+                ->addColumn('Action', function ($data) {
+                    $actionBtn = '<a href="/master/product/brand/edit/' . $data->BrandID . '" class="btn-sm btn-warning">Edit</a>';
+                    return $actionBtn;
+                })
+                ->rawColumns(['BrandImage', 'Action'])
                 ->make(true);
         }
     }
@@ -220,16 +335,12 @@ class ProductController extends Controller
 
     public function insertBrand(Request $request)
     {
-        $baseImageUrl = config('app.base_image_url');
-
         $request->validate([
             'brand_name' => 'required|string|unique:ms_brand_type,Brand',
             'brand_image' => 'image'
         ]);
 
         $imageName = time() . '.' . $request->file('brand_image')->extension();
-
-        dd($imageName);
 
         $request->file('brand_image')->move('/home/rtmartindonesia/mobile/image/brand/', $imageName);
 
@@ -242,6 +353,54 @@ class ProductController extends Controller
 
         if ($insertBrand) {
             return redirect()->route('product.brand')->with('success', 'Data Merek berhasil ditambahkan');
+        } else {
+            return redirect()->route('product.brand')->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
+        }
+    }
+
+    public function editBrand($brand)
+    {
+        $brandById = DB::table('ms_brand_type')
+            ->where('BrandID', '=', $brand)
+            ->select('*')->first();
+
+        if ($brandById->BrandImage == null) {
+            $brandById->BrandImage = 'not-found.png';
+        }
+
+        return view('product.brand.edit', [
+            'brandById' => $brandById
+        ]);
+    }
+
+    public function updateBrand(Request $request, $brand)
+    {
+        $request->validate([
+            'brand_name' => 'required|string',
+            'brand_image' => 'image'
+        ]);
+
+        if (!$request->hasFile('brand_image')) {
+            $data = [
+                'Brand' => $request->input('brand_name')
+            ];
+        } else {
+            $imageName = time() . '.' . $request->file('brand_image')->extension();
+
+            $request->file('brand_image')->move('/home/rtmartindonesia/mobile/image/brand/', $imageName);
+
+            $data = [
+                'Brand' => $request->input('brand_name'),
+                'BrandImage' => $imageName
+            ];
+        }
+
+        $updateBrand = DB::table('ms_brand_type')
+            ->where('BrandID', '=', $brand)
+            ->update($data);
+
+        if ($updateBrand) {
+            return redirect()->route('product.brand')->with('success', 'Data Merek berhasil diubah');
         } else {
             return redirect()->route('product.brand')->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
         }

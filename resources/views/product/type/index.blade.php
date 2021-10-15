@@ -53,6 +53,7 @@
                                                 <tr>
                                                     <th>ID Tipe Produk</th>
                                                     <th>Nama Tipe Produk</th>
+                                                    <th>Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody>

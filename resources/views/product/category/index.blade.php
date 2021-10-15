@@ -53,7 +53,8 @@
                                             <thead>
                                                 <tr>
                                                     <th>ID Kategori Produk</th>
-                                                    <th>Nama Kategori Produk</th>   
+                                                    <th>Nama Kategori Produk</th>
+                                                    <th>Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody>

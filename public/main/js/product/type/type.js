@@ -22,6 +22,10 @@ $(document).ready(function () {
                 {
                     data: 'ProductTypeName',
                     name: 'ProductTypeName'
+                },
+                {
+                    data: 'Action',
+                    name: 'Action'
                 }
             ],
             buttons: [{
