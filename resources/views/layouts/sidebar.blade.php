@@ -182,6 +182,13 @@
                                 <p>Pengguna</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{{url('/')}}/setting/role"
+                                class="nav-link {{ Request::is('setting/role*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Role</p>
+                            </a>
+                        </li>
                     </ul>
                 </li>
                 @endif

@@ -82,7 +82,13 @@ class AuthController extends Controller
 
     public function newUser()
     {
-        return view('setting.user.new');
+        $roleUser = DB::table('ms_role')
+            ->whereNotIn('RoleID', ['R001', 'R002', 'R003', 'R004', 'R005', 'R006'])
+            ->select('*')->get();
+
+        return view('setting.user.new', [
+            'roleUser' => $roleUser
+        ]);
     }
 
     public function createNewUser(Request $request)
@@ -142,8 +148,13 @@ class AuthController extends Controller
             ->where('UserID', '=', $user)
             ->select('*')->first();
 
+        $roleUser = DB::table('ms_role')
+            ->whereNotIn('RoleID', ['R001', 'R002', 'R003', 'R004', 'R005', 'R006'])
+            ->select('*')->get();
+
         return view('setting.user.edit', [
-            'userById' => $userById
+            'userById' => $userById,
+            'roleUser' => $roleUser
         ]);
     }
 
@@ -204,6 +215,90 @@ class AuthController extends Controller
             return redirect()->route('setting.users')->with('success', 'Password user telah diubah');
         } else {
             return redirect()->route('setting.users')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
+        }
+    }
+
+    public function role()
+    {
+        return view('setting.role.index');
+    }
+
+    public function getRoles(Request $request)
+    {
+        $sqlRoles = DB::table('ms_role')
+            ->whereNotIn('RoleID', ['R001', 'R002', 'R003', 'R004', 'R005', 'R006'])
+            ->select('*');
+
+        $data = $sqlRoles->get();
+
+        if ($request->ajax()) {
+            return Datatables::of($data)
+                ->addColumn('Action', function ($data) {
+                    $actionBtn = '<a href="/setting/role/edit/' . $data->RoleID . '" class="btn-sm btn-warning">Edit</a>';
+                    return $actionBtn;
+                })
+                ->rawColumns(['Action'])
+                ->make(true);
+        }
+    }
+
+    public function newRole()
+    {
+        return view('setting.role.new');
+    }
+
+    public function createRole(Request $request)
+    {
+        $request->validate([
+            'role_id' => 'required|string|unique:ms_role,RoleID',
+            'role_name' => 'required|string|unique:ms_role,RoleName'
+        ]);
+
+        $data = [
+            'RoleID' => $request->input('role_id'),
+            'RoleName' => $request->input('role_name')
+        ];
+
+        $createRole = DB::table('ms_role')->insert($data);
+
+        if ($createRole) {
+            return redirect()->route('setting.role')->with('success', 'Data Role baru telah ditambahkan');
+        } else {
+            return redirect()->route('setting.role')->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
+        }
+    }
+
+    public function editRole($role)
+    {
+        $roleById = DB::table('ms_role')
+            ->where('RoleID', '=', $role)
+            ->select('*')->first();
+
+        return view('setting.role.edit', [
+            'roleById' => $roleById
+        ]);
+    }
+
+    public function updateRole(Request $request, $role)
+    {
+        $request->validate([
+            'role_id' => 'required|string',
+            'role_name' => 'required|string'
+        ]);
+
+        $data = [
+            'RoleID' => $request->input('role_id'),
+            'RoleName' => $request->input('role_name')
+        ];
+
+        $updateRole = DB::table('ms_role')
+            ->where('RoleID', '=', $role)
+            ->update($data);
+
+        if ($updateRole) {
+            return redirect()->route('setting.role')->with('success', 'Data Role baru telah ditambahkan');
+        } else {
+            return redirect()->route('setting.role')->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
         }
     }
 }

@@ -34,8 +34,8 @@ $(document).ready(function () {
                     name: 'PhoneNumber'
                 },
                 {
-                    data: 'RoleID',
-                    name: 'RoleID'
+                    data: 'RoleName',
+                    name: 'RoleName'
                 },
                 {
                     data: 'Depo',

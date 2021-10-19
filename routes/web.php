@@ -10,6 +10,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\TestController;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -98,7 +99,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     // Check Role
     Route::group(['middleware' => ['checkRoleUser:IT']], function () {
-        // Setting
+        // User
         Route::get('/setting/users', [AuthController::class, 'users'])->name('setting.users');
         Route::get('/setting/users/get', [AuthController::class, 'getUsers'])->name('setting.getUsers');
         Route::get('/setting/users/new', [AuthController::class, 'newUser'])->name('setting.newUser');
@@ -106,6 +107,14 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/setting/users/edit/{user}', [AuthController::class, 'editUser'])->name('setting.editUser');
         Route::post('/setting/users/update/{user}', [AuthController::class, 'updateUser'])->name('setting.updateUser');
         Route::get('/setting/users/reset-password/{user}', [AuthController::class, 'resetPassword'])->name('setting.resetPassword');
+
+        // Role
+        Route::get('/setting/role', [AuthController::class, 'role'])->name('setting.role');
+        Route::get('/setting/role/get', [AuthController::class, 'getRoles'])->name('setting.getRoles');
+        Route::get('/setting/role/new', [AuthController::class, 'newRole'])->name('setting.newRole');
+        Route::post('/setting/role/create', [AuthController::class, 'createRole'])->name('setting.createRole');
+        Route::get('/setting/role/edit/{role}', [AuthController::class, 'editRole'])->name('setting.editRole');
+        Route::post('/setting/role/update/{role}', [AuthController::class, 'updateRole'])->name('setting.updateRole');
     });
 
     // Distributor
