@@ -12,7 +12,11 @@ class MerchantController extends Controller
     public function account()
     {
         $merchantAccount = DB::table('ms_merchant_account')
-            ->select('MerchantID', 'CreatedDate');
+            ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
+            ->where('ms_merchant_account.IsTesting', 0)
+            ->where('ms_distributor.Ownership', '=', 'RTMart')
+            ->where('ms_distributor.Email', '!=', null)
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.CreatedDate');
 
         $thisDay = date('d');
         $thisMonth = date('m');
@@ -21,14 +25,14 @@ class MerchantController extends Controller
         $countTotalMerchant = $merchantAccount->count();
 
         $countNewMerchantThisMonth = $merchantAccount
-            ->whereYear('CreatedDate', '=', $thisYear)
-            ->whereMonth('CreatedDate', '=', $thisMonth)
+            ->whereYear('ms_merchant_account.CreatedDate', '=', $thisYear)
+            ->whereMonth('ms_merchant_account.CreatedDate', '=', $thisMonth)
             ->count();
 
         $countNewMerchantThisDay = $merchantAccount
-            ->whereYear('CreatedDate', '=', $thisYear)
-            ->whereMonth('CreatedDate', '=', $thisMonth)
-            ->whereDay('CreatedDate', '=', $thisDay)
+            ->whereYear('ms_merchant_account.CreatedDate', '=', $thisYear)
+            ->whereMonth('ms_merchant_account.CreatedDate', '=', $thisMonth)
+            ->whereDay('ms_merchant_account.CreatedDate', '=', $thisDay)
             ->count();
 
         return view('merchant.account.index', [
@@ -48,6 +52,9 @@ class MerchantController extends Controller
         $sqlAllAccount = DB::table('ms_merchant_account')
             ->leftJoin('ms_area', 'ms_area.AreaID', '=', 'ms_merchant_account.AreaID')
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
+            ->where('ms_merchant_account.IsTesting', 0)
+            ->where('ms_distributor.Ownership', '=', 'RTMart')
+            ->where('ms_distributor.Email', '!=', null)
             ->select('ms_merchant_account.*', 'ms_area.AreaName', 'ms_area.Subdistrict', 'ms_area.City', 'ms_area.Province', 'ms_distributor.DistributorName');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.

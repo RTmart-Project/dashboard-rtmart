@@ -1,7 +1,7 @@
     <!-- Brand Logo -->
     <a href="#" class="brand-link">
-        <img src="{{ url('/') }}/dist/img/rtmart-logo1.png" alt="RTmart"
-            class="brand-image" style="opacity: .8">
+        <img src="{{ url('/') }}/dist/img/rtmart_logo.png" alt="RTmart"
+            class="brand-image ml-2" style="opacity: .8">
         <span class="brand-text font-weight-light">RTmart Dashboard</span>
     </a>
 
@@ -94,6 +94,25 @@
                                 class="nav-link {{ Request::is('ppob/transaction*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Transaksi</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nav-item">
+                    <a href="#" class="nav-link {{ Request::is('distributor*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-store-alt"></i>
+                        <p>
+                            Distributor
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{url('/')}}/distributor/account"
+                                class="nav-link {{ Request::is('distributor/account*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Akun</p>
                             </a>
                         </li>
                     </ul>

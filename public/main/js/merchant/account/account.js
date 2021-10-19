@@ -175,7 +175,8 @@ $(document).ready(function () {
         url: "/distributor/account/get",
         success: function (data) {
             let option;
-            for (const item of data) {
+            const dataDistributor = data.data;
+            for (const item of dataDistributor) {
                 option += `<option value="${item.DistributorID}">${item.DistributorName}</option>`;
             }
             $('#merchant-account .select-filter-custom select').append(option);

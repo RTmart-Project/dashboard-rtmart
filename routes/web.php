@@ -77,6 +77,12 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/ppob/transaction/get', [PpobController::class, 'getTransactions'])->name('ppob.getTransactions');
     Route::get('/ppob/merchant/get', [PpobController::class, 'getActiveMerchant'])->name('ppob.activeMerchant');
 
+    // Distributor
+    Route::get('/distributor/account', [DistributorController::class, 'account'])->name('distributor.account');
+    Route::get('/distributor/account/get', [DistributorController::class, 'getAccounts'])->name('distributor.getAccounts');
+    Route::get('/distributor/account/product/{distributorId}', [DistributorController::class, 'productDetails'])->name('distributor.productDetails');
+    Route::get('/distributor/account/product/get/{distributorId}', [DistributorController::class, 'getProductDetails'])->name('distributor.getProductDetails');
+
     // Merchant
     Route::get('/merchant/account', [MerchantController::class, 'account'])->name('merchant.account');
     Route::get('/merchant/account/get', [MerchantController::class, 'getAccounts'])->name('merchant.getAccounts');
@@ -116,9 +122,6 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/setting/role/edit/{role}', [AuthController::class, 'editRole'])->name('setting.editRole');
         Route::post('/setting/role/update/{role}', [AuthController::class, 'updateRole'])->name('setting.updateRole');
     });
-
-    // Distributor
-    Route::get('/distributor/account/get', [DistributorController::class, 'getAccounts'])->name('distributor.getAccounts');
 
     // Payment Method
     Route::get('/payment/method/get', [PaymentMethodController::class, 'getPaymentMethods'])->name('payment.getPaymentMethods');
