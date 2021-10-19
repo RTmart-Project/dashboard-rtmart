@@ -29,6 +29,10 @@ Route::group(['middleware' => ['auth']], function () {
     // Product List
     Route::get('/master/product/list', [ProductController::class, 'list'])->name('product.list');
     Route::get('/master/product/list/get', [ProductController::class, 'getLists'])->name('product.getLists');
+    Route::get('/master/product/list/add', [ProductController::class, 'addList'])->name('product.addList');
+    Route::post('/master/product/list/insert', [ProductController::class, 'insertList'])->name('product.insertList');
+    Route::get('/master/product/list/edit/{product}', [ProductController::class, 'editList'])->name('product.editList');
+    Route::post('/master/product/list/update/{product}', [ProductController::class, 'updateList'])->name('product.updateList');
 
     // Product Category
     Route::get('/master/product/category', [ProductController::class, 'category'])->name('product.category');

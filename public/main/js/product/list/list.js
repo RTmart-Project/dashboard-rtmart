@@ -50,6 +50,10 @@ $(document).ready(function () {
                 {
                     data: 'Price',
                     name: 'Price'
+                },
+                {
+                    data: 'Action',
+                    name: 'Action'
                 }
             ],
             buttons: [{

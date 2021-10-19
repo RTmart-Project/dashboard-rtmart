@@ -4,10 +4,20 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Yajra\DataTables\Facades\DataTables;
 
 class ProductController extends Controller
 {
+    protected $saveImageUrl;
+    protected $baseImageUrl;
+
+    public function __construct()
+    {
+        $this->saveImageUrl = config('app.save_image_url');
+        $this->baseImageUrl = config('app.base_image_url');
+    }
+
     public function list()
     {
         return view('product.list.index');
@@ -29,14 +39,157 @@ class ProductController extends Controller
         if ($request->ajax()) {
             return Datatables::of($data)
                 ->editColumn('ProductImage', function ($data) {
-                    $baseImageUrl = config('app.base_image_url');
                     if ($data->ProductImage == null) {
                         $data->ProductImage = 'not-found.png';
                     }
-                    return '<a data-product-name="' . $data->ProductName . '" class="lihat-gambar" target="_blank" href="' . $baseImageUrl . 'product/' . $data->ProductImage . '">Lihat Gambar</a>';
+                    return '<img src="' . $this->baseImageUrl . 'product/' . $data->ProductImage . '" alt="Product Image" height="90">';
                 })
-                ->rawColumns(['ProductImage'])
+                ->addColumn('Action', function ($data) {
+                    $actionBtn = '<a href="/master/product/list/edit/' . $data->ProductID . '" class="btn-sm btn-warning">Edit</a>';
+                    return $actionBtn;
+                })
+                ->rawColumns(['ProductImage', 'Action'])
                 ->make(true);
+        }
+    }
+
+    public function addList()
+    {
+        $categoryProduct = DB::table('ms_product_category')->select('*')->get();
+        $typeProduct = DB::table('ms_product_type')->select('*')->get();
+        $brandProduct = DB::table('ms_brand_type')->select('*')->get();
+        $uomProduct = DB::table('ms_product_uom')->select('*')->get();
+
+        return view('product.list.new', [
+            'categoryProduct' => $categoryProduct,
+            'typeProduct' => $typeProduct,
+            'brandProduct' => $brandProduct,
+            'uomProduct' => $uomProduct
+        ]);
+    }
+
+    public function insertList(Request $request)
+    {
+        $maxProductId = DB::table('ms_product')
+            ->max('ProductID');
+
+        if ($maxProductId == null) {
+            $maxProductId = 'P-000001';
+        } else {
+            $maxProductIdNumber = explode("-", $maxProductId);
+            $oldProductIdNumber = end($maxProductIdNumber);
+            $newProductIdNumber = $oldProductIdNumber + 1;
+            $newProductId = 'P-' . str_pad($newProductIdNumber, 6, '0', STR_PAD_LEFT);
+        }
+
+        $request->validate([
+            'product_name' => 'required|string',
+            'product_category' => 'required|integer|exists:ms_product_category,ProductCategoryID',
+            'product_type' => 'required|string|exists:ms_product_type,ProductTypeID',
+            'product_brand' => 'required|integer|exists:ms_brand_type,BrandID',
+            'product_uom' => 'required|integer|exists:ms_product_uom,ProductUOMID',
+            'uom_desc' => 'required|numeric',
+            'price' => 'required|numeric',
+            'product_image' => 'required|image'
+        ]);
+
+        $imageName = time() . '_' . str_replace(' ', '', $request->input('product_name')) . '.' . $request->file('product_image')->extension();
+
+        $request->file('product_image')->move($this->saveImageUrl . 'product/', $imageName);
+
+        $data = [
+            'ProductID' => $newProductId,
+            'ProductName' => $request->input('product_name'),
+            'ProductImage' => $imageName,
+            'ProductDescription' => $request->input('product_name'),
+            'ProductCategoryID' => $request->input('product_category'),
+            'ProductTypeID' => $request->input('product_type'),
+            'BrandTypeID' => $request->input('product_brand'),
+            'ProductUOMID' => $request->input('product_uom'),
+            'ProductUOMDesc' => $request->input('uom_desc'),
+            'Price' => $request->input('price'),
+            'IsCustom' => 0,
+            'IsActive' => 1,
+            'IsDefault' => 0
+        ];
+
+        $insertProduct = DB::table('ms_product')->insert($data);
+
+        if ($insertProduct) {
+            return redirect()->route('product.list')->with('success', 'Data Produk berhasil ditambahkan');
+        } else {
+            return redirect()->route('product.list')->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
+        }
+    }
+
+    public function editList($product)
+    {
+        $categoryProduct = DB::table('ms_product_category')->select('*')->get();
+        $typeProduct = DB::table('ms_product_type')->select('*')->get();
+        $brandProduct = DB::table('ms_brand_type')->select('*')->get();
+        $uomProduct = DB::table('ms_product_uom')->select('*')->get();
+
+        $productById = DB::table('ms_product')
+            ->where('ProductID', '=', $product)
+            ->select('*')->first();
+
+        return view('product.list.edit', [
+            'productById' => $productById,
+            'categoryProduct' => $categoryProduct,
+            'typeProduct' => $typeProduct,
+            'brandProduct' => $brandProduct,
+            'uomProduct' => $uomProduct
+        ]);
+    }
+
+    public function updateList(Request $request, $product)
+    {
+        $request->validate([
+            'product_name' => 'required|string',
+            'product_category' => 'required|integer|exists:ms_product_category,ProductCategoryID',
+            'product_type' => 'required|string|exists:ms_product_type,ProductTypeID',
+            'product_brand' => 'required|integer|exists:ms_brand_type,BrandID',
+            'product_uom' => 'required|integer|exists:ms_product_uom,ProductUOMID',
+            'uom_desc' => 'required|numeric',
+            'price' => 'required|numeric',
+            'product_image' => 'image'
+        ]);
+
+        if ($request->hasFile('product_image')) {
+            $imageName = time() . '_' . str_replace(' ', '', $request->input('product_name')) . '.' . $request->file('product_image')->extension();
+            $request->file('product_image')->move($this->saveImageUrl . 'product/', $imageName);
+            $data = [
+                'ProductName' => $request->input('product_name'),
+                'ProductImage' => $imageName,
+                'ProductDescription' => $request->input('product_name'),
+                'ProductCategoryID' => $request->input('product_category'),
+                'ProductTypeID' => $request->input('product_type'),
+                'BrandTypeID' => $request->input('product_brand'),
+                'ProductUOMID' => $request->input('product_uom'),
+                'ProductUOMDesc' => $request->input('uom_desc'),
+                'Price' => $request->input('price')
+            ];
+        } else {
+            $data = [
+                'ProductName' => $request->input('product_name'),
+                'ProductDescription' => $request->input('product_name'),
+                'ProductCategoryID' => $request->input('product_category'),
+                'ProductTypeID' => $request->input('product_type'),
+                'BrandTypeID' => $request->input('product_brand'),
+                'ProductUOMID' => $request->input('product_uom'),
+                'ProductUOMDesc' => $request->input('uom_desc'),
+                'Price' => $request->input('price')
+            ];
+        }
+
+        $updateProduct = DB::table('ms_product')
+            ->where('ProductID', '=', $product)
+            ->update($data);
+
+        if ($updateProduct) {
+            return redirect()->route('product.list')->with('success', 'Data Produk berhasil diubah');
+        } else {
+            return redirect()->route('product.list')->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
         }
     }
 
@@ -313,11 +466,10 @@ class ProductController extends Controller
         if ($request->ajax()) {
             return Datatables::of($data)
                 ->editColumn('BrandImage', function ($data) {
-                    $baseImageUrl = config('app.base_image_url');
                     if ($data->BrandImage == null) {
                         $data->BrandImage = 'not-found.png';
                     }
-                    return '<img src="' . $baseImageUrl . 'brand/' . $data->BrandImage . '" alt="Brand Image" height="70">';
+                    return '<img src="' . $this->baseImageUrl . 'brand/' . $data->BrandImage . '" alt="Brand Image" height="70">';
                 })
                 ->addColumn('Action', function ($data) {
                     $actionBtn = '<a href="/master/product/brand/edit/' . $data->BrandID . '" class="btn-sm btn-warning">Edit</a>';
@@ -340,9 +492,9 @@ class ProductController extends Controller
             'brand_image' => 'image'
         ]);
 
-        $imageName = time() . '.' . $request->file('brand_image')->extension();
+        $imageName = time() . '_' . str_replace(' ', '', $request->input('brand_name')) . '.' . $request->file('brand_image')->extension();
 
-        $request->file('brand_image')->move('/home/rtmartindonesia/mobile/image/brand/', $imageName);
+        $request->file('brand_image')->move($this->saveImageUrl . 'brand/', $imageName);
 
         $data = [
             'Brand' => $request->input('brand_name'),
@@ -380,18 +532,16 @@ class ProductController extends Controller
             'brand_image' => 'image'
         ]);
 
-        if (!$request->hasFile('brand_image')) {
-            $data = [
-                'Brand' => $request->input('brand_name')
-            ];
-        } else {
-            $imageName = time() . '.' . $request->file('brand_image')->extension();
-
-            $request->file('brand_image')->move('/home/rtmartindonesia/mobile/image/brand/', $imageName);
-
+        if ($request->hasFile('brand_image')) {
+            $imageName = time() . '_' . str_replace(' ', '', $request->input('brand_name')) . '.' . $request->file('brand_image')->extension();
+            $request->file('brand_image')->move($this->saveImageUrl . 'brand/', $imageName);
             $data = [
                 'Brand' => $request->input('brand_name'),
                 'BrandImage' => $imageName
+            ];
+        } else {
+            $data = [
+                'Brand' => $request->input('brand_name')
             ];
         }
 

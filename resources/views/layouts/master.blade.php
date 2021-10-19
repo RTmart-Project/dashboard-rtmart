@@ -25,7 +25,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- CSS Per-Pages -->
     @yield('css-pages')
-
+    
     <style>
     .toolbar {
         float: left;
@@ -76,6 +76,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <!-- Thousand Separator -->
     <script src="{{url('/')}}/main/js/helper/thousands-separators.js"></script>
+    <!-- JS Per-Pages -->
+    @yield('js-pages')
     <script>
     $(document).ready(function() {
         const messageNotifSuccess = $('body .wrapper').data("notif-success");
@@ -97,8 +99,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
         }
     });
     </script>
-    <!-- JS Per-Pages -->
-    @yield('js-pages')
+    
 </body>
 
 </html>
