@@ -26,12 +26,16 @@ $(document).ready(function () {
                     name: 'PPOBOrderID'
                 },
                 {
+                    data: 'MerchantID',
+                    name: 'MerchantID'
+                },
+                {
                     data: 'StoreName',
                     name: 'StoreName'
                 },
                 {
-                    data: 'MerchantID',
-                    name: 'MerchantID'
+                    data: 'PhoneNumber',
+                    name: 'PhoneNumber'
                 },
                 {
                     data: 'TypeOrder',

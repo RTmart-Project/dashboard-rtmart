@@ -129,8 +129,9 @@
                                                 <tr>
                                                     <th>Tanggal</th>
                                                     <th>Order ID</th>
-                                                    <th>Nama Toko</th>
                                                     <th>Merchant ID</th>
+                                                    <th>Nama Toko</th>
+                                                    <th>No. Telp</th>
                                                     <th>Type Order</th>
                                                     <th>Nominal Order</th>
                                                     <th>Total Price</th>

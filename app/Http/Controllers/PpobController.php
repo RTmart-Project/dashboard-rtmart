@@ -314,7 +314,7 @@ class PpobController extends Controller
             ->join('ms_status_ppob', 'ms_status_ppob.StatusPPOBID', '=', 'tx_ppob_order.StatusOrder')
             ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_ppob_order.MerchantID')
             ->where('ms_status_ppob.IsActive', '=', 1)
-            ->select('tx_ppob_order.*', 'ms_merchant_account.StoreName', 'ms_status_ppob.StatusName');
+            ->select('tx_ppob_order.*', 'ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber', 'ms_status_ppob.StatusName');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
