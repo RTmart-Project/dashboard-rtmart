@@ -169,7 +169,39 @@ class MerchantController extends Controller
                 ->editColumn('CreatedDate', function ($data) {
                     return date('Y-m-d', strtotime($data->CreatedDate));
                 })
-                ->rawColumns(['CreatedDate'])
+                ->addColumn('Action', function ($data) {
+                    $actionBtn = '<a href="/merchant/account/product/' . $data->MerchantID . '" class="btn-sm btn-info detail-order">Detail</a>';
+                    return $actionBtn;
+                })
+                ->rawColumns(['CreatedDate', 'Action'])
+                ->make(true);
+        }
+    }
+
+    public function product($merchantId)
+    {
+        $merchant = DB::table('ms_merchant_account')
+            ->where('MerchantID', '=', $merchantId)
+            ->select('StoreName')
+            ->first();
+
+        return view('merchant.product.index', [
+            'merchantId' => $merchantId,
+            'merchant' => $merchant
+        ]);
+    }
+
+    public function getProducts(Request $request, $merchantId)
+    {
+        $merchantProducts = DB::table('ms_product_merchant')
+            ->leftJoin('ms_product', 'ms_product.ProductID', '=', 'ms_product_merchant.ProductID')
+            ->where('ms_product_merchant.MerchantID', '=', $merchantId)
+            ->select('ms_product_merchant.ProductID', 'ms_product.ProductName', 'ms_product_merchant.Price');
+
+        $data = $merchantProducts->get();
+
+        if ($request->ajax()) {
+            return DataTables::of($data)
                 ->make(true);
         }
     }

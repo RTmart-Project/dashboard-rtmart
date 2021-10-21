@@ -86,6 +86,8 @@ Route::group(['middleware' => ['auth']], function () {
     // Merchant
     Route::get('/merchant/account', [MerchantController::class, 'account'])->name('merchant.account');
     Route::get('/merchant/account/get', [MerchantController::class, 'getAccounts'])->name('merchant.getAccounts');
+    Route::get('/merchant/account/product/{merchantId}', [MerchantController::class, 'product'])->name('merchant.product');
+    Route::get('/merchant/account/product/get/{merchantId}', [MerchantController::class, 'getProducts'])->name('merchant.getProducts');
     Route::get('/merchant/otp', [MerchantController::class, 'otp'])->name('merchant.otp');
     Route::get('/merchant/otp/get', [MerchantController::class, 'getOtps'])->name('merchant.getOtps');
     Route::get('/merchant/restock', [MerchantController::class, 'restock'])->name('merchant.restock');

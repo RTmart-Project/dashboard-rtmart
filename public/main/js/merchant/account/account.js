@@ -45,6 +45,10 @@ $(document).ready(function () {
                 {
                     data: 'DistributorName',
                     name: 'DistributorName'
+                },
+                {
+                    data: 'Action',
+                    name: 'Action'
                 }
             ],
             "order": [[ 3, "desc" ]],
@@ -62,6 +66,10 @@ $(document).ready(function () {
                     columns: [0, 1, 2, 3, 4, 5, 6],
                     orthogonal: 'export'
                 },
+            }],
+            "columnDefs": [{
+                "targets": [7],
+                "orderable": false
             }],
             "lengthChange": false,
             "responsive": true,

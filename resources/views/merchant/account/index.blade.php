@@ -305,6 +305,7 @@
                                                     <th>Alamat</th>
                                                     <th>Referral</th>
                                                     <th>Depo</th>
+                                                    <th>Produk</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
