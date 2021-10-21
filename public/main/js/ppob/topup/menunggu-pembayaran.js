@@ -45,6 +45,10 @@ $(document).ready(function () {
                     data: 'UniqueCode',
                     name: 'UniqueCode'
                 },
+                {
+                    data: 'Action',
+                    name: 'Action'
+                }
             ],
             "order": [[ 0, "desc" ]],
             buttons: [{
@@ -66,6 +70,10 @@ $(document).ready(function () {
             "responsive": true,
             "autoWidth": false,
             "aoColumnDefs": [
+                {
+                    "aTargets": [7],
+                    "orderable": false
+                },
                 {
                     "aTargets": [5],
                     "mRender": function (data, type, full) {

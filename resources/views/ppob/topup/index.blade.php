@@ -163,6 +163,7 @@
                                                     <th>Topup ID</th>
                                                     <th>Jumlah Topup</th>
                                                     <th>Kode</th>
+                                                    <th>Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody>

@@ -195,7 +195,7 @@ $(document).ready(function () {
     });
 
     // Event listener saat tombol konfirmasi diklik
-    $('#menunggu-validasi table').on('click', '.btn-konfirmasi', function () {
+    $('table').on('click', '.btn-konfirmasi', function () {
         const topupId = $(this).data("topup-id");
         const storeName = $(this).data("store-name");
         const jumlahTopup = $(this).data("jumlah-topup");
@@ -209,7 +209,7 @@ $(document).ready(function () {
     });
 
     // Event listener saat tombol batal diklik
-    $('#menunggu-validasi table').on('click', '.btn-batal', function (e) {
+    $('table').on('click', '.btn-batal', function (e) {
         e.preventDefault();
         const storeName = $(this).data("store-name");
         const topupId = $(this).data("topup-id");
