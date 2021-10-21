@@ -1,5 +1,5 @@
 @extends('layouts.master')
-@section('title', 'Dashboard - Merchant Restock Details')
+@section('title', 'Dashboard - ' . $merchant->StoreName . ' Restock Details')
 
 @section('css-pages')
 <!-- Datatables -->
@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="{{url('/')}}/main/css/custom/select-filter.css">
 @endsection
 
-@section('header-menu', 'Detail Merchant Restock')
+@section('header-menu', 'Detail Restock ' . $merchant->StoreName)
 
 @section('content')
 <!-- Content Header (Page header) -->
@@ -39,7 +39,9 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header p-2">
+                    <div class="card-header">
+                        <a href="{{ route('merchant.restock') }}" class="btn btn-sm btn-light mb-2"><i class="fas fa-arrow-left"></i>
+                            Kembali</a>
                         <h5>Stock Order ID : {{ $stockOrderId }}</h5>
                         <h5>Nama Toko : {{ $merchant->StoreName }}</h5>
                     </div>

@@ -36,11 +36,11 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <a href="/setting/users" class="btn btn-sm btn-light"><i class="fas fa-arrow-left"></i>
+                        <a href="{{ route('setting.users') }}" class="btn btn-sm btn-light"><i class="fas fa-arrow-left"></i>
                             Kembali</a>
                     </div>
                     <div class="card-body">
-                        <form id="add-user" method="post" action="/setting/users/create">
+                        <form id="add-user" method="post" action="{{ route('setting.createNewUser') }}">
                             @csrf
                             <div class="row">
                                 <div class="col-md-6 col-12">
@@ -48,7 +48,7 @@
                                         <label for="email">Email</label>
                                         <input type="email" name="email" class="form-control 
                                         @if($errors->has('email')) is-invalid @endif" id="email"
-                                            placeholder="Masukkan email pengguna" value="{{ old('email') }}" required>
+                                            placeholder="Masukkan Email Pengguna" value="{{ old('email') }}" required>
                                         @if($errors->has('email'))
                                         <span class="error invalid-feedback">{{ $errors->first('email') }}</span>
                                         @endif
@@ -59,7 +59,7 @@
                                         <label for="name">Nama</label>
                                         <input type="text" name="name"
                                             class="form-control @if($errors->has('name')) is-invalid @endif" id="name"
-                                            placeholder="Masukkan nama pengguna" value="{{ old('name') }}" required>
+                                            placeholder="Masukkan Nama Pengguna" value="{{ old('name') }}" required>
                                         @if($errors->has('name'))
                                         <span class="error invalid-feedback">{{ $errors->first('name') }}</span>
                                         @endif
@@ -73,7 +73,7 @@
                                         <label for="phonenumber">Nomor Telepon</label>
                                         <input type="number" name="phonenumber"
                                             class="form-control @if($errors->has('phonenumber')) is-invalid @endif"
-                                            id="phonenumber" placeholder="Masukkan nomor telepon pengguna" value="{{ old('phonenumber') }}" required>
+                                            id="phonenumber" placeholder="Masukkan Nomor Telepon Pengguna" value="{{ old('phonenumber') }}" required>
                                         @if($errors->has('phonenumber'))
                                         <span class="error invalid-feedback">{{ $errors->first('phonenumber') }}</span>
                                         @endif
@@ -116,7 +116,7 @@
                                         <label for="password">Password</label>
                                         <input type="password" name="password"
                                             class="form-control @if($errors->has('password')) is-invalid @endif"
-                                            id="password" placeholder="Masukkan password pengguna" required>
+                                            id="password" placeholder="Masukkan Password Pengguna" required>
                                         @if($errors->has('password'))
                                         <span class="error invalid-feedback">{{ $errors->first('password') }}</span>
                                         @endif

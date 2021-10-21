@@ -36,11 +36,11 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <a href="/setting/role" class="btn btn-sm btn-light"><i class="fas fa-arrow-left"></i>
+                        <a href="{{ route('setting.role') }}" class="btn btn-sm btn-light"><i class="fas fa-arrow-left"></i>
                             Kembali</a>
                     </div>
                     <div class="card-body">
-                        <form id="add-role" method="post" action="/setting/role/create">
+                        <form id="add-role" method="post" action="{{ route('setting.createRole') }}">
                             @csrf
                             <div class="row">
                                 <div class="col-md-6 col-12">

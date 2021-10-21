@@ -36,7 +36,7 @@
                             Kembali</a>
                     </div>
                     <div class="card-body">
-                        <form id="edit-uom" method="post" action="/master/product/uom/update/{{ $uomById->ProductUOMID }}">
+                        <form id="edit-uom" method="post" action="{{ route('product.updateUom', ['uom' => $uomById->ProductUOMID]) }}">
                             @csrf
                             <div class="row">
                                 <div class="col-12">

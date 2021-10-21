@@ -1,5 +1,5 @@
 @extends('layouts.master')
-@section('title', 'Dashboard - Edit Users')
+@section('title', 'Dashboard - Edit User')
 
 @section('css-pages')
 <link rel="stylesheet" href="{{ url('/') }}/plugins/bootstrap-select/bootstrap-select.min.css">
@@ -36,11 +36,11 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <a href="/setting/users" class="btn btn-sm btn-light"><i class="fas fa-arrow-left"></i>
+                        <a href="{{ route('setting.users') }}" class="btn btn-sm btn-light"><i class="fas fa-arrow-left"></i>
                             Kembali</a>
                     </div>
                     <div class="card-body">
-                        <form id="edit-user" method="post" action="/setting/users/update/{{ $userById->UserID }}">
+                        <form id="edit-user" method="post" action="{{ route('setting.updateUser', ['user' => $userById->UserID]) }}">
                             @csrf
                             <div class="row">
                                 <div class="col-md-6 col-12">

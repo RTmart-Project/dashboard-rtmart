@@ -36,11 +36,11 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <a href="/setting/role" class="btn btn-sm btn-light"><i class="fas fa-arrow-left"></i>
+                        <a href="{{ route('setting.role') }}" class="btn btn-sm btn-light"><i class="fas fa-arrow-left"></i>
                             Kembali</a>
                     </div>
                     <div class="card-body">
-                        <form id="edit-role" method="post" action="/setting/role/update/{{ $roleById->RoleID }}">
+                        <form id="edit-role" method="post" action="{{ route('setting.updateRole', ['role' => $roleById->RoleID]) }}">
                             @csrf
                             <div class="row">
                                 <div class="col-md-6 col-12">
@@ -69,7 +69,7 @@
                             </div>
 
                             <div class="form-group float-right">
-                                <button type="submit" class="btn btn-success">Tambah</button>
+                                <button type="submit" class="btn btn-warning">Ubah</button>
                             </div>
                         </form>
                     </div>

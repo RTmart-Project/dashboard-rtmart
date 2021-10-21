@@ -14,7 +14,7 @@
                 <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
                 <li class="nav-item">
-                    <a href="{{url('/')}}/home" class="nav-link {{ Request::is('home*') ? 'active' : '' }}">
+                    <a href="{{ route('home') }}" class="nav-link {{ Request::is('home*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-home"></i>
                         <p>
                             Home
@@ -83,14 +83,14 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="{{url('/')}}/ppob/topup"
+                            <a href="{{ route('ppob.topup') }}"
                                 class="nav-link {{ Request::is('ppob/topup*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Topup</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{url('/')}}/ppob/transaction"
+                            <a href="{{ route('ppob.transaction') }}"
                                 class="nav-link {{ Request::is('ppob/transaction*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Transaksi</p>
@@ -109,7 +109,7 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="{{url('/')}}/distributor/account"
+                            <a href="{{ route('distributor.account') }}"
                                 class="nav-link {{ Request::is('distributor/account*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Akun</p>
@@ -128,21 +128,21 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="{{url('/')}}/merchant/account"
+                            <a href="{{ route('merchant.account') }}"
                                 class="nav-link {{ Request::is('merchant/account*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Akun</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{url('/')}}/merchant/otp"
+                            <a href="{{ route('merchant.otp') }}"
                                 class="nav-link {{ Request::is('merchant/otp*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>OTP</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{url('/')}}/merchant/restock"
+                            <a href="{{ route('merchant.restock') }}"
                                 class="nav-link {{ Request::is('merchant/restock*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Restock</p>
@@ -161,21 +161,21 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="{{url('/')}}/customer/account"
+                            <a href="{{ route('customer.account') }}"
                                 class="nav-link {{ Request::is('customer/account*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Akun</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{url('/')}}/customer/otp"
+                            <a href="{{ route('customer.otp') }}"
                                 class="nav-link {{ Request::is('customer/otp*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>OTP</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{url('/')}}/customer/transaction"
+                            <a href="{{ route('customer.transaction') }}"
                                 class="nav-link {{ Request::is('customer/transaction*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Transaksi</p>
@@ -195,14 +195,14 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="{{url('/')}}/setting/users"
+                            <a href="{{ route('setting.users') }}"
                                 class="nav-link {{ Request::is('setting/users*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Pengguna</p>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{url('/')}}/setting/role"
+                            <a href="{{ route('setting.role') }}"
                                 class="nav-link {{ Request::is('setting/role*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Role</p>

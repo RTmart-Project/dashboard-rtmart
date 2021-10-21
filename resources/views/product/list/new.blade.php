@@ -56,8 +56,8 @@
                                 <div class="col-md-4 col-12">
                                     <div class="form-group">
                                         <label for="product_category">Kategori</label>
-                                        <select name="product_category" id="product_category" class="form-control selectpicker
-                                            @if ($errors->has('product_category')) is-invalid @endif" data-live-search="true" required>
+                                        <select name="product_category" id="product_category" class="form-control selectpicker border
+                                            @if ($errors->has('product_category')) is-invalid @endif" data-live-search="true" title="Pilih Kategori" required>
                                             @foreach ($categoryProduct as $value)
                                                 <option value="{{ $value->ProductCategoryID }}">{{ $value->ProductCategoryName }}</option>
                                             @endforeach
@@ -70,8 +70,8 @@
                                 <div class="col-md-4 col-12">
                                     <div class="form-group">
                                         <label for="product_type">Tipe</label>
-                                        <select name="product_type" id="product_type" class="form-control selectpicker
-                                            @if ($errors->has('product_type')) is-invalid @endif" data-live-search="true" required>
+                                        <select name="product_type" id="product_type" class="form-control selectpicker border
+                                            @if ($errors->has('product_type')) is-invalid @endif" data-live-search="true" title="Pilih Tipe" required>
                                             @foreach ($typeProduct as $value)
                                                 <option value="{{ $value->ProductTypeID }}">{{ $value->ProductTypeName }}</option>
                                             @endforeach
@@ -87,8 +87,8 @@
                                 <div class="col-md-4 col-12">
                                     <div class="form-group">
                                         <label for="product_brand">Merek</label>
-                                        <select name="product_brand" id="product_brand" class="form-control selectpicker
-                                            @if ($errors->has('product_brand')) is-invalid @endif" data-live-search="true" required>
+                                        <select name="product_brand" id="product_brand" class="form-control selectpicker border
+                                            @if ($errors->has('product_brand')) is-invalid @endif" data-live-search="true" title="Pilih Merek" required>
                                             @foreach ($brandProduct as $value)
                                                 <option value="{{ $value->BrandID }}">{{ $value->Brand }}</option>
                                             @endforeach
@@ -101,8 +101,8 @@
                                 <div class="col-md-4 col-12">
                                     <div class="form-group">
                                         <label for="product_uom">Jenis</label>
-                                        <select name="product_uom" id="product_uom" class="form-control selectpicker
-                                            @if ($errors->has('product_uom')) is-invalid @endif" data-live-search="true" required>
+                                        <select name="product_uom" id="product_uom" class="form-control selectpicker border
+                                            @if ($errors->has('product_uom')) is-invalid @endif" data-live-search="true" title="Pilih Jenis" required>
                                             @foreach ($uomProduct as $value)
                                                 <option value="{{ $value->ProductUOMID }}">{{ $value->ProductUOMName }}</option>
                                             @endforeach

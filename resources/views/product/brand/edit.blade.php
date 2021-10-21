@@ -36,7 +36,7 @@
                             Kembali</a>
                     </div>
                     <div class="card-body">
-                        <form id="edit-brand" method="post" action="/master/product/brand/update/{{ $brandById->BrandID }}" enctype="multipart/form-data">
+                        <form id="edit-brand" method="post" action="{{ route('product.updateBrand', ['brand' => $brandById->BrandID]) }}" enctype="multipart/form-data">
                             @csrf
                             <div class="row">
                                 <div class="col-12">

@@ -68,12 +68,12 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/master/product/brand/update/{brand}', [ProductController::class, 'updateBrand'])->name('product.updateBrand');
 
     // PPOB
-    Route::get('/ppob/topup', [PpobController::class, 'topup'])->name('ppob');
+    Route::get('/ppob/topup', [PpobController::class, 'topup'])->name('ppob.topup');
     Route::get('/ppob/topup/get', [PpobController::class, 'getTopups'])->name('ppob.getTopups');
     Route::get('/ppob/topup/get/{topupStatus}', [PpobController::class, 'getTopupByStatus'])->name('ppob.getTopupByStatus');
     Route::post('/ppob/topup/confirm/{topupId}', [PpobController::class, 'confirmTopup'])->name('ppob.confirmTopup');
     Route::get('/ppob/topup/cancel/{topupId}', [PpobController::class, 'cancelTopup'])->name('ppob.cancelTopup');
-    Route::get('/ppob/transaction', [PpobController::class, 'transaction'])->name('transaction');
+    Route::get('/ppob/transaction', [PpobController::class, 'transaction'])->name('ppob.transaction');
     Route::get('/ppob/transaction/get', [PpobController::class, 'getTransactions'])->name('ppob.getTransactions');
     Route::get('/ppob/merchant/get', [PpobController::class, 'getActiveMerchant'])->name('ppob.activeMerchant');
 

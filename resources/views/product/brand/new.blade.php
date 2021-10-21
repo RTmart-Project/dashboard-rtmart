@@ -54,7 +54,7 @@
                                 <div class="col-md-4 col-12">
                                     <div class="form-group">
                                         <label for="brand_image">Gambar Merek</label>
-                                        <input type="file" name="brand_image" id="brand_image" accept="image/*" onchange="loadFile(event)" class="form-control">
+                                        <input type="file" name="brand_image" id="brand_image" accept="image/*" onchange="loadFile(event)" class="form-control" required>
                                     </div>
                                 </div>
                                 <img id="output" height="120"/>

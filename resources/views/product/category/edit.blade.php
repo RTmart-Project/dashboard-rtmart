@@ -36,7 +36,7 @@
                             Kembali</a>
                     </div>
                     <div class="card-body">
-                        <form id="edit-category" method="post" action="/master/product/category/update/{{ $categoryById->ProductCategoryID }}">
+                        <form id="edit-category" method="post" action="{{ route('product.updateCategory', ['category' => $categoryById->ProductCategoryID]) }}">
                             @csrf
                             <div class="row">
                                 <div class="col-12">
