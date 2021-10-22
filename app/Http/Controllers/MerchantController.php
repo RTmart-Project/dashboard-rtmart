@@ -80,6 +80,7 @@ class MerchantController extends Controller
         $sqlAllAccount = DB::table('ms_merchant_account')
             ->leftJoin('ms_area', 'ms_area.AreaID', '=', 'ms_merchant_account.AreaID')
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
+            ->whereNotIn('ms_merchant_account.DistributorID', ['D-2004-000003', 'D-2004-000007', 'D-2004-000008', 'D-2004-000009', 'D-2004-000010', 'D-2101-000001', 'D-0000-000000', 'D-2104-000001', 'D-2104-000002'])
             ->where('ms_merchant_account.IsTesting', 0)
             ->where('ms_distributor.Ownership', '=', 'RTMart')
             ->where('ms_distributor.Email', '!=', null)
@@ -256,6 +257,7 @@ class MerchantController extends Controller
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tx_merchant_order.DistributorID')
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_order.StatusOrderID')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
+            ->whereNotIn('tx_merchant_order.DistributorID', ['D-2004-000003', 'D-2004-000007', 'D-2004-000008', 'D-2004-000009', 'D-2004-000010', 'D-2101-000001', 'D-0000-000000', 'D-2104-000001', 'D-2104-000002'])
             ->select('tx_merchant_order.*', 'ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'ms_merchant_account.ReferralCode', 'ms_payment_method.PaymentMethodName');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.

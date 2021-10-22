@@ -10,30 +10,57 @@ class CustomerController extends Controller
 {
     public function account()
     {
-        $customerAccount = DB::table('ms_customer_account')
-            ->select('CustomerID', 'CreatedDate');
+        function countCustomerAccount($distributorId = "all", $thisYear = null, $thisMonth = null, $thisDay = null)
+        {
+            $customerAccount = DB::table('ms_customer_account')
+                ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'ms_customer_account.MerchantID')
+                ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
+                ->whereNotIn('ms_merchant_account.DistributorID', ['D-2004-000003', 'D-2004-000007', 'D-2004-000008', 'D-2004-000009', 'D-2004-000010', 'D-2101-000001', 'D-0000-000000', 'D-2104-000001', 'D-2104-000002'])
+                ->where('ms_merchant_account.IsTesting', 0)
+                ->where('ms_distributor.Ownership', '=', 'RTMart')
+                ->where('ms_distributor.Email', '!=', null)
+                ->select('ms_customer_account.CustomerID');
+
+            if ($thisMonth != null && $thisYear != null) {
+                $customerAccount->whereYear('ms_customer_account.CreatedDate', '=', $thisYear)
+                    ->whereMonth('ms_customer_account.CreatedDate', '=', $thisMonth);
+            }
+
+            if ($thisDay != null && $thisMonth != null && $thisYear != null) {
+                $customerAccount->whereYear('ms_customer_account.CreatedDate', '=', $thisYear)
+                    ->whereMonth('ms_customer_account.CreatedDate', '=', $thisMonth)
+                    ->whereDay('ms_customer_account.CreatedDate', '=', $thisDay);
+            }
+            if ($distributorId != "all") {
+                $customerAccount->where('ms_merchant_account.DistributorID', '=', $distributorId);
+            }
+
+            return $customerAccount->count();
+        }
 
         $thisDay = date('d');
         $thisMonth = date('m');
         $thisYear = date('Y');
 
-        $countTotalCustomer = $customerAccount->count();
-
-        $countNewCustomerThisMonth = $customerAccount
-            ->whereYear('CreatedDate', '=', $thisYear)
-            ->whereMonth('CreatedDate', '=', $thisMonth)
-            ->count();
-
-        $countNewCustomerThisDay = $customerAccount
-            ->whereYear('CreatedDate', '=', $thisYear)
-            ->whereMonth('CreatedDate', '=', $thisMonth)
-            ->whereDay('CreatedDate', '=', $thisDay)
-            ->count();
-
         return view('customer.account.index', [
-            'countTotalCustomer' => $countTotalCustomer,
-            'countNewCustomerThisMonth' => $countNewCustomerThisMonth,
-            'countNewCustomerThisDay' => $countNewCustomerThisDay
+            'countTotalCustomer' => countCustomerAccount(),
+            'countNewCustomerThisMonth' => countCustomerAccount("all", $thisYear, $thisMonth),
+            'countNewCustomerThisDay' => countCustomerAccount("all", $thisYear, $thisMonth, $thisDay),
+            'countTotalCustomerBali' => countCustomerAccount("D-2004-000004"),
+            'countNewCustomerBaliThisMonth' => countCustomerAccount("D-2004-000004", $thisYear, $thisMonth),
+            'countNewCustomerBaliThisDay' => countCustomerAccount("D-2004-000004", $thisYear, $thisMonth, $thisDay),
+            'countTotalCustomerBandung' => countCustomerAccount("D-2004-000005"),
+            'countNewCustomerBandungThisMonth' => countCustomerAccount("D-2004-000005", $thisYear, $thisMonth),
+            'countNewCustomerBandungThisDay' => countCustomerAccount("D-2004-000005", $thisYear, $thisMonth, $thisDay),
+            'countTotalCustomerCakung' => countCustomerAccount("D-2004-000001"),
+            'countNewCustomerCakungThisMonth' => countCustomerAccount("D-2004-000001", $thisYear, $thisMonth),
+            'countNewCustomerCakungThisDay' => countCustomerAccount("D-2004-000001", $thisMonth, $thisYear, $thisDay),
+            'countTotalCustomerCiracas' => countCustomerAccount("D-2004-000006"),
+            'countNewCustomerCiracasThisMonth' => countCustomerAccount("D-2004-000006", $thisYear, $thisMonth),
+            'countNewCustomerCiracasThisDay' => countCustomerAccount("D-2004-000006", $thisMonth, $thisYear, $thisDay),
+            'countTotalCustomerSemarang' => countCustomerAccount("D-2004-000002"),
+            'countNewCustomerSemarangThisMonth' => countCustomerAccount("D-2004-000002", $thisYear, $thisMonth),
+            'countNewCustomerSemarangThisDay' => countCustomerAccount("D-2004-000002", $thisMonth, $thisYear, $thisDay)
         ]);
     }
 
@@ -44,9 +71,10 @@ class CustomerController extends Controller
 
         // Get data account, jika tanggal filter kosong tampilkan semua data.
         $sqlAllAccount = DB::table('ms_customer_account')
-            ->leftJoin('ms_area', 'ms_area.AreaID', '=', 'ms_customer_account.AreaID')
             ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'ms_customer_account.MerchantID')
-            ->select('ms_customer_account.*', 'ms_merchant_account.StoreName', 'ms_area.AreaName', 'ms_area.Subdistrict', 'ms_area.City', 'ms_area.Province');
+            ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
+            ->whereNotIn('ms_merchant_account.DistributorID', ['D-2004-000003', 'D-2004-000007', 'D-2004-000008', 'D-2004-000009', 'D-2004-000010', 'D-2101-000001', 'D-0000-000000', 'D-2104-000001', 'D-2104-000002'])
+            ->select('ms_customer_account.*', 'ms_merchant_account.StoreName', 'ms_merchant_account.DistributorID', 'ms_distributor.DistributorName');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
@@ -112,30 +140,58 @@ class CustomerController extends Controller
 
     public function transaction()
     {
-        $customerTransaction = DB::table('tx_product_order')
-            ->select('OrderID', 'CreatedDate');
+        function countCustomerTransaction($distributorId = "all", $thisYear = null, $thisMonth = null, $thisDay = null)
+        {
+            $customerTransaction = DB::table('tx_product_order')
+                ->leftJoin('ms_customer_account', 'ms_customer_account.CustomerID', '=', 'tx_product_order.CustomerID')
+                ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_product_order.MerchantID')
+                ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
+                ->whereNotIn('ms_merchant_account.DistributorID', ['D-2004-000003', 'D-2004-000007', 'D-2004-000008', 'D-2004-000009', 'D-2004-000010', 'D-2101-000001', 'D-0000-000000', 'D-2104-000001', 'D-2104-000002'])
+                ->where('ms_merchant_account.IsTesting', 0)
+                ->where('ms_distributor.Ownership', '=', 'RTMart')
+                ->where('ms_distributor.Email', '!=', null)
+                ->select('tx_product_order.OrderID');
+
+            if ($thisMonth != null && $thisYear != null) {
+                $customerTransaction->whereYear('tx_product_order.CreatedDate', '=', $thisYear)
+                    ->whereMonth('tx_product_order.CreatedDate', '=', $thisMonth);
+            }
+
+            if ($thisDay != null && $thisMonth != null && $thisYear != null) {
+                $customerTransaction->whereYear('tx_product_order.CreatedDate', '=', $thisYear)
+                    ->whereMonth('tx_product_order.CreatedDate', '=', $thisMonth)
+                    ->whereDay('tx_product_order.CreatedDate', '=', $thisDay);
+            }
+            if ($distributorId != "all") {
+                $customerTransaction->where('ms_merchant_account.DistributorID', '=', $distributorId);
+            }
+
+            return $customerTransaction->count();
+        }
 
         $thisDay = date('d');
         $thisMonth = date('m');
         $thisYear = date('Y');
 
-        $countTotalTransaction = $customerTransaction->count();
-
-        $countTransactionThisMonth = $customerTransaction
-            ->whereYear('CreatedDate', '=', $thisYear)
-            ->whereMonth('CreatedDate', '=', $thisMonth)
-            ->count();
-
-        $countTransactionThisDay = $customerTransaction
-            ->whereYear('CreatedDate', '=', $thisYear)
-            ->whereMonth('CreatedDate', '=', $thisMonth)
-            ->whereDay('CreatedDate', '=', $thisDay)
-            ->count();
-
         return view('customer.transaction.index', [
-            'countTotalTransaction' => $countTotalTransaction,
-            'countTransactionThisMonth' => $countTransactionThisMonth,
-            'countTransactionThisDay' => $countTransactionThisDay
+            'countTotalTransaction' => countCustomerTransaction(),
+            'countTransactionThisMonth' => countCustomerTransaction("all", $thisYear, $thisMonth),
+            'countTransactionThisDay' => countCustomerTransaction("all", $thisYear, $thisMonth, $thisDay),
+            'countTotalTransactionBali' => countCustomerTransaction("D-2004-000004"),
+            'countTransactionBaliThisMonth' => countCustomerTransaction("D-2004-000004", $thisYear, $thisMonth),
+            'countTransactionBaliThisDay' => countCustomerTransaction("D-2004-000004", $thisYear, $thisMonth, $thisDay),
+            'countTotalTransactionBandung' => countCustomerTransaction("D-2004-000005"),
+            'countTransactionBandungThisMonth' => countCustomerTransaction("D-2004-000005", $thisYear, $thisMonth),
+            'countTransactionBandungThisDay' => countCustomerTransaction("D-2004-000005", $thisYear, $thisMonth, $thisDay),
+            'countTotalTransactionCakung' => countCustomerTransaction("D-2004-000001"),
+            'countTransactionCakungThisMonth' => countCustomerTransaction("D-2004-000001", $thisYear, $thisMonth),
+            'countTransactionCakungThisDay' => countCustomerTransaction("D-2004-000001", $thisMonth, $thisYear, $thisDay),
+            'countTotalTransactionCiracas' => countCustomerTransaction("D-2004-000006"),
+            'countTransactionCiracasThisMonth' => countCustomerTransaction("D-2004-000006", $thisYear, $thisMonth),
+            'countTransactionCiracasThisDay' => countCustomerTransaction("D-2004-000006", $thisMonth, $thisYear, $thisDay),
+            'countTotalTransactionSemarang' => countCustomerTransaction("D-2004-000002"),
+            'countTransactionSemarangThisMonth' => countCustomerTransaction("D-2004-000002", $thisYear, $thisMonth),
+            'countTransactionSemarangThisDay' => countCustomerTransaction("D-2004-000002", $thisMonth, $thisYear, $thisDay)
         ]);
     }
 
@@ -147,10 +203,12 @@ class CustomerController extends Controller
 
         $sqlAllAccount = DB::table('tx_product_order')
             ->leftJoin('ms_customer_account', 'ms_customer_account.CustomerID', '=', 'tx_product_order.CustomerID')
-            ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_product_order.MerchantID')
+            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_product_order.MerchantID')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_product_order.StatusOrderID')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_product_order.PaymentMethodID')
-            ->select('tx_product_order.OrderID', 'tx_product_order.CustomerID', 'tx_product_order.MerchantID', 'tx_product_order.TotalPrice', 'ms_customer_account.FullName', 'tx_product_order.CreatedDate', 'ms_customer_account.PhoneNumber', 'ms_merchant_account.StoreName', 'ms_status_order.StatusOrder');
+            ->whereNotIn('ms_merchant_account.DistributorID', ['D-2004-000003', 'D-2004-000007', 'D-2004-000008', 'D-2004-000009', 'D-2004-000010', 'D-2101-000001', 'D-0000-000000', 'D-2104-000001', 'D-2104-000002'])
+            ->select('tx_product_order.OrderID', 'tx_product_order.CustomerID', 'tx_product_order.MerchantID', 'tx_product_order.TotalPrice', 'ms_customer_account.FullName', 'tx_product_order.CreatedDate', 'ms_customer_account.PhoneNumber', 'ms_merchant_account.StoreName', 'ms_status_order.StatusOrder', 'ms_merchant_account.DistributorID', 'ms_distributor.DistributorName');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
