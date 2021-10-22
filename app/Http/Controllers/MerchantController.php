@@ -17,127 +17,55 @@ class MerchantController extends Controller
 
     public function account()
     {
-        function merchantAccount()
+        function countMerchantAccount($distributorId = "all", $thisYear = null, $thisMonth = null, $thisDay = null)
         {
             $merchantAccount = DB::table('ms_merchant_account')
                 ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
                 ->where('ms_merchant_account.IsTesting', 0)
                 ->where('ms_distributor.Ownership', '=', 'RTMart')
                 ->where('ms_distributor.Email', '!=', null)
-                ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.CreatedDate');
-            return $merchantAccount;
-        }
+                ->select('ms_merchant_account.MerchantID');
 
+            if ($thisMonth != null && $thisYear != null) {
+                $merchantAccount->whereYear('ms_merchant_account.CreatedDate', '=', $thisYear)
+                    ->whereMonth('ms_merchant_account.CreatedDate', '=', $thisMonth);
+            }
+
+            if ($thisDay != null && $thisMonth != null && $thisYear != null) {
+                $merchantAccount->whereYear('ms_merchant_account.CreatedDate', '=', $thisYear)
+                    ->whereMonth('ms_merchant_account.CreatedDate', '=', $thisMonth)
+                    ->whereDay('ms_merchant_account.CreatedDate', '=', $thisDay);
+            }
+            if ($distributorId != "all") {
+                $merchantAccount->where('ms_merchant_account.DistributorID', '=', $distributorId);
+            }
+
+            return $merchantAccount->count();
+        }
 
         $thisDay = date('d');
         $thisMonth = date('m');
         $thisYear = date('Y');
 
-        $countTotalMerchant = merchantAccount()->count();
-
-        $countNewMerchantThisMonth = merchantAccount()
-            ->whereYear('ms_merchant_account.CreatedDate', '=', $thisYear)
-            ->whereMonth('ms_merchant_account.CreatedDate', '=', $thisMonth)
-            ->count();
-
-        $countNewMerchantThisDay = merchantAccount()
-            ->whereDay('ms_merchant_account.CreatedDate', '=', $thisDay)
-            ->count();
-
-        $countTotalMerchantBali = merchantAccount()
-            ->where('ms_merchant_account.DistributorID', '=', 'D-2004-000004')
-            ->count();
-
-        $countNewMerchantBaliThisMonth = merchantAccount()
-            ->where('ms_merchant_account.DistributorID', '=', 'D-2004-000004')
-            ->whereYear('ms_merchant_account.CreatedDate', '=', $thisYear)
-            ->whereMonth('ms_merchant_account.CreatedDate', '=', $thisMonth)
-            ->count();
-
-        $countNewMerchantBaliThisDay = merchantAccount()
-            ->where('ms_merchant_account.DistributorID', '=', 'D-2004-000004')
-            ->whereDay('ms_merchant_account.CreatedDate', '=', $thisDay)
-            ->count();
-
-        $countTotalMerchantBandung = merchantAccount()
-            ->where('ms_merchant_account.DistributorID', '=', 'D-2004-000005')
-            ->count();
-
-        $countNewMerchantBandungThisMonth = merchantAccount()
-            ->where('ms_merchant_account.DistributorID', '=', 'D-2004-000005')
-            ->whereYear('ms_merchant_account.CreatedDate', '=', $thisYear)
-            ->whereMonth('ms_merchant_account.CreatedDate', '=', $thisMonth)
-            ->count();
-
-        $countNewMerchantBandungThisDay = merchantAccount()
-            ->where('ms_merchant_account.DistributorID', '=', 'D-2004-000005')
-            ->whereDay('ms_merchant_account.CreatedDate', '=', $thisDay)
-            ->count();
-
-        $countTotalMerchantCakung = merchantAccount()
-            ->where('ms_merchant_account.DistributorID', '=', 'D-2004-000001')
-            ->count();
-
-        $countNewMerchantCakungThisMonth = merchantAccount()
-            ->where('ms_merchant_account.DistributorID', '=', 'D-2004-000001')
-            ->whereYear('ms_merchant_account.CreatedDate', '=', $thisYear)
-            ->whereMonth('ms_merchant_account.CreatedDate', '=', $thisMonth)
-            ->count();
-
-        $countNewMerchantCakungThisDay = merchantAccount()
-            ->where('ms_merchant_account.DistributorID', '=', 'D-2004-000001')
-            ->whereDay('ms_merchant_account.CreatedDate', '=', $thisDay)
-            ->count();
-
-        $countTotalMerchantCiracas = merchantAccount()
-            ->where('ms_merchant_account.DistributorID', '=', 'D-2004-000006')
-            ->count();
-
-        $countNewMerchantCiracasThisMonth = merchantAccount()
-            ->where('ms_merchant_account.DistributorID', '=', 'D-2004-000006')
-            ->whereYear('ms_merchant_account.CreatedDate', '=', $thisYear)
-            ->whereMonth('ms_merchant_account.CreatedDate', '=', $thisMonth)
-            ->count();
-
-        $countNewMerchantCiracasThisDay = merchantAccount()
-            ->where('ms_merchant_account.DistributorID', '=', 'D-2004-000006')
-            ->whereDay('ms_merchant_account.CreatedDate', '=', $thisDay)
-            ->count();
-
-        $countTotalMerchantSemarang = merchantAccount()
-            ->where('ms_merchant_account.DistributorID', '=', 'D-2004-000002')
-            ->count();
-
-        $countNewMerchantSemarangThisMonth = merchantAccount()
-            ->where('ms_merchant_account.DistributorID', '=', 'D-2004-000002')
-            ->whereYear('ms_merchant_account.CreatedDate', '=', $thisYear)
-            ->whereMonth('ms_merchant_account.CreatedDate', '=', $thisMonth)
-            ->count();
-
-        $countNewMerchantSemarangThisDay = merchantAccount()
-            ->where('ms_merchant_account.DistributorID', '=', 'D-2004-000002')
-            ->whereDay('ms_merchant_account.CreatedDate', '=', $thisDay)
-            ->count();
-
         return view('merchant.account.index', [
-            'countTotalMerchant' => $countTotalMerchant,
-            'countNewMerchantThisMonth' => $countNewMerchantThisMonth,
-            'countNewMerchantThisDay' => $countNewMerchantThisDay,
-            'countTotalMerchantBali' => $countTotalMerchantBali,
-            'countNewMerchantBaliThisMonth' => $countNewMerchantBaliThisMonth,
-            'countNewMerchantBaliThisDay' => $countNewMerchantBaliThisDay,
-            'countTotalMerchantBandung' => $countTotalMerchantBandung,
-            'countNewMerchantBandungThisMonth' => $countNewMerchantBandungThisMonth,
-            'countNewMerchantBandungThisDay' => $countNewMerchantBandungThisDay,
-            'countTotalMerchantCakung' => $countTotalMerchantCakung,
-            'countNewMerchantCakungThisMonth' => $countNewMerchantCakungThisMonth,
-            'countNewMerchantCakungThisDay' => $countNewMerchantCakungThisDay,
-            'countTotalMerchantCiracas' => $countTotalMerchantCiracas,
-            'countNewMerchantCiracasThisMonth' => $countNewMerchantCiracasThisMonth,
-            'countNewMerchantCiracasThisDay' => $countNewMerchantCiracasThisDay,
-            'countTotalMerchantSemarang' => $countTotalMerchantSemarang,
-            'countNewMerchantSemarangThisMonth' => $countNewMerchantSemarangThisMonth,
-            'countNewMerchantSemarangThisDay' => $countNewMerchantSemarangThisDay
+            'countTotalMerchant' => countMerchantAccount(),
+            'countNewMerchantThisMonth' => countMerchantAccount("all", $thisYear, $thisMonth),
+            'countNewMerchantThisDay' => countMerchantAccount("all", $thisMonth, $thisYear, $thisDay),
+            'countTotalMerchantBali' => countMerchantAccount("D-2004-000004"),
+            'countNewMerchantBaliThisMonth' => countMerchantAccount("D-2004-000004", $thisYear, $thisMonth),
+            'countNewMerchantBaliThisDay' => countMerchantAccount("D-2004-000004", $thisYear, $thisMonth, $thisDay),
+            'countTotalMerchantBandung' => countMerchantAccount("D-2004-000005"),
+            'countNewMerchantBandungThisMonth' => countMerchantAccount("D-2004-000005", $thisYear, $thisMonth),
+            'countNewMerchantBandungThisDay' => countMerchantAccount("D-2004-000005", $thisYear, $thisMonth, $thisDay),
+            'countTotalMerchantCakung' => countMerchantAccount("D-2004-000001"),
+            'countNewMerchantCakungThisMonth' => countMerchantAccount("D-2004-000001", $thisYear, $thisMonth),
+            'countNewMerchantCakungThisDay' => countMerchantAccount("D-2004-000001", $thisMonth, $thisYear, $thisDay),
+            'countTotalMerchantCiracas' => countMerchantAccount("D-2004-000006"),
+            'countNewMerchantCiracasThisMonth' => countMerchantAccount("D-2004-000006", $thisYear, $thisMonth),
+            'countNewMerchantCiracasThisDay' => countMerchantAccount("D-2004-000006", $thisMonth, $thisYear, $thisDay),
+            'countTotalMerchantSemarang' => countMerchantAccount("D-2004-000002"),
+            'countNewMerchantSemarangThisMonth' => countMerchantAccount("D-2004-000002", $thisYear, $thisMonth),
+            'countNewMerchantSemarangThisDay' => countMerchantAccount("D-2004-000002", $thisMonth, $thisYear, $thisDay)
         ]);
     }
 
