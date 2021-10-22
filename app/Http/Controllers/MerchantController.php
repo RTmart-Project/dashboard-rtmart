@@ -21,6 +21,7 @@ class MerchantController extends Controller
         {
             $merchantAccount = DB::table('ms_merchant_account')
                 ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
+                ->whereNotIn('ms_merchant_account.DistributorID', ['D-2004-000003', 'D-2004-000007', 'D-2004-000008', 'D-2004-000009', 'D-2004-000010', 'D-2101-000001', 'D-0000-000000', 'D-2104-000001', 'D-2104-000002'])
                 ->where('ms_merchant_account.IsTesting', 0)
                 ->where('ms_distributor.Ownership', '=', 'RTMart')
                 ->where('ms_distributor.Email', '!=', null)
@@ -194,30 +195,53 @@ class MerchantController extends Controller
 
     public function restock()
     {
-        $merchantRestock = DB::table('tx_merchant_order')
-            ->select('StockOrderID', 'CreatedDate');
+
+        function countMerchantRestock($distributorId = "all", $thisYear = null, $thisMonth = null, $thisDay = null)
+        {
+            $merchantRestock = DB::table('tx_merchant_order')
+                ->whereNotIn('tx_merchant_order.DistributorID', ['D-2004-000003', 'D-2004-000007', 'D-2004-000008', 'D-2004-000009', 'D-2004-000010', 'D-2101-000001', 'D-0000-000000', 'D-2104-000001', 'D-2104-000002'])
+                ->select('tx_merchant_order.StockOrderID');
+
+            if ($thisMonth != null && $thisYear != null) {
+                $merchantRestock->whereYear('tx_merchant_order.CreatedDate', '=', $thisYear)
+                    ->whereMonth('tx_merchant_order.CreatedDate', '=', $thisMonth);
+            }
+
+            if ($thisDay != null && $thisMonth != null && $thisYear != null) {
+                $merchantRestock->whereYear('tx_merchant_order.CreatedDate', '=', $thisYear)
+                    ->whereMonth('tx_merchant_order.CreatedDate', '=', $thisMonth)
+                    ->whereDay('tx_merchant_order.CreatedDate', '=', $thisDay);
+            }
+            if ($distributorId != "all") {
+                $merchantRestock->where('tx_merchant_order.DistributorID', '=', $distributorId);
+            }
+
+            return $merchantRestock->count();
+        }
 
         $thisDay = date('d');
         $thisMonth = date('m');
         $thisYear = date('Y');
 
-        $countTotalRestock = $merchantRestock->count();
-
-        $countRestockThisMonth = $merchantRestock
-            ->whereYear('CreatedDate', '=', $thisYear)
-            ->whereMonth('CreatedDate', '=', $thisMonth)
-            ->count();
-
-        $countRestockThisDay = $merchantRestock
-            ->whereYear('CreatedDate', '=', $thisYear)
-            ->whereMonth('CreatedDate', '=', $thisMonth)
-            ->whereDay('CreatedDate', '=', $thisDay)
-            ->count();
-
         return view('merchant.restock.index', [
-            'countTotalRestock' => $countTotalRestock,
-            'countRestockThisMonth' => $countRestockThisMonth,
-            'countRestockThisDay' => $countRestockThisDay
+            'countTotalRestock' => countMerchantRestock(),
+            'countRestockThisMonth' => countMerchantRestock("all", $thisYear, $thisMonth),
+            'countRestockThisDay' => countMerchantRestock("all", $thisYear, $thisMonth, $thisDay),
+            'countTotalRestockBali' => countMerchantRestock("D-2004-000004"),
+            'countRestockBaliThisMonth' => countMerchantRestock("D-2004-000004", $thisYear, $thisMonth),
+            'countRestockBaliThisDay' => countMerchantRestock("D-2004-000004", $thisYear, $thisMonth, $thisDay),
+            'countTotalRestockBandung' => countMerchantRestock("D-2004-000005"),
+            'countRestockBandungThisMonth' => countMerchantRestock("D-2004-000005", $thisYear, $thisMonth),
+            'countRestockBandungThisDay' => countMerchantRestock("D-2004-000005", $thisYear, $thisMonth, $thisDay),
+            'countTotalRestockCakung' => countMerchantRestock("D-2004-000001"),
+            'countRestockCakungThisMonth' => countMerchantRestock("D-2004-000001", $thisYear, $thisMonth),
+            'countRestockCakungThisDay' => countMerchantRestock("D-2004-000001", $thisMonth, $thisYear, $thisDay),
+            'countTotalRestockCiracas' => countMerchantRestock("D-2004-000006"),
+            'countRestockCiracasThisMonth' => countMerchantRestock("D-2004-000006", $thisYear, $thisMonth),
+            'countRestockCiracasThisDay' => countMerchantRestock("D-2004-000006", $thisMonth, $thisYear, $thisDay),
+            'countTotalRestockSemarang' => countMerchantRestock("D-2004-000002"),
+            'countRestockSemarangThisMonth' => countMerchantRestock("D-2004-000002", $thisYear, $thisMonth),
+            'countRestockSemarangThisDay' => countMerchantRestock("D-2004-000002", $thisMonth, $thisYear, $thisDay)
         ]);
     }
 
