@@ -8,6 +8,13 @@ use Yajra\DataTables\Facades\DataTables;
 
 class DistributorController extends Controller
 {
+    protected $baseImageUrl;
+
+    public function __construct()
+    {
+        $this->baseImageUrl = config('app.base_image_url');
+    }
+
     public function account()
     {
         return view('distributor.account.index');
@@ -62,13 +69,23 @@ class DistributorController extends Controller
         $distributorProducts = DB::table('ms_distributor_product_price')
             ->leftJoin('ms_product', 'ms_product.ProductID', '=', 'ms_distributor_product_price.ProductID')
             ->join('ms_distributor_grade', 'ms_distributor_grade.GradeID', '=', 'ms_distributor_product_price.GradeID')
+            ->join('ms_product_category', 'ms_product_category.ProductCategoryID', '=', 'ms_product.ProductCategoryID')
+            ->join('ms_product_type', 'ms_product_type.ProductTypeID', '=', 'ms_product.ProductTypeID')
+            ->join('ms_product_uom', 'ms_product_uom.ProductUOMID', '=', 'ms_product.ProductUOMID')
             ->where('ms_distributor_product_price.DistributorID', '=', $distributorId)
-            ->select('ms_distributor_product_price.ProductID', 'ms_product.ProductName', 'ms_distributor_grade.Grade', 'ms_distributor_product_price.Price');
+            ->select('ms_distributor_product_price.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product_category.ProductCategoryName', 'ms_product_type.ProductTypeName', 'ms_product_uom.ProductUOMName', 'ms_product.ProductUOMDesc', 'ms_distributor_product_price.Price', 'ms_distributor_grade.Grade');
 
         $data = $distributorProducts->get();
 
         if ($request->ajax()) {
             return DataTables::of($data)
+                ->editColumn('ProductImage', function ($data) {
+                    if ($data->ProductImage == null) {
+                        $data->ProductImage = 'not-found.png';
+                    }
+                    return '<img src="' . $this->baseImageUrl . 'product/' . $data->ProductImage . '" alt="Product Image" height="90">';
+                })
+                ->rawColumns(['ProductImage'])
                 ->make(true);
         }
     }

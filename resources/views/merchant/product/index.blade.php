@@ -42,8 +42,24 @@
                     <div class="card-header">
                         <a href="{{ route('merchant.account') }}" class="btn btn-sm btn-light mb-2"><i class="fas fa-arrow-left"></i>
                             Kembali</a>
-                        <h5>Merchant ID : {{ $merchantId }}</h5>
-                        <h5>Nama Toko : {{ $merchant->StoreName }}</h5>
+                        <div class="col-12 d-flex align-items-stretch flex-column">
+                            <div class="card d-flex flex-fill">
+                                <div class="card-body pt-3 pb-3">
+                                    <div class="row">
+                                        <div class="col-12 col-md-2 text-center">
+                                            <img src="{{ config('app.base_image_url') . '/merchant/'. $merchant->StoreImage }}" alt="Store Image" class="rounded img-fluid pb-2 pb-md-0" 
+                                                style="object-fit: cover; width: 150px; height: 150px;">
+                                        </div>
+                                        <div class="col-12 col-md-10 align-self-center">
+                                            <h6 class="lead">Merchant ID : <strong>{{ $merchantId }}</strong></h6>
+                                            <h6 class="lead">Nama Toko : <strong>{{ $merchant->StoreName }}</strong></h6>
+                                            <h6 class="lead">Nama Pemilik : <strong>{{ $merchant->OwnerFullName }}</strong></h6>
+                                            <h6 class="lead"><strong>{{ $merchant->StoreAddress }}</strong></h6>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="card-body">
@@ -56,6 +72,11 @@
                                                 <tr>
                                                     <th>Product ID</th>
                                                     <th>Nama Produk</th>
+                                                    <th>Gambar</th>
+                                                    <th>Kategori</th>
+                                                    <th>Tipe</th>
+                                                    <th>Jenis</th>
+                                                    <th>Isi</th>
                                                     <th>Harga</th>
                                                 </tr>
                                             </thead>

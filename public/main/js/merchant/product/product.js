@@ -26,6 +26,26 @@ $(document).ready(function () {
                     name: 'ProductName'
                 },
                 {
+                    data: 'ProductImage',
+                    name: 'ProductImage'
+                },
+                {
+                    data: 'ProductCategoryName',
+                    name: 'ProductCategoryName'
+                },
+                {
+                    data: 'ProductTypeName',
+                    name: 'ProductTypeName'
+                },
+                {
+                    data: 'ProductUOMName',
+                    name: 'ProductUOMName'
+                },
+                {
+                    data: 'ProductUOMDesc',
+                    name: 'ProductUOMDesc'
+                },
+                {
                     data: 'Price',
                     name: 'Price'
                 }
@@ -41,7 +61,7 @@ $(document).ready(function () {
                     modifier: {
                         page: 'all'
                     },
-                    columns: [0, 1, 2],
+                    columns: [0, 1, 3, 4, 5, 6, 7],
                     orthogonal: 'export'
                 },
             }],
@@ -50,7 +70,7 @@ $(document).ready(function () {
             "autoWidth": false,
             "aoColumnDefs": [
                 {
-                    "aTargets": [2],
+                    "aTargets": [7],
                     "mRender": function (data, type, full) {
                         if (type === 'export') {
                             return data;

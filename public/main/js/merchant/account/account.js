@@ -167,8 +167,8 @@ $(document).ready(function () {
         $('#merchant-account #from_date').val('');
         $('#merchant-account #to_date').val('');
         $('#merchant-account .table-datatables').DataTable().search('');
-        $('#merchant-account .select-filter-custom select').val('').change();
-        $('#merchant-account .select-filter-custom select option[value=]').attr('selected', 'selected');
+        // $('#merchant-account .select-filter-custom select').val('').change();
+        // $('#merchant-account .select-filter-custom select option[value=]').attr('selected', 'selected');
         $('#merchant-account .table-datatables').DataTable().ajax.reload(null, false);
     });
 

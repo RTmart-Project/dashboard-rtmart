@@ -56,8 +56,13 @@
                                                 <tr>
                                                     <th>Product ID</th>
                                                     <th>Nama Produk</th>
-                                                    <th>Grade</th>
+                                                    <th>Gambar</th>
+                                                    <th>Kategori</th>
+                                                    <th>Tipe</th>
+                                                    <th>Jenis</th>
+                                                    <th>Isi</th>
                                                     <th>Harga</th>
+                                                    <th>Grade</th>
                                                 </tr>
                                             </thead>
                                             <tbody>

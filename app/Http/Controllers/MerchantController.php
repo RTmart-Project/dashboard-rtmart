@@ -8,6 +8,12 @@ use Yajra\DataTables\Facades\DataTables;
 
 class MerchantController extends Controller
 {
+    protected $baseImageUrl;
+
+    public function __construct()
+    {
+        $this->baseImageUrl = config('app.base_image_url');
+    }
 
     public function account()
     {
@@ -182,7 +188,7 @@ class MerchantController extends Controller
     {
         $merchant = DB::table('ms_merchant_account')
             ->where('MerchantID', '=', $merchantId)
-            ->select('StoreName')
+            ->select('StoreName', 'OwnerFullName', 'StoreAddress', 'StoreImage')
             ->first();
 
         return view('merchant.product.index', [
@@ -195,13 +201,23 @@ class MerchantController extends Controller
     {
         $merchantProducts = DB::table('ms_product_merchant')
             ->leftJoin('ms_product', 'ms_product.ProductID', '=', 'ms_product_merchant.ProductID')
+            ->join('ms_product_category', 'ms_product_category.ProductCategoryID', '=', 'ms_product.ProductCategoryID')
+            ->join('ms_product_type', 'ms_product_type.ProductTypeID', '=', 'ms_product.ProductTypeID')
+            ->join('ms_product_uom', 'ms_product_uom.ProductUOMID', '=', 'ms_product.ProductUOMID')
             ->where('ms_product_merchant.MerchantID', '=', $merchantId)
-            ->select('ms_product_merchant.ProductID', 'ms_product.ProductName', 'ms_product_merchant.Price');
+            ->select('ms_product_merchant.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product_category.ProductCategoryName', 'ms_product_type.ProductTypeName', 'ms_product_uom.ProductUOMName', 'ms_product.ProductUOMDesc', 'ms_product_merchant.Price');
 
         $data = $merchantProducts->get();
 
         if ($request->ajax()) {
             return DataTables::of($data)
+                ->editColumn('ProductImage', function ($data) {
+                    if ($data->ProductImage == null) {
+                        $data->ProductImage = 'not-found.png';
+                    }
+                    return '<img src="' . $this->baseImageUrl . 'product/' . $data->ProductImage . '" alt="Product Image" height="90">';
+                })
+                ->rawColumns(['ProductImage'])
                 ->make(true);
         }
     }

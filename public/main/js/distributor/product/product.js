@@ -26,12 +26,32 @@ $(document).ready(function () {
                     name: 'ProductName'
                 },
                 {
-                    data: 'Grade',
-                    name: 'Grade'
+                    data: 'ProductImage',
+                    name: 'ProductImage'
+                },
+                {
+                    data: 'ProductCategoryName',
+                    name: 'ProductCategoryName'
+                },
+                {
+                    data: 'ProductTypeName',
+                    name: 'ProductTypeName'
+                },
+                {
+                    data: 'ProductUOMName',
+                    name: 'ProductUOMName'
+                },
+                {
+                    data: 'ProductUOMDesc',
+                    name: 'ProductUOMDesc'
                 },
                 {
                     data: 'Price',
                     name: 'Price'
+                },
+                {
+                    data: 'Grade',
+                    name: 'Grade'
                 }
             ],
             buttons: [{
