@@ -95,6 +95,7 @@
                                                     <th>Distributor ID</th>
                                                     <th>Nama Distributor</th>
                                                     <th>Total Price</th>
+                                                    <th>Metode Pembayaran</th>
                                                     <th>Status Order</th>
                                                     <th>Referral</th>
                                                     <th>Tgl Transaksi</th>

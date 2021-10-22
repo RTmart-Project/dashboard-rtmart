@@ -47,6 +47,10 @@ $(document).ready(function () {
                     name: 'NettPrice'
                 },
                 {
+                    data: 'PaymentMethodName',
+                    name: 'PaymentMethodName'
+                },
+                {
                     data: 'StatusOrder',
                     name: 'StatusOrder'
                 },
@@ -75,7 +79,7 @@ $(document).ready(function () {
                     modifier: {
                         page: 'all'
                     },
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                     orthogonal: 'export'
                 },
             }],
@@ -84,7 +88,7 @@ $(document).ready(function () {
             "autoWidth": false,
             "aoColumnDefs": [
                 {
-                    "aTargets": [10],
+                    "aTargets": [11],
                     "orderable": false
                 },
                 {
