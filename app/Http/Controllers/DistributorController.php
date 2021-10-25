@@ -85,7 +85,17 @@ class DistributorController extends Controller
                     }
                     return '<img src="' . $this->baseImageUrl . 'product/' . $data->ProductImage . '" alt="Product Image" height="90">';
                 })
-                ->rawColumns(['ProductImage'])
+                ->editColumn('Grade', function ($data) {
+                    if ($data->Grade == "Retail") {
+                        $grade = '<span class="badge badge-success">' . $data->Grade . '</span>';
+                    } elseif ($data->Grade == "SO") {
+                        $grade = '<span class="badge badge-warning">' . $data->Grade . '</span>';
+                    } elseif ($data->Grade == "WS") {
+                        $grade = '<span class="badge badge-primary">' . $data->Grade . '</span>';
+                    }
+                    return $grade;
+                })
+                ->rawColumns(['Grade', 'ProductImage'])
                 ->make(true);
         }
     }
