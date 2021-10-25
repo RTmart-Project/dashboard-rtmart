@@ -22,7 +22,7 @@
                     </a>
                 </li>
 
-                <li class="nav-item">
+                <li class="nav-item {{ Request::is('master*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ Request::is('master*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-layer-group"></i>
                         <p> Master Data
@@ -30,7 +30,7 @@
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
-                        <li class="nav-item">
+                        <li class="nav-item {{ Request::is('master/product*') ? 'menu-open' : '' }}">
                             <a href="#" class="nav-link {{ Request::is('master/product*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Master Product
@@ -73,7 +73,7 @@
                     </ul>
                 </li>
 
-                <li class="nav-item">
+                <li class="nav-item {{ Request::is('ppob*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ Request::is('ppob*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-file-invoice-dollar"></i>
                         <p>
@@ -99,7 +99,7 @@
                     </ul>
                 </li>
 
-                <li class="nav-item">
+                <li class="nav-item {{ Request::is('distributor*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ Request::is('distributor*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-store-alt"></i>
                         <p>
@@ -118,7 +118,7 @@
                     </ul>
                 </li>
                 
-                <li class="nav-item">
+                <li class="nav-item {{ Request::is('merchant*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ Request::is('merchant*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-store"></i>
                         <p>
@@ -151,7 +151,7 @@
                     </ul>
                 </li>
 
-                <li class="nav-item">
+                <li class="nav-item {{ Request::is('customer*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ Request::is('customer*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-users"></i>
                         <p>
@@ -185,7 +185,7 @@
                 </li>
 
                 @if (Auth::user()->RoleID == "IT")
-                <li class="nav-item">
+                <li class="nav-item {{ Request::is('setting*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ Request::is('setting*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-tools"></i>
                         <p>

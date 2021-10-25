@@ -35,7 +35,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     </style>
 </head>
 
-<body class="hold-transition sidebar-mini sidebar-closed sidebar-collapse text-sm">
+<body class="hold-transition sidebar-mini text-sm">
     <div class="wrapper" @if (session('success')) data-notif-success="{{session('success')}}" @else
         data-notif-success="" @endif @if (session('failed')) data-notif-failed="{{session('failed')}}" @else
         data-notif-failed="" @endif>
