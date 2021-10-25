@@ -43,12 +43,12 @@ $(document).ready(function () {
                     name: 'StoreName'
                 },
                 {
-                    data: 'DistributorID',
-                    name: 'DistributorID'
-                },
-                {
                     data: 'DistributorName',
                     name: 'DistributorName'
+                },
+                {
+                    data: 'SalesName',
+                    name: 'SalesName'
                 },
                 {
                     data: 'TotalPrice',
@@ -88,11 +88,11 @@ $(document).ready(function () {
             "autoWidth": false,
             "aoColumnDefs": [
                 {
-                    "aTargets": [9],
+                    "aTargets": [11],
                     "orderable": false
                 },
                 {
-                    "aTargets": [6],
+                    "aTargets": [8],
                     "mRender": function (data, type, full) {
                         if (type === 'export') {
                             return data;

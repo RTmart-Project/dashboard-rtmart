@@ -289,8 +289,8 @@
                                                     <th>No. Telp</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
-                                                    <th>Distributor ID</th>
                                                     <th>Nama Distributor</th>
+                                                    <th>Nama Sales</th>
                                                     <th>Total Price</th>
                                                     <th>Status Order</th>
                                                     <th>Tgl Transaksi</th>

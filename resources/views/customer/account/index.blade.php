@@ -301,7 +301,6 @@
                                                     <th>Alamat</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
-                                                    <th>Distributor ID</th>
                                                     <th>Nama Distributor</th>
                                                     <th>Referral</th>
                                                 </tr>
