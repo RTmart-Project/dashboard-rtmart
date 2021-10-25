@@ -67,7 +67,7 @@ $(document).ready(function () {
                     name: 'Action'
                 }
             ],
-            "order": [[9, "desc" ]],
+            "order": [[10, "desc" ]],
             buttons: [{
                 extend: 'excelHtml5',
                 filename: function () {

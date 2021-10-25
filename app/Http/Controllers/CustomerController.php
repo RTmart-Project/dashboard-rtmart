@@ -15,7 +15,6 @@ class CustomerController extends Controller
             $customerAccount = DB::table('ms_customer_account')
                 ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'ms_customer_account.MerchantID')
                 ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
-                ->whereNotIn('ms_merchant_account.DistributorID', ['D-2004-000003', 'D-2004-000007', 'D-2004-000008', 'D-2004-000009', 'D-2004-000010', 'D-2101-000001', 'D-0000-000000', 'D-2104-000001', 'D-2104-000002'])
                 ->where('ms_merchant_account.IsTesting', 0)
                 ->where('ms_distributor.Ownership', '=', 'RTMart')
                 ->where('ms_distributor.Email', '!=', null)
@@ -73,7 +72,9 @@ class CustomerController extends Controller
         $sqlAllAccount = DB::table('ms_customer_account')
             ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'ms_customer_account.MerchantID')
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
-            ->whereNotIn('ms_merchant_account.DistributorID', ['D-2004-000003', 'D-2004-000007', 'D-2004-000008', 'D-2004-000009', 'D-2004-000010', 'D-2101-000001', 'D-0000-000000', 'D-2104-000001', 'D-2104-000002'])
+            ->where('ms_merchant_account.IsTesting', 0)
+            ->where('ms_distributor.Ownership', '=', 'RTMart')
+            ->where('ms_distributor.Email', '!=', null)
             ->select('ms_customer_account.*', 'ms_merchant_account.StoreName', 'ms_merchant_account.DistributorID', 'ms_distributor.DistributorName');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
@@ -146,7 +147,6 @@ class CustomerController extends Controller
                 ->leftJoin('ms_customer_account', 'ms_customer_account.CustomerID', '=', 'tx_product_order.CustomerID')
                 ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_product_order.MerchantID')
                 ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
-                ->whereNotIn('ms_merchant_account.DistributorID', ['D-2004-000003', 'D-2004-000007', 'D-2004-000008', 'D-2004-000009', 'D-2004-000010', 'D-2101-000001', 'D-0000-000000', 'D-2104-000001', 'D-2104-000002'])
                 ->where('ms_merchant_account.IsTesting', 0)
                 ->where('ms_distributor.Ownership', '=', 'RTMart')
                 ->where('ms_distributor.Email', '!=', null)
@@ -207,7 +207,9 @@ class CustomerController extends Controller
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_product_order.StatusOrderID')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_product_order.PaymentMethodID')
-            ->whereNotIn('ms_merchant_account.DistributorID', ['D-2004-000003', 'D-2004-000007', 'D-2004-000008', 'D-2004-000009', 'D-2004-000010', 'D-2101-000001', 'D-0000-000000', 'D-2104-000001', 'D-2104-000002'])
+            ->where('ms_merchant_account.IsTesting', 0)
+            ->where('ms_distributor.Ownership', '=', 'RTMart')
+            ->where('ms_distributor.Email', '!=', null)
             ->select('tx_product_order.OrderID', 'tx_product_order.CustomerID', 'tx_product_order.MerchantID', 'tx_product_order.TotalPrice', 'ms_customer_account.FullName', 'tx_product_order.CreatedDate', 'ms_customer_account.PhoneNumber', 'ms_merchant_account.StoreName', 'ms_status_order.StatusOrder', 'ms_merchant_account.DistributorID', 'ms_distributor.DistributorName');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
