@@ -12,7 +12,8 @@
         <nav class="mt-2">
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                 <!-- Add icons to the links using the .nav-icon class
-               with font-awesome or any other icon font library -->
+                with font-awesome or any other icon font library -->
+
                 <li class="nav-item">
                     <a href="{{ route('home') }}" class="nav-link {{ Request::is('home*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-home"></i>
@@ -22,6 +23,7 @@
                     </a>
                 </li>
 
+                @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH"))
                 <li class="nav-item {{ Request::is('master*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ Request::is('master*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-layer-group"></i>
@@ -38,41 +40,53 @@
                                 </p>
                             </a>
                             <ul class="nav nav-treeview">
+                                @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH"))
                                 <li class="nav-item">
                                     <a href="{{ route('product.list') }}" class="nav-link {{ Request::is('*product/list*') ? 'active' : '' }}">
                                         <i class="far fa-dot-circle nav-icon"></i>
                                         <p>Product List</p>
                                     </a>
                                 </li>
+                                @endif
+                                @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI"))
                                 <li class="nav-item">
                                     <a href="{{ route('product.category') }}" class="nav-link {{ Request::is('*product/category*') ? 'active' : '' }}">
                                         <i class="far fa-dot-circle nav-icon"></i>
                                         <p>Product Categpry</p>
                                     </a>
                                 </li>
+                                @endif
+                                @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI"))
                                 <li class="nav-item">
                                     <a href="{{ route('product.uom') }}" class="nav-link {{ Request::is('*product/uom*') ? 'active' : '' }}">
                                         <i class="far fa-dot-circle nav-icon"></i>
                                         <p>Product UOM</p>
                                     </a>
                                 </li>
+                                @endif
+                                @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI"))
                                 <li class="nav-item">
                                     <a href="{{ route('product.type') }}" class="nav-link {{ Request::is('*product/type*') ? 'active' : '' }}">
                                         <i class="far fa-dot-circle nav-icon"></i>
                                         <p>Product Type</p>
                                     </a>
                                 </li>
+                                @endif
+                                @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI"))
                                 <li class="nav-item">
                                     <a href="{{ route('product.brand') }}" class="nav-link {{ Request::is('*product/brand*') ? 'active' : '' }}">
                                         <i class="far fa-dot-circle nav-icon"></i>
                                         <p>Brand</p>
                                     </a>
                                 </li>
+                                @endif
                             </ul>
                         </li>
                     </ul>
                 </li>
+                @endif
 
+                @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH"))
                 <li class="nav-item {{ Request::is('ppob*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ Request::is('ppob*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-file-invoice-dollar"></i>
@@ -98,7 +112,9 @@
                         </li>
                     </ul>
                 </li>
+                @endif
 
+                @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "HR") || (Auth::user()->RoleID == "AH"))
                 <li class="nav-item {{ Request::is('distributor*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ Request::is('distributor*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-store-alt"></i>
@@ -117,7 +133,9 @@
                         </li>
                     </ul>
                 </li>
+                @endif
                 
+                @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "HR") || (Auth::user()->RoleID == "AH"))
                 <li class="nav-item {{ Request::is('merchant*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ Request::is('merchant*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-store"></i>
@@ -150,7 +168,9 @@
                         </li>
                     </ul>
                 </li>
+                @endif
 
+                @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "HR") || (Auth::user()->RoleID == "AH"))
                 <li class="nav-item {{ Request::is('customer*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ Request::is('customer*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-users"></i>
@@ -183,6 +203,7 @@
                         </li>
                     </ul>
                 </li>
+                @endif
 
                 @if (Auth::user()->RoleID == "IT")
                 <li class="nav-item {{ Request::is('setting*') ? 'menu-open' : '' }}">
