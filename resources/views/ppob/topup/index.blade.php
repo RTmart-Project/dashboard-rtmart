@@ -113,8 +113,7 @@
                                     </span>
                                     @endif</a>
                             </li>
-                            <li class="nav-item"><a class="nav-link" href="#gagal-validasi" data-toggle="tab">Gagal
-                                    Validasi
+                            <li class="nav-item"><a class="nav-link" href="#gagal-validasi" data-toggle="tab">Dibatalkan
                                     @if ($countGagalValidasi>0)
                                     <span class="badge badge-pill badge-danger">
                                         {{$countGagalValidasi}}

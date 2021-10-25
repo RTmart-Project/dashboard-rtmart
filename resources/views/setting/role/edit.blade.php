@@ -48,7 +48,7 @@
                                         <label for="role_id">Role ID</label>
                                         <input type="text" name="role_id" class="form-control 
                                         @if($errors->has('role_id')) is-invalid @endif" id="role_id"
-                                            placeholder="Masukkan Role ID" value="{{ $roleById->RoleID }}" maxlength="2"
+                                            placeholder="Masukkan Role ID" value="{{ $roleById->RoleID }}" maxlength="3"
                                             oninput="this.value = this.value.toUpperCase()" required>
                                         @if($errors->has('role_id'))
                                         <span class="error invalid-feedback">{{ $errors->first('role_id') }}</span>
