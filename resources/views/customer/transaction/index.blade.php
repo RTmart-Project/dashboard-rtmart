@@ -291,6 +291,7 @@
                                                     <th>Nama Toko</th>
                                                     <th>Nama Distributor</th>
                                                     <th>Nama Sales</th>
+                                                    <th>Metode Pembayaran</th>
                                                     <th>Total Price</th>
                                                     <th>Status Order</th>
                                                     <th>Tgl Transaksi</th>

@@ -51,6 +51,10 @@ $(document).ready(function () {
                     name: 'SalesName'
                 },
                 {
+                    data: 'PaymentMethodName',
+                    name: 'PaymentMethodName'
+                },
+                {
                     data: 'TotalPrice',
                     name: 'TotalPrice'
                 },
@@ -67,7 +71,7 @@ $(document).ready(function () {
                     name: 'Action'
                 }
             ],
-            "order": [[ 10, "desc" ]],
+            "order": [[ 11, "desc" ]],
             buttons: [{
                 extend: 'excelHtml5',
                 filename: function () {
@@ -79,7 +83,7 @@ $(document).ready(function () {
                     modifier: {
                         page: 'all'
                     },
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
                     orthogonal: 'export'
                 },
             }],
@@ -88,11 +92,11 @@ $(document).ready(function () {
             "autoWidth": false,
             "aoColumnDefs": [
                 {
-                    "aTargets": [11],
+                    "aTargets": [12],
                     "orderable": false
                 },
                 {
-                    "aTargets": [8],
+                    "aTargets": [9],
                     "mRender": function (data, type, full) {
                         if (type === 'export') {
                             return data;
