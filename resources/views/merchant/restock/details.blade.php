@@ -42,10 +42,10 @@
                     <div class="card-header">
                         <a href="{{ route('merchant.restock') }}" class="btn btn-sm btn-light mb-2"><i class="fas fa-arrow-left"></i>
                             Kembali</a>
-                        <h6>Stock Order ID : <strong>{{ $stockOrderId }}</strong></h6>
-                        <h6>Nama Toko : <strong>{{ $merchant->StoreName }}</strong></h6>
-                        <h6>No. Telp : <a href="tel:{{ $merchant->PhoneNumber }}"><strong>{{ $merchant->PhoneNumber }}</strong></a></h6>
-                        <h6>Alamat : <strong>{{ $merchant->StoreAddress }}</strong></h6>
+                        <h6><strong>Stock Order ID : </strong>{{ $stockOrderId }}</h6>
+                        <h6><strong>Nama Toko : </strong>{{ $merchant->StoreName }}</h6>
+                        <h6><strong>No. Telp : </strong><a href="tel:{{ $merchant->PhoneNumber }}">{{ $merchant->PhoneNumber }}</a></h6>
+                        <h6><strong>Alamat : </strong>{{ $merchant->StoreAddress }}</h6>
                     </div>
 
                     <div class="card-body mt-2">

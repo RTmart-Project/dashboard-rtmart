@@ -50,11 +50,11 @@
                                             <img src="{{ config('app.base_image_url') . '/merchant/'. $merchant->StoreImage }}" alt="Store Image" class="rounded img-fluid pb-2 pb-md-0" style="object-fit: cover; width: 130px; height: 130px;">
                                         </div>
                                         <div class="col-12 col-md-10 align-self-center">
-                                            <h6>Merchant ID : <strong>{{ $merchantId }}</strong></h6>
-                                            <h6>Nama Toko : <strong>{{ $merchant->StoreName }}</strong></h6>
-                                            <h6>Nama Pemilik : <strong>{{ $merchant->OwnerFullName }}</strong></h6>
-                                            <h6>No. Telp : <a href="tel:{{ $merchant->PhoneNumber }}"><strong>{{ $merchant->PhoneNumber }}</strong></a></h6>
-                                            <h6>Alamat : <strong>{{ $merchant->StoreAddress }}</strong></h6>
+                                            <h6><strong>Merchant ID : </strong>{{ $merchantId }}</h6>
+                                            <h6><strong>Nama Toko : </strong>{{ $merchant->StoreName }}</h6>
+                                            <h6><strong>Nama Pemilik : </strong>{{ $merchant->OwnerFullName }}</h6>
+                                            <h6><strong>No. Telp : </strong><a href="tel:{{ $merchant->PhoneNumber }}">{{ $merchant->PhoneNumber }}</a></h6>
+                                            <h6><strong>Alamat : </strong>{{ $merchant->StoreAddress }}</h6>
                                         </div>
                                     </div>
                                 </div>

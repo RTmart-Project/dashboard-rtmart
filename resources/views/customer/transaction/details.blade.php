@@ -42,10 +42,10 @@
                     <div class="card-header">
                         <a href="{{ route('customer.transaction') }}" class="btn btn-sm btn-light mb-2"><i class="fas fa-arrow-left"></i>
                             Kembali</a>
-                        <h6>Order ID : <strong>{{ $orderId }}</strong></h6>
-                        <h6>Nama Customer : <strong>{{ $customer->FullName }}</strong></h6>
-                        <h6>No. Telp : <strong><a href="tel:{{ $customer->PhoneNumber }}">{{ $customer->PhoneNumber }}</a></strong></h6>
-                        <h6>Alamat : <strong>{{ $customer->Address }}</strong></h6>
+                        <h6><strong>Order ID : </strong>{{ $orderId }}</h6>
+                        <h6><strong>Nama Customer : </strong>{{ $customer->FullName }}</h6>
+                        <h6><strong>No. Telp : </strong><a href="tel:{{ $customer->PhoneNumber }}">{{ $customer->PhoneNumber }}</a></h6>
+                        <h6><strong>Alamat : </strong>{{ $customer->Address }}</h6>
                     </div>
 
                     <div class="card-body mt-2">

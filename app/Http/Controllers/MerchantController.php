@@ -51,9 +51,6 @@ class MerchantController extends Controller
             'countTotalMerchant' => countMerchantAccount(),
             'countNewMerchantThisMonth' => countMerchantAccount("all", $thisYear, $thisMonth),
             'countNewMerchantThisDay' => countMerchantAccount("all", $thisMonth, $thisYear, $thisDay),
-            'countTotalMerchantBali' => countMerchantAccount("D-2004-000004"),
-            'countNewMerchantBaliThisMonth' => countMerchantAccount("D-2004-000004", $thisYear, $thisMonth),
-            'countNewMerchantBaliThisDay' => countMerchantAccount("D-2004-000004", $thisYear, $thisMonth, $thisDay),
             'countTotalMerchantBandung' => countMerchantAccount("D-2004-000005"),
             'countNewMerchantBandungThisMonth' => countMerchantAccount("D-2004-000005", $thisYear, $thisMonth),
             'countNewMerchantBandungThisDay' => countMerchantAccount("D-2004-000005", $thisYear, $thisMonth, $thisDay),
@@ -62,10 +59,7 @@ class MerchantController extends Controller
             'countNewMerchantCakungThisDay' => countMerchantAccount("D-2004-000001", $thisMonth, $thisYear, $thisDay),
             'countTotalMerchantCiracas' => countMerchantAccount("D-2004-000006"),
             'countNewMerchantCiracasThisMonth' => countMerchantAccount("D-2004-000006", $thisYear, $thisMonth),
-            'countNewMerchantCiracasThisDay' => countMerchantAccount("D-2004-000006", $thisMonth, $thisYear, $thisDay),
-            'countTotalMerchantSemarang' => countMerchantAccount("D-2004-000002"),
-            'countNewMerchantSemarangThisMonth' => countMerchantAccount("D-2004-000002", $thisYear, $thisMonth),
-            'countNewMerchantSemarangThisDay' => countMerchantAccount("D-2004-000002", $thisMonth, $thisYear, $thisDay)
+            'countNewMerchantCiracasThisDay' => countMerchantAccount("D-2004-000006", $thisMonth, $thisYear, $thisDay)
         ]);
     }
 
@@ -230,9 +224,6 @@ class MerchantController extends Controller
             'countTotalRestock' => countMerchantRestock(),
             'countRestockThisMonth' => countMerchantRestock("all", $thisYear, $thisMonth),
             'countRestockThisDay' => countMerchantRestock("all", $thisYear, $thisMonth, $thisDay),
-            'countTotalRestockBali' => countMerchantRestock("D-2004-000004"),
-            'countRestockBaliThisMonth' => countMerchantRestock("D-2004-000004", $thisYear, $thisMonth),
-            'countRestockBaliThisDay' => countMerchantRestock("D-2004-000004", $thisYear, $thisMonth, $thisDay),
             'countTotalRestockBandung' => countMerchantRestock("D-2004-000005"),
             'countRestockBandungThisMonth' => countMerchantRestock("D-2004-000005", $thisYear, $thisMonth),
             'countRestockBandungThisDay' => countMerchantRestock("D-2004-000005", $thisYear, $thisMonth, $thisDay),
@@ -241,10 +232,7 @@ class MerchantController extends Controller
             'countRestockCakungThisDay' => countMerchantRestock("D-2004-000001", $thisMonth, $thisYear, $thisDay),
             'countTotalRestockCiracas' => countMerchantRestock("D-2004-000006"),
             'countRestockCiracasThisMonth' => countMerchantRestock("D-2004-000006", $thisYear, $thisMonth),
-            'countRestockCiracasThisDay' => countMerchantRestock("D-2004-000006", $thisMonth, $thisYear, $thisDay),
-            'countTotalRestockSemarang' => countMerchantRestock("D-2004-000002"),
-            'countRestockSemarangThisMonth' => countMerchantRestock("D-2004-000002", $thisYear, $thisMonth),
-            'countRestockSemarangThisDay' => countMerchantRestock("D-2004-000002", $thisMonth, $thisYear, $thisDay)
+            'countRestockCiracasThisDay' => countMerchantRestock("D-2004-000006", $thisMonth, $thisYear, $thisDay)
         ]);
     }
 
@@ -308,6 +296,8 @@ class MerchantController extends Controller
 
     public function getRestockDetails(Request $request, $stockOrderId)
     {
+
+        // dd($stockOrderId);
         $stockOrderById = DB::table('tx_merchant_order_detail')
             ->leftJoin('ms_product', 'ms_product.ProductID', '=', 'tx_merchant_order_detail.ProductID')
             ->where('StockOrderID', '=', $stockOrderId)

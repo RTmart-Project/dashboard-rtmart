@@ -23,8 +23,8 @@ $(document).ready(function () {
                     name: 'OrderID'
                 },
                 {
-                    data: 'CustomerID',
-                    name: 'CustomerID'
+                    data: 'CreatedDate',
+                    name: 'CreatedDate'
                 },
                 {
                     data: 'FullName',
@@ -59,23 +59,19 @@ $(document).ready(function () {
                     name: 'PaymentMethodName'
                 },
                 {
-                    data: 'TotalPrice',
-                    name: 'TotalPrice'
-                },
-                {
                     data: 'StatusOrder',
                     name: 'StatusOrder'
                 },
                 {
-                    data: 'CreatedDate',
-                    name: 'CreatedDate'
+                    data: 'TotalPrice',
+                    name: 'TotalPrice'
                 },
                 {
                     data: 'Action',
                     name: 'Action'
                 }
             ],
-            "order": [[ 11, "desc" ]],
+            "order": [[ 1, "desc" ]],
             buttons: [{
                 extend: 'excelHtml5',
                 filename: function () {
@@ -87,7 +83,7 @@ $(document).ready(function () {
                     modifier: {
                         page: 'all'
                     },
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
                     orthogonal: 'export'
                 },
             }],
@@ -100,7 +96,7 @@ $(document).ready(function () {
                     "orderable": false
                 },
                 {
-                    "aTargets": [10],
+                    "aTargets": [11],
                     "mRender": function (data, type, full) {
                         if (type === 'export') {
                             return data;

@@ -91,42 +91,6 @@
                                 <div class="info-box">
                                     <span class="info-box-icon bg-info elevation-1"><i class="fas fa-cubes"></i></span>
                                     <div class="info-box-content">
-                                        <span class="info-box-text">Total Merchant Restock (RTmart Bali)</span>
-                                        <span class="info-box-number">
-                                            {{Helper::formatCurrency($countTotalRestockBali, '')}}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="info-box">
-                                    <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-cubes"></i></span>
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Merchant Restock Bulan Ini (RTmart Bali)</span>
-                                        <span class="info-box-number">
-                                            {{Helper::formatCurrency($countRestockBaliThisMonth, '+', ' Merchant Restock')}}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="info-box">
-                                    <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-cubes"></i></span>
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Merchant Restock Hari Ini (RTmart Bali)</span>
-                                        <span class="info-box-number">
-                                            {{Helper::formatCurrency($countRestockBaliThisDay, '+', ' Merchant Restock')}}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="info-box">
-                                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-cubes"></i></span>
-                                    <div class="info-box-content">
                                         <span class="info-box-text">Total Merchant Restock (RTmart Bandung)</span>
                                         <span class="info-box-number">
                                             {{Helper::formatCurrency($countTotalRestockBandung, '')}}
@@ -163,7 +127,7 @@
                                 <div class="info-box">
                                     <span class="info-box-icon bg-info elevation-1"><i class="fas fa-cubes"></i></span>
                                     <div class="info-box-content">
-                                        <span class="info-box-text">Total Merchant Restock (RTmart Jakarta Cakung)</span>
+                                        <span class="info-box-text">Total Merchant Restock (RTmart Cakung)</span>
                                         <span class="info-box-number">
                                             {{Helper::formatCurrency($countTotalRestockCakung, '')}}
                                         </span>
@@ -174,7 +138,7 @@
                                 <div class="info-box">
                                     <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-cubes"></i></span>
                                     <div class="info-box-content">
-                                        <span class="info-box-text">Merchant Restock Bulan Ini (RTmart Jakarta Cakung)</span>
+                                        <span class="info-box-text">Merchant Restock Bulan Ini (RTmart Cakung)</span>
                                         <span class="info-box-number">
                                             {{Helper::formatCurrency($countRestockCakungThisMonth, '+', ' Merchant Restock')}}
                                         </span>
@@ -185,7 +149,7 @@
                                 <div class="info-box">
                                     <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-cubes"></i></span>
                                     <div class="info-box-content">
-                                        <span class="info-box-text">Merchant Restock Hari Ini (RTmart Jakarta Cakung)</span>
+                                        <span class="info-box-text">Merchant Restock Hari Ini (RTmart Cakung)</span>
                                         <span class="info-box-number">
                                             {{Helper::formatCurrency($countRestockCakungThisDay, '+', ' Merchant Restock')}}
                                         </span>
@@ -199,7 +163,7 @@
                                 <div class="info-box">
                                     <span class="info-box-icon bg-info elevation-1"><i class="fas fa-cubes"></i></span>
                                     <div class="info-box-content">
-                                        <span class="info-box-text">Total Merchant Restock (RTmart Jakarta Ciracas)</span>
+                                        <span class="info-box-text">Total Merchant Restock (RTmart Ciracas)</span>
                                         <span class="info-box-number">
                                             {{Helper::formatCurrency($countTotalRestockCiracas, '')}}
                                         </span>
@@ -210,7 +174,7 @@
                                 <div class="info-box">
                                     <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-cubes"></i></span>
                                     <div class="info-box-content">
-                                        <span class="info-box-text">Merchant Restock Bulan Ini (RTmart Jakarta Ciracas)</span>
+                                        <span class="info-box-text">Merchant Restock Bulan Ini (RTmart Ciracas)</span>
                                         <span class="info-box-number">
                                             {{Helper::formatCurrency($countRestockCiracasThisMonth, '+', ' Merchant Restock')}}
                                         </span>
@@ -221,45 +185,9 @@
                                 <div class="info-box">
                                     <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-cubes"></i></span>
                                     <div class="info-box-content">
-                                        <span class="info-box-text">Merchant Restock Hari Ini (RTmart Jakarta Ciracas)</span>
+                                        <span class="info-box-text">Merchant Restock Hari Ini (RTmart Ciracas)</span>
                                         <span class="info-box-number">
                                             {{Helper::formatCurrency($countRestockCiracasThisDay, '+', ' Merchant Restock')}}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="info-box">
-                                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-cubes"></i></span>
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Total Merchant Restock (RTmart Semarang)</span>
-                                        <span class="info-box-number">
-                                            {{Helper::formatCurrency($countTotalRestockSemarang, '')}}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="info-box">
-                                    <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-cubes"></i></span>
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Merchant Restock Bulan Ini (RTmart Semarang)</span>
-                                        <span class="info-box-number">
-                                            {{Helper::formatCurrency($countRestockSemarangThisMonth, '+', ' Merchant Restock')}}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="info-box">
-                                    <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-cubes"></i></span>
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Merchant Restock Hari Ini (RTmart Semarang)</span>
-                                        <span class="info-box-number">
-                                            {{Helper::formatCurrency($countRestockSemarangThisDay, '+', ' Merchant Restock')}}
                                         </span>
                                     </div>
                                 </div>
@@ -286,16 +214,15 @@
                                             <thead>
                                                 <tr>
                                                     <th>Stock Order ID</th>
+                                                    <th>Tgl Transaksi</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
                                                     <th>No. Telp</th>
-                                                    <th>Distributor ID</th>
                                                     <th>Nama Distributor</th>
-                                                    <th>Total Price</th>
                                                     <th>Metode Pembayaran</th>
                                                     <th>Status Order</th>
+                                                    <th>Total Price</th>
                                                     <th>Referral</th>
-                                                    <th>Tgl Transaksi</th>
                                                     <th>Action</th>
                                                 </tr>
                                             </thead>

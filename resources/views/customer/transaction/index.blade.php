@@ -89,42 +89,6 @@
                                 <div class="info-box">
                                     <span class="info-box-icon bg-info elevation-1"><i class="fas fa-money-bill-wave"></i></span>
                                     <div class="info-box-content">
-                                        <span class="info-box-text">Total Transaksi (RTmart Bali)</span>
-                                        <span class="info-box-number">
-                                            {{Helper::formatCurrency($countTotalTransactionBali, '')}}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="info-box">
-                                    <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-money-bill-wave"></i></span>
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Transaksi Bulan Ini (RTmart Bali)</span>
-                                        <span class="info-box-number">
-                                            {{Helper::formatCurrency($countTransactionBaliThisMonth, '+', ' Merchant')}}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="info-box">
-                                    <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-money-bill-wave"></i></span>
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Transaksi Hari Ini (RTmart Bali)</span>
-                                        <span class="info-box-number">
-                                            {{Helper::formatCurrency($countTransactionBaliThisDay, '+', ' Merchant')}}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="info-box">
-                                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-money-bill-wave"></i></span>
-                                    <div class="info-box-content">
                                         <span class="info-box-text">Total Transaksi (RTmart Bandung)</span>
                                         <span class="info-box-number">
                                             {{Helper::formatCurrency($countTotalTransactionBandung, '')}}
@@ -161,7 +125,7 @@
                                 <div class="info-box">
                                     <span class="info-box-icon bg-info elevation-1"><i class="fas fa-money-bill-wave"></i></span>
                                     <div class="info-box-content">
-                                        <span class="info-box-text">Total Transaksi (RTmart Jakarta Cakung)</span>
+                                        <span class="info-box-text">Total Transaksi (RTmart Cakung)</span>
                                         <span class="info-box-number">
                                             {{Helper::formatCurrency($countTotalTransactionCakung, '')}}
                                         </span>
@@ -172,7 +136,7 @@
                                 <div class="info-box">
                                     <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-money-bill-wave"></i></span>
                                     <div class="info-box-content">
-                                        <span class="info-box-text">Transaksi Bulan Ini (RTmart Jakarta Cakung)</span>
+                                        <span class="info-box-text">Transaksi Bulan Ini (RTmart Cakung)</span>
                                         <span class="info-box-number">
                                             {{Helper::formatCurrency($countTransactionCakungThisMonth, '+', ' Merchant')}}
                                         </span>
@@ -183,7 +147,7 @@
                                 <div class="info-box">
                                     <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-money-bill-wave"></i></span>
                                     <div class="info-box-content">
-                                        <span class="info-box-text">Transaksi Hari Ini (RTmart Jakarta Cakung)</span>
+                                        <span class="info-box-text">Transaksi Hari Ini (RTmart Cakung)</span>
                                         <span class="info-box-number">
                                             {{Helper::formatCurrency($countTransactionCakungThisDay, '+', ' Merchant')}}
                                         </span>
@@ -197,7 +161,7 @@
                                 <div class="info-box">
                                     <span class="info-box-icon bg-info elevation-1"><i class="fas fa-money-bill-wave"></i></span>
                                     <div class="info-box-content">
-                                        <span class="info-box-text">Total Transaksi (RTmart Jakarta Ciracas)</span>
+                                        <span class="info-box-text">Total Transaksi (RTmart Ciracas)</span>
                                         <span class="info-box-number">
                                             {{Helper::formatCurrency($countTotalTransactionCiracas, '')}}
                                         </span>
@@ -208,7 +172,7 @@
                                 <div class="info-box">
                                     <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-money-bill-wave"></i></span>
                                     <div class="info-box-content">
-                                        <span class="info-box-text">Transaksi Bulan Ini (RTmart Jakarta Ciracas)</span>
+                                        <span class="info-box-text">Transaksi Bulan Ini (RTmart Ciracas)</span>
                                         <span class="info-box-number">
                                             {{Helper::formatCurrency($countTransactionCiracasThisMonth, '+', ' Merchant')}}
                                         </span>
@@ -219,45 +183,9 @@
                                 <div class="info-box">
                                     <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-money-bill-wave"></i></span>
                                     <div class="info-box-content">
-                                        <span class="info-box-text">Transaksi Hari Ini (RTmart Jakarta Ciracas)</span>
+                                        <span class="info-box-text">Transaksi Hari Ini (RTmart Ciracas)</span>
                                         <span class="info-box-number">
                                             {{Helper::formatCurrency($countTransactionCiracasThisDay, '+', ' Merchant')}}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="info-box">
-                                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-money-bill-wave"></i></span>
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Total Transaksi (RTmart Semarang)</span>
-                                        <span class="info-box-number">
-                                            {{Helper::formatCurrency($countTotalTransactionSemarang, '')}}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="info-box">
-                                    <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-money-bill-wave"></i></span>
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Transaksi Bulan Ini (RTmart Semarang)</span>
-                                        <span class="info-box-number">
-                                            {{Helper::formatCurrency($countTransactionSemarangThisMonth, '+', ' Merchant')}}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="info-box">
-                                    <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-money-bill-wave"></i></span>
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Transaksi Hari Ini (RTmart Semarang)</span>
-                                        <span class="info-box-number">
-                                            {{Helper::formatCurrency($countTransactionSemarangThisDay, '+', ' Merchant')}}
                                         </span>
                                     </div>
                                 </div>
@@ -284,7 +212,7 @@
                                             <thead>
                                                 <tr>
                                                     <th>Order ID</th>
-                                                    <th>Customer ID</th>
+                                                    <th>Tgl Transaksi</th>
                                                     <th>Nama</th>
                                                     <th>Alamat</th>
                                                     <th>No. Telp</th>
@@ -293,9 +221,8 @@
                                                     <th>Nama Distributor</th>
                                                     <th>Nama Sales</th>
                                                     <th>Metode Pembayaran</th>
-                                                    <th>Total Price</th>
                                                     <th>Status Order</th>
-                                                    <th>Tgl Transaksi</th>
+                                                    <th>Total Price</th>
                                                     <th>Action</th>
                                                 </tr>
                                             </thead>

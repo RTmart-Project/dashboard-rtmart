@@ -42,9 +42,9 @@
                     <div class="card-header">
                         <a href="{{ route('distributor.account') }}" class="btn btn-sm btn-light mb-2"><i class="fas fa-arrow-left"></i>
                             Kembali</a>
-                        <h6>Distributor ID : <strong>{{ $distributorId }}</strong></h6>
-                        <h6>Nama Distributor : <strong>{{ $distributor->DistributorName }}</strong></h6>
-                        <h6>Alamat : <strong>{{ $distributor->Address }}</strong></h6>
+                        <h6><strong>Distributor ID : </strong>{{ $distributorId }}</h6>
+                        <h6><strong>Nama Distributor : </strong>{{ $distributor->DistributorName }}</h6>
+                        <h6><strong>Alamat : </strong>{{ $distributor->Address }}</h6>
                     </div>
 
                     <div class="card-body">

@@ -71,8 +71,8 @@ class AuthController extends Controller
         if ($request->ajax()) {
             return Datatables::of($data)
                 ->addColumn('Action', function ($data) {
-                    $actionBtn = '<a href="/setting/users/edit/' . $data->UserID . '" class="btn-sm btn-warning">Edit</a>
-                    <a data-user-name="' . $data->Name . '" data-user-id="' . $data->UserID . '" href="#" class="btn-sm btn-danger reset-password">Reset Password</a>';
+                    $actionBtn = '<a href="/setting/users/edit/' . $data->UserID . '" class="btn btn-sm btn-warning">Edit</a>
+                    <a data-user-name="' . $data->Name . '" data-user-id="' . $data->UserID . '" href="#" class="btn btn-sm btn-danger reset-password">Reset Password</a>';
                     return $actionBtn;
                 })
                 ->rawColumns(['Action'])

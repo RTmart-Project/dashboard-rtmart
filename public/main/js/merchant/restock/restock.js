@@ -23,6 +23,10 @@ $(document).ready(function () {
                     name: 'StockOrderID'
                 },
                 {
+                    data: 'CreatedDate',
+                    name: 'CreatedDate'
+                },
+                {
                     data: 'MerchantID',
                     name: 'MerchantID'
                 },
@@ -35,16 +39,8 @@ $(document).ready(function () {
                     name: 'PhoneNumber'
                 },
                 {
-                    data: 'DistributorID',
-                    name: 'DistributorID'
-                },
-                {
                     data: 'DistributorName',
                     name: 'DistributorName'
-                },
-                {
-                    data: 'NettPrice',
-                    name: 'NettPrice'
                 },
                 {
                     data: 'PaymentMethodName',
@@ -55,19 +51,19 @@ $(document).ready(function () {
                     name: 'StatusOrder'
                 },
                 {
-                    data: 'ReferralCode',
-                    name: 'ReferralCode'
+                    data: 'NettPrice',
+                    name: 'NettPrice'
                 },
                 {
-                    data: 'CreatedDate',
-                    name: 'CreatedDate'
+                    data: 'ReferralCode',
+                    name: 'ReferralCode'
                 },
                 {
                     data: 'Action',
                     name: 'Action'
                 }
             ],
-            "order": [[10, "desc" ]],
+            "order": [[1, "desc" ]],
             buttons: [{
                 extend: 'excelHtml5',
                 filename: function () {
@@ -79,7 +75,7 @@ $(document).ready(function () {
                     modifier: {
                         page: 'all'
                     },
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                     orthogonal: 'export'
                 },
             }],
@@ -88,11 +84,11 @@ $(document).ready(function () {
             "autoWidth": false,
             "aoColumnDefs": [
                 {
-                    "aTargets": [11],
+                    "aTargets": [10],
                     "orderable": false
                 },
                 {
-                    "aTargets": [6],
+                    "aTargets": [8],
                     "mRender": function (data, type, full) {
                         if (type === 'export') {
                             return data;

@@ -89,42 +89,6 @@
                                 <div class="info-box">
                                     <span class="info-box-icon bg-info elevation-1"><i class="fas fa-store"></i></span>
                                     <div class="info-box-content">
-                                        <span class="info-box-text">Total Merchant (RTmart Bali)</span>
-                                        <span class="info-box-number">
-                                            {{Helper::formatCurrency($countTotalMerchantBali, '')}}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="info-box">
-                                    <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-store"></i></span>
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Bulan Ini (RTmart Bali)</span>
-                                        <span class="info-box-number">
-                                            {{Helper::formatCurrency($countNewMerchantBaliThisMonth, '+', ' Merchant')}}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="info-box">
-                                    <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-store"></i></span>
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Hari Ini (RTmart Bali)</span>
-                                        <span class="info-box-number">
-                                            {{Helper::formatCurrency($countNewMerchantBaliThisDay, '+', ' Merchant')}}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="info-box">
-                                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-store"></i></span>
-                                    <div class="info-box-content">
                                         <span class="info-box-text">Total Merchant (RTmart Bandung)</span>
                                         <span class="info-box-number">
                                             {{Helper::formatCurrency($countTotalMerchantBandung, '')}}
@@ -161,7 +125,7 @@
                                 <div class="info-box">
                                     <span class="info-box-icon bg-info elevation-1"><i class="fas fa-store"></i></span>
                                     <div class="info-box-content">
-                                        <span class="info-box-text">Total Merchant (RTmart Jakarta Cakung)</span>
+                                        <span class="info-box-text">Total Merchant (RTmart Cakung)</span>
                                         <span class="info-box-number">
                                             {{Helper::formatCurrency($countTotalMerchantCakung, '')}}
                                         </span>
@@ -172,7 +136,7 @@
                                 <div class="info-box">
                                     <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-store"></i></span>
                                     <div class="info-box-content">
-                                        <span class="info-box-text">Bulan Ini (RTmart Jakarta Cakung)</span>
+                                        <span class="info-box-text">Bulan Ini (RTmart Cakung)</span>
                                         <span class="info-box-number">
                                             {{Helper::formatCurrency($countNewMerchantCakungThisMonth, '+', ' Merchant')}}
                                         </span>
@@ -183,7 +147,7 @@
                                 <div class="info-box">
                                     <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-store"></i></span>
                                     <div class="info-box-content">
-                                        <span class="info-box-text">Hari Ini (RTmart Jakarta Cakung)</span>
+                                        <span class="info-box-text">Hari Ini (RTmart Cakung)</span>
                                         <span class="info-box-number">
                                             {{Helper::formatCurrency($countNewMerchantCakungThisDay, '+', ' Merchant')}}
                                         </span>
@@ -197,7 +161,7 @@
                                 <div class="info-box">
                                     <span class="info-box-icon bg-info elevation-1"><i class="fas fa-store"></i></span>
                                     <div class="info-box-content">
-                                        <span class="info-box-text">Total Merchant (RTmart Jakarta Ciracas)</span>
+                                        <span class="info-box-text">Total Merchant (RTmart Ciracas)</span>
                                         <span class="info-box-number">
                                             {{Helper::formatCurrency($countTotalMerchantCiracas, '')}}
                                         </span>
@@ -208,7 +172,7 @@
                                 <div class="info-box">
                                     <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-store"></i></span>
                                     <div class="info-box-content">
-                                        <span class="info-box-text">Bulan Ini (RTmart Jakarta Ciracas)</span>
+                                        <span class="info-box-text">Bulan Ini (RTmart Ciracas)</span>
                                         <span class="info-box-number">
                                             {{Helper::formatCurrency($countNewMerchantCiracasThisMonth, '+', ' Merchant')}}
                                         </span>
@@ -219,45 +183,9 @@
                                 <div class="info-box">
                                     <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-store"></i></span>
                                     <div class="info-box-content">
-                                        <span class="info-box-text">Hari Ini (RTmart Jakarta Ciracas)</span>
+                                        <span class="info-box-text">Hari Ini (RTmart Ciracas)</span>
                                         <span class="info-box-number">
                                             {{Helper::formatCurrency($countNewMerchantCiracasThisDay, '+', ' Merchant')}}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="info-box">
-                                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-store"></i></span>
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Total Merchant (RTmart Semarang)</span>
-                                        <span class="info-box-number">
-                                            {{Helper::formatCurrency($countTotalMerchantSemarang, '')}}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="info-box">
-                                    <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-store"></i></span>
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Bulan Ini (RTmart Semarang)</span>
-                                        <span class="info-box-number">
-                                            {{Helper::formatCurrency($countNewMerchantSemarangThisMonth, '+', ' Merchant')}}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="info-box">
-                                    <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-store"></i></span>
-                                    <div class="info-box-content">
-                                        <span class="info-box-text">Hari Ini (RTmart Semarang)</span>
-                                        <span class="info-box-number">
-                                            {{Helper::formatCurrency($countNewMerchantSemarangThisDay, '+', ' Merchant')}}
                                         </span>
                                     </div>
                                 </div>
