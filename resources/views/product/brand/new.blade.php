@@ -57,7 +57,9 @@
                                         <input type="file" name="brand_image" id="brand_image" accept="image/*" onchange="loadFile(event)" class="form-control" required>
                                     </div>
                                 </div>
-                                <img id="output" height="120"/>
+                                <div class="col-md-4 col-12">
+                                    <img id="output" height="120"/>
+                                </div>
                             </div>
                             
                             <div class="form-group float-right">
