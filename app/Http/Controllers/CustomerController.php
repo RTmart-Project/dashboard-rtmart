@@ -199,7 +199,7 @@ class CustomerController extends Controller
             ->where('ms_merchant_account.IsTesting', 0)
             ->where('ms_distributor.Ownership', '=', 'RTMart')
             ->where('ms_distributor.Email', '!=', null)
-            ->select('tx_product_order.OrderID', 'tx_product_order.CustomerID', 'tx_product_order.MerchantID', 'tx_product_order.TotalPrice', 'ms_customer_account.FullName', 'tx_product_order.CreatedDate', 'ms_customer_account.PhoneNumber', 'ms_merchant_account.StoreName', 'ms_status_order.StatusOrder', 'ms_distributor.DistributorName', 'ms_sales.SalesName', 'ms_payment_method.PaymentMethodName', 'ms_customer_account.Address');
+            ->select('tx_product_order.OrderID', 'tx_product_order.CustomerID', 'tx_product_order.MerchantID', 'tx_product_order.TotalPrice', 'ms_customer_account.FullName', 'tx_product_order.CreatedDate', 'ms_customer_account.PhoneNumber', 'ms_merchant_account.StoreName', 'tx_product_order.StatusOrderID', 'ms_status_order.StatusOrder', 'ms_distributor.DistributorName', 'ms_sales.SalesName', 'ms_payment_method.PaymentMethodName', 'ms_customer_account.Address');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
@@ -220,11 +220,37 @@ class CustomerController extends Controller
                 ->editColumn('CreatedDate', function ($data) {
                     return date('Y-m-d', strtotime($data->CreatedDate));
                 })
+                ->editColumn('StatusOrder', function ($data) {
+                    $pesananBaru = "S013";
+                    $dikonfirmasi = "S014";
+                    $dalamProses = "S019";
+                    $dikirim = "S015";
+                    $selesai = "S016";
+                    $dibatalkan = "S017";
+
+                    if ($data->StatusOrderID == $pesananBaru) {
+                        $statusOrder = '<span class="badge badge-secondary">' . $data->StatusOrder . '</span>';
+                    } elseif ($data->StatusOrderID == $dikonfirmasi) {
+                        $statusOrder = '<span class="badge badge-primary">' . $data->StatusOrder . '</span>';
+                    } elseif ($data->StatusOrderID == $dalamProses) {
+                        $statusOrder = '<span class="badge badge-warning">' . $data->StatusOrder . '</span>';
+                    } elseif ($data->StatusOrderID == $dikirim) {
+                        $statusOrder = '<span class="badge badge-info">' . $data->StatusOrder . '</span>';
+                    } elseif ($data->StatusOrderID == $selesai) {
+                        $statusOrder = '<span class="badge badge-success">' . $data->StatusOrder . '</span>';
+                    } elseif ($data->StatusOrderID == $dibatalkan) {
+                        $statusOrder = '<span class="badge badge-danger">' . $data->StatusOrder . '</span>';
+                    } else {
+                        $statusOrder = 'Status tidak ditemukan';
+                    }
+
+                    return $statusOrder;
+                })
                 ->addColumn('Action', function ($data) {
                     $actionBtn = '<a href="/customer/transaction/detail/' . $data->OrderID . '" class="btn-sm btn-info detail-order">Detail</a>';
                     return $actionBtn;
                 })
-                ->rawColumns(['CreatedDate', 'Action'])
+                ->rawColumns(['CreatedDate', 'StatusOrder', 'Action'])
                 ->make(true);
         }
     }

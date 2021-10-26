@@ -275,7 +275,33 @@ class MerchantController extends Controller
                     $actionBtn = '<a href="/merchant/restock/detail/' . $data->StockOrderID . '" class="btn-sm btn-info detail-order">Detail</a>';
                     return $actionBtn;
                 })
-                ->rawColumns(['CreatedDate', 'Action'])
+                ->editColumn('StatusOrder', function ($data) {
+                    $pesananBaru = "S009";
+                    $dikonfirmasi = "S010";
+                    $dalamProses = "S023";
+                    $dikirim = "S012";
+                    $selesai = "S018";
+                    $dibatalkan = "S011";
+
+                    if ($data->StatusOrderID == $pesananBaru) {
+                        $statusOrder = '<span class="badge badge-secondary">' . $data->StatusOrder . '</span>';
+                    } elseif ($data->StatusOrderID == $dikonfirmasi) {
+                        $statusOrder = '<span class="badge badge-primary">' . $data->StatusOrder . '</span>';
+                    } elseif ($data->StatusOrderID == $dalamProses) {
+                        $statusOrder = '<span class="badge badge-warning">' . $data->StatusOrder . '</span>';
+                    } elseif ($data->StatusOrderID == $dikirim) {
+                        $statusOrder = '<span class="badge badge-info">' . $data->StatusOrder . '</span>';
+                    } elseif ($data->StatusOrderID == $selesai) {
+                        $statusOrder = '<span class="badge badge-success">' . $data->StatusOrder . '</span>';
+                    } elseif ($data->StatusOrderID == $dibatalkan) {
+                        $statusOrder = '<span class="badge badge-danger">' . $data->StatusOrder . '</span>';
+                    } else {
+                        $statusOrder = 'Status tidak ditemukan';
+                    }
+
+                    return $statusOrder;
+                })
+                ->rawColumns(['CreatedDate', 'Action', 'StatusOrder'])
                 ->make(true);
         }
     }
@@ -296,8 +322,6 @@ class MerchantController extends Controller
 
     public function getRestockDetails(Request $request, $stockOrderId)
     {
-
-        // dd($stockOrderId);
         $stockOrderById = DB::table('tx_merchant_order_detail')
             ->leftJoin('ms_product', 'ms_product.ProductID', '=', 'tx_merchant_order_detail.ProductID')
             ->where('StockOrderID', '=', $stockOrderId)
