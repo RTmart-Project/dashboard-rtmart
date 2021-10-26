@@ -48,13 +48,14 @@
                                     <div class="row">
                                         <div class="col-12 col-md-2 text-center">
                                             <img src="{{ config('app.base_image_url') . '/merchant/'. $merchant->StoreImage }}" alt="Store Image" class="rounded img-fluid pb-2 pb-md-0" 
-                                                style="object-fit: cover; width: 150px; height: 150px;">
+                                                style="object-fit: cover; width: 150px; height: 130px;">
                                         </div>
                                         <div class="col-12 col-md-10 align-self-center">
-                                            <h6 class="lead">Merchant ID : <strong>{{ $merchantId }}</strong></h6>
-                                            <h6 class="lead">Nama Toko : <strong>{{ $merchant->StoreName }}</strong></h6>
-                                            <h6 class="lead">Nama Pemilik : <strong>{{ $merchant->OwnerFullName }}</strong></h6>
-                                            <h6 class="lead"><strong>{{ $merchant->StoreAddress }}</strong></h6>
+                                            <h6>Merchant ID : <strong>{{ $merchantId }}</strong></h6>
+                                            <h6>Nama Toko : <strong>{{ $merchant->StoreName }}</strong></h6>
+                                            <h6>Nama Pemilik : <strong>{{ $merchant->OwnerFullName }}</strong></h6>
+                                            <h6>No. Telp : <a href="tel:{{ $merchant->PhoneNumber }}"><strong>{{ $merchant->PhoneNumber }}</strong></a></h6>
+                                            <h6><strong>{{ $merchant->StoreAddress }}</strong></h6>
                                         </div>
                                     </div>
                                 </div>

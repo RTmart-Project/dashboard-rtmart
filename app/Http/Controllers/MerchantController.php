@@ -116,7 +116,7 @@ class MerchantController extends Controller
     {
         $merchant = DB::table('ms_merchant_account')
             ->where('MerchantID', '=', $merchantId)
-            ->select('StoreName', 'OwnerFullName', 'StoreAddress', 'StoreImage')
+            ->select('StoreName', 'OwnerFullName', 'StoreAddress', 'StoreImage', 'PhoneNumber')
             ->first();
 
         return view('merchant.product.index', [
