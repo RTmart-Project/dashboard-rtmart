@@ -297,7 +297,7 @@ class MerchantController extends Controller
         $merchant = DB::table('tx_merchant_order')
             ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
             ->where('tx_merchant_order.StockOrderID', '=', $stockOrderId)
-            ->select('*')
+            ->select('ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress')
             ->first();
 
         return view('merchant.restock.details', [

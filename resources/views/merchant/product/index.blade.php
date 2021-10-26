@@ -47,8 +47,7 @@
                                 <div class="card-body pt-3 pb-3">
                                     <div class="row">
                                         <div class="col-12 col-md-2 text-center">
-                                            <img src="{{ config('app.base_image_url') . '/merchant/'. $merchant->StoreImage }}" alt="Store Image" class="rounded img-fluid pb-2 pb-md-0" 
-                                                style="object-fit: cover; width: 150px; height: 130px;">
+                                            <img src="{{ config('app.base_image_url') . '/merchant/'. $merchant->StoreImage }}" alt="Store Image" class="rounded img-fluid pb-2 pb-md-0" style="object-fit: cover; width: 130px; height: 130px;">
                                         </div>
                                         <div class="col-12 col-md-10 align-self-center">
                                             <h6>Merchant ID : <strong>{{ $merchantId }}</strong></h6>
