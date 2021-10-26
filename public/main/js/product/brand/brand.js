@@ -47,6 +47,12 @@ $(document).ready(function () {
                     orthogonal: 'export'
                 },
             }],
+            "aoColumnDefs": [
+                {
+                    "aTargets": [3],
+                    "orderable": false
+                }
+            ],
             "lengthChange": false,
             "responsive": true,
             "autoWidth": false

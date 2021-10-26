@@ -43,6 +43,12 @@ $(document).ready(function () {
                     orthogonal: 'export'
                 },
             }],
+            "aoColumnDefs": [
+                {
+                    "aTargets": [2],
+                    "orderable": false
+                }
+            ],
             "lengthChange": false,
             "responsive": true,
             "autoWidth": false

@@ -85,6 +85,10 @@ $(document).ready(function () {
                             return currencySeperatorFormat;
                         }
                     }
+                },
+                {
+                    "aTargets": [9],
+                    "orderable": false
                 }
             ]
         });
