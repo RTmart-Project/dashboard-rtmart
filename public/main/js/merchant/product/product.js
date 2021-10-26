@@ -48,6 +48,10 @@ $(document).ready(function () {
                 {
                     data: 'Price',
                     name: 'Price'
+                },
+                {
+                    data: 'PurchasePrice',
+                    name: 'PurchasePrice'
                 }
             ],
             buttons: [{
@@ -61,7 +65,7 @@ $(document).ready(function () {
                     modifier: {
                         page: 'all'
                     },
-                    columns: [0, 1, 3, 4, 5, 6, 7],
+                    columns: [0, 1, 3, 4, 5, 6, 7, 8],
                     orthogonal: 'export'
                 },
             }],
@@ -70,7 +74,7 @@ $(document).ready(function () {
             "autoWidth": false,
             "aoColumnDefs": [
                 {
-                    "aTargets": [7],
+                    "aTargets": [7, 8],
                     "mRender": function (data, type, full) {
                         if (type === 'export') {
                             return data;

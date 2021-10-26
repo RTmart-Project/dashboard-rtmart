@@ -77,7 +77,8 @@
                                                     <th>Tipe</th>
                                                     <th>Jenis</th>
                                                     <th>Isi</th>
-                                                    <th>Harga</th>
+                                                    <th>Harga Jual</th>
+                                                    <th>Harga Beli</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
