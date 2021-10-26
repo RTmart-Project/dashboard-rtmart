@@ -55,7 +55,7 @@ class DistributorController extends Controller
     {
         $distributor = DB::table('ms_distributor')
             ->where('ms_distributor.DistributorID', '=', $distributorId)
-            ->select('DistributorName')
+            ->select('DistributorName', 'Address')
             ->first();
 
         return view('distributor.product.index', [

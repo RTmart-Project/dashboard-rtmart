@@ -55,7 +55,7 @@
                                             <h6>Nama Toko : <strong>{{ $merchant->StoreName }}</strong></h6>
                                             <h6>Nama Pemilik : <strong>{{ $merchant->OwnerFullName }}</strong></h6>
                                             <h6>No. Telp : <a href="tel:{{ $merchant->PhoneNumber }}"><strong>{{ $merchant->PhoneNumber }}</strong></a></h6>
-                                            <h6><strong>{{ $merchant->StoreAddress }}</strong></h6>
+                                            <h6>Alamat : <strong>{{ $merchant->StoreAddress }}</strong></h6>
                                         </div>
                                     </div>
                                 </div>
