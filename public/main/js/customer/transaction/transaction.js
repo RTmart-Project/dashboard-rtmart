@@ -100,16 +100,16 @@ $(document).ready(function () {
                     "orderable": false
                 },
                 {
-                    "aTargets": [9],
+                    "aTargets": [10],
                     "mRender": function (data, type, full) {
                         if (type === 'export') {
                             return data;
                         } else {
-                            if (data != "" && data != null) {
-                                var currencySeperatorFormat = thousands_separators(data)
-                                return currencySeperatorFormat;
-                            } else {
+                            if (data == null || data == "") {
                                 return data;
+                            } else {
+                                const currencySeperatorFormat = thousands_separators(data)
+                                return currencySeperatorFormat;
                             }
                         }
                     }

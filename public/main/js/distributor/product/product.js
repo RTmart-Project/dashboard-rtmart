@@ -74,13 +74,17 @@ $(document).ready(function () {
             "autoWidth": false,
             "aoColumnDefs": [
                 {
-                    "aTargets": [3],
+                    "aTargets": [7],
                     "mRender": function (data, type, full) {
                         if (type === 'export') {
                             return data;
                         } else {
-                            const currencySeperatorFormat = thousands_separators(data)
-                            return currencySeperatorFormat;
+                            if (data == null || data == "") {
+                                return data;
+                            } else {
+                                const currencySeperatorFormat = thousands_separators(data)
+                                return currencySeperatorFormat;
+                            }
                         }
                     }
                 }
