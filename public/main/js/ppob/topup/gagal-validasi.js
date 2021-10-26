@@ -54,7 +54,7 @@ $(document).ready(function () {
             buttons: [{
                 extend: 'excelHtml5',
                 filename: function () {
-                    return exportDatatableHelper.generateFilename('TopupMerchantPPOBGagalValidasi');
+                    return exportDatatableHelper.generateFilename('TopupMerchantPPOBDibatalkan');
                 },
                 text: 'Export',
                 titleAttr: 'Excel',
