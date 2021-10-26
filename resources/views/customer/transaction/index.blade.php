@@ -286,6 +286,7 @@
                                                     <th>Order ID</th>
                                                     <th>Customer ID</th>
                                                     <th>Nama</th>
+                                                    <th>Alamat</th>
                                                     <th>No. Telp</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>

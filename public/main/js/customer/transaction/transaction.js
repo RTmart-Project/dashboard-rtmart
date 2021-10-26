@@ -31,6 +31,10 @@ $(document).ready(function () {
                     name: 'FullName'
                 },
                 {
+                    data: 'Address',
+                    name: 'Address'
+                },
+                {
                     data: 'PhoneNumber',
                     name: 'PhoneNumber'
                 },
