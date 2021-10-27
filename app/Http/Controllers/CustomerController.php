@@ -131,6 +131,18 @@ class CustomerController extends Controller
 
     public function transaction()
     {
+        // $sqlAllAccount = DB::table('tx_product_order')
+        //     ->leftJoin('ms_customer_account', 'ms_customer_account.CustomerID', '=', 'tx_product_order.CustomerID')
+        //     ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_product_order.MerchantID')
+        //     ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
+        //     ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_product_order.StatusOrderID')
+        //     ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_product_order.PaymentMethodID')
+        //     ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'ms_merchant_account.ReferralCode')
+        //     ->where('ms_merchant_account.IsTesting', 0)
+        //     ->select('tx_product_order.OrderID', 'tx_product_order.CustomerID', 'tx_product_order.MerchantID', 'tx_product_order.TotalPrice', 'ms_customer_account.FullName', 'tx_product_order.CreatedDate', 'ms_customer_account.PhoneNumber', 'ms_merchant_account.StoreName', 'tx_product_order.StatusOrderID', 'ms_status_order.StatusOrder', 'ms_distributor.DistributorName', 'ms_sales.SalesName', 'ms_payment_method.PaymentMethodName', 'ms_customer_account.Address')->toSql();
+
+        // dd($sqlAllAccount);
+
         function countCustomerTransaction($distributorId = "all", $thisYear = null, $thisMonth = null, $thisDay = null)
         {
             $customerTransaction = DB::table('tx_product_order')
@@ -189,7 +201,7 @@ class CustomerController extends Controller
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_product_order.PaymentMethodID')
             ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'ms_merchant_account.ReferralCode')
             ->where('ms_merchant_account.IsTesting', 0)
-            ->select('tx_product_order.OrderID', 'tx_product_order.CustomerID', 'tx_product_order.MerchantID', 'tx_product_order.TotalPrice', 'ms_customer_account.FullName', 'tx_product_order.CreatedDate', 'ms_customer_account.PhoneNumber', 'ms_merchant_account.StoreName', 'tx_product_order.StatusOrderID', 'ms_status_order.StatusOrder', 'ms_distributor.DistributorName', 'ms_sales.SalesName', 'ms_payment_method.PaymentMethodName', 'ms_customer_account.Address');
+            ->select(['tx_product_order.OrderID', 'tx_product_order.CustomerID', 'tx_product_order.MerchantID', 'tx_product_order.TotalPrice', 'ms_customer_account.FullName', 'tx_product_order.CreatedDate', 'ms_customer_account.PhoneNumber', 'ms_merchant_account.StoreName', 'tx_product_order.StatusOrderID', 'ms_status_order.StatusOrder', 'ms_distributor.DistributorName', 'ms_sales.SalesName', 'ms_payment_method.PaymentMethodName', 'ms_customer_account.Address']);
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
