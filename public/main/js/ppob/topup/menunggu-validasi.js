@@ -9,6 +9,7 @@ $(document).ready(function () {
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
             serverSide: false,
+            stateServe: true,
             "ajax": {
                 url: "/ppob/topup/get/TPS-002",
                 data: function (d) {
