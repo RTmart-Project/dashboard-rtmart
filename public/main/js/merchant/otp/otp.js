@@ -32,11 +32,13 @@ $(document).ready(function () {
                 },
                 {
                     data: 'SendOn',
-                    name: 'SendOn'
+                    name: 'SendOn',
+                    type: 'date'
                 },
                 {
                     data: 'ReceiveOn',
-                    name: 'ReceiveOn'
+                    name: 'ReceiveOn',
+                    type: 'date'
                 }
             ],
             buttons: [{
@@ -54,7 +56,7 @@ $(document).ready(function () {
                     orthogonal: 'export'
                 },
             }],
-            "order": [],
+            "order": [3, 'desc'],
             "lengthChange": false,
             "responsive": true,
             "autoWidth": false

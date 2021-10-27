@@ -20,7 +20,8 @@ $(document).ready(function () {
             columns: [
                 {
                     data: 'TransactionDate',
-                    name: 'TransactionDate'
+                    name: 'TransactionDate',
+                    type: 'date'
                 },
                 {
                     data: 'PPOBOrderID',
@@ -74,7 +75,7 @@ $(document).ready(function () {
                     orthogonal: 'export'
                 },
             }],
-            "order": [],
+            "order": [0, 'desc'],
             "lengthChange": false,
             "responsive": true,
             "autoWidth": false,

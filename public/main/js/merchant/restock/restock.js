@@ -25,7 +25,8 @@ $(document).ready(function () {
                 },
                 {
                     data: 'CreatedDate',
-                    name: 'CreatedDate'
+                    name: 'CreatedDate',
+                    type: 'date'
                 },
                 {
                     data: 'MerchantID',
@@ -79,7 +80,7 @@ $(document).ready(function () {
                     orthogonal: 'export'
                 },
             }],
-            "order": [],
+            "order": [1, 'desc'],
             "lengthChange": false,
             "responsive": true,
             "autoWidth": false,

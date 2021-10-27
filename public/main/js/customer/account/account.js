@@ -32,7 +32,8 @@ $(document).ready(function () {
                 },
                 {
                     data: 'CreatedDate',
-                    name: 'CreatedDate'
+                    name: 'CreatedDate',
+                    type: 'date'
                 },
                 {
                     data: 'Address',
@@ -70,7 +71,7 @@ $(document).ready(function () {
                     orthogonal: 'export'
                 },
             }],
-            "order": [],
+            "order": [3, 'desc'],
             "lengthChange": false,
             "responsive": true,
             "autoWidth": false

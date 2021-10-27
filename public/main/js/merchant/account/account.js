@@ -33,7 +33,8 @@ $(document).ready(function () {
                 },
                 {
                     data: 'CreatedDate',
-                    name: 'CreatedDate'
+                    name: 'CreatedDate',
+                    type: 'date'
                 },
                 {
                     data: 'StoreAddress',
@@ -67,7 +68,7 @@ $(document).ready(function () {
                     orthogonal: 'export'
                 },
             }],
-            "order": [],
+            "order": [3, 'desc'],
             "columnDefs": [{
                 "targets": [7],
                 "orderable": false
