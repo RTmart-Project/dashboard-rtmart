@@ -52,7 +52,6 @@ $(document).ready(function () {
                     name: 'Action'
                 }
             ],
-            "order": [[ 3, "desc" ]],
             buttons: [{
                 extend: 'excelHtml5',
                 filename: function () {
@@ -68,6 +67,7 @@ $(document).ready(function () {
                     orthogonal: 'export'
                 },
             }],
+            "order": [],
             "columnDefs": [{
                 "targets": [7],
                 "orderable": false

@@ -72,7 +72,8 @@ class MerchantController extends Controller
             ->leftJoin('ms_area', 'ms_area.AreaID', '=', 'ms_merchant_account.AreaID')
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
             ->where('ms_merchant_account.IsTesting', 0)
-            ->select('ms_merchant_account.*', 'ms_area.AreaName', 'ms_area.Subdistrict', 'ms_area.City', 'ms_area.Province', 'ms_distributor.DistributorName');
+            ->select('ms_merchant_account.*', 'ms_area.AreaName', 'ms_area.Subdistrict', 'ms_area.City', 'ms_area.Province', 'ms_distributor.DistributorName')
+            ->orderByDesc('ms_merchant_account.CreatedDate');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
@@ -91,7 +92,7 @@ class MerchantController extends Controller
         if ($request->ajax()) {
             return Datatables::of($data)
                 ->editColumn('CreatedDate', function ($data) {
-                    return date('Y-m-d', strtotime($data->CreatedDate));
+                    return date('d M Y H:i', strtotime($data->CreatedDate));
                 })
                 ->addColumn('Action', function ($data) {
                     $actionBtn = '<a href="/merchant/account/product/' . $data->MerchantID . '" class="btn-sm btn-info detail-order">Detail</a>';
@@ -154,7 +155,8 @@ class MerchantController extends Controller
         $sqlAllAccount = DB::table('ms_verification')
             ->join('ms_verification_log', 'ms_verification_log.PhoneNumber', '=', 'ms_verification.PhoneNumber')
             ->where('ms_verification.Type', '=', 'MERCHANT')
-            ->select('ms_verification.*', 'ms_verification_log.SendOn', 'ms_verification_log.ReceiveOn');
+            ->select('ms_verification.*', 'ms_verification_log.SendOn', 'ms_verification_log.ReceiveOn')
+            ->orderByDesc('SendOn');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
@@ -177,7 +179,13 @@ class MerchantController extends Controller
 
                     return $isVerified;
                 })
-                ->rawColumns(['IsVerified'])
+                ->editColumn('SendOn', function ($data) {
+                    return date('d M Y H:i:s', strtotime($data->SendOn));
+                })
+                ->editColumn('ReceiveOn', function ($data) {
+                    return date('d M Y H:i:s', strtotime($data->ReceiveOn));
+                })
+                ->rawColumns(['IsVerified', 'SendOn', 'ReceiveOn'])
                 ->make(true);
         }
     }
@@ -242,7 +250,8 @@ class MerchantController extends Controller
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_order.StatusOrderID')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
             ->where('ms_merchant_account.IsTesting', 0)
-            ->select('tx_merchant_order.*', 'ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'ms_merchant_account.ReferralCode', 'ms_payment_method.PaymentMethodName');
+            ->select('tx_merchant_order.*', 'ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'ms_merchant_account.ReferralCode', 'ms_payment_method.PaymentMethodName')
+            ->orderByDesc('tx_merchant_order.CreatedDate');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
@@ -261,7 +270,7 @@ class MerchantController extends Controller
         if ($request->ajax()) {
             return Datatables::of($data)
                 ->editColumn('CreatedDate', function ($data) {
-                    return date('Y-m-d', strtotime($data->CreatedDate));
+                    return date('d M Y H:i', strtotime($data->CreatedDate));
                 })
                 ->addColumn('Action', function ($data) {
                     $actionBtn = '<a href="/merchant/restock/detail/' . $data->StockOrderID . '" class="btn-sm btn-info detail-order">Detail</a>';

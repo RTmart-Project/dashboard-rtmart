@@ -43,7 +43,6 @@ $(document).ready(function () {
                     name: 'Action'
                 }
             ],
-            "order": [[ 4, "desc" ]],
             buttons: [{
                 extend: 'excelHtml5',
                 filename: function () {
@@ -59,6 +58,7 @@ $(document).ready(function () {
                     orthogonal: 'export'
                 },
             }],
+            "order": [],
             "lengthChange": false,
             "responsive": true,
             "autoWidth": false,

@@ -56,7 +56,8 @@ class AuthController extends Controller
         $sqlUsers = DB::table('ms_user')
             ->join('ms_role', 'ms_role.RoleID', '=', 'ms_user.RoleID')
             ->where('ms_user.IsTesting', '=', 0)
-            ->select('ms_user.*', 'ms_role.RoleName');
+            ->select('ms_user.*', 'ms_role.RoleName')
+            ->orderByDesc('ms_user.CreatedDate');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
@@ -74,6 +75,15 @@ class AuthController extends Controller
                     $actionBtn = '<a href="/setting/users/edit/' . $data->UserID . '" class="btn btn-sm btn-warning">Edit</a>
                     <a data-user-name="' . $data->Name . '" data-user-id="' . $data->UserID . '" href="#" class="btn btn-sm btn-danger reset-password">Reset Password</a>';
                     return $actionBtn;
+                })
+                ->editColumn('CreatedDate', function ($data) {
+                    if ($data->CreatedDate != null) {
+                        $createdDate = date('d M Y H:i', strtotime($data->CreatedDate));
+                    } else {
+                        $createdDate = $data->CreatedDate;
+                    }
+
+                    return $createdDate;
                 })
                 ->rawColumns(['Action'])
                 ->make(true);

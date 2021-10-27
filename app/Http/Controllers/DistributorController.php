@@ -28,7 +28,8 @@ class DistributorController extends Controller
         $sqlAllAccount = DB::table('ms_distributor')
             ->where('Ownership', '=', 'RTMart')
             ->where('Email', '!=', NULL)
-            ->select('*');
+            ->select('*')
+            ->orderByDesc('CreatedDate');
 
         if ($fromDate != '' && $toDate != '') {
             $sqlAllAccount->whereDate('ms_distributor.CreatedDate', '>=', $fromDate)
@@ -40,7 +41,7 @@ class DistributorController extends Controller
         if ($request->ajax()) {
             return Datatables::of($data)
                 ->editColumn('CreatedDate', function ($data) {
-                    return date('Y-m-d', strtotime($data->CreatedDate));
+                    return date('d M Y H:i', strtotime($data->CreatedDate));
                 })
                 ->addColumn('Action', function ($data) {
                     $actionBtn = '<a href="/distributor/account/product/' . $data->DistributorID . '" class="btn-sm btn-info detail-order">Detail</a>';

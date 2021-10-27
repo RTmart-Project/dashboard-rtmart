@@ -83,7 +83,8 @@ class PpobController extends Controller
             ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_topup_saldo_ppob.MerchantID')
             ->join('ms_status_ppob', 'ms_status_ppob.StatusPPOBID', '=', 'tx_topup_saldo_ppob.Status')
             ->where('tx_topup_saldo_ppob.Status', '=', $topupStatus)
-            ->select('tx_topup_saldo_ppob.*', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreName', 'ms_status_ppob.StatusName');
+            ->select('tx_topup_saldo_ppob.*', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreName', 'ms_status_ppob.StatusName')
+            ->orderByDesc('tx_topup_saldo_ppob.TransactionDate');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
@@ -99,7 +100,7 @@ class PpobController extends Controller
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->editColumn('TransactionDate', function ($data) {
-                    return date('Y-m-d', strtotime($data->TransactionDate));
+                    return date('d M Y H:i', strtotime($data->TransactionDate));
                 })
                 ->editColumn('TransferPhoto', function ($data) {
                     $baseImageUrl = config('app.base_image_url');
@@ -128,7 +129,8 @@ class PpobController extends Controller
         $sqlAllTopup = DB::table('tx_topup_saldo_ppob')
             ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_topup_saldo_ppob.MerchantID')
             ->join('ms_status_ppob', 'ms_status_ppob.StatusPPOBID', '=', 'tx_topup_saldo_ppob.Status')
-            ->select('tx_topup_saldo_ppob.*', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreName', 'ms_status_ppob.StatusName');
+            ->select('tx_topup_saldo_ppob.*', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreName', 'ms_status_ppob.StatusName')
+            ->orderByDesc('tx_topup_saldo_ppob.TransactionDate');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
@@ -143,7 +145,7 @@ class PpobController extends Controller
         if ($request->ajax()) {
             return Datatables::of($data)
                 ->editColumn('TransactionDate', function ($data) {
-                    return date('Y-m-d', strtotime($data->TransactionDate));
+                    return date('d M Y H:i', strtotime($data->TransactionDate));
                 })
                 ->editColumn('StatusName', function ($data) {
                     $statusMenungguPembayaran = 'TPS-001';
@@ -314,7 +316,8 @@ class PpobController extends Controller
             ->join('ms_status_ppob', 'ms_status_ppob.StatusPPOBID', '=', 'tx_ppob_order.StatusOrder')
             ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_ppob_order.MerchantID')
             ->where('ms_status_ppob.IsActive', '=', 1)
-            ->select('tx_ppob_order.*', 'ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber', 'ms_status_ppob.StatusName');
+            ->select('tx_ppob_order.*', 'ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber', 'ms_status_ppob.StatusName')
+            ->orderByDesc('tx_ppob_order.TransactionDate');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
@@ -350,7 +353,7 @@ class PpobController extends Controller
                     return $statusName;
                 })
                 ->editColumn('TransactionDate', function ($data) {
-                    return date('Y-m-d', strtotime($data->TransactionDate));
+                    return date('d M Y H:i', strtotime($data->TransactionDate));
                 })
                 ->rawColumns(['TransactionDate', 'StatusName'])
                 ->make(true);
@@ -364,7 +367,8 @@ class PpobController extends Controller
 
         $sqlPPOBActivated = DB::table('ms_merchant_account')
             ->where('ms_merchant_account.ActivatedPPOB', '=', 1)
-            ->select('ms_merchant_account.*');
+            ->select('ms_merchant_account.*')
+            ->orderByDesc('ms_merchant_account.ActivatedPPOBDate');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
@@ -380,7 +384,7 @@ class PpobController extends Controller
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->editColumn('ActivatedPPOBDate', function ($data) {
-                    return date('Y-m-d', strtotime($data->ActivatedPPOBDate));
+                    return date('d M Y H:i', strtotime($data->ActivatedPPOBDate));
                 })
                 ->rawColumns(['ActivatedPPOBDate'])
                 ->make(true);

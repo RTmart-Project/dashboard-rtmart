@@ -59,7 +59,6 @@ $(document).ready(function () {
                     name: 'StatusName'
                 }
             ],
-            "order": [[ 0, "desc" ]],
             buttons: [{
                 extend: 'excelHtml5',
                 filename: function () {
@@ -71,10 +70,11 @@ $(document).ready(function () {
                     modifier: {
                         page: 'all'
                     },
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                     orthogonal: 'export'
                 },
             }],
+            "order": [],
             "lengthChange": false,
             "responsive": true,
             "autoWidth": false,
