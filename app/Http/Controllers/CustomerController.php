@@ -262,8 +262,9 @@ class CustomerController extends Controller
     public function getTransactionDetails(Request $request, $orderId)
     {
         $orderById = DB::table('tx_product_order_detail')
-            ->where('OrderID', '=', $orderId)
-            ->select('*')->get();
+            ->leftJoin('ms_product', 'ms_product.ProductID', '=', 'tx_product_order_detail.productID')
+            ->where('tx_product_order_detail.OrderID', '=', $orderId)
+            ->select('tx_product_order_detail.*', 'ms_product.ProductName')->get();
 
         if ($request->ajax()) {
             return DataTables::of($orderById)

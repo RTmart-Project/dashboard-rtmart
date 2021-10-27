@@ -23,8 +23,8 @@ $(document).ready(function () {
                     name: 'productID'
                 },
                 {
-                    data: 'Description',
-                    name: 'Description'
+                    data: 'ProductName',
+                    name: 'ProductName'
                 },
                 {
                     data: 'Quantity',
