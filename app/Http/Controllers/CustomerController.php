@@ -214,7 +214,7 @@ class CustomerController extends Controller
         }
 
         // Get data response
-        $data = $sqlAllAccount->get();
+        $data = $sqlAllAccount;
 
         // Return Data Using DataTables with Ajax
         if ($request->ajax()) {
