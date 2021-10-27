@@ -14,13 +14,12 @@ class PpobController extends Controller
         // Balance MobilePulsa
         $username   = "081906609707";
         $apiKey   = "86660bd858549536";
-        $ref_id     = "your ref id";
-        $signature  = md5($username . $apiKey . 'cs');
+        $signature  = md5($username . $apiKey . 'bl');
 
         $json = '{
             "commands" : "balance",
-            "username" : "081906609707",
-            "sign"     : "86097bc8389ae7b9c362716d699a475f"
+            "username" : "' . $username . '",
+            "sign"     : "' . $signature . '"
         }';
 
         $url = "https://testprepaid.mobilepulsa.net/v1/legacy/index";
