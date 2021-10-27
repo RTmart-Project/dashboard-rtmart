@@ -16,8 +16,6 @@ class CustomerController extends Controller
                 ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'ms_customer_account.MerchantID')
                 ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
                 ->where('ms_merchant_account.IsTesting', 0)
-                ->where('ms_distributor.Ownership', '=', 'RTMart')
-                ->where('ms_distributor.Email', '!=', null)
                 ->select('ms_customer_account.CustomerID');
 
             if ($thisMonth != null && $thisYear != null) {
@@ -50,10 +48,10 @@ class CustomerController extends Controller
             'countNewCustomerBandungThisDay' => countCustomerAccount("D-2004-000005", $thisYear, $thisMonth, $thisDay),
             'countTotalCustomerCakung' => countCustomerAccount("D-2004-000001"),
             'countNewCustomerCakungThisMonth' => countCustomerAccount("D-2004-000001", $thisYear, $thisMonth),
-            'countNewCustomerCakungThisDay' => countCustomerAccount("D-2004-000001", $thisMonth, $thisYear, $thisDay),
+            'countNewCustomerCakungThisDay' => countCustomerAccount("D-2004-000001", $thisYear, $thisMonth, $thisDay),
             'countTotalCustomerCiracas' => countCustomerAccount("D-2004-000006"),
             'countNewCustomerCiracasThisMonth' => countCustomerAccount("D-2004-000006", $thisYear, $thisMonth),
-            'countNewCustomerCiracasThisDay' => countCustomerAccount("D-2004-000006", $thisMonth, $thisYear, $thisDay)
+            'countNewCustomerCiracasThisDay' => countCustomerAccount("D-2004-000006", $thisYear, $thisMonth, $thisDay)
         ]);
     }
 
@@ -67,8 +65,6 @@ class CustomerController extends Controller
             ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'ms_customer_account.MerchantID')
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
             ->where('ms_merchant_account.IsTesting', 0)
-            ->where('ms_distributor.Ownership', '=', 'RTMart')
-            ->where('ms_distributor.Email', '!=', null)
             ->select('ms_customer_account.*', 'ms_merchant_account.StoreName', 'ms_distributor.DistributorName');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
@@ -138,12 +134,8 @@ class CustomerController extends Controller
         function countCustomerTransaction($distributorId = "all", $thisYear = null, $thisMonth = null, $thisDay = null)
         {
             $customerTransaction = DB::table('tx_product_order')
-                ->leftJoin('ms_customer_account', 'ms_customer_account.CustomerID', '=', 'tx_product_order.CustomerID')
                 ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_product_order.MerchantID')
-                ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
                 ->where('ms_merchant_account.IsTesting', 0)
-                ->where('ms_distributor.Ownership', '=', 'RTMart')
-                ->where('ms_distributor.Email', '!=', null)
                 ->select('tx_product_order.OrderID');
 
             if ($thisMonth != null && $thisYear != null) {
@@ -176,10 +168,10 @@ class CustomerController extends Controller
             'countTransactionBandungThisDay' => countCustomerTransaction("D-2004-000005", $thisYear, $thisMonth, $thisDay),
             'countTotalTransactionCakung' => countCustomerTransaction("D-2004-000001"),
             'countTransactionCakungThisMonth' => countCustomerTransaction("D-2004-000001", $thisYear, $thisMonth),
-            'countTransactionCakungThisDay' => countCustomerTransaction("D-2004-000001", $thisMonth, $thisYear, $thisDay),
+            'countTransactionCakungThisDay' => countCustomerTransaction("D-2004-000001", $thisYear, $thisMonth, $thisDay),
             'countTotalTransactionCiracas' => countCustomerTransaction("D-2004-000006"),
             'countTransactionCiracasThisMonth' => countCustomerTransaction("D-2004-000006", $thisYear, $thisMonth),
-            'countTransactionCiracasThisDay' => countCustomerTransaction("D-2004-000006", $thisMonth, $thisYear, $thisDay)
+            'countTransactionCiracasThisDay' => countCustomerTransaction("D-2004-000006", $thisYear, $thisMonth, $thisDay)
         ]);
     }
 
@@ -197,8 +189,6 @@ class CustomerController extends Controller
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_product_order.PaymentMethodID')
             ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'ms_merchant_account.ReferralCode')
             ->where('ms_merchant_account.IsTesting', 0)
-            ->where('ms_distributor.Ownership', '=', 'RTMart')
-            ->where('ms_distributor.Email', '!=', null)
             ->select('tx_product_order.OrderID', 'tx_product_order.CustomerID', 'tx_product_order.MerchantID', 'tx_product_order.TotalPrice', 'ms_customer_account.FullName', 'tx_product_order.CreatedDate', 'ms_customer_account.PhoneNumber', 'ms_merchant_account.StoreName', 'tx_product_order.StatusOrderID', 'ms_status_order.StatusOrder', 'ms_distributor.DistributorName', 'ms_sales.SalesName', 'ms_payment_method.PaymentMethodName', 'ms_customer_account.Address');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.

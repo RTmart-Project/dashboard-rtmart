@@ -22,8 +22,6 @@ class MerchantController extends Controller
             $merchantAccount = DB::table('ms_merchant_account')
                 ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
                 ->where('ms_merchant_account.IsTesting', 0)
-                ->where('ms_distributor.Ownership', '=', 'RTMart')
-                ->where('ms_distributor.Email', '!=', null)
                 ->select('ms_merchant_account.MerchantID');
 
             if ($thisMonth != null && $thisYear != null) {
@@ -50,16 +48,16 @@ class MerchantController extends Controller
         return view('merchant.account.index', [
             'countTotalMerchant' => countMerchantAccount(),
             'countNewMerchantThisMonth' => countMerchantAccount("all", $thisYear, $thisMonth),
-            'countNewMerchantThisDay' => countMerchantAccount("all", $thisMonth, $thisYear, $thisDay),
+            'countNewMerchantThisDay' => countMerchantAccount("all", $thisYear, $thisMonth, $thisDay),
             'countTotalMerchantBandung' => countMerchantAccount("D-2004-000005"),
             'countNewMerchantBandungThisMonth' => countMerchantAccount("D-2004-000005", $thisYear, $thisMonth),
             'countNewMerchantBandungThisDay' => countMerchantAccount("D-2004-000005", $thisYear, $thisMonth, $thisDay),
             'countTotalMerchantCakung' => countMerchantAccount("D-2004-000001"),
             'countNewMerchantCakungThisMonth' => countMerchantAccount("D-2004-000001", $thisYear, $thisMonth),
-            'countNewMerchantCakungThisDay' => countMerchantAccount("D-2004-000001", $thisMonth, $thisYear, $thisDay),
+            'countNewMerchantCakungThisDay' => countMerchantAccount("D-2004-000001", $thisYear, $thisMonth, $thisDay),
             'countTotalMerchantCiracas' => countMerchantAccount("D-2004-000006"),
             'countNewMerchantCiracasThisMonth' => countMerchantAccount("D-2004-000006", $thisYear, $thisMonth),
-            'countNewMerchantCiracasThisDay' => countMerchantAccount("D-2004-000006", $thisMonth, $thisYear, $thisDay)
+            'countNewMerchantCiracasThisDay' => countMerchantAccount("D-2004-000006", $thisYear, $thisMonth, $thisDay)
         ]);
     }
 
@@ -74,8 +72,6 @@ class MerchantController extends Controller
             ->leftJoin('ms_area', 'ms_area.AreaID', '=', 'ms_merchant_account.AreaID')
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
             ->where('ms_merchant_account.IsTesting', 0)
-            ->where('ms_distributor.Ownership', '=', 'RTMart')
-            ->where('ms_distributor.Email', '!=', null)
             ->select('ms_merchant_account.*', 'ms_area.AreaName', 'ms_area.Subdistrict', 'ms_area.City', 'ms_area.Province', 'ms_distributor.DistributorName');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
@@ -195,8 +191,6 @@ class MerchantController extends Controller
                 ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
                 ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tx_merchant_order.DistributorID')
                 ->where('ms_merchant_account.IsTesting', 0)
-                ->where('ms_distributor.Ownership', '=', 'RTMart')
-                ->where('ms_distributor.Email', '!=', null)
                 ->select('tx_merchant_order.StockOrderID');
 
             if ($thisMonth != null && $thisYear != null) {
@@ -229,10 +223,10 @@ class MerchantController extends Controller
             'countRestockBandungThisDay' => countMerchantRestock("D-2004-000005", $thisYear, $thisMonth, $thisDay),
             'countTotalRestockCakung' => countMerchantRestock("D-2004-000001"),
             'countRestockCakungThisMonth' => countMerchantRestock("D-2004-000001", $thisYear, $thisMonth),
-            'countRestockCakungThisDay' => countMerchantRestock("D-2004-000001", $thisMonth, $thisYear, $thisDay),
+            'countRestockCakungThisDay' => countMerchantRestock("D-2004-000001", $thisYear, $thisMonth, $thisDay),
             'countTotalRestockCiracas' => countMerchantRestock("D-2004-000006"),
             'countRestockCiracasThisMonth' => countMerchantRestock("D-2004-000006", $thisYear, $thisMonth),
-            'countRestockCiracasThisDay' => countMerchantRestock("D-2004-000006", $thisMonth, $thisYear, $thisDay)
+            'countRestockCiracasThisDay' => countMerchantRestock("D-2004-000006", $thisYear, $thisMonth, $thisDay)
         ]);
     }
 
@@ -248,8 +242,6 @@ class MerchantController extends Controller
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_order.StatusOrderID')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
             ->where('ms_merchant_account.IsTesting', 0)
-            ->where('ms_distributor.Ownership', '=', 'RTMart')
-            ->where('ms_distributor.Email', '!=', null)
             ->select('tx_merchant_order.*', 'ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'ms_merchant_account.ReferralCode', 'ms_payment_method.PaymentMethodName');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
