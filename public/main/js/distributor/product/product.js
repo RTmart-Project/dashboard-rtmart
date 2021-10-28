@@ -99,5 +99,32 @@ $(document).ready(function () {
                 }
             ]
         });
+
+        // Event listener saat tombol delete diklik
+        $('table').on('click', '.btn-delete', function (e) {
+            e.preventDefault();
+            const productName = $(this).data("product-name");
+            const gradeName = $(this).data("grade-name");
+            const distributorId = $(this).data("distributor-id");
+            const productId = $(this).data("product-id");
+            const gradeId = $(this).data("grade-id");
+            $.confirm({
+                title: 'Hapus Produk!',
+                content: `Yakin ingin menghapus produk <b>${productName}</b> grade <b>${gradeName}</b> ?`,
+                closeIcon: true,
+                buttons: {
+                    hapus: {
+                        btnClass: 'btn-red',
+                        draggable: true,
+                        dragWindowGap: 0,
+                        action: function () {
+                            window.location = '/distributor/account/product/delete/' + distributorId + '/' + productId + '/' + gradeId
+                        }
+                    },
+                    tidak: function () {
+                    }
+                }
+            });
+        });
     }
 });

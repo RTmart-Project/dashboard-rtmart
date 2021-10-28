@@ -45,11 +45,11 @@ class DistributorController extends Controller
                     return date('d M Y H:i', strtotime($data->CreatedDate));
                 })
                 ->addColumn('Product', function ($data) {
-                    $productBtn = '<a href="/distributor/account/product/' . $data->DistributorID . '" class="btn-sm btn-info detail-order">Detail</a>';
+                    $productBtn = '<a href="/distributor/account/product/' . $data->DistributorID . '" class="btn-sm btn-info">Detail</a>';
                     return $productBtn;
                 })
                 ->addColumn('Action', function ($data) {
-                    $actionBtn = '<a href="/distributor/account/edit/' . $data->DistributorID . '" class="btn-sm btn-warning detail-order">Edit</a>';
+                    $actionBtn = '<a href="/distributor/account/edit/' . $data->DistributorID . '" class="btn-sm btn-warning">Edit</a>';
                     return $actionBtn;
                 })
                 ->rawColumns(['CreatedDate', 'Product', 'Action'])
@@ -146,7 +146,8 @@ class DistributorController extends Controller
                     return $grade;
                 })
                 ->addColumn('Action', function ($data) {
-                    $actionBtn = '<a href="/distributor/account/product/edit/' . $data->DistributorID . '/' . $data->ProductID . '/' . $data->GradeID . '" class="btn-sm btn-warning detail-order">Edit</a>';
+                    $actionBtn = '<a href="/distributor/account/product/edit/' . $data->DistributorID . '/' . $data->ProductID . '/' . $data->GradeID . '" class="btn btn-sm btn-warning mr-1">Edit</a>
+                    <a data-distributor-id="' . $data->DistributorID . '" data-product-id="' . $data->ProductID . '" data-grade-id="' . $data->GradeID . '" data-product-name="' . $data->ProductName . '" data-grade-name="' . $data->Grade . '" href="#" class="btn-delete btn btn-sm btn-danger">Delete</a>';
                     return $actionBtn;
                 })
                 ->rawColumns(['Grade', 'ProductImage', 'Action'])
@@ -190,6 +191,21 @@ class DistributorController extends Controller
 
         if ($updateDistributorProduct) {
             return redirect()->route('distributor.productDetails', ['distributorId' => $distributorId])->with('success', 'Data produk distributor telah diubah');
+        } else {
+            return redirect()->route('distributor.productDetails', ['distributorId' => $distributorId])->with('failed', 'Terjadi kesalahan sistem atau jaringan');
+        }
+    }
+
+    public function deleteProduct($distributorId, $productId, $gradeId)
+    {
+        $deleteProduct = DB::table('ms_distributor_product_price')
+            ->where('DistributorID', '=', $distributorId)
+            ->where('ProductID', '=', $productId)
+            ->where('GradeID', '=', $gradeId)
+            ->delete();
+
+        if ($deleteProduct) {
+            return redirect()->route('distributor.productDetails', ['distributorId' => $distributorId])->with('success', 'Data produk distributor telah dihapus');
         } else {
             return redirect()->route('distributor.productDetails', ['distributorId' => $distributorId])->with('failed', 'Terjadi kesalahan sistem atau jaringan');
         }

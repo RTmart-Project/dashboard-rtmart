@@ -99,6 +99,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/distributor/account/product/get/{distributorId}', [DistributorController::class, 'getProductDetails'])->name('distributor.getProductDetails');
         Route::get('/distributor/account/product/edit/{distributorId}/{productId}/{gradeId}', [DistributorController::class, 'editProduct'])->name('distributor.editProduct');
         Route::post('/distributor/account/product/update/{distributorId}/{productId}/{gradeId}', [DistributorController::class, 'updateProduct'])->name('distributor.updateProduct');
+        Route::get('/distributor/account/product/delete/{distributorId}/{productId}/{gradeId}', [DistributorController::class, 'deleteProduct'])->name('distributor.deleteProduct');
 
         // Merchant
         Route::get('/merchant/account', [MerchantController::class, 'account'])->name('merchant.account');
