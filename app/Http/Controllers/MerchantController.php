@@ -247,6 +247,20 @@ class MerchantController extends Controller
         }
     }
 
+    public function deleteProduct($merchantId, $productId)
+    {
+        $deleteProduct = DB::table('ms_product_merchant')
+            ->where('MerchantID', '=', $merchantId)
+            ->where('ProductID', '=', $productId)
+            ->delete();
+
+        if ($deleteProduct) {
+            return redirect()->route('merchant.product', ['merchantId' => $merchantId])->with('success', 'Data produk merchant telah diubah');
+        } else {
+            return redirect()->route('merchant.product', ['merchantId' => $merchantId])->with('failed', 'Terjadi kesalahan sistem atau jaringan');
+        }
+    }
+
     public function otp()
     {
         return view('merchant.otp.index');
