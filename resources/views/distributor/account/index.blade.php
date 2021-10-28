@@ -54,8 +54,8 @@
                                                     <th>Email</th>
                                                     <th style="width: 40%">Alamat</th>
                                                     <th>Created Date</th>
-                                                    <th>Produk</th>
                                                     <th>Action</th>
+                                                    <th>Produk</th>
                                                 </tr>
                                             </thead>
                                             <tbody>

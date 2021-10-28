@@ -40,12 +40,12 @@ $(document).ready(function () {
                     type: 'date'
                 },
                 {
-                    data: 'Product',
-                    name: 'Product'
-                },
-                {
                     data: 'Action',
                     name: 'Action'
+                },
+                {
+                    data: 'Product',
+                    name: 'Product'
                 }
             ],
             buttons: [{

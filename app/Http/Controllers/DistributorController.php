@@ -45,8 +45,8 @@ class DistributorController extends Controller
                     return date('d M Y H:i', strtotime($data->CreatedDate));
                 })
                 ->addColumn('Product', function ($data) {
-                    $actionBtn = '<a href="/distributor/account/product/' . $data->DistributorID . '" class="btn-sm btn-info detail-order">Detail</a>';
-                    return $actionBtn;
+                    $productBtn = '<a href="/distributor/account/product/' . $data->DistributorID . '" class="btn-sm btn-info detail-order">Detail</a>';
+                    return $productBtn;
                 })
                 ->addColumn('Action', function ($data) {
                     $actionBtn = '<a href="/distributor/account/edit/' . $data->DistributorID . '" class="btn-sm btn-warning detail-order">Edit</a>';
@@ -140,6 +140,8 @@ class DistributorController extends Controller
                         $grade = '<span class="badge badge-warning">' . $data->Grade . '</span>';
                     } elseif ($data->Grade == "WS") {
                         $grade = '<span class="badge badge-primary">' . $data->Grade . '</span>';
+                    } else {
+                        $grade = '';
                     }
                     return $grade;
                 })

@@ -104,7 +104,7 @@
                                     <div class="info-box-content">
                                         <span class="info-box-text">Bulan Ini (RTmart Bandung)</span>
                                         <span class="info-box-number">
-                                            {{Helper::formatCurrency($countNewCustomerBandungThisMonth, '+', ' Merchant')}}
+                                            {{Helper::formatCurrency($countNewCustomerBandungThisMonth, '+', ' Customer')}}
                                         </span>
                                     </div>
                                 </div>
@@ -115,7 +115,7 @@
                                     <div class="info-box-content">
                                         <span class="info-box-text">Hari Ini (RTmart Bandung)</span>
                                         <span class="info-box-number">
-                                            {{Helper::formatCurrency($countNewCustomerBandungThisDay, '+', ' Merchant')}}
+                                            {{Helper::formatCurrency($countNewCustomerBandungThisDay, '+', ' Customer')}}
                                         </span>
                                     </div>
                                 </div>
@@ -140,7 +140,7 @@
                                     <div class="info-box-content">
                                         <span class="info-box-text">Bulan Ini (RTmart Cakung)</span>
                                         <span class="info-box-number">
-                                            {{Helper::formatCurrency($countNewCustomerCakungThisMonth, '+', ' Merchant')}}
+                                            {{Helper::formatCurrency($countNewCustomerCakungThisMonth, '+', ' Customer')}}
                                         </span>
                                     </div>
                                 </div>
@@ -151,7 +151,7 @@
                                     <div class="info-box-content">
                                         <span class="info-box-text">Hari Ini (RTmart Cakung)</span>
                                         <span class="info-box-number">
-                                            {{Helper::formatCurrency($countNewCustomerCakungThisDay, '+', ' Merchant')}}
+                                            {{Helper::formatCurrency($countNewCustomerCakungThisDay, '+', ' Customer')}}
                                         </span>
                                     </div>
                                 </div>
@@ -176,7 +176,7 @@
                                     <div class="info-box-content">
                                         <span class="info-box-text">Bulan Ini (RTmart Ciracas)</span>
                                         <span class="info-box-number">
-                                            {{Helper::formatCurrency($countNewCustomerCiracasThisMonth, '+', ' Merchant')}}
+                                            {{Helper::formatCurrency($countNewCustomerCiracasThisMonth, '+', ' Customer')}}
                                         </span>
                                     </div>
                                 </div>
@@ -187,7 +187,7 @@
                                     <div class="info-box-content">
                                         <span class="info-box-text">Hari Ini (RTmart Ciracas)</span>
                                         <span class="info-box-number">
-                                            {{Helper::formatCurrency($countNewCustomerCiracasThisDay, '+', ' Merchant')}}
+                                            {{Helper::formatCurrency($countNewCustomerCiracasThisDay, '+', ' Customer')}}
                                         </span>
                                     </div>
                                 </div>
@@ -212,7 +212,7 @@
                                     <div class="info-box-content">
                                         <span class="info-box-text">Bulan Ini (RTmart Semarang)</span>
                                         <span class="info-box-number">
-                                            {{Helper::formatCurrency($countNewCustomerSemarangThisMonth, '+', ' Merchant')}}
+                                            {{Helper::formatCurrency($countNewCustomerSemarangThisMonth, '+', ' Customer')}}
                                         </span>
                                     </div>
                                 </div>
@@ -223,7 +223,7 @@
                                     <div class="info-box-content">
                                         <span class="info-box-text">Hari Ini (RTmart Semarang)</span>
                                         <span class="info-box-number">
-                                            {{Helper::formatCurrency($countNewCustomerSemarangThisDay, '+', ' Merchant')}}
+                                            {{Helper::formatCurrency($countNewCustomerSemarangThisDay, '+', ' Customer')}}
                                         </span>
                                     </div>
                                 </div>

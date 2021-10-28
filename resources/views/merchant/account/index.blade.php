@@ -258,11 +258,13 @@
                                                 <tr>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
+                                                    <th>Nama Pemilik</th>
                                                     <th>No. Telp</th>
                                                     <th>Tgl Registrasi</th>
-                                                    <th>Alamat</th>
+                                                    <th style="width: 35%">Alamat</th>
                                                     <th>Referral</th>
-                                                    <th>Nama Distributor</th>
+                                                    <th>Distributor</th>
+                                                    <th>Action</th>
                                                     <th>Produk</th>
                                                 </tr>
                                             </thead>

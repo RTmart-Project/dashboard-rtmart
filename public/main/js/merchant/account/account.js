@@ -28,6 +28,10 @@ $(document).ready(function () {
                     name: 'StoreName'
                 },
                 {
+                    data: 'OwnerFullName',
+                    name: 'OwnerFullName'
+                },
+                {
                     data: 'PhoneNumber',
                     name: 'PhoneNumber'
                 },
@@ -51,6 +55,10 @@ $(document).ready(function () {
                 {
                     data: 'Action',
                     name: 'Action'
+                },
+                {
+                    data: 'Product',
+                    name: 'Product'
                 }
             ],
             buttons: [{
@@ -64,13 +72,13 @@ $(document).ready(function () {
                     modifier: {
                         page: 'all'
                     },
-                    columns: [0, 1, 2, 3, 4, 5, 6],
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7],
                     orthogonal: 'export'
                 },
             }],
-            "order": [3, 'desc'],
+            "order": [4, 'desc'],
             "columnDefs": [{
-                "targets": [7],
+                "targets": [8, 9],
                 "orderable": false
             }],
             "lengthChange": false,

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Validation\Rule;
 
 class MerchantController extends Controller
 {
@@ -72,10 +73,9 @@ class MerchantController extends Controller
 
         // Get data account, jika tanggal filter kosong tampilkan semua data.
         $sqlAllAccount = DB::table('ms_merchant_account')
-            ->leftJoin('ms_area', 'ms_area.AreaID', '=', 'ms_merchant_account.AreaID')
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
             ->where('ms_merchant_account.IsTesting', 0)
-            ->select('ms_merchant_account.*', 'ms_area.AreaName', 'ms_area.Subdistrict', 'ms_area.City', 'ms_area.Province', 'ms_distributor.DistributorName')
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.CreatedDate', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_distributor.DistributorName')
             ->orderByDesc('ms_merchant_account.CreatedDate');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
@@ -97,12 +97,69 @@ class MerchantController extends Controller
                 ->editColumn('CreatedDate', function ($data) {
                     return date('d M Y H:i', strtotime($data->CreatedDate));
                 })
+                ->addColumn('Product', function ($data) {
+                    $productBtn = '<a href="/merchant/account/product/' . $data->MerchantID . '" class="btn-sm btn-info detail-order">Detail</a>';
+                    return $productBtn;
+                })
                 ->addColumn('Action', function ($data) {
-                    $actionBtn = '<a href="/merchant/account/product/' . $data->MerchantID . '" class="btn-sm btn-info detail-order">Detail</a>';
+                    $actionBtn = '<a href="/merchant/account/edit/' . $data->MerchantID . '" class="btn-sm btn-warning detail-order">Edit</a>';
                     return $actionBtn;
                 })
-                ->rawColumns(['CreatedDate', 'Action'])
+                ->rawColumns(['CreatedDate', 'Product', 'Action'])
                 ->make(true);
+        }
+    }
+
+    public function editAccount($merchantId)
+    {
+        $merchantById = DB::table('ms_merchant_account')
+            ->leftJoin('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'ms_distributor.DistributorID', 'ms_distributor.DistributorName')
+            ->where('ms_merchant_account.MerchantID', '=', $merchantId)
+            ->first();
+
+        $distributor = DB::table('ms_distributor')
+            ->select('DistributorID', 'DistributorName')
+            ->get();
+
+        return view('merchant.account.edit', [
+            'merchantById' => $merchantById,
+            'distributor' => $distributor
+        ]);
+    }
+
+    public function updateAccount(Request $request, $merchantId)
+    {
+        $request->validate([
+            'store_name' => 'required|string',
+            'owner_name' => 'required|string',
+            'phone_number' => [
+                'required',
+                'numeric',
+                Rule::unique('ms_merchant_account', 'PhoneNumber')->ignore($merchantId, 'MerchantID')
+            ],
+            'distributor' => 'required|exists:ms_distributor,DistributorID',
+            'address' => 'max:500'
+        ]);
+
+        $data = [
+            'StoreName' => $request->input('store_name'),
+            'OwnerFullName' => $request->input('owner_name'),
+            'PhoneNumber' => $request->input('phone_number'),
+            'OwnerPhoneNumber' => $request->input('phone_number'),
+            'StorePhoneNumber' => $request->input('phone_number'),
+            'DistributorID' => $request->input('distributor'),
+            'StoreAddress' => $request->input('address')
+        ];
+
+        $updateMerchant = DB::table('ms_merchant_account')
+            ->where('MerchantID', '=', $merchantId)
+            ->update($data);
+
+        if ($updateMerchant) {
+            return redirect()->route('merchant.account')->with('success', 'Data merchant telah diubah');
+        } else {
+            return redirect()->route('merchant.account')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
         }
     }
 

@@ -101,6 +101,8 @@ Route::group(['middleware' => ['auth']], function () {
         // Merchant
         Route::get('/merchant/account', [MerchantController::class, 'account'])->name('merchant.account');
         Route::get('/merchant/account/get', [MerchantController::class, 'getAccounts'])->name('merchant.getAccounts');
+        Route::get('/merchant/account/edit/{merchantId}', [MerchantController::class, 'editAccount'])->name('merchant.editAccount');
+        Route::post('/merchant/account/update/{merchantId}', [MerchantController::class, 'updateAccount'])->name('merchant.updateAccount');
         Route::get('/merchant/account/product/{merchantId}', [MerchantController::class, 'product'])->name('merchant.product');
         Route::get('/merchant/account/product/get/{merchantId}', [MerchantController::class, 'getProducts'])->name('merchant.getProducts');
         Route::get('/merchant/otp', [MerchantController::class, 'otp'])->name('merchant.otp');
