@@ -121,7 +121,7 @@ class DistributorController extends Controller
             ->join('ms_product_type', 'ms_product_type.ProductTypeID', '=', 'ms_product.ProductTypeID')
             ->join('ms_product_uom', 'ms_product_uom.ProductUOMID', '=', 'ms_product.ProductUOMID')
             ->where('ms_distributor_product_price.DistributorID', '=', $distributorId)
-            ->select('ms_distributor_product_price.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product_category.ProductCategoryName', 'ms_product_type.ProductTypeName', 'ms_product_uom.ProductUOMName', 'ms_product.ProductUOMDesc', 'ms_distributor_product_price.Price', 'ms_distributor_grade.Grade');
+            ->select('ms_distributor_product_price.DistributorID', 'ms_distributor_product_price.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product_category.ProductCategoryName', 'ms_product_type.ProductTypeName', 'ms_product_uom.ProductUOMName', 'ms_product.ProductUOMDesc', 'ms_distributor_product_price.Price', 'ms_distributor_product_price.GradeID', 'ms_distributor_grade.Grade');
 
         $data = $distributorProducts->get();
 
@@ -141,12 +141,57 @@ class DistributorController extends Controller
                     } elseif ($data->Grade == "WS") {
                         $grade = '<span class="badge badge-primary">' . $data->Grade . '</span>';
                     } else {
-                        $grade = '';
+                        $grade = $data->Grade;
                     }
                     return $grade;
                 })
-                ->rawColumns(['Grade', 'ProductImage'])
+                ->addColumn('Action', function ($data) {
+                    $actionBtn = '<a href="/distributor/account/product/edit/' . $data->DistributorID . '/' . $data->ProductID . '/' . $data->GradeID . '" class="btn-sm btn-warning detail-order">Edit</a>';
+                    return $actionBtn;
+                })
+                ->rawColumns(['Grade', 'ProductImage', 'Action'])
                 ->make(true);
+        }
+    }
+
+    public function editProduct($distributorId, $productId, $gradeId)
+    {
+        $distributorProduct = DB::table('ms_distributor_product_price')
+            ->leftJoin('ms_distributor', 'ms_distributor.DistributorID', 'ms_distributor_product_price.DistributorID')
+            ->leftJoin('ms_product', 'ms_product.ProductID', '=', 'ms_distributor_product_price.ProductID')
+            ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', '=', 'ms_distributor_product_price.GradeID')
+            ->where('ms_distributor_product_price.DistributorID', '=', $distributorId)
+            ->where('ms_distributor_product_price.ProductID', '=', $productId)
+            ->where('ms_distributor_product_price.GradeID', '=', $gradeId)
+            ->select('ms_distributor_product_price.*', 'ms_distributor.DistributorName', 'ms_distributor.Address', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_distributor_grade.Grade')
+            ->first();
+
+        return view('distributor.product.edit', [
+            'distributorId' => $distributorId,
+            'productId' => $productId,
+            'gradeId' => $gradeId,
+            'distributorProduct' => $distributorProduct
+        ]);
+    }
+
+    public function updateProduct(Request $request, $distributorId, $productId, $gradeId)
+    {
+        $request->validate([
+            'price' => 'required|integer'
+        ]);
+
+        $updateDistributorProduct = DB::table('ms_distributor_product_price')
+            ->where('DistributorID', '=', $distributorId)
+            ->where('ProductID', '=', $productId)
+            ->where('GradeID', '=', $gradeId)
+            ->update([
+                'Price' => $request->input('price')
+            ]);
+
+        if ($updateDistributorProduct) {
+            return redirect()->route('distributor.productDetails', ['distributorId' => $distributorId])->with('success', 'Data produk distributor telah diubah');
+        } else {
+            return redirect()->route('distributor.productDetails', ['distributorId' => $distributorId])->with('failed', 'Terjadi kesalahan sistem atau jaringan');
         }
     }
 }

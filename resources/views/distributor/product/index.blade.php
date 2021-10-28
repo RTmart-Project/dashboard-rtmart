@@ -64,6 +64,7 @@
                                                     <th>Isi</th>
                                                     <th>Harga</th>
                                                     <th>Grade</th>
+                                                    <th>Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
