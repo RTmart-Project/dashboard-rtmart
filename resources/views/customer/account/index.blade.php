@@ -193,6 +193,42 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="info-box">
+                                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-users"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Total Customer (RTmart Semarang)</span>
+                                        <span class="info-box-number">
+                                            {{Helper::formatCurrency($countTotalCustomerSemarang, '')}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-box">
+                                    <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-users"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Bulan Ini (RTmart Semarang)</span>
+                                        <span class="info-box-number">
+                                            {{Helper::formatCurrency($countNewCustomerSemarangThisMonth, '+', ' Merchant')}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-box">
+                                    <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-users"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Hari Ini (RTmart Semarang)</span>
+                                        <span class="info-box-number">
+                                            {{Helper::formatCurrency($countNewCustomerSemarangThisDay, '+', ' Merchant')}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                   <!-- /.card-body -->
                 </div>

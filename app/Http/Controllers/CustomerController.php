@@ -51,7 +51,10 @@ class CustomerController extends Controller
             'countNewCustomerCakungThisDay' => countCustomerAccount("D-2004-000001", $thisYear, $thisMonth, $thisDay),
             'countTotalCustomerCiracas' => countCustomerAccount("D-2004-000006"),
             'countNewCustomerCiracasThisMonth' => countCustomerAccount("D-2004-000006", $thisYear, $thisMonth),
-            'countNewCustomerCiracasThisDay' => countCustomerAccount("D-2004-000006", $thisYear, $thisMonth, $thisDay)
+            'countNewCustomerCiracasThisDay' => countCustomerAccount("D-2004-000006", $thisYear, $thisMonth, $thisDay),
+            'countTotalCustomerSemarang' => countCustomerAccount("D-2004-000002"),
+            'countNewCustomerSemarangThisMonth' => countCustomerAccount("D-2004-000002", $thisYear, $thisMonth),
+            'countNewCustomerSemarangThisDay' => countCustomerAccount("D-2004-000002", $thisYear, $thisMonth, $thisDay)
         ]);
     }
 
@@ -179,7 +182,10 @@ class CustomerController extends Controller
             'countTransactionCakungThisDay' => countCustomerTransaction("D-2004-000001", $thisYear, $thisMonth, $thisDay),
             'countTotalTransactionCiracas' => countCustomerTransaction("D-2004-000006"),
             'countTransactionCiracasThisMonth' => countCustomerTransaction("D-2004-000006", $thisYear, $thisMonth),
-            'countTransactionCiracasThisDay' => countCustomerTransaction("D-2004-000006", $thisYear, $thisMonth, $thisDay)
+            'countTransactionCiracasThisDay' => countCustomerTransaction("D-2004-000006", $thisYear, $thisMonth, $thisDay),
+            'countTotalTransactionSemarang' => countCustomerTransaction("D-2004-000002"),
+            'countTransactionSemarangThisMonth' => countCustomerTransaction("D-2004-000002", $thisYear, $thisMonth),
+            'countTransactionSemarangThisDay' => countCustomerTransaction("D-2004-000002", $thisYear, $thisMonth, $thisDay)
         ]);
     }
 
