@@ -42,28 +42,33 @@
                         <form id="edit-product-distributor" method="post" action="{{ route('distributor.updateProduct', ['distributorId' => $distributorId, 'productId' => $productId, 'gradeId' => $gradeId]) }}" enctype="multipart/form-data">
                             @csrf
                             <div class="row">
-                                <div class="col-md-4 col-12">
+                                <div class="col-12 text-center">
+                                    <img src="{{ config('app.base_image_url') . 'product/'. $distributorProduct->ProductImage }}" id="output" height="130px"/>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 col-12">
                                     <div class="form-group">
                                         <label>ID Produk</label>
                                         <input type="text" value="{{ $productId }}" class="form-control" readonly>
                                     </div>
                                 </div>
-                                <div class="col-md-4 col-12">
+                                <div class="col-md-6 col-12">
                                     <div class="form-group">
                                         <label>Nama Produk</label>
                                         <input type="text" value="{{ $distributorProduct->ProductName }}" class="form-control" readonly>
                                     </div>
                                 </div>
-                                <div class="col-md-4 col-12">
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 col-12">
                                     <div class="form-group">
                                         <label>Grade</label>
                                         <input type="text" value="{{ $distributorProduct->Grade }}" class="form-control" readonly>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-4 col-12">
+                                <div class="col-md-6 col-12">
                                     <div class="form-group">
                                         <label for="price">Harga</label>
                                         <input type="number" name="price" id="price" class="form-control @if($errors->has('price')) is-invalid @endif" value="{{ $distributorProduct->Price }}" placeholder="Masukkan Harga Produk" required>
@@ -71,9 +76,6 @@
                                             <span class="error invalid-feedback">{{ $errors->first('price') }}</span>
                                         @endif
                                     </div>
-                                </div>
-                                <div class="col-md-4 col-12">
-                                    <img src="{{ config('app.base_image_url') . 'product/'. $distributorProduct->ProductImage }}" id="output" height="130px"/>
                                 </div>
                             </div>
                             

@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Validation\Rule;
 
+use function Symfony\Component\String\b;
+
 class MerchantController extends Controller
 {
     protected $baseImageUrl;
@@ -184,7 +186,7 @@ class MerchantController extends Controller
             ->join('ms_product_type', 'ms_product_type.ProductTypeID', '=', 'ms_product.ProductTypeID')
             ->join('ms_product_uom', 'ms_product_uom.ProductUOMID', '=', 'ms_product.ProductUOMID')
             ->where('ms_product_merchant.MerchantID', '=', $merchantId)
-            ->select('ms_product_merchant.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product_category.ProductCategoryName', 'ms_product_type.ProductTypeName', 'ms_product_uom.ProductUOMName', 'ms_product.ProductUOMDesc', 'ms_product_merchant.Price', 'ms_product_merchant.PurchasePrice');
+            ->select('ms_product_merchant.MerchantID', 'ms_product_merchant.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product_category.ProductCategoryName', 'ms_product_type.ProductTypeName', 'ms_product_uom.ProductUOMName', 'ms_product.ProductUOMDesc', 'ms_product_merchant.Price', 'ms_product_merchant.PurchasePrice');
 
         $data = $merchantProducts->get();
 
@@ -196,8 +198,52 @@ class MerchantController extends Controller
                     }
                     return '<img src="' . $this->baseImageUrl . 'product/' . $data->ProductImage . '" alt="Product Image" height="90">';
                 })
-                ->rawColumns(['ProductImage'])
+                ->addColumn('Action', function ($data) {
+                    $actionBtn = '<a href="/merchant/account/product/edit/' . $data->MerchantID . '/' . $data->ProductID . '" class="btn btn-sm btn-warning mr-1">Edit</a>
+                    <a data-merchant-id="' . $data->MerchantID . '" data-product-id="' . $data->ProductID . '" data-product-name="' . $data->ProductName . '" href="#" class="btn-delete btn btn-sm btn-danger">Delete</a>';
+                    return $actionBtn;
+                })
+                ->rawColumns(['ProductImage', 'Action'])
                 ->make(true);
+        }
+    }
+
+    public function editProduct($merchantId, $productId)
+    {
+        $merchantProduct = DB::table('ms_product_merchant')
+            ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'ms_product_merchant.MerchantID')
+            ->leftJoin('ms_product', 'ms_product.ProductID', '=', 'ms_product_merchant.ProductID')
+            ->where('ms_product_merchant.MerchantID', '=', $merchantId)
+            ->where('ms_product_merchant.ProductID', '=', $productId)
+            ->select('ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.StoreImage', 'ms_merchant_account.PhoneNumber', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product_merchant.Price', 'ms_product_merchant.PurchasePrice')
+            ->first();
+
+        return view('merchant.product.edit', [
+            'merchantId' => $merchantId,
+            'productId' => $productId,
+            'merchantProduct' => $merchantProduct
+        ]);
+    }
+
+    public function updateProduct(Request $request, $merchantId, $productId)
+    {
+        $request->validate([
+            'price' => 'required|integer',
+            'purchase_price' => 'required|integer'
+        ]);
+
+        $updateMerchantProduct = DB::table('ms_product_merchant')
+            ->where('MerchantID', '=', $merchantId)
+            ->where('ProductID', '=', $productId)
+            ->update([
+                'Price' => $request->input('price'),
+                'PurchasePrice' => $request->input('purchase_price')
+            ]);
+
+        if ($updateMerchantProduct) {
+            return redirect()->route('merchant.product', ['merchantId' => $merchantId])->with('success', 'Data produk merchant telah diubah');
+        } else {
+            return redirect()->route('merchant.product', ['merchantId' => $merchantId])->with('failed', 'Terjadi kesalahan sistem atau jaringan');
         }
     }
 

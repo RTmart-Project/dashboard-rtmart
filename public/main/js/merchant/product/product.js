@@ -53,6 +53,10 @@ $(document).ready(function () {
                 {
                     data: 'PurchasePrice',
                     name: 'PurchasePrice'
+                },
+                {
+                    data: 'Action',
+                    name: 'Action'
                 }
             ],
             buttons: [{
@@ -74,6 +78,10 @@ $(document).ready(function () {
             "responsive": true,
             "autoWidth": false,
             "aoColumnDefs": [
+                {
+                    "aTargets": [9],
+                    "orderable": false
+                },
                 {
                     "aTargets": [7, 8],
                     "mRender": function (data, type, full) {

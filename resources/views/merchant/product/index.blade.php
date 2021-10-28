@@ -79,6 +79,7 @@
                                                     <th>Isi</th>
                                                     <th>Harga Jual</th>
                                                     <th>Harga Beli</th>
+                                                    <th>Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
