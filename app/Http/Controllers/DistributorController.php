@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Validation\Rule;
 
 class DistributorController extends Controller
 {
@@ -28,12 +29,12 @@ class DistributorController extends Controller
         $sqlAllAccount = DB::table('ms_distributor')
             ->where('Ownership', '=', 'RTMart')
             ->where('Email', '!=', NULL)
-            ->select('*')
+            ->select('DistributorID', 'DistributorName', 'Email', 'Address', 'CreatedDate')
             ->orderByDesc('CreatedDate');
 
         if ($fromDate != '' && $toDate != '') {
-            $sqlAllAccount->whereDate('ms_distributor.CreatedDate', '>=', $fromDate)
-                ->whereDate('ms_distributor.CreatedDate', '<=', $toDate);
+            $sqlAllAccount->whereDate('CreatedDate', '>=', $fromDate)
+                ->whereDate('CreatedDate', '<=', $toDate);
         }
 
         $data = $sqlAllAccount->get();
@@ -43,12 +44,58 @@ class DistributorController extends Controller
                 ->editColumn('CreatedDate', function ($data) {
                     return date('d M Y H:i', strtotime($data->CreatedDate));
                 })
-                ->addColumn('Action', function ($data) {
+                ->addColumn('Product', function ($data) {
                     $actionBtn = '<a href="/distributor/account/product/' . $data->DistributorID . '" class="btn-sm btn-info detail-order">Detail</a>';
                     return $actionBtn;
                 })
-                ->rawColumns(['CreatedDate', 'Action'])
+                ->addColumn('Action', function ($data) {
+                    $actionBtn = '<a href="/distributor/account/edit/' . $data->DistributorID . '" class="btn-sm btn-warning detail-order">Edit</a>';
+                    return $actionBtn;
+                })
+                ->rawColumns(['CreatedDate', 'Product', 'Action'])
                 ->make(true);
+        }
+    }
+
+    public function editAccount($distributorId)
+    {
+        $distributorById = DB::table('ms_distributor')
+            ->where('DistributorID', '=', $distributorId)
+            ->select('DistributorID', 'DistributorName', 'Email', 'Address')
+            ->first();
+
+        return view('distributor.account.edit', [
+            'distributorById' => $distributorById
+        ]);
+    }
+
+    public function updateAccount(Request $request, $distributorId)
+    {
+        $request->validate([
+            'name' => 'required|string',
+            'email' => [
+                'required',
+                'string',
+                'email',
+                Rule::unique('ms_distributor', 'Email')->ignore($distributorId, 'DistributorID')
+            ],
+            'address' => 'max:500'
+        ]);
+
+        $data = [
+            'DistributorName' => $request->input('name'),
+            'Email' => $request->input('email'),
+            'Address' => $request->input('address')
+        ];
+
+        $updateDistributor = DB::table('ms_distributor')
+            ->where('DistributorID', '=', $distributorId)
+            ->update($data);
+
+        if ($updateDistributor) {
+            return redirect()->route('distributor.account')->with('success', 'Data distributor telah diubah');
+        } else {
+            return redirect()->route('distributor.account')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
         }
     }
 

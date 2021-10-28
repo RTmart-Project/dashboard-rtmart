@@ -40,6 +40,10 @@ $(document).ready(function () {
                     type: 'date'
                 },
                 {
+                    data: 'Product',
+                    name: 'Product'
+                },
+                {
                     data: 'Action',
                     name: 'Action'
                 }
@@ -64,7 +68,7 @@ $(document).ready(function () {
             "responsive": true,
             "autoWidth": false,
             "columnDefs": [{
-                "targets": [5],
+                "targets": [5, 6],
                 "orderable": false
             }]
         });

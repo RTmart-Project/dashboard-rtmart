@@ -183,7 +183,7 @@ class AuthController extends Controller
                 'numeric',
                 Rule::unique('ms_user', 'PhoneNumber')->ignore($user, 'UserID')
             ],
-            'role_id' => 'required|string|in:IT,FI,BM,HR,AH,AD',
+            'role_id' => 'required|string|exists:ms_role,RoleID',
             'depo' => 'required|string|in:ALL,CRS,CKG,BDG'
         ]);
 

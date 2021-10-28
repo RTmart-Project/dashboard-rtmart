@@ -52,9 +52,10 @@
                                                     <th>Distributor ID</th>
                                                     <th>Nama Distributor</th>
                                                     <th>Email</th>
-                                                    <th>Alamat</th>
+                                                    <th style="width: 40%">Alamat</th>
                                                     <th>Created Date</th>
                                                     <th>Produk</th>
+                                                    <th>Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
