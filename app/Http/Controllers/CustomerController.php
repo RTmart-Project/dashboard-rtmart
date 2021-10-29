@@ -268,9 +268,17 @@ class CustomerController extends Controller
             ->select('*')
             ->first();
 
+        $customerOrderHistory = DB::table('tx_product_order_log')
+            ->leftJoin('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_product_order_log.StatusOrderId')
+            ->where('tx_product_order_log.OrderID', '=', $orderId)
+            ->select('tx_product_order_log.ProcessTime', 'tx_product_order_log.StatusOrderId', 'ms_status_order.StatusOrder')
+            ->orderByDesc('tx_product_order_log.ProcessTime')
+            ->get();
+
         return view('customer.transaction.details', [
             'orderId' => $orderId,
-            'customer' => $customer
+            'customer' => $customer,
+            'customerOrderHistory' => $customerOrderHistory
         ]);
     }
 
