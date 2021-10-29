@@ -47,7 +47,53 @@
                         <h6><strong>No. Telp : </strong><a href="tel:{{ $merchant->PhoneNumber }}">{{ $merchant->PhoneNumber }}</a></h6>
                         <h6><strong>Alamat : </strong>{{ $merchant->StoreAddress }}</h6>
                     </div>
-
+                    <div class="card-header">
+                        <div class="row">
+                            <div class="col-md-12 col-12 mt-1">
+                                <div class="card card-info card-outline collapsed-card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Order History</h3>
+                                        <div class="card-tools">
+                                            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <!-- The time line -->
+                                                <div class="timeline">
+                                                    @foreach ($merchantOrderHistory as $value)
+                                                    <div>
+                                                        <i class="far fa-clock @if ($value->StatusOrderId == "S009")
+                                                            bg-secondary
+                                                        @elseif ($value->StatusOrderId == "S010")
+                                                            bg-primary
+                                                        @elseif ($value->StatusOrderId == "S023")
+                                                            bg-warning
+                                                        @elseif ($value->StatusOrderId == "S012")
+                                                            bg-info
+                                                        @elseif ($value->StatusOrderId == "S018")
+                                                            bg-success
+                                                        @elseif ($value->StatusOrderId == "S011")
+                                                            bg-danger
+                                                        @endif"></i>
+                                                        <div class="timeline-item">
+                                                            <h3 class="timeline-header">{{ date('d F Y H:i:s', strtotime($value->ProcessTime)) }}</h3>
+                                                            <div class="timeline-body pl-3">
+                                                                <strong>{{ $value->StatusOrder }}</strong>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    @endforeach
+                                                    <!-- END timeline item -->
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="card-body mt-2">
                         <div class="tab-content">
                             <div class="tab-pane active" id="merchant-restock-details">

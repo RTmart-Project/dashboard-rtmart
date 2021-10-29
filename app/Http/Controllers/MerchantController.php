@@ -438,9 +438,17 @@ class MerchantController extends Controller
             ->select('ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress')
             ->first();
 
+        $merchantOrderHistory = DB::table('tx_merchant_order_log')
+            ->leftJoin('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_order_log.StatusOrderId')
+            ->where('tx_merchant_order_log.StockOrderId', '=', $stockOrderId)
+            ->select('tx_merchant_order_log.ProcessTime', 'tx_merchant_order_log.StatusOrderId', 'ms_status_order.StatusOrder')
+            ->orderByDesc('tx_merchant_order_log.ProcessTime')
+            ->get();
+
         return view('merchant.restock.details', [
             'stockOrderId' => $stockOrderId,
-            'merchant' => $merchant
+            'merchant' => $merchant,
+            'merchantOrderHistory' => $merchantOrderHistory
         ]);
     }
 
