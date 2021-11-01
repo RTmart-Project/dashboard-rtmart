@@ -439,10 +439,11 @@ class MerchantController extends Controller
             ->first();
 
         $merchantOrderHistory = DB::table('tx_merchant_order_log')
-            ->leftJoin('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_order_log.StatusOrderId')
+            ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_order_log.StatusOrderId')
             ->where('tx_merchant_order_log.StockOrderId', '=', $stockOrderId)
-            ->select('tx_merchant_order_log.ProcessTime', 'tx_merchant_order_log.StatusOrderId', 'ms_status_order.StatusOrder')
-            ->orderByDesc('tx_merchant_order_log.ProcessTime')
+            ->selectRaw('tx_merchant_order_log.StatusOrderId, ANY_VALUE(tx_merchant_order_log.ProcessTime) AS ProcessTime, ANY_VALUE(ms_status_order.StatusOrder) AS StatusOrder')
+            ->orderByDesc('ProcessTime')
+            ->groupBy('tx_merchant_order_log.StatusOrderId')
             ->get();
 
         return view('merchant.restock.details', [
