@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
+use stdClass;
 
 use function Symfony\Component\String\b;
+use Yajra\DataTables\Facades\DataTables;
 
 class MerchantController extends Controller
 {
@@ -172,9 +173,15 @@ class MerchantController extends Controller
             ->select('StoreName', 'OwnerFullName', 'StoreAddress', 'StoreImage', 'PhoneNumber')
             ->first();
 
+        $operationalHour = DB::table('ms_operational_hour')
+            ->where('MerchantID', '=', $merchantId)
+            ->select('DayOfWeek', 'OpeningHour', 'ClosingHour')
+            ->get();
+
         return view('merchant.product.index', [
             'merchantId' => $merchantId,
-            'merchant' => $merchant
+            'merchant' => $merchant,
+            'operationalHour' => $operationalHour
         ]);
     }
 
@@ -255,8 +262,69 @@ class MerchantController extends Controller
             ->delete();
 
         if ($deleteProduct) {
-            return redirect()->route('merchant.product', ['merchantId' => $merchantId])->with('success', 'Data produk merchant telah diubah');
+            return redirect()->route('merchant.product', ['merchantId' => $merchantId])->with('success', 'Data produk merchant telah dihapus');
         } else {
+            return redirect()->route('merchant.product', ['merchantId' => $merchantId])->with('failed', 'Terjadi kesalahan sistem atau jaringan');
+        }
+    }
+
+    public function editOperationalHour($merchantId)
+    {
+        $merchant = DB::table('ms_merchant_account')
+            ->where('MerchantID', '=', $merchantId)
+            ->select('StoreName', 'OwnerFullName', 'StoreAddress', 'StoreImage', 'PhoneNumber')
+            ->first();
+
+        $merchantOperationalHour = DB::table('ms_operational_hour')
+            ->where('MerchantID', '=', $merchantId)
+            ->select('DayOfWeek', 'OpeningHour', 'ClosingHour')
+            ->get();
+
+        return view('merchant.operationalHour.edit', [
+            'merchantId' => $merchantId,
+            'merchant' => $merchant,
+            'merchantOperationalHour' => $merchantOperationalHour
+        ]);
+    }
+
+    public function updateOperationalHour(Request $request, $merchantId)
+    {
+        $request->validate(
+            [
+                'opening_hour' => 'required',
+                'opening_hour.*' => 'required|date_format:H:i',
+                'closing_hour' => 'required',
+                'closing_hour.*' => 'required|date_format:H:i|after:opening_hour.*',
+            ],
+            [
+                'required' => 'The field is required.',
+                'after' => 'The closing hour must be after opening hour.'
+            ]
+        );
+
+        $day = $request->input('day');
+        $open = $request->input('opening_hour');
+        $close = $request->input('closing_hour');
+        $dataOperationalHour = array_map(function () {
+            return func_get_args();
+        }, $day, $open, $close);
+
+        try {
+            DB::transaction(function () use ($dataOperationalHour, $merchantId) {
+                foreach ($dataOperationalHour as &$value) {
+                    $value = array_combine(['Day', 'Open', 'Close'], $value);
+                    DB::table('ms_operational_hour')
+                        ->where('MerchantID', '=', $merchantId)
+                        ->where('DayOfWeek', '=', $value['Day'])
+                        ->update([
+                            'OpeningHour' => $value['Open'],
+                            'ClosingHour' => $value['Close']
+                        ]);
+                }
+            });
+
+            return redirect()->route('merchant.product', ['merchantId' => $merchantId])->with('success', 'Data operational hour merchant telah diubah');
+        } catch (\Throwable $th) {
             return redirect()->route('merchant.product', ['merchantId' => $merchantId])->with('failed', 'Terjadi kesalahan sistem atau jaringan');
         }
     }

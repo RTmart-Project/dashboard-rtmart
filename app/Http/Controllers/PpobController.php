@@ -12,8 +12,8 @@ class PpobController extends Controller
     {
 
         // Balance MobilePulsa
-        $username   = "081906609707";
-        $apiKey   = "86660bd858549536";
+        $username   = config('app.username_mobile_pulsa');
+        $apiKey   = config('app.api_key_mobile_pulsa');
         $signature  = md5($username . $apiKey . 'bl');
 
         $json = '{
@@ -22,7 +22,7 @@ class PpobController extends Controller
             "sign"     : "' . $signature . '"
         }';
 
-        $url = "https://testprepaid.mobilepulsa.net/v1/legacy/index";
+        $url = config('app.url_mobile_pulsa') . "v1/legacy/index";
 
         $ch  = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));

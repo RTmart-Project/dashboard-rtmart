@@ -60,6 +60,47 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-md-12 col-12 mt-1">
+                            <div class="card card-primary card-outline">
+                                <div class="card-header">
+                                    <h3 class="card-title">Operational Hour</h3>
+                                    <div class="card-tools">
+                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i></button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="card-body p-0">
+                                                <div class="row">
+                                                    <div class="ml-auto pr-2">
+                                                        <a href="{{ route('merchant.editOperationalHour', ['merchantId' => $merchantId]) }}" class="btn btn-warning btn-sm">Edit</a>
+                                                    </div>
+                                                </div>
+                                                <table class="table table-sm">
+                                                  <thead>
+                                                    <tr>
+                                                      <th>Hari</th>
+                                                      <th>Jam Buka</th>
+                                                      <th>Jam Tutup</th>
+                                                    </tr>
+                                                  </thead>
+                                                  <tbody>
+                                                    @foreach ($operationalHour as $value)
+                                                    <tr>
+                                                        <td>{{ $value->DayOfWeek }}</td>
+                                                        <td>{{ date('H:i', strtotime($value->OpeningHour)) }}</td>
+                                                        <td>{{ date('H:i', strtotime($value->ClosingHour)) }}</td>
+                                                    </tr>
+                                                    @endforeach
+                                                  </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="card-body">
