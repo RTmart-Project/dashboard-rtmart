@@ -61,7 +61,7 @@
                             </div>
                         </div>
                         <div class="col-md-12 col-12 mt-1">
-                            <div class="card card-primary card-outline">
+                            <div class="card card-primary card-outline collapsed-card">
                                 <div class="card-header">
                                     <h3 class="card-title">Operational Hour</h3>
                                     <div class="card-tools">
