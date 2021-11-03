@@ -85,7 +85,11 @@
                                         <select class="form-control selectpicker border @if($errors->has('role_id')) is-invalid @endif"
                                             name="role_id" id="role-id" data-live-search="true" title="Pilih Role" required>
                                             @foreach ($roleUser as $value)
-                                                <option value="{{ $value->RoleID }}">{{ $value->RoleName }}</option>
+                                                @if (old('role_id') == $value->RoleID)
+                                                    <option value="{{ $value->RoleID }}" selected>{{ $value->RoleName }}</option>
+                                                @else
+                                                    <option value="{{ $value->RoleID }}">{{ $value->RoleName }}</option>
+                                                @endif
                                             @endforeach
                                         </select>
                                         @if($errors->has('role_id'))
@@ -101,16 +105,35 @@
                                         <label for="depo">Depo</label>
                                         <select class="form-control selectpicker border @if($errors->has('depo')) is-invalid @endif"
                                             name="depo" id="depo" data-live-search="true" title="Pilih Depo" required>
-                                            <option value="ALL">ALL</option>
-                                            <option value="CRS">Ciracas</option>
-                                            <option value="CKG">Cakung</option>
-                                            <option value="BDG">Bandung</option>
+                                            <option value="ALL" {{ (old('depo') == "ALL") ? 'selected' : '' }}>ALL</option>
+                                            <option value="CRS" {{ (old('depo') == "CRS") ? 'selected' : '' }}>Ciracas</option>
+                                            <option value="CKG" {{ (old('depo') == "CKG") ? 'selected' : '' }}>Cakung</option>
+                                            <option value="BDG" {{ (old('depo') == "BDG") ? 'selected' : '' }}>Bandung</option>
                                         </select>
                                         @if($errors->has('depo'))
                                         <span class="error invalid-feedback">{{ $errors->first('depo') }}</span>
                                         @endif
                                     </div>
                                 </div>
+                                <div class="col-md-6 col-12">
+                                    <label>Akses</label>
+                                    <div class="form-group">                                        
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="access[]" id="rtmart" value="IsDashboardRTMart">
+                                            <label class="form-check-label" for="rtmart">Dashboard RTMart</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="access[]" id="rtsales" value="IsDashboardRTSales">
+                                            <label class="form-check-label" for="rtsales">Dashboard RTSales</label>
+                                        </div>
+                                        @if($errors->has('access'))
+                                            <span class="error invalid-feedback" style="display: block;">{{ $errors->first('access') }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
                                 <div class="col-md-6 col-12">
                                     <div class="form-group">
                                         <label for="password">Password</label>

@@ -24,7 +24,7 @@ class MsUser extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'Email', 'Name', 'PhoneNumber', 'Password', 'RoleID', 'Token', 'OsType', 'IsOnline', 'IsLogin', 'LastPing', 'CreatedBy', 'LastUpdatedBy', 'CreatedDate', 'LastDate', 'IsTesting'
+        'Email', 'Name', 'PhoneNumber', 'Password', 'RoleID', 'Token', 'OsType', 'IsOnline', 'IsLogin', 'LastPing', 'CreatedBy', 'LastUpdatedBy', 'CreatedDate', 'LastDate', 'IsTesting', 'IsDashboardRTMart', 'IsDashboardRTSales'
     ];
 
     /**

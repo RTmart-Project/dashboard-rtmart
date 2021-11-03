@@ -70,6 +70,17 @@ class ProductController extends Controller
 
     public function insertList(Request $request)
     {
+        $request->validate([
+            'product_name' => 'required|string',
+            'product_category' => 'required|integer|exists:ms_product_category,ProductCategoryID',
+            'product_type' => 'required|string|exists:ms_product_type,ProductTypeID',
+            'product_brand' => 'required|integer|exists:ms_brand_type,BrandID',
+            'product_uom' => 'required|integer|exists:ms_product_uom,ProductUOMID',
+            'uom_desc' => 'required|numeric',
+            'price' => 'required|numeric',
+            'product_image' => 'required|image'
+        ]);
+
         $maxProductId = DB::table('ms_product')
             ->max('ProductID');
 
@@ -81,17 +92,6 @@ class ProductController extends Controller
             $newProductIdNumber = $oldProductIdNumber + 1;
             $newProductId = 'P-' . str_pad($newProductIdNumber, 6, '0', STR_PAD_LEFT);
         }
-
-        $request->validate([
-            'product_name' => 'required|string',
-            'product_category' => 'required|integer|exists:ms_product_category,ProductCategoryID',
-            'product_type' => 'required|string|exists:ms_product_type,ProductTypeID',
-            'product_brand' => 'required|integer|exists:ms_brand_type,BrandID',
-            'product_uom' => 'required|integer|exists:ms_product_uom,ProductUOMID',
-            'uom_desc' => 'required|numeric',
-            'price' => 'required|numeric',
-            'product_image' => 'required|image'
-        ]);
 
         $imageName = time() . '_' . str_replace(' ', '', $request->input('product_name')) . '.' . $request->file('product_image')->extension();
 
@@ -387,6 +387,10 @@ class ProductController extends Controller
 
     public function insertType(Request $request)
     {
+        $request->validate([
+            'type_name' => 'required|string|unique:ms_product_type,ProductTypeName'
+        ]);
+
         $maxTypeProductId = DB::table('ms_product_type')
             ->max('ProductTypeID');
 
@@ -398,10 +402,6 @@ class ProductController extends Controller
             $newTypeProductIdNumber = $oldTypeProductIdNumber + 1;
             $newTypeProductId = 'T-' . str_pad($newTypeProductIdNumber, 3, '0', STR_PAD_LEFT);
         }
-
-        $request->validate([
-            'type_name' => 'required|string|unique:ms_product_type,ProductTypeName'
-        ]);
 
         $data = [
             'ProductTypeID' => $newTypeProductId,

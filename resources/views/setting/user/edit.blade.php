@@ -111,10 +111,26 @@
                                         @endif
                                     </div>
                                 </div>
+                                <div class="col-md-6 col-12">
+                                    <label>Akses</label>
+                                    <div class="form-group">                                        
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="access[]" id="rtmart" value="IsDashboardRTMart" {{ ($userById->IsDashboardRTMart == 1) ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="rtmart">Dashboard RTMart</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="access[]" id="rtsales" value="IsDashboardRTSales" {{ ($userById->IsDashboardRTSales == 1) ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="rtsales">Dashboard RTSales</label>
+                                        </div>
+                                        @if($errors->has('access'))
+                                            <span class="error invalid-feedback" style="display: block;">{{ $errors->first('access') }}</span>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="form-group float-right">
-                                <button type="submit" class="btn btn-warning">Simpan</button>
+                                <button type="submit" class="btn btn-warning">Ubah</button>
                             </div>
                         </form>
                     </div>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MsUser;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -29,8 +30,13 @@ class AuthController extends Controller
             'password' => $request->input('password')
         );
 
-        if (Auth::attempt($credentials)) {
-            return redirect('/home')->with('success', 'Berhasil. Selamat datang!');
+        $ms_user = MsUser::where('Email', '=', $request->input('email'))
+            ->first();
+
+        if ($ms_user->IsDashboardRTMart == 1) {
+            if (Auth::attempt($credentials)) {
+                return redirect('/home')->with('success', 'Berhasil. Selamat datang!');
+            }
         }
 
         return redirect()->back()->with('failed', 'Gagal. Email atau password salah silahkan coba lagi!');
@@ -103,6 +109,16 @@ class AuthController extends Controller
 
     public function createNewUser(Request $request)
     {
+        $request->validate([
+            'email' => 'required|string|email|unique:ms_user,Email',
+            'name' => 'required|string',
+            'phonenumber' => 'required|numeric|unique:ms_user,PhoneNumber',
+            'role_id' => 'required|string|exists:ms_role,RoleID',
+            'depo' => 'required|string|in:ALL,CRS,CKG,BDG',
+            'password' => 'required|string',
+            'access' => 'required'
+        ]);
+
         $role = $request->input('role_id');
 
         $maxUserId = DB::table('ms_user')
@@ -119,14 +135,10 @@ class AuthController extends Controller
             $newUserId = $role . '-' . str_pad($newUserIdNumber, 5, '0', STR_PAD_LEFT);
         }
 
-        $request->validate([
-            'email' => 'required|string|email|unique:ms_user,Email',
-            'name' => 'required|string',
-            'phonenumber' => 'required|numeric|unique:ms_user,PhoneNumber',
-            'role_id' => 'required|string|in:IT,FI,BM,HR,AH,AD',
-            'depo' => 'required|string|in:ALL,CRS,CKG,BDG',
-            'password' => 'required|string',
-        ]);
+        $inputAccess = array_flip($request->input('access'));
+        $outputAccess = array_map(function () {
+            return 1;
+        }, $inputAccess);
 
         $currentTime = date("Y-m-d H:i:s");
 
@@ -142,6 +154,8 @@ class AuthController extends Controller
             'LastDate' => $currentTime,
             'IsTesting' => 0
         ];
+
+        $data = array_merge($data, $outputAccess);
 
         $createUser = DB::table('ms_user')->insert($data);
 
@@ -184,8 +198,14 @@ class AuthController extends Controller
                 Rule::unique('ms_user', 'PhoneNumber')->ignore($user, 'UserID')
             ],
             'role_id' => 'required|string|exists:ms_role,RoleID',
-            'depo' => 'required|string|in:ALL,CRS,CKG,BDG'
+            'depo' => 'required|string|in:ALL,CRS,CKG,BDG',
+            'access' => 'required'
         ]);
+
+        $updateAccess = array_flip($request->input('access'));
+        $outputUpdateAccess = array_map(function () {
+            return 1;
+        }, $updateAccess);
 
         $currentTime = date("Y-m-d H:i:s");
 
@@ -195,8 +215,12 @@ class AuthController extends Controller
             'PhoneNumber' => $request->input('phonenumber'),
             'RoleID' => $request->input('role_id'),
             'Depo' => $request->input('depo'),
-            'LastDate' => $currentTime
+            'LastDate' => $currentTime,
+            'IsDashboardRTMart' => 0,
+            'IsDashboardRTSales' => 0
         ];
+
+        $data = array_merge($data, $outputUpdateAccess);
 
         $updateUser = DB::table('ms_user')
             ->where('UserID', '=', $user)
