@@ -8,7 +8,7 @@ $(document).ready(function () {
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
-            serverSide: false,
+            serverSide: true,
             stateServe: true,
             "ajax": {
                 url: "/merchant/account/get",
@@ -21,44 +21,48 @@ $(document).ready(function () {
             columns: [
                 {
                     data: 'MerchantID',
-                    name: 'MerchantID'
+                    name: 'ms_merchant_account.MerchantID'
                 },
                 {
                     data: 'StoreName',
-                    name: 'StoreName'
+                    name: 'ms_merchant_account.StoreName'
                 },
                 {
                     data: 'OwnerFullName',
-                    name: 'OwnerFullName'
+                    name: 'ms_merchant_account.OwnerFullName'
                 },
                 {
                     data: 'PhoneNumber',
-                    name: 'PhoneNumber'
+                    name: 'ms_merchant_account.PhoneNumber'
                 },
                 {
                     data: 'CreatedDate',
-                    name: 'CreatedDate',
+                    name: 'ms_merchant_account.CreatedDate',
                     type: 'date'
                 },
                 {
                     data: 'StoreAddress',
-                    name: 'StoreAddress'
+                    name: 'ms_merchant_account.StoreAddress'
                 },
                 {
                     data: 'ReferralCode',
-                    name: 'ReferralCode'
+                    name: 'ms_merchant_account.ReferralCode'
                 },
                 {
                     data: 'DistributorName',
-                    name: 'DistributorName'
+                    name: 'ms_distributor.DistributorName'
                 },
                 {
                     data: 'Action',
-                    name: 'Action'
+                    name: 'Action',
+                    orderable: false, 
+                    searchable: false
                 },
                 {
                     data: 'Product',
-                    name: 'Product'
+                    name: 'Product',
+                    orderable: false, 
+                    searchable: false
                 }
             ],
             buttons: [{
@@ -66,6 +70,7 @@ $(document).ready(function () {
                 filename: function () {
                     return exportDatatableHelper.generateFilename('MerchantAccount');
                 },
+                action: exportDatatableHelper.newExportAction,
                 text: 'Export',
                 titleAttr: 'Excel',
                 exportOptions: {
@@ -77,10 +82,6 @@ $(document).ready(function () {
                 },
             }],
             "order": [4, 'desc'],
-            "columnDefs": [{
-                "targets": [8, 9],
-                "orderable": false
-            }],
             "lengthChange": false,
             "responsive": true,
             "autoWidth": false

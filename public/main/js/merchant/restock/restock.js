@@ -8,7 +8,7 @@ $(document).ready(function () {
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
-            serverSide: false,
+            serverSide: true,
             stateServe: true,
             "ajax": {
                 url: "/merchant/restock/get",
@@ -21,48 +21,50 @@ $(document).ready(function () {
             columns: [
                 {
                     data: 'StockOrderID',
-                    name: 'StockOrderID'
+                    name: 'tx_merchant_order.StockOrderID'
                 },
                 {
                     data: 'CreatedDate',
-                    name: 'CreatedDate',
+                    name: 'tx_merchant_order.CreatedDate',
                     type: 'date'
                 },
                 {
                     data: 'MerchantID',
-                    name: 'MerchantID'
+                    name: 'tx_merchant_order.MerchantID'
                 },
                 {
                     data: 'StoreName',
-                    name: 'StoreName'
+                    name: 'ms_merchant_account.StoreName'
                 },
                 {
                     data: 'PhoneNumber',
-                    name: 'PhoneNumber'
+                    name: 'ms_merchant_account.PhoneNumber'
                 },
                 {
                     data: 'DistributorName',
-                    name: 'DistributorName'
+                    name: 'ms_distributor.DistributorName'
                 },
                 {
                     data: 'PaymentMethodName',
-                    name: 'PaymentMethodName'
+                    name: 'ms_payment_method.PaymentMethodName'
                 },
                 {
                     data: 'StatusOrder',
-                    name: 'StatusOrder'
+                    name: 'ms_status_order.StatusOrder'
                 },
                 {
                     data: 'NettPrice',
-                    name: 'NettPrice'
+                    name: 'tx_merchant_order.NettPrice'
                 },
                 {
                     data: 'ReferralCode',
-                    name: 'ReferralCode'
+                    name: 'ms_merchant_account.ReferralCode'
                 },
                 {
                     data: 'Action',
-                    name: 'Action'
+                    name: 'Action',
+                    orderable: false, 
+                    searchable: false
                 }
             ],
             buttons: [{
@@ -70,6 +72,7 @@ $(document).ready(function () {
                 filename: function () {
                     return exportDatatableHelper.generateFilename('RestockMerchant');
                 },
+                action: exportDatatableHelper.newExportAction,
                 text: 'Export',
                 titleAttr: 'Excel',
                 exportOptions: {
@@ -85,10 +88,6 @@ $(document).ready(function () {
             "responsive": true,
             "autoWidth": false,
             "aoColumnDefs": [
-                {
-                    "aTargets": [10],
-                    "orderable": false
-                },
                 {
                     "aTargets": [8],
                     "mRender": function (data, type, full) {
