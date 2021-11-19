@@ -8,7 +8,7 @@ $(document).ready(function () {
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
-            serverSide: false,
+            serverSide: true,
             stateServe: true,
             "ajax": {
                 url: "/customer/transaction/get",
@@ -21,56 +21,58 @@ $(document).ready(function () {
             columns: [
                 {
                     data: 'OrderID',
-                    name: 'OrderID'
+                    name: 'tx_product_order.OrderID'
                 },
                 {
                     data: 'CreatedDate',
-                    name: 'CreatedDate',
+                    name: 'tx_product_order.CreatedDate',
                     type: 'date'
                 },
                 {
                     data: 'FullName',
-                    name: 'FullName'
+                    name: 'ms_customer_account.FullName'
                 },
                 {
                     data: 'Address',
-                    name: 'Address'
+                    name: 'ms_customer_account.Address'
                 },
                 {
                     data: 'PhoneNumber',
-                    name: 'PhoneNumber'
+                    name: 'ms_customer_account.PhoneNumber'
                 },
                 {
                     data: 'MerchantID',
-                    name: 'MerchantID'
+                    name: 'tx_product_order.MerchantID'
                 },
                 {
                     data: 'StoreName',
-                    name: 'StoreName'
+                    name: 'ms_merchant_account.StoreName'
                 },
                 {
                     data: 'DistributorName',
-                    name: 'DistributorName'
+                    name: 'ms_distributor.DistributorName'
                 },
                 {
                     data: 'SalesName',
-                    name: 'SalesName'
+                    name: 'ms_sales.SalesName'
                 },
                 {
                     data: 'PaymentMethodName',
-                    name: 'PaymentMethodName'
+                    name: 'ms_payment_method.PaymentMethodName'
                 },
                 {
                     data: 'StatusOrder',
-                    name: 'StatusOrder'
+                    name: 'ms_status_order.StatusOrder'
                 },
                 {
                     data: 'TotalPrice',
-                    name: 'TotalPrice'
+                    name: 'tx_product_order.TotalPrice'
                 },
                 {
                     data: 'Action',
-                    name: 'Action'
+                    name: 'Action',
+                    orderable: false, 
+                    searchable: false
                 }
             ],
             buttons: [{
@@ -78,6 +80,7 @@ $(document).ready(function () {
                 filename: function () {
                     return exportDatatableHelper.generateFilename('CustomerTransaction');
                 },
+                action: exportDatatableHelper.newExportAction,
                 text: 'Export',
                 titleAttr: 'Excel',
                 exportOptions: {
@@ -93,10 +96,6 @@ $(document).ready(function () {
             "responsive": true,
             "autoWidth": false,
             "aoColumnDefs": [
-                {
-                    "aTargets": [12],
-                    "orderable": false
-                },
                 {
                     "aTargets": [11],
                     "mRender": function (data, type, full) {

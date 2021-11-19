@@ -68,7 +68,7 @@ class CustomerController extends Controller
             ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'ms_customer_account.MerchantID')
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
             ->where('ms_merchant_account.IsTesting', 0)
-            ->select('ms_customer_account.*', 'ms_merchant_account.StoreName', 'ms_distributor.DistributorName')
+            ->select(['ms_customer_account.CustomerID', 'ms_customer_account.FullName', 'ms_customer_account.PhoneNumber', 'ms_customer_account.CreatedDate', 'ms_customer_account.Address', 'ms_customer_account.MerchantID', 'ms_customer_account.ReferralCode', 'ms_merchant_account.StoreName', 'ms_distributor.DistributorName'])
             ->orderByDesc('ms_customer_account.CreatedDate');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
@@ -78,15 +78,17 @@ class CustomerController extends Controller
         }
 
         // Get data response
-        $data = $sqlAllAccount->get();
+        $data = $sqlAllAccount;
 
         // Return Data Using DataTables with Ajax
         if ($request->ajax()) {
             return Datatables::of($data)
                 ->editColumn('CreatedDate', function ($data) {
-                    return date('d M Y H:i', strtotime($data->CreatedDate));
+                    return date('d-M-Y H:i', strtotime($data->CreatedDate));
                 })
-                ->rawColumns(['CreatedDate'])
+                ->filterColumn('ms_customer_account.CreatedDate', function ($query, $keyword) {
+                    $query->whereRaw("DATE_FORMAT(ms_customer_account.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
+                })
                 ->make(true);
         }
     }
@@ -105,7 +107,7 @@ class CustomerController extends Controller
         $sqlAllAccount = DB::table('ms_verification')
             ->join('ms_verification_log', 'ms_verification_log.PhoneNumber', '=', 'ms_verification.PhoneNumber')
             ->where('ms_verification.Type', '=', 'CUSTOMER')
-            ->select('ms_verification.*', 'ms_verification_log.SendOn', 'ms_verification_log.ReceiveOn')
+            ->select(['ms_verification.PhoneNumber', 'ms_verification.OTP', 'ms_verification.IsVerified', 'ms_verification_log.SendOn', 'ms_verification_log.ReceiveOn'])
             ->orderByDesc('ms_verification_log.SendOn');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
@@ -115,7 +117,7 @@ class CustomerController extends Controller
         }
 
         // Get data response
-        $data = $sqlAllAccount->get();
+        $data = $sqlAllAccount;
 
         // Return Data Using DataTables with Ajax
         if ($request->ajax()) {
@@ -130,12 +132,18 @@ class CustomerController extends Controller
                     return $isVerified;
                 })
                 ->editColumn('SendOn', function ($data) {
-                    return date('d M Y H:i:s', strtotime($data->SendOn));
+                    return date('d-M-Y H:i:s', strtotime($data->SendOn));
                 })
                 ->editColumn('ReceiveOn', function ($data) {
-                    return date('d M Y H:i:s', strtotime($data->ReceiveOn));
+                    return date('d-M-Y H:i:s', strtotime($data->ReceiveOn));
                 })
-                ->rawColumns(['IsVerified', 'SendOn', 'ReceiveOn'])
+                ->filterColumn('ms_verification_log.SendOn', function ($query, $keyword) {
+                    $query->whereRaw("DATE_FORMAT(ms_verification_log.SendOn,'%d-%b-%Y %H:%i:%s') like ?", ["%$keyword%"]);
+                })
+                ->filterColumn('ms_verification_log.ReceiveOn', function ($query, $keyword) {
+                    $query->whereRaw("DATE_FORMAT(ms_verification_log.ReceiveOn,'%d-%b-%Y %H:%i:%s') like ?", ["%$keyword%"]);
+                })
+                ->rawColumns(['IsVerified'])
                 ->make(true);
         }
     }
@@ -203,7 +211,7 @@ class CustomerController extends Controller
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_product_order.PaymentMethodID')
             ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'ms_merchant_account.ReferralCode')
             ->where('ms_merchant_account.IsTesting', 0)
-            ->select(['tx_product_order.OrderID', 'tx_product_order.CustomerID', 'tx_product_order.MerchantID', 'tx_product_order.TotalPrice', 'ms_customer_account.FullName', 'tx_product_order.CreatedDate', 'ms_customer_account.PhoneNumber', 'ms_merchant_account.StoreName', 'tx_product_order.StatusOrderID', 'ms_status_order.StatusOrder', 'ms_distributor.DistributorName', 'ms_sales.SalesName', 'ms_payment_method.PaymentMethodName', 'ms_customer_account.Address'])
+            ->select(['tx_product_order.OrderID', 'tx_product_order.MerchantID', 'tx_product_order.TotalPrice', 'ms_customer_account.FullName', 'tx_product_order.CreatedDate', 'ms_customer_account.PhoneNumber', 'ms_merchant_account.StoreName', 'tx_product_order.StatusOrderID', 'ms_status_order.StatusOrder', 'ms_distributor.DistributorName', 'ms_sales.SalesName', 'ms_payment_method.PaymentMethodName', 'ms_customer_account.Address'])
             ->orderByDesc('tx_product_order.CreatedDate');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
@@ -217,13 +225,13 @@ class CustomerController extends Controller
         }
 
         // Get data response
-        $data = $sqlAllAccount->get();
+        $data = $sqlAllAccount;
 
         // Return Data Using DataTables with Ajax
         if ($request->ajax()) {
             return Datatables::of($data)
                 ->editColumn('CreatedDate', function ($data) {
-                    return date('d M Y H:i', strtotime($data->CreatedDate));
+                    return date('d-M-Y H:i', strtotime($data->CreatedDate));
                 })
                 ->editColumn('StatusOrder', function ($data) {
                     $pesananBaru = "S013";
@@ -255,7 +263,10 @@ class CustomerController extends Controller
                     $actionBtn = '<a href="/customer/transaction/detail/' . $data->OrderID . '" class="btn-sm btn-info detail-order">Detail</a>';
                     return $actionBtn;
                 })
-                ->rawColumns(['CreatedDate', 'StatusOrder', 'Action'])
+                ->filterColumn('tx_product_order.CreatedDate', function ($query, $keyword) {
+                    $query->whereRaw("DATE_FORMAT(tx_product_order.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
+                })
+                ->rawColumns(['StatusOrder', 'Action'])
                 ->make(true);
         }
     }
