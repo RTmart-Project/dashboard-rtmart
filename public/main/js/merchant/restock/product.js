@@ -1,21 +1,21 @@
 $(document).ready(function () {
     // DataTables
-    dataTablesRestock();
+    dataTablesRestockProduct();
 
-    function dataTablesRestock() {
-        $('#merchant-restock .table-datatables').DataTable({
-            dom: "<'row'<'col-sm-12 col-md-5'<'filter-merchant-restock'>tl><'col-sm-12 col-md-3'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
+    function dataTablesRestockProduct() {
+        $('#product-restock .table-datatables').DataTable({
+            dom: "<'row'<'col-sm-12 col-md-5'<'filter-product-restock'>tl><'col-sm-12 col-md-3'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
             serverSide: true,
             stateServe: true,
             "ajax": {
-                url: "/merchant/restock/get",
+                url: "/merchant/restock/product/get",
                 data: function (d) {
-                    d.fromDate = $('#merchant-restock #from_date').val();
-                    d.toDate = $('#merchant-restock #to_date').val();
-                    d.paymentMethodId = $('#merchant-restock .select-filter-custom select').val();
+                    d.fromDate = $('#product-restock #from_date').val();
+                    d.toDate = $('#product-restock #to_date').val();
+                    d.paymentMethodId = $('#product-restock .select-filter-custom select').val();
                 }
             },
             columns: [
@@ -61,16 +61,38 @@ $(document).ready(function () {
                     name: 'ms_merchant_account.ReferralCode'
                 },
                 {
-                    data: 'Action',
-                    name: 'Action',
-                    orderable: false, 
-                    searchable: false
+                    data: 'ProductID',
+                    name: 'tx_merchant_order_detail.ProductID'
+                },
+                {
+                    data: 'ProductName',
+                    name: 'ms_product.ProductName'
+                },
+                {
+                    data: 'PromisedQuantity',
+                    name: 'tx_merchant_order_detail.PromisedQuantity'
+                },
+                {
+                    data: 'Price',
+                    name: 'tx_merchant_order_detail.Price'
+                },
+                {
+                    data: 'Discount',
+                    name: 'tx_merchant_order_detail.Discount'
+                },
+                {
+                    data: 'Nett',
+                    name: 'tx_merchant_order_detail.Nett'
+                },
+                {
+                    data: 'SubTotalPrice',
+                    name: 'SubTotalPrice'
                 }
             ],
             buttons: [{
                 extend: 'excelHtml5',
                 filename: function () {
-                    return exportDatatableHelper.generateFilename('RestockMerchant');
+                    return exportDatatableHelper.generateFilename('RestockMerchantProduct');
                 },
                 action: exportDatatableHelper.newExportAction,
                 text: 'Export',
@@ -79,7 +101,7 @@ $(document).ready(function () {
                     modifier: {
                         page: 'all'
                     },
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
                     orthogonal: 'export'
                 },
             }],
@@ -89,7 +111,7 @@ $(document).ready(function () {
             "autoWidth": false,
             "aoColumnDefs": [
                 {
-                    "aTargets": [8],
+                    "aTargets": [8, 13, 14, 15, 16],
                     "mRender": function (data, type, full) {
                         if (type === 'export') {
                             return data;
@@ -108,7 +130,7 @@ $(document).ready(function () {
     }
 
     // Create element for DateRange Filter
-    $("div.filter-merchant-restock").html(`<div class="input-group">
+    $("div.filter-product-restock").html(`<div class="input-group">
                             <input type="text" name="from_date" id="from_date" class="form-control form-control-sm" readonly>
                             <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
                             <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
@@ -121,7 +143,7 @@ $(document).ready(function () {
                         </div>`);
 
     // Setting Awal Daterangepicker
-    $('#merchant-restock #from_date').daterangepicker({
+    $('#product-restock #from_date').daterangepicker({
         singleDatePicker: true,
         showDropdowns: true,
         locale: {
@@ -130,7 +152,7 @@ $(document).ready(function () {
     });
 
     // Setting Awal Daterangepicker
-    $('#merchant-restock #to_date').daterangepicker({
+    $('#product-restock #to_date').daterangepicker({
         singleDatePicker: true,
         showDropdowns: true,
         locale: {
@@ -146,8 +168,8 @@ $(document).ready(function () {
         else
             bCodeChange = true;
 
-        $('#merchant-restock #to_date').daterangepicker({
-            minDate: $("#merchant-restock #from_date").val(),
+        $('#product-restock #to_date').daterangepicker({
+            minDate: $("#product-restock #from_date").val(),
             singleDatePicker: true,
             showDropdowns: true,
             locale: {
@@ -163,8 +185,8 @@ $(document).ready(function () {
         else
             bCodeChange = true;
 
-        $('#merchant-restock #from_date').daterangepicker({
-            maxDate: $("#merchant-restock #to_date").val(),
+        $('#product-restock #from_date').daterangepicker({
+            maxDate: $("#product-restock #to_date").val(),
             singleDatePicker: true,
             showDropdowns: true,
             locale: {
@@ -175,52 +197,37 @@ $(document).ready(function () {
     }
 
     // Disabled input to date ketika from date berubah
-    $('#merchant-restock .filter-merchant-restock').on('change', '#from_date', function () {
+    $('#product-restock .filter-product-restock').on('change', '#from_date', function () {
         dateStartChange();
     });
     // Disabled input from date ketika to date berubah
-    $('#merchant-restock .filter-merchant-restock').on('change', '#to_date', function () {
+    $('#product-restock .filter-product-restock').on('change', '#to_date', function () {
         dateEndChange();
     });
 
     // Menyisipkan Placeholder Date
-    $('#merchant-restock #from_date').val('');
-    $('#merchant-restock #to_date').val('');
-    $('#merchant-restock #from_date').attr("placeholder", "From Date");
-    $('#merchant-restock #to_date').attr("placeholder", "To Date");
+    $('#product-restock #from_date').val('');
+    $('#product-restock #to_date').val('');
+    $('#product-restock #from_date').attr("placeholder", "From Date");
+    $('#product-restock #to_date').attr("placeholder", "To Date");
 
     // Event Listener saat tombol refresh diklik
-    $("#merchant-restock #refresh").click(function () {
-        $('#merchant-restock #from_date').val('');
-        $('#merchant-restock #to_date').val('');
-        $('#merchant-restock .table-datatables').DataTable().search('');
-        // $('#merchant-restock .select-filter-custom select').val('').change();
-        // $('#merchant-restock .select-filter-custom select option[value=]');
-        $('#merchant-restock .table-datatables').DataTable().ajax.reload(null, false);
+    $("#product-restock #refresh").click(function () {
+        $('#product-restock #from_date').val('');
+        $('#product-restock #to_date').val('');
+        $('#product-restock .table-datatables').DataTable().search('');
+        // $('#product-restock .select-filter-custom select').val('').change();
+        // $('#product-restock .select-filter-custom select option[value=]');
+        $('#product-restock .table-datatables').DataTable().ajax.reload(null, false);
     });
 
     // Event listener saat tombol filter diklik
-    $("#merchant-restock #filter").click(function () {
-        $('#merchant-restock .table-datatables').DataTable().ajax.reload();
-    });
-
-    // Load PaymentMethod ID and Name for filter
-    $.ajax({
-        type: "get",
-        url: "/payment/method/get",
-        success: function (data) {
-            let option;
-            for (const item of data) {
-                option += `<option value="${item.PaymentMethodID}">${item.PaymentMethodName}</option>`;
-            }
-            $('#merchant-restock .select-filter-custom select').append(option);
-            $('#product-restock .select-filter-custom select').append(option);
-            customDropdownFilter.createCustomDropdowns();
-        }
+    $("#product-restock #filter").click(function () {
+        $('#product-restock .table-datatables').DataTable().ajax.reload();
     });
 
     // Event listener saat tombol select option diklik
-    $("#merchant-restock .select-filter-custom select").change(function () {
-        $('#merchant-restock .table-datatables').DataTable().ajax.reload();
+    $("#product-restock .select-filter-custom select").change(function () {
+        $('#product-restock .table-datatables').DataTable().ajax.reload();
     });
 });

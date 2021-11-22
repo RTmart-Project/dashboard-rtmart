@@ -510,6 +510,87 @@ class MerchantController extends Controller
         }
     }
 
+    public function getRestockProduct(Request $request)
+    {
+        $fromDate = $request->input('fromDate');
+        $toDate = $request->input('toDate');
+        $paymentMethodId = $request->input('paymentMethodId');
+
+        $sqlAllAccount = DB::table('tx_merchant_order')
+            ->leftJoin('tx_merchant_order_detail', 'tx_merchant_order_detail.StockOrderID', '=', 'tx_merchant_order.StockOrderID')
+            ->leftJoin('ms_product', 'ms_product.ProductID', '=', 'tx_merchant_order_detail.ProductID')
+            ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tx_merchant_order.DistributorID')
+            ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_order.StatusOrderID')
+            ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
+            ->where('ms_merchant_account.IsTesting', 0)
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.MerchantID', 'tx_merchant_order.NettPrice', 'tx_merchant_order.StatusOrderID', 'ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'ms_merchant_account.ReferralCode', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order_detail.ProductID', 'ms_product.ProductName', 'tx_merchant_order_detail.PromisedQuantity', 'tx_merchant_order_detail.Price', 'tx_merchant_order_detail.Discount', 'tx_merchant_order_detail.Nett')
+            ->orderByDesc('tx_merchant_order.CreatedDate');
+
+        // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
+        if ($fromDate != '' && $toDate != '') {
+            $sqlAllAccount->whereDate('tx_merchant_order.CreatedDate', '>=', $fromDate)
+                ->whereDate('tx_merchant_order.CreatedDate', '<=', $toDate);
+        }
+
+        if ($paymentMethodId != null) {
+            $sqlAllAccount->where('tx_merchant_order.PaymentMethodID', '=', $paymentMethodId);
+        }
+
+        // Get data response
+        $data = $sqlAllAccount;
+
+        // Return Data Using DataTables with Ajax
+        if ($request->ajax()) {
+            return Datatables::of($data)
+                ->editColumn('CreatedDate', function ($data) {
+                    return date('d-M-Y H:i', strtotime($data->CreatedDate));
+                })
+                ->addColumn('Action', function ($data) {
+                    $actionBtn = '<a href="/merchant/restock/detail/' . $data->StockOrderID . '" class="btn-sm btn-info detail-order">Detail</a>';
+                    return $actionBtn;
+                })
+                ->editColumn('StatusOrder', function ($data) {
+                    $pesananBaru = "S009";
+                    $dikonfirmasi = "S010";
+                    $dalamProses = "S023";
+                    $dikirim = "S012";
+                    $selesai = "S018";
+                    $dibatalkan = "S011";
+
+                    if ($data->StatusOrderID == $pesananBaru) {
+                        $statusOrder = '<span class="badge badge-secondary">' . $data->StatusOrder . '</span>';
+                    } elseif ($data->StatusOrderID == $dikonfirmasi) {
+                        $statusOrder = '<span class="badge badge-primary">' . $data->StatusOrder . '</span>';
+                    } elseif ($data->StatusOrderID == $dalamProses) {
+                        $statusOrder = '<span class="badge badge-warning">' . $data->StatusOrder . '</span>';
+                    } elseif ($data->StatusOrderID == $dikirim) {
+                        $statusOrder = '<span class="badge badge-info">' . $data->StatusOrder . '</span>';
+                    } elseif ($data->StatusOrderID == $selesai) {
+                        $statusOrder = '<span class="badge badge-success">' . $data->StatusOrder . '</span>';
+                    } elseif ($data->StatusOrderID == $dibatalkan) {
+                        $statusOrder = '<span class="badge badge-danger">' . $data->StatusOrder . '</span>';
+                    } else {
+                        $statusOrder = 'Status tidak ditemukan';
+                    }
+
+                    return $statusOrder;
+                })
+                ->filterColumn('tx_merchant_order.CreatedDate', function ($query, $keyword) {
+                    $query->whereRaw("DATE_FORMAT(tx_merchant_order.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
+                })
+                ->addColumn('SubTotalPrice', function ($data) {
+                    $subTotalPrice = $data->Nett * $data->PromisedQuantity;
+                    return "$subTotalPrice";
+                })
+                ->editColumn('Price', function ($data) {
+                    return "$data->Price";
+                })
+                ->rawColumns(['Action', 'StatusOrder'])
+                ->make(true);
+        }
+    }
+
     public function restockDetails($stockOrderId)
     {
         $merchant = DB::table('tx_merchant_order')

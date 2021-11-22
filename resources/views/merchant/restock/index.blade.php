@@ -240,9 +240,18 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
+                    <div class="card-header p-2">
+                        <ul class="nav nav-pills" id="tab-merchant-restock">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#merchant-restock" data-toggle="tab">Restock Merchant</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#product-restock" data-toggle="tab">Restock Merchant All Product</a>
+                            </li>
+                        </ul>
+                    </div><!-- /.card-header -->
                     <div class="card-body mt-2">
                         <div class="tab-content">
-
                             <div class="tab-pane active" id="merchant-restock">
                                 <div class="row">
                                     <div class="col-12">
@@ -268,7 +277,37 @@
                                     </div>
                                 </div>
                             </div>
-
+                            <div class="tab-pane" id="product-restock">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <table class="table table-datatables">
+                                            <thead>
+                                                <tr>
+                                                    <th>Stock Order ID</th>
+                                                    <th>Tgl Transaksi</th>
+                                                    <th>Merchant ID</th>
+                                                    <th>Nama Toko</th>
+                                                    <th>No. Telp</th>
+                                                    <th>Nama Distributor</th>
+                                                    <th>Metode Pembayaran</th>
+                                                    <th>Status Order</th>
+                                                    <th>Total Price</th>
+                                                    <th>Referral</th>
+                                                    <th>Product ID</th>
+                                                    <th>Deskripsi</th>
+                                                    <th>Qty</th>
+                                                    <th>Harga Satuan</th>
+                                                    <th>Diskon</th>
+                                                    <th>Harga stlh Diskon</th>
+                                                    <th>Total Harga</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -300,7 +339,16 @@
 <!-- Main JS -->
 <script src="{{url('/')}}/main/js/custom/select-filter.js"></script>
 <script src="{{url('/')}}/main/js/merchant/restock/restock.js"></script>
+<script src="{{url('/')}}/main/js/merchant/restock/product.js"></script>
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
+<script src="{{url('/')}}/main/js/helper/keep-tab-refresh.js"></script>
+<script src="https://unpkg.com/autonumeric"></script>
 <script>
+// Recall Responsive DataTables
+$('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+    $('.table-datatables:visible').each(function(e) {
+        $(this).DataTable().columns.adjust().responsive.recalc();
+    });
+});
 </script>
 @endsection
