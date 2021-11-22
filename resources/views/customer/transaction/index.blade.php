@@ -238,6 +238,16 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
+                    <div class="card-header p-2">
+                        <ul class="nav nav-pills" id="tab-merchant-restock">
+                            <li class="nav-item">
+                                <a class="nav-link active" href="#customer-transaction" data-toggle="tab">Customer Transaction</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#customer-transaction-product" data-toggle="tab">Customer Transaction All Product</a>
+                            </li>
+                        </ul>
+                    </div><!-- /.card-header -->
                     <div class="card-body mt-2">
                         <div class="tab-content">
 
@@ -260,6 +270,39 @@
                                                     <th>Status Order</th>
                                                     <th>Total Price</th>
                                                     <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane" id="customer-transaction-product">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <table class="table table-datatables">
+                                            <thead>
+                                                <tr>
+                                                    <th>Order ID</th>
+                                                    <th>Tgl Transaksi</th>
+                                                    <th>Nama</th>
+                                                    <th>Alamat</th>
+                                                    <th>No. Telp</th>
+                                                    <th>Merchant ID</th>
+                                                    <th>Nama Toko</th>
+                                                    <th>Nama Distributor</th>
+                                                    <th>Nama Sales</th>
+                                                    <th>Metode Pembayaran</th>
+                                                    <th>Status Order</th>
+                                                    <th>Total Price</th>
+                                                    <th>Product ID</th>
+                                                    <th>Deskripsi</th>
+                                                    <th>Qty</th>
+                                                    <th>Harga Satuan</th>
+                                                    <th>Diskon</th>
+                                                    <th>Harga stlh Diskon</th>
+                                                    <th>Total Harga</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -300,7 +343,16 @@
 <!-- Main JS -->
 <script src="{{url('/')}}/main/js/custom/select-filter.js"></script>
 <script src="{{url('/')}}/main/js/customer/transaction/transaction.js"></script>
+<script src="{{url('/')}}/main/js/customer/transaction/product.js"></script>
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
+<script src="{{url('/')}}/main/js/helper/keep-tab-refresh.js"></script>
+<script src="https://unpkg.com/autonumeric"></script>
 <script>
+// Recall Responsive DataTables
+$('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+    $('.table-datatables:visible').each(function(e) {
+        $(this).DataTable().columns.adjust().responsive.recalc();
+    });
+});
 </script>
 @endsection

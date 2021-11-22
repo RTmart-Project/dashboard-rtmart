@@ -271,6 +271,82 @@ class CustomerController extends Controller
         }
     }
 
+    public function getTransactionProduct(Request $request)
+    {
+        $fromDate = $request->input('fromDate');
+        $toDate = $request->input('toDate');
+        $paymentMethodId = $request->input('paymentMethodId');
+
+        $sqlAllAccount = DB::table('tx_product_order')
+            ->leftJoin('tx_product_order_detail', 'tx_product_order_detail.OrderID', '=', 'tx_product_order.OrderID')
+            ->leftJoin('ms_product', 'ms_product.ProductID', '=', 'tx_product_order_detail.productID')
+            ->leftJoin('ms_customer_account', 'ms_customer_account.CustomerID', '=', 'tx_product_order.CustomerID')
+            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_product_order.MerchantID')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
+            ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_product_order.StatusOrderID')
+            ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_product_order.PaymentMethodID')
+            ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'ms_merchant_account.ReferralCode')
+            ->where('ms_merchant_account.IsTesting', 0)
+            ->select(['tx_product_order.OrderID', 'tx_product_order.MerchantID', 'tx_product_order.TotalPrice', 'ms_customer_account.FullName', 'tx_product_order.CreatedDate', 'ms_customer_account.PhoneNumber', 'ms_merchant_account.StoreName', 'tx_product_order.StatusOrderID', 'ms_status_order.StatusOrder', 'ms_distributor.DistributorName', 'ms_sales.SalesName', 'ms_payment_method.PaymentMethodName', 'ms_customer_account.Address', 'tx_product_order_detail.productID', 'ms_product.ProductName', 'tx_product_order_detail.Quantity', 'tx_product_order_detail.Price', 'tx_product_order_detail.Discount', 'tx_product_order_detail.Nett', 'tx_product_order_detail.SubTotalPrice'])
+            ->orderByDesc('tx_product_order.CreatedDate');
+
+        // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
+        if ($fromDate != '' && $toDate != '') {
+            $sqlAllAccount->whereDate('tx_product_order.CreatedDate', '>=', $fromDate)
+                ->whereDate('tx_product_order.CreatedDate', '<=', $toDate);
+        }
+
+        if ($paymentMethodId != null) {
+            $sqlAllAccount->where('tx_product_order.PaymentMethodID', '=', $paymentMethodId);
+        }
+
+        // Get data response
+        $data = $sqlAllAccount;
+
+        // Return Data Using DataTables with Ajax
+        if ($request->ajax()) {
+            return Datatables::of($data)
+                ->editColumn('CreatedDate', function ($data) {
+                    return date('d-M-Y H:i', strtotime($data->CreatedDate));
+                })
+                ->editColumn('StatusOrder', function ($data) {
+                    $pesananBaru = "S013";
+                    $dikonfirmasi = "S014";
+                    $dalamProses = "S019";
+                    $dikirim = "S015";
+                    $selesai = "S016";
+                    $dibatalkan = "S017";
+
+                    if ($data->StatusOrderID == $pesananBaru) {
+                        $statusOrder = '<span class="badge badge-secondary">' . $data->StatusOrder . '</span>';
+                    } elseif ($data->StatusOrderID == $dikonfirmasi) {
+                        $statusOrder = '<span class="badge badge-primary">' . $data->StatusOrder . '</span>';
+                    } elseif ($data->StatusOrderID == $dalamProses) {
+                        $statusOrder = '<span class="badge badge-warning">' . $data->StatusOrder . '</span>';
+                    } elseif ($data->StatusOrderID == $dikirim) {
+                        $statusOrder = '<span class="badge badge-info">' . $data->StatusOrder . '</span>';
+                    } elseif ($data->StatusOrderID == $selesai) {
+                        $statusOrder = '<span class="badge badge-success">' . $data->StatusOrder . '</span>';
+                    } elseif ($data->StatusOrderID == $dibatalkan) {
+                        $statusOrder = '<span class="badge badge-danger">' . $data->StatusOrder . '</span>';
+                    } else {
+                        $statusOrder = 'Status tidak ditemukan';
+                    }
+
+                    return $statusOrder;
+                })
+                ->addColumn('Action', function ($data) {
+                    $actionBtn = '<a href="/customer/transaction/detail/' . $data->OrderID . '" class="btn-sm btn-info detail-order">Detail</a>';
+                    return $actionBtn;
+                })
+                ->filterColumn('tx_product_order.CreatedDate', function ($query, $keyword) {
+                    $query->whereRaw("DATE_FORMAT(tx_product_order.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
+                })
+                ->rawColumns(['StatusOrder', 'Action'])
+                ->make(true);
+        }
+    }
+
     public function transactionDetails($orderId)
     {
         $customer = DB::table('tx_product_order')

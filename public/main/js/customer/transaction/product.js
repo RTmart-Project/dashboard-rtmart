@@ -1,21 +1,21 @@
 $(document).ready(function () {
     // DataTables
-    dataTablesTransactions();
+    dataTablesTransactionProduct();
 
-    function dataTablesTransactions() {
-        $('#customer-transaction .table-datatables').DataTable({
-            dom: "<'row'<'col-sm-12 col-md-5'<'filter-customer-transaction'>tl><'col-sm-12 col-md-3'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
+    function dataTablesTransactionProduct() {
+        $('#customer-transaction-product .table-datatables').DataTable({
+            dom: "<'row'<'col-sm-12 col-md-5'<'filter-customer-transaction-product'>tl><'col-sm-12 col-md-3'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
             serverSide: true,
             stateServe: true,
             "ajax": {
-                url: "/customer/transaction/get",
+                url: "/customer/transaction/product/get",
                 data: function (d) {
-                    d.fromDate = $('#customer-transaction #from_date').val();
-                    d.toDate = $('#customer-transaction #to_date').val();
-                    d.paymentMethodId = $('#customer-transaction .select-filter-custom select').val();
+                    d.fromDate = $('#customer-transaction-product #from_date').val();
+                    d.toDate = $('#customer-transaction-product #to_date').val();
+                    d.paymentMethodId = $('#customer-transaction-product .select-filter-custom select').val();
                 }
             },
             columns: [
@@ -69,16 +69,38 @@ $(document).ready(function () {
                     name: 'tx_product_order.TotalPrice'
                 },
                 {
-                    data: 'Action',
-                    name: 'Action',
-                    orderable: false, 
-                    searchable: false
+                    data: 'productID',
+                    name: 'tx_product_order_detail.productID'
+                },
+                {
+                    data: 'ProductName',
+                    name: 'ms_product.ProductName'
+                },
+                {
+                    data: 'Quantity',
+                    name: 'tx_product_order_detail.Quantity'
+                },
+                {
+                    data: 'Price',
+                    name: 'tx_product_order_detail.Price'
+                },
+                {
+                    data: 'Discount',
+                    name: 'tx_product_order_detail.Discount'
+                },
+                {
+                    data: 'Nett',
+                    name: 'tx_product_order_detail.Nett'
+                },
+                {
+                    data: 'SubTotalPrice',
+                    name: 'tx_product_order_detail.SubTotalPrice'
                 }
             ],
             buttons: [{
                 extend: 'excelHtml5',
                 filename: function () {
-                    return exportDatatableHelper.generateFilename('CustomerTransaction');
+                    return exportDatatableHelper.generateFilename('CustomerTransactionAllProduct');
                 },
                 action: exportDatatableHelper.newExportAction,
                 text: 'Export',
@@ -87,7 +109,7 @@ $(document).ready(function () {
                     modifier: {
                         page: 'all'
                     },
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
                     orthogonal: 'export'
                 },
             }],
@@ -97,7 +119,7 @@ $(document).ready(function () {
             "autoWidth": false,
             "aoColumnDefs": [
                 {
-                    "aTargets": [11],
+                    "aTargets": [11, 15, 16, 17, 18],
                     "mRender": function (data, type, full) {
                         if (type === 'export') {
                             return data;
@@ -116,7 +138,7 @@ $(document).ready(function () {
     }
 
     // Create element for DateRange Filter
-    $("div.filter-customer-transaction").html(`<div class="input-group">
+    $("div.filter-customer-transaction-product").html(`<div class="input-group">
                             <input type="text" name="from_date" id="from_date" class="form-control form-control-sm" readonly>
                             <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
                             <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
@@ -129,7 +151,7 @@ $(document).ready(function () {
                         </div>`);
 
     // Setting Awal Daterangepicker
-    $('#customer-transaction #from_date').daterangepicker({
+    $('#customer-transaction-product #from_date').daterangepicker({
         singleDatePicker: true,
         showDropdowns: true,
         locale: {
@@ -138,7 +160,7 @@ $(document).ready(function () {
     });
 
     // Setting Awal Daterangepicker
-    $('#customer-transaction #to_date').daterangepicker({
+    $('#customer-transaction-product #to_date').daterangepicker({
         singleDatePicker: true,
         showDropdowns: true,
         locale: {
@@ -154,8 +176,8 @@ $(document).ready(function () {
         else
             bCodeChange = true;
 
-        $('#customer-transaction #to_date').daterangepicker({
-            minDate: $("#customer-transaction #from_date").val(),
+        $('#customer-transaction-product #to_date').daterangepicker({
+            minDate: $("#customer-transaction-product #from_date").val(),
             singleDatePicker: true,
             showDropdowns: true,
             locale: {
@@ -171,8 +193,8 @@ $(document).ready(function () {
         else
             bCodeChange = true;
 
-        $('#customer-transaction #from_date').daterangepicker({
-            maxDate: $("#customer-transaction #to_date").val(),
+        $('#customer-transaction-product #from_date').daterangepicker({
+            maxDate: $("#customer-transaction-product #to_date").val(),
             singleDatePicker: true,
             showDropdowns: true,
             locale: {
@@ -183,53 +205,38 @@ $(document).ready(function () {
     }
 
     // Disabled input to date ketika from date berubah
-    $('#customer-transaction .filter-customer-transaction').on('change', '#from_date', function () {
+    $('#customer-transaction-product .filter-customer-transaction-product').on('change', '#from_date', function () {
         dateStartChange();
     });
     // Disabled input from date ketika to date berubah
-    $('#customer-transaction .filter-customer-transaction').on('change', '#to_date', function () {
+    $('#customer-transaction-product .filter-customer-transaction-product').on('change', '#to_date', function () {
         dateEndChange();
     });
 
     // Menyisipkan Placeholder Date
-    $('#customer-transaction #from_date').val('');
-    $('#customer-transaction #to_date').val('');
-    $('#customer-transaction #from_date').attr("placeholder", "From Date");
-    $('#customer-transaction #to_date').attr("placeholder", "To Date");
+    $('#customer-transaction-product #from_date').val('');
+    $('#customer-transaction-product #to_date').val('');
+    $('#customer-transaction-product #from_date').attr("placeholder", "From Date");
+    $('#customer-transaction-product #to_date').attr("placeholder", "To Date");
 
     // Event Listener saat tombol refresh diklik
-    $("#customer-transaction #refresh").click(function () {
-        $('#customer-transaction #from_date').val('');
-        $('#customer-transaction #to_date').val('');
-        $('#customer-transaction .table-datatables').DataTable().search('');
-        // $('#customer-transaction .select-filter-custom select').val('').change();
-        // $('#customer-transaction .select-filter-custom select option[value=]');
-        $('#customer-transaction .table-datatables').DataTable().ajax.reload(null, false);
+    $("#customer-transaction-product #refresh").click(function () {
+        $('#customer-transaction-product #from_date').val('');
+        $('#customer-transaction-product #to_date').val('');
+        $('#customer-transaction-product .table-datatables').DataTable().search('');
+        // $('#customer-transaction-product .select-filter-custom select').val('').change();
+        // $('#customer-transaction-product .select-filter-custom select option[value=]');
+        $('#customer-transaction-product .table-datatables').DataTable().ajax.reload(null, false);
     });
 
     // Event listener saat tombol filter diklik
-    $("#customer-transaction #filter").click(function () {
-        $('#customer-transaction .table-datatables').DataTable().ajax.reload();
-    });
-
-    // Load PaymentMethod ID and Name for filter
-    $.ajax({
-        type: "get",
-        url: "/payment/method/get",
-        success: function (data) {
-            let option;
-            for (const item of data) {
-                option += `<option value="${item.PaymentMethodID}">${item.PaymentMethodName}</option>`;
-            }
-            $('#customer-transaction .select-filter-custom select').append(option);
-            $('#customer-transaction-product .select-filter-custom select').append(option);
-            customDropdownFilter.createCustomDropdowns();
-        }
+    $("#customer-transaction-product #filter").click(function () {
+        $('#customer-transaction-product .table-datatables').DataTable().ajax.reload();
     });
 
     // Event listener saat tombol select option diklik
-    $("#customer-transaction .select-filter-custom select").change(function () {
-        $('#customer-transaction .table-datatables').DataTable().ajax.reload();
-        // console.log($('#customer-transaction .select-filter-custom select').val());
+    $("#customer-transaction-product .select-filter-custom select").change(function () {
+        $('#customer-transaction-product .table-datatables').DataTable().ajax.reload();
+        // console.log($('#customer-transaction-product .select-filter-custom select').val());
     });
 });

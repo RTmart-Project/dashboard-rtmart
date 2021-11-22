@@ -128,6 +128,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/customer/otp/get', [CustomerController::class, 'getOtps'])->name('customer.getOtps');
         Route::get('/customer/transaction', [CustomerController::class, 'transaction'])->name('customer.transaction');
         Route::get('/customer/transaction/get', [CustomerController::class, 'getTransactions'])->name('customer.getTransactions');
+        Route::get('/customer/transaction/product/get', [CustomerController::class, 'getTransactionProduct'])->name('customer.getTransactionProduct');
         Route::get('/customer/transaction/detail/{orderId}', [CustomerController::class, 'transactionDetails'])->name('customer.transactionDetails');
         Route::get('/customer/transaction/detail/get/{orderId}', [CustomerController::class, 'getTransactionDetails'])->name('customer.getTransactionDetails');
     });

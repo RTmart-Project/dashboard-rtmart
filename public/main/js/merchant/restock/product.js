@@ -92,7 +92,7 @@ $(document).ready(function () {
             buttons: [{
                 extend: 'excelHtml5',
                 filename: function () {
-                    return exportDatatableHelper.generateFilename('RestockMerchantProduct');
+                    return exportDatatableHelper.generateFilename('RestockMerchantAllProduct');
                 },
                 action: exportDatatableHelper.newExportAction,
                 text: 'Export',
