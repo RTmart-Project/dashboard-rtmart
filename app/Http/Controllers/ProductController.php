@@ -33,7 +33,7 @@ class ProductController extends Controller
             ->select('ms_product.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product.ProductUOMDesc', 'ms_product.Price', 'ms_product_category.ProductCategoryName', 'ms_product_type.ProductTypeName', 'ms_brand_type.Brand', 'ms_product_uom.ProductUOMName');
 
         // Get data response
-        $data = $sqlAllProduct->get();
+        $data = $sqlAllProduct;
 
         // Return Data Using DataTables with Ajax
         if ($request->ajax()) {

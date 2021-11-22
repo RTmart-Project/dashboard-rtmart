@@ -10,7 +10,7 @@ $(document).ready(function () {
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
-            serverSide: false,
+            serverSide: true,
             stateServe: true,
             "ajax": {
                 url: "/master/product/list/get/"
@@ -18,43 +18,45 @@ $(document).ready(function () {
             columns: [
                 {
                     data: 'ProductID',
-                    name: 'ProductID'
+                    name: 'ms_product.ProductID'
                 },
                 {
                     data: 'ProductName',
-                    name: 'ProductName'
+                    name: 'ms_product.ProductName'
                 },
                 {
                     data: 'ProductImage',
-                    name: 'ProductImage'
+                    name: 'ms_product.ProductImage'
                 },
                 {
                     data: 'ProductCategoryName',
-                    name: 'ProductCategoryName'
+                    name: 'ms_product_category.ProductCategoryName'
                 },
                 {
                     data: 'ProductTypeName',
-                    name: 'ProductTypeName'
+                    name: 'ms_product_type.ProductTypeName'
                 },
                 {
                     data: 'Brand',
-                    name: 'Brand'
+                    name: 'ms_brand_type.Brand'
                 },
                 {
                     data: 'ProductUOMName',
-                    name: 'ProductUOMName'
+                    name: 'ms_product_uom.ProductUOMName'
                 },
                 {
                     data: 'ProductUOMDesc',
-                    name: 'ProductUOMDesc'
+                    name: 'ms_product.ProductUOMDesc'
                 },
                 {
                     data: 'Price',
-                    name: 'Price'
+                    name: 'ms_product.Price'
                 },
                 {
                     data: 'Action',
-                    name: 'Action'
+                    name: 'Action',
+                    orderable: false, 
+                    searchable: false
                 }
             ],
             buttons: [{
@@ -62,6 +64,7 @@ $(document).ready(function () {
                 filename: function () {
                     return exportDatatableHelper.generateFilename('ProductLists');
                 },
+                action: exportDatatableHelper.newExportAction,
                 text: 'Export',
                 titleAttr: 'Excel',
                 exportOptions: {
@@ -90,22 +93,8 @@ $(document).ready(function () {
                             }
                         }
                     }
-                },
-                {
-                    "aTargets": [9],
-                    "orderable": false
                 }
             ]
         });
     }
-
-    $('#product-list table').on('click', '.lihat-gambar', function (e) {
-        e.preventDefault();
-        const urlImg = $(this).attr("href");
-        const productName = $(this).data("product-name");
-        $.dialog({
-            title: `${productName}`,
-            content: `<img  style="object-fit: contain; height: 350px; width: 100%;" src="${urlImg}">`,
-        });
-    });
 });
