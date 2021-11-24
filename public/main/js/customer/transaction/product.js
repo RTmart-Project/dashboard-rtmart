@@ -49,6 +49,10 @@ $(document).ready(function () {
                     name: 'ms_merchant_account.StoreName'
                 },
                 {
+                    data: 'StoreAddress',
+                    name: 'ms_merchant_account.StoreAddress'
+                },
+                {
                     data: 'DistributorName',
                     name: 'ms_distributor.DistributorName'
                 },

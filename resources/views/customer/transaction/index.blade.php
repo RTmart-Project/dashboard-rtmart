@@ -288,10 +288,11 @@
                                                     <th>Order ID</th>
                                                     <th>Tgl Transaksi</th>
                                                     <th>Nama</th>
-                                                    <th>Alamat</th>
+                                                    <th>Alamat Customer</th>
                                                     <th>No. Telp</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
+                                                    <th>Alamat Toko</th>
                                                     <th>Nama Distributor</th>
                                                     <th>Nama Sales</th>
                                                     <th>Metode Pembayaran</th>
