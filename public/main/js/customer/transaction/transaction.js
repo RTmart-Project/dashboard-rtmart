@@ -49,6 +49,10 @@ $(document).ready(function () {
                     name: 'ms_merchant_account.StoreName'
                 },
                 {
+                    data: 'StoreAddress',
+                    name: 'ms_merchant_account.StoreAddress'
+                },
+                {
                     data: 'DistributorName',
                     name: 'ms_distributor.DistributorName'
                 },
@@ -87,7 +91,7 @@ $(document).ready(function () {
                     modifier: {
                         page: 'all'
                     },
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                     orthogonal: 'export'
                 },
             }],
@@ -97,7 +101,7 @@ $(document).ready(function () {
             "autoWidth": false,
             "aoColumnDefs": [
                 {
-                    "aTargets": [11],
+                    "aTargets": [12],
                     "mRender": function (data, type, full) {
                         if (type === 'export') {
                             return data;
