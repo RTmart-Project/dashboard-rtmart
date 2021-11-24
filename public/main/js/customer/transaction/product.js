@@ -113,7 +113,7 @@ $(document).ready(function () {
                     modifier: {
                         page: 'all'
                     },
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19],
                     orthogonal: 'export'
                 },
             }],
@@ -123,7 +123,7 @@ $(document).ready(function () {
             "autoWidth": false,
             "aoColumnDefs": [
                 {
-                    "aTargets": [11, 15, 16, 17, 18],
+                    "aTargets": [12, 16, 17, 18, 19],
                     "mRender": function (data, type, full) {
                         if (type === 'export') {
                             return data;
