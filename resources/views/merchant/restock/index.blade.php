@@ -268,6 +268,7 @@
                                                     <th>Status Order</th>
                                                     <th>Total Price</th>
                                                     <th>Referral</th>
+                                                    <th>Nama Sales</th>
                                                     <th>Action</th>
                                                 </tr>
                                             </thead>
@@ -293,6 +294,7 @@
                                                     <th>Status Order</th>
                                                     <th>Total Price</th>
                                                     <th>Referral</th>
+                                                    <th>Nama Sales</th>
                                                     <th>Product ID</th>
                                                     <th>Deskripsi</th>
                                                     <th>Qty</th>

@@ -61,6 +61,10 @@ $(document).ready(function () {
                     name: 'ms_merchant_account.ReferralCode'
                 },
                 {
+                    data: 'SalesName',
+                    name: 'ms_sales.SalesName'
+                },
+                {
                     data: 'Action',
                     name: 'Action',
                     orderable: false, 
