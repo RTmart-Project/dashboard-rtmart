@@ -33,8 +33,8 @@ class AuthController extends Controller
         $ms_user = MsUser::where('Email', '=', $request->input('email'))
             ->first();
 
-        if ($ms_user->IsDashboardRTMart == 1) {
-            if (Auth::attempt($credentials)) {
+        if (Auth::attempt($credentials)) {
+            if ($ms_user->IsDashboardRTMart == 1) {
                 return redirect('/home')->with('success', 'Berhasil. Selamat datang!');
             }
         }
