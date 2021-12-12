@@ -205,6 +205,32 @@
                 </li>
                 @endif
 
+                <li class="nav-item {{ Request::is('voucher*') ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ Request::is('voucher*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-ticket-alt"></i>
+                        <p>
+                            Voucher
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ route('voucher.list') }}"
+                                class="nav-link {{ Request::is('voucher/list*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Voucher List</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('voucher.log') }}"
+                                class="nav-link {{ Request::is('voucher/log*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Penggunaan Voucher</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
                 @if (Auth::user()->RoleID == "IT")
                 <li class="nav-item {{ Request::is('setting*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ Request::is('setting*') ? 'active' : '' }}">

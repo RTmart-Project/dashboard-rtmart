@@ -10,6 +10,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\VoucherController;
 use Illuminate\Support\Facades\Auth;
 
 /*
@@ -131,6 +132,17 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/customer/transaction/product/get', [CustomerController::class, 'getTransactionProduct'])->name('customer.getTransactionProduct');
         Route::get('/customer/transaction/detail/{orderId}', [CustomerController::class, 'transactionDetails'])->name('customer.transactionDetails');
         Route::get('/customer/transaction/detail/get/{orderId}', [CustomerController::class, 'getTransactionDetails'])->name('customer.getTransactionDetails');
+
+        // Voucher
+        Route::get('/voucher/list', [VoucherController::class, 'list'])->name('voucher.list');
+        Route::get('/voucher/list/get', [VoucherController::class, 'getList'])->name('voucher.getList');
+        Route::get('/voucher/list/detail/{voucherCode}', [VoucherController::class, 'detail'])->name('voucher.detail');
+        Route::get('/voucher/list/add', [VoucherController::class, 'addList'])->name('voucher.addList');
+        Route::post('/voucher/list/insert', [VoucherController::class, 'insertList'])->name('voucher.insertList');
+        Route::get('/voucher/list/edit/{voucherCode}', [VoucherController::class, 'editList'])->name('voucher.editList');
+        Route::post('/voucher/list/update/{voucherCodeDB}', [VoucherController::class, 'updateList'])->name('voucher.updateList');
+        Route::get('/voucher/log', [VoucherController::class, 'log'])->name('voucher.log');
+        Route::get('/voucher/log/get', [VoucherController::class, 'getLog'])->name('voucher.getLog');
     });
 
     Route::group(['middleware' => ['checkRoleUser:IT']], function () {
