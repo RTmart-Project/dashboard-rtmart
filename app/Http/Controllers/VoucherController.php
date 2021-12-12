@@ -189,7 +189,7 @@ class VoucherController extends Controller
         $voucherCode = $request->input('voucher_code');
 
         $bannerName = $voucherCode . '.' . $request->file('banner')->extension();
-        // $request->file('banner')->move($this->saveImageUrl . 'voucher/banner/', $bannerName);
+        $request->file('banner')->move($this->saveImageUrl . 'voucher/banner/', $bannerName);
 
         $startDateVoucher = str_replace("T", " ", $request->input('start_date'));
         $endDateVoucher = str_replace("T", " ", $request->input('end_date'));
@@ -530,7 +530,7 @@ class VoucherController extends Controller
 
         if ($request->hasFile('banner')) {
             $bannerName = $voucherCode . '.' . $request->file('banner')->extension();
-            // $request->file('banner')->move($this->saveImageUrl . 'voucher/banner/', $bannerName);
+            $request->file('banner')->move($this->saveImageUrl . 'voucher/banner/', $bannerName);
             $data['Banner'] = $bannerName;
         }
 
