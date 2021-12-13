@@ -78,8 +78,7 @@ class MerchantController extends Controller
         $sqlAllAccount = DB::table('ms_merchant_account')
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
             ->where('ms_merchant_account.IsTesting', 0)
-            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.CreatedDate', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_distributor.DistributorName')
-            ->orderByDesc('ms_merchant_account.CreatedDate');
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.CreatedDate', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_distributor.DistributorName');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
@@ -346,8 +345,7 @@ class MerchantController extends Controller
         $sqlAllAccount = DB::table('ms_verification')
             ->join('ms_verification_log', 'ms_verification_log.PhoneNumber', '=', 'ms_verification.PhoneNumber')
             ->where('ms_verification.Type', '=', 'MERCHANT')
-            ->select('ms_verification.PhoneNumber', 'ms_verification.OTP', 'ms_verification.IsVerified', 'ms_verification_log.SendOn', 'ms_verification_log.ReceiveOn')
-            ->orderByDesc('SendOn');
+            ->select('ms_verification.PhoneNumber', 'ms_verification.OTP', 'ms_verification.IsVerified', 'ms_verification_log.SendOn', 'ms_verification_log.ReceiveOn');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
@@ -451,8 +449,7 @@ class MerchantController extends Controller
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
             ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'ms_merchant_account.ReferralCode')
             ->where('ms_merchant_account.IsTesting', 0)
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.MerchantID', 'tx_merchant_order.NettPrice', 'tx_merchant_order.StatusOrderID', 'ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesName', 'ms_payment_method.PaymentMethodName')
-            ->orderByDesc('tx_merchant_order.CreatedDate');
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.MerchantID', 'tx_merchant_order.NettPrice', 'tx_merchant_order.StatusOrderID', 'ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesName', 'ms_payment_method.PaymentMethodName');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
@@ -526,8 +523,7 @@ class MerchantController extends Controller
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
             ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'ms_merchant_account.ReferralCode')
             ->where('ms_merchant_account.IsTesting', 0)
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.MerchantID', 'tx_merchant_order.NettPrice', 'tx_merchant_order.StatusOrderID', 'ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesName', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order_detail.ProductID', 'ms_product.ProductName', 'tx_merchant_order_detail.PromisedQuantity', 'tx_merchant_order_detail.Price', 'tx_merchant_order_detail.Discount', 'tx_merchant_order_detail.Nett')
-            ->orderByDesc('tx_merchant_order.CreatedDate');
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.MerchantID', 'tx_merchant_order.NettPrice', 'tx_merchant_order.StatusOrderID', 'ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesName', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order_detail.ProductID', 'ms_product.ProductName', 'tx_merchant_order_detail.PromisedQuantity', 'tx_merchant_order_detail.Price', 'tx_merchant_order_detail.Discount', 'tx_merchant_order_detail.Nett');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {

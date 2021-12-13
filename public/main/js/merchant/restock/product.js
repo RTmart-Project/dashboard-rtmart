@@ -115,7 +115,7 @@ $(document).ready(function () {
             "autoWidth": false,
             "aoColumnDefs": [
                 {
-                    "aTargets": [8, 13, 14, 15, 16],
+                    "aTargets": [8, 14, 15, 16, 17],
                     "mRender": function (data, type, full) {
                         if (type === 'export') {
                             return data;
