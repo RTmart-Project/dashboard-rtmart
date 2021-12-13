@@ -43,6 +43,11 @@
                     <div class="card-body">
                         <form id="add-voucher" method="post" action="{{ route('voucher.insertList') }}" enctype="multipart/form-data">
                             @csrf
+                            @if($errors->any())
+                                @foreach ($errors->all() as $error)
+                                    <div>{{ $error }}</div>
+                                @endforeach
+                            @endif
                             <div class="row">
                                 <div class="col-md-4 col-12">
                                     <div class="form-group">

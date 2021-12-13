@@ -176,11 +176,16 @@ class VoucherController extends Controller
                 'distributor_location' => 'exists:ms_distributor,DistributorID',
                 'term_brand' => 'exists:ms_brand_type,BrandID',
                 'term_category' => 'exists:ms_product_category,ProductCategoryID',
-                'term_product' => 'exists:ms_product,ProductID',
-                'minimum_tx_product.*' => 'integer',
-                'minimum_qty_product.*' => 'integer',
-                'minimum_tx_product_history.*' => 'integer',
-                'minimum_qty_product_history.*' => 'integer'
+                'term_product' => 'nullable',
+                'term_product.*' => 'nullable|exists:ms_product,ProductID',
+                'minimum_tx_product' => 'nullable',
+                'minimum_tx_product.*' => 'nullable|integer',
+                'minimum_qty_product' => 'nullable',
+                'minimum_qty_product.*' => 'nullable|integer',
+                'minimum_tx_product_history' => 'nullable',
+                'minimum_tx_product_history.*' => 'nullable|integer',
+                'minimum_qty_product_history' => 'nullable',
+                'minimum_qty_product_history.*' => 'nullable|integer'
             ],
             [
                 'max_quota.gt' => 'The max quota must be greater than quota per user'
@@ -190,7 +195,7 @@ class VoucherController extends Controller
         $voucherCode = $request->input('voucher_code');
 
         $bannerName = $voucherCode . '.' . $request->file('banner')->extension();
-        $request->file('banner')->move($this->saveImageUrl . 'voucher/banner/', $bannerName);
+        // $request->file('banner')->move($this->saveImageUrl . 'voucher/banner/', $bannerName);
 
         $startDateVoucher = str_replace("T", " ", $request->input('start_date'));
         $endDateVoucher = str_replace("T", " ", $request->input('end_date'));
@@ -464,11 +469,16 @@ class VoucherController extends Controller
                 'distributor_location' => 'exists:ms_distributor,DistributorID',
                 'term_brand' => 'exists:ms_brand_type,BrandID',
                 'term_category' => 'exists:ms_product_category,ProductCategoryID',
-                'term_product' => 'exists:ms_product,ProductID',
-                'minimum_tx_product.*' => 'integer',
-                'minimum_qty_product.*' => 'integer',
-                'minimum_tx_product_history.*' => 'integer',
-                'minimum_qty_product_history.*' => 'integer'
+                'term_product' => 'nullable',
+                'term_product.*' => 'nullable|exists:ms_product,ProductID',
+                'minimum_tx_product' => 'nullable',
+                'minimum_tx_product.*' => 'nullable|integer',
+                'minimum_qty_product' => 'nullable',
+                'minimum_qty_product.*' => 'nullable|integer',
+                'minimum_tx_product_history' => 'nullable',
+                'minimum_tx_product_history.*' => 'nullable|integer',
+                'minimum_qty_product_history' => 'nullable',
+                'minimum_qty_product_history.*' => 'nullable|integer'
             ],
             [
                 'max_quota.gt' => 'The max quota must be greater than quota per user'
