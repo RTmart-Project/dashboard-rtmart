@@ -7,7 +7,7 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'base_image_url' => env('BASE_URL_IMAGE', 'https://mobile.dev.rt-mart.id/images/'),
+    'base_image_url' => env('BASE_URL_IMAGE', 'https://mobile.rt-mart.id/images/'),
     'save_image_url' => env('SAVE_IMAGE_URL', '/home/rtmartindonesia/mobile/images/'),
     'firebase_auth_token' => env('FIREBASE_AUTH_TOKEN', 'AAAAU0KalCo:APA91bF8oHUw5YupY5CGRvSMdkk-0sUXDiC_QvcOHT51x2fbTcGqq31OeIrNvV0iA6ZxosgC7eSTFmiAo80i3D5CJSVGIhlSJfgw9ty_8MCfwNDUFGHP72XJMbIQD9m6IgWZUk_0WDND'),
     'username_mobile_pulsa' => env('USERNAME_MOBILE_PULSA', '081906609707'),
