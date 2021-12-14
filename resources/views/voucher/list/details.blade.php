@@ -189,8 +189,10 @@
                                             <th>Nama Produk</th>
                                             <th>Minimum Transaksi</th>
                                             <th>Minimum Kuantiti</th>
-                                            <th>Minimum Transaksi (History)</th>
-                                            <th>Minimum Kuantiti (History)</th>
+                                            <th>Minimum Transaksi (History Transaksi Customer)</th>
+                                            <th>Minimum Kuantiti (History Transaksi Customer)</th>
+                                            <th>Minimum Transaksi (History Restock Merchant)</th>
+                                            <th>Minimum Kuantiti (History Restock Merchant)</th>
                                         </tr>
                                         @foreach ($termProduct as $value)
                                             <tr>
@@ -200,6 +202,8 @@
                                                 <td>{{ $value->MinimumQty }}</td>
                                                 <td>{{ Helper::formatCurrency($value->MinimumTrxAccumulative, 'Rp ') }}</td>
                                                 <td>{{ $value->MinimumQtyAccumulative }}</td>
+                                                <td>{{ Helper::formatCurrency($value->MinimumTrxAccumulativeRestock, 'Rp ') }}</td>
+                                                <td>{{ $value->MinimumQtyAccumulativeRestock }}</td>
                                             </tr>
                                         @endforeach
                                     </table>

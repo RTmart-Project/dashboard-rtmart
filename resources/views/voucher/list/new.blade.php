@@ -236,7 +236,7 @@
                             <div class="row">
                                 <div class="col-md-6 col-12">
                                     <div class="form-group">
-                                        <label for="minimum_tx_history">Minimum Nominal Transaksi (History)</label>
+                                        <label for="minimum_tx_history">Minimum Nominal (History Transaksi Customer)</label>
                                         <div class="input-group mb-3">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text">Rp </span>
@@ -252,7 +252,7 @@
                                 </div>
                                 <div class="col-md-6 col-12">
                                     <div class="form-group">
-                                        <label for="minimum_qty_history">Minimum Kuantiti Pembelian (History)</label>
+                                        <label for="minimum_qty_history">Minimum Kuantiti (History Transaksi Customer)</label>
                                         <div class="input-group mb-3">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text">Qty</span>
@@ -263,6 +263,136 @@
                                             @if($errors->has('minimum_qty_history'))
                                                 <span class="error invalid-feedback">{{ $errors->first('minimum_qty_history') }}</span>
                                             @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 col-12">
+                                    <label>Spesifik Metode Pembayaran</label>
+                                    <div class="row">
+                                        <div class="col-md-4 col-4 pt-2">
+                                            <div class="form-group">
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input form-control" id="switch_payment_method"
+                                                        name="switch_payment_method" {{ !empty(old('switch_payment_method')) ? 'checked' : '' }}>
+                                                    <label class="custom-control-label" for="switch_payment_method">Tidak / Ya</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-8 col-8">
+                                            <div class="form-group">
+                                                <select class="form-control selectpicker payment-method border
+                                                    @if($errors->has('payment_method')) is-invalid @endif" 
+                                                    id="payment_method" name="payment_method[]" data-live-search="true" multiple title="Pilih Metode Pembayaran" 
+                                                    {{ !empty(old('payment_method')) ? '' : 'disabled' }}>
+                                                    @foreach ($paymentMethod as $value)
+                                                        <option value="{{ $value->PaymentMethodID }}"
+                                                            {{ collect(old('payment_method'))->contains($value->PaymentMethodID) ? 'selected' : '' }}>
+                                                            {{ $value->PaymentMethodName }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                @if($errors->has('payment_method'))
+                                                    <span class="error invalid-feedback">{{ $errors->first('payment_method') }}</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <label>Spesifik Lokasi Distributor</label>
+                                    <div class="row">
+                                        <div class="col-md-4 col-4 pt-2">
+                                            <div class="form-group">
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input form-control" id="switch_distributor_location"
+                                                        name="switch_distributor_location" {{ !empty(old('switch_distributor_location')) ? 'checked' : '' }}>
+                                                    <label class="custom-control-label" for="switch_distributor_location">Tidak / Ya</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-8 col-8">
+                                            <div class="form-group">
+                                                <select class="form-control selectpicker distributor-location border
+                                                    @if($errors->has('distributor_location')) is-invalid @endif" 
+                                                    id="distributor_location" name="distributor_location[]" data-live-search="true" multiple title="Pilih Lokasi Distributor" 
+                                                    {{ !empty(old('distributor_location')) ? '' : 'disabled' }}>
+                                                    @foreach ($distributorLocation as $value)
+                                                        <option value="{{ $value->DistributorID }}"
+                                                            {{ collect(old('distributor_location'))->contains($value->DistributorID) ? 'selected' : '' }}>
+                                                            {{ $value->DistributorName }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                @if($errors->has('distributor_location'))
+                                                    <span class="error invalid-feedback">{{ $errors->first('distributor_location') }}</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <label>Spesifik Brand</label>
+                                    <div class="row">
+                                        <div class="col-md-4 col-4 pt-2">
+                                            <div class="form-group">
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input form-control" id="switch_term_brand"
+                                                        name="switch_term_brand" {{ !empty(old('switch_term_brand')) ? 'checked' : '' }}>
+                                                    <label class="custom-control-label" for="switch_term_brand">Tidak / Ya</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-8 col-8">
+                                            <div class="form-group">
+                                                <select class="form-control selectpicker term-brand border
+                                                    @if($errors->has('term_brand')) is-invalid @endif" 
+                                                    id="term_brand" name="term_brand[]" data-live-search="true" multiple title="Pilih Brand" 
+                                                    {{ !empty(old('term_brand')) ? '' : 'disabled' }}>
+                                                    @foreach ($termBrand as $value)
+                                                        <option value="{{ $value->BrandID }}"
+                                                            {{ collect(old('term_brand'))->contains($value->BrandID) ? 'selected' : '' }}>
+                                                            {{ $value->Brand }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                @if($errors->has('term_brand'))
+                                                    <span class="error invalid-feedback">{{ $errors->first('term_brand') }}</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <label>Spesifik Kategori</label>
+                                    <div class="row">
+                                        <div class="col-md-4 col-4 pt-2">
+                                            <div class="form-group">
+                                                <div class="custom-control custom-switch">
+                                                    <input type="checkbox" class="custom-control-input form-control" id="switch_term_category"
+                                                        name="switch_term_category" {{ !empty(old('switch_term_category')) ? 'checked' : '' }}>
+                                                    <label class="custom-control-label" for="switch_term_category">Tidak / Ya</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-8 col-8">
+                                            <div class="form-group">
+                                                <select class="form-control selectpicker term-category border
+                                                    @if($errors->has('term_category')) is-invalid @endif" 
+                                                    id="term_category" name="term_category[]" data-live-search="true" multiple title="Pilih Kategori"
+                                                    {{ !empty(old('term_category')) ? '' : 'disabled' }}>
+                                                    @foreach ($termCategory as $value)
+                                                        <option value="{{ $value->ProductCategoryID }}"
+                                                            {{ collect(old('term_category'))->contains($value->ProductCategoryID) ? 'selected' : '' }}>
+                                                            {{ $value->ProductCategoryName }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                                @if($errors->has('term_category'))
+                                                    <span class="error invalid-feedback">{{ $errors->first('term_category') }}</span>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -346,7 +476,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
+                            <div class="row border-bottom border-secondary">
                                 <div class="col-12">
                                     <label class="m-0">Cek History Transaksi Customer</label>
                                     <div class="row">
@@ -380,138 +510,6 @@
                                                     {{ $errors->has('start_date_customer_tx') || $errors->has('end_date_customer_tx') || old('end_date_customer_tx') ? '' : 'disabled' }}>
                                                 @if($errors->has('end_date_customer_tx'))
                                                     <span class="error invalid-feedback">{{ $errors->first('end_date_customer_tx') }}</span>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6 col-12">
-                                    <label>Spesifik Metode Pembayaran</label>
-                                    <div class="row">
-                                        <div class="col-md-4 col-4 pt-2">
-                                            <div class="form-group">
-                                                <div class="custom-control custom-switch">
-                                                    <input type="checkbox" class="custom-control-input form-control" id="switch_payment_method"
-                                                        name="switch_payment_method" {{ !empty(old('switch_payment_method')) ? 'checked' : '' }}>
-                                                    <label class="custom-control-label" for="switch_payment_method">Tidak / Ya</label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-8 col-8">
-                                            <div class="form-group">
-                                                <select class="form-control selectpicker payment-method border
-                                                    @if($errors->has('payment_method')) is-invalid @endif" 
-                                                    id="payment_method" name="payment_method[]" data-live-search="true" multiple title="Pilih Metode Pembayaran" 
-                                                    {{ !empty(old('payment_method')) ? '' : 'disabled' }}>
-                                                    @foreach ($paymentMethod as $value)
-                                                        <option value="{{ $value->PaymentMethodID }}"
-                                                            {{ collect(old('payment_method'))->contains($value->PaymentMethodID) ? 'selected' : '' }}>
-                                                            {{ $value->PaymentMethodName }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                @if($errors->has('payment_method'))
-                                                    <span class="error invalid-feedback">{{ $errors->first('payment_method') }}</span>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 col-12">
-                                    <label>Spesifik Lokasi Distributor</label>
-                                    <div class="row">
-                                        <div class="col-md-4 col-4 pt-2">
-                                            <div class="form-group">
-                                                <div class="custom-control custom-switch">
-                                                    <input type="checkbox" class="custom-control-input form-control" id="switch_distributor_location"
-                                                        name="switch_distributor_location" {{ !empty(old('switch_distributor_location')) ? 'checked' : '' }}>
-                                                    <label class="custom-control-label" for="switch_distributor_location">Tidak / Ya</label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-8 col-8">
-                                            <div class="form-group">
-                                                <select class="form-control selectpicker distributor-location border
-                                                    @if($errors->has('distributor_location')) is-invalid @endif" 
-                                                    id="distributor_location" name="distributor_location[]" data-live-search="true" multiple title="Pilih Lokasi Distributor" 
-                                                    {{ !empty(old('distributor_location')) ? '' : 'disabled' }}>
-                                                    @foreach ($distributorLocation as $value)
-                                                        <option value="{{ $value->DistributorID }}"
-                                                            {{ collect(old('distributor_location'))->contains($value->DistributorID) ? 'selected' : '' }}>
-                                                            {{ $value->DistributorName }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                @if($errors->has('distributor_location'))
-                                                    <span class="error invalid-feedback">{{ $errors->first('distributor_location') }}</span>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row border-bottom border-secondary">
-                                <div class="col-md-6 col-12">
-                                    <label>Spesifik Brand</label>
-                                    <div class="row">
-                                        <div class="col-md-4 col-4 pt-2">
-                                            <div class="form-group">
-                                                <div class="custom-control custom-switch">
-                                                    <input type="checkbox" class="custom-control-input form-control" id="switch_term_brand"
-                                                        name="switch_term_brand" {{ !empty(old('switch_term_brand')) ? 'checked' : '' }}>
-                                                    <label class="custom-control-label" for="switch_term_brand">Tidak / Ya</label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-8 col-8">
-                                            <div class="form-group">
-                                                <select class="form-control selectpicker term-brand border
-                                                    @if($errors->has('term_brand')) is-invalid @endif" 
-                                                    id="term_brand" name="term_brand[]" data-live-search="true" multiple title="Pilih Brand" 
-                                                    {{ !empty(old('term_brand')) ? '' : 'disabled' }}>
-                                                    @foreach ($termBrand as $value)
-                                                        <option value="{{ $value->BrandID }}"
-                                                            {{ collect(old('term_brand'))->contains($value->BrandID) ? 'selected' : '' }}>
-                                                            {{ $value->Brand }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                @if($errors->has('term_brand'))
-                                                    <span class="error invalid-feedback">{{ $errors->first('term_brand') }}</span>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 col-12">
-                                    <label>Spesifik Kategori</label>
-                                    <div class="row">
-                                        <div class="col-md-4 col-4 pt-2">
-                                            <div class="form-group">
-                                                <div class="custom-control custom-switch">
-                                                    <input type="checkbox" class="custom-control-input form-control" id="switch_term_category"
-                                                        name="switch_term_category" {{ !empty(old('switch_term_category')) ? 'checked' : '' }}>
-                                                    <label class="custom-control-label" for="switch_term_category">Tidak / Ya</label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-8 col-8">
-                                            <div class="form-group">
-                                                <select class="form-control selectpicker term-category border
-                                                    @if($errors->has('term_category')) is-invalid @endif" 
-                                                    id="term_category" name="term_category[]" data-live-search="true" multiple title="Pilih Kategori"
-                                                    {{ !empty(old('term_category')) ? '' : 'disabled' }}>
-                                                    @foreach ($termCategory as $value)
-                                                        <option value="{{ $value->ProductCategoryID }}"
-                                                            {{ collect(old('term_category'))->contains($value->ProductCategoryID) ? 'selected' : '' }}>
-                                                            {{ $value->ProductCategoryName }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                                @if($errors->has('term_category'))
-                                                    <span class="error invalid-feedback">{{ $errors->first('term_category') }}</span>
                                                 @endif
                                             </div>
                                         </div>
@@ -558,7 +556,7 @@
                                     </div>
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
-                                            <label for="minimum_tx_product">Minimum Nominal Transaksi Produk</label>
+                                            <label for="minimum_tx_product">Minimum Nominal Transaksi Produk (Saat Checkout)</label>
                                             <div class="input-group mb-3">
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text">Rp </span>
@@ -574,7 +572,7 @@
                                     </div>
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
-                                            <label for="minimum_qty_product">Minimum Kuantiti Transaksi Produk</label>
+                                            <label for="minimum_qty_product">Minimum Kuantiti Transaksi Produk (Saat Checkout)</label>
                                             <div class="input-group mb-3">
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text">Qty </span>
@@ -590,7 +588,7 @@
                                     </div>
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
-                                            <label for="minimum_tx_product_history">Minimum Nominal Transaksi Produk (History)</label>
+                                            <label for="minimum_tx_product_history">Minimum Nominal (History Transaksi Customer)</label>
                                             <div class="input-group mb-3">
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text">Rp </span>
@@ -606,7 +604,7 @@
                                     </div>
                                     <div class="col-md-6 col-12">
                                         <div class="form-group">
-                                            <label for="minimum_qty_product_history">Minimum Kuantiti Transaksi Produk (History)</label>
+                                            <label for="minimum_qty_product_history">Minimum Kuantiti (History Transaksi Customer)</label>
                                             <div class="input-group mb-3">
                                                 <div class="input-group-prepend">
                                                     <span class="input-group-text">Qty </span>
@@ -616,6 +614,38 @@
                                                     value="{{ collect(old('minimum_qty_product_history')) }}">
                                                 @if($errors->has('minimum_qty_product_history'))
                                                     <span class="error invalid-feedback">{{ $errors->first('minimum_qty_product_history') }}</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-12">
+                                        <div class="form-group">
+                                            <label for="minimum_tx_product_restock">Minimum Nominal (History Restock Merchant)</label>
+                                            <div class="input-group mb-3">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">Rp </span>
+                                                </div>
+                                                <input type="number" name="minimum_tx_product_restock[]" class="form-control
+                                                    @if ($errors->has('minimum_tx_product_restock')) is-invalid @endif" 
+                                                    value="{{ collect(old('minimum_tx_product_restock')) }}">
+                                                @if($errors->has('minimum_tx_product_restock'))
+                                                    <span class="error invalid-feedback">{{ $errors->first('minimum_tx_product_restock') }}</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-12">
+                                        <div class="form-group">
+                                            <label for="minimum_qty_product_restock">Minimum Kuantiti (History Restock Merchant)</label>
+                                            <div class="input-group mb-3">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">Qty </span>
+                                                </div>
+                                                <input type="number" name="minimum_qty_product_restock[]" class="form-control
+                                                    @if ($errors->has('minimum_qty_product_restock')) is-invalid @endif" 
+                                                    value="{{ collect(old('minimum_qty_product_restock')) }}">
+                                                @if($errors->has('minimum_qty_product_restock'))
+                                                    <span class="error invalid-feedback">{{ $errors->first('minimum_qty_product_restock') }}</span>
                                                 @endif
                                             </div>
                                         </div>

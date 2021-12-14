@@ -102,7 +102,7 @@ class VoucherController extends Controller
         $termProduct = DB::table('ms_voucher_term_product')
             ->join('ms_product', 'ms_product.ProductID', '=', 'ms_voucher_term_product.ProductID')
             ->where('ms_voucher_term_product.VoucherCode', '=', $voucherCode)
-            ->select('ms_voucher_term_product.ProductID', 'ms_product.ProductName', 'ms_voucher_term_product.MinimumTrx', 'ms_voucher_term_product.MinimumQty', 'ms_voucher_term_product.MinimumTrxAccumulative', 'ms_voucher_term_product.MinimumQtyAccumulative')
+            ->select('ms_voucher_term_product.ProductID', 'ms_product.ProductName', 'ms_voucher_term_product.MinimumTrx', 'ms_voucher_term_product.MinimumQty', 'ms_voucher_term_product.MinimumTrxAccumulative', 'ms_voucher_term_product.MinimumQtyAccumulative', 'ms_voucher_term_product.MinimumTrxAccumulativeRestock', 'ms_voucher_term_product.MinimumQtyAccumulativeRestock')
             ->get();
 
         return view('voucher.list.details', [
@@ -185,7 +185,9 @@ class VoucherController extends Controller
                 'minimum_tx_product_history' => 'nullable',
                 'minimum_tx_product_history.*' => 'nullable|integer',
                 'minimum_qty_product_history' => 'nullable',
-                'minimum_qty_product_history.*' => 'nullable|integer'
+                'minimum_qty_product_history.*' => 'nullable|integer',
+                'minimum_qty_product_restock' => 'nullable',
+                'minimum_qty_product_restock.*' => 'nullable|integer'
             ],
             [
                 'max_quota.gt' => 'The max quota must be greater than quota per user'
@@ -312,11 +314,13 @@ class VoucherController extends Controller
         $minimum_qty_product = $request->input('minimum_qty_product');
         $minimum_tx_product_history = $request->input('minimum_tx_product_history');
         $minimum_qty_product_history = $request->input('minimum_qty_product_history');
+        $minimum_tx_product_restock = $request->input('minimum_tx_product_restock');
+        $minimum_qty_product_restock = $request->input('minimum_qty_product_restock');
 
         if ($switch_term_product == "on") {
             $termProduct = array_map(function () {
                 return func_get_args();
-            }, $product, $minimum_tx_product, $minimum_qty_product, $minimum_tx_product_history, $minimum_qty_product_history);
+            }, $product, $minimum_tx_product, $minimum_qty_product, $minimum_tx_product_history, $minimum_qty_product_history, $minimum_tx_product_restock, $minimum_qty_product_restock);
 
             foreach ($termProduct as $key => $value) {
                 $termProduct[$key][] = $voucherCode;
@@ -354,7 +358,7 @@ class VoucherController extends Controller
                 }
                 if ($termProduct != null) {
                     foreach ($termProduct as &$value) {
-                        $value = array_combine(['ProductID', 'MinimumTrx', 'MinimumQty', 'MinimumTrxAccumulative', 'MinimumQtyAccumulative', 'VoucherCode'], $value);
+                        $value = array_combine(['ProductID', 'MinimumTrx', 'MinimumQty', 'MinimumTrxAccumulative', 'MinimumQtyAccumulative', 'MinimumTrxAccumulativeRestock', 'MinimumQtyAccumulativeRestock', 'VoucherCode'], $value);
                         DB::table('ms_voucher_term_product')
                             ->insert([
                                 'VoucherCode' => $value['VoucherCode'],
@@ -362,7 +366,9 @@ class VoucherController extends Controller
                                 'MinimumTrx' => $value['MinimumTrx'],
                                 'MinimumQty' => $value['MinimumQty'],
                                 'MinimumTrxAccumulative' => $value['MinimumTrxAccumulative'],
-                                'MinimumQtyAccumulative' => $value['MinimumQtyAccumulative']
+                                'MinimumQtyAccumulative' => $value['MinimumQtyAccumulative'],
+                                'MinimumTrxAccumulativeRestock' => $value['MinimumTrxAccumulativeRestock'],
+                                'MinimumQtyAccumulativeRestock' => $value['MinimumQtyAccumulativeRestock']
                             ]);
                     }
                 }
@@ -478,7 +484,9 @@ class VoucherController extends Controller
                 'minimum_tx_product_history' => 'nullable',
                 'minimum_tx_product_history.*' => 'nullable|integer',
                 'minimum_qty_product_history' => 'nullable',
-                'minimum_qty_product_history.*' => 'nullable|integer'
+                'minimum_qty_product_history.*' => 'nullable|integer',
+                'minimum_qty_product_restock' => 'nullable',
+                'minimum_qty_product_restock.*' => 'nullable|integer'
             ],
             [
                 'max_quota.gt' => 'The max quota must be greater than quota per user'
@@ -608,11 +616,13 @@ class VoucherController extends Controller
         $minimum_qty_product = $request->input('minimum_qty_product');
         $minimum_tx_product_history = $request->input('minimum_tx_product_history');
         $minimum_qty_product_history = $request->input('minimum_qty_product_history');
+        $minimum_tx_product_restock = $request->input('minimum_tx_product_restock');
+        $minimum_qty_product_restock = $request->input('minimum_qty_product_restock');
 
         if ($switch_term_product == "on") {
             $termProduct = array_map(function () {
                 return func_get_args();
-            }, $product, $minimum_tx_product, $minimum_qty_product, $minimum_tx_product_history, $minimum_qty_product_history);
+            }, $product, $minimum_tx_product, $minimum_qty_product, $minimum_tx_product_history, $minimum_qty_product_history, $minimum_tx_product_restock, $minimum_qty_product_restock);
 
             foreach ($termProduct as $key => $value) {
                 $termProduct[$key][] = $voucherCode;
@@ -669,7 +679,7 @@ class VoucherController extends Controller
                 } else {
                     deleteTermVoucher("ms_voucher_term_product", $voucherCodeDB);
                     foreach ($termProduct as &$value) {
-                        $value = array_combine(['ProductID', 'MinimumTrx', 'MinimumQty', 'MinimumTrxAccumulative', 'MinimumQtyAccumulative', 'VoucherCode'], $value);
+                        $value = array_combine(['ProductID', 'MinimumTrx', 'MinimumQty', 'MinimumTrxAccumulative', 'MinimumQtyAccumulative', 'MinimumTrxAccumulativeRestock', 'MinimumQtyAccumulativeRestock', 'VoucherCode'], $value);
                         DB::table('ms_voucher_term_product')
                             ->insert([
                                 'VoucherCode' => $value['VoucherCode'],
@@ -677,7 +687,9 @@ class VoucherController extends Controller
                                 'MinimumTrx' => $value['MinimumTrx'],
                                 'MinimumQty' => $value['MinimumQty'],
                                 'MinimumTrxAccumulative' => $value['MinimumTrxAccumulative'],
-                                'MinimumQtyAccumulative' => $value['MinimumQtyAccumulative']
+                                'MinimumQtyAccumulative' => $value['MinimumQtyAccumulative'],
+                                'MinimumTrxAccumulativeRestock' => $value['MinimumTrxAccumulativeRestock'],
+                                'MinimumQtyAccumulativeRestock' => $value['MinimumQtyAccumulativeRestock']
                             ]);
                     }
                 }
