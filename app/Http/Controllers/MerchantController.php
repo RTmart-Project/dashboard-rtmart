@@ -154,6 +154,7 @@ class MerchantController extends Controller
             'OwnerPhoneNumber' => $request->input('phone_number'),
             'StorePhoneNumber' => $request->input('phone_number'),
             'DistributorID' => $request->input('distributor'),
+            'RealDistributorID' => $request->input('distributor'),
             'StoreAddress' => $request->input('address')
         ];
 
