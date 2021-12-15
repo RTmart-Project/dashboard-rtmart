@@ -266,7 +266,10 @@
                                                     <th>Nama Distributor</th>
                                                     <th>Metode Pembayaran</th>
                                                     <th>Status Order</th>
-                                                    <th>Total Price</th>
+                                                    <th>Total Harga</th>
+                                                    <th>Diskon</th>
+                                                    <th>Biaya Layanan</th>
+                                                    <th>Total Harga Bersih</th>
                                                     <th>Referral</th>
                                                     <th>Nama Sales</th>
                                                     <th>Action</th>
@@ -292,7 +295,10 @@
                                                     <th>Nama Distributor</th>
                                                     <th>Metode Pembayaran</th>
                                                     <th>Status Order</th>
-                                                    <th>Total Price</th>
+                                                    <th>Total Harga</th>
+                                                    <th>Diskon</th>
+                                                    <th>Biaya Layanan</th>
+                                                    <th>Total Harga Bersih</th>
                                                     <th>Referral</th>
                                                     <th>Nama Sales</th>
                                                     <th>Product ID</th>

@@ -729,7 +729,10 @@ class VoucherController extends Controller
                 ->editColumn('ProcessTime', function ($data) {
                     return date('d-M-Y H:i', strtotime($data->ProcessTime));
                 })
-                ->rawColumns(['ProcessTime'])
+                ->editColumn('OrderID', function ($data) {
+                    return "<a target='_blank' href='/customer/transaction/detail/" . $data->OrderID . "'>$data->OrderID</a>";
+                })
+                ->rawColumns(['OrderID', 'ProcessTime'])
                 ->make(true);
         }
     }

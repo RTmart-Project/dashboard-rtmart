@@ -53,8 +53,20 @@ $(document).ready(function () {
                     name: 'ms_status_order.StatusOrder'
                 },
                 {
-                    data: 'NettPrice',
-                    name: 'tx_merchant_order.NettPrice'
+                    data: 'TotalPrice',
+                    name: 'tx_merchant_order.TotalPrice'
+                },
+                {
+                    data: 'DiscountPrice',
+                    name: 'tx_merchant_order.DiscountPrice'
+                },
+                {
+                    data: 'ServiceChargeNett',
+                    name: 'tx_merchant_order.ServiceChargeNett'
+                },
+                {
+                    data: 'TotalAmount',
+                    name: 'TotalAmount'
                 },
                 {
                     data: 'ReferralCode',
@@ -105,7 +117,7 @@ $(document).ready(function () {
                     modifier: {
                         page: 'all'
                     },
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
                     orthogonal: 'export'
                 },
             }],
@@ -115,7 +127,7 @@ $(document).ready(function () {
             "autoWidth": false,
             "aoColumnDefs": [
                 {
-                    "aTargets": [8, 14, 15, 16, 17],
+                    "aTargets": [8, 9, 10, 11, 17, 18, 19, 20],
                     "mRender": function (data, type, full) {
                         if (type === 'export') {
                             return data;
