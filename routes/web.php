@@ -7,6 +7,7 @@ use App\Http\Controllers\MerchantController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DistributorController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DistributionController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\TestController;
@@ -28,14 +29,22 @@ Route::group(['middleware' => ['auth']], function () {
     // Home
     Route::get('/home', [HomeController::class, 'home'])->name('home');
 
-    Route::group(['middleware' => ['checkRoleUser:IT,BM,FI,AH']], function () {
+    Route::group(['prefix' => 'distribution/restock', 'middleware' => ['checkRoleUser:IT,AD']], function () {
+        // Distribution
+        Route::get('/', [DistributionController::class, 'restock'])->name('distribution.restock');
+        Route::get('/get/{statusOrder}', [DistributionController::class, 'getRestockByStatus'])->name('distribution.getRestockByStatus');
+        Route::get('/detail/{stockOrderID}', [DistributionController::class, 'restockDetail'])->name('distribution.restockDetail');
+        Route::post('/update/{stockOrderID}/{status}', [DistributionController::class, 'updateStatusRestock'])->name('distribution.updateStatusRestock');
+    });
+
+    Route::group(['prefix' => 'master/product/list', 'middleware' => ['checkRoleUser:IT,BM,FI,AH']], function () {
         // Product List
-        Route::get('/master/product/list', [ProductController::class, 'list'])->name('product.list');
-        Route::get('/master/product/list/get', [ProductController::class, 'getLists'])->name('product.getLists');
-        Route::get('/master/product/list/add', [ProductController::class, 'addList'])->name('product.addList');
-        Route::post('/master/product/list/insert', [ProductController::class, 'insertList'])->name('product.insertList');
-        Route::get('/master/product/list/edit/{product}', [ProductController::class, 'editList'])->name('product.editList');
-        Route::post('/master/product/list/update/{product}', [ProductController::class, 'updateList'])->name('product.updateList');
+        Route::get('/', [ProductController::class, 'list'])->name('product.list');
+        Route::get('/get', [ProductController::class, 'getLists'])->name('product.getLists');
+        Route::get('/add', [ProductController::class, 'addList'])->name('product.addList');
+        Route::post('/insert', [ProductController::class, 'insertList'])->name('product.insertList');
+        Route::get('/edit/{product}', [ProductController::class, 'editList'])->name('product.editList');
+        Route::post('/update/{product}', [ProductController::class, 'updateList'])->name('product.updateList');
     });
 
     Route::group(['middleware' => ['checkRoleUser:IT,BM,FI']], function () {
@@ -132,7 +141,9 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/customer/transaction/product/get', [CustomerController::class, 'getTransactionProduct'])->name('customer.getTransactionProduct');
         Route::get('/customer/transaction/detail/{orderId}', [CustomerController::class, 'transactionDetails'])->name('customer.transactionDetails');
         Route::get('/customer/transaction/detail/get/{orderId}', [CustomerController::class, 'getTransactionDetails'])->name('customer.getTransactionDetails');
+    });
 
+    Route::group(['middleware' => ['checkRoleUser:IT']], function () {
         // Voucher
         Route::get('/voucher/list', [VoucherController::class, 'list'])->name('voucher.list');
         Route::get('/voucher/list/get', [VoucherController::class, 'getList'])->name('voucher.getList');
@@ -143,9 +154,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/voucher/list/update/{voucherCodeDB}', [VoucherController::class, 'updateList'])->name('voucher.updateList');
         Route::get('/voucher/log', [VoucherController::class, 'log'])->name('voucher.log');
         Route::get('/voucher/log/get', [VoucherController::class, 'getLog'])->name('voucher.getLog');
-    });
 
-    Route::group(['middleware' => ['checkRoleUser:IT']], function () {
         // User
         Route::get('/setting/users', [AuthController::class, 'users'])->name('setting.users');
         Route::get('/setting/users/get', [AuthController::class, 'getUsers'])->name('setting.getUsers');

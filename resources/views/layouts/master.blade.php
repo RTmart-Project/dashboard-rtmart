@@ -28,11 +28,11 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <!-- CSS Per-Pages -->
     @yield('css-pages')
     
-    <style>
+    {{-- <style>
     .toolbar {
         float: left;
     }
-    </style>
+    </style> --}}
 </head>
 
 <body class="hold-transition sidebar-mini text-sm">

@@ -23,6 +23,26 @@
                     </a>
                 </li>
 
+                @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD"))
+                <li class="nav-item {{ Request::is('distribution*') ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ Request::is('distribution*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-boxes"></i>
+                        <p>
+                            Distribution
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ route('distribution.restock') }}" class="nav-link {{ Request::is('distribution/restock*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Restock Distributor</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                @endif
+
                 @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH"))
                 <li class="nav-item {{ Request::is('master*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ Request::is('master*') ? 'active' : '' }}">
@@ -205,6 +225,7 @@
                 </li>
                 @endif
 
+                @if (Auth::user()->RoleID == "IT")
                 <li class="nav-item {{ Request::is('voucher*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ Request::is('voucher*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-ticket-alt"></i>
@@ -230,6 +251,7 @@
                         </li>
                     </ul>
                 </li>
+                @endif
 
                 @if (Auth::user()->RoleID == "IT")
                 <li class="nav-item {{ Request::is('setting*') ? 'menu-open' : '' }}">
