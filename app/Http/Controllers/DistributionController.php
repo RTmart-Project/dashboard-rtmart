@@ -108,8 +108,9 @@ class DistributionController extends Controller
         $txMerchantOrder = DB::table('tx_merchant_order')
             ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tx_merchant_order.DistributorID')
+            ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
             ->where('StockOrderID', '=', $stockOrderID)
-            ->select('tx_merchant_order.PaymentMethodID', 'tx_merchant_order.DistributorID', 'tx_merchant_order.MerchantID', 'ms_merchant_account.MerchantFirebaseToken', 'ms_distributor.DistributorName')->first();
+            ->select('tx_merchant_order.PaymentMethodID', 'tx_merchant_order.DistributorID', 'tx_merchant_order.MerchantID', 'ms_merchant_account.MerchantFirebaseToken', 'ms_distributor.DistributorName', 'ms_payment_method.PaymentMethodCategory')->first();
 
         $txMerchantOrderDetail = DB::table('tx_merchant_order_detail')
             ->where('StockOrderID', '=', $stockOrderID)
@@ -216,7 +217,7 @@ class DistributionController extends Controller
                 ]
             );
 
-            if ($txMerchantOrder->PaymentMethodID == 1) { // Tunai
+            if ($txMerchantOrder->PaymentMethodCategory == "CASH") { // kategori cash
                 $statusOrder = $dalamProses;
                 $titleNotif = "Pesanan Restok Dalam Proses";
                 $bodyNotif = "Pesanan Anda sedang diproses " . $txMerchantOrder->DistributorName . " dan akan segera dikirim.";
@@ -260,20 +261,22 @@ class DistributionController extends Controller
                             ->where('ProductID', '=', $value['ProductID'])
                             ->select('PurchasePrice')->first();
 
-                        $margin = $nett - $msVisitOrder->PurchasePrice;
+                        if ($msVisitOrder) {
+                            $margin = $nett - $msVisitOrder->PurchasePrice;
 
-                        $arrayMsVisit = [
-                            'ProductID' => $value['ProductID'],
-                            'Qty' => $value['PromisedQuantity'] * 1,
-                            'Price' => $nett,
-                            'TotalPrice' => $pricePerProduct,
-                            'Margin' => $margin,
-                            'MarginInPersen' => number_format((float)($margin / $msVisitOrder->PurchasePrice) * 100, 2, '.', ''),
-                            'IsProcessed' => $isProcessed,
-                            'ProcessedBy' => 'DISTRIBUTOR',
-                            'ProcessedDate' => date("Y-m-d H:i:s")
-                        ];
-                        array_push($dataMsVisit, $arrayMsVisit);
+                            $arrayMsVisit = [
+                                'ProductID' => $value['ProductID'],
+                                'Qty' => $value['PromisedQuantity'] * 1,
+                                'Price' => $nett,
+                                'TotalPrice' => $pricePerProduct,
+                                'Margin' => $margin,
+                                'MarginInPersen' => number_format((float)($margin / $msVisitOrder->PurchasePrice) * 100, 2, '.', ''),
+                                'IsProcessed' => $isProcessed,
+                                'ProcessedBy' => 'DISTRIBUTOR',
+                                'ProcessedDate' => date("Y-m-d H:i:s")
+                            ];
+                            array_push($dataMsVisit, $arrayMsVisit);
+                        }
                     }
                 }
             }
@@ -308,11 +311,13 @@ class DistributionController extends Controller
                             ->where('ProductID', '=', $value['ProductID'])
                             ->update($value);
                     }
-                    foreach ($dataMsVisit as $value) {
-                        DB::table('ms_visit_order')
-                            ->where('StockOrderID', '=', $stockOrderID)
-                            ->where('ProductID', '=', $value['ProductID'])
-                            ->update($value);
+                    if (!empty($dataMsVisit)) {
+                        foreach ($dataMsVisit as $value) {
+                            DB::table('ms_visit_order')
+                                ->where('StockOrderID', '=', $stockOrderID)
+                                ->where('ProductID', '=', $value['ProductID'])
+                                ->update($value);
+                        }
                     }
                     DB::table('tx_merchant_order_log')
                         ->insert($dataLog);
