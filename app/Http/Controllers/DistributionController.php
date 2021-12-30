@@ -5,10 +5,18 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redis;
 use Yajra\DataTables\Facades\DataTables;
 
 class DistributionController extends Controller
 {
+    protected $baseImageUrl;
+
+    public function __construct()
+    {
+        $this->baseImageUrl = config('app.base_image_url');
+    }
+
     public function restock()
     {
         return view('distribution.restock.index');
@@ -28,7 +36,7 @@ class DistributionController extends Controller
             ->where('tx_merchant_order.StatusOrderID', '=', $statusOrder)
             ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.ShipmentDate', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CancelReasonNote', 'tx_merchant_order.StatusOrderID');
 
-        if (Auth::user()->RoleID == "AD" && Auth::user()->RoleID != "ALL") {
+        if (Auth::user()->RoleID == "AD" && Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
             $sqlGetRestock->where('ms_distributor.Depo', '=', $depoUser);
         }
@@ -152,7 +160,7 @@ class DistributionController extends Controller
                 'IsProcessed' => 3,
                 'ProcessedBy' => 'DISTRIBUTOR',
                 'ProcessedDate' => date("Y-m-d H:i:s"),
-                'CategoryReason' => $request->input('cancel_reason'),
+                'CategoryReason' => 'Lainnya',
                 'CancelReason' => $request->input('cancel_reason')
             ];
 
@@ -212,6 +220,8 @@ class DistributionController extends Controller
                     'discount_price' => 'required|numeric|min:0'
                 ],
                 [
+                    'promised_qty.*.required' => 'The promised quantity field is required.',
+                    'discount_product.*.required' => 'The discount product field is required.',
                     'promised_qty.*.min' => 'The promised quantity must be at least 0.',
                     'discount_product.*.min' => 'The discount product must be at least 0.',
                 ]
@@ -221,12 +231,10 @@ class DistributionController extends Controller
                 $statusOrder = $dalamProses;
                 $titleNotif = "Pesanan Restok Dalam Proses";
                 $bodyNotif = "Pesanan Anda sedang diproses " . $txMerchantOrder->DistributorName . " dan akan segera dikirim.";
-                $isProcessed = 1;
             } else { // non tunai
                 $statusOrder = $dikonfirmasi;
                 $titleNotif = "Pesanan Restok Dikonfirmasi dan Menunggu Pembayaran";
                 $bodyNotif = "Pesanan Anda telah dikonfirmasi dari " . $txMerchantOrder->DistributorName . ". Silakan periksa kembali pesanan Anda dan segera lakukan pembayaran.";
-                $isProcessed = 0;
             }
 
             $productId = $request->input('product_id');
@@ -271,7 +279,7 @@ class DistributionController extends Controller
                                 'TotalPrice' => $pricePerProduct,
                                 'Margin' => $margin,
                                 'MarginInPersen' => number_format((float)($margin / $msVisitOrder->PurchasePrice) * 100, 2, '.', ''),
-                                'IsProcessed' => $isProcessed,
+                                'IsProcessed' => 0,
                                 'ProcessedBy' => 'DISTRIBUTOR',
                                 'ProcessedDate' => date("Y-m-d H:i:s")
                             ];
@@ -429,6 +437,286 @@ class DistributionController extends Controller
             } catch (\Throwable $th) {
                 return redirect()->route('distribution.restock')->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
             }
+        }
+    }
+
+    public function product()
+    {
+        return view('distribution.product.index');
+    }
+
+    public function getProduct(Request $request)
+    {
+        $distributorId = $request->input('distributorId');
+
+        $distributorProducts = DB::table('ms_distributor_product_price')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_distributor_product_price.DistributorID')
+            ->leftJoin('ms_product', 'ms_product.ProductID', '=', 'ms_distributor_product_price.ProductID')
+            ->join('ms_distributor_grade', 'ms_distributor_grade.GradeID', '=', 'ms_distributor_product_price.GradeID')
+            ->join('ms_product_category', 'ms_product_category.ProductCategoryID', '=', 'ms_product.ProductCategoryID')
+            ->join('ms_product_type', 'ms_product_type.ProductTypeID', '=', 'ms_product.ProductTypeID')
+            ->join('ms_product_uom', 'ms_product_uom.ProductUOMID', '=', 'ms_product.ProductUOMID')
+            ->select('ms_distributor_product_price.DistributorID', 'ms_distributor.DistributorName', 'ms_distributor_product_price.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product_category.ProductCategoryName', 'ms_product_type.ProductTypeName', 'ms_product_uom.ProductUOMName', 'ms_product.ProductUOMDesc', 'ms_distributor_product_price.Price', 'ms_distributor_product_price.GradeID', 'ms_distributor_grade.Grade');
+
+        if (Auth::user()->RoleID == "AD" && Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $distributorProducts->where('ms_distributor.Depo', '=', $depoUser);
+        }
+
+        if ($distributorId != null) {
+            $distributorProducts->where('ms_distributor.DistributorID', '=', $distributorId);
+        }
+
+        $data = $distributorProducts;
+
+        if ($request->ajax()) {
+            return DataTables::of($data)
+                ->editColumn('ProductImage', function ($data) {
+                    if ($data->ProductImage == null) {
+                        $data->ProductImage = 'not-found.png';
+                    }
+                    return '<img src="' . $this->baseImageUrl . 'product/' . $data->ProductImage . '" alt="Product Image" height="90">';
+                })
+                ->editColumn('Grade', function ($data) {
+                    if ($data->Grade == "Retail") {
+                        $grade = '<span class="badge badge-success">' . $data->Grade . '</span>';
+                    } elseif ($data->Grade == "SO") {
+                        $grade = '<span class="badge badge-warning">' . $data->Grade . '</span>';
+                    } elseif ($data->Grade == "WS") {
+                        $grade = '<span class="badge badge-primary">' . $data->Grade . '</span>';
+                    } else {
+                        $grade = $data->Grade;
+                    }
+                    return $grade;
+                })
+                ->addColumn('Action', function ($data) {
+                    $actionBtn = '<a href="#" data-distributor-id="' . $data->DistributorID . '" data-product-id="' . $data->ProductID . '" data-grade-id="' . $data->GradeID . '" data-product-name="' . $data->ProductName . '" data-grade-name="' . $data->Grade . '" data-price="' . $data->Price . '" class="btn-edit btn btn-sm btn-warning mr-1">Ubah Harga</a>
+                    <a data-distributor-id="' . $data->DistributorID . '" data-product-id="' . $data->ProductID . '" data-grade-id="' . $data->GradeID . '" data-product-name="' . $data->ProductName . '" data-grade-name="' . $data->Grade . '" href="#" class="btn-delete btn btn-sm btn-danger">Delete</a>';
+                    return $actionBtn;
+                })
+                ->rawColumns(['Grade', 'ProductImage', 'Action'])
+                ->make(true);
+        }
+    }
+
+    public function addProduct()
+    {
+        $getDistributor = DB::table('ms_distributor')
+            ->where('Ownership', '=', 'RTMart')
+            ->where('Email', '!=', NULL)
+            ->select('DistributorID', 'DistributorName', 'Email', 'Address', 'CreatedDate')
+            ->get();
+
+        if (Auth::user()->RoleID == "AD") {
+            $distributorName = DB::table('ms_distributor')
+                ->where('Depo', '=', Auth::user()->Depo)
+                ->select('DistributorID', 'DistributorName')
+                ->first();
+
+            $productNotInDistributor = $getProduct = DB::table('ms_product')
+                ->leftJoin('ms_product_category', 'ms_product_category.ProductCategoryID', '=', 'ms_product.ProductCategoryID')
+                ->leftJoin('ms_product_uom', 'ms_product_uom.ProductUOMID', '=', 'ms_product.ProductUOMID')
+                ->leftJoin('ms_distributor_product_price', 'ms_distributor_product_price.ProductID', '=', 'ms_product.ProductID')
+                ->whereNotIn('ms_product.ProductID', function($query) use ($distributorName){
+                    $query->select('ms_distributor_product_price.ProductID')->from('ms_distributor_product_price')->where('ms_distributor_product_price.DistributorID', '=', $distributorName->DistributorID);
+                })
+                ->select('ms_product.ProductID', 'ms_product.ProductName', 'ms_product.ProductUOMDesc', 'ms_product_category.ProductCategoryName', 'ms_product_uom.ProductUOMName')
+                ->distinct()
+                ->get();
+
+            $gradeDistributor = DB::table('ms_distributor_grade')
+                ->where('ms_distributor_grade.DistributorID', '=', $distributorName->DistributorID)
+                ->select('ms_distributor_grade.GradeID', 'ms_distributor_grade.Grade')
+                ->get();
+            
+            return view('distribution.product.new', [
+                'distributor' => $getDistributor,
+                'depo' => $distributorName,
+                'productNotInDistributor' => $productNotInDistributor,
+                'gradeDistributor' => $gradeDistributor
+            ]);
+        } else {
+            return view('distribution.product.new', [
+                'distributor' => $getDistributor
+            ]);
+        }
+    }
+
+    public function ajaxGetProduct($distributorId)
+    {
+        $getProduct = DB::table('ms_product')
+            ->leftJoin('ms_product_category', 'ms_product_category.ProductCategoryID', '=', 'ms_product.ProductCategoryID')
+            ->leftJoin('ms_product_uom', 'ms_product_uom.ProductUOMID', '=', 'ms_product.ProductUOMID')
+            ->leftJoin('ms_distributor_product_price', 'ms_distributor_product_price.ProductID', '=', 'ms_product.ProductID')
+            ->whereNotIn('ms_product.ProductID', function($query) use ($distributorId){
+                $query->select('ms_distributor_product_price.ProductID')->from('ms_distributor_product_price')->where('ms_distributor_product_price.DistributorID', '=', $distributorId);
+            })
+            ->select('ms_product.ProductID', 'ms_product.ProductName', 'ms_product.ProductUOMDesc', 'ms_product_category.ProductCategoryName', 'ms_product_uom.ProductUOMName')
+            ->distinct()
+            ->get();
+
+        return response()->json($getProduct);
+    }
+
+    public function insertProduct(Request $request)
+    {
+        $request->validate([
+            'distributor' => 'exists:ms_distributor,DistributorID',
+            'product' => 'required|exists:ms_product,ProductID',
+            'grade_price' => 'required',
+            'grade_price.*' => 'numeric'
+        ]);
+
+        $gradeID = $request->input('grade_id');
+        $gradePrice = $request->input('grade_price');
+        $data = array_map(function () {
+            return func_get_args();
+        }, $gradeID, $gradePrice);
+        foreach ($data as $key => $value) {
+            $data[$key][] = $request->input('distributor');
+            $data[$key][] = $request->input('product');
+        }
+
+        try {
+            DB::transaction(function () use ($data) {
+                foreach ($data as &$value) {
+                    $value = array_combine(['GradeID', 'Price', 'DistributorID', 'ProductID'], $value);
+                    DB::table('ms_distributor_product_price')
+                        ->insert([
+                            'DistributorID' => $value['DistributorID'],
+                            'ProductID' => $value['ProductID'],
+                            'GradeID' => $value['GradeID'],
+                            'Price' => $value['Price']
+                        ]);
+                }
+            });
+
+            return redirect()->route('distribution.product')->with('success', 'Data Produk berhasil ditambahkan');
+        } catch (\Throwable $th) {
+            return redirect()->route('distribution.product')->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
+        }
+    }
+
+    public function updateProduct(Request $request, $distributorId, $productId, $gradeId)
+    {
+        $request->validate([
+            'price' => 'required|integer'
+        ]);
+
+        $updateDistributorProduct = DB::table('ms_distributor_product_price')
+            ->where('DistributorID', '=', $distributorId)
+            ->where('ProductID', '=', $productId)
+            ->where('GradeID', '=', $gradeId)
+            ->update([
+                'Price' => $request->input('price')
+            ]);
+
+        if ($updateDistributorProduct) {
+            return redirect()->route('distribution.product')->with('success', 'Harga produk telah berhasil diubah');
+        } else {
+            return redirect()->route('distribution.product')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
+        }
+    }
+
+    public function deleteProduct($distributorId, $productId, $gradeId)
+    {
+        $deleteProduct = DB::table('ms_distributor_product_price')
+            ->where('DistributorID', '=', $distributorId)
+            ->where('ProductID', '=', $productId)
+            ->where('GradeID', '=', $gradeId)
+            ->delete();
+
+        if ($deleteProduct) {
+            return redirect()->route('distribution.product')->with('success', 'Data produk berhasil dihapus');
+        } else {
+            return redirect()->route('distribution.product')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
+        }
+    }
+
+    public function merchant()
+    {
+        return view('distribution.merchant.index');
+    }
+
+    public function getMerchant(Request $request)
+    {
+        $fromDate = $request->input('fromDate');
+        $toDate = $request->input('toDate');
+        $distributorId = $request->input('distributorId');
+
+        // Get data account, jika tanggal filter kosong tampilkan semua data.
+        $sqlAllAccount = DB::table('ms_merchant_account')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
+            ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', '=', 'ms_merchant_account.MerchantID')
+            ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', '=', 'ms_distributor_merchant_grade.GradeID')
+            ->where('ms_merchant_account.IsTesting', 0)
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.DistributorID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.CreatedDate', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_distributor.DistributorName', 'ms_distributor_grade.Grade', 'ms_distributor_merchant_grade.GradeID');
+
+        // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
+        if ($fromDate != '' && $toDate != '') {
+            $sqlAllAccount->whereDate('ms_merchant_account.CreatedDate', '>=', $fromDate)
+                ->whereDate('ms_merchant_account.CreatedDate', '<=', $toDate);
+        }
+
+        if (Auth::user()->RoleID == "AD" && Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $sqlAllAccount->where('ms_distributor.Depo', '=', $depoUser);
+        }
+
+        if ($distributorId != null) {
+            $sqlAllAccount->where('ms_merchant_account.DistributorID', '=', $distributorId);
+        }
+
+        // Get data response
+        $data = $sqlAllAccount;
+
+        // Return Data Using DataTables with Ajax
+        if ($request->ajax()) {
+            return Datatables::of($data)
+                ->editColumn('CreatedDate', function ($data) {
+                    return date('d-M-Y H:i', strtotime($data->CreatedDate));
+                })
+                ->addColumn('Action', function ($data) {
+                    $actionBtn = '<a href="#" data-distributor-id="'.$data->DistributorID.'" data-merchant-id="'.$data->MerchantID.'" data-store-name="'.$data->StoreName.'" data-owner-name="'.$data->OwnerFullName.'" data-grade-id="'.$data->GradeID.'" class="btn btn-sm btn-warning edit-grade">Ubah Grade</a>';
+                    return $actionBtn;
+                })
+                ->filterColumn('ms_merchant_account.CreatedDate', function ($query, $keyword) {
+                    $query->whereRaw("DATE_FORMAT(ms_merchant_account.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
+                })
+                ->rawColumns(['Action'])
+                ->make(true);
+        }
+    }
+
+    public function updateGrade(Request $request, $merchantId)
+    {
+        $merchantGrade = DB::table('ms_distributor_merchant_grade')
+            ->where('MerchantID', '=', $merchantId)
+            ->select('MerchantID')->first();
+
+        $request->validate([
+            'grade' => 'required|exists:ms_distributor_grade,GradeID'
+        ]);
+
+        $dataGrade = [
+            'DistributorID' => $request->input('distributor'),
+            'MerchantID' => $merchantId,
+            'GradeID' => $request->input('grade')
+        ];
+
+        if ($merchantGrade) {
+            $updateGrade = DB::table('ms_distributor_merchant_grade')
+                ->where('MerchantID', '=', $merchantId)
+                ->update($dataGrade);
+        } else {
+            $updateGrade =  DB::table('ms_distributor_merchant_grade')
+                ->insert($dataGrade);
+        }
+
+        if ($updateGrade) {
+            return redirect()->route('distribution.merchant')->with('success', 'Data grade merchant berhasil diubah');
+        } else {
+            return redirect()->route('distribution.merchant')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
         }
     }
 }

@@ -29,12 +29,28 @@ Route::group(['middleware' => ['auth']], function () {
     // Home
     Route::get('/home', [HomeController::class, 'home'])->name('home');
 
-    Route::group(['prefix' => 'distribution/restock', 'middleware' => ['checkRoleUser:IT,AD']], function () {
+    Route::group(['prefix' => 'distribution', 'middleware' => ['checkRoleUser:IT,AD']], function () {
         // Distribution
-        Route::get('/', [DistributionController::class, 'restock'])->name('distribution.restock');
-        Route::get('/get/{statusOrder}', [DistributionController::class, 'getRestockByStatus'])->name('distribution.getRestockByStatus');
-        Route::get('/detail/{stockOrderID}', [DistributionController::class, 'restockDetail'])->name('distribution.restockDetail');
-        Route::post('/update/{stockOrderID}/{status}', [DistributionController::class, 'updateStatusRestock'])->name('distribution.updateStatusRestock');
+        Route::group(['prefix' => 'restock'], function(){
+            Route::get('/', [DistributionController::class, 'restock'])->name('distribution.restock');
+            Route::get('/get/{statusOrder}', [DistributionController::class, 'getRestockByStatus'])->name('distribution.getRestockByStatus');
+            Route::get('/detail/{stockOrderID}', [DistributionController::class, 'restockDetail'])->name('distribution.restockDetail');
+            Route::post('/update/{stockOrderID}/{status}', [DistributionController::class, 'updateStatusRestock'])->name('distribution.updateStatusRestock');
+        });
+        Route::group(['prefix' => 'product'], function(){
+            Route::get('/', [DistributionController::class, 'product'])->name('distribution.product');
+            Route::get('/get', [DistributionController::class, 'getProduct'])->name('distribution.getProduct');
+            Route::get('/add', [DistributionController::class, 'addProduct'])->name('distribution.addProduct');
+            Route::get('/ajax/get/{distributorId}', [DistributionController::class, 'ajaxGetProduct'])->name('distribution.ajaxGetProduct');
+            Route::post('/insert', [DistributionController::class, 'insertProduct'])->name('distribution.insertProduct');
+            Route::post('/update/{distributorId}/{productId}/{gradeId}', [DistributionController::class, 'updateProduct'])->name('distribution.updateProduct');
+            Route::get('/delete/{distributorId}/{productId}/{gradeId}', [DistributionController::class, 'deleteProduct'])->name('distribution.deleteProduct');
+        });
+        Route::group(['prefix' => 'merchant'], function(){
+            Route::get('/', [DistributionController::class, 'merchant'])->name('distribution.merchant');
+            Route::get('/get', [DistributionController::class, 'getMerchant'])->name('distribution.getMerchant');
+            Route::post('/grade/update/{merchantId}', [DistributionController::class, 'updateGrade'])->name('distribution.updateGrade');
+        });
     });
 
     Route::group(['prefix' => 'master/product/list', 'middleware' => ['checkRoleUser:IT,BM,FI,AH']], function () {
@@ -47,48 +63,51 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/update/{product}', [ProductController::class, 'updateList'])->name('product.updateList');
     });
 
-    Route::group(['middleware' => ['checkRoleUser:IT,BM,FI']], function () {
+    Route::group(['prefix' => 'master/product/category', 'middleware' => ['checkRoleUser:IT,BM,FI']], function () {
         // Product Category
-        Route::get('/master/product/category', [ProductController::class, 'category'])->name('product.category');
-        Route::get('/master/product/category/get', [ProductController::class, 'getCategories'])->name('product.getCategories');
-        Route::get('/master/product/category/add', [ProductController::class, 'addCategory'])->name('product.addCategory');
-        Route::post('/master/product/category/insert', [ProductController::class, 'insertCategory'])->name('product.insertCategory');
-        Route::get('/master/product/category/edit/{category}', [ProductController::class, 'editCategory'])->name('product.editCategory');
-        Route::post('/master/product/category/update/{category}', [ProductController::class, 'updateCategory'])->name('product.updateCategory');
+        Route::get('/', [ProductController::class, 'category'])->name('product.category');
+        Route::get('/get', [ProductController::class, 'getCategories'])->name('product.getCategories');
+        Route::get('/add', [ProductController::class, 'addCategory'])->name('product.addCategory');
+        Route::post('/insert', [ProductController::class, 'insertCategory'])->name('product.insertCategory');
+        Route::get('/edit/{category}', [ProductController::class, 'editCategory'])->name('product.editCategory');
+        Route::post('/update/{category}', [ProductController::class, 'updateCategory'])->name('product.updateCategory');
     });
 
-    Route::group(['middleware' => ['checkRoleUser:IT,BM,FI']], function () {
+    Route::group(['prefix' => 'master/product/uom', 'middleware' => ['checkRoleUser:IT,BM,FI']], function () {
         // Product UOM
-        Route::get('/master/product/uom', [ProductController::class, 'uom'])->name('product.uom');
-        Route::get('/master/product/uom/get', [ProductController::class, 'getUoms'])->name('product.getUoms');
-        Route::get('/master/product/uom/add', [ProductController::class, 'addUom'])->name('product.addUom');
-        Route::post('/master/product/uom/insert', [ProductController::class, 'insertUom'])->name('product.insertUom');
-        Route::get('/master/product/uom/edit/{uom}', [ProductController::class, 'editUom'])->name('product.editUom');
-        Route::post('/master/product/uom/update/{uom}', [ProductController::class, 'updateUom'])->name('product.updateUom');
+        Route::get('/', [ProductController::class, 'uom'])->name('product.uom');
+        Route::get('/get', [ProductController::class, 'getUoms'])->name('product.getUoms');
+        Route::get('/add', [ProductController::class, 'addUom'])->name('product.addUom');
+        Route::post('/insert', [ProductController::class, 'insertUom'])->name('product.insertUom');
+        Route::get('/edit/{uom}', [ProductController::class, 'editUom'])->name('product.editUom');
+        Route::post('/update/{uom}', [ProductController::class, 'updateUom'])->name('product.updateUom');
     });
 
-    Route::group(['middleware' => ['checkRoleUser:IT,BM,FI']], function () {
+    Route::group(['prefix' => 'master/product/type', 'middleware' => ['checkRoleUser:IT,BM,FI']], function () {
         // Product Type
-        Route::get('/master/product/type', [ProductController::class, 'type'])->name('product.type');
-        Route::get('/master/product/type/get', [ProductController::class, 'getTypes'])->name('product.getTypes');
-        Route::get('/master/product/type/add', [ProductController::class, 'addType'])->name('product.addType');
-        Route::post('/master/product/type/insert', [ProductController::class, 'insertType'])->name('product.insertType');
-        Route::get('/master/product/type/edit/{type}', [ProductController::class, 'editType'])->name('product.editType');
-        Route::post('/master/product/type/update/{type}', [ProductController::class, 'updateType'])->name('product.updateType');
+        Route::get('/', [ProductController::class, 'type'])->name('product.type');
+        Route::get('/get', [ProductController::class, 'getTypes'])->name('product.getTypes');
+        Route::get('/add', [ProductController::class, 'addType'])->name('product.addType');
+        Route::post('/insert', [ProductController::class, 'insertType'])->name('product.insertType');
+        Route::get('/edit/{type}', [ProductController::class, 'editType'])->name('product.editType');
+        Route::post('/update/{type}', [ProductController::class, 'updateType'])->name('product.updateType');
     });
 
-    Route::group(['middleware' => ['checkRoleUser:IT,BM,FI']], function () {
+    Route::group(['prefix' => 'master/product/brand','middleware' => ['checkRoleUser:IT,BM,FI']], function () {
         // Product Brand
-        Route::get('/master/product/brand', [ProductController::class, 'brand'])->name('product.brand');
-        Route::get('/master/product/brand/get', [ProductController::class, 'getBrands'])->name('product.getBrands');
-        Route::get('/master/product/brand/add', [ProductController::class, 'addBrand'])->name('product.addBrand');
-        Route::post('/master/product/brand/insert', [ProductController::class, 'insertBrand'])->name('product.insertBrand');
-        Route::get('/master/product/brand/edit/{brand}', [ProductController::class, 'editBrand'])->name('product.editBrand');
-        Route::post('/master/product/brand/update/{brand}', [ProductController::class, 'updateBrand'])->name('product.updateBrand');
+        Route::get('/', [ProductController::class, 'brand'])->name('product.brand');
+        Route::get('/get', [ProductController::class, 'getBrands'])->name('product.getBrands');
+        Route::get('/add', [ProductController::class, 'addBrand'])->name('product.addBrand');
+        Route::post('/insert', [ProductController::class, 'insertBrand'])->name('product.insertBrand');
+        Route::get('/edit/{brand}', [ProductController::class, 'editBrand'])->name('product.editBrand');
+        Route::post('/update/{brand}', [ProductController::class, 'updateBrand'])->name('product.updateBrand');
     });
 
-    Route::group(['middleware' => ['checkRoleUser:IT,BM,FI,AH']], function () {
+    Route::group(['prefix', 'middleware' => ['checkRoleUser:IT,BM,FI,AH']], function () {
         // PPOB
+        Route::group(['prefix' => ''], function(){
+
+        });
         Route::get('/ppob/topup', [PpobController::class, 'topup'])->name('ppob.topup');
         Route::get('/ppob/topup/get', [PpobController::class, 'getTopups'])->name('ppob.getTopups');
         Route::get('/ppob/topup/get/{topupStatus}', [PpobController::class, 'getTopupByStatus'])->name('ppob.getTopupByStatus');
@@ -102,7 +121,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['middleware' => ['checkRoleUser:IT,BM,FI,AH,HR']], function () {
         // Distributor
         Route::get('/distributor/account', [DistributorController::class, 'account'])->name('distributor.account');
-        Route::get('/distributor/account/get', [DistributorController::class, 'getAccounts'])->name('distributor.getAccounts');
+        Route::get('/distributor/account/get', [DistributorController::class, 'getAccounts'])->withoutMiddleware('checkRoleUser:IT,BM,FI,AH,HR')->name('distributor.getAccounts');
         Route::get('/distributor/account/edit/{distributorId}', [DistributorController::class, 'editAccount'])->name('distributor.editAccount');
         Route::post('/distributor/account/update/{distributorId}', [DistributorController::class, 'updateAccount'])->name('distributor.updateAccount');
         Route::get('/distributor/account/product/{distributorId}', [DistributorController::class, 'productDetails'])->name('distributor.productDetails');
@@ -114,6 +133,7 @@ Route::group(['middleware' => ['auth']], function () {
         // Merchant
         Route::get('/merchant/account', [MerchantController::class, 'account'])->name('merchant.account');
         Route::get('/merchant/account/get', [MerchantController::class, 'getAccounts'])->name('merchant.getAccounts');
+        Route::get('/merchant/account/grade/get/{distributorId}', [MerchantController::class, 'getGrade'])->withoutMiddleware('checkRoleUser:IT,BM,FI,AH,HR')->name('merchant.getGrade');
         Route::get('/merchant/account/edit/{merchantId}', [MerchantController::class, 'editAccount'])->name('merchant.editAccount');
         Route::post('/merchant/account/update/{merchantId}', [MerchantController::class, 'updateAccount'])->name('merchant.updateAccount');
         Route::get('/merchant/account/product/{merchantId}', [MerchantController::class, 'product'])->name('merchant.product');
@@ -129,7 +149,6 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/merchant/restock/get', [MerchantController::class, 'getRestocks'])->name('merchant.getRestocks');
         Route::get('/merchant/restock/product/get', [MerchantController::class, 'getRestockProduct'])->name('merchant.getRestockProduct');
         Route::get('/merchant/restock/detail/{stockOrderId}', [MerchantController::class, 'restockDetails'])->name('merchant.restockDetails');
-        Route::get('/merchant/restock/detail/get/{stockOrderId}', [MerchantController::class, 'getRestockDetails'])->name('merchant.getRestockDetails');
 
         // Customer
         Route::get('/customer/account', [CustomerController::class, 'account'])->name('customer.account');

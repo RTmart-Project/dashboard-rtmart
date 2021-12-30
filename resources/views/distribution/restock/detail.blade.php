@@ -466,6 +466,8 @@
         const storeName = $(this).data("store-name");
         const form = $('form');
         $.confirm({
+            type: 'green',
+            typeAnimated: true,
             title: 'Terima Barang',
             content: `Apakah pesanan <b>${orderID}</b> dari <b>${storeName}</b> sudah sesuai?`,
             closeIcon: true,

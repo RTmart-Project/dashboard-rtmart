@@ -50,11 +50,30 @@
                                             <img src="{{ config('app.base_image_url') . '/merchant/'. $merchant->StoreImage }}" alt="Store Image" class="rounded img-fluid pb-2 pb-md-0" style="object-fit: cover; width: 130px; height: 130px;">
                                         </div>
                                         <div class="col-12 col-md-10 align-self-center">
-                                            <h6><strong>Merchant ID : </strong>{{ $merchantId }}</h6>
-                                            <h6><strong>Nama Toko : </strong>{{ $merchant->StoreName }}</h6>
-                                            <h6><strong>Nama Pemilik : </strong>{{ $merchant->OwnerFullName }}</h6>
-                                            <h6><strong>No. Telp : </strong><a href="tel:{{ $merchant->PhoneNumber }}">{{ $merchant->PhoneNumber }}</a></h6>
-                                            <h6><strong>Alamat : </strong>{{ $merchant->StoreAddress }}</h6>
+                                            <div class="row">
+                                                <div class="col-md-6 col-12">
+                                                    <h6><strong>Merchant ID : </strong>{{ $merchantId }}</h6>
+                                                </div>
+                                                <div class="col-md-6 col-12">
+                                                    <h6><strong>Nama Toko : </strong>{{ $merchant->StoreName }}</h6>
+                                                </div>
+                                                <div class="col-md-6 col-12">
+                                                    <h6><strong>Nama Pemilik : </strong>{{ $merchant->OwnerFullName }}</h6>
+                                                </div>
+                                                <div class="col-md-6 col-12">
+                                                    <h6><strong>No. Telp : </strong><a href="tel:{{ $merchant->PhoneNumber }}">{{ $merchant->PhoneNumber }}</a></h6>
+                                                </div>
+                                                <div class="col-md-6 col-12">
+                                                    <h6><strong>Latitude : </strong>{{ $merchant->Latitude }}</h6>
+                                                </div>
+                                                <div class="col-md-6 col-12">
+                                                    <h6><strong>Longitude : </strong>{{ $merchant->Longitude }}</h6>
+                                                </div>
+                                                <div class="col-12">
+                                                    <h6><strong>Alamat : </strong>{{ $merchant->StoreAddress }}</h6>
+                                                </div>
+                                            </div>
+
                                         </div>
                                     </div>
                                 </div>

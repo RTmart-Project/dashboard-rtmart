@@ -39,6 +39,18 @@
                                 <p>Restock Distributor</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{{ route('distribution.product') }}" class="nav-link {{ Request::is('distribution/product*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Produk</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ route('distribution.merchant') }}" class="nav-link {{ Request::is('distribution/merchant*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Merchant Grade</p>
+                            </a>
+                        </li>
                     </ul>
                 </li>
                 @endif

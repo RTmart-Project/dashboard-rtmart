@@ -71,10 +71,7 @@
                                         @endif
                                     </div>
                                 </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6 col-12">
+                                <div class="col-md-4 col-12">
                                     <div class="form-group">
                                         <label for="phone_number">No. Telp</label>
                                         <input type="number" name="phone_number"
@@ -85,10 +82,10 @@
                                         @endif
                                     </div>
                                 </div>
-                                <div class="col-md-6 col-12">
+                                <div class="col-md-4 col-12">
                                     <div class="form-group">
                                         <label for="distributor">Distributor</label>
-                                        <select class="form-control selectpicker border @if($errors->has('role_id')) is-invalid @endif"
+                                        <select class="form-control selectpicker border @if($errors->has('distributor')) is-invalid @endif"
                                             name="distributor" id="distributor" data-live-search="true" required>
                                         @foreach ($distributor as $value)
                                             <option value="{{ $value->DistributorID }}" {{ ($merchantById->DistributorID) == ($value->DistributorID) ? 'selected' : '' }}>{{ $value->DistributorName }}</option>
@@ -96,6 +93,20 @@
                                         </select>
                                         @if($errors->has('distributor'))
                                         <span class="error invalid-feedback">{{ $errors->first('distributor') }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <div class="form-group">
+                                        <label for="grade">Grade</label>
+                                        <select class="form-control selectpicker border @if($errors->has('grade')) is-invalid @endif"
+                                            name="grade" id="grade" required title="Pilih Grade">
+                                            @foreach ($grade as $value)
+                                                <option value="{{ $value->GradeID }}" {{ ($merchantById->GradeID) == ($value->GradeID) ? 'selected' : '' }}>{{ $value->Grade }}</option>
+                                            @endforeach
+                                        </select>
+                                        @if($errors->has('grade'))
+                                        <span class="error invalid-feedback">{{ $errors->first('grade') }}</span>
                                         @endif
                                     </div>
                                 </div>
@@ -128,4 +139,26 @@
 
 @section('js-pages')
 <script src="{{ url('/') }}/plugins/bootstrap-select/bootstrap-select.min.js"></script>
+<script>
+    $('#distributor').change(function(){
+        let distributorID = $(this).val();
+        if(distributorID){
+            $.ajax({
+                type: "GET",
+                url: "/merchant/account/grade/get/" + distributorID,
+                dataType: 'JSON',
+                success:function(res){
+                    if(res){
+                        let option = '';
+                        $.each(res, function(index, value){
+                            option += `<option value="${value.GradeID}">${value.Grade}</option>`;
+                        });
+                        $('#grade').html(option);
+                        $('#grade').selectpicker('refresh');
+                    }
+                }
+            });
+        }
+    });
+</script>
 @endsection

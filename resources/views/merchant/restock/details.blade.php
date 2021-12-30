@@ -42,10 +42,24 @@
                     <div class="card-header">
                         <a href="{{ route('merchant.restock') }}" class="btn btn-sm btn-light mb-2"><i class="fas fa-arrow-left"></i>
                             Kembali</a>
-                        <h6><strong>Stock Order ID : </strong>{{ $stockOrderId }}</h6>
-                        <h6><strong>Nama Toko : </strong>{{ $merchant->StoreName }}</h6>
-                        <h6><strong>No. Telp : </strong><a href="tel:{{ $merchant->PhoneNumber }}">{{ $merchant->PhoneNumber }}</a></h6>
-                        <h6><strong>Alamat : </strong>{{ $merchant->StoreAddress }}</h6>
+                        <a href="" class="btn btn-sm btn-info float-right mb-2">Cetak Invoice</a>
+                            <div class="row">
+                                <div class="col-md-4 col-12">
+                                    <h6><strong>Stock Order ID : </strong>{{ $stockOrderId }}</h6>
+                                    <h6><strong>Tanggal Pesanan : </strong>{{ date('d-M-Y H:i', strtotime($merchant->CreatedDate)) }}</h6>
+                                    <h6><strong>Status Restock : </strong>{{ $merchant->StatusOrder }}</h6>
+                                    <h6><strong>Metode Pembayaran : </strong>{{ $merchant->PaymentMethodName }}</h6>
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <h6><strong>ID Toko : </strong>{{ $merchant->MerchantID }}</h6>
+                                    <h6><strong>Nama Toko : </strong>{{ $merchant->StoreName }}</h6>
+                                    <h6><strong>Nama Pemilik : </strong>{{ $merchant->OwnerFullName }}</h6>
+                                    <h6><strong>No. Telp : </strong><a href="tel:{{ $merchant->PhoneNumber }}">{{ $merchant->PhoneNumber }}</a></h6>
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <h6><strong>Alamat : </strong><br>{{ $merchant->StoreAddress }}</h6>
+                                </div>
+                            </div>
                     </div>
                     <div class="card-header">
                         <div class="row">
@@ -98,8 +112,8 @@
                         <div class="tab-content">
                             <div class="tab-pane active" id="merchant-restock-details">
                                 <div class="row">
-                                    <div class="col-12">
-                                        <table class="table table-datatables">
+                                    <div class="col-12 table-responsive">
+                                        <table class="table text-nowrap">
                                             <thead>
                                                 <tr>
                                                     <th>Product ID</th>
@@ -112,12 +126,38 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
+                                                @foreach ($stockOrderById as $item)
+                                                    <tr>
+                                                        <td>{{ $item->ProductID }}</td>
+                                                        <td>{{ $item->ProductName }}</td>
+                                                        <td>{{ $item->PromisedQuantity }}</td>
+                                                        <td>{{ Helper::formatCurrency($item->Price, 'Rp ') }}</td>
+                                                        <td>{{ Helper::formatCurrency($item->Discount, 'Rp ') }}</td>
+                                                        <td>{{ Helper::formatCurrency($item->Nett, 'Rp ') }}</td>
+                                                        <td>{{ Helper::formatCurrency($item->Nett * $item->PromisedQuantity, 'Rp ') }}</td>
+                                                    </tr>
+                                                @endforeach
                                             </tbody>
                                             <tfoot>
+                                                <tr> 
+                                                    <th class="p-1" colspan="5"></th>
+                                                    <th class="p-1 text-center">SubTotal</th>
+                                                    <th class="py-1 px-2">{{ Helper::formatCurrency($subTotal, 'Rp ') }}</th>
+                                                </tr>
                                                 <tr>
-                                                    <th colspan="5"></th>
-                                                    <th>Grand Total</th>
-                                                    <th>Grand Total</th>
+                                                    <th class="p-1 border-0" colspan="5"></th>
+                                                    <th class="p-1 border-0 text-center">Diskon</th>
+                                                    <th class="py-1 px-2 border-0 text-danger">{{ Helper::formatCurrency($merchant->DiscountPrice, '- Rp ') }}</th>
+                                                </tr>
+                                                <tr>
+                                                    <th class="p-1 border-0" colspan="5"></th>
+                                                    <th class="p-1 border-0 text-center">Biaya Layanan</th>
+                                                    <th class="py-1 px-2 border-0">{{ Helper::formatCurrency($merchant->ServiceChargeNett, 'Rp ') }}</th>
+                                                </tr>
+                                                <tr>
+                                                    <th class="p-1 border-0" colspan="5"></th>
+                                                    <th class="p-1 border-0 text-center">Grand Total</th>
+                                                    <th class="py-1 px-2 border-0">{{ Helper::formatCurrency($subTotal - $merchant->DiscountPrice + $merchant->ServiceChargeNett, 'Rp ') }}</th>
                                                 </tr>
                                             </tfoot>
                                         </table>

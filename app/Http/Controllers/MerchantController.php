@@ -77,8 +77,10 @@ class MerchantController extends Controller
         // Get data account, jika tanggal filter kosong tampilkan semua data.
         $sqlAllAccount = DB::table('ms_merchant_account')
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
+            ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', '=', 'ms_merchant_account.MerchantID')
+            ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', '=', 'ms_distributor_merchant_grade.GradeID')
             ->where('ms_merchant_account.IsTesting', 0)
-            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.CreatedDate', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_distributor.DistributorName');
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.CreatedDate', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_distributor.DistributorName', 'ms_distributor_grade.Grade');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
@@ -115,11 +117,21 @@ class MerchantController extends Controller
         }
     }
 
+    public function getGrade($distributorId)
+    {
+        $grade = DB::table('ms_distributor_grade')
+            ->where('ms_distributor_grade.DistributorID', '=', $distributorId)
+            ->select('ms_distributor_grade.GradeID', 'ms_distributor_grade.Grade')
+            ->get();
+        return response()->json($grade);
+    }
+
     public function editAccount($merchantId)
     {
         $merchantById = DB::table('ms_merchant_account')
             ->leftJoin('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
-            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'ms_distributor.DistributorID', 'ms_distributor.DistributorName')
+            ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'ms_merchant_account.MerchantID')
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'ms_distributor.DistributorID', 'ms_distributor.DistributorName', 'ms_distributor_merchant_grade.GradeID')
             ->where('ms_merchant_account.MerchantID', '=', $merchantId)
             ->first();
 
@@ -127,14 +139,25 @@ class MerchantController extends Controller
             ->select('DistributorID', 'DistributorName')
             ->get();
 
+        $grade = DB::table('ms_merchant_account')
+            ->join('ms_distributor_grade', 'ms_distributor_grade.DistributorID', '=', 'ms_merchant_account.DistributorID')
+            ->where('ms_merchant_account.MerchantID', '=', $merchantId)
+            ->select('ms_distributor_grade.GradeID', 'ms_distributor_grade.Grade')
+            ->get();
+
         return view('merchant.account.edit', [
             'merchantById' => $merchantById,
-            'distributor' => $distributor
+            'distributor' => $distributor,
+            'grade' => $grade
         ]);
     }
 
     public function updateAccount(Request $request, $merchantId)
     {
+        $merchantGrade = DB::table('ms_distributor_merchant_grade')
+            ->where('MerchantID', '=', $merchantId)
+            ->select('MerchantID')->first();
+
         $request->validate([
             'store_name' => 'required|string',
             'owner_name' => 'required|string',
@@ -144,6 +167,7 @@ class MerchantController extends Controller
                 Rule::unique('ms_merchant_account', 'PhoneNumber')->ignore($merchantId, 'MerchantID')
             ],
             'distributor' => 'required|exists:ms_distributor,DistributorID',
+            'grade' => 'required|exists:ms_distributor_grade,GradeID',
             'address' => 'max:500'
         ]);
 
@@ -158,13 +182,29 @@ class MerchantController extends Controller
             'StoreAddress' => $request->input('address')
         ];
 
-        $updateMerchant = DB::table('ms_merchant_account')
-            ->where('MerchantID', '=', $merchantId)
-            ->update($data);
+        $dataGrade = [
+            'DistributorID' => $request->input('distributor'),
+            'MerchantID' => $merchantId,
+            'GradeID' => $request->input('grade')
+        ];
 
-        if ($updateMerchant) {
-            return redirect()->route('merchant.account')->with('success', 'Data merchant telah diubah');
-        } else {
+        try {
+            DB::transaction(function () use ($merchantId, $merchantGrade, $data, $dataGrade) {
+                DB::table('ms_merchant_account')
+                    ->where('MerchantID', '=', $merchantId)
+                    ->update($data);
+                if ($merchantGrade) {
+                    DB::table('ms_distributor_merchant_grade')
+                        ->where('MerchantID', '=', $merchantId)
+                        ->update($dataGrade);
+                } else {
+                    DB::table('ms_distributor_merchant_grade')
+                        ->insert($dataGrade);
+                }
+            });
+
+            return redirect()->route('merchant.account')->with('success', 'Data merchant berhasil diubah');
+        } catch (\Throwable $th) {
             return redirect()->route('merchant.account')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
         }
     }
@@ -173,7 +213,7 @@ class MerchantController extends Controller
     {
         $merchant = DB::table('ms_merchant_account')
             ->where('MerchantID', '=', $merchantId)
-            ->select('StoreName', 'OwnerFullName', 'StoreAddress', 'StoreImage', 'PhoneNumber')
+            ->select('StoreName', 'OwnerFullName', 'StoreAddress', 'StoreImage', 'PhoneNumber', 'Latitude', 'Longitude')
             ->first();
 
         $operationalHour = DB::table('ms_operational_hour')
@@ -600,8 +640,10 @@ class MerchantController extends Controller
     {
         $merchant = DB::table('tx_merchant_order')
             ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
+            ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_order.StatusOrderID')
+            ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
             ->where('tx_merchant_order.StockOrderID', '=', $stockOrderId)
-            ->select('ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress')
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.ServiceChargeNett', 'ms_status_order.StatusOrder', 'ms_payment_method.PaymentMethodName')
             ->first();
 
         $merchantOrderHistory = DB::table('tx_merchant_order_log')
@@ -612,32 +654,22 @@ class MerchantController extends Controller
             ->groupBy('tx_merchant_order_log.StatusOrderId')
             ->get();
 
-        return view('merchant.restock.details', [
-            'stockOrderId' => $stockOrderId,
-            'merchant' => $merchant,
-            'merchantOrderHistory' => $merchantOrderHistory
-        ]);
-    }
-
-    public function getRestockDetails(Request $request, $stockOrderId)
-    {
         $stockOrderById = DB::table('tx_merchant_order_detail')
             ->leftJoin('ms_product', 'ms_product.ProductID', '=', 'tx_merchant_order_detail.ProductID')
             ->where('StockOrderID', '=', $stockOrderId)
-            ->select('tx_merchant_order_detail.*', 'ms_product.ProductName');
+            ->select('tx_merchant_order_detail.*', 'ms_product.ProductName')->get();
 
-        $data = $stockOrderById->get();
-
-        if ($request->ajax()) {
-            return DataTables::of($data)
-                ->addColumn('SubTotalPrice', function ($data) {
-                    $subTotalPrice = $data->Nett * $data->PromisedQuantity;
-                    return "$subTotalPrice";
-                })
-                ->editColumn('Price', function ($data) {
-                    return "$data->Price";
-                })
-                ->make(true);
+        $subTotal = 0;
+        foreach ($stockOrderById as $key => $value) {
+            $subTotal += $value->Nett * $value->PromisedQuantity;
         }
+
+        return view('merchant.restock.details', [
+            'stockOrderId' => $stockOrderId,
+            'merchant' => $merchant,
+            'merchantOrderHistory' => $merchantOrderHistory,
+            'stockOrderById' => $stockOrderById,
+            'subTotal' => $subTotal
+        ]);
     }
 }
