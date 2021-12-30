@@ -42,7 +42,6 @@
                     <div class="card-header">
                         <a href="{{ route('merchant.restock') }}" class="btn btn-sm btn-light mb-2"><i class="fas fa-arrow-left"></i>
                             Kembali</a>
-                        {{-- <a href="" class="btn btn-sm btn-info float-right mb-2">Cetak Invoice</a> --}}
                             <div class="row">
                                 <div class="col-md-4 col-12">
                                     <h6><strong>Stock Order ID : </strong>{{ $stockOrderId }}</h6>
@@ -147,7 +146,7 @@
                                                 <tr>
                                                     <th class="p-1 border-0" colspan="5"></th>
                                                     <th class="p-1 border-0 text-center">Diskon</th>
-                                                    <th class="py-1 px-2 border-0 text-danger">{{ Helper::formatCurrency($merchant->DiscountPrice, '- Rp ') }}</th>
+                                                    <th class="py-1 px-2 border-0 text-danger">{{ Helper::formatCurrency($merchant->DiscountPrice, 'Rp ') }}</th>
                                                 </tr>
                                                 <tr>
                                                     <th class="p-1 border-0" colspan="5"></th>

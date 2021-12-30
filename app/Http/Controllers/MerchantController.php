@@ -519,6 +519,14 @@ class MerchantController extends Controller
                 ->editColumn('CreatedDate', function ($data) {
                     return date('d-M-Y H:i', strtotime($data->CreatedDate));
                 })
+                ->addColumn('Invoice', function ($data) {
+                    if ($data->StatusOrderID == "S009") {
+                        $invoice = "";
+                    } else {
+                        $invoice = '<a href="/merchant/invoice/'.$data->StockOrderID.'" target="_blank" class="btn-sm btn-primary">Cetak</a>';
+                    }
+                    return $invoice;
+                })
                 ->addColumn('Action', function ($data) {
                     $actionBtn = '<a href="/merchant/restock/detail/' . $data->StockOrderID . '" class="btn-sm btn-info detail-order">Detail</a>';
                     return $actionBtn;
@@ -555,7 +563,7 @@ class MerchantController extends Controller
                 ->filterColumn('tx_merchant_order.CreatedDate', function ($query, $keyword) {
                     $query->whereRaw("DATE_FORMAT(tx_merchant_order.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
                 })
-                ->rawColumns(['Action', 'StatusOrder'])
+                ->rawColumns(['Action', 'Invoice', 'StatusOrder'])
                 ->make(true);
         }
     }
@@ -676,6 +684,34 @@ class MerchantController extends Controller
             'stockOrderId' => $stockOrderId,
             'merchant' => $merchant,
             'merchantOrderHistory' => $merchantOrderHistory,
+            'stockOrderById' => $stockOrderById,
+            'subTotal' => $subTotal
+        ]);
+    }
+
+    public function invoice($stockOrderId)
+    {
+        $merchant = DB::table('tx_merchant_order')
+            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
+            ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_order.StatusOrderID')
+            ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
+            ->where('tx_merchant_order.StockOrderID', '=', $stockOrderId)
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.ServiceChargeNett', 'ms_status_order.StatusOrder', 'ms_payment_method.PaymentMethodName')
+            ->first();
+
+        $stockOrderById = DB::table('tx_merchant_order_detail')
+            ->leftJoin('ms_product', 'ms_product.ProductID', '=', 'tx_merchant_order_detail.ProductID')
+            ->where('StockOrderID', '=', $stockOrderId)
+            ->select('tx_merchant_order_detail.*', 'ms_product.ProductName')->get();
+
+        $subTotal = 0;
+        foreach ($stockOrderById as $key => $value) {
+            $subTotal += $value->Nett * $value->PromisedQuantity;
+        }
+
+        return view('merchant.restock.invoice', [
+            'stockOrderId' => $stockOrderId,
+            'merchant' => $merchant,
             'stockOrderById' => $stockOrderById,
             'subTotal' => $subTotal
         ]);

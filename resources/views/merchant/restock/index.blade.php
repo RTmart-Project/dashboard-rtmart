@@ -272,6 +272,7 @@
                                                     <th>Total Harga Bersih</th>
                                                     <th>Referral</th>
                                                     <th>Nama Sales</th>
+                                                    <th>Invoice</th>
                                                     <th>Action</th>
                                                 </tr>
                                             </thead>
