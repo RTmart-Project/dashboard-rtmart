@@ -155,25 +155,13 @@ class DistributionController extends Controller
                 'ActionBy' => 'DISTRIBUTOR'
             ];
 
-            // data untuk update ms visit order
-            $dataMsVisit = [
-                'IsProcessed' => 3,
-                'ProcessedBy' => 'DISTRIBUTOR',
-                'ProcessedDate' => date("Y-m-d H:i:s"),
-                'CategoryReason' => 'Lainnya',
-                'CancelReason' => $request->input('cancel_reason')
-            ];
-
             try {
-                DB::transaction(function () use ($stockOrderID, $data, $dataLog, $dataMsVisit) {
+                DB::transaction(function () use ($stockOrderID, $data, $dataLog) {
                     DB::table('tx_merchant_order')
                         ->where('StockOrderID', '=', $stockOrderID)
                         ->update($data);
                     DB::table('tx_merchant_order_log')
                         ->insert($dataLog);
-                    DB::table('ms_visit_order')
-                        ->where('StockOrderID', '=', $stockOrderID)
-                        ->update($dataMsVisit);
                 });
 
                 $fields = array(
@@ -247,7 +235,6 @@ class DistributionController extends Controller
 
             $totalPrice = 0;
             $dataDetail = []; // data untuk update tx merchant order detail
-            $dataMsVisit = []; // data untuk update ms visit order 
             foreach ($productOrderDetail as $value) {
                 $value = array_combine(['ProductID', 'PromisedQuantity', 'Discount'], $value);
                 foreach ($txMerchantOrderDetail as $orderDetail) {
@@ -263,28 +250,6 @@ class DistributionController extends Controller
                             'Nett' => $nett
                         ];
                         array_push($dataDetail, $arrayDetail);
-
-                        $msVisitOrder = DB::table('ms_visit_order')
-                            ->where('StockOrderID', '=', $stockOrderID)
-                            ->where('ProductID', '=', $value['ProductID'])
-                            ->select('PurchasePrice')->first();
-
-                        if ($msVisitOrder) {
-                            $margin = $nett - $msVisitOrder->PurchasePrice;
-
-                            $arrayMsVisit = [
-                                'ProductID' => $value['ProductID'],
-                                'Qty' => $value['PromisedQuantity'] * 1,
-                                'Price' => $nett,
-                                'TotalPrice' => $pricePerProduct,
-                                'Margin' => $margin,
-                                'MarginInPersen' => number_format((float)($margin / $msVisitOrder->PurchasePrice) * 100, 2, '.', ''),
-                                'IsProcessed' => 0,
-                                'ProcessedBy' => 'DISTRIBUTOR',
-                                'ProcessedDate' => date("Y-m-d H:i:s")
-                            ];
-                            array_push($dataMsVisit, $arrayMsVisit);
-                        }
                     }
                 }
             }
@@ -309,7 +274,7 @@ class DistributionController extends Controller
             ];
 
             try {
-                DB::transaction(function () use ($stockOrderID, $data, $dataDetail, $dataLog, $dataMsVisit) {
+                DB::transaction(function () use ($stockOrderID, $data, $dataDetail, $dataLog) {
                     DB::table('tx_merchant_order')
                         ->where('StockOrderID', '=', $stockOrderID)
                         ->update($data);
@@ -318,14 +283,6 @@ class DistributionController extends Controller
                             ->where('StockOrderID', '=', $stockOrderID)
                             ->where('ProductID', '=', $value['ProductID'])
                             ->update($value);
-                    }
-                    if (!empty($dataMsVisit)) {
-                        foreach ($dataMsVisit as $value) {
-                            DB::table('ms_visit_order')
-                                ->where('StockOrderID', '=', $stockOrderID)
-                                ->where('ProductID', '=', $value['ProductID'])
-                                ->update($value);
-                        }
                     }
                     DB::table('tx_merchant_order_log')
                         ->insert($dataLog);
@@ -385,23 +342,13 @@ class DistributionController extends Controller
                 'ActionBy' => 'DISTRIBUTOR'
             ];
 
-            // data untuk update ms visit order
-            $dataMsVisit = [
-                'IsProcessed' => 1,
-                'IsDelivered' => 1,
-                'StartTimeDelivery' => date("Y-m-d H:i:s")
-            ];
-
             try {
-                DB::transaction(function () use ($stockOrderID, $data, $dataLog, $dataMsVisit) {
+                DB::transaction(function () use ($stockOrderID, $data, $dataLog) {
                     DB::table('tx_merchant_order')
                         ->where('StockOrderID', '=', $stockOrderID)
                         ->update($data);
                     DB::table('tx_merchant_order_log')
                         ->insert($dataLog);
-                    DB::table('ms_visit_order')
-                        ->where('StockOrderID', '=', $stockOrderID)
-                        ->update($dataMsVisit);
                 });
 
                 $fields = array(
@@ -675,6 +622,14 @@ class DistributionController extends Controller
             return Datatables::of($data)
                 ->editColumn('CreatedDate', function ($data) {
                     return date('d-M-Y H:i', strtotime($data->CreatedDate));
+                })
+                ->editColumn('Grade', function ($data) {
+                    if ($data->Grade == null) {
+                        $grade = "Retail";
+                    } else {
+                        $grade = $data->Grade;
+                    }
+                    return $grade;
                 })
                 ->addColumn('Action', function ($data) {
                     $actionBtn = '<a href="#" data-distributor-id="'.$data->DistributorID.'" data-merchant-id="'.$data->MerchantID.'" data-store-name="'.$data->StoreName.'" data-owner-name="'.$data->OwnerFullName.'" data-grade-id="'.$data->GradeID.'" class="btn btn-sm btn-warning edit-grade">Ubah Grade</a>';

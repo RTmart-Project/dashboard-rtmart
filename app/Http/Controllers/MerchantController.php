@@ -101,6 +101,14 @@ class MerchantController extends Controller
                 ->editColumn('CreatedDate', function ($data) {
                     return date('d-M-Y H:i', strtotime($data->CreatedDate));
                 })
+                ->editColumn('Grade', function ($data) {
+                    if ($data->Grade == null) {
+                        $grade = "Retail";
+                    } else {
+                        $grade = $data->Grade;
+                    }
+                    return $grade;
+                })
                 ->addColumn('Product', function ($data) {
                     $productBtn = '<a href="/merchant/account/product/' . $data->MerchantID . '" class="btn-sm btn-info detail-order">Detail</a>';
                     return $productBtn;
