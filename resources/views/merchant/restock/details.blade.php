@@ -42,7 +42,7 @@
                     <div class="card-header">
                         <a href="{{ route('merchant.restock') }}" class="btn btn-sm btn-light mb-2"><i class="fas fa-arrow-left"></i>
                             Kembali</a>
-                        <a href="" class="btn btn-sm btn-info float-right mb-2">Cetak Invoice</a>
+                        {{-- <a href="" class="btn btn-sm btn-info float-right mb-2">Cetak Invoice</a> --}}
                             <div class="row">
                                 <div class="col-md-4 col-12">
                                     <h6><strong>Stock Order ID : </strong>{{ $stockOrderId }}</h6>
@@ -193,7 +193,6 @@
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!-- Main JS -->
-<script src="{{url('/')}}/main/js/merchant/restock/details.js"></script>
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
 <script>
 </script>
