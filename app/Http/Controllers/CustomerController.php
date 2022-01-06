@@ -15,7 +15,7 @@ class CustomerController extends Controller
             $customerAccount = DB::table('ms_customer_account')
                 ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'ms_customer_account.MerchantID')
                 ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
-                ->where('ms_merchant_account.IsTesting', 0)
+                ->where('ms_customer_account.IsTesting', 0)
                 ->select('ms_customer_account.CustomerID');
 
             if ($thisMonth != null && $thisYear != null) {
