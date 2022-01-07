@@ -104,10 +104,27 @@ class DistributionController extends Controller
             ->select('tx_merchant_order_detail.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage', 'tx_merchant_order_detail.Quantity', 'tx_merchant_order_detail.PromisedQuantity', 'tx_merchant_order_detail.Price', 'tx_merchant_order_detail.Discount', 'tx_merchant_order_detail.Nett')
             ->get();
 
+        $deliveryOrder = DB::table('tx_merchant_delivery_order')
+            ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_delivery_order.StatusDO')
+            ->where('tx_merchant_delivery_order.StockOrderID', '=', $stockOrderID)
+            ->select('tx_merchant_delivery_order.*', 'ms_status_order.StatusOrder')
+            ->get();
+
+        foreach ($deliveryOrder as $key => $value) {
+            $deliveryOrderDetail = DB::table('tx_merchant_delivery_order_detail')
+                ->join('ms_product', 'ms_product.ProductID', '=', 'tx_merchant_delivery_order_detail.ProductID')
+                ->join('tx_merchant_delivery_order', 'tx_merchant_delivery_order.DeliveryOrderID', '=', 'tx_merchant_delivery_order_detail.DeliveryOrderID')
+                ->where('tx_merchant_delivery_order_detail.DeliveryOrderID', '=', $value->DeliveryOrderID)
+                ->select('tx_merchant_delivery_order_detail.ProductID', 'tx_merchant_delivery_order_detail.Qty', 'tx_merchant_delivery_order_detail.Price', 'ms_product.ProductName', 'ms_product.ProductImage')
+                ->get()->toArray();
+            $value->DetailProduct = $deliveryOrderDetail;
+        }
+
         return view('distribution.restock.detail', [
             'stockOrderID' => $stockOrderID,
             'merchantOrder' => $merchantOrder,
-            'merchantOrderDetail' => $merchantOrderDetail
+            'merchantOrderDetail' => $merchantOrderDetail,
+            'deliveryOrder' => $deliveryOrder
         ]);
     }
 
@@ -198,23 +215,6 @@ class DistributionController extends Controller
                 return redirect()->route('distribution.restock')->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
             }
         } elseif ($status == "approved") {
-            $request->validate(
-                [
-                    'shipment_date' => 'required|date',
-                    'promised_qty' => 'required',
-                    'promised_qty.*' => 'required|numeric|min:0',
-                    'discount_product' => 'required',
-                    'discount_product.*' => 'required|numeric|min:0',
-                    'discount_price' => 'required|numeric|min:0'
-                ],
-                [
-                    'promised_qty.*.required' => 'The promised quantity field is required.',
-                    'discount_product.*.required' => 'The discount product field is required.',
-                    'promised_qty.*.min' => 'The promised quantity must be at least 0.',
-                    'discount_product.*.min' => 'The discount product must be at least 0.',
-                ]
-            );
-
             if ($txMerchantOrder->PaymentMethodCategory == "CASH") { // kategori cash
                 $statusOrder = $dalamProses;
                 $titleNotif = "Pesanan Restok Dalam Proses";
@@ -224,44 +224,6 @@ class DistributionController extends Controller
                 $titleNotif = "Pesanan Restok Dikonfirmasi dan Menunggu Pembayaran";
                 $bodyNotif = "Pesanan Anda telah dikonfirmasi dari " . $txMerchantOrder->DistributorName . ". Silakan periksa kembali pesanan Anda dan segera lakukan pembayaran.";
             }
-
-            $productId = $request->input('product_id');
-            $promisedQty = $request->input('promised_qty');
-            $discountProduct = $request->input('discount_product');
-
-            $productOrderDetail = array_map(function () {
-                return func_get_args();
-            }, $productId, $promisedQty, $discountProduct);
-
-            $totalPrice = 0;
-            $dataDetail = []; // data untuk update tx merchant order detail
-            foreach ($productOrderDetail as $value) {
-                $value = array_combine(['ProductID', 'PromisedQuantity', 'Discount'], $value);
-                foreach ($txMerchantOrderDetail as $orderDetail) {
-                    if ($value['ProductID'] == $orderDetail->ProductID) {
-                        $price = $orderDetail->Price;
-                        $nett = $price - str_replace('.', '', $value['Discount']);
-                        $pricePerProduct = $nett * str_replace('.', '', $value['PromisedQuantity']);
-                        $totalPrice += $pricePerProduct;
-                        $arrayDetail = [
-                            'ProductID' => $value['ProductID'],
-                            'PromisedQuantity' => $value['PromisedQuantity'] * 1,
-                            'Discount' => str_replace('.', '', $value['Discount']) * 1,
-                            'Nett' => $nett
-                        ];
-                        array_push($dataDetail, $arrayDetail);
-                    }
-                }
-            }
-
-            // data untuk update tx merchant order
-            $data = [
-                'StatusOrderID' => $statusOrder,
-                'ShipmentDate' => $request->input('shipment_date'),
-                'DiscountPrice' => str_replace('.', '', $request->input('discount_price')) * 1,
-                'TotalPrice' => $totalPrice,
-                'NettPrice' => $totalPrice - str_replace('.', '', $request->input('discount_price'))
-            ];
 
             // data untuk insert tx merchant order log
             $dataLog = [
@@ -274,16 +236,12 @@ class DistributionController extends Controller
             ];
 
             try {
-                DB::transaction(function () use ($stockOrderID, $data, $dataDetail, $dataLog) {
+                DB::transaction(function () use ($stockOrderID, $statusOrder, $dataLog) {
                     DB::table('tx_merchant_order')
                         ->where('StockOrderID', '=', $stockOrderID)
-                        ->update($data);
-                    foreach ($dataDetail as $value) {
-                        DB::table('tx_merchant_order_detail')
-                            ->where('StockOrderID', '=', $stockOrderID)
-                            ->where('ProductID', '=', $value['ProductID'])
-                            ->update($value);
-                    }
+                        ->update([
+                            'StatusOrderID' => $statusOrder
+                        ]);
                     DB::table('tx_merchant_order_log')
                         ->insert($dataLog);
                 });

@@ -92,11 +92,11 @@
                                 @csrf
                                 <h6 class="mb-3">Daftar Barang</h6>
                                 <div class="row">
-                                    <div class="col-md-3 col-12">
+                                    <div class="col-md-4 col-12">
                                         <label class="mb-0">Stock Order ID</label>
                                         <p>{{ $merchantOrder->StockOrderID }}</p>
                                     </div>
-                                    <div class="col-md-3 col-12">
+                                    <div class="col-md-4 col-12">
                                         <label class="mb-0">Status Pesanan</label>
                                         <p>
                                             @if ($merchantOrder->StatusOrderID == "S009")
@@ -114,11 +114,13 @@
                                             @endif
                                         </p>
                                     </div>
-                                    <div class="col-md-3 col-12">
+                                    <div class="col-md-4 col-12">
                                         <label class="mb-0">Metode Pembayaran</label>
                                         <p>{{ $merchantOrder->PaymentMethodName }}</p>
                                     </div>
-                                    <div class="col-md-3 col-12">
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-4 col-12">
                                         <label class="mb-0">Merchant Note</label>
                                         <p>@if ($merchantOrder->MerchantNote)
                                             {{ $merchantOrder->MerchantNote }}
@@ -126,9 +128,7 @@
                                             -
                                         @endif</p>
                                     </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-3 col-12">
+                                    <div class="col-md-4 col-12">
                                         <label class="mb-0">Distributor Note</label>
                                         <p>@if ($merchantOrder->DistributorNote)
                                             {{ $merchantOrder->DistributorNote }}
@@ -136,98 +136,38 @@
                                             -
                                         @endif</p>
                                     </div>
-                                    <div class="col-md-3 col-12">
+                                    <div class="col-md-4 col-12">
                                         <label class="mb-0">Pesanan Dibuat</label>
                                         <p>{{ date('d F Y H:i', strtotime($merchantOrder->CreatedDate)) }}</p>
-                                    </div>
-                                    <div class="col-md-3 col-12">
-                                        <label class="mb-0">Estimasi Sampai</label>
-                                        <p>{{ date('d F Y', strtotime($merchantOrder->ShipmentDate)) }}</p>
-                                    </div>
-                                    <div class="col-md-3 col-12">
-                                        <label for="shipment_date" class="mb-0">Shipment Date</label>
-                                        @if ($merchantOrder->StatusOrderID == "S009")
-                                            <input type="date" name="shipment_date" class="form-control form-control-sm
-                                            @if($errors->has('shipment_date')) is-invalid @endif" 
-                                            value="{{ date('Y-m-d',strtotime($merchantOrder->ShipmentDate)) }}" autocomplete="off">
-                                            @if($errors->has('shipment_date'))
-                                                <span class="error invalid-feedback mt-0">{{ $errors->first('shipment_date') }}</span>
-                                            @endif
-                                        @else
-                                            <p>{{ date('d F Y', strtotime($merchantOrder->ShipmentDate)) }}</p>
-                                        @endif
                                     </div>
                                 </div>
                                 <div>
                                     @foreach ($merchantOrderDetail as $key => $value)
-                                    <div class="row mt-3 mt-md-2 detail-product">
-                                        <div class="col-md-3 col-12 text-center align-self-center">
-                                            <img src="{{ config('app.base_image_url') . '/product/'. $value->ProductImage }}" alt="" width="100">
+                                    <div class="row detail-product border-top">
+                                        <div class="col-md-3 col-12 text-center align-self-center mt-2">
+                                            @if (!$value->ProductImage)
+                                                asas
+                                            @else
+                                            <img src="{{ config('app.base_image_url') . '/product/'. $value->ProductImage }}" alt="" width="100">    
+                                            @endif
+                                            
                                             <p class="mb-0">{{ $value->ProductName }}</p>
                                             <input type="hidden" name="product_id[]" value="{{ $value->ProductID }}">
                                         </div>
                                         <div class="col-md-9 col-12 align-self-center">
                                             <div class="row">
-                                                @if ($merchantOrder->StatusOrderID == "S009")
-                                                    <div class="col-md-4 col-12">
-                                                        <label class="mb-0">Kuantitas Beli</label>
-                                                        <p>{{ $value->Quantity }}</p>
-                                                    </div>
-                                                    <div class="col-md-4 col-12">
-                                                        <label class="mb-0">Kuantitas Dikirim</label>
-                                                        <input type="text" name="promised_qty[]" class="form-control form-control-sm autonumeric promised_qty
-                                                        @if($errors->has('promised_qty.'.$key)) is-invalid @endif" value="{{ $value->PromisedQuantity }}" autocomplete="off">
-                                                        @if ($errors->has('promised_qty.'.$key))
-                                                            <span class="error invalid-feedback mt-0">{{ $errors->first('promised_qty.'.$key) }}</span>
-                                                        @endif
-                                                    </div>
-                                                @else
-                                                    <div class="col-md-3 col-12">
-                                                        <label class="mb-0">Kuantitas Beli</label>
-                                                        <p>{{ $value->Quantity }}</p>
-                                                    </div>
-                                                    <div class="col-md-3 col-12">
-                                                        <label class="mb-0">Kuantitas Dikirim</label>
-                                                        <p>{{ $value->PromisedQuantity }}</p>
-                                                    </div>
-                                                @endif
-                                            </div>
-                                            <div class="row">
-                                                @if ($merchantOrder->StatusOrderID == "S009")
-                                                    <div class="col-md-4 col-12">
-                                                        <label class="mb-0">Harga Satuan</label>
-                                                        <p class="price">{{ Helper::formatCurrency($value->Price, 'Rp ') }}</p>
-                                                    </div>
-                                                    <div class="col-md-4 col-12">
-                                                        <label class="mb-0" for="">Potongan</label>
-                                                        <input type="text" name="discount_product[]" class="form-control form-control-sm autonumeric discount_product
-                                                        @if($errors->has('discount_product.'.$key)) is-invalid @endif" value="{{ $value->Discount }}" autocomplete="off">
-                                                        @if ($errors->has('discount_product.'.$key))
-                                                            <span class="error invalid-feedback mt-0">{{ $errors->first('discount_product.'.$key) }}</span>
-                                                        @endif
-                                                    </div>
-                                                    <div class="col-md-4 col-12">
-                                                        <label class="mb-0">Total Harga Produk</label>
-                                                        <p class="font-weight-bold total_price_product">{{ Helper::formatCurrency($value->PromisedQuantity * ($value->Price - $value->Discount), 'Rp ') }}</p>
-                                                    </div>
-                                                @else
-                                                    <div class="col-md-3 col-12">
-                                                        <label class="mb-0">Harga Satuan</label>
-                                                        <p>{{ Helper::formatCurrency($value->Price, 'Rp ') }}</p>
-                                                    </div>
-                                                    <div class="col-md-3 col-12">
-                                                        <label class="mb-0" for="">Potongan</label>
-                                                        <p>{{ Helper::formatCurrency($value->Discount, 'Rp ') }}</p>
-                                                    </div>
-                                                    <div class="col-md-3 col-12">
-                                                        <label class="mb-0" for="">Nett Satuan</label>
-                                                        <p>{{ Helper::formatCurrency($value->Nett, 'Rp ') }}</p>
-                                                    </div>
-                                                    <div class="col-md-3 col-12">
-                                                        <label class="mb-0">Total Harga Produk</label>
-                                                        <p class="font-weight-bold">{{ Helper::formatCurrency($value->PromisedQuantity * ($value->Nett), 'Rp ') }}</p>
-                                                    </div>
-                                                @endif
+                                                <div class="col-md-4 col-12">
+                                                    <label class="mb-0">Kuantitas Beli</label>
+                                                    <p>{{ $value->PromisedQuantity }}</p>
+                                                </div>
+                                                <div class="col-md-4 col-12">
+                                                    <label class="mb-0">Harga Satuan</label>
+                                                    <p class="price">{{ Helper::formatCurrency($value->Nett, 'Rp ') }}</p>
+                                                </div>
+                                                <div class="col-md-4 col-12">
+                                                    <label class="mb-0">Total Harga Produk</label>
+                                                    <p class="font-weight-bold">{{ Helper::formatCurrency($value->PromisedQuantity * ($value->Nett), 'Rp ') }}</p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -252,17 +192,9 @@
                                                     <label>Potongan :</label>
                                                 </div>
                                                 <div class="col-6">
-                                                    @if ($merchantOrder->StatusOrderID == "S009")
-                                                        <input type="text" name="discount_price" id="discount_price" class="form-control form-control-sm autonumeric
-                                                        @if ($errors->has('discount_price')) is-invalid mb-md-0 @endif" value="{{ $merchantOrder->DiscountPrice }}" autocomplete="off">
-                                                        @if($errors->has('discount_price'))
-                                                            <span class="error invalid-feedback mt-0">{{ $errors->first('discount_price') }}</span>
-                                                        @endif
-                                                    @else
-                                                        <p class="font-weight-bold mb-0 text-danger">
-                                                            {{ Helper::formatCurrency($merchantOrder->DiscountPrice, 'Rp ') }}
-                                                        </p>
-                                                    @endif
+                                                    <p class="font-weight-bold mb-0 text-danger">
+                                                        {{ Helper::formatCurrency($merchantOrder->DiscountPrice, 'Rp ') }}
+                                                    </p>
                                                 </div>
                                             </div>
                                             <div class="row">
@@ -288,12 +220,12 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row konfirmasi">
-                                    <div class="col-12">
+                                {{-- <div class="row konfirmasi"> --}}
+                                    <div class="col-12 konfirmasi">
                                         @if ($merchantOrder->StatusOrderID == "S009") {{-- Pesanan Baru --}}
                                             <div class="row d-md-flex justify-content-end">
                                                 <div class="col-md-6 col-12 text-center">
-                                                    <a href="#" class="btn btn-danger btn-batal mr-5" data-order-id="{{ $stockOrderID }}" data-store-name="{{ $merchantOrder->StoreName }}">
+                                                    <a href="#" class="btn btn-danger btn-batal mr-3" data-order-id="{{ $stockOrderID }}" data-store-name="{{ $merchantOrder->StoreName }}">
                                                         Tolak Pesanan
                                                     </a>
                                                     <a href="#" class="btn btn-success btn-terima" data-order-id="{{ $stockOrderID }}" data-store-name="{{ $merchantOrder->StoreName }}">
@@ -305,7 +237,7 @@
                                             @if ($merchantOrder->PaymentMethodID == 1) {{-- Kalo pake tunai --}}
                                             <div class="row d-md-flex justify-content-end">
                                                 <div class="col-md-6 col-12 text-center">
-                                                    <a href="#" class="btn btn-danger btn-batal mr-5" data-order-id="{{ $stockOrderID }}" data-store-name="{{ $merchantOrder->StoreName }}">
+                                                    <a href="#" class="btn btn-danger btn-batal mr-4" data-order-id="{{ $stockOrderID }}" data-store-name="{{ $merchantOrder->StoreName }}">
                                                         Batalkan Pesanan
                                                     </a>
                                                     <a href="#" class="btn btn-success btn-kirim" data-order-id="{{ $stockOrderID }}" data-store-name="{{ $merchantOrder->StoreName }}">
@@ -322,6 +254,57 @@
                                                 </div>
                                             </div>
                                             @endif
+                                        @elseif ($merchantOrder->StatusOrderID == "S012") {{-- Telah Dikirim --}}
+                                            <div class="row d-md-flex justify-content-end">
+                                                <div class="col-md-6 col-12 text-center">
+                                                    <button type="button" class="btn btn-info mr-4" data-toggle="modal" data-target="#detail-do">
+                                                        Detail Delivery Order
+                                                    </button>
+                                                    <a href="#" class="btn btn-primary btn-kirim" data-order-id="{{ $stockOrderID }}" data-store-name="{{ $merchantOrder->StoreName }}">
+                                                        Buat Delivery Order
+                                                    </a>
+                                                </div>
+                                                <div class="modal fade" id="detail-do">
+                                                    <div class="modal-dialog modal-lg">
+                                                        <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h4 class="modal-title">Detail Delivery Order</h4>
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="card card-warning">
+                                                                <div class="card-header">
+                                                                  <h3 class="card-title">DO ID</h3>
+                                                  
+                                                                  <div class="card-tools">
+                                                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                                                      <i class="fas fa-minus"></i>
+                                                                    </button>
+                                                                  </div>
+                                                                </div>
+                                                                <div class="card-body">
+                                                                  <div class="row">
+                                                                      <div class="col-3">
+                                                                          <img src="https://mobile.dev.rt-mart.id/images/product/P-000002.jpg" alt="" width="80">
+                                                                      </div>
+                                                                      <div class="col-5">
+                                                                          4x Aqua Galon
+                                                                      </div>
+                                                                      <div class="col-4">
+                                                                          Rp 60.000
+                                                                      </div>
+                                                                  </div>
+                                                                </div>
+                                                              </div>
+                                                        </div>
+                                                        <div class="modal-footer justify-content-between">
+                                                        </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         @elseif ($merchantOrder->StatusOrderID == "S018") {{-- Telah Selesai --}}
                                             <div class="col-6">
                                                 <label class="mb-0">Rating: </label>
@@ -338,7 +321,7 @@
                                             &nbsp;
                                         @endif
                                     </div>
-                                </div>
+                                {{-- </div> --}}
                             </form>
                         </div>
                     </div>
@@ -352,76 +335,74 @@
 <script src="https://unpkg.com/autonumeric"></script>
 <script defer type="text/javascript" src="https://maps.googleapis.com/maps/api/js?callback=initMap&v=3&key=AIzaSyC9kPfmVtf71uGeDfHMMHDzHAl-FEBtOEw&libraries=places"></script>
 <script>
-    const currencyJumlahTopup = new AutoNumeric.multiple('.autonumeric', {
-        allowDecimalPadding: false,
-        decimalCharacter: ',',
-        digitGroupSeparator: '.',
-        unformatOnSubmit: true
-    });
+    // const currencyJumlahTopup = new AutoNumeric.multiple('.autonumeric', {
+    //     allowDecimalPadding: false,
+    //     decimalCharacter: ',',
+    //     digitGroupSeparator: '.',
+    //     unformatOnSubmit: true
+    // });
 
-    $('.detail-product').on('keyup', function (e) {
-        // event listener saat protongan harga diinput
-        const grandTotal = $('#grand_total');
-        const grandTotalValue = grandTotal.text().replaceAll("Rp ", "").replaceAll(".", "");
-        $('#discount_price').on('keyup', function (e) {
-            const newGrandTotal = Number(grandTotalValue) - Number(this.value.replaceAll(".", ""));
-            grandTotal.html("Rp " + thousands_separators(newGrandTotal));
-        });
+    // $('.detail-product').on('keyup', function (e) {
+    //     // event listener saat protongan harga diinput
+    //     const grandTotal = $('#grand_total');
+    //     const grandTotalValue = grandTotal.text().replaceAll("Rp ", "").replaceAll(".", "");
+    //     $('#discount_price').on('keyup', function (e) {
+    //         const newGrandTotal = Number(grandTotalValue) - Number(this.value.replaceAll(".", ""));
+    //         grandTotal.html("Rp " + thousands_separators(newGrandTotal));
+    //     });
 
-        // event listener saat qty product di input
-        $('.promised_qty').on('keyup', function (e){
-            e.preventDefault();
-            const indexProduct = $(this).closest('.detail-product').index();
-            const qtyProduct = e.target.value.replaceAll(".", "");
-            const priceProduct = $('.detail-product').find('.price').eq(indexProduct).text().replaceAll("Rp ", "").replaceAll(".", "");
-            const discountProduct = $('.detail-product').find('.discount_product').eq(indexProduct).val().replaceAll(".", "");
+    //     // event listener saat qty product di input
+    //     $('.promised_qty').on('keyup', function (e){
+    //         e.preventDefault();
+    //         const indexProduct = $(this).closest('.detail-product').index();
+    //         const qtyProduct = e.target.value.replaceAll(".", "");
+    //         const priceProduct = $('.detail-product').find('.price').eq(indexProduct).text().replaceAll("Rp ", "").replaceAll(".", "");
+    //         const discountProduct = $('.detail-product').find('.discount_product').eq(indexProduct).val().replaceAll(".", "");
 
-            const newTotalPriceProduct = (Number(priceProduct) - Number(discountProduct)) * Number(qtyProduct);
-            const totalPriceProductElm = $('.detail-product').find('.total_price_product').eq(indexProduct);
-            const subTotalPriceElm = $('#sub_total');
-            const subTotalPrice = $('#sub_total').text().replaceAll("Rp ", "").replaceAll(".", "");
-            const oldTotalPriceProduct = totalPriceProductElm.text().replaceAll("Rp ", "").replaceAll(".", "");
+    //         const newTotalPriceProduct = (Number(priceProduct) - Number(discountProduct)) * Number(qtyProduct);
+    //         const totalPriceProductElm = $('.detail-product').find('.total_price_product').eq(indexProduct);
+    //         const subTotalPriceElm = $('#sub_total');
+    //         const subTotalPrice = $('#sub_total').text().replaceAll("Rp ", "").replaceAll(".", "");
+    //         const oldTotalPriceProduct = totalPriceProductElm.text().replaceAll("Rp ", "").replaceAll(".", "");
             
-            const oldSubTotalPrice = subTotalPriceElm.text().replaceAll("Rp ", "").replaceAll(".", "");
-            const newSubTotalPrice = Number(subTotalPrice) - Number(oldTotalPriceProduct) + Number(newTotalPriceProduct);
-            subTotalPriceElm.html("Rp " + thousands_separators(newSubTotalPrice));
+    //         const oldSubTotalPrice = subTotalPriceElm.text().replaceAll("Rp ", "").replaceAll(".", "");
+    //         const newSubTotalPrice = Number(subTotalPrice) - Number(oldTotalPriceProduct) + Number(newTotalPriceProduct);
+    //         subTotalPriceElm.html("Rp " + thousands_separators(newSubTotalPrice));
             
-            totalPriceProductElm.html("Rp " + thousands_separators(newTotalPriceProduct));
+    //         totalPriceProductElm.html("Rp " + thousands_separators(newTotalPriceProduct));
 
-            const grandTotalValue = grandTotal.text().replaceAll("Rp ", "").replaceAll(".", "");
+    //         const grandTotalValue = grandTotal.text().replaceAll("Rp ", "").replaceAll(".", "");
             
-            const newGrandTotal = Number(grandTotalValue) - Number(oldSubTotalPrice) + Number(newSubTotalPrice);
-            grandTotal.html("Rp " + thousands_separators(newGrandTotal));
-        });
+    //         const newGrandTotal = Number(grandTotalValue) - Number(oldSubTotalPrice) + Number(newSubTotalPrice);
+    //         grandTotal.html("Rp " + thousands_separators(newGrandTotal));
+    //     });
 
-        // event listener saat potongan di input
-        $('.discount_product').on('keyup', function (e){
-            e.preventDefault();
-            const indexProduct = $(this).closest('.detail-product').index();
-            const discountProduct = e.target.value.replaceAll(".", "");
-            const priceProduct = $('.detail-product').find('.price').eq(indexProduct).text().replaceAll("Rp ", "").replaceAll(".", "");
-            const qtyProduct = $('.detail-product').find('.promised_qty').eq(indexProduct).val().replaceAll(".", "");
+    //     // event listener saat potongan di input
+    //     $('.discount_product').on('keyup', function (e){
+    //         e.preventDefault();
+    //         const indexProduct = $(this).closest('.detail-product').index();
+    //         const discountProduct = e.target.value.replaceAll(".", "");
+    //         const priceProduct = $('.detail-product').find('.price').eq(indexProduct).text().replaceAll("Rp ", "").replaceAll(".", "");
+    //         const qtyProduct = $('.detail-product').find('.promised_qty').eq(indexProduct).val().replaceAll(".", "");
 
-            const newTotalPriceProduct = (Number(priceProduct) - Number(discountProduct)) * Number(qtyProduct);
-            const totalPriceProductElm = $('.detail-product').find('.total_price_product').eq(indexProduct);
-            const subTotalPriceElm = $('#sub_total');
-            const subTotalPrice = $('#sub_total').text().replaceAll("Rp ", "").replaceAll(".", "");
-            const oldTotalPriceProduct = totalPriceProductElm.text().replaceAll("Rp ", "").replaceAll(".", "");
+    //         const newTotalPriceProduct = (Number(priceProduct) - Number(discountProduct)) * Number(qtyProduct);
+    //         const totalPriceProductElm = $('.detail-product').find('.total_price_product').eq(indexProduct);
+    //         const subTotalPriceElm = $('#sub_total');
+    //         const subTotalPrice = $('#sub_total').text().replaceAll("Rp ", "").replaceAll(".", "");
+    //         const oldTotalPriceProduct = totalPriceProductElm.text().replaceAll("Rp ", "").replaceAll(".", "");
             
-            const oldSubTotalPrice = subTotalPriceElm.text().replaceAll("Rp ", "").replaceAll(".", "");
-            const newSubTotalPrice = Number(subTotalPrice) - Number(oldTotalPriceProduct) + Number(newTotalPriceProduct);
-            subTotalPriceElm.html("Rp " + thousands_separators(newSubTotalPrice));
+    //         const oldSubTotalPrice = subTotalPriceElm.text().replaceAll("Rp ", "").replaceAll(".", "");
+    //         const newSubTotalPrice = Number(subTotalPrice) - Number(oldTotalPriceProduct) + Number(newTotalPriceProduct);
+    //         subTotalPriceElm.html("Rp " + thousands_separators(newSubTotalPrice));
             
-            totalPriceProductElm.html("Rp " + thousands_separators(newTotalPriceProduct));
+    //         totalPriceProductElm.html("Rp " + thousands_separators(newTotalPriceProduct));
 
-            const grandTotalValue = grandTotal.text().replaceAll("Rp ", "").replaceAll(".", "");
+    //         const grandTotalValue = grandTotal.text().replaceAll("Rp ", "").replaceAll(".", "");
             
-            const newGrandTotal = Number(grandTotalValue) - Number(oldSubTotalPrice) + Number(newSubTotalPrice);
-            grandTotal.html("Rp " + thousands_separators(newGrandTotal));
-        });
-    });
-
-    
+    //         const newGrandTotal = Number(grandTotalValue) - Number(oldSubTotalPrice) + Number(newSubTotalPrice);
+    //         grandTotal.html("Rp " + thousands_separators(newGrandTotal));
+    //     });
+    // });
 
     // Event listener saat tombol batal diklik
     $('.konfirmasi').on('click', '.btn-batal', function (e) {

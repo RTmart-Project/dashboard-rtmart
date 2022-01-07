@@ -8,8 +8,10 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DistributorController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DistributionController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\RTSalesController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\VoucherController;
 use Illuminate\Support\Facades\Auth;
@@ -29,7 +31,7 @@ Route::group(['middleware' => ['auth']], function () {
     // Home
     Route::get('/home', [HomeController::class, 'home'])->name('home');
 
-    Route::group(['prefix' => 'distribution', 'middleware' => ['checkRoleUser:IT,AD']], function () {
+    Route::group(['prefix' => 'distribution', 'middleware' => ['checkRoleUser:IT']], function () {
         // Distribution
         Route::group(['prefix' => 'restock'], function(){
             Route::get('/', [DistributionController::class, 'restock'])->name('distribution.restock');
@@ -50,6 +52,18 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/', [DistributionController::class, 'merchant'])->name('distribution.merchant');
             Route::get('/get', [DistributionController::class, 'getMerchant'])->name('distribution.getMerchant');
             Route::post('/grade/update/{merchantId}', [DistributionController::class, 'updateGrade'])->name('distribution.updateGrade');
+        });
+    });
+
+    Route::group(['prefix' => 'rtsales', 'middleware' => ['checkRoleUser:IT']], function () {
+        Route::group(['prefix' => 'saleslist'], function (){
+            Route::get('/', [RTSalesController::class, 'saleslist'])->name('rtsales.saleslist');
+            Route::get('/get', [RTSalesController::class, 'getDataSales'])->name('rtsales.getSaleslist');
+            Route::get('/add', [RTSalesController::class, 'addSales'])->name('rtsales.addSales');
+            Route::post('/insert', [RTSalesController::class, 'insertSales'])->name('rtsales.insertSales');
+            Route::get('/edit/{salesCode}', [RTSalesController::class, 'editSales'])->name('rtsales.editSales');
+            Route::post('/update/{salesCode}', [RTSalesController::class, 'updateSales'])->name('rtsales.updateSales');
+            Route::get('/delete/{salesCode}', [RTSalesController::class, 'deleteSales'])->name('rtsales.deleteSales');
         });
     });
 
@@ -205,3 +219,6 @@ Route::group(['middleware' => ['guest']], function () {
     Route::get('/', [AuthController::class, 'login'])->name('auth.login');
     Route::post('/', [AuthController::class, 'validateLogin'])->name('auth.validateLogin');
 });
+
+Route::get('/restock/invoice/{stockOrderId}', [InvoiceController::class, 'invoiceSO'])->name('restock.invoice');
+    Route::get('/restock/deliveryOrder/invoice/{deliveryOrderId}', [InvoiceController::class, 'invoiceDO'])->name('restockDeliveryOrder.invoice');

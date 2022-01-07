@@ -55,6 +55,26 @@
                 </li>
                 @endif
 
+                @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD"))
+                <li class="nav-item {{ Request::is('rtsales*') ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ Request::is('rtsales*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-chart-line"></i>
+                        <p>
+                            RT Sales
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="{{ route('rtsales.saleslist') }}" class="nav-link {{ Request::is('rtsales/saleslist*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Sales List</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                @endif
+
                 @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH"))
                 <li class="nav-item {{ Request::is('master*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ Request::is('master*') ? 'active' : '' }}">
