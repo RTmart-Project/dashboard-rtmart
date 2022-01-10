@@ -198,7 +198,7 @@
 			</table>
 		</div>
 		<script>
-			// window.addEventListener("load", window.print());
+			window.addEventListener("load", window.print());
 		</script>
 	</body>
 </html>
