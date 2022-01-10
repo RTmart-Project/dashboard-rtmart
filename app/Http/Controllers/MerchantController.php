@@ -523,7 +523,7 @@ class MerchantController extends Controller
                     if ($data->StatusOrderID == "S009") {
                         $invoice = "";
                     } else {
-                        $invoice = '<a href="/merchant/invoice/'.$data->StockOrderID.'" target="_blank" class="btn-sm btn-primary">Cetak</a>';
+                        $invoice = '<a href="/restock/invoice/'.$data->StockOrderID.'" target="_blank" class="btn-sm btn-primary">Cetak</a>';
                     }
                     return $invoice;
                 })

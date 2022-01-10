@@ -2,7 +2,6 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 		<title>Restock Invoice</title>
 
@@ -109,26 +108,13 @@
 				text-align: right;
 			}
 
-			.pt {
-				padding-top: 7px;
+			.text-center{
+				text-align: center !important;
 			}
 
-			@media only screen and (max-width: 600px) {
-				.invoice-box table tr.top table td {
-					width: 100%;
-					display: block;
-					text-align: center;
-				}
-
-				.invoice-box table tr.information table td {
-					width: 100%;
-					display: block;
-					text-align: center;
-				}
-
-				.responsive-td {
-					width: 100%;
-				}
+			.pt {
+				padding-top: 7px;
+				padding-right: 5px;
 			}
 		</style>
 	</head>
@@ -137,7 +123,7 @@
 		<div class="invoice-box">
 			<table>
 				<tr class="top">
-					<td colspan="2">
+					<td colspan="4">
 						<table>
 							<tr>
 								<td class="title">
@@ -159,7 +145,7 @@
 				</tr>
 
 				<tr class="information">
-					<td colspan="2">
+					<td colspan="4">
 						<table>
 							<tr>
 								<td>
@@ -178,32 +164,41 @@
 				</tr>
 
 				<tr class="heading">
-					<td>Metode Pembayaran</td>
-					<td></td>
+					<td colspan="4">Metode Pembayaran</td>
 				</tr>
 
 				<tr class="details">
-					<td>{{ $merchant->PaymentMethodName }}</td>
-					<td></td>
+					<td colspan="4">{{ $merchant->PaymentMethodName }}</td>
 				</tr>
 
 				<tr class="heading">
 					<td>Produk</td>
-
-					<td>Total Harga</td>
+					<td class="text-center">Qty</td>
+					<td class="text-right">Harga Satuan</td>
+					<td class="text-right">Total Harga</td>
 				</tr>
 
 				@foreach ($detailDeliveryOrder as $item)
 				<tr class="item">
-					<td>{{ $item->ProductName }} ( x {{ $item->Qty }} item )</td>
-					<td>{{ Helper::formatCurrency($item->Qty * $item->Price, 'Rp ') }}</td>
+					<td>{{ $item->ProductName }}</td>
+					<td class="text-center">{{ $item->Qty }}</td>
+					<td class="text-right">{{ Helper::formatCurrency($item->Price, 'Rp ') }}</td>
+					<td class="text-right">{{ Helper::formatCurrency($item->Qty * $item->Price, 'Rp ') }}</td>
 				</tr>		
 				@endforeach
+
+				<tr>
+					<td></td>
+				</tr>
 				
 				<tr class="total">
-					<th colspan="2" class="text-right pt">SubTotal: {{ Helper::formatCurrency($subTotal, 'Rp ') }}</th>
+					<th colspan="3" class="text-right">SubTotal</th>
+					<th colspan="1" class="text-right pt">{{ Helper::formatCurrency($subTotal, 'Rp ') }}</th>
 				</tr>
 			</table>
 		</div>
+		<script>
+			// window.addEventListener("load", window.print());
+		</script>
 	</body>
 </html>

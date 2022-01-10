@@ -2,7 +2,6 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
 
 		<title>Restock Invoice</title>
 
@@ -109,26 +108,13 @@
 				text-align: right;
 			}
 
-			.pt {
-				padding-top: 7px;
+			.text-center{
+				text-align: center !important;
 			}
 
-			@media only screen and (max-width: 600px) {
-				.invoice-box table tr.top table td {
-					width: 100%;
-					display: block;
-					text-align: center;
-				}
-
-				.invoice-box table tr.information table td {
-					width: 100%;
-					display: block;
-					text-align: center;
-				}
-
-				.responsive-td {
-					width: 100%;
-				}
+			.pt {
+				padding-top: 7px;
+				padding-right: 5px;
 			}
 		</style>
 	</head>
@@ -137,7 +123,7 @@
 		<div class="invoice-box">
 			<table>
 				<tr class="top">
-					<td colspan="2">
+					<td colspan="4">
 						<table>
 							<tr>
 								<td class="title">
@@ -156,7 +142,7 @@
 				</tr>
 
 				<tr class="information">
-					<td colspan="2">
+					<td colspan="4">
 						<table>
 							<tr>
 								<td>
@@ -175,39 +161,47 @@
 				</tr>
 
 				<tr class="heading">
-					<td>Metode Pembayaran</td>
-					<td></td>
+					<td colspan="4">Metode Pembayaran</td>
 				</tr>
 
 				<tr class="details">
-					<td>{{ $merchant->PaymentMethodName }}</td>
-					<td></td>
+					<td colspan="4">{{ $merchant->PaymentMethodName }}</td>
 				</tr>
 
 				<tr class="heading">
 					<td>Produk</td>
-
-					<td>Total Harga</td>
+					<td class="text-center">Qty</td>
+					<td class="text-right">Harga Satuan</td>
+					<td class="text-right">Total Harga</td>
 				</tr>
 
 				@foreach ($stockOrderById as $item)
 				<tr class="item">
 					<td>{{ $item->ProductName }} ( x{{ $item->PromisedQuantity }} item )</td>
-					<td>{{ Helper::formatCurrency($item->Nett * $item->PromisedQuantity, 'Rp ') }}</td>
+					<td class="text-center">{{ $item->PromisedQuantity }}</td>
+					<td class="text-right">{{ Helper::formatCurrency($item->Nett, 'Rp ') }}</td>
+					<td class="text-right">{{ Helper::formatCurrency($item->Nett * $item->PromisedQuantity, 'Rp ') }}</td>
 				</tr>		
 				@endforeach
-				
+				<tr>
+					<td></td>
+				</tr>
+
 				<tr class="total">
-					<th colspan="2" class="text-right pt">SubTotal: {{ Helper::formatCurrency($subTotal, 'Rp ') }}</th>
+					<th colspan="3" class="text-right pt">SubTotal</th>
+					<th colspan="1" class="text-right pt">{{ Helper::formatCurrency($subTotal, 'Rp ') }}</th>
 				</tr>
 				<tr class="total">
-					<th colspan="2" class="text-right pt">Diskon: {{ Helper::formatCurrency($merchant->DiscountPrice, 'Rp ') }}</th>
+					<th colspan="3" class="text-right pt">Diskon</th>
+					<th colspan="1" class="text-right pt">{{ Helper::formatCurrency($merchant->DiscountPrice, 'Rp ') }}</th>
 				</tr>
 				<tr class="total">
-					<th colspan="2" class="text-right pt">Biaya Layanan: {{ Helper::formatCurrency($merchant->ServiceChargeNett, 'Rp ') }}</th>
+					<th colspan="3" class="text-right pt">Biaya Layanan</th>
+					<th colspan="1" class="text-right pt">{{ Helper::formatCurrency($merchant->ServiceChargeNett, 'Rp ') }}</th>
 				</tr>
 				<tr class="total">
-					<th colspan="2" class="text-right pt">Grand Total: {{ Helper::formatCurrency($subTotal - $merchant->DiscountPrice + $merchant->ServiceChargeNett, 'Rp ') }}</th>
+					<th colspan="3" class="text-right pt">Grand Total</th>
+					<th colspan="1" class="text-right pt">{{ Helper::formatCurrency($subTotal - $merchant->DiscountPrice + $merchant->ServiceChargeNett, 'Rp ') }}</th>
 				</tr>
 			</table>
 		</div>
