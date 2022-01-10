@@ -405,7 +405,7 @@ class DistributionController extends Controller
     {
         $request->validate([
             'qty_do' => 'required',
-            'qty_do.*' => 'required|numeric|after:max_qty_do.*'
+            'qty_do.*' => 'required|numeric|max:max_qty_do.*'
         ]);
 
         $baseImageUrl = config('app.base_image_url');
