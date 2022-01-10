@@ -148,7 +148,7 @@
                                                     <th>Nama Pemilik</th>
                                                     <th>No. Telp</th>
                                                     <th>Alamat</th>
-                                                    <th>Detail</th>
+                                                    <th>Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody>

@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
 <!-- Main -->
-<link rel="stylesheet" href="{{url('/')}}/main/css/custom/select-filter.css"
+<link rel="stylesheet" href="{{url('/')}}/main/css/custom/select-filter.css">
 @endsection
 
 @section('header-menu', 'Detail Restock')
@@ -88,185 +88,184 @@
                             </div>
                         </div>
                         <div class="post">
-                            <form action="{{ route('distribution.updateStatusRestock', ['stockOrderID' => $stockOrderID, 'status' => 'approved']) }}" method="post">
-                                @csrf
-                                <h6 class="mb-3">Daftar Barang</h6>
-                                <div class="row">
-                                    <div class="col-md-4 col-12">
-                                        <label class="mb-0">Stock Order ID</label>
-                                        <p>{{ $merchantOrder->StockOrderID }}</p>
-                                    </div>
-                                    <div class="col-md-4 col-12">
-                                        <label class="mb-0">Status Pesanan</label>
-                                        <p>
-                                            @if ($merchantOrder->StatusOrderID == "S009")
-                                                <span class="badge badge-secondary">{{ $merchantOrder->StatusOrder }}</span>
-                                            @elseif ($merchantOrder->StatusOrderID == "S010")
-                                                <span class="badge badge-primary">{{ $merchantOrder->StatusOrder }}</span>
-                                            @elseif ($merchantOrder->StatusOrderID == "S023")
-                                                <span class="badge badge-warning">{{ $merchantOrder->StatusOrder }}</span>
-                                            @elseif ($merchantOrder->StatusOrderID == "S012")
-                                                <span class="badge badge-info">{{ $merchantOrder->StatusOrder }}</span>
-                                            @elseif ($merchantOrder->StatusOrderID == "S018")
-                                                <span class="badge badge-success">{{ $merchantOrder->StatusOrder }}</span>
-                                            @elseif ($merchantOrder->StatusOrderID == "S011")
-                                                <span class="badge badge-danger">{{ $merchantOrder->StatusOrder }}</span>
-                                            @endif
-                                        </p>
-                                    </div>
-                                    <div class="col-md-4 col-12">
-                                        <label class="mb-0">Metode Pembayaran</label>
-                                        <p>{{ $merchantOrder->PaymentMethodName }}</p>
-                                    </div>
+                            <h6 class="mb-3">Daftar Barang</h6>
+                            <div class="row">
+                                <div class="col-md-4 col-12">
+                                    <label class="mb-0">Stock Order ID</label>
+                                    <p>{{ $merchantOrder->StockOrderID }}</p>
                                 </div>
-                                <div class="row">
-                                    <div class="col-md-4 col-12">
-                                        <label class="mb-0">Merchant Note</label>
-                                        <p>@if ($merchantOrder->MerchantNote)
-                                            {{ $merchantOrder->MerchantNote }}
+                                <div class="col-md-4 col-12">
+                                    <label class="mb-0">Status Pesanan</label>
+                                    <p>
+                                        @if ($merchantOrder->StatusOrderID == "S009")
+                                            <span class="badge badge-secondary">{{ $merchantOrder->StatusOrder }}</span>
+                                        @elseif ($merchantOrder->StatusOrderID == "S010")
+                                            <span class="badge badge-primary">{{ $merchantOrder->StatusOrder }}</span>
+                                        @elseif ($merchantOrder->StatusOrderID == "S023")
+                                            <span class="badge badge-warning">{{ $merchantOrder->StatusOrder }}</span>
+                                        @elseif ($merchantOrder->StatusOrderID == "S012")
+                                            <span class="badge badge-info">{{ $merchantOrder->StatusOrder }}</span>
+                                        @elseif ($merchantOrder->StatusOrderID == "S018")
+                                            <span class="badge badge-success">{{ $merchantOrder->StatusOrder }}</span>
+                                        @elseif ($merchantOrder->StatusOrderID == "S011")
+                                            <span class="badge badge-danger">{{ $merchantOrder->StatusOrder }}</span>
+                                        @endif
+                                    </p>
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <label class="mb-0">Metode Pembayaran</label>
+                                    <p>{{ $merchantOrder->PaymentMethodName }}</p>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 col-12">
+                                    <label class="mb-0">Merchant Note</label>
+                                    <p>@if ($merchantOrder->MerchantNote)
+                                        {{ $merchantOrder->MerchantNote }}
+                                    @else
+                                        -
+                                    @endif</p>
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <label class="mb-0">Distributor Note</label>
+                                    <p>@if ($merchantOrder->DistributorNote)
+                                        {{ $merchantOrder->DistributorNote }}
+                                    @else
+                                        -
+                                    @endif</p>
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <label class="mb-0">Pesanan Dibuat</label>
+                                    <p>{{ date('d F Y H:i', strtotime($merchantOrder->CreatedDate)) }}</p>
+                                </div>
+                            </div>
+                            <div>
+                                @foreach ($merchantOrderDetail as $key => $value)
+                                <div class="row detail-product border-top">
+                                    <div class="col-md-3 col-12 text-center align-self-center mt-2">
+                                        @if (!$value->ProductImage)
+                                            asas
                                         @else
-                                            -
-                                        @endif</p>
+                                        <img src="{{ config('app.base_image_url') . '/product/'. $value->ProductImage }}" alt="" width="100">    
+                                        @endif
+                                        
+                                        <p class="mb-0">{{ $value->ProductName }}</p>
+                                        <input type="hidden" name="product_id[]" value="{{ $value->ProductID }}">
                                     </div>
-                                    <div class="col-md-4 col-12">
-                                        <label class="mb-0">Distributor Note</label>
-                                        <p>@if ($merchantOrder->DistributorNote)
-                                            {{ $merchantOrder->DistributorNote }}
-                                        @else
-                                            -
-                                        @endif</p>
-                                    </div>
-                                    <div class="col-md-4 col-12">
-                                        <label class="mb-0">Pesanan Dibuat</label>
-                                        <p>{{ date('d F Y H:i', strtotime($merchantOrder->CreatedDate)) }}</p>
-                                    </div>
-                                </div>
-                                <div>
-                                    @foreach ($merchantOrderDetail as $key => $value)
-                                    <div class="row detail-product border-top">
-                                        <div class="col-md-3 col-12 text-center align-self-center mt-2">
-                                            @if (!$value->ProductImage)
-                                                asas
-                                            @else
-                                            <img src="{{ config('app.base_image_url') . '/product/'. $value->ProductImage }}" alt="" width="100">    
-                                            @endif
-                                            
-                                            <p class="mb-0">{{ $value->ProductName }}</p>
-                                            <input type="hidden" name="product_id[]" value="{{ $value->ProductID }}">
-                                        </div>
-                                        <div class="col-md-9 col-12 align-self-center">
-                                            <div class="row">
-                                                <div class="col-md-4 col-12">
-                                                    <label class="mb-0">Kuantitas Beli</label>
-                                                    <p>{{ $value->PromisedQuantity }}</p>
-                                                </div>
-                                                <div class="col-md-4 col-12">
-                                                    <label class="mb-0">Harga Satuan</label>
-                                                    <p class="price">{{ Helper::formatCurrency($value->Nett, 'Rp ') }}</p>
-                                                </div>
-                                                <div class="col-md-4 col-12">
-                                                    <label class="mb-0">Total Harga Produk</label>
-                                                    <p class="font-weight-bold">{{ Helper::formatCurrency($value->PromisedQuantity * ($value->Nett), 'Rp ') }}</p>
-                                                </div>
+                                    <div class="col-md-9 col-12 align-self-center">
+                                        <div class="row">
+                                            <div class="col-md-4 col-12">
+                                                <label class="mb-0">Kuantitas Beli</label>
+                                                <p>{{ $value->PromisedQuantity }}</p>
                                             </div>
-                                        </div>
-                                    </div>
-                                    @endforeach
-                                </div>
-                                <hr>
-                                <div class="row">
-                                    <div class="col-12 d-md-flex justify-content-end">
-                                        <div class="col-md-6 col-12">
-                                            <div class="row">
-                                                <div class="col-6 text-right">
-                                                    <label>SubTotal :</label>
-                                                </div>
-                                                <div class="col-6">
-                                                    <p class="font-weight-bold mb-0" id="sub_total">
-                                                        {{ Helper::formatCurrency($merchantOrder->TotalPrice, 'Rp ') }}
-                                                    </p>
-                                                </div>
+                                            <div class="col-md-4 col-12">
+                                                <label class="mb-0">Harga Satuan</label>
+                                                <p class="price">{{ Helper::formatCurrency($value->Nett, 'Rp ') }}</p>
                                             </div>
-                                            <div class="row">
-                                                <div class="col-6 text-right">
-                                                    <label>Potongan :</label>
-                                                </div>
-                                                <div class="col-6">
-                                                    <p class="font-weight-bold mb-0 text-danger">
-                                                        {{ Helper::formatCurrency($merchantOrder->DiscountPrice, 'Rp ') }}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-6 text-right">
-                                                    <label>Biaya Layanan :</label>
-                                                </div>
-                                                <div class="col-6">
-                                                    <p class="font-weight-bold mb-0">
-                                                        {{ Helper::formatCurrency($merchantOrder->ServiceChargeNett, 'Rp ') }}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-6 text-right">
-                                                    <label>GrandTotal :</label>
-                                                </div>
-                                                <div class="col-6">
-                                                    <p class="font-weight-bold text-success mb-0" id="grand_total">
-                                                        {{ Helper::formatCurrency($merchantOrder->NettPrice + $merchantOrder->ServiceChargeNett, 'Rp ') }}
-                                                    </p>
-                                                </div>
+                                            <div class="col-md-4 col-12">
+                                                <label class="mb-0">Total Harga Produk</label>
+                                                <p class="font-weight-bold">{{ Helper::formatCurrency($value->PromisedQuantity * ($value->Nett), 'Rp ') }}</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                {{-- <div class="row konfirmasi"> --}}
-                                    <div class="col-12 konfirmasi">
-                                        @if ($merchantOrder->StatusOrderID == "S009") {{-- Pesanan Baru --}}
-                                            <div class="row d-md-flex justify-content-end">
-                                                <div class="col-md-6 col-12 text-center">
-                                                    <a href="#" class="btn btn-danger btn-batal mr-3" data-order-id="{{ $stockOrderID }}" data-store-name="{{ $merchantOrder->StoreName }}">
-                                                        Tolak Pesanan
-                                                    </a>
-                                                    <a href="#" class="btn btn-success btn-terima" data-order-id="{{ $stockOrderID }}" data-store-name="{{ $merchantOrder->StoreName }}">
-                                                        Terima Pesanan
-                                                    </a>        
-                                                </div>
+                                @endforeach
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-12 d-md-flex justify-content-end">
+                                    <div class="col-md-6 col-12">
+                                        <div class="row">
+                                            <div class="col-6 text-right">
+                                                <label>SubTotal :</label>
                                             </div>
-                                        @elseif ($merchantOrder->StatusOrderID == "S023") {{-- Dalam Proses --}}
-                                            @if ($merchantOrder->PaymentMethodID == 1) {{-- Kalo pake tunai --}}
-                                            <div class="row d-md-flex justify-content-end">
-                                                <div class="col-md-6 col-12 text-center">
-                                                    <a href="#" class="btn btn-danger btn-batal mr-4" data-order-id="{{ $stockOrderID }}" data-store-name="{{ $merchantOrder->StoreName }}">
-                                                        Batalkan Pesanan
-                                                    </a>
-                                                    <a href="#" class="btn btn-success btn-kirim" data-order-id="{{ $stockOrderID }}" data-store-name="{{ $merchantOrder->StoreName }}">
-                                                        Kirim Pesanan
-                                                    </a>
-                                                </div>
+                                            <div class="col-6">
+                                                <p class="font-weight-bold mb-0" id="sub_total">
+                                                    {{ Helper::formatCurrency($merchantOrder->TotalPrice, 'Rp ') }}
+                                                </p>
                                             </div>
-                                            @else {{-- Selain Tunai --}}
-                                            <div class="row d-md-flex justify-content-end">
-                                                <div class="col-md-6 col-12 text-center">
-                                                    <a href="#" class="btn btn-success btn-kirim" data-order-id="{{ $stockOrderID }}" data-store-name="{{ $merchantOrder->StoreName }}">
-                                                        Kirim Pesanan
-                                                    </a>
-                                                </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-6 text-right">
+                                                <label>Potongan :</label>
                                             </div>
-                                            @endif
-                                        @elseif ($merchantOrder->StatusOrderID == "S012") {{-- Telah Dikirim --}}
-                                            <div class="row d-md-flex justify-content-end">
-                                                <div class="col-md-6 col-12 text-center">
-                                                    <button type="button" class="btn btn-info mr-4" data-toggle="modal" data-target="#detail-do">
-                                                        Detail Delivery Order
-                                                    </button>
-                                                    <a href="#" class="btn btn-primary btn-kirim" data-order-id="{{ $stockOrderID }}" data-store-name="{{ $merchantOrder->StoreName }}">
-                                                        Buat Delivery Order
-                                                    </a>
-                                                </div>
-                                                <div class="modal fade" id="detail-do">
-                                                    <div class="modal-dialog modal-lg">
-                                                        <div class="modal-content">
+                                            <div class="col-6">
+                                                <p class="font-weight-bold mb-0 text-danger">
+                                                    {{ Helper::formatCurrency($merchantOrder->DiscountPrice, 'Rp ') }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-6 text-right">
+                                                <label>Biaya Layanan :</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <p class="font-weight-bold mb-0">
+                                                    {{ Helper::formatCurrency($merchantOrder->ServiceChargeNett, 'Rp ') }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-6 text-right">
+                                                <label>GrandTotal :</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <p class="font-weight-bold text-success mb-0" id="grand_total">
+                                                    {{ Helper::formatCurrency($merchantOrder->NettPrice + $merchantOrder->ServiceChargeNett, 'Rp ') }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row konfirmasi m-0">
+                                <div class="col-12 ">
+                                    @if ($merchantOrder->StatusOrderID == "S009") {{-- Pesanan Baru --}}
+                                        <div class="row d-md-flex justify-content-end">
+                                            <div class="col-md-6 col-12 text-center">
+                                                <a href="#" class="btn btn-danger btn-batal mr-3" data-order-id="{{ $stockOrderID }}" data-store-name="{{ $merchantOrder->StoreName }}">
+                                                    Tolak Pesanan
+                                                </a>
+                                                <a href="#" class="btn btn-success btn-terima" data-order-id="{{ $stockOrderID }}" data-store-name="{{ $merchantOrder->StoreName }}">
+                                                    Terima Pesanan
+                                                </a>        
+                                            </div>
+                                        </div>
+                                    @elseif ($merchantOrder->StatusOrderID == "S023") {{-- Dalam Proses --}}
+                                        @if ($merchantOrder->PaymentMethodID == 1) {{-- Kalo pake tunai --}}
+                                        <div class="row d-md-flex justify-content-end">
+                                            <div class="col-md-6 col-12 text-center">
+                                                <a href="#" class="btn btn-danger btn-batal mr-4" data-order-id="{{ $stockOrderID }}" data-store-name="{{ $merchantOrder->StoreName }}">
+                                                    Batalkan Pesanan
+                                                </a>
+                                                <a href="#" class="btn btn-success btn-kirim" data-order-id="{{ $stockOrderID }}" data-store-name="{{ $merchantOrder->StoreName }}">
+                                                    Kirim Pesanan
+                                                </a>
+                                            </div>
+                                        </div>
+                                        @else {{-- Selain Tunai --}}
+                                        <div class="row d-md-flex justify-content-end">
+                                            <div class="col-md-6 col-12 text-center">
+                                                <a href="#" class="btn btn-success btn-kirim" data-order-id="{{ $stockOrderID }}" data-store-name="{{ $merchantOrder->StoreName }}">
+                                                    Kirim Pesanan
+                                                </a>
+                                            </div>
+                                        </div>
+                                        @endif
+                                    @elseif ($merchantOrder->StatusOrderID == "S012") {{-- Telah Dikirim --}}
+                                        <div class="row d-md-flex justify-content-end">
+                                            <div class="col-md-6 col-12 text-center">
+                                                <button type="button" class="btn btn-info mr-md-4" data-toggle="modal" data-target="#detail-do">
+                                                    Detail Delivery Order
+                                                </button>
+                                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add-do">
+                                                    Buat Delivery Order
+                                                </button>
+                                            </div>
+                                            {{-- Modal Detail Delivery Order --}}
+                                            <div class="modal fade" id="detail-do">
+                                                <div class="modal-dialog modal-lg">
+                                                    <div class="modal-content">
                                                         <div class="modal-header">
                                                             <h4 class="modal-title">Detail Delivery Order</h4>
                                                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -274,55 +273,159 @@
                                                             </button>
                                                         </div>
                                                         <div class="modal-body">
-                                                            <div class="card card-warning">
-                                                                <div class="card-header">
-                                                                  <h3 class="card-title">DO ID</h3>
-                                                  
-                                                                  <div class="card-tools">
-                                                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                                                      <i class="fas fa-minus"></i>
-                                                                    </button>
-                                                                  </div>
+                                                            @if ($deliveryOrder->count() > 0)
+                                                                @foreach ($deliveryOrder as $item)
+                                                                <div class="card card-{{ $item->StatusOrder == "Selesai" ? 'success' : 'warning' }}">
+                                                                    <div class="card-header">
+                                                                        <h3 class="card-title">{{ $item->DeliveryOrderID }}</h3>
+                                                                        {{-- @if ($item->StatusOrder != "Selesai")
+                                                                        <br>
+                                                                        <a href="#" id="edit_qty" class="badge badge-secondary text-white">Ubah Qty</a> | 
+                                                                        <a href="" id="update_qty" class="badge badge-primary text-white" disabled="disabled">Simpan</a>
+                                                                        @endif --}}
+                                                                        <div class="card-tools">
+                                                                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                                                                <i class="fas fa-minus"></i>
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="card-body py-1 px-2">
+                                                                        @foreach ($item->DetailProduct as $product)
+                                                                        <div class="row text-center border-bottom m-0">
+                                                                            <div class="col-3 align-self-center">
+                                                                                <img src="{{ config('app.base_image_url') . '/product/'. $product->ProductImage }}" alt="" width="80">
+                                                                            </div>
+                                                                            <div class="col-3 align-self-center">
+                                                                                <label>Produk</label>
+                                                                                <p>{{ $product->ProductName }}</p>
+                                                                            </div>
+                                                                            <div class="col-3 align-self-center">
+                                                                                <label class="d-block">Qty</label>
+                                                                                {{-- @if ($item->StatusOrder == "Selesai") --}}
+                                                                                <p>{{ $product->Qty }}x {{ Helper::formatCurrency($product->Price, '@Rp ') }}</p>
+                                                                                {{-- @else
+                                                                                <p><input type="number" class="form-control text-sm text-center p-0 d-inline" value="{{ $product->Qty }}" style="width: 40px;" max="{{ $product->OrderQty }}" disabled="disabled">{{ Helper::formatCurrency($product->Price, '@Rp ') }}</p>
+                                                                                @endif --}}
+                                                                            </div>
+                                                                            <div class="col-3 align-self-center">
+                                                                                <label>Total Harga</label>
+                                                                                <p>{{ Helper::formatCurrency($product->Qty * $product->Price, 'Rp ') }}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        @endforeach
+                                                                        <div class="row m-0 border-bottom">
+                                                                            <div class="col-12 d-flex justify-content-end">
+                                                                                <p class="text-center my-2 mr-md-4"><b>SubTotal : </b>{{ Helper::formatCurrency($item->SubTotal, 'Rp ') }}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row m-0 pt-2">
+                                                                            <div class="col-3 col-md-4 align-self-center">
+                                                                                <b>{{ $item->StatusOrder }}</b> <br>
+                                                                                @if ($item->StatusOrder == "Dalam Pengiriman")
+                                                                                <a href="#" class="btn btn-xs btn-success btn-finish-do mb-2" data-do-id="{{ $item->DeliveryOrderID }}">Selesaikan Order</a>
+                                                                                @endif
+                                                                            </div>
+                                                                            <div class="col-6 col-md-5 align-self-center">
+                                                                                Dikirim {{ date('d M Y H:i', strtotime($item->CreatedDate)) }}<br>
+                                                                                @if ($item->StatusOrder == "Selesai")
+                                                                                Selesai {{ date('d M Y H:i', strtotime($item->FinishDate)) }}
+                                                                                @endif
+                                                                            </div>
+                                                                            <div class="col-3 align-self-center">
+                                                                                <a href="{{ route('restockDeliveryOrder.invoice', ['deliveryOrderId' => $item->DeliveryOrderID]) }}" target="_blank" class="btn btn-sm btn-info">Delivery Invoice</a>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
-                                                                <div class="card-body">
-                                                                  <div class="row">
-                                                                      <div class="col-3">
-                                                                          <img src="https://mobile.dev.rt-mart.id/images/product/P-000002.jpg" alt="" width="80">
-                                                                      </div>
-                                                                      <div class="col-5">
-                                                                          4x Aqua Galon
-                                                                      </div>
-                                                                      <div class="col-4">
-                                                                          Rp 60.000
-                                                                      </div>
-                                                                  </div>
-                                                                </div>
-                                                              </div>
+                                                                @endforeach
+                                                            @else
+                                                            <div class="callout callout-info my-2">
+                                                                <h5>Belum ada delivery order.</h5>
+                                                            </div>
+                                                            @endif
                                                         </div>
-                                                        <div class="modal-footer justify-content-between">
-                                                        </div>
-                                                        </div>
+                                                        {{-- <div class="modal-footer justify-content-end">
+                                                            
+                                                        </div> --}}
                                                     </div>
                                                 </div>
                                             </div>
-                                        @elseif ($merchantOrder->StatusOrderID == "S018") {{-- Telah Selesai --}}
-                                            <div class="col-6">
-                                                <label class="mb-0">Rating: </label>
-                                                {{ $merchantOrder->Rating }} / 5
+                                            {{-- Modal Add Delivery Order --}}
+                                            <div class="modal fade" id="add-do">
+                                                <div class="modal-dialog modal-lg">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h4 class="modal-title">Buat Delivery Order</h4>
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body py-1">
+                                                            @if ($promisedQty == $deliveryOrderQty)
+                                                                <div class="callout callout-info my-2">
+                                                                    <h5 class="py-2">Semua Barang Telah Dikirim.</h5>
+                                                                </div>
+                                                            @else
+                                                            <div class="callout callout-warning py-2">
+                                                                <p>Pilih terlebih dahulu barang yang ingin dikirim</p>
+                                                            </div>
+                                                            <form action="{{ route('distribution.createDeliveryOrder', ['stockOrderID' => $stockOrderID]) }}" method="post">
+                                                                @csrf
+                                                                @foreach ($productAddDO as $item)
+                                                                    @if ($item->PromisedQuantity != $item->QtyDO)
+                                                                    <div class="row text-center border-bottom m-0 add-do">
+                                                                        <div class="col-1 align-self-center">
+                                                                            <input type="checkbox" id="check_do">
+                                                                        </div>
+                                                                        <div class="col-3 align-self-center">
+                                                                            <img src="{{ config('app.base_image_url') . '/product/'. $item->ProductImage }}" alt="" width="80">
+                                                                            <p class="mb-1">{{ $item->ProductName }}</p>
+                                                                            <input type="hidden" name="product_id[]" id="product_id" value="{{ $item->ProductID }}" disabled="disabled">
+                                                                            <input type="hidden" name="price[]" id="price" value="{{ $item->Nett }}" disabled="disabled">
+                                                                        </div>
+                                                                        <div class="col-3 align-self-center">
+                                                                            <label>Qty Beli</label>
+                                                                            <p>{{ $item->PromisedQuantity }}</p>
+                                                                        </div>
+                                                                        <div class="col-3 align-self-center">
+                                                                            <label>Qty Belum Dikirim</label>
+                                                                            <p>{{ $item->PromisedQuantity - $item->QtyDO }}</p>
+                                                                            <input type="hidden" name="max_qty_do[]" id="max_qty_do" value="{{ $item->PromisedQuantity - $item->QtyDO }}" disabled="disabled">
+                                                                        </div>
+                                                                        <div class="col-2 align-self-center">
+                                                                            <label>Qty Kirim</label>
+                                                                            <input type="number" name="qty_do[]" id="qty_do" class="form-control" max="{{ $item->PromisedQuantity - $item->QtyDO }}" disabled="disabled">
+                                                                        </div>
+                                                                    </div>
+                                                                    @endif
+                                                                @endforeach
+                                                                <button type="submit" id="btn-do" disabled="disabled" class="btn btn-primary float-right my-3">Buat DO</button>
+                                                            </form>
+                                                            @endif
+                                                        </div>
+                                                        {{-- <div class="modal-footer justify-content-between">
+                                                        </div> --}}
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div class="col-6">
-                                                <label class="mb-0">Komentar: </label>
-                                                {{ $merchantOrder->Feedback }}
-                                            </div>
-                                        @elseif ($merchantOrder->StatusOrderID == "S011") {{-- Telah Dibatalkan --}}
-                                            <label class="mb-0">Alasan dibatalkan:</label>
-                                            {{ $merchantOrder->CancelReasonNote }}
-                                        @else
-                                            &nbsp;
-                                        @endif
-                                    </div>
-                                {{-- </div> --}}
-                            </form>
+                                        </div>
+                                    @elseif ($merchantOrder->StatusOrderID == "S018") {{-- Telah Selesai --}}
+                                        <div class="col-6">
+                                            <label class="mb-0">Rating: </label>
+                                            {{ $merchantOrder->Rating }} / 5
+                                        </div>
+                                        <div class="col-6">
+                                            <label class="mb-0">Komentar: </label>
+                                            {{ $merchantOrder->Feedback }}
+                                        </div>
+                                    @elseif ($merchantOrder->StatusOrderID == "S011") {{-- Telah Dibatalkan --}}
+                                        <label class="mb-0">Alasan dibatalkan:</label>
+                                        {{ $merchantOrder->CancelReasonNote }}
+                                    @else
+                                        &nbsp;
+                                    @endif
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -404,6 +507,11 @@
     //     });
     // });
 
+    $(':checkbox').change(function() {
+        $(this).closest(".add-do").find("#qty_do, #product_id, #price, #max_qty_do").prop('disabled', !$(this).is(':checked'));
+        $("#btn-do").prop('disabled', !$(this).is(':checked'));
+    });
+
     // Event listener saat tombol batal diklik
     $('.konfirmasi').on('click', '.btn-batal', function (e) {
         e.preventDefault();
@@ -450,7 +558,10 @@
             type: 'green',
             typeAnimated: true,
             title: 'Terima Barang',
-            content: `Apakah pesanan <b>${orderID}</b> dari <b>${storeName}</b> sudah sesuai?`,
+            content: `Apakah pesanan <b>${orderID}</b> dari <b>${storeName}</b> sudah sesuai?
+                <form action="/distribution/restock/update/${orderID}/approved" method="post">
+                    @csrf
+                </form>`,
             closeIcon: true,
             buttons: {
                 terima: {
@@ -458,7 +569,7 @@
                     draggable: true,
                     dragWindowGap: 0,
                     action: function () {
-                        form.submit();
+                        this.$content.find('form').submit();
                     }
                 },
                 kembali: function () {
@@ -493,6 +604,29 @@
                     }
                 },
                 kembali: function () {
+                }
+            }
+        });
+    });
+
+    // Event listener saat tombol selesaikan order diklik
+    $('.btn-finish-do').on('click', function (e) {
+        e.preventDefault();
+        const deliveryOrderId = $(this).data("do-id");
+        $.confirm({
+            title: 'Selesaikan Order',
+            content: `Apakah order <b>${deliveryOrderId}</b> telah selesai?`,
+            closeIcon: true,
+            buttons: {
+                ya: {
+                    btnClass: 'btn-success',
+                    draggable: true,
+                    dragWindowGap: 0,
+                    action: function () {
+                        window.location = '/distribution/restock/update/deliveryOrder/' + deliveryOrderId
+                    }
+                },
+                tidak: function () {
                 }
             }
         });

@@ -28,6 +28,19 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <!-- CSS Per-Pages -->
     @yield('css-pages')
     
+    <style>
+        /* Chrome, Safari, Edge, Opera */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none !important;
+            margin: 0 !important;
+        }
+    
+        /* Firefox */
+        input[type=number] {
+            -moz-appearance: textfield !important;
+        }
+    </style>
     {{-- <style>
     .toolbar {
         float: left;

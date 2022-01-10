@@ -65,7 +65,7 @@ class DistributionController extends Controller
                     return date('d M Y', strtotime($data->ShipmentDate));
                 })
                 ->addColumn('Action', function ($data) {
-                    if ($data->StatusOrderID == "S009" || $data->StatusOrderID == "S023") {
+                    if ($data->StatusOrderID == "S009" || $data->StatusOrderID == "S023" || $data->StatusOrderID == "S012") {
                         $btn = "Proses";
                         $btnColor = "secondary";
                     } else {
@@ -118,13 +118,49 @@ class DistributionController extends Controller
                 ->select('tx_merchant_delivery_order_detail.ProductID', 'tx_merchant_delivery_order_detail.Qty', 'tx_merchant_delivery_order_detail.Price', 'ms_product.ProductName', 'ms_product.ProductImage')
                 ->get()->toArray();
             $value->DetailProduct = $deliveryOrderDetail;
+            $subTotal = 0;
+            foreach ($deliveryOrderDetail as $key => $item) {
+                $subTotal += $item->Price * $item->Qty;
+                $orderQty = DB::table('tx_merchant_order_detail')
+                    ->where('tx_merchant_order_detail.StockOrderID', '=', $stockOrderID)
+                    ->where('tx_merchant_order_detail.ProductID', '=', $item->ProductID)
+                    ->select('tx_merchant_order_detail.PromisedQuantity')
+                    ->first();
+                $item->OrderQty = $orderQty->PromisedQuantity;
+            }
+            $value->SubTotal = $subTotal;
+        }
+
+        $productAddDO = DB::table('tx_merchant_order_detail')
+            ->join('ms_product', 'ms_product.ProductID', '=', 'tx_merchant_order_detail.ProductID')
+            ->where('tx_merchant_order_detail.StockOrderID', '=', $stockOrderID)
+            ->select('tx_merchant_order_detail.ProductID', 'tx_merchant_order_detail.PromisedQuantity', 'tx_merchant_order_detail.Nett', 'ms_product.ProductName', 'ms_product.ProductImage')
+            ->get();
+
+        $promisedQty = 0;
+        $deliveryOrderQty = 0;
+
+        foreach ($productAddDO as $key => $value) {
+            $productQtyDO = DB::table('tx_merchant_delivery_order')
+                ->join('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderID', '=', 'tx_merchant_delivery_order.DeliveryOrderID')
+                ->where('tx_merchant_delivery_order.StockOrderID', '=', $stockOrderID)
+                ->where('tx_merchant_delivery_order_detail.ProductID', '=', $value->ProductID)
+                ->selectRaw('IFNULL(SUM(tx_merchant_delivery_order_detail.Qty), 0) as Qty')
+                ->first();
+            $value->QtyDO = $productQtyDO->Qty;
+
+            $promisedQty += $value->PromisedQuantity;
+            $deliveryOrderQty += $productQtyDO->Qty;
         }
 
         return view('distribution.restock.detail', [
             'stockOrderID' => $stockOrderID,
             'merchantOrder' => $merchantOrder,
             'merchantOrderDetail' => $merchantOrderDetail,
-            'deliveryOrder' => $deliveryOrder
+            'deliveryOrder' => $deliveryOrder,
+            'productAddDO' => $productAddDO,
+            'promisedQty' => $promisedQty,
+            'deliveryOrderQty' => $deliveryOrderQty
         ]);
     }
 
@@ -342,6 +378,126 @@ class DistributionController extends Controller
             } catch (\Throwable $th) {
                 return redirect()->route('distribution.restock')->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
             }
+        }
+    }
+
+    public function updateDeliveryOrder($deliveryOrderId)
+    {
+        $stockOrderID = DB::table('tx_merchant_delivery_order')
+            ->where('DeliveryOrderID', '=', $deliveryOrderId)
+            ->select('StockOrderID')->first();
+
+        $updateDeliveryOrder = DB::table('tx_merchant_delivery_order')
+            ->where('DeliveryOrderID', '=', $deliveryOrderId)
+            ->update([
+                'StatusDO' => 'S025',
+                'FinishDate' => date('Y-m-d H:i:s')
+            ]);
+        
+        if ($updateDeliveryOrder) {
+            return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID->StockOrderID])->with('success', 'Delivery Order telah diselesaikan');
+        } else {
+            return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID->StockOrderID])->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
+        }
+    }
+
+    public function createDeliveryOrder(Request $request, $stockOrderID)
+    {
+        $request->validate([
+            'qty_do' => 'required',
+            'qty_do.*' => 'required|numeric|after:max_qty_do.*'
+        ]);
+
+        $baseImageUrl = config('app.base_image_url');
+
+        $msMerchant = DB::table('tx_merchant_order')
+            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tx_merchant_order.DistributorID')
+            ->where('tx_merchant_order.StockOrderID', '=', $stockOrderID)
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.MerchantFirebaseToken', 'ms_distributor.DistributorName')
+            ->first();
+
+        $max = DB::table('tx_merchant_delivery_order')
+            ->selectRaw('MAX(DeliveryOrderID) AS DeliveryOrderID, MAX(CreatedDate) AS CreatedDate')
+            ->first();
+
+        $maxMonth = date('m', strtotime($max->CreatedDate));
+        $now = date('m');
+            
+        if ($max->DeliveryOrderID == null || (strcmp($maxMonth, $now) != 0)) {
+            $newDeliveryOrderID = "DO-" . date('YmdHis') . '-000001';
+        } else {
+            $maxDONumber = substr($max->DeliveryOrderID, 18);
+            $newDONumber = $maxDONumber + 1;
+            $newDeliveryOrderID = "DO-" . date('YmdHis') . "-" . str_pad($newDONumber, 6, '0', STR_PAD_LEFT);
+        }
+
+        $dataDO = [
+            'DeliveryOrderID' => $newDeliveryOrderID,
+            'StockOrderID' => $stockOrderID,
+            'StatusDO' => 'S024',
+            'CreatedDate' => date('Y-m-d H:i:s')
+        ];
+
+        $productId = $request->input('product_id');
+        $qty = $request->input('qty_do');
+        $price = $request->input('price');
+
+        $dataDetailDO = array_map(function () {
+            return func_get_args();
+        }, $productId, $qty, $price);
+        foreach ($dataDetailDO as $key => $value) {
+            $dataDetailDO[$key][] = $newDeliveryOrderID;
+        }
+
+        try {
+            DB::transaction(function () use ($dataDO, $dataDetailDO) {
+                DB::table('tx_merchant_delivery_order')
+                    ->insert($dataDO);
+                foreach ($dataDetailDO as &$value) {
+                    $value = array_combine(['ProductID', 'Qty', 'Price', 'DeliveryOrderID'], $value);
+                    DB::table('tx_merchant_delivery_order_detail')
+                        ->insert([
+                            'DeliveryOrderID' => $value['DeliveryOrderID'],
+                            'ProductID' => $value['ProductID'],
+                            'Qty' => $value['Qty'],
+                            'Price' => $value['Price']
+                        ]);
+                }
+            });
+
+            $fields = array(
+                'registration_ids' => array($msMerchant->MerchantFirebaseToken),
+                'data' => array(
+                    "date" => date("Y-m-d H:i:s"),
+                    "merchantID" => $msMerchant->MerchantID,
+                    "title" => "Pesanan Restok Dikirim",
+                    "body" => "Pesanan Anda sedang dikirim menuju alamat Anda oleh " . $msMerchant->DistributorName . " dengan nomor delivery ".$newDeliveryOrderID.".",
+                    'large_icon' => $baseImageUrl . 'push/merchant_icon.png'
+                )
+            );
+
+            $headers = array(
+                'Authorization: key=' . config('app.firebase_auth_token'),
+                'Content-Type: application/json'
+            );
+
+            $fields = json_encode($fields);
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, "https://fcm.googleapis.com/fcm/send");
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+            curl_setopt($ch, CURLOPT_HEADER, FALSE);
+            curl_setopt($ch, CURLOPT_POST, TRUE);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+
+            curl_exec($ch);
+            curl_close($ch);
+
+            return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('success', 'Delivery Order berhasil dibuat');
+        } catch (\Throwable $th) {
+            return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
         }
     }
 

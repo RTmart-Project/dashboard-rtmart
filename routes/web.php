@@ -38,6 +38,8 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/get/{statusOrder}', [DistributionController::class, 'getRestockByStatus'])->name('distribution.getRestockByStatus');
             Route::get('/detail/{stockOrderID}', [DistributionController::class, 'restockDetail'])->name('distribution.restockDetail');
             Route::post('/update/{stockOrderID}/{status}', [DistributionController::class, 'updateStatusRestock'])->name('distribution.updateStatusRestock');
+            Route::get('/update/deliveryOrder/{deliveryOrderId}', [DistributionController::class, 'updateDeliveryOrder'])->name('distribution.updateDeliveryOrder');
+            Route::post('/create/deliveryOrder/{stockOrderID}', [DistributionController::class, 'createDeliveryOrder'])->name('distribution.createDeliveryOrder');
         });
         Route::group(['prefix' => 'product'], function(){
             Route::get('/', [DistributionController::class, 'product'])->name('distribution.product');
@@ -221,4 +223,4 @@ Route::group(['middleware' => ['guest']], function () {
 });
 
 Route::get('/restock/invoice/{stockOrderId}', [InvoiceController::class, 'invoiceSO'])->name('restock.invoice');
-    Route::get('/restock/deliveryOrder/invoice/{deliveryOrderId}', [InvoiceController::class, 'invoiceDO'])->name('restockDeliveryOrder.invoice');
+Route::get('/restock/deliveryOrder/invoice/{deliveryOrderId}', [InvoiceController::class, 'invoiceDO'])->name('restockDeliveryOrder.invoice');
