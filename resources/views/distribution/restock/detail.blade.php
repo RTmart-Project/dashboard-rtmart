@@ -278,11 +278,6 @@
                                                                 <div class="card card-{{ $item->StatusOrder == "Selesai" ? 'success' : 'warning' }}">
                                                                     <div class="card-header">
                                                                         <h3 class="card-title">{{ $item->DeliveryOrderID }}</h3>
-                                                                        {{-- @if ($item->StatusOrder != "Selesai")
-                                                                        <br>
-                                                                        <a href="#" id="edit_qty" class="badge badge-secondary text-white">Ubah Qty</a> | 
-                                                                        <a href="" id="update_qty" class="badge badge-primary text-white" disabled="disabled">Simpan</a>
-                                                                        @endif --}}
                                                                         <div class="card-tools">
                                                                             <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                                                                 <i class="fas fa-minus"></i>
@@ -290,34 +285,45 @@
                                                                         </div>
                                                                     </div>
                                                                     <div class="card-body py-1 px-2">
-                                                                        @foreach ($item->DetailProduct as $product)
-                                                                        <div class="row text-center border-bottom m-0">
-                                                                            <div class="col-3 align-self-center">
-                                                                                <img src="{{ config('app.base_image_url') . '/product/'. $product->ProductImage }}" alt="" width="80">
+                                                                        <form action="{{ route('distribution.updateQtyDO', ['deliveryOrderId' => $item->DeliveryOrderID]) }}" method="get" id="edit-qty-do{{ $loop->iteration }}">
+                                                                            @csrf
+                                                                            @foreach ($item->DetailProduct as $product)
+                                                                            <div class="row text-center border-bottom m-0 edit-do">
+                                                                                <div class="col-3 align-self-center">
+                                                                                    <img src="{{ config('app.base_image_url') . '/product/'. $product->ProductImage }}" alt="" width="80">
+                                                                                </div>
+                                                                                <div class="col-3 align-self-center">
+                                                                                    <label>Produk</label>
+                                                                                    <p>{{ $product->ProductName }}</p>
+                                                                                    <input type="hidden" name="product_id[]" value="{{ $product->ProductID }}">
+                                                                                </div>
+                                                                                <div class="col-3 align-self-center">
+                                                                                    <label class="d-block">Qty</label>
+                                                                                    @if ($item->StatusOrder == "Selesai")
+                                                                                    <p>{{ $product->Qty }}x {{ Helper::formatCurrency($product->Price, '@Rp ') }}</p>
+                                                                                    @else
+                                                                                    <p><input type="number" class="form-control edit-qty-do text-sm text-center p-0 d-inline" value="{{ $product->Qty }}" name="edit_qty_do[]" style="width: 40px; height: 30px;" max="{{ $product->OrderQty }}" >
+                                                                                        <span class="price-do">{{ Helper::formatCurrency($product->Price, 'x @Rp ') }}</span>
+                                                                                    </p>
+                                                                                    @endif
+                                                                                </div>
+                                                                                <div class="col-3 align-self-center">
+                                                                                    <label>Total Harga</label>
+                                                                                    <p>{{ Helper::formatCurrency($product->Qty * $product->Price, 'Rp ') }}</p>
+                                                                                </div>
                                                                             </div>
-                                                                            <div class="col-3 align-self-center">
-                                                                                <label>Produk</label>
-                                                                                <p>{{ $product->ProductName }}</p>
+                                                                            @endforeach
+                                                                            <div class="row m-0 border-bottom">
+                                                                                <div class="col-12 d-flex justify-content-end">
+                                                                                    <p class="text-center my-2 mr-md-4"><b>SubTotal : </b>{{ Helper::formatCurrency($item->SubTotal, 'Rp ') }}</p>
+                                                                                </div>
+                                                                                @if ($item->StatusOrder != "Selesai")
+                                                                                <div class="col-11 d-flex justify-content-end">
+                                                                                    <button type="submit" id="update_qty" class="btn btn-xs btn-primary text-white mb-2">Simpan</button>
+                                                                                </div>
+                                                                                @endif
                                                                             </div>
-                                                                            <div class="col-3 align-self-center">
-                                                                                <label class="d-block">Qty</label>
-                                                                                {{-- @if ($item->StatusOrder == "Selesai") --}}
-                                                                                <p>{{ $product->Qty }}x {{ Helper::formatCurrency($product->Price, '@Rp ') }}</p>
-                                                                                {{-- @else
-                                                                                <p><input type="number" class="form-control text-sm text-center p-0 d-inline" value="{{ $product->Qty }}" style="width: 40px;" max="{{ $product->OrderQty }}" disabled="disabled">{{ Helper::formatCurrency($product->Price, '@Rp ') }}</p>
-                                                                                @endif --}}
-                                                                            </div>
-                                                                            <div class="col-3 align-self-center">
-                                                                                <label>Total Harga</label>
-                                                                                <p>{{ Helper::formatCurrency($product->Qty * $product->Price, 'Rp ') }}</p>
-                                                                            </div>
-                                                                        </div>
-                                                                        @endforeach
-                                                                        <div class="row m-0 border-bottom">
-                                                                            <div class="col-12 d-flex justify-content-end">
-                                                                                <p class="text-center my-2 mr-md-4"><b>SubTotal : </b>{{ Helper::formatCurrency($item->SubTotal, 'Rp ') }}</p>
-                                                                            </div>
-                                                                        </div>
+                                                                        </form>
                                                                         <div class="row m-0 pt-2">
                                                                             <div class="col-3 col-md-4 align-self-center">
                                                                                 <b>{{ $item->StatusOrder }}</b> <br>
@@ -341,6 +347,9 @@
                                                             @else
                                                             <div class="callout callout-info my-2">
                                                                 <h5>Belum ada delivery order.</h5>
+                                                                <button class="btn btn-primary" data-target="#add-do" data-toggle="modal" data-dismiss="modal">
+                                                                    Buat Delivery Order
+                                                                </button>
                                                             </div>
                                                             @endif
                                                         </div>
@@ -352,7 +361,7 @@
                                             </div>
                                             {{-- Modal Add Delivery Order --}}
                                             <div class="modal fade" id="add-do">
-                                                <div class="modal-dialog modal-lg">
+                                                <div class="modal-dialog modal-xl">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
                                                             <h4 class="modal-title">Buat Delivery Order</h4>
@@ -366,6 +375,9 @@
                                                                     <h5 class="py-2">Semua Barang Telah Dikirim.</h5>
                                                                 </div>
                                                             @else
+                                                            <div class="callout callout-danger d-md-none py-2 mb-1">
+                                                                <p><strong>Direkomendasikan untuk buka di LAPTOP / PC</strong></p>
+                                                            </div>
                                                             <div class="callout callout-warning py-2">
                                                                 <p>Pilih terlebih dahulu barang yang ingin dikirim</p>
                                                             </div>
@@ -383,22 +395,29 @@
                                                                             <input type="hidden" name="product_id[]" id="product_id" value="{{ $item->ProductID }}" disabled="disabled">
                                                                             <input type="hidden" name="price[]" id="price" value="{{ $item->Nett }}" disabled="disabled">
                                                                         </div>
-                                                                        <div class="col-3 align-self-center">
+                                                                        <div class="col-2 align-self-center">
                                                                             <label>Qty Beli</label>
-                                                                            <p>{{ $item->PromisedQuantity }}</p>
+                                                                            <p>{{ $item->PromisedQuantity }}x 
+                                                                                <span class="nett-price">{{ Helper::formatCurrency($item->Nett, '@Rp ') }}</span>
+                                                                            </p>
                                                                         </div>
-                                                                        <div class="col-3 align-self-center">
+                                                                        <div class="col-2 align-self-center">
                                                                             <label>Qty Belum Dikirim</label>
                                                                             <p>{{ $item->PromisedQuantity - $item->QtyDO }}</p>
                                                                             <input type="hidden" name="max_qty_do[]" id="max_qty_do" value="{{ $item->PromisedQuantity - $item->QtyDO }}" disabled="disabled">
                                                                         </div>
                                                                         <div class="col-2 align-self-center">
                                                                             <label>Qty Kirim</label>
-                                                                            <input type="number" name="qty_do[]" id="qty_do" class="form-control" max="{{ $item->PromisedQuantity - $item->QtyDO }}" disabled="disabled">
+                                                                            <input type="number" name="qty_do[]" id="qty_do" class="form-control text-center qty-do" max="{{ $item->PromisedQuantity - $item->QtyDO }}" min="1" disabled="disabled" required>
+                                                                        </div>
+                                                                        <div class="col-2 align-self-center">
+                                                                            <label>Total Harga</label>
+                                                                            <p>Rp <span class="total-price">0</span></p>
                                                                         </div>
                                                                     </div>
                                                                     @endif
                                                                 @endforeach
+                                                                <p class="my-2 mr-md-4 text-right"><b>Subtotal : </b>Rp <span class="subtotal-do">0</span></p>
                                                                 <button type="submit" id="btn-do" disabled="disabled" class="btn btn-primary float-right my-3">Buat DO</button>
                                                             </form>
                                                             @endif
@@ -444,6 +463,40 @@
     //     digitGroupSeparator: '.',
     //     unformatOnSubmit: true
     // });
+
+    // Event listener saat mengetik qty edit delivery order
+    $('.edit-qty-do').on('keyup', function (e) {
+        e.preventDefault();
+            const indexProduct = $(this).closest('.edit-do').index()-1;
+            const priceProduct = $('.edit-do').find('.price-do').eq(indexProduct).text().replaceAll("x @Rp ", "").replaceAll(".", "");
+            console.log(indexProduct)
+            console.log(priceProduct)
+    });
+
+    function updatePrice() {
+        let subTotal = 0;
+        $('.add-do').each(function() {
+            const qty = $(this).find('.qty-do').val();
+            const price = $(this).find('.nett-price').text().replaceAll("@Rp ", "").replaceAll(".", "");
+            let totalPriceProduct = (Number(qty) * Number(price));
+            subTotal += totalPriceProduct;
+        });
+        $('.subtotal-do').text(thousands_separators(subTotal));
+    }
+
+    // Event listener saat mengetik qty create delivery order
+    $('.qty-do').on('keyup', function (e) {
+        e.preventDefault();
+        const indexProduct = $(this).closest('.add-do').index()-1;
+        const priceProduct = $('.add-do').find('.nett-price').eq(indexProduct).text().replaceAll("@Rp ", "").replaceAll(".", "");
+        const qtyDO = $('.add-do').find('.qty-do').eq(indexProduct).val();
+        const totalPriceElm = $('.add-do').find('.total-price').eq(indexProduct);
+        
+        const totalPriceProduct = Number(qtyDO) * Number(priceProduct);
+        totalPriceElm.html(thousands_separators(totalPriceProduct));
+
+        updatePrice();
+    });
 
     // $('.detail-product').on('keyup', function (e) {
     //     // event listener saat protongan harga diinput

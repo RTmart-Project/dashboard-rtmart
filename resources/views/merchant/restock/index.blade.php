@@ -308,7 +308,7 @@
                                                     <th>Harga Satuan</th>
                                                     <th>Diskon</th>
                                                     <th>Harga stlh Diskon</th>
-                                                    <th>Total Harga</th>
+                                                    <th>Total Harga Produk</th>
                                                 </tr>
                                             </thead>
                                             <tbody>

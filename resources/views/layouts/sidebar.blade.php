@@ -55,7 +55,7 @@
                 </li>
                 @endif
 
-                @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD"))
+                {{-- @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD"))
                 <li class="nav-item {{ Request::is('rtsales*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ Request::is('rtsales*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-chart-line"></i>
@@ -73,7 +73,7 @@
                         </li>
                     </ul>
                 </li>
-                @endif
+                @endif --}}
 
                 @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH"))
                 <li class="nav-item {{ Request::is('master*') ? 'menu-open' : '' }}">

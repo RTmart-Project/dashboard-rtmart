@@ -387,16 +387,26 @@ class DistributionController extends Controller
             ->where('DeliveryOrderID', '=', $deliveryOrderId)
             ->select('StockOrderID')->first();
 
-        $updateDeliveryOrder = DB::table('tx_merchant_delivery_order')
-            ->where('DeliveryOrderID', '=', $deliveryOrderId)
-            ->update([
-                'StatusDO' => 'S025',
-                'FinishDate' => date('Y-m-d H:i:s')
-            ]);
-        
-        if ($updateDeliveryOrder) {
+        try {
+            DB::transaction(function () use ($stockOrderID, $deliveryOrderId) {
+                DB::table('tx_merchant_delivery_order')
+                    ->where('DeliveryOrderID', '=', $deliveryOrderId)
+                    ->update([
+                        'StatusDO' => 'S025',
+                        'FinishDate' => date('Y-m-d H:i:s')
+                    ]);
+
+                DB::table('tx_merchant_delivery_order_log')
+                    ->insert([
+                        'StockOrderID' => $stockOrderID->StockOrderID,
+                        'DeliveryOrderID' => $deliveryOrderId,
+                        'StatusDO' => 'S025',
+                        'ActionBy' => 'DISTRIBUTOR'
+                    ]);
+            });
+
             return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID->StockOrderID])->with('success', 'Delivery Order telah diselesaikan');
-        } else {
+        } catch (\Throwable $th) {
             return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID->StockOrderID])->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
         }
     }
@@ -405,7 +415,7 @@ class DistributionController extends Controller
     {
         $request->validate([
             'qty_do' => 'required',
-            'qty_do.*' => 'required|numeric|max:max_qty_do.*'
+            'qty_do.*' => 'required|numeric|lte:max_qty_do.*|gte:1'
         ]);
 
         $baseImageUrl = config('app.base_image_url');
@@ -450,8 +460,15 @@ class DistributionController extends Controller
             $dataDetailDO[$key][] = $newDeliveryOrderID;
         }
 
+        $dataLogDO = [
+            'StockOrderID' => $stockOrderID,
+            'DeliveryOrderID' => $newDeliveryOrderID,
+            'StatusDO' => 'S024',
+            'ActionBy' => 'DISTRIBUTOR'
+        ];
+
         try {
-            DB::transaction(function () use ($dataDO, $dataDetailDO) {
+            DB::transaction(function () use ($dataDO, $dataDetailDO, $dataLogDO) {
                 DB::table('tx_merchant_delivery_order')
                     ->insert($dataDO);
                 foreach ($dataDetailDO as &$value) {
@@ -464,6 +481,8 @@ class DistributionController extends Controller
                             'Price' => $value['Price']
                         ]);
                 }
+                DB::table('tx_merchant_delivery_order_log')
+                    ->insert($dataLogDO);
             });
 
             $fields = array(
@@ -498,6 +517,41 @@ class DistributionController extends Controller
             return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('success', 'Delivery Order berhasil dibuat');
         } catch (\Throwable $th) {
             return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
+        }
+    }
+
+    public function updateQtyDO(Request $request, $deliveryOrderId)
+    {
+        $stockOrderID = DB::table('tx_merchant_delivery_order')
+            ->where('DeliveryOrderID', '=', $deliveryOrderId)
+            ->select('StockOrderID')->first();
+
+        $qty = $request->input('edit_qty_do');
+        $productID = $request->input('product_id');
+
+        $dataUpdateDO = array_map(function () {
+            return func_get_args();
+        }, $productID, $qty);
+        foreach ($dataUpdateDO as $key => $value) {
+            $dataUpdateDO[$key][] = $deliveryOrderId;
+        }
+
+        try {
+            DB::transaction(function () use ($dataUpdateDO) {
+                foreach ($dataUpdateDO as &$value) {
+                    $value = array_combine(['ProductID', 'Qty', 'DeliveryOrderID'], $value);
+                    DB::table('tx_merchant_delivery_order_detail')
+                        ->where('DeliveryOrderID', '=', $value['DeliveryOrderID'])
+                        ->where('ProductID', '=', $value['ProductID'])
+                        ->update([
+                            'Qty' => $value['Qty']
+                        ]);
+                }
+            });
+
+            return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID->StockOrderID])->with('success', 'Data Delivery Order berhasil diubah');
+        } catch (\Throwable $th) {
+            return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID->StockOrderID])->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
         }
     }
 

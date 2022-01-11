@@ -40,6 +40,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/update/{stockOrderID}/{status}', [DistributionController::class, 'updateStatusRestock'])->name('distribution.updateStatusRestock');
             Route::get('/update/deliveryOrder/{deliveryOrderId}', [DistributionController::class, 'updateDeliveryOrder'])->name('distribution.updateDeliveryOrder');
             Route::post('/create/deliveryOrder/{stockOrderID}', [DistributionController::class, 'createDeliveryOrder'])->name('distribution.createDeliveryOrder');
+            Route::get('/update/qty/{deliveryOrderId}', [DistributionController::class, 'updateQtyDO'])->name('distribution.updateQtyDO');
         });
         Route::group(['prefix' => 'product'], function(){
             Route::get('/', [DistributionController::class, 'product'])->name('distribution.product');
