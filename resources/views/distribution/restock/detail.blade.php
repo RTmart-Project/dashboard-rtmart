@@ -275,16 +275,16 @@
                                                         <div class="modal-body">
                                                             @if ($deliveryOrder->count() > 0)
                                                                 @foreach ($deliveryOrder as $item)
-                                                                <div class="card card-{{ $item->StatusOrder == "Selesai" ? 'success' : 'warning' }}">
+                                                                <div class="card card-{{ $item->StatusOrder == "Selesai" ? 'success' : 'warning' }}" detail-do>
                                                                     <div class="card-header">
-                                                                        <h3 class="card-title">{{ $item->DeliveryOrderID }}</h3>
+                                                                        <h3 class="card-title"><b class="d-block d-md-inline">Delivery Order ID :</b> {{ $item->DeliveryOrderID }}</h3>
                                                                         <div class="card-tools">
                                                                             <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                                                                 <i class="fas fa-minus"></i>
                                                                             </button>
                                                                         </div>
                                                                     </div>
-                                                                    <div class="card-body py-1 px-2">
+                                                                    <div class="card-body py-1 px-2 detail-do-wrapper">
                                                                         <form action="{{ route('distribution.updateQtyDO', ['deliveryOrderId' => $item->DeliveryOrderID]) }}" method="get" id="edit-qty-do{{ $loop->iteration }}">
                                                                             @csrf
                                                                             @foreach ($item->DetailProduct as $product)
@@ -302,20 +302,24 @@
                                                                                     @if ($item->StatusOrder == "Selesai")
                                                                                     <p>{{ $product->Qty }}x {{ Helper::formatCurrency($product->Price, '@Rp ') }}</p>
                                                                                     @else
-                                                                                    <p><input type="number" class="form-control edit-qty-do text-sm text-center p-0 d-inline" value="{{ $product->Qty }}" name="edit_qty_do[]" style="width: 40px; height: 30px;" max="{{ $product->OrderQty }}" >
+                                                                                    <p>
+                                                                                        <input type="number" class="form-control edit-qty-do text-sm text-center p-0 d-inline" value="{{ $product->Qty }}" name="edit_qty_do[]" style="width: 40px; height: 30px;" max="{{ $product->OrderQty }}" min="1" required>
                                                                                         <span class="price-do">{{ Helper::formatCurrency($product->Price, 'x @Rp ') }}</span>
                                                                                     </p>
                                                                                     @endif
                                                                                 </div>
                                                                                 <div class="col-3 align-self-center">
                                                                                     <label>Total Harga</label>
-                                                                                    <p>{{ Helper::formatCurrency($product->Qty * $product->Price, 'Rp ') }}</p>
+                                                                                    <p class="price-total">{{ Helper::formatCurrency($product->Qty * $product->Price, 'Rp ') }}</p>
                                                                                 </div>
                                                                             </div>
                                                                             @endforeach
                                                                             <div class="row m-0 border-bottom">
                                                                                 <div class="col-12 d-flex justify-content-end">
-                                                                                    <p class="text-center my-2 mr-md-4"><b>SubTotal : </b>{{ Helper::formatCurrency($item->SubTotal, 'Rp ') }}</p>
+                                                                                    <p class="text-center my-2 mr-md-4">
+                                                                                        <b>SubTotal : </b>
+                                                                                        <span class="price-subtotal">{{ Helper::formatCurrency($item->SubTotal, 'Rp ') }}</span>
+                                                                                    </p>
                                                                                 </div>
                                                                                 @if ($item->StatusOrder != "Selesai")
                                                                                 <div class="col-11 d-flex justify-content-end">
@@ -347,7 +351,7 @@
                                                             @else
                                                             <div class="callout callout-info my-2">
                                                                 <h5>Belum ada delivery order.</h5>
-                                                                <button class="btn btn-primary" data-target="#add-do" data-toggle="modal" data-dismiss="modal">
+                                                                <button type="button" class="btn btn-primary" data-target="#add-do" data-toggle="modal">
                                                                     Buat Delivery Order
                                                                 </button>
                                                             </div>
@@ -467,10 +471,21 @@
     // Event listener saat mengetik qty edit delivery order
     $('.edit-qty-do').on('keyup', function (e) {
         e.preventDefault();
-            const indexProduct = $(this).closest('.edit-do').index()-1;
-            const priceProduct = $('.edit-do').find('.price-do').eq(indexProduct).text().replaceAll("x @Rp ", "").replaceAll(".", "");
-            console.log(indexProduct)
-            console.log(priceProduct)
+            const priceProduct = $(this).next().text().replaceAll("x @Rp ", "").replaceAll(".", "");
+            const qtyDO = $(this).val();
+            
+            const totalPriceProduct = Number(qtyDO) * Number(priceProduct);
+            $(this).parent().parent().next().children().last().html('Rp ' + thousands_separators(totalPriceProduct));
+            
+            const totalPriceAllProductArr = $(this).closest('.detail-do-wrapper').find('.price-total').text().replace("Rp ", "").replaceAll("Rp ", ",").replaceAll(".", "").split(",");
+
+            let priceAllProductNumber = totalPriceAllProductArr.map(Number);
+            let subTotalDO = 0;
+            $.each(priceAllProductNumber, function() {
+                subTotalDO += this;
+            });
+
+            $(this).closest('.detail-do-wrapper').find('.price-subtotal').html('Rp ' + thousands_separators(subTotalDO));
     });
 
     function updatePrice() {
