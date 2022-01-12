@@ -512,11 +512,10 @@
     // Event listener saat mengetik qty create delivery order
     $('.qty-do').on('keyup', function (e) {
         e.preventDefault();
-        const indexProduct = $(this).closest('.add-do').index()-1;
+        const indexProduct = $(this).closest('.add-do').index()-2;
         const priceProduct = $('.add-do').find('.nett-price').eq(indexProduct).text().replaceAll("@Rp ", "").replaceAll(".", "");
         const qtyDO = $('.add-do').find('.qty-do').eq(indexProduct).val();
         const totalPriceElm = $('.add-do').find('.total-price').eq(indexProduct);
-        
         const totalPriceProduct = Number(qtyDO) * Number(priceProduct);
         totalPriceElm.html(thousands_separators(totalPriceProduct));
 
