@@ -364,7 +364,7 @@
                                                 </div>
                                             </div>
                                             {{-- Modal Add Delivery Order --}}
-                                            <div class="modal fade show d-block" id="add-do">
+                                            <div class="modal fade" id="add-do">
                                                 <div class="modal-dialog modal-xl">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
