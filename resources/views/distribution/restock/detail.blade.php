@@ -393,7 +393,7 @@
                                                                             <label class="my-0" for="created_date_do">Waktu Pengiriman :</label>
                                                                         </div>
                                                                         <div class="col-md-8 col-12">
-                                                                            <input type="datetime-local" class="form-control" name="created_date_do" id="created_date_do">
+                                                                            <input type="datetime-local" class="form-control" name="created_date_do" id="created_date_do" required>
                                                                         </div>
                                                                     </div>
                                                                 </div>

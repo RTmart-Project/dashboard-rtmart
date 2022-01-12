@@ -414,7 +414,7 @@ class DistributionController extends Controller
     public function createDeliveryOrder(Request $request, $stockOrderID)
     {
         $request->validate([
-            'created_date_do' => 'date',
+            'created_date_do' => 'required|date',
             'qty_do' => 'required',
             'qty_do.*' => 'required|numeric|lte:max_qty_do.*|gte:1'
         ]);
