@@ -132,6 +132,7 @@
 
 								<td>
 									<b>DELIVERY ORDER INVOICE</b><br>
+									#{{ $merchant->StockOrderID }} <br>
 									#{{ $merchant->DeliveryOrderID }} <br>
 									Tgl Pengiriman: {{ date('d M Y H:i', strtotime($merchant->CreatedDate)) }}<br>
                   @if ($merchant->StatusOrder == "Selesai")

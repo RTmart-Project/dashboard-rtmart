@@ -43,7 +43,7 @@ class InvoiceController extends Controller
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_delivery_order.StatusDO')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
             ->where('tx_merchant_delivery_order.DeliveryOrderID', '=', $deliveryOrderId)
-            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'ms_status_order.StatusOrder', 'ms_payment_method.PaymentMethodName', 'tx_merchant_delivery_order.DeliveryOrderID', 'tx_merchant_delivery_order.CreatedDate', 'tx_merchant_delivery_order.FinishDate')
+            ->select('tx_merchant_order.StockOrderID', 'ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'ms_status_order.StatusOrder', 'ms_payment_method.PaymentMethodName', 'tx_merchant_delivery_order.DeliveryOrderID', 'tx_merchant_delivery_order.CreatedDate', 'tx_merchant_delivery_order.FinishDate')
             ->first();
 
         $detailDeliveryOrder = DB::table('tx_merchant_delivery_order_detail')
