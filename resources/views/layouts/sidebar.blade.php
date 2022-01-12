@@ -23,7 +23,7 @@
                     </a>
                 </li>
 
-                @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD"))
+                @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH"))
                 <li class="nav-item {{ Request::is('distribution*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ Request::is('distribution*') ? 'active' : '' }}">
                         <i class="nav-icon fas fa-boxes"></i>

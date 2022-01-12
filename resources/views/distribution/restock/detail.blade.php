@@ -385,6 +385,10 @@
                                                             <div class="callout callout-warning py-2">
                                                                 <p>Pilih terlebih dahulu barang yang ingin dikirim</p>
                                                             </div>
+                                                            {{-- <div class="form-group">
+                                                                <label class="my-0" for="start_date_new_user">Waktu Awal</label>
+                                                                <input type="datetime-local" class="form-control" name="start_date_new_user" id="start_date_new_user">
+                                                            </div> --}}
                                                             <form action="{{ route('distribution.createDeliveryOrder', ['stockOrderID' => $stockOrderID]) }}" method="post">
                                                                 @csrf
                                                                 @foreach ($productAddDO as $item)
