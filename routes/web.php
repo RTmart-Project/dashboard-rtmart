@@ -31,7 +31,7 @@ Route::group(['middleware' => ['auth']], function () {
     // Home
     Route::get('/home', [HomeController::class, 'home'])->name('home');
 
-    Route::group(['prefix' => 'distribution', 'middleware' => ['checkRoleUser:IT']], function () {
+    Route::group(['prefix' => 'distribution', 'middleware' => ['checkRoleUser:IT,AD']], function () {
         // Distribution
         Route::group(['prefix' => 'restock'], function(){
             Route::get('/', [DistributionController::class, 'restock'])->name('distribution.restock');
