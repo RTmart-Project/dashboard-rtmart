@@ -364,7 +364,7 @@
                                                 </div>
                                             </div>
                                             {{-- Modal Add Delivery Order --}}
-                                            <div class="modal fade" id="add-do">
+                                            <div class="modal fade show d-block" id="add-do">
                                                 <div class="modal-dialog modal-xl">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
@@ -385,12 +385,18 @@
                                                             <div class="callout callout-warning py-2">
                                                                 <p>Pilih terlebih dahulu barang yang ingin dikirim</p>
                                                             </div>
-                                                            {{-- <div class="form-group">
-                                                                <label class="my-0" for="start_date_new_user">Waktu Awal</label>
-                                                                <input type="datetime-local" class="form-control" name="start_date_new_user" id="start_date_new_user">
-                                                            </div> --}}
                                                             <form action="{{ route('distribution.createDeliveryOrder', ['stockOrderID' => $stockOrderID]) }}" method="post">
                                                                 @csrf
+                                                                <div class="form-group">
+                                                                    <div class="row m-0">
+                                                                        <div class="col-md-4 col-12 align-self-center text-md-right">
+                                                                            <label class="my-0" for="created_date_do">Waktu Pengiriman :</label>
+                                                                        </div>
+                                                                        <div class="col-md-8 col-12">
+                                                                            <input type="datetime-local" class="form-control" name="created_date_do" id="created_date_do">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
                                                                 @foreach ($productAddDO as $item)
                                                                     @if ($item->PromisedQuantity != $item->QtyDO)
                                                                     <div class="row text-center border-bottom m-0 add-do">

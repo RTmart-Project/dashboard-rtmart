@@ -414,6 +414,7 @@ class DistributionController extends Controller
     public function createDeliveryOrder(Request $request, $stockOrderID)
     {
         $request->validate([
+            'created_date_do' => 'date',
             'qty_do' => 'required',
             'qty_do.*' => 'required|numeric|lte:max_qty_do.*|gte:1'
         ]);
@@ -442,11 +443,13 @@ class DistributionController extends Controller
             $newDeliveryOrderID = "DO-" . date('YmdHis') . "-" . str_pad($newDONumber, 6, '0', STR_PAD_LEFT);
         }
 
+        $createdDateDO = str_replace("T", " ", $request->input('created_date_do'));
+
         $dataDO = [
             'DeliveryOrderID' => $newDeliveryOrderID,
             'StockOrderID' => $stockOrderID,
             'StatusDO' => 'S024',
-            'CreatedDate' => date('Y-m-d H:i:s')
+            'CreatedDate' => $createdDateDO
         ];
 
         $productId = $request->input('product_id');
