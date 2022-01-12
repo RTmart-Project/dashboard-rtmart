@@ -41,9 +41,11 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
+                    @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH"))
                     <div class="card-header">
                         <a href="{{ route('distribution.addProduct') }}" class="btn btn-sm btn-success"><i class="fas fa-plus"></i> Tambah Produk</a>
                     </div>
+                    @endif
                     <div class="card-body">
                         <div class="tab-content">
                             <div class="tab-pane active" id="product-grading">
@@ -62,7 +64,7 @@
                                                     <th>Isi</th>
                                                     <th>Harga</th>
                                                     <th>Grade</th>
-                                                    <th>Action</th>
+                                                    <th class="{{ Auth::user()->RoleID == "AD" ? 'd-none' : '' }}">Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody>

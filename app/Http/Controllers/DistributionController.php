@@ -608,8 +608,12 @@ class DistributionController extends Controller
                     return $grade;
                 })
                 ->addColumn('Action', function ($data) {
-                    $actionBtn = '<a href="#" data-distributor-id="' . $data->DistributorID . '" data-product-id="' . $data->ProductID . '" data-grade-id="' . $data->GradeID . '" data-product-name="' . $data->ProductName . '" data-grade-name="' . $data->Grade . '" data-price="' . $data->Price . '" class="btn-edit btn btn-sm btn-warning mr-1">Ubah Harga</a>
-                    <a data-distributor-id="' . $data->DistributorID . '" data-product-id="' . $data->ProductID . '" data-grade-id="' . $data->GradeID . '" data-product-name="' . $data->ProductName . '" data-grade-name="' . $data->Grade . '" href="#" class="btn-delete btn btn-sm btn-danger">Delete</a>';
+                    if (Auth::user()->RoleID != "AD") {
+                        $actionBtn = '<a href="#" data-distributor-id="' . $data->DistributorID . '" data-product-id="' . $data->ProductID . '" data-grade-id="' . $data->GradeID . '" data-product-name="' . $data->ProductName . '" data-grade-name="' . $data->Grade . '" data-price="' . $data->Price . '" class="btn-edit btn btn-sm btn-warning mr-1">Ubah Harga</a>
+                    <a data-distributor-id="' . $data->DistributorID . '" data-product-id="' . $data->ProductID . '" data-grade-id="' . $data->GradeID . '" data-product-name="' . $data->ProductName . '" data-grade-name="' . $data->Grade . '" href="#" class="btn-delete btn btn-sm btn-danger">Delete</a>';   
+                    } else {
+                        $actionBtn = '';
+                    }
                     return $actionBtn;
                 })
                 ->rawColumns(['Grade', 'ProductImage', 'Action'])

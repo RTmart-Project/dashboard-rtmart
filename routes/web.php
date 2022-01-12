@@ -45,11 +45,13 @@ Route::group(['middleware' => ['auth']], function () {
         Route::group(['prefix' => 'product'], function(){
             Route::get('/', [DistributionController::class, 'product'])->name('distribution.product');
             Route::get('/get', [DistributionController::class, 'getProduct'])->name('distribution.getProduct');
-            Route::get('/add', [DistributionController::class, 'addProduct'])->name('distribution.addProduct');
-            Route::get('/ajax/get/{distributorId}', [DistributionController::class, 'ajaxGetProduct'])->name('distribution.ajaxGetProduct');
-            Route::post('/insert', [DistributionController::class, 'insertProduct'])->name('distribution.insertProduct');
-            Route::post('/update/{distributorId}/{productId}/{gradeId}', [DistributionController::class, 'updateProduct'])->name('distribution.updateProduct');
-            Route::get('/delete/{distributorId}/{productId}/{gradeId}', [DistributionController::class, 'deleteProduct'])->name('distribution.deleteProduct');
+            Route::group(['middleware' => ['checkRoleUser:IT,FI,AH']], function() {
+                Route::get('/add', [DistributionController::class, 'addProduct'])->name('distribution.addProduct');
+                Route::get('/ajax/get/{distributorId}', [DistributionController::class, 'ajaxGetProduct'])->name('distribution.ajaxGetProduct');
+                Route::post('/insert', [DistributionController::class, 'insertProduct'])->name('distribution.insertProduct');
+                Route::post('/update/{distributorId}/{productId}/{gradeId}', [DistributionController::class, 'updateProduct'])->name('distribution.updateProduct');
+                Route::get('/delete/{distributorId}/{productId}/{gradeId}', [DistributionController::class, 'deleteProduct'])->name('distribution.deleteProduct');
+            });
         });
         Route::group(['prefix' => 'merchant'], function(){
             Route::get('/', [DistributionController::class, 'merchant'])->name('distribution.merchant');
