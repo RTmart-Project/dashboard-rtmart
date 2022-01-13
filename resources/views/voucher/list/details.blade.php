@@ -88,7 +88,7 @@
                                     <p class="mb-1"><strong>Kuota Keseluruhan : </strong>{{ $voucher->MaxQuota }} kali penggunaan</p>
                                 </div>
                                 <div class="col-12 col-md-6">
-                                    <p class="mb-1"><strong>Syarat Power Merchant : </strong>{{ $voucher->IsCheckPowerMerchant == 1 ? 'Ya' : 'Tidak' }}</p>
+                                    <p class="mb-1"><strong>Cek Power Merchant : </strong>{{ $voucher->IsCheckPowerMerchant == 1 ? 'Ya' : 'Tidak' }}</p>
                                 </div>
                             </div>
                         </div>

@@ -173,7 +173,7 @@
                                 </div>
                                 <div class="col-md-4 col-12">
                                     <div class="form-group">
-                                        <label for="check_power_merchant">Syarat Power Merchant</label>
+                                        <label for="check_power_merchant">Cek Power Merchant</label>
                                         <select class="form-control selectpicker border 
                                             @if($errors->has('check_power_merchant')) is-invalid @endif"
                                             name="check_power_merchant" id="check_power_merchant" title="Pilih Voucher untuk siapa" required>
