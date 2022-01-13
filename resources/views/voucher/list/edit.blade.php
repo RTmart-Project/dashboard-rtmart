@@ -173,6 +173,22 @@
                                 </div>
                                 <div class="col-md-4 col-12">
                                     <div class="form-group">
+                                        <label for="check_power_merchant">Syarat Power Merchant</label>
+                                        <select class="form-control selectpicker border 
+                                            @if($errors->has('check_power_merchant')) is-invalid @endif"
+                                            name="check_power_merchant" id="check_power_merchant" title="Pilih Voucher untuk siapa" required>
+                                            <option value="1" {{ ($voucher->IsCheckPowerMerchant == "1") ? 'selected' : '' }}>Ya</option>
+                                            <option value="0" {{ ($voucher->IsCheckPowerMerchant == "0") ? 'selected' : '' }}>Tidak</option>
+                                        </select>
+                                        @if($errors->has('check_power_merchant'))
+                                            <span class="error invalid-feedback">{{ $errors->first('check_power_merchant') }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row border-bottom border-secondary">
+                                <div class="col-md-4 col-12">
+                                    <div class="form-group">
                                         <label for="quota_per_user">Kuota per User</label>
                                         <input type="number" class="form-control
                                             @if($errors->has('quota_per_user')) is-invalid @endif" name="quota_per_user" 
@@ -182,8 +198,6 @@
                                         @endif
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row border-bottom border-secondary">
                                 <div class="col-md-4 col-12">
                                     <div class="form-group">
                                         <label for="max_quota">Kuota Keseluruhan</label>

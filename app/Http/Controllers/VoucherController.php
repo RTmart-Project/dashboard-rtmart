@@ -156,6 +156,7 @@ class VoucherController extends Controller
                 'percentage' => 'required|integer|max:100',
                 'max_nominal' => 'required',
                 'is_for' => 'required|in:Customer,Merchant,All',
+                'check_power_merchant' => 'required|in:1,0',
                 'start_date' => 'required|date',
                 'end_date' => 'required|date|after:start_date',
                 'quota_per_user' => 'required|integer',
@@ -233,6 +234,7 @@ class VoucherController extends Controller
             'PercentageValue' => $request->input('percentage'),
             'MaxNominalValue' => $request->input('max_nominal'),
             'IsFor' => $request->input('is_for'),
+            'IsCheckPowerMerchant' => $request->input('check_power_merchant'),
             'StartDate' => $startDateVoucher,
             'EndDate' => $endDateVoucher,
             'QuotaPerUser' => $request->input('quota_per_user'),
@@ -455,6 +457,7 @@ class VoucherController extends Controller
                 'percentage' => 'required|integer|max:100',
                 'max_nominal' => 'required',
                 'is_for' => 'required|in:Customer,Merchant,All',
+                'check_power_merchant' => 'required|in:1,0',
                 'start_date' => 'required|date',
                 'end_date' => 'required|date|after:start_date',
                 'quota_per_user' => 'required|integer',
@@ -530,6 +533,7 @@ class VoucherController extends Controller
             'PercentageValue' => $request->input('percentage'),
             'MaxNominalValue' => $request->input('max_nominal'),
             'IsFor' => $request->input('is_for'),
+            'IsCheckPowerMerchant' => $request->input('check_power_merchant'),
             'StartDate' => $startDateVoucher,
             'EndDate' => $endDateVoucher,
             'QuotaPerUser' => $request->input('quota_per_user'),
@@ -546,7 +550,7 @@ class VoucherController extends Controller
             'EndDateCustomerTrx' => $endDateCustomerTx,
             'Details' => $request->input('details')
         ];
-
+        
         if ($request->hasFile('banner')) {
             $bannerName = $voucherCode . '.' . $request->file('banner')->extension();
             $request->file('banner')->move($this->saveImageUrl . 'voucher/banner/', $bannerName);
