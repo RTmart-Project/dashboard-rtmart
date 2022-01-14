@@ -388,7 +388,7 @@ class MerchantController extends Controller
             ->select('MerchantID', 'StoreName')
             ->get();
 
-        return view('merchant.powermerchant.index', [
+        return view('merchant.powerMerchant.index', [
             'merchant' => $sqlMerchant
         ]);
     }
