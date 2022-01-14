@@ -380,6 +380,90 @@ class MerchantController extends Controller
         }
     }
 
+    public function powerMerchant()
+    {
+        $sqlMerchant = DB::table('ms_merchant_account')
+            ->where('IsTesting', 0)
+            ->where('IsPowerMerchant', 0)
+            ->select('MerchantID', 'StoreName')
+            ->get();
+
+        return view('merchant.powermerchant.index', [
+            'merchant' => $sqlMerchant
+        ]);
+    }
+
+    public function getPowerMerchant(Request $request)
+    {
+        $sqlPowerMerchant = DB::table('ms_merchant_account')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
+            ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', '=', 'ms_merchant_account.MerchantID')
+            ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', '=', 'ms_distributor_merchant_grade.GradeID')
+            ->where('ms_merchant_account.IsTesting', 0)
+            ->where('ms_merchant_account.IsPowerMerchant', 1)
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'ms_distributor.DistributorName', 'ms_distributor_grade.Grade');
+
+        $data = $sqlPowerMerchant;
+
+        // Return Data Using DataTables with Ajax
+        if ($request->ajax()) {
+            return Datatables::of($data)
+                ->addColumn('Action', function ($data) {
+                    $actionBtn = '<a class="btn btn-sm btn-danger delete-power-merchant" data-merchant-name="'.$data->StoreName.'" data-merchant-id="'.$data->MerchantID.'">Hapus</a>';
+                    return $actionBtn;
+                })
+                ->rawColumns(['Action'])
+                ->make(true);
+        }
+    }
+
+    public function insertPowerMerchant(Request $request)
+    {
+        $request->validate([
+            'power_merchant' => 'required',
+            'power_merchant.*' => 'exists:ms_merchant_account,MerchantID'
+        ]);
+
+        $data = array_map(function () {
+            return func_get_args();
+        }, $request->input('power_merchant'));
+
+        foreach ($data as $key => $value) {
+            $data[$key][] = 1;
+        }
+
+        try {
+            foreach ($data as &$value) {
+                $value = array_combine(['MerchantID', 'IsPowerMerchant'], $value);
+                DB::table('ms_merchant_account')
+                    ->where('MerchantID', '=', $value['MerchantID'])
+                    ->update([
+                        'IsPowerMerchant' => $value['IsPowerMerchant']
+                    ]);
+            }
+
+            return redirect()->route('merchant.powermerchant')->with('success', 'Data Power Merchant berhasil ditambahkan');
+        } catch (\Throwable $th) {
+            return redirect()->route('merchant.powermerchant')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
+        }
+    }
+
+    public function deletePowerMerchant($merchantId)
+    {
+        $deletePowerMerchant = DB::table('ms_merchant_account')
+            ->where('MerchantID', '=', $merchantId)
+            ->update([
+                'IsPowerMerchant' => 0
+            ]);
+
+        if ($deletePowerMerchant) {
+            return redirect()->route('merchant.powermerchant')->with('success', 'Data Power Merchant berhasil dihapus');
+        } else {
+            return redirect()->route('merchant.powermerchant')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
+        }
+        
+    }
+
     public function otp()
     {
         return view('merchant.otp.index');

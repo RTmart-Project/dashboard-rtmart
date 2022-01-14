@@ -205,6 +205,13 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="{{ route('merchant.powermerchant') }}"
+                                class="nav-link {{ Request::is('merchant/powermerchant*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Akun Power Merchant</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="{{ route('merchant.otp') }}"
                                 class="nav-link {{ Request::is('merchant/otp*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
