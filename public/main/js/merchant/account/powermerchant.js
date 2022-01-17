@@ -24,6 +24,10 @@ $(document).ready(function () {
                     name: "ms_merchant_account.StoreName",
                 },
                 {
+                    data: "Partner",
+                    name: "ms_merchant_account.Partner",
+                },
+                {
                     data: "OwnerFullName",
                     name: "ms_merchant_account.OwnerFullName",
                 },
@@ -65,7 +69,7 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7],
                         orthogonal: "export",
                     },
                 },

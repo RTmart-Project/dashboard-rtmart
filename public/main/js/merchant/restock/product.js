@@ -3,145 +3,160 @@ $(document).ready(function () {
     dataTablesRestockProduct();
 
     function dataTablesRestockProduct() {
-        $('#product-restock .table-datatables').DataTable({
-            dom: "<'row'<'col-sm-12 col-md-5'<'filter-product-restock'>tl><'col-sm-12 col-md-3'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
+        $("#product-restock .table-datatables").DataTable({
+            dom:
+                "<'row'<'col-sm-12 col-md-5'<'filter-product-restock'>tl><'col-sm-12 col-md-3'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
             serverSide: true,
             stateServe: true,
-            "ajax": {
+            ajax: {
                 url: "/merchant/restock/product/get",
                 data: function (d) {
-                    d.fromDate = $('#product-restock #from_date').val();
-                    d.toDate = $('#product-restock #to_date').val();
-                    d.paymentMethodId = $('#product-restock .select-filter-custom select').val();
-                }
+                    d.fromDate = $("#product-restock #from_date").val();
+                    d.toDate = $("#product-restock #to_date").val();
+                    d.paymentMethodId = $(
+                        "#product-restock .select-filter-custom select"
+                    ).val();
+                },
             },
             columns: [
                 {
-                    data: 'StockOrderID',
-                    name: 'tx_merchant_order.StockOrderID'
+                    data: "StockOrderID",
+                    name: "tx_merchant_order.StockOrderID",
                 },
                 {
-                    data: 'CreatedDate',
-                    name: 'tx_merchant_order.CreatedDate',
-                    type: 'date'
+                    data: "CreatedDate",
+                    name: "tx_merchant_order.CreatedDate",
+                    type: "date",
                 },
                 {
-                    data: 'MerchantID',
-                    name: 'tx_merchant_order.MerchantID'
+                    data: "MerchantID",
+                    name: "tx_merchant_order.MerchantID",
                 },
                 {
-                    data: 'StoreName',
-                    name: 'ms_merchant_account.StoreName'
+                    data: "StoreName",
+                    name: "ms_merchant_account.StoreName",
                 },
                 {
-                    data: 'PhoneNumber',
-                    name: 'ms_merchant_account.PhoneNumber'
+                    data: "Partner",
+                    name: "ms_merchant_account.Partner",
                 },
                 {
-                    data: 'DistributorName',
-                    name: 'ms_distributor.DistributorName'
+                    data: "PhoneNumber",
+                    name: "ms_merchant_account.PhoneNumber",
                 },
                 {
-                    data: 'PaymentMethodName',
-                    name: 'ms_payment_method.PaymentMethodName'
+                    data: "DistributorName",
+                    name: "ms_distributor.DistributorName",
                 },
                 {
-                    data: 'StatusOrder',
-                    name: 'ms_status_order.StatusOrder'
+                    data: "PaymentMethodName",
+                    name: "ms_payment_method.PaymentMethodName",
                 },
                 {
-                    data: 'TotalPrice',
-                    name: 'tx_merchant_order.TotalPrice'
+                    data: "StatusOrder",
+                    name: "ms_status_order.StatusOrder",
                 },
                 {
-                    data: 'DiscountPrice',
-                    name: 'tx_merchant_order.DiscountPrice'
+                    data: "TotalPrice",
+                    name: "tx_merchant_order.TotalPrice",
                 },
                 {
-                    data: 'ServiceChargeNett',
-                    name: 'tx_merchant_order.ServiceChargeNett'
+                    data: "DiscountPrice",
+                    name: "tx_merchant_order.DiscountPrice",
                 },
                 {
-                    data: 'TotalAmount',
-                    name: 'TotalAmount'
+                    data: "ServiceChargeNett",
+                    name: "tx_merchant_order.ServiceChargeNett",
                 },
                 {
-                    data: 'ReferralCode',
-                    name: 'ms_merchant_account.ReferralCode'
+                    data: "TotalAmount",
+                    name: "TotalAmount",
                 },
                 {
-                    data: 'SalesName',
-                    name: 'ms_sales.SalesName'
+                    data: "ReferralCode",
+                    name: "ms_merchant_account.ReferralCode",
                 },
                 {
-                    data: 'ProductID',
-                    name: 'tx_merchant_order_detail.ProductID'
+                    data: "SalesName",
+                    name: "ms_sales.SalesName",
                 },
                 {
-                    data: 'ProductName',
-                    name: 'ms_product.ProductName'
+                    data: "ProductID",
+                    name: "tx_merchant_order_detail.ProductID",
                 },
                 {
-                    data: 'PromisedQuantity',
-                    name: 'tx_merchant_order_detail.PromisedQuantity'
+                    data: "ProductName",
+                    name: "ms_product.ProductName",
                 },
                 {
-                    data: 'Price',
-                    name: 'tx_merchant_order_detail.Price'
+                    data: "PromisedQuantity",
+                    name: "tx_merchant_order_detail.PromisedQuantity",
                 },
                 {
-                    data: 'Discount',
-                    name: 'tx_merchant_order_detail.Discount'
+                    data: "Price",
+                    name: "tx_merchant_order_detail.Price",
                 },
                 {
-                    data: 'Nett',
-                    name: 'tx_merchant_order_detail.Nett'
+                    data: "Discount",
+                    name: "tx_merchant_order_detail.Discount",
                 },
                 {
-                    data: 'SubTotalPrice',
-                    name: 'SubTotalPrice'
-                }
+                    data: "Nett",
+                    name: "tx_merchant_order_detail.Nett",
+                },
+                {
+                    data: "SubTotalPrice",
+                    name: "SubTotalPrice",
+                },
             ],
-            buttons: [{
-                extend: 'excelHtml5',
-                filename: function () {
-                    return exportDatatableHelper.generateFilename('RestockMerchantAllProduct');
-                },
-                action: exportDatatableHelper.newExportAction,
-                text: 'Export',
-                titleAttr: 'Excel',
-                exportOptions: {
-                    modifier: {
-                        page: 'all'
-                    },
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
-                    orthogonal: 'export'
-                },
-            }],
-            "order": [1, 'desc'],
-            "lengthChange": false,
-            "responsive": true,
-            "autoWidth": false,
-            "aoColumnDefs": [
+            buttons: [
                 {
-                    "aTargets": [8, 9, 10, 11, 17, 18, 19, 20],
-                    "mRender": function (data, type, full) {
-                        if (type === 'export') {
+                    extend: "excelHtml5",
+                    filename: function () {
+                        return exportDatatableHelper.generateFilename(
+                            "RestockMerchantAllProduct"
+                        );
+                    },
+                    action: exportDatatableHelper.newExportAction,
+                    text: "Export",
+                    titleAttr: "Excel",
+                    exportOptions: {
+                        modifier: {
+                            page: "all",
+                        },
+                        columns: [
+                            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+                            15, 16, 17, 18, 19, 20, 21,
+                        ],
+                        orthogonal: "export",
+                    },
+                },
+            ],
+            order: [1, "desc"],
+            lengthChange: false,
+            responsive: true,
+            autoWidth: false,
+            aoColumnDefs: [
+                {
+                    aTargets: [8, 9, 10, 11, 17, 18, 19, 20],
+                    mRender: function (data, type, full) {
+                        if (type === "export") {
                             return data;
                         } else {
                             if (data == null || data == "") {
                                 return data;
                             } else {
-                                const currencySeperatorFormat = thousands_separators(data)
+                                const currencySeperatorFormat =
+                                    thousands_separators(data);
                                 return currencySeperatorFormat;
                             }
                         }
-                    }
-                }
-            ]
+                    },
+                },
+            ],
         });
     }
 
@@ -159,91 +174,97 @@ $(document).ready(function () {
                         </div>`);
 
     // Setting Awal Daterangepicker
-    $('#product-restock #from_date').daterangepicker({
+    $("#product-restock #from_date").daterangepicker({
         singleDatePicker: true,
         showDropdowns: true,
         locale: {
-            format: 'YYYY-MM-DD'
-        }
+            format: "YYYY-MM-DD",
+        },
     });
 
     // Setting Awal Daterangepicker
-    $('#product-restock #to_date').daterangepicker({
+    $("#product-restock #to_date").daterangepicker({
         singleDatePicker: true,
         showDropdowns: true,
         locale: {
-            format: 'YYYY-MM-DD'
-        }
+            format: "YYYY-MM-DD",
+        },
     });
 
     var bCodeChange = false;
 
     function dateStartChange() {
-        if (bCodeChange == true)
-            return;
-        else
-            bCodeChange = true;
+        if (bCodeChange == true) return;
+        else bCodeChange = true;
 
-        $('#product-restock #to_date').daterangepicker({
+        $("#product-restock #to_date").daterangepicker({
             minDate: $("#product-restock #from_date").val(),
             singleDatePicker: true,
             showDropdowns: true,
             locale: {
-                format: 'YYYY-MM-DD'
-            }
-        })
+                format: "YYYY-MM-DD",
+            },
+        });
         bCodeChange = false;
     }
 
     function dateEndChange() {
-        if (bCodeChange == true)
-            return;
-        else
-            bCodeChange = true;
+        if (bCodeChange == true) return;
+        else bCodeChange = true;
 
-        $('#product-restock #from_date').daterangepicker({
+        $("#product-restock #from_date").daterangepicker({
             maxDate: $("#product-restock #to_date").val(),
             singleDatePicker: true,
             showDropdowns: true,
             locale: {
-                format: 'YYYY-MM-DD'
-            }
-        })
+                format: "YYYY-MM-DD",
+            },
+        });
         bCodeChange = false;
     }
 
     // Disabled input to date ketika from date berubah
-    $('#product-restock .filter-product-restock').on('change', '#from_date', function () {
-        dateStartChange();
-    });
+    $("#product-restock .filter-product-restock").on(
+        "change",
+        "#from_date",
+        function () {
+            dateStartChange();
+        }
+    );
     // Disabled input from date ketika to date berubah
-    $('#product-restock .filter-product-restock').on('change', '#to_date', function () {
-        dateEndChange();
-    });
+    $("#product-restock .filter-product-restock").on(
+        "change",
+        "#to_date",
+        function () {
+            dateEndChange();
+        }
+    );
 
     // Menyisipkan Placeholder Date
-    $('#product-restock #from_date').val('');
-    $('#product-restock #to_date').val('');
-    $('#product-restock #from_date').attr("placeholder", "From Date");
-    $('#product-restock #to_date').attr("placeholder", "To Date");
+    $("#product-restock #from_date").val("");
+    $("#product-restock #to_date").val("");
+    $("#product-restock #from_date").attr("placeholder", "From Date");
+    $("#product-restock #to_date").attr("placeholder", "To Date");
 
     // Event Listener saat tombol refresh diklik
     $("#product-restock #refresh").click(function () {
-        $('#product-restock #from_date').val('');
-        $('#product-restock #to_date').val('');
-        $('#product-restock .table-datatables').DataTable().search('');
+        $("#product-restock #from_date").val("");
+        $("#product-restock #to_date").val("");
+        $("#product-restock .table-datatables").DataTable().search("");
         // $('#product-restock .select-filter-custom select').val('').change();
         // $('#product-restock .select-filter-custom select option[value=]');
-        $('#product-restock .table-datatables').DataTable().ajax.reload(null, false);
+        $("#product-restock .table-datatables")
+            .DataTable()
+            .ajax.reload(null, false);
     });
 
     // Event listener saat tombol filter diklik
     $("#product-restock #filter").click(function () {
-        $('#product-restock .table-datatables').DataTable().ajax.reload();
+        $("#product-restock .table-datatables").DataTable().ajax.reload();
     });
 
     // Event listener saat tombol select option diklik
     $("#product-restock .select-filter-custom select").change(function () {
-        $('#product-restock .table-datatables').DataTable().ajax.reload();
+        $("#product-restock .table-datatables").DataTable().ajax.reload();
     });
 });

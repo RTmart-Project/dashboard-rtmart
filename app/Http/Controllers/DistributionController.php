@@ -34,7 +34,7 @@ class DistributionController extends Controller
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tx_merchant_order.DistributorID')
             ->where('ms_merchant_account.IsTesting', 0)
             ->where('tx_merchant_order.StatusOrderID', '=', $statusOrder)
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.ShipmentDate', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CancelReasonNote', 'tx_merchant_order.StatusOrderID');
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.ShipmentDate', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CancelReasonNote', 'tx_merchant_order.StatusOrderID');
 
         if (Auth::user()->RoleID == "AD" && Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
@@ -61,6 +61,14 @@ class DistributionController extends Controller
                 ->editColumn('CreatedDate', function ($data) {
                     return date('d M Y H:i', strtotime($data->CreatedDate));
                 })
+                ->editColumn('Partner', function ($data) {
+                    if ($data->Partner != null) {
+                        $partner = '<a class="badge badge-info">'.$data->Partner.'</a>';
+                    } else {
+                        $partner = '';
+                    }
+                    return $partner;
+                })
                 ->editColumn('ShipmentDate', function ($data) {
                     return date('d M Y', strtotime($data->ShipmentDate));
                 })
@@ -83,7 +91,7 @@ class DistributionController extends Controller
                 ->filterColumn('tx_merchant_order.ShipmentDate', function ($query, $keyword) {
                     $query->whereRaw("DATE_FORMAT(tx_merchant_order.ShipmentDate,'%d-%b-%Y') like ?", ["%$keyword%"]);
                 })
-                ->rawColumns(['Action'])
+                ->rawColumns(['Partner', 'Action'])
                 ->make(true);
         }
     }

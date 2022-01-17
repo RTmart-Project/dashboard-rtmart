@@ -258,6 +258,7 @@
                                                 <tr>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
+                                                    <th>Partner</th>
                                                     <th>Nama Pemilik</th>
                                                     <th>No. Telp</th>
                                                     <th>Grade</th>

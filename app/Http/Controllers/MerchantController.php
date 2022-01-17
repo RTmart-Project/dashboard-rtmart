@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
+use Prophecy\Doubler\Generator\Node\ReturnTypeNode;
 use stdClass;
 
 use function Symfony\Component\String\b;
@@ -80,7 +81,7 @@ class MerchantController extends Controller
             ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', '=', 'ms_merchant_account.MerchantID')
             ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', '=', 'ms_distributor_merchant_grade.GradeID')
             ->where('ms_merchant_account.IsTesting', 0)
-            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.CreatedDate', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_distributor.DistributorName', 'ms_distributor_grade.Grade');
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.CreatedDate', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_distributor.DistributorName', 'ms_distributor_grade.Grade');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
@@ -101,6 +102,14 @@ class MerchantController extends Controller
                 ->editColumn('CreatedDate', function ($data) {
                     return date('d-M-Y H:i', strtotime($data->CreatedDate));
                 })
+                ->editColumn('Partner', function ($data) {
+                    if ($data->Partner != null) {
+                        $partner = '<a class="badge badge-info">'.$data->Partner.'</a>';
+                    } else {
+                        $partner = '';
+                    }
+                    return $partner;
+                })
                 ->editColumn('Grade', function ($data) {
                     if ($data->Grade == null) {
                         $grade = "Retail";
@@ -120,7 +129,7 @@ class MerchantController extends Controller
                 ->filterColumn('ms_merchant_account.CreatedDate', function ($query, $keyword) {
                     $query->whereRaw("DATE_FORMAT(ms_merchant_account.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
                 })
-                ->rawColumns(['Product', 'Action'])
+                ->rawColumns(['Partner', 'Product', 'Action'])
                 ->make(true);
         }
     }
@@ -401,18 +410,26 @@ class MerchantController extends Controller
             ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', '=', 'ms_distributor_merchant_grade.GradeID')
             ->where('ms_merchant_account.IsTesting', 0)
             ->where('ms_merchant_account.IsPowerMerchant', 1)
-            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'ms_distributor.DistributorName', 'ms_distributor_grade.Grade');
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'ms_distributor.DistributorName', 'ms_distributor_grade.Grade');
 
         $data = $sqlPowerMerchant;
 
         // Return Data Using DataTables with Ajax
         if ($request->ajax()) {
             return Datatables::of($data)
+                ->editColumn('Partner', function ($data) {
+                    if ($data->Partner != null) {
+                        $partner = '<a class="badge badge-info">'.$data->Partner.'</a>';
+                    } else {
+                        $partner = '';
+                    }
+                    return $partner;
+                })
                 ->addColumn('Action', function ($data) {
                     $actionBtn = '<a class="btn btn-sm btn-danger delete-power-merchant" data-merchant-name="'.$data->StoreName.'" data-merchant-id="'.$data->MerchantID.'">Hapus</a>';
                     return $actionBtn;
                 })
-                ->rawColumns(['Action'])
+                ->rawColumns(['Partner', 'Action'])
                 ->make(true);
         }
     }
@@ -582,7 +599,7 @@ class MerchantController extends Controller
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
             ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'ms_merchant_account.ReferralCode')
             ->where('ms_merchant_account.IsTesting', 0)
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.MerchantID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.NettPrice', 'tx_merchant_order.StatusOrderID', 'ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesName', 'ms_payment_method.PaymentMethodName');
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.MerchantID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.NettPrice', 'tx_merchant_order.StatusOrderID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesName', 'ms_payment_method.PaymentMethodName');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
@@ -602,6 +619,14 @@ class MerchantController extends Controller
             return Datatables::of($data)
                 ->editColumn('CreatedDate', function ($data) {
                     return date('d-M-Y H:i', strtotime($data->CreatedDate));
+                })
+                ->editColumn('Partner', function ($data) {
+                    if ($data->Partner != null) {
+                        $partner = '<a class="badge badge-info">'.$data->Partner.'</a>';
+                    } else {
+                        $partner = '';
+                    }
+                    return $partner;
                 })
                 ->addColumn('Invoice', function ($data) {
                     if ($data->StatusOrderID == "S009") {
@@ -647,7 +672,7 @@ class MerchantController extends Controller
                 ->filterColumn('tx_merchant_order.CreatedDate', function ($query, $keyword) {
                     $query->whereRaw("DATE_FORMAT(tx_merchant_order.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
                 })
-                ->rawColumns(['Action', 'Invoice', 'StatusOrder'])
+                ->rawColumns(['Partner', 'Action', 'Invoice', 'StatusOrder'])
                 ->make(true);
         }
     }
@@ -667,7 +692,7 @@ class MerchantController extends Controller
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
             ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'ms_merchant_account.ReferralCode')
             ->where('ms_merchant_account.IsTesting', 0)
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.MerchantID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.NettPrice', 'tx_merchant_order.StatusOrderID', 'ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesName', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order_detail.ProductID', 'ms_product.ProductName', 'tx_merchant_order_detail.PromisedQuantity', 'tx_merchant_order_detail.Price', 'tx_merchant_order_detail.Discount', 'tx_merchant_order_detail.Nett');
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.MerchantID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.NettPrice', 'tx_merchant_order.StatusOrderID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesName', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order_detail.ProductID', 'ms_product.ProductName', 'tx_merchant_order_detail.PromisedQuantity', 'tx_merchant_order_detail.Price', 'tx_merchant_order_detail.Discount', 'tx_merchant_order_detail.Nett');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
@@ -687,6 +712,14 @@ class MerchantController extends Controller
             return Datatables::of($data)
                 ->editColumn('CreatedDate', function ($data) {
                     return date('d-M-Y H:i', strtotime($data->CreatedDate));
+                })
+                ->editColumn('Partner', function ($data) {
+                    if ($data->Partner != null) {
+                        $partner = '<a class="badge badge-info">'.$data->Partner.'</a>';
+                    } else {
+                        $partner = '';
+                    }
+                    return $partner;
                 })
                 ->addColumn('Action', function ($data) {
                     $actionBtn = '<a href="/merchant/restock/detail/' . $data->StockOrderID . '" class="btn-sm btn-info detail-order">Detail</a>';
@@ -731,7 +764,7 @@ class MerchantController extends Controller
                 ->editColumn('Price', function ($data) {
                     return "$data->Price";
                 })
-                ->rawColumns(['Action', 'StatusOrder'])
+                ->rawColumns(['Partner', 'Action', 'StatusOrder'])
                 ->make(true);
         }
     }

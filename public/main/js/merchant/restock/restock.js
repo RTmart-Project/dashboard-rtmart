@@ -40,6 +40,10 @@ $(document).ready(function () {
                     name: "ms_merchant_account.StoreName",
                 },
                 {
+                    data: "Partner",
+                    name: "ms_merchant_account.Partner",
+                },
+                {
                     data: "PhoneNumber",
                     name: "ms_merchant_account.PhoneNumber",
                 },
@@ -107,7 +111,9 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+                        columns: [
+                            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+                        ],
                         orthogonal: "export",
                     },
                 },

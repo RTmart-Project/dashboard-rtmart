@@ -73,6 +73,7 @@
                                                     <th>Tgl Transaksi</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
+                                                    <th>Partner</th>
                                                     <th>Nama Pemilik</th>
                                                     <th>No. Telp</th>
                                                     <th>Alamat</th>
@@ -97,6 +98,7 @@
                                                     <th>Tgl Kirim Pesanan</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
+                                                    <th>Partner</th>
                                                     <th>Nama Pemilik</th>
                                                     <th>No. Telp</th>
                                                     <th>Alamat</th>
@@ -121,6 +123,7 @@
                                                     <th>Tgl Kirim Pesanan</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
+                                                    <th>Partner</th>
                                                     <th>Nama Pemilik</th>
                                                     <th>No. Telp</th>
                                                     <th>Alamat</th>
@@ -145,6 +148,7 @@
                                                     <th>Tgl Kirim Pesanan</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
+                                                    <th>Partner</th>
                                                     <th>Nama Pemilik</th>
                                                     <th>No. Telp</th>
                                                     <th>Alamat</th>
@@ -169,6 +173,7 @@
                                                     <th>Tgl Kirim Pesanan</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
+                                                    <th>Partner</th>
                                                     <th>Nama Pemilik</th>
                                                     <th>No. Telp</th>
                                                     <th>Alamat</th>
@@ -193,6 +198,7 @@
                                                     <th>Tgl Pesanan</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
+                                                    <th>Partner</th>
                                                     <th>Nama Pemilik</th>
                                                     <th>No. Telp</th>
                                                     <th>Alamat</th>
