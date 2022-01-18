@@ -176,6 +176,7 @@ class DistributionController extends Controller
         }
 
         $vehicles = DB::table('ms_vehicle')
+            ->whereNotIn('VehicleID', [1,2,3])
             ->select('*')
             ->orderBy('VehicleName')->get();
 
@@ -478,6 +479,7 @@ class DistributionController extends Controller
         }
 
         $createdDateDO = str_replace("T", " ", $request->input('created_date_do'));
+        $vehicleLicensePlate = str_replace(" ", "-", $request->input('license_plate'));
 
         $dataDO = [
             'DeliveryOrderID' => $newDeliveryOrderID,
@@ -485,7 +487,7 @@ class DistributionController extends Controller
             'StatusDO' => 'S024',
             'DriverID' => $request->input('driver'),
             'VehicleID' => $request->input('vehicle'),
-            'VehicleLicensePlate' => $request->input('license_plate'),
+            'VehicleLicensePlate' => $vehicleLicensePlate,
             'CreatedDate' => $createdDateDO
         ];
 
@@ -506,7 +508,7 @@ class DistributionController extends Controller
             'StatusDO' => 'S024',
             'DriverID' => $request->input('driver'),
             'VehicleID' => $request->input('vehicle'),
-            'VehicleLicensePlate' => $request->input('license_plate'),
+            'VehicleLicensePlate' => $vehicleLicensePlate,
             'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo
         ];
 
@@ -585,10 +587,12 @@ class DistributionController extends Controller
             $dataUpdateDO[$key][] = $deliveryOrderId;
         }
 
+        $vehicleLicensePlate = str_replace(" ", "-", $request->input('license_plate'));
+
         $dataDriver = [
             'DriverID' => $request->input('driver'),
             'VehicleID' => $request->input('vehicle'),
-            'VehicleLicensePlate' => $request->input('license_plate')
+            'VehicleLicensePlate' => $vehicleLicensePlate
         ];
 
         $dataLogDO = [
@@ -597,7 +601,7 @@ class DistributionController extends Controller
             'StatusDO' => 'S024',
             'DriverID' => $request->input('driver'),
             'VehicleID' => $request->input('vehicle'),
-            'VehicleLicensePlate' => $request->input('license_plate'),
+            'VehicleLicensePlate' => $vehicleLicensePlate,
             'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo
         ];
 
