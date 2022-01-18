@@ -8,6 +8,8 @@
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
 <!-- Main -->
 <link rel="stylesheet" href="{{url('/')}}/main/css/custom/select-filter.css">
+
+<link rel="stylesheet" href="{{ url('/') }}/plugins/bootstrap-select/bootstrap-select.min.css">
 @endsection
 
 @section('header-menu', 'Detail Restock')
@@ -315,7 +317,45 @@
                                                                             </div>
                                                                             @endforeach
                                                                             <div class="row m-0 border-bottom">
-                                                                                <div class="col-12 d-flex justify-content-end">
+                                                                                <div class="col-6 col-md-8 pt-2">
+                                                                                    @if ($item->StatusOrder == "Selesai")
+                                                                                        <p class="m-0"><b>Driver : </b>{{ $item->Name }} - {{ $item->VehicleName }} ({{ $item->VehicleLicensePlate }})</p>
+                                                                                    @else
+                                                                                        <div class="row m-0">
+                                                                                            <div class="col-md-4 col-12 pl-0">
+                                                                                                <div class="form-group m-0">
+                                                                                                    <label class="my-0" for="driver">Driver</label>
+                                                                                                    <select name="driver" id="driver" class="form-control border selectpicker" data-live-search="true" title="Pilih Driver" required>
+                                                                                                    @foreach ($drivers as $driver)
+                                                                                                        <option value="{{ $driver->UserID }}"
+                                                                                                            {{ collect($item->DriverID)->contains($driver->UserID) ? 'selected' : '' }}>
+                                                                                                        {{ $driver->Name }}</option>
+                                                                                                    @endforeach
+                                                                                                    </select>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <div class="col-md-4 col-12 pl-0">
+                                                                                                <div class="form-group m-0">
+                                                                                                    <label class="my-0" for="vehicle">Jenis Kendaraan</label>
+                                                                                                    <select name="vehicle" id="vehicle" class="form-control border selectpicker" data-live-search="true" title="Pilih Jenis Kendaraan" required>
+                                                                                                        @foreach ($vehicles as $vehicle)
+                                                                                                            <option value="{{ $vehicle->VehicleID }}"
+                                                                                                                {{ collect($item->VehicleID)->contains($vehicle->VehicleID) ? 'selected' : '' }}>
+                                                                                                            {{ $vehicle->VehicleName }}</option>
+                                                                                                        @endforeach
+                                                                                                    </select>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <div class="col-md-4 col-12 pl-0">
+                                                                                                <div class="form-group m-0">
+                                                                                                    <label class="my-0" for="license_plate">Plat Nomor Kendaraan</label>
+                                                                                                    <input type="text" name="license_plate" id="license_plate" class="form-control" value="{{ $item->VehicleLicensePlate }}" onkeyup="this.value = this.value.toUpperCase();" autocomplete="off" required>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    @endif
+                                                                                </div>
+                                                                                <div class="col-6 col-md-4 d-flex justify-content-end">
                                                                                     <p class="text-center my-2 mr-md-4">
                                                                                         <b>SubTotal : </b>
                                                                                         <span class="price-subtotal">{{ Helper::formatCurrency($item->SubTotal, 'Rp ') }}</span>
@@ -379,23 +419,47 @@
                                                                     <h5 class="py-2">Semua Barang Telah Dikirim.</h5>
                                                                 </div>
                                                             @else
-                                                            <div class="callout callout-danger d-md-none py-2 mb-1">
-                                                                <p><strong>Direkomendasikan untuk buka di LAPTOP / PC</strong></p>
-                                                            </div>
-                                                            <div class="callout callout-warning py-2">
-                                                                <p>Pilih terlebih dahulu barang yang ingin dikirim</p>
-                                                            </div>
                                                             <form action="{{ route('distribution.createDeliveryOrder', ['stockOrderID' => $stockOrderID]) }}" method="post">
                                                                 @csrf
-                                                                <div class="form-group">
-                                                                    <div class="row m-0">
-                                                                        <div class="col-md-4 col-12 align-self-center text-md-right">
+                                                                <div class="row m-0">
+                                                                    <div class="col-md-6 col-12">
+                                                                        <div class="form-group">
                                                                             <label class="my-0" for="created_date_do">Waktu Pengiriman :</label>
-                                                                        </div>
-                                                                        <div class="col-md-8 col-12">
                                                                             <input type="datetime-local" class="form-control" name="created_date_do" id="created_date_do" required>
                                                                         </div>
                                                                     </div>
+                                                                    <div class="col-md-6 col-12">
+                                                                        <div class="form-group">
+                                                                            <label class="my-0" for="driver">Driver</label>
+                                                                            <select name="driver" id="driver" class="form-control border selectpicker" data-live-search="true" title="Pilih Driver" required>
+                                                                            @foreach ($drivers as $driver)
+                                                                                <option value="{{ $driver->UserID }}">{{ $driver->Name }}</option>
+                                                                            @endforeach
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-6 col-12">
+                                                                        <div class="form-group">
+                                                                            <label class="my-0" for="vehicle">Jenis Kendaraan</label>
+                                                                        <select name="vehicle" id="vehicle" class="form-control border selectpicker" data-live-search="true" title="Pilih Jenis Kendaraan" required>
+                                                                            @foreach ($vehicles as $vehicle)
+                                                                                <option value="{{ $vehicle->VehicleID }}">{{ $vehicle->VehicleName }}</option>
+                                                                            @endforeach
+                                                                        </select>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-6 col-12">
+                                                                        <div class="form-group">
+                                                                            <label class="my-0" for="license_plate">Plat Nomor Kendaraan</label>
+                                                                            <input type="text" name="license_plate" id="license_plate" class="form-control" placeholder="Masukkan Plat Nomor Kendaraan" onkeyup="this.value = this.value.toUpperCase();" autocomplete="off" required>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="callout callout-danger d-md-none py-2 mb-1">
+                                                                    <p><strong>Direkomendasikan untuk buka di LAPTOP / PC</strong></p>
+                                                                </div>
+                                                                <div class="callout callout-warning py-2">
+                                                                    <p>Pilih terlebih dahulu barang yang ingin dikirim</p>
                                                                 </div>
                                                                 @foreach ($productAddDO as $item)
                                                                     @if ($item->PromisedQuantity != $item->QtyDO)
@@ -470,6 +534,7 @@
 @section('js-pages')
 <script src="https://unpkg.com/autonumeric"></script>
 <script defer type="text/javascript" src="https://maps.googleapis.com/maps/api/js?callback=initMap&v=3&key=AIzaSyC9kPfmVtf71uGeDfHMMHDzHAl-FEBtOEw&libraries=places"></script>
+<script src="{{ url('/') }}/plugins/bootstrap-select/bootstrap-select.min.js"></script>
 <script>
     // const currencyJumlahTopup = new AutoNumeric.multiple('.autonumeric', {
     //     allowDecimalPadding: false,
@@ -512,7 +577,7 @@
     // Event listener saat mengetik qty create delivery order
     $('.qty-do').on('keyup', function (e) {
         e.preventDefault();
-        const indexProduct = $(this).closest('.add-do').index()-2;
+        const indexProduct = $(this).closest('.add-do').index()-4;
         const priceProduct = $('.add-do').find('.nett-price').eq(indexProduct).text().replaceAll("@Rp ", "").replaceAll(".", "");
         const qtyDO = $('.add-do').find('.qty-do').eq(indexProduct).val();
         const totalPriceElm = $('.add-do').find('.total-price').eq(indexProduct);

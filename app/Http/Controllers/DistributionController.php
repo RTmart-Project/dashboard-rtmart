@@ -114,8 +114,10 @@ class DistributionController extends Controller
 
         $deliveryOrder = DB::table('tx_merchant_delivery_order')
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_delivery_order.StatusDO')
+            ->leftJoin('ms_user', 'ms_user.UserID', 'tx_merchant_delivery_order.DriverID')
+            ->leftJoin('ms_vehicle', 'ms_vehicle.VehicleID', 'tx_merchant_delivery_order.VehicleID')
             ->where('tx_merchant_delivery_order.StockOrderID', '=', $stockOrderID)
-            ->select('tx_merchant_delivery_order.*', 'ms_status_order.StatusOrder')
+            ->select('tx_merchant_delivery_order.*', 'ms_status_order.StatusOrder', 'ms_user.Name', 'ms_vehicle.VehicleName')
             ->get();
 
         foreach ($deliveryOrder as $key => $value) {
@@ -161,6 +163,22 @@ class DistributionController extends Controller
             $deliveryOrderQty += $productQtyDO->Qty;
         }
 
+        $drivers = DB::table('ms_user')
+            ->where('RoleID', 'DRV')
+            ->where('IsTesting', 0)
+            ->select('UserID', 'Name')
+            ->orderBy('Name');
+
+        if (Auth::user()->Depo == "ALL") {
+            $dataDrivers = $drivers->get();
+        } else {
+            $dataDrivers = $drivers->where('Depo', Auth::user()->Depo)->get();
+        }
+
+        $vehicles = DB::table('ms_vehicle')
+            ->select('*')
+            ->orderBy('VehicleName')->get();
+
         return view('distribution.restock.detail', [
             'stockOrderID' => $stockOrderID,
             'merchantOrder' => $merchantOrder,
@@ -168,7 +186,9 @@ class DistributionController extends Controller
             'deliveryOrder' => $deliveryOrder,
             'productAddDO' => $productAddDO,
             'promisedQty' => $promisedQty,
-            'deliveryOrderQty' => $deliveryOrderQty
+            'deliveryOrderQty' => $deliveryOrderQty,
+            'drivers' => $dataDrivers,
+            'vehicles' => $vehicles
         ]);
     }
 
@@ -393,7 +413,7 @@ class DistributionController extends Controller
     {
         $stockOrderID = DB::table('tx_merchant_delivery_order')
             ->where('DeliveryOrderID', '=', $deliveryOrderId)
-            ->select('StockOrderID')->first();
+            ->select('StockOrderID', 'DriverID', 'VehicleID', 'VehicleLicensePlate')->first();
 
         try {
             DB::transaction(function () use ($stockOrderID, $deliveryOrderId) {
@@ -409,6 +429,9 @@ class DistributionController extends Controller
                         'StockOrderID' => $stockOrderID->StockOrderID,
                         'DeliveryOrderID' => $deliveryOrderId,
                         'StatusDO' => 'S025',
+                        'DriverID' => $stockOrderID->DriverID,
+                        'VehicleID' => $stockOrderID->VehicleID,
+                        'VehicleLicensePlate' => $stockOrderID->VehicleLicensePlate,
                         'ActionBy' => 'DISTRIBUTOR'
                     ]);
             });
@@ -423,6 +446,9 @@ class DistributionController extends Controller
     {
         $request->validate([
             'created_date_do' => 'required|date',
+            'driver' => 'required',
+            'vehicle' => 'required',
+            'license_plate' => 'required',
             'qty_do' => 'required',
             'qty_do.*' => 'required|numeric|lte:max_qty_do.*|gte:1'
         ]);
@@ -457,6 +483,9 @@ class DistributionController extends Controller
             'DeliveryOrderID' => $newDeliveryOrderID,
             'StockOrderID' => $stockOrderID,
             'StatusDO' => 'S024',
+            'DriverID' => $request->input('driver'),
+            'VehicleID' => $request->input('vehicle'),
+            'VehicleLicensePlate' => $request->input('license_plate'),
             'CreatedDate' => $createdDateDO
         ];
 
@@ -475,7 +504,10 @@ class DistributionController extends Controller
             'StockOrderID' => $stockOrderID,
             'DeliveryOrderID' => $newDeliveryOrderID,
             'StatusDO' => 'S024',
-            'ActionBy' => 'DISTRIBUTOR'
+            'DriverID' => $request->input('driver'),
+            'VehicleID' => $request->input('vehicle'),
+            'VehicleLicensePlate' => $request->input('license_plate'),
+            'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo
         ];
 
         try {
@@ -533,6 +565,12 @@ class DistributionController extends Controller
 
     public function updateQtyDO(Request $request, $deliveryOrderId)
     {
+        $request->validate([
+            'driver' => 'required',
+            'vehicle' => 'required',
+            'license_plate' => 'required'
+        ]);
+
         $stockOrderID = DB::table('tx_merchant_delivery_order')
             ->where('DeliveryOrderID', '=', $deliveryOrderId)
             ->select('StockOrderID')->first();
@@ -547,8 +585,24 @@ class DistributionController extends Controller
             $dataUpdateDO[$key][] = $deliveryOrderId;
         }
 
+        $dataDriver = [
+            'DriverID' => $request->input('driver'),
+            'VehicleID' => $request->input('vehicle'),
+            'VehicleLicensePlate' => $request->input('license_plate')
+        ];
+
+        $dataLogDO = [
+            'StockOrderID' => $stockOrderID->StockOrderID,
+            'DeliveryOrderID' => $deliveryOrderId,
+            'StatusDO' => 'S024',
+            'DriverID' => $request->input('driver'),
+            'VehicleID' => $request->input('vehicle'),
+            'VehicleLicensePlate' => $request->input('license_plate'),
+            'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo
+        ];
+
         try {
-            DB::transaction(function () use ($dataUpdateDO) {
+            DB::transaction(function () use ($dataUpdateDO, $deliveryOrderId, $dataDriver, $dataLogDO) {
                 foreach ($dataUpdateDO as &$value) {
                     $value = array_combine(['ProductID', 'Qty', 'DeliveryOrderID'], $value);
                     DB::table('tx_merchant_delivery_order_detail')
@@ -558,6 +612,11 @@ class DistributionController extends Controller
                             'Qty' => $value['Qty']
                         ]);
                 }
+                DB::table('tx_merchant_delivery_order')
+                    ->where('DeliveryOrderID', '=', $deliveryOrderId)
+                    ->update($dataDriver);
+                DB::table('tx_merchant_delivery_order_log')
+                    ->insert($dataLogDO);
             });
 
             return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID->StockOrderID])->with('success', 'Data Delivery Order berhasil diubah');
