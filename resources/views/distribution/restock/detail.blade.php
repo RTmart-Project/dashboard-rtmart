@@ -319,7 +319,11 @@
                                                                             <div class="row m-0 border-bottom">
                                                                                 <div class="col-6 col-md-8 pt-2">
                                                                                     @if ($item->StatusOrder == "Selesai")
-                                                                                        <p class="m-0"><b>Driver : </b>{{ $item->Name }} - {{ $item->VehicleName }} ({{ $item->VehicleLicensePlate }})</p>
+                                                                                        @if ($item->Name != null)
+                                                                                            <p class="m-0"><b>Driver : </b>{{ $item->Name }} - {{ $item->VehicleName }} ({{ $item->VehicleLicensePlate }})</p>
+                                                                                        @else
+                                                                                            <p class="m-0"><b>Driver : </b>-</p>
+                                                                                        @endif
                                                                                     @else
                                                                                         <div class="row m-0">
                                                                                             <div class="col-md-4 col-12 pl-0">
