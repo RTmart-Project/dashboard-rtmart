@@ -464,10 +464,10 @@ class DistributionController extends Controller
             ->first();
 
         $max = DB::table('tx_merchant_delivery_order')
-            ->selectRaw('MAX(DeliveryOrderID) AS DeliveryOrderID, MAX(CreatedDate) AS CreatedDate')
+            ->selectRaw('MAX(DeliveryOrderID) AS DeliveryOrderID, MAX(ProcessTime) AS ProcessTime')
             ->first();
 
-        $maxMonth = date('m', strtotime($max->CreatedDate));
+        $maxMonth = date('m', strtotime($max->ProcessTime));
         $now = date('m');
             
         if ($max->DeliveryOrderID == null || (strcmp($maxMonth, $now) != 0)) {
