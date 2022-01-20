@@ -5,7 +5,7 @@ $(document).ready(function () {
     function dataTablesSemuaRestock() {
         $("#semua-restock .table-datatables").DataTable({
             dom:
-                "<'row'<'col-sm-12 col-md-5'<'filter-semua-restock'>tl><'col-sm-12 col-md-3'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
+                "<'row'<'col-sm-12 col-md-5'<'filter-semua-restock'>tl><'col-sm-12 col-md-4 justify-content-end'f><'col-sm-6 col-md-3 text-center'B>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
@@ -41,8 +41,8 @@ $(document).ready(function () {
                     name: "ms_merchant_account.StoreName",
                 },
                 {
-                    data: "OwnerFullName",
-                    name: "ms_merchant_account.OwnerFullName",
+                    data: "TotalTrx",
+                    name: "TotalTrx",
                 },
                 {
                     data: "PhoneNumber",
@@ -103,29 +103,61 @@ $(document).ready(function () {
                     extend: "excelHtml5",
                     filename: function () {
                         return exportDatatableHelper.generateFilename(
-                            "SemuaRestock"
+                            "PO-Restock"
                         );
                     },
                     action: exportDatatableHelper.newExportAction,
-                    text: "Export",
+                    text: "Export PO",
                     titleAttr: "Excel",
+                    className: "btn-sm mr-1 rounded",
                     excelStyles: [
                         {
-                            cells: "sA:I",
+                            cells: "A2:I2",
                             style: {
                                 fill: {
                                     pattern: {
-                                        color: "FFFF00",
+                                        color: "92D04F",
+                                    },
+                                },
+                            },
+                        },
+                    ],
+                    exportOptions: {
+                        modifier: {
+                            page: "all",
+                        },
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+                        orthogonal: "export",
+                    },
+                },
+                {
+                    extend: "excelHtml5",
+                    filename: function () {
+                        return exportDatatableHelper.generateFilename(
+                            "DO-Restock"
+                        );
+                    },
+                    action: exportDatatableHelper.newExportAction,
+                    text: "Export DO",
+                    titleAttr: "Excel",
+                    className: "btn-sm ml-1 rounded",
+                    excelStyles: [
+                        {
+                            cells: "A2:I2",
+                            style: {
+                                fill: {
+                                    pattern: {
+                                        color: "92D04F",
                                     },
                                 },
                             },
                         },
                         {
-                            cells: "sJ:S",
+                            cells: "J2:S2",
                             style: {
                                 fill: {
                                     pattern: {
-                                        color: "B4C6E8",
+                                        color: "25B0F0",
                                     },
                                 },
                             },
@@ -145,7 +177,7 @@ $(document).ready(function () {
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [13, 14],
+                    aTargets: [5, 13, 14],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;

@@ -77,7 +77,7 @@
                                                     <th>Distributor</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
-                                                    <th>Nama Pemilik</th>
+                                                    <th>Total Transaksi</th>
                                                     <th>No. Telp</th>
                                                     <th>Partner</th>
                                                     <th>Status Order</th>

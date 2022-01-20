@@ -107,6 +107,7 @@ class DistributionController extends Controller
             ->leftJoin('ms_vehicle', 'ms_vehicle.VehicleID', 'tx_merchant_delivery_order.VehicleID')
             ->where('ms_merchant_account.IsTesting', 0)
             ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'ms_distributor.DistributorName', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.Partner', 'tx_merchant_order.StatusOrderID', 'ms_status_order.StatusOrder', 'tx_merchant_delivery_order.DeliveryOrderID', 'ms_product.ProductName', 'tx_merchant_delivery_order_detail.Qty', 'tx_merchant_delivery_order_detail.Price',
+            DB::raw("tx_merchant_order.TotalPrice - tx_merchant_order.DiscountPrice + tx_merchant_order.ServiceChargeNett AS TotalTrx"), 
             DB::raw("tx_merchant_delivery_order.CreatedDate as TanggalDO"),
             DB::raw("tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price AS TotalPrice"), 
             DB::raw("CASE WHEN tx_merchant_delivery_order.StatusDO = 'S024' THEN 'Dalam Pengiriman' WHEN tx_merchant_delivery_order.StatusDO = 'S025' THEN 'Selesai' ELSE '' END AS StatusDO"), 
@@ -189,6 +190,9 @@ class DistributionController extends Controller
                 })
                 ->filterColumn('tx_merchant_order.CreatedDate', function ($query, $keyword) {
                     $query->whereRaw("DATE_FORMAT(tx_merchant_order.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
+                })
+                ->filterColumn('TotalTrx', function ($query, $keyword) {
+                    $query->whereRaw("tx_merchant_order.TotalPrice - tx_merchant_order.DiscountPrice + tx_merchant_order.ServiceChargeNett like ?", ["%$keyword%"]);
                 })
                 ->filterColumn('TanggalDO', function ($query, $keyword) {
                     $query->whereRaw("DATE_FORMAT(tx_merchant_delivery_order.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
