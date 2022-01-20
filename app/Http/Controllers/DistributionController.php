@@ -18,7 +18,7 @@ class DistributionController extends Controller
     }
 
     public function restock()
-    {
+    {    
         return view('distribution.restock.index');
     }
 
@@ -34,7 +34,7 @@ class DistributionController extends Controller
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tx_merchant_order.DistributorID')
             ->where('ms_merchant_account.IsTesting', 0)
             ->where('tx_merchant_order.StatusOrderID', '=', $statusOrder)
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.ShipmentDate', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CancelReasonNote', 'tx_merchant_order.StatusOrderID');
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'ms_distributor.DistributorName', 'tx_merchant_order.ShipmentDate', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CancelReasonNote', 'tx_merchant_order.StatusOrderID');
 
         if (Auth::user()->RoleID == "AD" && Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
@@ -72,17 +72,12 @@ class DistributionController extends Controller
                 ->editColumn('ShipmentDate', function ($data) {
                     return date('d M Y', strtotime($data->ShipmentDate));
                 })
+                ->addColumn('Invoice', function ($data) {
+                    $stockOrderId = '<a href="/restock/invoice/'.$data->StockOrderID.'" target="_blank" class="btn btn-sm btn-info">Cetak</a>';
+                    return $stockOrderId;
+                })
                 ->addColumn('Action', function ($data) {
-                    if ($data->StatusOrderID == "S009" || $data->StatusOrderID == "S023" || $data->StatusOrderID == "S012") {
-                        $btn = "Proses";
-                        $btnColor = "secondary";
-                    } else {
-                        $btn = "Lihat";
-                        $btnColor = "info";
-                    }
-                    $actionBtn = '<a class="btn btn-sm btn-' . $btnColor . '" href="/distribution/restock/detail/' . $data->StockOrderID . '">
-                                    ' . $btn . '
-                                </a>';
+                    $actionBtn = '<a class="btn btn-sm btn-secondary" href="/distribution/restock/detail/' . $data->StockOrderID . '">Lihat</a>';
                     return $actionBtn;
                 })
                 ->filterColumn('tx_merchant_order.CreatedDate', function ($query, $keyword) {
@@ -91,7 +86,120 @@ class DistributionController extends Controller
                 ->filterColumn('tx_merchant_order.ShipmentDate', function ($query, $keyword) {
                     $query->whereRaw("DATE_FORMAT(tx_merchant_order.ShipmentDate,'%d-%b-%Y') like ?", ["%$keyword%"]);
                 })
-                ->rawColumns(['Partner', 'Action'])
+                ->rawColumns(['Invoice', 'Partner', 'Action'])
+                ->make(true);
+        }
+    }
+
+    public function getAllRestockAndDO(Request $request)
+    {
+        $fromDate = $request->input('fromDate');
+        $toDate = $request->input('toDate');
+
+        $sqlAllRestockAndDO = DB::table('tx_merchant_order')
+            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
+            ->leftJoin('ms_status_order', 'ms_status_order.StatusOrderID', 'tx_merchant_order.StatusOrderID')
+            ->leftJoin('tx_merchant_delivery_order', 'tx_merchant_delivery_order.StockOrderID', 'tx_merchant_order.StockOrderID')
+            ->leftJoin('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID')
+            ->leftJoin('ms_product', 'ms_product.ProductID', 'tx_merchant_delivery_order_detail.ProductID')
+            ->leftJoin('ms_user', 'ms_user.UserID', 'tx_merchant_delivery_order.DriverID')
+            ->leftJoin('ms_vehicle', 'ms_vehicle.VehicleID', 'tx_merchant_delivery_order.VehicleID')
+            ->where('ms_merchant_account.IsTesting', 0)
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'ms_distributor.DistributorName', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.Partner', 'tx_merchant_order.StatusOrderID', 'ms_status_order.StatusOrder', 'tx_merchant_delivery_order.DeliveryOrderID', 'ms_product.ProductName', 'tx_merchant_delivery_order_detail.Qty', 'tx_merchant_delivery_order_detail.Price',
+            DB::raw("tx_merchant_delivery_order.CreatedDate as TanggalDO"),
+            DB::raw("tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price AS TotalPrice"), 
+            DB::raw("CASE WHEN tx_merchant_delivery_order.StatusDO = 'S024' THEN 'Dalam Pengiriman' WHEN tx_merchant_delivery_order.StatusDO = 'S025' THEN 'Selesai' ELSE '' END AS StatusDO"), 
+            'ms_user.Name', 'ms_vehicle.VehicleName', 'tx_merchant_delivery_order.VehicleLicensePlate');
+
+        if (Auth::user()->RoleID == "AD" && Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $sqlAllRestockAndDO->where('ms_distributor.Depo', '=', $depoUser);
+        }
+
+        // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
+        if ($fromDate != '' && $toDate != '') {
+            $sqlAllRestockAndDO->whereDate('tx_merchant_order.CreatedDate', '>=', $fromDate)
+                ->whereDate('tx_merchant_order.CreatedDate', '<=', $toDate);
+        }
+
+        // Get data response
+        $data = $sqlAllRestockAndDO;
+        
+        // Return Data Using DataTables with Ajax
+        if ($request->ajax()) {
+            return Datatables::of($data)
+                ->addIndexColumn()
+                ->editColumn('CreatedDate', function ($data) {
+                    return date('d M Y H:i', strtotime($data->CreatedDate));
+                })
+                ->editColumn('Partner', function ($data) {
+                    if ($data->Partner != null) {
+                        $partner = '<a class="badge badge-info">'.$data->Partner.'</a>';
+                    } else {
+                        $partner = '';
+                    }
+                    return $partner;
+                })
+                ->editColumn('StatusOrder', function ($data) {
+                    $pesananBaru = "S009";
+                    $dikonfirmasi = "S010";
+                    $dalamProses = "S023";
+                    $dikirim = "S012";
+                    $selesai = "S018";
+                    $dibatalkan = "S011";
+
+                    if ($data->StatusOrderID == $pesananBaru) {
+                        $statusOrder = '<span class="badge badge-secondary">' . $data->StatusOrder . '</span>';
+                    } elseif ($data->StatusOrderID == $dikonfirmasi) {
+                        $statusOrder = '<span class="badge badge-primary">' . $data->StatusOrder . '</span>';
+                    } elseif ($data->StatusOrderID == $dalamProses) {
+                        $statusOrder = '<span class="badge badge-warning">' . $data->StatusOrder . '</span>';
+                    } elseif ($data->StatusOrderID == $dikirim) {
+                        $statusOrder = '<span class="badge badge-info">' . $data->StatusOrder . '</span>';
+                    } elseif ($data->StatusOrderID == $selesai) {
+                        $statusOrder = '<span class="badge badge-success">' . $data->StatusOrder . '</span>';
+                    } elseif ($data->StatusOrderID == $dibatalkan) {
+                        $statusOrder = '<span class="badge badge-danger">' . $data->StatusOrder . '</span>';
+                    } else {
+                        $statusOrder = 'Status tidak ditemukan';
+                    }
+
+                    return $statusOrder;
+                })
+                ->editColumn('TanggalDO', function ($data) {
+                    if ($data->TanggalDO) {
+                        $tanggalDO = date('d M Y H:i', strtotime($data->TanggalDO));
+                    } else {
+                        $tanggalDO = "";
+                    }
+                    
+                    return $tanggalDO;
+                })
+                ->editColumn('StatusDO', function ($data) {
+                    if ($data->StatusDO == "Dalam Pengiriman") {
+                        $statusOrder = '<span class="badge badge-warning">' . $data->StatusDO . '</span>';
+                    } elseif ($data->StatusDO == "Selesai") {
+                        $statusOrder = '<span class="badge badge-success">' . $data->StatusDO . '</span>';
+                    } else {
+                        $statusOrder = '';
+                    }
+
+                    return $statusOrder;
+                })
+                ->filterColumn('tx_merchant_order.CreatedDate', function ($query, $keyword) {
+                    $query->whereRaw("DATE_FORMAT(tx_merchant_order.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
+                })
+                ->filterColumn('TanggalDO', function ($query, $keyword) {
+                    $query->whereRaw("DATE_FORMAT(tx_merchant_delivery_order.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
+                })
+                ->filterColumn('StatusDO', function ($query, $keyword) {
+                    $query->whereRaw("ms_status_order.StatusOrder like ?", ["%$keyword%"]);
+                })
+                ->filterColumn('TotalPrice', function ($query, $keyword) {
+                    $query->whereRaw("tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price like ?", ["%$keyword%"]);
+                })
+                ->rawColumns(['Partner', 'StatusOrder', 'StatusDO'])
                 ->make(true);
         }
     }
@@ -234,7 +342,7 @@ class DistributionController extends Controller
                 'MerchantID' => $txMerchantOrder->MerchantID,
                 'StatusOrderId' => $dibatalkan,
                 'ProcessTime' => date("Y-m-d H:i:s"),
-                'ActionBy' => 'DISTRIBUTOR'
+                'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo . ' ' . Auth::user()->Name
             ];
 
             try {
@@ -509,7 +617,7 @@ class DistributionController extends Controller
             'DriverID' => $request->input('driver'),
             'VehicleID' => $request->input('vehicle'),
             'VehicleLicensePlate' => $vehicleLicensePlate,
-            'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo
+            'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo . ' ' . Auth::user()->Name
         ];
 
         try {
@@ -602,7 +710,7 @@ class DistributionController extends Controller
             'DriverID' => $request->input('driver'),
             'VehicleID' => $request->input('vehicle'),
             'VehicleLicensePlate' => $vehicleLicensePlate,
-            'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo
+            'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo . ' ' . Auth::user()->Name
         ];
 
         try {

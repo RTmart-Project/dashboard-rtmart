@@ -41,7 +41,10 @@
                     <div class="card-header p-2">
                         <ul class="nav nav-pills" id="tab-restock">
                             <li class="nav-item">
-                                <a class="nav-link active" href="#pesanan-baru" data-toggle="tab">Pesanan Baru</a>
+                                <a class="nav-link active" href="#semua-restock" data-toggle="tab">Semua Data</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#pesanan-baru" data-toggle="tab">Pesanan Baru</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="#telah-dikonfirmasi" data-toggle="tab">Telah Dikonfirmasi</a>
@@ -62,8 +65,8 @@
                     </div><!-- /.card-header -->
                     <div class="card-body mt-2">
                         <div class="tab-content">
-                            <!-- Pesanan Baru -->
-                            <div class="tab-pane active" id="pesanan-baru">
+                            <!-- Semua Data -->
+                            <div class="tab-pane active" id="semua-restock">
                                 <div class="row">
                                     <div class="col-12">
                                         <table class="table table-datatables table-striped">
@@ -71,13 +74,49 @@
                                                 <tr>
                                                     <th>Stock Order ID</th>
                                                     <th>Tgl Transaksi</th>
+                                                    <th>Distributor</th>
+                                                    <th>Merchant ID</th>
+                                                    <th>Nama Toko</th>
+                                                    <th>Nama Pemilik</th>
+                                                    <th>No. Telp</th>
+                                                    <th>Partner</th>
+                                                    <th>Status Order</th>
+                                                    <th>Delivery Order ID</th>
+                                                    <th>Tanggal Kirim DO</th>
+                                                    <th>Produk</th>
+                                                    <th>Qty</th>
+                                                    <th>Harga Satuan</th>
+                                                    <th>Harga Total</th>
+                                                    <th>Status DO</th>
+                                                    <th>Driver</th>
+                                                    <th>Kendaraan</th>
+                                                    <th>Nopol</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pesanan Baru -->
+                            <div class="tab-pane" id="pesanan-baru">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <table class="table table-datatables table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Stock Order ID</th>
+                                                    <th>Tgl Transaksi</th>
+                                                    <th>Distributor</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
                                                     <th>Partner</th>
                                                     <th>Nama Pemilik</th>
                                                     <th>No. Telp</th>
                                                     <th>Alamat</th>
-                                                    <th>Action</th>
+                                                    <th>Detail</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -96,6 +135,7 @@
                                                 <tr>
                                                     <th>Stock Order ID</th>
                                                     <th>Tgl Kirim Pesanan</th>
+                                                    <th>Distributor</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
                                                     <th>Partner</th>
@@ -121,13 +161,15 @@
                                                 <tr>
                                                     <th>Stock Order ID</th>
                                                     <th>Tgl Kirim Pesanan</th>
+                                                    <th>Distributor</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
                                                     <th>Partner</th>
                                                     <th>Nama Pemilik</th>
                                                     <th>No. Telp</th>
                                                     <th>Alamat</th>
-                                                    <th>Action</th>
+                                                    <th>Proforma Invoice</th>
+                                                    <th>Detail</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -146,13 +188,15 @@
                                                 <tr>
                                                     <th>Stock Order ID</th>
                                                     <th>Tgl Kirim Pesanan</th>
+                                                    <th>Distributor</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
                                                     <th>Partner</th>
                                                     <th>Nama Pemilik</th>
                                                     <th>No. Telp</th>
                                                     <th>Alamat</th>
-                                                    <th>Action</th>
+                                                    <th>Proforma Invoice</th>
+                                                    <th>Detail</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -171,12 +215,14 @@
                                                 <tr>
                                                     <th>Stock Order ID</th>
                                                     <th>Tgl Kirim Pesanan</th>
+                                                    <th>Distributor</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
                                                     <th>Partner</th>
                                                     <th>Nama Pemilik</th>
                                                     <th>No. Telp</th>
                                                     <th>Alamat</th>
+                                                    <th>Proforma Invoice</th>
                                                     <th>Detail</th>
                                                 </tr>
                                             </thead>
@@ -196,6 +242,7 @@
                                                 <tr>
                                                     <th>Stock Order ID</th>
                                                     <th>Tgl Pesanan</th>
+                                                    <th>Distributor</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
                                                     <th>Partner</th>
@@ -240,8 +287,10 @@
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<script src="{{url('/')}}/plugins/datatables-styles/export-datatable-styles.min.js"></script>
 <!-- Main JS -->
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
+<script src="{{url('/')}}/main/js/distribution/restock/semua-restock.js"></script>
 <script src="{{url('/')}}/main/js/distribution/restock/pesanan-baru.js"></script>
 <script src="{{url('/')}}/main/js/distribution/restock/telah-dikonfirmasi.js"></script>
 <script src="{{url('/')}}/main/js/distribution/restock/dalam-proses.js"></script>

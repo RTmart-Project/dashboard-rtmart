@@ -35,6 +35,7 @@ Route::group(['middleware' => ['auth']], function () {
         // Distribution
         Route::group(['prefix' => 'restock'], function(){
             Route::get('/', [DistributionController::class, 'restock'])->name('distribution.restock');
+            Route::get('/get/allRestockAndDO', [DistributionController::class, 'getAllRestockAndDO'])->name('distribution.getAllRestockAndDO');
             Route::get('/get/{statusOrder}', [DistributionController::class, 'getRestockByStatus'])->name('distribution.getRestockByStatus');
             Route::get('/detail/{stockOrderID}', [DistributionController::class, 'restockDetail'])->name('distribution.restockDetail');
             Route::post('/update/{stockOrderID}/{status}', [DistributionController::class, 'updateStatusRestock'])->name('distribution.updateStatusRestock');

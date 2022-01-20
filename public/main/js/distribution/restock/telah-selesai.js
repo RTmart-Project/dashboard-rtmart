@@ -29,6 +29,10 @@ $(document).ready(function () {
                     type: "date",
                 },
                 {
+                    data: "DistributorName",
+                    name: "ms_distributor.DistributorName",
+                },
+                {
                     data: "MerchantID",
                     name: "tx_merchant_order.MerchantID",
                 },
@@ -53,6 +57,12 @@ $(document).ready(function () {
                     name: "ms_merchant_account.StoreAddress",
                 },
                 {
+                    data: "Invoice",
+                    name: "Invoice",
+                    orderable: false,
+                    searchable: false,
+                },
+                {
                     data: "Action",
                     name: "Action",
                     orderable: false,
@@ -74,7 +84,7 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8],
                         orthogonal: "export",
                     },
                 },

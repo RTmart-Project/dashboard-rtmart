@@ -29,6 +29,10 @@ $(document).ready(function () {
                     type: "date",
                 },
                 {
+                    data: "DistributorName",
+                    name: "ms_distributor.DistributorName",
+                },
+                {
                     data: "MerchantID",
                     name: "tx_merchant_order.MerchantID",
                 },
@@ -74,7 +78,7 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8],
                         orthogonal: "export",
                     },
                 },

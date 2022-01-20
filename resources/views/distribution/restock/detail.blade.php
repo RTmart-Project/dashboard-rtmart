@@ -94,7 +94,10 @@
                             <div class="row">
                                 <div class="col-md-4 col-12">
                                     <label class="mb-0">Stock Order ID</label>
-                                    <p>{{ $merchantOrder->StockOrderID }}</p>
+                                    <p class="m-0">{{ $merchantOrder->StockOrderID }}</p>
+                                    @if ($merchantOrder->StatusOrderID == "S023" || $merchantOrder->StatusOrderID == "S012" || $merchantOrder->StatusOrderID == "S018")
+                                        <a href="{{ route('restock.invoice', ['stockOrderId' => $merchantOrder->StockOrderID]) }}" target="_blank" class="btn btn-sm btn-info mb-2">Lihat Proforma Invoice</a>
+                                    @endif
                                 </div>
                                 <div class="col-md-4 col-12">
                                     <label class="mb-0">Status Pesanan</label>
@@ -518,6 +521,66 @@
                                         <div class="col-6">
                                             <label class="mb-0">Komentar: </label>
                                             {{ $merchantOrder->Feedback }}
+                                        </div>
+                                        <div class="border-top border-secondary my-2">
+                                            <h6 class="mt-2">Detail Delivery Order</h6>
+                                            @foreach ($deliveryOrder as $do)
+                                            <div class="card card-success">
+                                                <div class="card-header">
+                                                    <h3 class="card-title font-weight-bold">{{ $do->DeliveryOrderID }}</h3>
+                                                    <div class="card-tools">
+                                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                                    </div>
+                                                </div>
+                                                <!-- /.card-header -->
+                                                <div class="card-body">
+                                                    @foreach ($do->DetailProduct as $product)
+                                                    <div class="row m-0 mb-2 text-center">
+                                                        <div class="col-3 align-self-center">
+                                                            <img src="{{ config('app.base_image_url') . '/product/'. $product->ProductImage }}" alt="" width="60">
+                                                        </div>
+                                                        <div class="col-3 align-self-center">
+                                                            <p class="m-0">{{ $product->ProductName }}</p>
+                                                        </div>
+                                                        <div class="col-3 align-self-center">
+                                                            <p class="m-0">{{ $product->Qty }}x {{ Helper::formatCurrency($product->Price, '@Rp ') }}</p>
+                                                        </div>
+                                                        <div class="col-3 align-self-center">
+                                                            <p class="m-0">{{ Helper::formatCurrency($product->Qty * $product->Price, 'Rp ') }}</p>
+                                                        </div>
+                                                    </div>
+                                                    @endforeach
+                                                    <div class="row m-0 border-bottom border-top">
+                                                        <div class="col-8 col-md-9 pt-2">
+                                                            @if ($do->Name != null)
+                                                                <p class="m-0"><b>Driver : </b>{{ $do->Name }} - {{ $do->VehicleName }} ({{ $do->VehicleLicensePlate }})</p>
+                                                            @else
+                                                                <p class="m-0"><b>Driver : </b>-</p>
+                                                            @endif
+                                                        </div>
+                                                        <div class="col-4 col-md-3 d-flex justify-content-center">
+                                                            <p class="text-center my-2">
+                                                                <b>SubTotal : </b>
+                                                                <span class="price-subtotal">{{ Helper::formatCurrency($do->SubTotal, 'Rp ') }}</span>
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row m-0 pt-2">
+                                                        <div class="col-4 col-md-4 align-self-center">
+                                                            <b>{{ $do->StatusOrder }}</b>
+                                                        </div>
+                                                        <div class="col-8 col-md-5 align-self-center text-right text-md-left">
+                                                            Dikirim {{ date('d M Y H:i', strtotime($do->CreatedDate)) }}<br>
+                                                            Selesai {{ date('d M Y H:i', strtotime($do->FinishDate)) }}
+                                                        </div>
+                                                        <div class="col-12 col-md-3 align-self-center text-md-center">
+                                                            <a href="{{ route('restockDeliveryOrder.invoice', ['deliveryOrderId' => $do->DeliveryOrderID]) }}" target="_blank" class="btn btn-sm btn-info">Delivery Invoice</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- /.card-body -->
+                                            </div>
+                                            @endforeach
                                         </div>
                                     @elseif ($merchantOrder->StatusOrderID == "S011") {{-- Telah Dibatalkan --}}
                                         <label class="mb-0">Alasan dibatalkan:</label>
