@@ -7,6 +7,8 @@
 
 		<!-- Favicon -->
 		<link rel="shortcut icon" href="{{ url('/') }}/dist/img/rtmart_logo.png" type="image/x-icon">
+		<!-- Theme style -->
+    <link rel="stylesheet" href="{{url('/')}}/dist/css/adminlte.min.css">
 
 		<!-- Invoice styling -->
 		<style>
@@ -121,57 +123,51 @@
 
 	<body>
 		<div class="invoice-box">
-			<table>
-				<tr class="top">
-					<td colspan="4">
-						<table>
-							<tr>
-								<td class="title">
-									<img src="{{ url('/') }}/dist/img/rtmart.png" alt="Company logo" style="width: 100%; max-width: 220px" />
-								</td>
 
-								<td>
-									<b>DELIVERY ORDER INVOICE</b><br>
-									#{{ $merchant->StockOrderID }} <br>
-									#{{ $merchant->DeliveryOrderID }} <br>
-									Tgl Pengiriman: {{ date('d M Y H:i', strtotime($merchant->CreatedDate)) }}<br>
-                  @if ($merchant->StatusOrder == "Selesai")
-                  Tgl Selesai: {{ date('d M Y H:i', strtotime($merchant->FinishDate)) }}<br>
-                  @endif
-									{{ $merchant->StatusOrder }}
-								</td>
-							</tr>
-						</table>
-					</td>
-				</tr>
+			<div class="row m-1 mb-3">
+				<div class="col-6 text-left">
+					<img src="{{ url('/') }}/dist/img/rtmart.png" alt="Company logo" style="width: 100%; max-width: 220px" />
+				</div>
+				<div class="col-6 text-right">
+					<b>DELIVERY ORDER INVOICE</b><br>
+					#{{ $merchant->StockOrderID }} <br>
+					#{{ $merchant->DeliveryOrderID }} <br>
+					Tgl Pengiriman: {{ date('d M Y H:i', strtotime($merchant->CreatedDate)) }}<br>
+					@if ($merchant->StatusOrder == "Selesai")
+					Tgl Selesai: {{ date('d M Y H:i', strtotime($merchant->FinishDate)) }}<br>
+					@endif
+					{{ $merchant->StatusOrder }}
+				</div>
+			</div>
 
-				<tr class="information">
-					<td colspan="4">
-						<table>
-							<tr>
-								<td>
-									{{ $merchant->MerchantID }}<br>
-									{{ $merchant->StoreName }}<br>
-									{{ $merchant->OwnerFullName }}<br>
-									{{ $merchant->PhoneNumber }}
-								</td>
+			<div class="row m-1 mb-4">
+				<div class="col-6 text-left">
+					<label class="mb-1">Pembeli</label>
+				</div>
+				<div class="col-6 text-right">
+					<label class="mb-1">Alamat</label>
+				</div>
+				<div class="col-6 text-left">
+					<div class="row">
+						<div class="col-4">ID Toko</div>
+						<div class="col-1 text-center">:</div>
+						<div class="col-7">{{ $merchant->MerchantID }}</div>
 
-								<td class="responsive-td">
-									{{ $merchant->StoreAddress }}
-								</td>
-							</tr>
-						</table>
-					</td>
-				</tr>
+						<div class="col-4">Nama Toko</div>
+						<div class="col-1 text-center">:</div>
+						<div class="col-7">{{ $merchant->StoreName }} ({{ $merchant->OwnerFullName }})</div>
 
-				<tr class="heading">
-					<td colspan="4">Metode Pembayaran</td>
-				</tr>
+						<div class="col-4">No. Telepon</div>
+						<div class="col-1 text-center">:</div>
+						<div class="col-7">{{ $merchant->PhoneNumber }}</div>
+					</div>
+				</div>
+				<div class="col-6 text-right">
+					{{ $merchant->StoreAddress }}
+				</div>
+			</div>
 
-				<tr class="details">
-					<td colspan="4">{{ $merchant->PaymentMethodName }}</td>
-				</tr>
-
+			<table class="mb-3">
 				<tr class="heading">
 					<td>Produk</td>
 					<td class="text-center">Qty</td>
@@ -197,6 +193,22 @@
 					<th colspan="1" class="text-right pt">{{ Helper::formatCurrency($subTotal, 'Rp ') }}</th>
 				</tr>
 			</table>
+			<div class="border-top">
+				<div class="row mt-4 text-left">
+					<div class="col-7">
+						Pengirim : <strong>{{ $merchant->Name == "" ? '-' : $merchant->Name }}</strong>
+					</div>
+					<div class="col-5">
+						Metode Pembayaran : <strong>{{ $merchant->PaymentMethodName }}</strong>
+					</div>
+					<div class="col-7 mt-5">
+						<small>Invoice ini sah dan diproses oleh komputer</small>
+					</div>
+					<div class="col-5 mt-5 font-italic">
+						<small class="">Terakhir diupdate: {{ date('d F Y H:i', strtotime($processTime)) }} WIB</small>
+					</div>
+				</div>
+			</div>
 		</div>
 		<script>
 			window.addEventListener("load", window.print());

@@ -42,8 +42,9 @@ class InvoiceController extends Controller
             ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_delivery_order.StatusDO')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
+            ->leftJoin('ms_user', 'ms_user.UserID', 'tx_merchant_delivery_order.DriverID')
             ->where('tx_merchant_delivery_order.DeliveryOrderID', '=', $deliveryOrderId)
-            ->select('tx_merchant_order.StockOrderID', 'ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'ms_status_order.StatusOrder', 'ms_payment_method.PaymentMethodName', 'tx_merchant_delivery_order.DeliveryOrderID', 'tx_merchant_delivery_order.CreatedDate', 'tx_merchant_delivery_order.FinishDate')
+            ->select('tx_merchant_order.StockOrderID', 'ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'ms_status_order.StatusOrder', 'ms_payment_method.PaymentMethodName', 'tx_merchant_delivery_order.DeliveryOrderID', 'tx_merchant_delivery_order.CreatedDate', 'tx_merchant_delivery_order.FinishDate', 'ms_user.Name')
             ->first();
 
         $detailDeliveryOrder = DB::table('tx_merchant_delivery_order_detail')
@@ -57,10 +58,15 @@ class InvoiceController extends Controller
             $subTotal += $value->Price * $value->Qty;
         }
 
+        $processTime = DB::table('tx_merchant_delivery_order_log')
+            ->where('DeliveryOrderID', $deliveryOrderId)
+            ->max('ProcessTime');
+
         return view('merchant.restock.invoice.invoice_do', [
             'merchant' => $merchant,
             'detailDeliveryOrder' => $detailDeliveryOrder,
-            'subTotal' => $subTotal
+            'subTotal' => $subTotal,
+            'processTime' => $processTime
         ]);
     }
 }
