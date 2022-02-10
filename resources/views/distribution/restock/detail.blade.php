@@ -280,7 +280,7 @@
                                                         <div class="modal-body">
                                                             @if ($deliveryOrder->count() > 0)
                                                                 @foreach ($deliveryOrder as $item)
-                                                                <div class="card card-{{ $item->StatusOrder == "Selesai" ? 'success' : 'warning' }}" detail-do>
+                                                                <div class="card @if ($item->StatusDO == "S025") card-success @elseif($item->StatusDO == "S024") card-warning @else card-danger @endif" detail-do>
                                                                     <div class="card-header">
                                                                         <h3 class="card-title">
                                                                             <b class="d-block d-md-inline">Delivery Order ID :</b> {{ $item->DeliveryOrderID }}
@@ -583,9 +583,14 @@
                                         <div class="border-top border-secondary my-2">
                                             <h6 class="mt-2">Detail Delivery Order</h6>
                                             @foreach ($deliveryOrder as $do)
-                                            <div class="card card-success">
+                                            <div class="card card-outline @if ($do->StatusDO == "S025") card-success @elseif($do->StatusDO == "S024") card-warning @else card-danger @endif">
                                                 <div class="card-header">
-                                                    <h3 class="card-title font-weight-bold">{{ $do->DeliveryOrderID }}</h3>
+                                                    <h3 class="card-title font-weight-bold">
+                                                        {{ $do->DeliveryOrderID }}
+                                                        @if ($do->Distributor == "HAISTAR")
+                                                            <span class="badge badge-info">HAISTAR</span>
+                                                        @endif
+                                                    </h3>
                                                     <div class="card-tools">
                                                         <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
                                                     </div>
@@ -612,6 +617,8 @@
                                                         <div class="col-8 col-md-9 pt-2">
                                                             @if ($do->Name != null)
                                                                 <p class="m-0"><b>Driver : </b>{{ $do->Name }} - {{ $do->VehicleName }} ({{ $do->VehicleLicensePlate }})</p>
+                                                            @elseif ($do->Distributor == "HAISTAR")
+                                                                <p class="m-0"><b>Driver : </b>HAISTAR</p>
                                                             @else
                                                                 <p class="m-0"><b>Driver : </b>-</p>
                                                             @endif
@@ -629,7 +636,9 @@
                                                         </div>
                                                         <div class="col-8 col-md-5 align-self-center text-right text-md-left">
                                                             Dikirim {{ date('d M Y H:i', strtotime($do->CreatedDate)) }}<br>
-                                                            Selesai {{ date('d M Y H:i', strtotime($do->FinishDate)) }}
+                                                            @if ($do->FinishDate != null)
+                                                                Selesai {{ date('d M Y H:i', strtotime($do->FinishDate)) }}
+                                                            @endif
                                                         </div>
                                                         <div class="col-12 col-md-3 align-self-center text-md-center">
                                                             <a href="{{ route('restockDeliveryOrder.invoice', ['deliveryOrderId' => $do->DeliveryOrderID]) }}" target="_blank" class="btn btn-sm btn-info">Delivery Invoice</a>
@@ -906,6 +915,8 @@
             title: 'Selesaikan Order',
             content: `Apakah order <b>${deliveryOrderId}</b> telah selesai?`,
             closeIcon: true,
+            type: 'green',
+            typeAnimated: true,
             buttons: {
                 ya: {
                     btnClass: 'btn-success',
@@ -913,6 +924,41 @@
                     dragWindowGap: 0,
                     action: function () {
                         window.location = '/distribution/restock/update/deliveryOrder/' + deliveryOrderId
+                    }
+                },
+                tidak: function () {
+                }
+            }
+        });
+    });
+
+    // Event listener saat tombol selesaikan order diklik
+    $('.btn-cancel-do-haistar').on('click', function (e) {
+        e.preventDefault();
+        const deliveryOrderId = $(this).data("do-id");
+        $.confirm({
+            title: 'Batalkan Order!',
+            content: `Apakah yakin ingin membatalkan order <b>${deliveryOrderId}</b>? <br>
+                    <label class="mt-2 mb-0">Alasan Batal:</label>
+                    <form action="/distribution/restock/cancel/deliveryOrder/${deliveryOrderId}" method="post">
+                        @csrf
+                        <input type="text" class="form-control cancel_reason" name="cancel_reason" autocomplete="off">
+                    </form>`,
+            closeIcon: true,
+            type: 'red',
+            typeAnimated: true,
+            buttons: {
+                ya: {
+                    btnClass: 'btn-danger',
+                    draggable: true,
+                    dragWindowGap: 0,
+                    action: function () {
+                        let cancel_reason = this.$content.find('.cancel_reason').val();
+                        if (!cancel_reason) {
+                            $.alert('Alasan tidak boleh kosong', 'Alasan Batal');
+                            return false;
+                        }
+                        let form = this.$content.find('form').submit();
                     }
                 },
                 tidak: function () {

@@ -273,6 +273,7 @@ class DistributionController extends Controller
                 ->join('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderID', '=', 'tx_merchant_delivery_order.DeliveryOrderID')
                 ->where('tx_merchant_delivery_order.StockOrderID', '=', $stockOrderID)
                 ->where('tx_merchant_delivery_order_detail.ProductID', '=', $value->ProductID)
+                ->where('tx_merchant_delivery_order.StatusDO', '!=', 'S026')
                 ->selectRaw('IFNULL(SUM(tx_merchant_delivery_order_detail.Qty), 0) as Qty')
                 ->first();
             $value->QtyDO = $productQtyDO->Qty;
@@ -901,6 +902,47 @@ class DistributionController extends Controller
             return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID->StockOrderID])->with('success', 'Data Delivery Order berhasil diubah');
         } catch (\Throwable $th) {
             return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID->StockOrderID])->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
+        }
+    }
+
+    public function cancelDeliveryOrder(Request $request, $deliveryOrderId, HaistarService $haistarService)
+    {
+        $cancelReason = $request->input('cancel_reason');
+
+        $deliveryOrder = DB::table('tx_merchant_delivery_order')
+            ->where('DeliveryOrderID', '=', $deliveryOrderId)
+            ->select('*')->first();
+
+        $dataLogDO = [
+            'StockOrderID' => $deliveryOrder->StockOrderID,
+            'DeliveryOrderID' => $deliveryOrderId,
+            'StatusDO' => 'S026',
+            'DriverID' => $deliveryOrder->DriverID,
+            'VehicleID' => $deliveryOrder->VehicleID,
+            'VehicleLicensePlate' => $deliveryOrder->VehicleLicensePlate,
+            'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo . ' ' . Auth::user()->Name
+        ];
+
+        $haistarCancelOrder = $haistarService->haistarCancelOrder($deliveryOrderId, $cancelReason);
+        
+        if ($haistarCancelOrder->status == 200) {
+            try {
+                DB::transaction(function() use ($deliveryOrderId, $cancelReason, $dataLogDO) {
+                    DB::table('tx_merchant_delivery_order')
+                        ->where('DeliveryOrderID', '=', $deliveryOrderId)
+                        ->update([
+                            'StatusDO' => 'S026',
+                            'CancelReason' => $cancelReason
+                        ]);
+                    DB::table('tx_merchant_delivery_order_log')
+                        ->insert($dataLogDO);
+                });
+                return redirect()->route('distribution.restockDetail', ['stockOrderID' => $deliveryOrder->StockOrderID])->with('success', 'Data Delivery Order berhasil dibatalkan');
+            } catch (\Throwable $th) {
+                return redirect()->route('distribution.restockDetail', ['stockOrderID' => $deliveryOrder->StockOrderID])->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
+            }
+        } else {
+            return redirect()->route('distribution.restockDetail', ['stockOrderID' => $deliveryOrder->StockOrderID])->with('failed', 'Gagal, terjadi kesalahan');
         }
     }
 

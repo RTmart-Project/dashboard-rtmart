@@ -196,7 +196,11 @@
 			<div class="border-top">
 				<div class="row mt-4 text-left">
 					<div class="col-7">
-						Pengirim : <strong>{{ $merchant->Name == "" ? '-' : $merchant->Name }}</strong>
+						@if ($merchant->Distributor == "HAISTAR")
+							Pengirim : <strong>HAISTAR</strong>
+						@else
+							Pengirim : <strong>{{ $merchant->Name == "" ? '-' : $merchant->Name }}</strong>
+						@endif
 					</div>
 					<div class="col-5">
 						Metode Pembayaran : <strong>{{ $merchant->PaymentMethodName }}</strong>
