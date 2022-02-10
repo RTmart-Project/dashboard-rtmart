@@ -346,7 +346,7 @@ class DistributionController extends Controller
                 'MerchantID' => $txMerchantOrder->MerchantID,
                 'StatusOrderId' => $dibatalkan,
                 'ProcessTime' => date("Y-m-d H:i:s"),
-                'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo . ' ' . Auth::user()->Name
+                'ActionBy' => 'DISTRIBUTOR'
             ];
 
             try {
