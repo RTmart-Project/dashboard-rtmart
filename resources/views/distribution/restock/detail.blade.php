@@ -282,7 +282,12 @@
                                                                 @foreach ($deliveryOrder as $item)
                                                                 <div class="card card-{{ $item->StatusOrder == "Selesai" ? 'success' : 'warning' }}" detail-do>
                                                                     <div class="card-header">
-                                                                        <h3 class="card-title"><b class="d-block d-md-inline">Delivery Order ID :</b> {{ $item->DeliveryOrderID }}</h3>
+                                                                        <h3 class="card-title">
+                                                                            <b class="d-block d-md-inline">Delivery Order ID :</b> {{ $item->DeliveryOrderID }}
+                                                                            @if ($item->Distributor == "HAISTAR")
+                                                                                <span class="badge badge-info">HAISTAR</span>
+                                                                            @endif
+                                                                        </h3>
                                                                         <div class="card-tools">
                                                                             <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                                                                 <i class="fas fa-minus"></i>
@@ -304,7 +309,7 @@
                                                                                 </div>
                                                                                 <div class="col-3 align-self-center">
                                                                                     <label class="d-block">Qty</label>
-                                                                                    @if ($item->StatusOrder == "Selesai")
+                                                                                    @if ($item->StatusOrder == "Selesai" || $item->Distributor == "HAISTAR")
                                                                                     <p>{{ $product->Qty }}x {{ Helper::formatCurrency($product->Price, '@Rp ') }}</p>
                                                                                     @else
                                                                                     <p>
@@ -321,9 +326,11 @@
                                                                             @endforeach
                                                                             <div class="row m-0 border-bottom">
                                                                                 <div class="col-6 col-md-8 pt-2">
-                                                                                    @if ($item->StatusOrder == "Selesai")
+                                                                                    @if ($item->StatusOrder == "Selesai" || $item->Distributor == "HAISTAR")
                                                                                         @if ($item->Name != null)
                                                                                             <p class="m-0"><b>Driver : </b>{{ $item->Name }} - {{ $item->VehicleName }} ({{ $item->VehicleLicensePlate }})</p>
+                                                                                        @elseif ($item->DriverID == "HAISTAR")
+                                                                                            <p class="m-0"><b>Driver : </b>HAISTAR</p>
                                                                                         @else
                                                                                             <p class="m-0"><b>Driver : </b>-</p>
                                                                                         @endif
@@ -368,7 +375,7 @@
                                                                                         <span class="price-subtotal">{{ Helper::formatCurrency($item->SubTotal, 'Rp ') }}</span>
                                                                                     </p>
                                                                                 </div>
-                                                                                @if ($item->StatusOrder != "Selesai")
+                                                                                @if ($item->StatusOrder == "Dalam Pengiriman" && $item->Distributor != "HAISTAR")
                                                                                 <div class="col-11 d-flex justify-content-end">
                                                                                     <button type="submit" id="update_qty" class="btn btn-xs btn-primary text-white mb-2">Simpan</button>
                                                                                 </div>
@@ -378,8 +385,10 @@
                                                                         <div class="row m-0 pt-2">
                                                                             <div class="col-3 col-md-4 align-self-center">
                                                                                 <b>{{ $item->StatusOrder }}</b> <br>
-                                                                                @if ($item->StatusOrder == "Dalam Pengiriman")
+                                                                                @if ($item->StatusOrder == "Dalam Pengiriman" && $item->Distributor != "HAISTAR")
                                                                                 <a href="#" class="btn btn-xs btn-success btn-finish-do mb-2" data-do-id="{{ $item->DeliveryOrderID }}">Selesaikan Order</a>
+                                                                                @elseif ($item->StatusOrder == "Dalam Pengiriman" && $item->Distributor == "HAISTAR")
+                                                                                <a href="#" class="btn btn-xs btn-danger btn-cancel-do-haistar mb-2" data-do-id="{{ $item->DeliveryOrderID }}">Batalkan Order Haistar</a>
                                                                                 @endif
                                                                             </div>
                                                                             <div class="col-6 col-md-5 align-self-center">
@@ -426,7 +435,7 @@
                                                                     <h5 class="py-2">Semua Barang Telah Dikirim.</h5>
                                                                 </div>
                                                             @else
-                                                            <form action="{{ route('distribution.createDeliveryOrder', ['stockOrderID' => $stockOrderID]) }}" method="post">
+                                                            <form action="" method="post" id="form-add-do">
                                                                 @csrf
                                                                 <div class="row m-0">
                                                                     <div class="col-md-6 col-12">
@@ -438,27 +447,36 @@
                                                                     <div class="col-md-6 col-12">
                                                                         <div class="form-group">
                                                                             <label class="my-0" for="driver">Driver</label>
-                                                                            <select name="driver" id="driver" class="form-control border selectpicker" data-live-search="true" title="Pilih Driver" required>
+                                                                            <select name="driver" id="driver" class="form-control border selectpicker @if($errors->has('driver')) is-invalid @endif" data-live-search="true" title="Pilih Driver">
                                                                             @foreach ($drivers as $driver)
                                                                                 <option value="{{ $driver->UserID }}">{{ $driver->Name }}</option>
                                                                             @endforeach
                                                                             </select>
+                                                                            @if($errors->has('driver'))
+                                                                                <span class="error invalid-feedback">{{ $errors->first('driver') }}</span>
+                                                                            @endif
                                                                         </div>
                                                                     </div>
                                                                     <div class="col-md-6 col-12">
                                                                         <div class="form-group">
                                                                             <label class="my-0" for="vehicle">Jenis Kendaraan</label>
-                                                                        <select name="vehicle" id="vehicle" class="form-control border selectpicker" data-live-search="true" title="Pilih Jenis Kendaraan" required>
+                                                                        <select name="vehicle" id="vehicle" class="form-control border selectpicker @if($errors->has('vehicle')) is-invalid @endif" data-live-search="true" title="Pilih Jenis Kendaraan">
                                                                             @foreach ($vehicles as $vehicle)
                                                                                 <option value="{{ $vehicle->VehicleID }}">{{ $vehicle->VehicleName }}</option>
                                                                             @endforeach
                                                                         </select>
+                                                                        @if($errors->has('vehicle'))
+                                                                            <span class="error invalid-feedback">{{ $errors->first('vehicle') }}</span>
+                                                                        @endif
                                                                         </div>
                                                                     </div>
                                                                     <div class="col-md-6 col-12">
                                                                         <div class="form-group">
                                                                             <label class="my-0" for="license_plate">Plat Nomor Kendaraan</label>
-                                                                            <input type="text" name="license_plate" id="license_plate" class="form-control" placeholder="Masukkan Plat Nomor Kendaraan" onkeyup="this.value = this.value.toUpperCase();" autocomplete="off" required>
+                                                                            <input type="text" name="license_plate" id="license_plate" class="form-control @if($errors->has('license_plate')) is-invalid @endif" placeholder="Masukkan Plat Nomor Kendaraan" onkeyup="this.value = this.value.toUpperCase();" autocomplete="off">
+                                                                            @if($errors->has('license_plate'))
+                                                                                <span class="error invalid-feedback">{{ $errors->first('license_plate') }}</span>
+                                                                            @endif
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -468,11 +486,51 @@
                                                                 <div class="callout callout-warning py-2">
                                                                     <p>Pilih terlebih dahulu barang yang ingin dikirim</p>
                                                                 </div>
+                                                                
+                                                                @if ($isHasHaistar == 1)
+                                                                    <label class="m-0">Produk Haistar</label>
+                                                                    @foreach ($productAddDO as $item)
+                                                                        @if ($item->PromisedQuantity != $item->QtyDO && $item->IsHaistarProduct == 1)
+                                                                        <div class="row text-center border-bottom m-0 add-do">
+                                                                            <div class="col-1 align-self-center">
+                                                                                <input type="checkbox" class="check_haistar">
+                                                                            </div>
+                                                                            <div class="col-3 align-self-center">
+                                                                                <img src="{{ config('app.base_image_url') . '/product/'. $item->ProductImage }}" alt="" width="80">
+                                                                                <p class="mb-1">{{ $item->ProductName }}</p>
+                                                                                <input type="hidden" name="product_id[]" id="product_id" value="{{ $item->ProductID }}" disabled="disabled">
+                                                                                <input type="hidden" name="price[]" id="price" value="{{ $item->Nett }}" disabled="disabled">
+                                                                            </div>
+                                                                            <div class="col-2 align-self-center">
+                                                                                <label>Qty Beli</label>
+                                                                                <p>{{ $item->PromisedQuantity }}x 
+                                                                                    <span class="nett-price">{{ Helper::formatCurrency($item->Nett, '@Rp ') }}</span>
+                                                                                </p>
+                                                                            </div>
+                                                                            <div class="col-2 align-self-center">
+                                                                                <label>Qty Belum Dikirim</label>
+                                                                                <p>{{ $item->PromisedQuantity - $item->QtyDO }}</p>
+                                                                                <input type="hidden" name="max_qty_do[]" id="max_qty_do" value="{{ $item->PromisedQuantity - $item->QtyDO }}" disabled="disabled">
+                                                                            </div>
+                                                                            <div class="col-2 align-self-center">
+                                                                                <label>Qty Kirim</label>
+                                                                                <input type="number" name="qty_do[]" id="qty_do" class="form-control text-center qty-do" max="{{ $item->PromisedQuantity - $item->QtyDO }}" min="1" disabled="disabled" required>
+                                                                            </div>
+                                                                            <div class="col-2 align-self-center">
+                                                                                <label>Total Harga</label>
+                                                                                <p>Rp <span class="total-price">0</span></p>
+                                                                            </div>
+                                                                        </div>
+                                                                        @endif
+                                                                    @endforeach
+                                                                @endif
+
+                                                                <label class="m-0 mt-2">Produk RT Mart</label>
                                                                 @foreach ($productAddDO as $item)
-                                                                    @if ($item->PromisedQuantity != $item->QtyDO)
+                                                                    @if ($item->PromisedQuantity != $item->QtyDO && $item->IsHaistarProduct == 0)
                                                                     <div class="row text-center border-bottom m-0 add-do">
                                                                         <div class="col-1 align-self-center">
-                                                                            <input type="checkbox" id="check_do">
+                                                                            <input type="checkbox" class="check_rtmart">
                                                                         </div>
                                                                         <div class="col-3 align-self-center">
                                                                             <img src="{{ config('app.base_image_url') . '/product/'. $item->ProductImage }}" alt="" width="80">
@@ -613,21 +671,21 @@
     // Event listener saat mengetik qty edit delivery order
     $('.edit-qty-do').on('keyup', function (e) {
         e.preventDefault();
-            const priceProduct = $(this).next().text().replaceAll("x @Rp ", "").replaceAll(".", "");
-            const qtyDO = $(this).val();
-            
-            const totalPriceProduct = Number(qtyDO) * Number(priceProduct);
-            $(this).parent().parent().next().children().last().html('Rp ' + thousands_separators(totalPriceProduct));
-            
-            const totalPriceAllProductArr = $(this).closest('.detail-do-wrapper').find('.price-total').text().replace("Rp ", "").replaceAll("Rp ", ",").replaceAll(".", "").split(",");
+        const priceProduct = $(this).next().text().replaceAll("x @Rp ", "").replaceAll(".", "");
+        const qtyDO = $(this).val();
+        
+        const totalPriceProduct = Number(qtyDO) * Number(priceProduct);
+        $(this).parent().parent().next().children().last().html('Rp ' + thousands_separators(totalPriceProduct));
+        
+        const totalPriceAllProductArr = $(this).closest('.detail-do-wrapper').find('.price-total').text().replace("Rp ", "").replaceAll("Rp ", ",").replaceAll(".", "").split(",");
 
-            let priceAllProductNumber = totalPriceAllProductArr.map(Number);
-            let subTotalDO = 0;
-            $.each(priceAllProductNumber, function() {
-                subTotalDO += this;
-            });
+        let priceAllProductNumber = totalPriceAllProductArr.map(Number);
+        let subTotalDO = 0;
+        $.each(priceAllProductNumber, function() {
+            subTotalDO += this;
+        });
 
-            $(this).closest('.detail-do-wrapper').find('.price-subtotal').html('Rp ' + thousands_separators(subTotalDO));
+        $(this).closest('.detail-do-wrapper').find('.price-subtotal').html('Rp ' + thousands_separators(subTotalDO));
     });
 
     function updatePrice() {
@@ -644,10 +702,9 @@
     // Event listener saat mengetik qty create delivery order
     $('.qty-do').on('keyup', function (e) {
         e.preventDefault();
-        const indexProduct = $(this).closest('.add-do').index()-4;
-        const priceProduct = $('.add-do').find('.nett-price').eq(indexProduct).text().replaceAll("@Rp ", "").replaceAll(".", "");
-        const qtyDO = $('.add-do').find('.qty-do').eq(indexProduct).val();
-        const totalPriceElm = $('.add-do').find('.total-price').eq(indexProduct);
+        const priceProduct = $(this).closest('.add-do').find('.nett-price').text().replaceAll("@Rp ", "").replaceAll(".", "");
+        const qtyDO = $(this).closest('.add-do').find('.qty-do').val();
+        const totalPriceElm = $(this).closest('.add-do').find('.total-price');
         const totalPriceProduct = Number(qtyDO) * Number(priceProduct);
         totalPriceElm.html(thousands_separators(totalPriceProduct));
 
@@ -718,7 +775,30 @@
 
     $(':checkbox').change(function() {
         $(this).closest(".add-do").find("#qty_do, #product_id, #price, #max_qty_do").prop('disabled', !$(this).is(':checked'));
-        $("#btn-do").prop('disabled', !$(this).is(':checked'));
+        if ($(':checkbox:checked').length > 0) {
+            $("#btn-do").prop('disabled', false);
+        } else {
+            $("#btn-do").prop('disabled', true);
+        }
+        
+    });
+
+    $('.check_rtmart').change(function() {
+        if ($('.check_rtmart:checked').length > 0) {
+            $('.check_haistar').prop('disabled', true);
+            $('#form-add-do').attr('action', '{{ route('distribution.createDeliveryOrder', ['stockOrderID' => $stockOrderID, 'depoChannel' => 'rtmart']) }}');
+        } else {
+            $('.check_haistar').prop('disabled', false);
+        }
+    });
+
+    $('.check_haistar').change(function() {
+        if ($('.check_haistar:checked').length > 0) {
+            $('.check_rtmart').prop('disabled', true);
+            $('#form-add-do').attr('action', '{{ route('distribution.createDeliveryOrder', ['stockOrderID' => $stockOrderID, 'depoChannel' => 'haistar']) }}');
+        } else {
+            $('.check_rtmart').prop('disabled', false);
+        }
     });
 
     // Event listener saat tombol batal diklik
