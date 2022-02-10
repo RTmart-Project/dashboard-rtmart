@@ -28,13 +28,15 @@ class DistributionController extends Controller
         $toDate = $request->input('toDate');
         $fromShipmentDate = $request->input('fromShipmentDate');
         $toShipmentDate = $request->input('toShipmentDate');
+        $paymentMethodId = $request->input('paymentMethodId');
 
         $sqlGetRestock = DB::table('tx_merchant_order')
             ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tx_merchant_order.DistributorID')
+            ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
             ->where('ms_merchant_account.IsTesting', 0)
             ->where('tx_merchant_order.StatusOrderID', '=', $statusOrder)
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'ms_distributor.DistributorName', 'tx_merchant_order.ShipmentDate', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CancelReasonNote', 'tx_merchant_order.StatusOrderID');
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'ms_distributor.DistributorName', 'tx_merchant_order.ShipmentDate', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CancelReasonNote', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'ms_payment_method.PaymentMethodName');
 
         if (Auth::user()->RoleID == "AD" && Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
@@ -51,6 +53,10 @@ class DistributionController extends Controller
                 ->whereDate('tx_merchant_order.ShipmentDate', '<=', $toShipmentDate);
         }
 
+        if ($paymentMethodId != null) {
+            $sqlGetRestock->where('tx_merchant_order.PaymentMethodID', '=', $paymentMethodId);
+        }
+
         // Get data response
         $data = $sqlGetRestock;
 
@@ -60,6 +66,9 @@ class DistributionController extends Controller
                 ->addIndexColumn()
                 ->editColumn('CreatedDate', function ($data) {
                     return date('d M Y H:i', strtotime($data->CreatedDate));
+                })
+                ->editColumn('TotalTrx', function($data) {
+                    return $data->TotalPrice - $data->DiscountPrice + $data->ServiceChargeNett;
                 })
                 ->editColumn('Partner', function ($data) {
                     if ($data->Partner != null) {
@@ -85,6 +94,9 @@ class DistributionController extends Controller
                 })
                 ->filterColumn('tx_merchant_order.ShipmentDate', function ($query, $keyword) {
                     $query->whereRaw("DATE_FORMAT(tx_merchant_order.ShipmentDate,'%d-%b-%Y') like ?", ["%$keyword%"]);
+                })
+                ->filterColumn('TotalTrx', function ($query, $keyword) {
+                    $query->whereRaw("tx_merchant_order.TotalPrice - tx_merchant_order.DiscountPrice + tx_merchant_order.ServiceChargeNett like ?", ["%$keyword%"]);
                 })
                 ->rawColumns(['Invoice', 'Partner', 'Action'])
                 ->make(true);
