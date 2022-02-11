@@ -316,6 +316,28 @@
                                 <p>Role</p>
                             </a>
                         </li>
+                        <li class="nav-item {{ Request::is('setting/module*') ? 'menu-open' : '' }}">
+                            <a href="#" class="nav-link {{ Request::is('setting/module*') ? 'active' : '' }}">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Module
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="{{ route('setting.fairbanc') }}" class="nav-link {{ Request::is('*module/fairbanc*') ? 'active' : '' }}">
+                                        <i class="far fa-dot-circle nav-icon"></i>
+                                        <p>Fairbanc</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('setting.haistar') }}" class="nav-link {{ Request::is('*module/haistar*') ? 'active' : '' }}">
+                                        <i class="far fa-dot-circle nav-icon"></i>
+                                        <p>Haistar</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
                     </ul>
                 </li>
                 @endif

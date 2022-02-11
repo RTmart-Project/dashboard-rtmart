@@ -284,9 +284,6 @@
                                                                     <div class="card-header">
                                                                         <h3 class="card-title">
                                                                             <b class="d-block d-md-inline">Delivery Order ID :</b> {{ $item->DeliveryOrderID }}
-                                                                            @if ($item->Distributor == "HAISTAR")
-                                                                                <span class="badge badge-info">HAISTAR</span>
-                                                                            @endif
                                                                         </h3>
                                                                         <div class="card-tools">
                                                                             <button type="button" class="btn btn-tool" data-card-widget="collapse">
@@ -331,6 +328,7 @@
                                                                                             <p class="m-0"><b>Driver : </b>{{ $item->Name }} - {{ $item->VehicleName }} ({{ $item->VehicleLicensePlate }})</p>
                                                                                         @elseif ($item->DriverID == "HAISTAR")
                                                                                             <p class="m-0"><b>Driver : </b>HAISTAR</p>
+                                                                                            <span class="badge badge-info">HAISTAR</span>
                                                                                         @else
                                                                                             <p class="m-0"><b>Driver : </b>-</p>
                                                                                         @endif

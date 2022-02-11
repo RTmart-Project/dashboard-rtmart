@@ -2,7 +2,68 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\DB;
+
 class HaistarService {
+
+    public function distributorHaistar()
+    {
+        $sql = DB::table('ms_distributor')
+            ->where('IsHaistar', 1)
+            ->where('Ownership', '=', 'RTMart')
+            ->where('Email', '!=', NULL)
+            ->select('DistributorID', 'DistributorName', 'Email', 'Address', 'CreatedDate', 'IsHaistar');
+        return $sql;
+    }
+
+    public function distributorNotHaistar()
+    {
+        $sql = DB::table('ms_distributor')
+            ->where('IsHaistar', 0)
+            ->where('Ownership', '=', 'RTMart')
+            ->where('Email', '!=', NULL)
+            ->select('DistributorID', 'DistributorName');
+        return $sql;
+    }
+
+    public function deleteDistributorHaistar($distributorID)
+    {
+        $sql = DB::table('ms_distributor')
+            ->where('DistributorID', $distributorID)
+            ->update([
+                'IsHaistar' => 0
+            ]);
+        return $sql;
+    }
+
+    public function dataDistributorHaistar($arrDistributorID)
+    {
+        $data = array_map(function () {
+            return func_get_args();
+        }, $arrDistributorID);
+
+        foreach ($data as $key => $value) {
+            $data[$key][] = 1;
+        }
+
+        return $data;
+    }
+
+    public function insertBulkDistributorHaistar($arrDistributorID)
+    {
+        $insert = DB::transaction(function() use ($arrDistributorID) {
+            foreach ($arrDistributorID as &$value) {
+                $value = array_combine(['DistributorID', 'IsHaistar'], $value);
+                DB::table('ms_distributor')
+                    ->where('DistributorID', '=', $value['DistributorID'])
+                    ->update([
+                        'IsHaistar' => $value['IsHaistar']
+                    ]);
+            }
+        });
+
+        return $insert;
+    }
 
     public function haistarGetSignature()
     {
@@ -220,40 +281,6 @@ class HaistarService {
 
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'GET');
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $result = curl_exec($ch);
-        curl_close($ch);
-
-        return json_decode($result);
-    }
-
-    public function haistarOrderStatusUpdate()
-    {
-        $url = env('HAISTAR_URL') . 'Api/Subscribe_Webhook_Order_Status/?apikey=' . env('HAISTAR_API_KEY');
-        $getSignature = json_decode($this->haistarGetSignature());
-
-        $ch = curl_init();
-        curl_setopt(
-            $ch,
-            CURLOPT_HTTPHEADER,
-            array(
-                'Content-Type:application/json',
-                'Apikey:' . env('HAISTAR_API_KEY')
-            )
-        );
-
-        $payload = json_encode(
-            array(
-                "apikey" => env('HAISTAR_API_KEY'),
-                "platform" => "WEB",
-                "url" => "http://google.com",
-                "hash_key" => "PksahgbYvarf09*&7565$%^225" 
-            )
-        );
-
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $result = curl_exec($ch);
