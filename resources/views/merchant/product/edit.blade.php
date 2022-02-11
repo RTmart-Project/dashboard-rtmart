@@ -108,6 +108,15 @@
                                         @endif
                                     </div>
                                 </div>
+                                <div class="col-md-6 col-12 {{ $merchantProduct->IsFulfillment == 1 ? '' : 'd-none' }}">
+                                    <div class="form-group">
+                                        <label for="quantity">Stok</label>
+                                        <input type="number" name="quantity" id="quantity" class="form-control @if($errors->has('quantity')) is-invalid @endif" value="{{ $merchantProduct->Quantity }}" placeholder="Masukkan Jumlah Stok">
+                                        @if($errors->has('quantity'))
+                                            <span class="error invalid-feedback">{{ $errors->first('quantity') }}</span>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
                             
                             <div class="form-group float-right">

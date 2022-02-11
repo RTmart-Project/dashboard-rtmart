@@ -133,6 +133,7 @@
                                                     <th>Product ID</th>
                                                     <th>Nama Produk</th>
                                                     <th>Gambar</th>
+                                                    <th>Stok</th>
                                                     <th>Kategori</th>
                                                     <th>Tipe</th>
                                                     <th>Jenis</th>
