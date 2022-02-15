@@ -962,7 +962,7 @@ class DistributionController extends Controller
                     DB::table('tx_merchant_delivery_order_log')
                         ->insert($dataLogDO);
                 });
-                return redirect()->route('distribution.restockDetail', ['stockOrderID' => $deliveryOrder->StockOrderID])->with('success', 'Data Delivery Order berhasil dibatalkan');
+                return redirect()->route('distribution.restockDetail', ['stockOrderID' => $deliveryOrder->StockOrderID])->with('success', 'Permintaan Batal Data Delivery Order berhasil');
             } catch (\Throwable $th) {
                 return redirect()->route('distribution.restockDetail', ['stockOrderID' => $deliveryOrder->StockOrderID])->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
             }
