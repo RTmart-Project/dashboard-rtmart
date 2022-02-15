@@ -941,7 +941,7 @@ class DistributionController extends Controller
         $dataLogDO = [
             'StockOrderID' => $deliveryOrder->StockOrderID,
             'DeliveryOrderID' => $deliveryOrderId,
-            'StatusDO' => 'S026',
+            'StatusDO' => 'S027',
             'DriverID' => $deliveryOrder->DriverID,
             'VehicleID' => $deliveryOrder->VehicleID,
             'VehicleLicensePlate' => $deliveryOrder->VehicleLicensePlate,
@@ -956,7 +956,7 @@ class DistributionController extends Controller
                     DB::table('tx_merchant_delivery_order')
                         ->where('DeliveryOrderID', '=', $deliveryOrderId)
                         ->update([
-                            'StatusDO' => 'S026',
+                            'StatusDO' => 'S027',
                             'CancelReason' => $cancelReason
                         ]);
                     DB::table('tx_merchant_delivery_order_log')
