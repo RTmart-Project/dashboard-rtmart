@@ -14,10 +14,8 @@ $(document).ready(function () {
             ajax: {
                 url: "/distribution/restock/get/S010",
                 data: function (d) {
-                    d.fromShipmentDate = $(
-                        "#telah-dikonfirmasi #from_date"
-                    ).val();
-                    d.toShipmentDate = $("#telah-dikonfirmasi #to_date").val();
+                    d.fromDate = $("#telah-dikonfirmasi #from_date").val();
+                    d.toDate = $("#telah-dikonfirmasi #to_date").val();
                     d.paymentMethodId = $(
                         "#telah-dikonfirmasi .select-filter-custom select"
                     ).val();
