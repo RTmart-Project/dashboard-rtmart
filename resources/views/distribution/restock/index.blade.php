@@ -8,6 +8,8 @@
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+
+<link rel="stylesheet" href="{{url('/')}}/main/css/custom/select-filter.css">
 @endsection
 
 @section('header-menu', 'Stock Order')
@@ -113,7 +115,8 @@
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
                                                     <th>Partner</th>
-                                                    <th>Nama Pemilik</th>
+                                                    <th>Total Transaksi</th>
+                                                    <th>Metode Pembayaran</th>
                                                     <th>No. Telp</th>
                                                     <th>Alamat</th>
                                                     <th>Detail</th>
@@ -134,12 +137,13 @@
                                             <thead>
                                                 <tr>
                                                     <th>Stock Order ID</th>
-                                                    <th>Tgl Kirim Pesanan</th>
+                                                    <th>Tgl Transaksi</th>
                                                     <th>Distributor</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
                                                     <th>Partner</th>
-                                                    <th>Nama Pemilik</th>
+                                                    <th>Total Transaksi</th>
+                                                    <th>Metode Pembayaran</th>
                                                     <th>No. Telp</th>
                                                     <th>Alamat</th>
                                                     <th>Detail</th>
@@ -160,12 +164,13 @@
                                             <thead>
                                                 <tr>
                                                     <th>Stock Order ID</th>
-                                                    <th>Tgl Kirim Pesanan</th>
+                                                    <th>Tgl Transaksi</th>
                                                     <th>Distributor</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
                                                     <th>Partner</th>
-                                                    <th>Nama Pemilik</th>
+                                                    <th>Total Transaksi</th>
+                                                    <th>Metode Pembayaran</th>
                                                     <th>No. Telp</th>
                                                     <th>Alamat</th>
                                                     <th>Proforma Invoice</th>
@@ -187,12 +192,14 @@
                                             <thead>
                                                 <tr>
                                                     <th>Stock Order ID</th>
-                                                    <th>Tgl Kirim Pesanan</th>
+                                                    <th>Tgl Transaksi</th>
+                                                    <th>Tgl Kirim</th>
                                                     <th>Distributor</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
                                                     <th>Partner</th>
-                                                    <th>Nama Pemilik</th>
+                                                    <th>Total Transaksi</th>
+                                                    <th>Metode Pembayaran</th>
                                                     <th>No. Telp</th>
                                                     <th>Alamat</th>
                                                     <th>Proforma Invoice</th>
@@ -214,12 +221,14 @@
                                             <thead>
                                                 <tr>
                                                     <th>Stock Order ID</th>
-                                                    <th>Tgl Kirim Pesanan</th>
+                                                    <th>Tgl Transaksi</th>
+                                                    <th>Tgl Kirim</th>
                                                     <th>Distributor</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
                                                     <th>Partner</th>
-                                                    <th>Nama Pemilik</th>
+                                                    <th>Total Transaksi</th>
+                                                    <th>Metode Pembayaran</th>
                                                     <th>No. Telp</th>
                                                     <th>Alamat</th>
                                                     <th>Proforma Invoice</th>
@@ -246,7 +255,8 @@
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
                                                     <th>Partner</th>
-                                                    <th>Nama Pemilik</th>
+                                                    <th>Total Transaksi</th>
+                                                    <th>Metode Pembayaran</th>
                                                     <th>No. Telp</th>
                                                     <th>Alamat</th>
                                                     <th>Alasan</th>
@@ -290,6 +300,7 @@
 <script src="{{url('/')}}/plugins/datatables-styles/export-datatable-styles.min.js"></script>
 <!-- Main JS -->
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
+<script src="{{url('/')}}/main/js/custom/select-filter.js"></script>
 <script src="{{url('/')}}/main/js/distribution/restock/semua-restock.js"></script>
 <script src="{{url('/')}}/main/js/distribution/restock/pesanan-baru.js"></script>
 <script src="{{url('/')}}/main/js/distribution/restock/telah-dikonfirmasi.js"></script>

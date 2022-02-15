@@ -16,6 +16,9 @@ $(document).ready(function () {
                 data: function (d) {
                     d.fromDate = $("#telah-dibatalkan #from_date").val();
                     d.toDate = $("#telah-dibatalkan #to_date").val();
+                    d.paymentMethodId = $(
+                        "#telah-dibatalkan .select-filter-custom select"
+                    ).val();
                 },
             },
             columns: [
@@ -45,8 +48,12 @@ $(document).ready(function () {
                     name: "ms_merchant_account.Partner",
                 },
                 {
-                    data: "OwnerFullName",
-                    name: "ms_merchant_account.OwnerFullName",
+                    data: "TotalTrx",
+                    name: "TotalTrx",
+                },
+                {
+                    data: "PaymentMethodName",
+                    name: "ms_payment_method.PaymentMethodName",
                 },
                 {
                     data: "PhoneNumber",
@@ -78,12 +85,31 @@ $(document).ready(function () {
                     action: exportDatatableHelper.newExportAction,
                     text: "Export",
                     titleAttr: "Excel",
+                    className: "btn-sm",
                     exportOptions: {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                         orthogonal: "export",
+                    },
+                },
+            ],
+            aoColumnDefs: [
+                {
+                    aTargets: [6],
+                    mRender: function (data, type, full) {
+                        if (type === "export") {
+                            return data;
+                        } else {
+                            if (data == null || data == "") {
+                                return data;
+                            } else {
+                                const currencySeperatorFormat =
+                                    thousands_separators(data);
+                                return currencySeperatorFormat;
+                            }
+                        }
                     },
                 },
             ],
@@ -100,6 +126,11 @@ $(document).ready(function () {
                             <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
                             <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
                             <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-2">Refresh</button>
+                            <div class="select-filter-custom ml-2">
+                                <select>
+                                    <option value="">All</option>
+                                </select>
+                            </div>
                         </div>`);
 
     // Setting Awal Daterangepicker
@@ -187,6 +218,11 @@ $(document).ready(function () {
 
     // Event listener saat tombol filter diklik
     $("#telah-dibatalkan #filter").click(function () {
+        $("#telah-dibatalkan .table-datatables").DataTable().ajax.reload();
+    });
+
+    // Event listener saat tombol select option diklik
+    $("#telah-dibatalkan .select-filter-custom select").change(function () {
         $("#telah-dibatalkan .table-datatables").DataTable().ajax.reload();
     });
 });
