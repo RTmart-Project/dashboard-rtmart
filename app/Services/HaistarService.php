@@ -289,4 +289,70 @@ class HaistarService {
         return json_decode($result);
     }
 
+    public function haistarSubscribeNewOrder()
+    {
+        $url = env('HAISTAR_URL') . 'Api/Subscribe_Webhook_Order_New/?apikey=' . env('HAISTAR_API_KEY');
+
+        $ch = curl_init();
+        curl_setopt(
+            $ch,
+            CURLOPT_HTTPHEADER,
+            array(
+                'Content-Type:application/json',
+                'Apikey:' . env('HAISTAR_API_KEY')
+            )
+        );
+
+        $payload = json_encode(
+            array(
+                "apikey" => env('HAISTAR_API_KEY'),
+                "platform" => "WEB",	
+                "url" => "https://yoururl", 
+                "hash_key" => env('HAISTAR_HASH_KEY')
+            )
+        );
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $result = curl_exec($ch);
+        curl_close($ch);
+
+        return json_decode($result);
+    }
+
+    public function haistarSubscribeStatusOrder()
+    {
+        $url = env('HAISTAR_URL') . 'Api/Subscribe_Webhook_Order_Status/?apikey=' . env('HAISTAR_API_KEY');
+
+        $ch = curl_init();
+        curl_setopt(
+            $ch,
+            CURLOPT_HTTPHEADER,
+            array(
+                'Content-Type:application/json',
+                'Apikey:' . env('HAISTAR_API_KEY')
+            )
+        );
+
+        $payload = json_encode(
+            array(
+                "apikey" => env('HAISTAR_API_KEY'),
+                "platform" => "WEB",	
+                "url" => "https://yoururl", 
+                "hash_key" => env('HAISTAR_HASH_KEY')
+            )
+        );
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $result = curl_exec($ch);
+        curl_close($ch);
+
+        return json_decode($result);
+    }
+
 }

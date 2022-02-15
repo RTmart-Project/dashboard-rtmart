@@ -214,7 +214,6 @@ class DistributionController extends Controller
 
     public function restockDetail($stockOrderID, HaistarService $haistarService)
     {
-        
         $merchantOrder = DB::table('tx_merchant_order')
             ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
             ->leftJoin('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_order.StatusOrderID')
@@ -712,6 +711,16 @@ class DistributionController extends Controller
             $objectItems = new stdClass;
             foreach ($dataDetailDO as &$value) {
                 $value = array_combine(['item_code', 'quantity', 'unit_price'], $value);
+
+                $checkStock = $haistarService->haistarGetStock($value['item_code']);
+                // $stockHaistar = 0;
+                $arrayExistStock = $checkStock->data->detail;
+                $existStock = array_sum(array_column($arrayExistStock, "exist_quantity"));
+                
+                if ($value['quantity'] > $existStock) {
+                    return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Gagal, Stock Haistar tidak mencukupi!');
+                }
+                
                 $totalPrice += $value['quantity'] * $value['unit_price'];
 
                 $objectItems->item_code = $value['item_code'];
@@ -722,7 +731,7 @@ class DistributionController extends Controller
             }
 
             $arrGetLocation = $haistarService->haistarGetLocation();
-            $location = Helper::arrayFilterFirst($arrGetLocation->data, "location_name", "WH Dummy");
+            $location = Helper::arrayFilterFirst($arrGetLocation->data, "location_name", env('HAISTAR_LOCATION'));
 
             $arrGetCourier = $haistarService->haistarGetCourier();
             $courier = Helper::arrayFilterFirst($arrGetCourier->data, "name", "Haistar");
