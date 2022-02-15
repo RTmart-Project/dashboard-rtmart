@@ -67,7 +67,7 @@ class HaistarService {
 
     public function haistarGetSignature()
     {
-        $url = env('HAISTAR_URL') . 'Api/getSignature/?apikey=' . env('HAISTAR_API_KEY');
+        $url = config('app.haistar_url') . 'Api/getSignature/?apikey=' . config('app.haistar_api_key');
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
@@ -81,7 +81,7 @@ class HaistarService {
 
     public function haistarGetStock($productID)
     {
-        $url = env('HAISTAR_URL') . 'GetStockInventory/?apikey=' . env('HAISTAR_API_KEY');
+        $url = config('app.haistar_url') . 'GetStockInventory/?apikey=' . config('app.haistar_api_key');
         $getSignature = json_decode($this->haistarGetSignature());
 
         $ch = curl_init();
@@ -90,14 +90,14 @@ class HaistarService {
             CURLOPT_HTTPHEADER,
             array(
                 'Content-Type:application/json',
-                'Apikey:' . env('HAISTAR_API_KEY'),
+                'Apikey:' . config('app.haistar_api_key'),
                 'x-authorization:' . $getSignature->Data->Signature
             )
         );
 
         $payload = json_encode(
             array(
-                "apikey" => env('HAISTAR_API_KEY'),
+                "apikey" => config('app.haistar_api_key'),
                 "code" => $productID
             )
         );
@@ -114,7 +114,7 @@ class HaistarService {
 
     public function haistarPushOrder($objectParams)
     {
-        $url = env('HAISTAR_URL') . 'Push_order/?apikey=' . env('HAISTAR_API_KEY');
+        $url = config('app.haistar_url') . 'Push_order/?apikey=' . config('app.haistar_api_key');
         $getSignature = json_decode($this->haistarGetSignature());
 
         $ch = curl_init();
@@ -123,14 +123,14 @@ class HaistarService {
             CURLOPT_HTTPHEADER,
             array(
                 'Content-Type:application/json',
-                'Apikey:' . env('HAISTAR_API_KEY'),
+                'Apikey:' . config('app.haistar_api_key'),
                 'x-authorization:' . $getSignature->Data->Signature
             )
         );
 
         $payload = json_encode(
             array(
-                "apikey" => env('HAISTAR_API_KEY'),
+                "apikey" => config('app.haistar_api_key'),
                 "location" => $objectParams->location,
                 "code" => $objectParams->code,
                 "channel_id" => "MULTI CHANNEL",
@@ -174,7 +174,7 @@ class HaistarService {
 
     public function haistarCancelOrder($deliveryOrderID, $cancelReason)
     {
-        $url = env('HAISTAR_URL') . 'requestCancel/?apikey=' . env('HAISTAR_API_KEY');
+        $url = config('app.haistar_url') . 'requestCancel/?apikey=' . config('app.haistar_api_key');
         $getSignature = json_decode($this->haistarGetSignature());
 
         $ch = curl_init();
@@ -183,14 +183,14 @@ class HaistarService {
             CURLOPT_HTTPHEADER,
             array(
                 'Content-Type:application/json',
-                'Apikey:' . env('HAISTAR_API_KEY'),
+                'Apikey:' . config('app.haistar_api_key'),
                 'x-authorization:' . $getSignature->Data->Signature
             )
         );
 
         $payload = json_encode(
             array(
-                "apikey" => env('HAISTAR_API_KEY'),
+                "apikey" => config('app.haistar_api_key'),
                 "code" => $deliveryOrderID,
                 "remarks" => $cancelReason
             )
@@ -208,7 +208,7 @@ class HaistarService {
 
     public function haistarGetLocation()
     {
-        $url = env('HAISTAR_URL') . 'Location/getLocation/?apikey=' . env('HAISTAR_API_KEY');
+        $url = config('app.haistar_url') . 'Location/getLocation/?apikey=' . config('app.haistar_api_key');
         $getSignature = json_decode($this->haistarGetSignature());
 
         $ch = curl_init();
@@ -217,7 +217,7 @@ class HaistarService {
             CURLOPT_HTTPHEADER,
             array(
                 'Content-Type:application/json',
-                'Apikey:' . env('HAISTAR_API_KEY'),
+                'Apikey:' . config('app.haistar_api_key'),
                 'x-authorization:' . $getSignature->Data->Signature
             )
         );
@@ -233,7 +233,7 @@ class HaistarService {
 
     public function haistarGetCourier()
     {
-        $url = env('HAISTAR_URL') . 'Courier/getCourier/?apikey=' . env('HAISTAR_API_KEY');
+        $url = config('app.haistar_url') . 'Courier/getCourier/?apikey=' . config('app.haistar_api_key');
         $getSignature = json_decode($this->haistarGetSignature());
 
         $ch = curl_init();
@@ -242,7 +242,7 @@ class HaistarService {
             CURLOPT_HTTPHEADER,
             array(
                 'Content-Type:application/json',
-                'Apikey:' . env('HAISTAR_API_KEY'),
+                'Apikey:' . config('app.haistar_api_key'),
                 'x-authorization:' . $getSignature->Data->Signature
             )
         );
@@ -258,7 +258,7 @@ class HaistarService {
 
     public function haistarGetCourierDeliveryType($courierName)
     {
-        $url = env('HAISTAR_URL') . 'Courier/getDeliveryType/?apikey=' . env('HAISTAR_API_KEY');
+        $url = config('app.haistar_url') . 'Courier/getDeliveryType/?apikey=' . config('app.haistar_api_key');
         $getSignature = json_decode($this->haistarGetSignature());
 
         $ch = curl_init();
@@ -267,14 +267,14 @@ class HaistarService {
             CURLOPT_HTTPHEADER,
             array(
                 'Content-Type:application/json',
-                'Apikey:' . env('HAISTAR_API_KEY'),
+                'Apikey:' . config('app.haistar_api_key'),
                 'x-authorization:' . $getSignature->Data->Signature
             )
         );
 
         $payload = json_encode(
             array(
-                "apikey" => env('HAISTAR_API_KEY'),
+                "apikey" => config('app.haistar_api_key'),
                 "courier_name" => $courierName
             )
         );
@@ -291,7 +291,7 @@ class HaistarService {
 
     public function haistarSubscribeNewOrder()
     {
-        $url = env('HAISTAR_URL') . 'Api/Subscribe_Webhook_Order_New/?apikey=' . env('HAISTAR_API_KEY');
+        $url = config('app.haistar_url') . 'Api/Subscribe_Webhook_Order_New/?apikey=' . config('app.haistar_api_key');
 
         $ch = curl_init();
         curl_setopt(
@@ -299,16 +299,16 @@ class HaistarService {
             CURLOPT_HTTPHEADER,
             array(
                 'Content-Type:application/json',
-                'Apikey:' . env('HAISTAR_API_KEY')
+                'Apikey:' . config('app.haistar_api_key')
             )
         );
 
         $payload = json_encode(
             array(
-                "apikey" => env('HAISTAR_API_KEY'),
+                "apikey" => config('app.haistar_api_key'),
                 "platform" => "WEB",	
                 "url" => "https://yoururl", 
-                "hash_key" => env('HAISTAR_HASH_KEY')
+                "hash_key" => config('app.haistar_hash_key')
             )
         );
 
@@ -324,7 +324,7 @@ class HaistarService {
 
     public function haistarSubscribeStatusOrder()
     {
-        $url = env('HAISTAR_URL') . 'Api/Subscribe_Webhook_Order_Status/?apikey=' . env('HAISTAR_API_KEY');
+        $url = config('app.haistar_url') . 'Api/Subscribe_Webhook_Order_Status/?apikey=' . config('app.haistar_api_key');
 
         $ch = curl_init();
         curl_setopt(
@@ -332,16 +332,16 @@ class HaistarService {
             CURLOPT_HTTPHEADER,
             array(
                 'Content-Type:application/json',
-                'Apikey:' . env('HAISTAR_API_KEY')
+                'Apikey:' . config('app.haistar_api_key')
             )
         );
 
         $payload = json_encode(
             array(
-                "apikey" => env('HAISTAR_API_KEY'),
+                "apikey" => config('app.haistar_api_key'),
                 "platform" => "WEB",	
                 "url" => "https://yoururl", 
-                "hash_key" => env('HAISTAR_HASH_KEY')
+                "hash_key" => config('app.haistar_hash_key')
             )
         );
 

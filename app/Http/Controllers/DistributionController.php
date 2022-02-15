@@ -743,7 +743,7 @@ class DistributionController extends Controller
             }
 
             $arrGetLocation = $haistarService->haistarGetLocation();
-            $location = Helper::arrayFilterFirst($arrGetLocation->data, "location_name", env('HAISTAR_LOCATION'));
+            $location = Helper::arrayFilterFirst($arrGetLocation->data, "location_name", config('app.haistar_location'));
 
             $arrGetCourier = $haistarService->haistarGetCourier();
             $courier = Helper::arrayFilterFirst($arrGetCourier->data, "name", "Haistar");
