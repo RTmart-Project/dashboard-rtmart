@@ -1,6 +1,10 @@
 @extends('layouts.master')
 @section('title', 'Dashboard - Edit Product ' . $merchantProduct->StoreName)
 
+@section('css-pages')
+<link rel="stylesheet" href="{{ url('/') }}/plugins/bootstrap-select/bootstrap-select.min.css">
+@endsection
+
 @section('header-menu', 'Ubah Produk ' . $merchantProduct->StoreName)
 
 @section('content')
@@ -74,9 +78,6 @@
                                         <input type="text" value="{{ $merchantProduct->ProductName }}" class="form-control" readonly>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div class="row">
                                 <div class="col-md-6 col-12">
                                     <div class="form-group">
                                         <label for="price">Harga Jual</label>
@@ -92,6 +93,27 @@
                                         <input type="number" name="purchase_price" id="purchase_price" class="form-control @if($errors->has('purchase_price')) is-invalid @endif" value="{{ $merchantProduct->PurchasePrice }}" placeholder="Masukkan Harga Beli">
                                         @if($errors->has('purchase_price'))
                                             <span class="error invalid-feedback">{{ $errors->first('purchase_price') }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <div class="form-group">
+                                        <label for="is_fulfillment">Produk Konsinyasi</label>
+                                        <select name="is_fulfillment" id="is_fulfillment" class="form-control selectpicker border">
+                                            <option value="1" {{ ($merchantProduct->IsFulfillment == 1) ? 'selected' : '' }}>Ya</option>
+                                            <option value="0" {{ ($merchantProduct->IsFulfillment == 0) ? 'selected' : '' }}>Tidak</option>
+                                        </select>
+                                        @if($errors->has('is_fulfillment'))
+                                            <span class="error invalid-feedback">{{ $errors->first('is_fulfillment') }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-12 {{ $merchantProduct->IsFulfillment == 1 ? '' : 'd-none' }}">
+                                    <div class="form-group">
+                                        <label for="quantity">Stok</label>
+                                        <input type="number" name="quantity" id="quantity" class="form-control @if($errors->has('quantity')) is-invalid @endif" value="{{ $merchantProduct->Quantity }}" placeholder="Masukkan Jumlah Stok">
+                                        @if($errors->has('quantity'))
+                                            <span class="error invalid-feedback">{{ $errors->first('quantity') }}</span>
                                         @endif
                                     </div>
                                 </div>
@@ -111,4 +133,5 @@
 
 @section('js-pages')
     <script src="{{url('/')}}/main/js/helper/input-image-view.js"></script>
+    <script src="{{url('/')}}/plugins/bootstrap-select/bootstrap-select.min.js"></script>
 @endsection

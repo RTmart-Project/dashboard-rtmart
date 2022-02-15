@@ -253,7 +253,7 @@ class MerchantController extends Controller
             ->join('ms_product_type', 'ms_product_type.ProductTypeID', '=', 'ms_product.ProductTypeID')
             ->join('ms_product_uom', 'ms_product_uom.ProductUOMID', '=', 'ms_product.ProductUOMID')
             ->where('ms_product_merchant.MerchantID', '=', $merchantId)
-            ->select('ms_product_merchant.MerchantID', 'ms_product_merchant.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product_category.ProductCategoryName', 'ms_product_type.ProductTypeName', 'ms_product_uom.ProductUOMName', 'ms_product.ProductUOMDesc', 'ms_product_merchant.Price', 'ms_product_merchant.PurchasePrice');
+            ->select('ms_product_merchant.MerchantID', 'ms_product_merchant.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product_category.ProductCategoryName', 'ms_product_type.ProductTypeName', 'ms_product_uom.ProductUOMName', 'ms_product.ProductUOMDesc', 'ms_product_merchant.Price', 'ms_product_merchant.PurchasePrice', 'ms_product_merchant.IsFulfillment', 'ms_product_merchant.Quantity');
 
         $data = $merchantProducts->get();
 
@@ -265,12 +265,20 @@ class MerchantController extends Controller
                     }
                     return '<img src="' . $this->baseImageUrl . 'product/' . $data->ProductImage . '" alt="Product Image" height="90">';
                 })
+                ->editColumn('ProductName', function ($data) {
+                    if ($data->IsFulfillment == 1) {
+                        $fulfillment = '<span class="badge badge-info">Produk Konsinyasi</span>';
+                    } else {
+                        $fulfillment = '';
+                    }
+                    return $data->ProductName . '<br>' . $fulfillment;
+                })
                 ->addColumn('Action', function ($data) {
                     $actionBtn = '<a href="/merchant/account/product/edit/' . $data->MerchantID . '/' . $data->ProductID . '" class="btn btn-sm btn-warning mr-1">Edit</a>
                     <a data-merchant-id="' . $data->MerchantID . '" data-product-id="' . $data->ProductID . '" data-product-name="' . $data->ProductName . '" href="#" class="btn-delete btn btn-sm btn-danger">Delete</a>';
                     return $actionBtn;
                 })
-                ->rawColumns(['ProductImage', 'Action'])
+                ->rawColumns(['ProductName', 'ProductImage', 'Action'])
                 ->make(true);
         }
     }
@@ -282,7 +290,7 @@ class MerchantController extends Controller
             ->leftJoin('ms_product', 'ms_product.ProductID', '=', 'ms_product_merchant.ProductID')
             ->where('ms_product_merchant.MerchantID', '=', $merchantId)
             ->where('ms_product_merchant.ProductID', '=', $productId)
-            ->select('ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.StoreImage', 'ms_merchant_account.PhoneNumber', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product_merchant.Price', 'ms_product_merchant.PurchasePrice')
+            ->select('ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.StoreImage', 'ms_merchant_account.PhoneNumber', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product_merchant.Price', 'ms_product_merchant.PurchasePrice', 'ms_product_merchant.IsFulfillment', 'ms_product_merchant.Quantity')
             ->first();
 
         return view('merchant.product.edit', [
@@ -296,7 +304,9 @@ class MerchantController extends Controller
     {
         $request->validate([
             'price' => 'required|integer',
-            'purchase_price' => 'required|integer'
+            'purchase_price' => 'required|integer',
+            'is_fulfillment' => 'required',
+            'quantity' => 'integer|nullable'
         ]);
 
         $updateMerchantProduct = DB::table('ms_product_merchant')
@@ -304,7 +314,9 @@ class MerchantController extends Controller
             ->where('ProductID', '=', $productId)
             ->update([
                 'Price' => $request->input('price'),
-                'PurchasePrice' => $request->input('purchase_price')
+                'PurchasePrice' => $request->input('purchase_price'),
+                'IsFulfillment' => $request->input('is_fulfillment'),
+                'Quantity' => $request->input('quantity')
             ]);
 
         if ($updateMerchantProduct) {

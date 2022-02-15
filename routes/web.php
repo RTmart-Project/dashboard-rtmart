@@ -12,6 +12,7 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RTSalesController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\VoucherController;
 use Illuminate\Support\Facades\Auth;
@@ -40,8 +41,9 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/detail/{stockOrderID}', [DistributionController::class, 'restockDetail'])->name('distribution.restockDetail');
             Route::post('/update/{stockOrderID}/{status}', [DistributionController::class, 'updateStatusRestock'])->name('distribution.updateStatusRestock');
             Route::get('/update/deliveryOrder/{deliveryOrderId}', [DistributionController::class, 'updateDeliveryOrder'])->name('distribution.updateDeliveryOrder');
-            Route::post('/create/deliveryOrder/{stockOrderID}', [DistributionController::class, 'createDeliveryOrder'])->name('distribution.createDeliveryOrder');
+            Route::post('/create/deliveryOrder/{stockOrderID}/{depoChannel}', [DistributionController::class, 'createDeliveryOrder'])->name('distribution.createDeliveryOrder');
             Route::get('/update/qty/{deliveryOrderId}', [DistributionController::class, 'updateQtyDO'])->name('distribution.updateQtyDO');
+            Route::post('/cancel/deliveryOrder/{deliveryOrderId}', [DistributionController::class, 'cancelDeliveryOrder'])->name('distribution.cancelDeliveryOrder');
         });
         Route::group(['prefix' => 'product'], function(){
             Route::get('/', [DistributionController::class, 'product'])->name('distribution.product');
@@ -215,6 +217,25 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/setting/role/create', [AuthController::class, 'createRole'])->name('setting.createRole');
         Route::get('/setting/role/edit/{role}', [AuthController::class, 'editRole'])->name('setting.editRole');
         Route::post('/setting/role/update/{role}', [AuthController::class, 'updateRole'])->name('setting.updateRole');
+
+        // Module
+        Route::group(['prefix' => 'setting/module'], function() {
+            // Fairbanc
+            Route::group(['prefix' => 'fairbanc'], function() {
+                Route::get('/', [SettingController::class, 'fairbanc'])->name('setting.fairbanc');
+                Route::get('/get', [SettingController::class, 'getFairbanc'])->name('setting.getFairbanc');
+                Route::post('/insert', [SettingController::class, 'insertFairbanc'])->name('setting.insertFairbanc');
+                Route::get('/delete/{merchantID}', [SettingController::class, 'deleteFairbanc'])->name('setting.deleteFairbanc');
+            });
+
+            // Haistar
+            Route::group(['prefix' => 'haistar'], function() {
+                Route::get('/', [SettingController::class, 'haistar'])->name('setting.haistar');
+                Route::get('/get', [SettingController::class, 'getHaistar'])->name('setting.getHaistar');
+                Route::post('/insert', [SettingController::class, 'insertHaistar'])->name('setting.insertHaistar');
+                Route::get('/delete/{distributorID}', [SettingController::class, 'deleteHaistar'])->name('setting.deleteHaistar');
+            });
+        });
     });
 
     // Payment Method

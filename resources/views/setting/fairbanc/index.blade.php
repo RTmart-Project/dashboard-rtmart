@@ -1,5 +1,5 @@
 @extends('layouts.master')
-@section('title', 'Dashboard - Power Merchant')
+@section('title', 'Dashboard - Merchant Fairbanc')
 
 @section('css-pages')
 <!-- Datatables -->
@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="{{ url('/') }}/plugins/bootstrap-select/bootstrap-select.min.css">
 @endsection
 
-@section('header-menu', 'Power Merchant')
+@section('header-menu', 'Merchant Fairbanc')
 
 @section('content')
 <!-- Content Header (Page header) -->
@@ -41,14 +41,14 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#modal-add-power-merchant">
-                          <i class="fas fa-plus"></i> Tambah Power Merchant
+                        <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#modal-add-merchant-fairbanc">
+                          <i class="fas fa-plus"></i> Tambah Merchant Fairbanc
                         </button>
                     </div>
 
                     <div class="card-body">
                         <div class="tab-content">
-                            <div class="tab-pane active" id="power-merchant">
+                            <div class="tab-pane active" id="merchant-fairbanc">
                                 <div class="row">
                                     <div class="col-12">
                                         <table class="table table-datatables">
@@ -75,20 +75,20 @@
                     </div>
 
                     <!-- Modal -->
-                    <div class="modal fade" id="modal-add-power-merchant" tabindex="-1" aria-labelledby="modal-add-power-merchantLabel" aria-hidden="true">
+                    <div class="modal fade" id="modal-add-merchant-fairbanc" tabindex="-1" aria-labelledby="modal-add-merchant-fairbancLabel" aria-hidden="true">
                       <div class="modal-dialog modal-lg">
                         <div class="modal-content">
-                          <form action="{{ route('merchant.insertPowerMerchant') }}" method="post">
+                          <form action="{{ route('setting.insertFairbanc') }}" method="post">
                             @csrf
                             <div class="modal-header">
-                              <h5 class="modal-title" id="modal-add-power-merchantLabel">Tambah Power Merchant</h5>
+                              <h5 class="modal-title" id="modal-add-merchant-fairbancLabel">Tambah Merchant Fairbanc</h5>
                               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                               </button>
                             </div>
                             <div class="modal-body">
-                              <label for="power_merchant">Pilih Merchant</label>
-                              <select name="power_merchant[]" id="power_merchant" class="form-control border selectpicker" title="Pilih Merchant" data-live-search="true" multiple required>
+                              <label for="merchant_fairbanc">Pilih Merchant</label>
+                              <select name="merchant_fairbanc[]" id="merchant_fairbanc" class="form-control border selectpicker" title="Pilih Merchant" data-live-search="true" multiple required>
                                 @foreach ($merchant as $item)
                                     <option value="{{ $item->MerchantID }}">{{ $item->MerchantID }} - {{ $item->StoreName }}</option>
                                 @endforeach
@@ -130,8 +130,8 @@
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!-- Main JS -->
-<script src="{{url('/')}}/main/js/merchant/account/powermerchant.js"></script>
-<script src="{{ url('/') }}/plugins/bootstrap-select/bootstrap-select.min.js"></script>
+<script src="{{url('/')}}/main/js/setting/fairbanc/fairbanc.js"></script>
+<script src="{{url('/')}}/plugins/bootstrap-select/bootstrap-select.min.js"></script>
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
 <script>
 </script>
