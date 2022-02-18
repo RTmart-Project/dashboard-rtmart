@@ -15,6 +15,8 @@
     <link rel="stylesheet" href="{{url('/')}}/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="{{url('/')}}/dist/css/adminlte.min.css">
+    <!-- BG Login -->
+    <link rel="stylesheet" href="{{url('/')}}/main/css/custom/login.css">
     <!-- IziToast -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css"
         integrity="sha512-O03ntXoVqaGUTAeAmvQ2YSzkCvclZEcPQu1eqloPaHfJ5RuNGiS4l+3duaidD801P50J28EHyonCV06CUlTSag=="
@@ -22,14 +24,14 @@
 </head>
 
 <body>
-    <div class="wrapper hold-transition login-page" @if (session('success')) data-notif-success="{{session('success')}}"
+    <div class="wrapper hold-transition login-page bg_login" @if (session('success')) data-notif-success="{{session('success')}}"
         @else data-notif-success="" @endif @if (session('failed')) data-notif-failed="{{session('failed')}}" @else
         data-notif-failed="" @endif>
         <div class="login-box">
             <!-- /.login-logo -->
             <div class="card card-outline card-danger">
                 <div class="card-header text-center">
-                    <a href="{{url('/')}}" class="h1"><b></b>RTMart</a>
+                    <a href="{{url('/')}}" class="h1"><img src="{{ url('/') }}/dist/img/rtmart.png" alt="RTmart" height="50"></a>
                 </div>
                 <div class="card-body">
                     <p class="login-box-msg">Masuk ke dashboard RTMart</p>

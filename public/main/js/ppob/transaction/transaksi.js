@@ -9,6 +9,7 @@ $(document).ready(function () {
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
             serverSide: false,
+            stateServe: true,
             "ajax": {
                 url: "/ppob/transaction/get",
                 data: function (d) {
@@ -19,19 +20,24 @@ $(document).ready(function () {
             columns: [
                 {
                     data: 'TransactionDate',
-                    name: 'TransactionDate'
+                    name: 'TransactionDate',
+                    type: 'date'
                 },
                 {
                     data: 'PPOBOrderID',
                     name: 'PPOBOrderID'
                 },
                 {
+                    data: 'MerchantID',
+                    name: 'MerchantID'
+                },
+                {
                     data: 'StoreName',
                     name: 'StoreName'
                 },
                 {
-                    data: 'MerchantID',
-                    name: 'MerchantID'
+                    data: 'PhoneNumber',
+                    name: 'PhoneNumber'
                 },
                 {
                     data: 'TypeOrder',
@@ -65,22 +71,27 @@ $(document).ready(function () {
                     modifier: {
                         page: 'all'
                     },
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                     orthogonal: 'export'
                 },
             }],
+            "order": [0, 'desc'],
             "lengthChange": false,
             "responsive": true,
             "autoWidth": false,
             "aoColumnDefs": [
                 {
-                    "aTargets": [5, 6, 7],
+                    "aTargets": [6, 7, 8],
                     "mRender": function (data, type, full) {
                         if (type === 'export') {
                             return data;
                         } else {
-                            var currencySeperatorFormat = data.replace(/\B(?=(\d{3})+(?!\d))/g, ".")
-                            return currencySeperatorFormat;
+                            if (data == null || data == "") {
+                                return data;
+                            } else {
+                                const currencySeperatorFormat = thousands_separators(data)
+                                return currencySeperatorFormat;
+                            }
                         }
                     }
                 },

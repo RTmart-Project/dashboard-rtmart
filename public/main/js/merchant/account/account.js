@@ -3,75 +3,103 @@ $(document).ready(function () {
     dataTablesMerchantAccount();
 
     function dataTablesMerchantAccount() {
-        $('#merchant-account .table-datatables').DataTable({
-            dom: "<'row'<'col-sm-12 col-md-7'<'filter-merchant-account'>tl><'col-sm-12 col-md-1'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
+        $("#merchant-account .table-datatables").DataTable({
+            dom:
+                "<'row'<'col-sm-12 col-md-7'<'filter-merchant-account'>tl><'col-sm-12 col-md-1'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
-            serverSide: false,
-            "ajax": {
+            serverSide: true,
+            stateServe: true,
+            ajax: {
                 url: "/merchant/account/get",
                 data: function (d) {
-                    d.fromDate = $('#merchant-account #from_date').val();
-                    d.toDate = $('#merchant-account #to_date').val();
-                }
+                    d.fromDate = $("#merchant-account #from_date").val();
+                    d.toDate = $("#merchant-account #to_date").val();
+                    d.distributorId = $(
+                        "#merchant-account .select-filter-custom select"
+                    ).val();
+                },
             },
             columns: [
                 {
-                    data: 'MerchantID',
-                    name: 'MerchantID'
+                    data: "MerchantID",
+                    name: "ms_merchant_account.MerchantID",
                 },
                 {
-                    data: 'StoreName',
-                    name: 'StoreName'
+                    data: "StoreName",
+                    name: "ms_merchant_account.StoreName",
                 },
                 {
-                    data: 'PhoneNumber',
-                    name: 'PhoneNumber'
+                    data: "Partner",
+                    name: "ms_merchant_account.Partner",
                 },
                 {
-                    data: 'CreatedDate',
-                    name: 'CreatedDate'
+                    data: "OwnerFullName",
+                    name: "ms_merchant_account.OwnerFullName",
                 },
                 {
-                    data: 'AreaName',
-                    name: 'AreaName'
+                    data: "PhoneNumber",
+                    name: "ms_merchant_account.PhoneNumber",
                 },
                 {
-                    data: 'Subdistrict',
-                    name: 'Subdistrict'
+                    data: "Grade",
+                    name: "ms_distributor_grade.Grade",
                 },
                 {
-                    data: 'City',
-                    name: 'City'
+                    data: "CreatedDate",
+                    name: "ms_merchant_account.CreatedDate",
+                    type: "date",
                 },
                 {
-                    data: 'Province',
-                    name: 'Province'
+                    data: "StoreAddress",
+                    name: "ms_merchant_account.StoreAddress",
                 },
                 {
-                    data: 'ReferralCode',
-                    name: 'ReferralCode'
+                    data: "ReferralCode",
+                    name: "ms_merchant_account.ReferralCode",
+                },
+                {
+                    data: "DistributorName",
+                    name: "ms_distributor.DistributorName",
+                },
+                {
+                    data: "Action",
+                    name: "Action",
+                    orderable: false,
+                    searchable: false,
+                },
+                {
+                    data: "Product",
+                    name: "Product",
+                    orderable: false,
+                    searchable: false,
                 },
             ],
-            buttons: [{
-                extend: 'excelHtml5',
-                filename: function () {
-                    return exportDatatableHelper.generateFilename('MerchantAccount');
-                },
-                text: 'Export',
-                titleAttr: 'Excel',
-                exportOptions: {
-                    modifier: {
-                        page: 'all'
+            buttons: [
+                {
+                    extend: "excelHtml5",
+                    filename: function () {
+                        return exportDatatableHelper.generateFilename(
+                            "MerchantAccount"
+                        );
                     },
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8],
-                    orthogonal: 'export'
+                    action: exportDatatableHelper.newExportAction,
+                    text: "Export",
+                    titleAttr: "Excel",
+                    exportOptions: {
+                        modifier: {
+                            page: "all",
+                        },
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+                        orthogonal: "export",
+                    },
                 },
-            }],
-            "lengthChange": false,
-            "responsive": true,
-            "autoWidth": false
+            ],
+            order: [6, "desc"],
+            lengthChange: false,
+            responsive: true,
+            autoWidth: false,
         });
     }
 
@@ -86,91 +114,99 @@ $(document).ready(function () {
                                 class="btn btn-sm btn-warning ml-2">Refresh</button>
                             <div class="select-filter-custom ml-2">
                                 <select>
-                                    <option value="all">All</option>
+                                    <option value="">All</option>
                                 </select>
                             </div>
                         </div>`);
 
     // Setting Awal Daterangepicker
-    $('#merchant-account #from_date').daterangepicker({
+    $("#merchant-account #from_date").daterangepicker({
         singleDatePicker: true,
         showDropdowns: true,
         locale: {
-            format: 'YYYY-MM-DD'
-        }
+            format: "YYYY-MM-DD",
+        },
     });
 
     // Setting Awal Daterangepicker
-    $('#merchant-account #to_date').daterangepicker({
+    $("#merchant-account #to_date").daterangepicker({
         singleDatePicker: true,
         showDropdowns: true,
         locale: {
-            format: 'YYYY-MM-DD'
-        }
+            format: "YYYY-MM-DD",
+        },
     });
 
     var bCodeChange = false;
 
     function dateStartChange() {
-        if (bCodeChange == true)
-            return;
-        else
-            bCodeChange = true;
+        if (bCodeChange == true) return;
+        else bCodeChange = true;
 
-        $('#merchant-account #to_date').daterangepicker({
+        $("#merchant-account #to_date").daterangepicker({
             minDate: $("#merchant-account #from_date").val(),
             singleDatePicker: true,
             showDropdowns: true,
             locale: {
-                format: 'YYYY-MM-DD'
-            }
-        })
+                format: "YYYY-MM-DD",
+            },
+        });
         bCodeChange = false;
     }
 
     function dateEndChange() {
-        if (bCodeChange == true)
-            return;
-        else
-            bCodeChange = true;
+        if (bCodeChange == true) return;
+        else bCodeChange = true;
 
-        $('#merchant-account #from_date').daterangepicker({
+        $("#merchant-account #from_date").daterangepicker({
             maxDate: $("#merchant-account #to_date").val(),
             singleDatePicker: true,
             showDropdowns: true,
             locale: {
-                format: 'YYYY-MM-DD'
-            }
-        })
+                format: "YYYY-MM-DD",
+            },
+        });
         bCodeChange = false;
     }
 
     // Disabled input to date ketika from date berubah
-    $('#merchant-account .filter-merchant-account').on('change', '#from_date', function () {
-        dateStartChange();
-    });
+    $("#merchant-account .filter-merchant-account").on(
+        "change",
+        "#from_date",
+        function () {
+            dateStartChange();
+        }
+    );
     // Disabled input from date ketika to date berubah
-    $('#merchant-account .filter-merchant-account').on('change', '#to_date', function () {
-        dateEndChange();
-    });
+    $("#merchant-account .filter-merchant-account").on(
+        "change",
+        "#to_date",
+        function () {
+            dateEndChange();
+        }
+    );
 
     // Menyisipkan Placeholder Date
-    $('#merchant-account #from_date').val('');
-    $('#merchant-account #to_date').val('');
-    $('#merchant-account #from_date').attr("placeholder", "From Date");
-    $('#merchant-account #to_date').attr("placeholder", "To Date");
+    $("#merchant-account #from_date").val("");
+    $("#merchant-account #to_date").val("");
+    $("#merchant-account #from_date").attr("placeholder", "From Date");
+    $("#merchant-account #to_date").attr("placeholder", "To Date");
 
     // Event Listener saat tombol refresh diklik
     $("#merchant-account #refresh").click(function () {
-        $('#merchant-account #from_date').val('');
-        $('#merchant-account #to_date').val('');
-        $('#merchant-account .table-datatables').DataTable().search('');
-        $('#merchant-account .table-datatables').DataTable().ajax.reload(null, false);
+        $("#merchant-account #from_date").val("");
+        $("#merchant-account #to_date").val("");
+        $("#merchant-account .table-datatables").DataTable().search("");
+        // $('#merchant-account .select-filter-custom select').val('').change();
+        // $('#merchant-account .select-filter-custom select option[value=]').attr('selected', 'selected');
+        $("#merchant-account .table-datatables")
+            .DataTable()
+            .ajax.reload(null, false);
     });
 
     // Event listener saat tombol filter diklik
     $("#merchant-account #filter").click(function () {
-        $('#merchant-account .table-datatables').DataTable().ajax.reload();
+        $("#merchant-account .table-datatables").DataTable().ajax.reload();
     });
 
     // Load Distributor ID and Name for filter
@@ -178,18 +214,20 @@ $(document).ready(function () {
         type: "get",
         url: "/distributor/account/get",
         success: function (data) {
-            let option = "<option>All</option>";
-            for (const item of data) {
+            let option;
+            const dataDistributor = data.data;
+            for (const item of dataDistributor) {
                 option += `<option value="${item.DistributorID}">${item.DistributorName}</option>`;
             }
-            $('#merchant-account .select-filter-custom select').html(option);
+            $("#merchant-account .select-filter-custom select").append(option);
             customDropdownFilter.createCustomDropdowns();
-        }
+            // $('#merchant-account .select-filter-custom select').val("All").change();
+        },
     });
 
-    // Event listener saat tombol filter diklik
+    // Event listener saat tombol select option diklik
     $("#merchant-account .select-filter-custom select").change(function () {
-        console.log($('.select-filter-custom select').val());
+        $("#merchant-account .table-datatables").DataTable().ajax.reload();
+        // console.log($('#merchant-account .select-filter-custom select').val())
     });
-
 });

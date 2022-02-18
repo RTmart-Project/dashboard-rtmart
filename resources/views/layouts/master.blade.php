@@ -8,6 +8,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="shortcut icon" href="{{ url('/') }}/dist/img/rtmart_logo.png" type="image/x-icon">
     <title>@yield('title')</title>
 
     <!-- Google Font: Source Sans Pro -->
@@ -25,15 +27,28 @@ scratch. This page gets rid of all links and provides the needed markup only.
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- CSS Per-Pages -->
     @yield('css-pages')
-
+    
     <style>
+        /* Chrome, Safari, Edge, Opera */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none !important;
+            margin: 0 !important;
+        }
+    
+        /* Firefox */
+        input[type=number] {
+            -moz-appearance: textfield !important;
+        }
+    </style>
+    {{-- <style>
     .toolbar {
         float: left;
     }
-    </style>
+    </style> --}}
 </head>
 
-<body class="hold-transition sidebar-mini sidebar-closed sidebar-collapse text-sm">
+<body class="hold-transition sidebar-mini text-sm">
     <div class="wrapper" @if (session('success')) data-notif-success="{{session('success')}}" @else
         data-notif-success="" @endif @if (session('failed')) data-notif-failed="{{session('failed')}}" @else
         data-notif-failed="" @endif>
@@ -44,7 +59,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
         </nav>
         <!-- /.navbar -->
         <!-- Main Sidebar Container -->
-        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+        <aside class="main-sidebar sidebar-dark-danger elevation-4">
             @include('layouts.sidebar')
         </aside>
 
@@ -74,7 +89,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <script src="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/js/iziToast.min.js"
         integrity="sha512-Zq9o+E00xhhR/7vJ49mxFNJ0KQw1E1TMWkPTxrWcnpfEFDEXgUiwJHIKit93EW/XxE31HSI5GEOW06G6BF1AtA=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
+    <!-- Thousand Separator -->
+    <script src="{{url('/')}}/main/js/helper/thousands-separators.js"></script>
+    <!-- JS Per-Pages -->
+    @yield('js-pages')
     <script>
     $(document).ready(function() {
         const messageNotifSuccess = $('body .wrapper').data("notif-success");
@@ -96,8 +114,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
         }
     });
     </script>
-    <!-- JS Per-Pages -->
-    @yield('js-pages')
+    
 </body>
 
 </html>

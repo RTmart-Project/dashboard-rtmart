@@ -76,6 +76,166 @@
             </div>
         </div>
 
+        <div class="row">
+            <div class="col-md-12 col-12">
+                <div class="card card-outline collapsed-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Total Customer per Distributor</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i></button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="info-box">
+                                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-users"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Total Customer (RTmart Bandung)</span>
+                                        <span class="info-box-number">
+                                            {{Helper::formatCurrency($countTotalCustomerBandung, '')}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-box">
+                                    <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-users"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Bulan Ini (RTmart Bandung)</span>
+                                        <span class="info-box-number">
+                                            {{Helper::formatCurrency($countNewCustomerBandungThisMonth, '+', ' Customer')}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-box">
+                                    <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-users"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Hari Ini (RTmart Bandung)</span>
+                                        <span class="info-box-number">
+                                            {{Helper::formatCurrency($countNewCustomerBandungThisDay, '+', ' Customer')}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="info-box">
+                                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-users"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Total Customer (RTmart Cakung)</span>
+                                        <span class="info-box-number">
+                                            {{Helper::formatCurrency($countTotalCustomerCakung, '')}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-box">
+                                    <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-users"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Bulan Ini (RTmart Cakung)</span>
+                                        <span class="info-box-number">
+                                            {{Helper::formatCurrency($countNewCustomerCakungThisMonth, '+', ' Customer')}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-box">
+                                    <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-users"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Hari Ini (RTmart Cakung)</span>
+                                        <span class="info-box-number">
+                                            {{Helper::formatCurrency($countNewCustomerCakungThisDay, '+', ' Customer')}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="info-box">
+                                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-users"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Total Customer (RTmart Ciracas)</span>
+                                        <span class="info-box-number">
+                                            {{Helper::formatCurrency($countTotalCustomerCiracas, '')}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-box">
+                                    <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-users"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Bulan Ini (RTmart Ciracas)</span>
+                                        <span class="info-box-number">
+                                            {{Helper::formatCurrency($countNewCustomerCiracasThisMonth, '+', ' Customer')}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-box">
+                                    <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-users"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Hari Ini (RTmart Ciracas)</span>
+                                        <span class="info-box-number">
+                                            {{Helper::formatCurrency($countNewCustomerCiracasThisDay, '+', ' Customer')}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="info-box">
+                                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-users"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Total Customer (RTmart Semarang)</span>
+                                        <span class="info-box-number">
+                                            {{Helper::formatCurrency($countTotalCustomerSemarang, '')}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-box">
+                                    <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-users"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Bulan Ini (RTmart Semarang)</span>
+                                        <span class="info-box-number">
+                                            {{Helper::formatCurrency($countNewCustomerSemarangThisMonth, '+', ' Customer')}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-box">
+                                    <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-users"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Hari Ini (RTmart Semarang)</span>
+                                        <span class="info-box-number">
+                                            {{Helper::formatCurrency($countNewCustomerSemarangThisDay, '+', ' Customer')}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                  <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+            </div>
+        </div>
+
         <!-- Table -->
         <div class="row">
             <div class="col-12">
@@ -102,11 +262,10 @@
                                                     <th>Nama</th>
                                                     <th>No. Telp</th>
                                                     <th>Tgl Registrasi</th>
-                                                    <th>Kelurahan</th>
-                                                    <th>Kecamatan</th>
-                                                    <th>Kota</th>
-                                                    <th>Provinsi</th>
-                                                    <th>Merchant</th>
+                                                    <th>Alamat</th>
+                                                    <th>Merchant ID</th>
+                                                    <th>Nama Toko</th>
+                                                    <th>Nama Distributor</th>
                                                     <th>Referral</th>
                                                 </tr>
                                             </thead>

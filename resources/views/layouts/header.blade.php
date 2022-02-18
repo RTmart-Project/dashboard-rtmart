@@ -10,6 +10,9 @@
 
   <!-- Right navbar links -->
   <ul class="navbar-nav ml-auto">
+    <li class="nav-item text-right">
+        <a class="nav-link"><b>{{ Auth::user()->Name }}</b></a>
+    </li>
       <li class="nav-item text-right">
           <a href="/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
       </li>

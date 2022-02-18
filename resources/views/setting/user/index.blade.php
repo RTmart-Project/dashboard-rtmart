@@ -60,6 +60,7 @@
                                                     <th>Role</th>
                                                     <th>Depo</th>
                                                     <th>Tanggal Registrasi</th>
+                                                    <th>Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody>

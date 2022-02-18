@@ -9,6 +9,7 @@ $(document).ready(function () {
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
             serverSide: false,
+            stateServe: true,
             "ajax": {
                 url: "/ppob/merchant/get",
                 data: function (d) {
@@ -19,7 +20,8 @@ $(document).ready(function () {
             columns: [
                 {
                     data: 'ActivatedPPOBDate',
-                    name: 'ActivatedPPOBDate'
+                    name: 'ActivatedPPOBDate',
+                    type: 'date'
                 },
                 {
                     data: 'StoreName',
@@ -45,7 +47,7 @@ $(document).ready(function () {
             buttons: [{
                 extend: 'excelHtml5',
                 filename: function () {
-                    return exportDatatableHelper.generateFilename('TransaksiPPOBMerchant');
+                    return exportDatatableHelper.generateFilename('AktivasiPPOBMerchant');
                 },
                 text: 'Export',
                 titleAttr: 'Excel',
@@ -57,6 +59,7 @@ $(document).ready(function () {
                     orthogonal: 'export'
                 },
             }],
+            "order": [0, 'desc'],
             "lengthChange": false,
             "responsive": true,
             "autoWidth": false,
@@ -67,8 +70,12 @@ $(document).ready(function () {
                         if (type === 'export') {
                             return data;
                         } else {
-                            var currencySeperatorFormat = data.replace(/\B(?=(\d{3})+(?!\d))/g, ".")
-                            return currencySeperatorFormat;
+                            if (data == null || data == "") {
+                                return data;
+                            } else {
+                                const currencySeperatorFormat = thousands_separators(data)
+                                return currencySeperatorFormat;
+                            }
                         }
                     }
                 }

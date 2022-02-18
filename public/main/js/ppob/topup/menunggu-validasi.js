@@ -9,6 +9,7 @@ $(document).ready(function () {
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
             serverSide: false,
+            stateServe: true,
             "ajax": {
                 url: "/ppob/topup/get/TPS-002",
                 data: function (d) {
@@ -19,7 +20,8 @@ $(document).ready(function () {
             columns: [
                 {
                     data: 'TransactionDate',
-                    name: 'TransactionDate'
+                    name: 'TransactionDate',
+                    type: 'date'
                 },
                 {
                     data: 'StoreName',
@@ -69,18 +71,27 @@ $(document).ready(function () {
                     orthogonal: 'export'
                 },
             }],
+            "order": [0, 'desc'],
             "lengthChange": false,
             "responsive": true,
             "autoWidth": false,
             "aoColumnDefs": [
+                {
+                    "aTargets": [8],
+                    "orderable": false
+                },
                 {
                     "aTargets": [5],
                     "mRender": function (data, type, full) {
                         if (type === 'export') {
                             return data;
                         } else {
-                            var currencySeperatorFormat = data.replace(/\B(?=(\d{3})+(?!\d))/g, ".")
-                            return currencySeperatorFormat;
+                            if (data == null || data == "") {
+                                return data;
+                            } else {
+                                const currencySeperatorFormat = thousands_separators(data)
+                                return currencySeperatorFormat;
+                            }
                         }
                     }
                 }
@@ -190,7 +201,7 @@ $(document).ready(function () {
     });
 
     // Event listener saat tombol konfirmasi diklik
-    $('#menunggu-validasi table').on('click', '.btn-konfirmasi', function () {
+    $('table').on('click', '.btn-konfirmasi', function () {
         const topupId = $(this).data("topup-id");
         const storeName = $(this).data("store-name");
         const jumlahTopup = $(this).data("jumlah-topup");
@@ -204,7 +215,7 @@ $(document).ready(function () {
     });
 
     // Event listener saat tombol batal diklik
-    $('#menunggu-validasi table').on('click', '.btn-batal', function (e) {
+    $('table').on('click', '.btn-batal', function (e) {
         e.preventDefault();
         const storeName = $(this).data("store-name");
         const topupId = $(this).data("topup-id");

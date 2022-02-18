@@ -129,8 +129,9 @@
                                                 <tr>
                                                     <th>Tanggal</th>
                                                     <th>Order ID</th>
-                                                    <th>Nama Toko</th>
                                                     <th>Merchant ID</th>
+                                                    <th>Nama Toko</th>
+                                                    <th>No. Telp</th>
                                                     <th>Type Order</th>
                                                     <th>Nominal Order</th>
                                                     <th>Total Price</th>
@@ -194,6 +195,7 @@
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!-- Main JS -->
+<script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
 <script src="{{url('/')}}/main/js/ppob/transaction/transaksi.js"></script>
 <script src="{{url('/')}}/main/js/ppob/transaction/aktivasi-merchant.js"></script>
 <script src="{{url('/')}}/main/js/helper/keep-tab-refresh.js"></script>

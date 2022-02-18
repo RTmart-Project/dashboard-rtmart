@@ -8,7 +8,8 @@ $(document).ready(function () {
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
-            serverSide: false,
+            serverSide: true,
+            stateServe: true,
             "ajax": {
                 url: "/customer/otp/get",
                 data: function (d) {
@@ -19,40 +20,44 @@ $(document).ready(function () {
             columns: [
                 {
                     data: 'PhoneNumber',
-                    name: 'PhoneNumber'
+                    name: 'ms_verification.PhoneNumber'
                 },
                 {
                     data: 'OTP',
-                    name: 'OTP'
+                    name: 'ms_verification.OTP'
                 },
                 {
                     data: 'IsVerified',
-                    name: 'IsVerified'
+                    name: 'ms_verification.IsVerified'
                 },
                 {
                     data: 'SendOn',
-                    name: 'SendOn'
+                    name: 'ms_verification_log.SendOn',
+                    type: 'date'
                 },
                 {
                     data: 'ReceiveOn',
-                    name: 'ReceiveOn'
+                    name: 'ms_verification_log.ReceiveOn',
+                    type: 'date'
                 }
             ],
             buttons: [{
                 extend: 'excelHtml5',
                 filename: function () {
-                    return exportDatatableHelper.generateFilename('OtpMerchant');
+                    return exportDatatableHelper.generateFilename('OtpCustomer');
                 },
+                action: exportDatatableHelper.newExportAction,
                 text: 'Export',
                 titleAttr: 'Excel',
                 exportOptions: {
                     modifier: {
                         page: 'all'
                     },
-                    columns: [0, 1],
+                    columns: [0, 1, 2, 3, 4],
                     orthogonal: 'export'
                 },
             }],
+            "order": [3, 'desc'],
             "lengthChange": false,
             "responsive": true,
             "autoWidth": false

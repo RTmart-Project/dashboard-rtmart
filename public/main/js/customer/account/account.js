@@ -8,7 +8,8 @@ $(document).ready(function () {
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
-            serverSide: false,
+            serverSide: true,
+            stateServe: true,
             "ajax": {
                 url: "/customer/account/get",
                 data: function (d) {
@@ -19,43 +20,40 @@ $(document).ready(function () {
             columns: [
                 {
                     data: 'CustomerID',
-                    name: 'CustomerID'
+                    name: 'ms_customer_account.CustomerID'
                 },
                 {
                     data: 'FullName',
-                    name: 'FullName'
+                    name: 'ms_customer_account.FullName'
                 },
                 {
                     data: 'PhoneNumber',
-                    name: 'PhoneNumber'
+                    name: 'ms_customer_account.PhoneNumber'
                 },
                 {
                     data: 'CreatedDate',
-                    name: 'CreatedDate'
+                    name: 'ms_customer_account.CreatedDate',
+                    type: 'date'
                 },
                 {
-                    data: 'AreaName',
-                    name: 'AreaName'
-                },
-                {
-                    data: 'Subdistrict',
-                    name: 'Subdistrict'
-                },
-                {
-                    data: 'City',
-                    name: 'City'
-                },
-                {
-                    data: 'Province',
-                    name: 'Province'
+                    data: 'Address',
+                    name: 'ms_customer_account.Address'
                 },
                 {
                     data: 'MerchantID',
-                    name: 'MerchantID'
+                    name: 'ms_customer_account.MerchantID'
+                },
+                {
+                    data: 'StoreName',
+                    name: 'ms_merchant_account.StoreName'
+                },
+                {
+                    data: 'DistributorName',
+                    name: 'ms_distributor.DistributorName'
                 },
                 {
                     data: 'ReferralCode',
-                    name: 'ReferralCode'
+                    name: 'ms_customer_account.ReferralCode'
                 },
             ],
             buttons: [{
@@ -63,16 +61,18 @@ $(document).ready(function () {
                 filename: function () {
                     return exportDatatableHelper.generateFilename('CustomerAccount');
                 },
+                action: exportDatatableHelper.newExportAction,
                 text: 'Export',
                 titleAttr: 'Excel',
                 exportOptions: {
                     modifier: {
                         page: 'all'
                     },
-                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8],
                     orthogonal: 'export'
                 },
             }],
+            "order": [3, 'desc'],
             "lengthChange": false,
             "responsive": true,
             "autoWidth": false
