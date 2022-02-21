@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\Helper;
 use App\Services\HaistarService;
+use App\Services\TxLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -586,7 +587,7 @@ class DistributionController extends Controller
         }
     }
 
-    public function createDeliveryOrder(Request $request, $stockOrderID, $depoChannel, HaistarService $haistarService)
+    public function createDeliveryOrder(Request $request, $stockOrderID, $depoChannel, HaistarService $haistarService, TxLogService $txLogService)
     {
 
         $baseImageUrl = config('app.base_image_url');
@@ -714,6 +715,9 @@ class DistributionController extends Controller
         } elseif ($depoChannel == "haistar") {
             $request->validate([
                 'created_date_do' => 'required|date',
+                'driver' => 'required',
+                'vehicle' => 'required',
+                'license_plate' => 'required',
                 'qty_do' => 'required',
                 'qty_do.*' => 'required|numeric|lte:max_qty_do.*|gte:1'
             ]);
@@ -784,12 +788,17 @@ class DistributionController extends Controller
 
             $haistarPushOrder = $haistarService->haistarPushOrder($objectParams);
             
+            // Insert ke Tx Transaction Log
+            $txLogService->insertTxLog($stockOrderID, "PUSH ORDER HAISTAR", "MERCHANT", json_encode($objectParams), json_encode($haistarPushOrder), $haistarPushOrder->status);
+            
             if ($haistarPushOrder->status == 200) {
                 $dataDO = [
                     'DeliveryOrderID' => $newDeliveryOrderID,
                     'StockOrderID' => $stockOrderID,
                     'StatusDO' => 'S024',
-                    'DriverID' => "HAISTAR",
+                    'DriverID' => $request->input('driver'),
+                    'VehicleID' => $request->input('vehicle'),
+                    'VehicleLicensePlate' => $vehicleLicensePlate,
                     'Distributor' => "HAISTAR",
                     'CreatedDate' => $createdDateDO
                 ];
@@ -802,7 +811,9 @@ class DistributionController extends Controller
                     'StockOrderID' => $stockOrderID,
                     'DeliveryOrderID' => $newDeliveryOrderID,
                     'StatusDO' => 'S024',
-                    'DriverID' => "HAISTAR",
+                    'DriverID' => $request->input('driver'),
+                    'VehicleID' => $request->input('vehicle'),
+                    'VehicleLicensePlate' => $vehicleLicensePlate,
                     'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo . ' ' . Auth::user()->Name
                 ];
 
@@ -858,7 +869,7 @@ class DistributionController extends Controller
                     return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
                 }
             } else {
-                return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Gagal, terjadi kesalahan');
+                return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', $haistarPushOrder->data);
             }
         } else {
             return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Gagal');
