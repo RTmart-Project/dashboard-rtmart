@@ -326,9 +326,6 @@
                                                                                     @if ($item->StatusOrder == "Selesai" || $item->Distributor == "HAISTAR")
                                                                                         @if ($item->Name != null)
                                                                                             <p class="m-0"><b>Driver : </b>{{ $item->Name }} - {{ $item->VehicleName }} ({{ $item->VehicleLicensePlate }})</p>
-                                                                                        @elseif ($item->DriverID == "HAISTAR")
-                                                                                            <p class="m-0"><b>Driver : </b>HAISTAR</p>
-                                                                                            <span class="badge badge-info">HAISTAR</span>
                                                                                         @else
                                                                                             <p class="m-0"><b>Driver : </b>-</p>
                                                                                         @endif
@@ -445,7 +442,7 @@
                                                                     <div class="col-md-6 col-12">
                                                                         <div class="form-group">
                                                                             <label class="my-0" for="driver">Driver</label>
-                                                                            <select name="driver" id="driver" class="form-control border selectpicker @if($errors->has('driver')) is-invalid @endif" data-live-search="true" title="Pilih Driver">
+                                                                            <select name="driver" id="driver" class="form-control border selectpicker @if($errors->has('driver')) is-invalid @endif" data-live-search="true" title="Pilih Driver" required>
                                                                             @foreach ($drivers as $driver)
                                                                                 <option value="{{ $driver->UserID }}">{{ $driver->Name }}</option>
                                                                             @endforeach
@@ -458,7 +455,7 @@
                                                                     <div class="col-md-6 col-12">
                                                                         <div class="form-group">
                                                                             <label class="my-0" for="vehicle">Jenis Kendaraan</label>
-                                                                        <select name="vehicle" id="vehicle" class="form-control border selectpicker @if($errors->has('vehicle')) is-invalid @endif" data-live-search="true" title="Pilih Jenis Kendaraan">
+                                                                        <select name="vehicle" id="vehicle" class="form-control border selectpicker @if($errors->has('vehicle')) is-invalid @endif" data-live-search="true" title="Pilih Jenis Kendaraan" required>
                                                                             @foreach ($vehicles as $vehicle)
                                                                                 <option value="{{ $vehicle->VehicleID }}">{{ $vehicle->VehicleName }}</option>
                                                                             @endforeach
@@ -471,7 +468,7 @@
                                                                     <div class="col-md-6 col-12">
                                                                         <div class="form-group">
                                                                             <label class="my-0" for="license_plate">Plat Nomor Kendaraan</label>
-                                                                            <input type="text" name="license_plate" id="license_plate" class="form-control @if($errors->has('license_plate')) is-invalid @endif" placeholder="Masukkan Plat Nomor Kendaraan" onkeyup="this.value = this.value.toUpperCase();" autocomplete="off">
+                                                                            <input type="text" name="license_plate" id="license_plate" class="form-control @if($errors->has('license_plate')) is-invalid @endif" placeholder="Masukkan Plat Nomor Kendaraan" onkeyup="this.value = this.value.toUpperCase();" autocomplete="off" required>
                                                                             @if($errors->has('license_plate'))
                                                                                 <span class="error invalid-feedback">{{ $errors->first('license_plate') }}</span>
                                                                             @endif
@@ -486,9 +483,11 @@
                                                                 </div>
                                                                 
                                                                 @if ($isHasHaistar == 1)
-                                                                    <label class="m-0">Produk Haistar</label>
                                                                     @foreach ($productAddDO as $item)
                                                                         @if ($item->PromisedQuantity != $item->QtyDO && $item->IsHaistarProduct == 1)
+                                                                        @if ($loop->first)
+                                                                            <label class="m-0">Produk Haistar</label>
+                                                                        @endif
                                                                         <div class="row text-center border-bottom m-0 add-do">
                                                                             <div class="col-1 align-self-center">
                                                                                 <input type="checkbox" class="check_haistar">
@@ -523,9 +522,11 @@
                                                                     @endforeach
                                                                 @endif
 
-                                                                <label class="m-0 mt-2">Produk RT Mart</label>
                                                                 @foreach ($productAddDO as $item)
                                                                     @if ($item->PromisedQuantity != $item->QtyDO && $item->IsHaistarProduct == 0)
+                                                                    @if ($loop->first)
+                                                                        <label class="m-0 mt-2">Produk RT Mart</label>
+                                                                    @endif
                                                                     <div class="row text-center border-bottom m-0 add-do">
                                                                         <div class="col-1 align-self-center">
                                                                             <input type="checkbox" class="check_rtmart">
