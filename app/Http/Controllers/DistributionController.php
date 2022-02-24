@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Helpers\Helper;
 use App\Services\HaistarService;
+use App\Services\MerchantService;
 use App\Services\TxLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -1231,13 +1232,20 @@ class DistributionController extends Controller
                     return $grade;
                 })
                 ->addColumn('Action', function ($data) {
-                    $actionBtn = '<a href="#" data-distributor-id="'.$data->DistributorID.'" data-merchant-id="'.$data->MerchantID.'" data-store-name="'.$data->StoreName.'" data-owner-name="'.$data->OwnerFullName.'" data-grade-id="'.$data->GradeID.'" class="btn btn-sm btn-warning edit-grade">Ubah Grade</a>';
+                    $actionBtn = '<a href="#" data-distributor-id="'.$data->DistributorID.'" data-merchant-id="'.$data->MerchantID.'" 
+                        data-store-name="'.$data->StoreName.'" data-owner-name="'.$data->OwnerFullName.'" data-grade-id="'.$data->GradeID.'" 
+                        class="btn btn-xs btn-warning edit-grade mb-1">Ubah Grade</a>
+                        <a href="/distribution/merchant/specialprice/'.$data->MerchantID.'" class="btn btn-xs btn-secondary mb-1">Special Price</a>';
                     return $actionBtn;
+                })
+                ->addColumn('SpecialPrice', function ($data) {
+                    $specialPriceBtn = '<a href="/distribution/merchant/specialprice/'.$data->MerchantID.'" class="btn btn-sm btn-secondary">Special Price</a>';
+                    return $specialPriceBtn;
                 })
                 ->filterColumn('ms_merchant_account.CreatedDate', function ($query, $keyword) {
                     $query->whereRaw("DATE_FORMAT(ms_merchant_account.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
                 })
-                ->rawColumns(['Action'])
+                ->rawColumns(['Action', 'SpecialPrice'])
                 ->make(true);
         }
     }
@@ -1272,5 +1280,111 @@ class DistributionController extends Controller
         } else {
             return redirect()->route('distribution.merchant')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
         }
+    }
+
+    public function specialPrice(MerchantService $merchantService, $merchantID)
+    {
+        return view('distribution.merchant.specialprice', [
+            'merchant' => $merchantService->merchantAccount($merchantID)->first(),
+            'grade' => $merchantService->merchantSpecialPrice($merchantID)->first()
+        ]);
+    }
+
+    public function getSpecialPrice($merchantID, MerchantService $merchantService, Request $request)
+    {
+        $data = $merchantService->merchantSpecialPrice($merchantID);
+
+        if ($request->ajax()) {
+            return Datatables::of($data)
+                ->editColumn('SpecialPrice', function ($data) {
+                    $input = '<input type="text" value="'.$data->SpecialPrice.'" class="special-price" autocomplete="off">';
+
+                    return $input;
+                })
+                ->addColumn('Action', function ($data) use ($merchantID) {
+                    if ($data->SpecialPrice != null) {
+                        $btn = '<button class="btn btn-xs btn-success btn-simpan" data-product-id="'.$data->ProductID.'" 
+                                data-merchant-id="'.$merchantID.'" data-grade-id="'.$data->GradeID.'">Simpan</button>
+                            <button class="btn btn-xs btn-danger btn-hapus ml-1" data-product-id="'.$data->ProductID.'" 
+                                data-merchant-id="'.$merchantID.'" data-grade-id="'.$data->GradeID.'">Hapus</button>';
+                    } else {
+                        $btn = '<button class="btn btn-xs btn-success btn-simpan" data-product-id="'.$data->ProductID.'" data-merchant-id="'.$merchantID.'" data-grade-id="'.$data->GradeID.'">Simpan</button>';
+                    }
+
+                    return $btn;
+                })
+                ->rawColumns(['SpecialPrice', 'Action'])
+                ->make(true);
+        }
+    }
+
+    public function insertOrUpdateSpecialPrice(Request $request, MerchantService $merchantService)
+    {
+        $merchantID = $request->merchantID;
+        $productID = $request->productID;
+        $gradeID = $request->gradeID;
+        $specialPrice = $request->specialPrice;
+
+        if ($specialPrice != null) {
+            $sql = $merchantService->updateOrInsertSpecialPrice($merchantID, $productID, $gradeID, $specialPrice);
+        } else {
+            $sql = false;
+        }
+        
+        if ($sql) {
+            $status = "success";
+            $message = "Special Price Merchant berhasil disimpan";
+        } else {
+            $status = "failed";
+            $message = "Terjadi kesalahan, pastikan input data dengan benar";
+        }
+
+        return response()->json([
+            'status' => $status,
+            'message' => $message
+        ]);
+    }
+
+    public function deleteSpecialPrice(Request $request, MerchantService $merchantService)
+    {
+        $merchantID = $request->merchantID;
+        $productID = $request->productID;
+        $gradeID = $request->gradeID;
+
+        $delete = $merchantService->deleteSpecialPriceMerchant($merchantID, $productID, $gradeID);
+
+        if ($delete) {
+            $status = "success";
+            $message = "Special Price Merchant berhasil dihapus";
+        } else {
+            $status = "failed";
+            $message = "Terjadi kesalahan sistem atau jaringan";
+        }
+
+        return response()->json([
+            'status' => $status,
+            'message' => $message
+        ]);
+    }
+
+    public function resetSpecialPrice(Request $request, MerchantService $merchantService)
+    {
+        $merchantID = $request->merchantID;
+        $gradeID = $request->gradeID;
+
+        $reset = $merchantService->resetSpecialPriceMerchant($merchantID, $gradeID);
+
+        if ($reset) {
+            $status = "success";
+            $message = "Special Price Merchant berhasil direset";
+        } else {
+            $status = "failed";
+            $message = "Terjadi kesalahan";
+        }
+
+        return response()->json([
+            'status' => $status,
+            'message' => $message
+        ]);
     }
 }

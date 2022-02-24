@@ -60,6 +60,11 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/', [DistributionController::class, 'merchant'])->name('distribution.merchant');
             Route::get('/get', [DistributionController::class, 'getMerchant'])->name('distribution.getMerchant');
             Route::post('/grade/update/{merchantId}', [DistributionController::class, 'updateGrade'])->name('distribution.updateGrade');
+            Route::get('/specialprice/{merchantId}', [DistributionController::class, 'specialPrice'])->name('distribution.specialPrice');
+            Route::get('/specialprice/{merchantId}/get', [DistributionController::class, 'getSpecialPrice'])->name('distribution.getSpecialPrice');
+            Route::post('/specialprice/insertOrUpdate', [DistributionController::class, 'insertOrUpdateSpecialPrice'])->name('distribution.insertOrUpdateSpecialPrice');
+            Route::post('/specialprice/delete', [DistributionController::class, 'deleteSpecialPrice'])->name('distribution.deleteSpecialPrice');
+            Route::post('/specialprice/reset', [DistributionController::class, 'resetSpecialPrice'])->name('distribution.resetSpecialPrice');
         });
     });
 

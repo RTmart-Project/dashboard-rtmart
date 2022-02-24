@@ -329,6 +329,9 @@
                                                                                         @else
                                                                                             <p class="m-0"><b>Driver : </b>-</p>
                                                                                         @endif
+                                                                                        @if ($item->Distributor == "HAISTAR")
+                                                                                            <span class="badge badge-info">{{ $item->Distributor }}</span>
+                                                                                        @endif
                                                                                     @else
                                                                                         <div class="row m-0">
                                                                                             <div class="col-md-4 col-12 pl-0">
