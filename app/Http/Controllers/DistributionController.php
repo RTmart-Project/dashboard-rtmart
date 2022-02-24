@@ -243,12 +243,13 @@ class DistributionController extends Controller
             ->select('tx_merchant_order_detail.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage', 'tx_merchant_order_detail.Quantity', 'tx_merchant_order_detail.PromisedQuantity', 'tx_merchant_order_detail.Price', 'tx_merchant_order_detail.Discount', 'tx_merchant_order_detail.Nett')
             ->get();
 
-        $deliveryOrder = DB::table('tx_merchant_delivery_order')
-            ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_delivery_order.StatusDO')
-            ->leftJoin('ms_user', 'ms_user.UserID', 'tx_merchant_delivery_order.DriverID')
-            ->leftJoin('ms_vehicle', 'ms_vehicle.VehicleID', 'tx_merchant_delivery_order.VehicleID')
-            ->where('tx_merchant_delivery_order.StockOrderID', '=', $stockOrderID)
-            ->select('tx_merchant_delivery_order.*', 'ms_status_order.StatusOrder', 'ms_user.Name', 'ms_vehicle.VehicleName')
+        $deliveryOrder = DB::table('tx_merchant_delivery_order AS do')
+            ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'do.StatusDO')
+            ->leftJoin('ms_user AS driver', 'driver.UserID', 'do.DriverID')
+            ->leftJoin('ms_user AS helper', 'helper.UserID', 'do.HelperID')
+            ->leftJoin('ms_vehicle', 'ms_vehicle.VehicleID', 'do.VehicleID')
+            ->where('do.StockOrderID', '=', $stockOrderID)
+            ->select('do.*', 'ms_status_order.StatusOrder', 'driver.Name', 'helper.Name AS HelperName', 'ms_vehicle.VehicleName')
             ->get();
 
         foreach ($deliveryOrder as $key => $value) {
@@ -313,10 +314,18 @@ class DistributionController extends Controller
             ->select('UserID', 'Name')
             ->orderBy('Name');
 
+        $helpers = DB::table('ms_user')
+            ->where('RoleID', 'HLP')
+            ->where('IsTesting', 0)
+            ->select('UserID', 'Name')
+            ->orderBy('Name');
+
         if (Auth::user()->Depo == "ALL") {
             $dataDrivers = $drivers->get();
+            $dataHelpers = $helpers->get();
         } else {
             $dataDrivers = $drivers->where('Depo', Auth::user()->Depo)->get();
+            $dataHelpers = $helpers->where('Depo', Auth::user()->Depo)->get();
         }
 
         $vehicles = DB::table('ms_vehicle')
@@ -334,6 +343,7 @@ class DistributionController extends Controller
             'promisedQty' => $promisedQty,
             'deliveryOrderQty' => $deliveryOrderQty,
             'drivers' => $dataDrivers,
+            'helpers' => $dataHelpers,
             'vehicles' => $vehicles
         ]);
     }
@@ -555,6 +565,7 @@ class DistributionController extends Controller
         }
     }
 
+    // Ketika Menyelesaikan DO
     public function updateDeliveryOrder($deliveryOrderId)
     {
         $stockOrderID = DB::table('tx_merchant_delivery_order')
@@ -642,6 +653,7 @@ class DistributionController extends Controller
                 'StockOrderID' => $stockOrderID,
                 'StatusDO' => 'S024',
                 'DriverID' => $request->input('driver'),
+                'HelperID' => $request->input('helper'),
                 'VehicleID' => $request->input('vehicle'),
                 'VehicleLicensePlate' => $vehicleLicensePlate,
                 'Distributor' => "RT MART",
@@ -657,6 +669,7 @@ class DistributionController extends Controller
                 'DeliveryOrderID' => $newDeliveryOrderID,
                 'StatusDO' => 'S024',
                 'DriverID' => $request->input('driver'),
+                'HelperID' => $request->input('helper'),
                 'VehicleID' => $request->input('vehicle'),
                 'VehicleLicensePlate' => $vehicleLicensePlate,
                 'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo . ' ' . Auth::user()->Name
@@ -798,6 +811,7 @@ class DistributionController extends Controller
                     'StockOrderID' => $stockOrderID,
                     'StatusDO' => 'S024',
                     'DriverID' => $request->input('driver'),
+                    'HelperID' => $request->input('helper'),
                     'VehicleID' => $request->input('vehicle'),
                     'VehicleLicensePlate' => $vehicleLicensePlate,
                     'Distributor' => "HAISTAR",
@@ -813,6 +827,7 @@ class DistributionController extends Controller
                     'DeliveryOrderID' => $newDeliveryOrderID,
                     'StatusDO' => 'S024',
                     'DriverID' => $request->input('driver'),
+                    'HelperID' => $request->input('helper'),
                     'VehicleID' => $request->input('vehicle'),
                     'VehicleLicensePlate' => $vehicleLicensePlate,
                     'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo . ' ' . Auth::user()->Name
@@ -878,9 +893,11 @@ class DistributionController extends Controller
         
     }
 
+    // Edit DO Ketika Status Dalam Pengiriman
     public function updateQtyDO(Request $request, $deliveryOrderId)
     {
         $request->validate([
+            'edit_qty_do' => 'required',
             'driver' => 'required',
             'vehicle' => 'required',
             'license_plate' => 'required'
@@ -904,6 +921,7 @@ class DistributionController extends Controller
 
         $dataDriver = [
             'DriverID' => $request->input('driver'),
+            'HelperID' => $request->input('helper'),
             'VehicleID' => $request->input('vehicle'),
             'VehicleLicensePlate' => $vehicleLicensePlate
         ];
@@ -913,6 +931,7 @@ class DistributionController extends Controller
             'DeliveryOrderID' => $deliveryOrderId,
             'StatusDO' => 'S024',
             'DriverID' => $request->input('driver'),
+            'HelperID' => $request->input('helper'),
             'VehicleID' => $request->input('vehicle'),
             'VehicleLicensePlate' => $vehicleLicensePlate,
             'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo . ' ' . Auth::user()->Name
