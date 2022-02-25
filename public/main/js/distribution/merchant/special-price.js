@@ -82,9 +82,12 @@ $(document).ready(function () {
         });
     }
 
-    $("div.reset-special-price").html(
-        `<button class="btn btn-sm btn-danger btn-reset">Reset Special Price</button>`
-    );
+    let role = $('meta[name="role"]').attr("content");
+    if (role == "IT" || role == "FI" || role == "BM") {
+        $("div.reset-special-price").html(
+            `<button class="btn btn-sm btn-danger btn-reset">Reset Special Price</button>`
+        );
+    }
 
     let csrf = $('meta[name="csrf_token"]').attr("content");
 
@@ -100,6 +103,8 @@ $(document).ready(function () {
         let merchantID = $(this).data("merchant-id");
         let productID = $(this).data("product-id");
         let gradeID = $(this).data("grade-id");
+
+        // console.log(specialPrice);
 
         $.ajax({
             url: `/distribution/merchant/specialprice/insertOrUpdate`,

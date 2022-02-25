@@ -48,7 +48,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::group(['prefix' => 'product'], function(){
             Route::get('/', [DistributionController::class, 'product'])->name('distribution.product');
             Route::get('/get', [DistributionController::class, 'getProduct'])->name('distribution.getProduct');
-            Route::group(['middleware' => ['checkRoleUser:IT,FI,AH']], function() {
+            Route::group(['middleware' => ['checkRoleUser:IT,FI,AH,BM']], function() {
                 Route::get('/add', [DistributionController::class, 'addProduct'])->name('distribution.addProduct');
                 Route::get('/ajax/get/{distributorId}', [DistributionController::class, 'ajaxGetProduct'])->name('distribution.ajaxGetProduct');
                 Route::post('/insert', [DistributionController::class, 'insertProduct'])->name('distribution.insertProduct');
@@ -62,9 +62,11 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/grade/update/{merchantId}', [DistributionController::class, 'updateGrade'])->name('distribution.updateGrade');
             Route::get('/specialprice/{merchantId}', [DistributionController::class, 'specialPrice'])->name('distribution.specialPrice');
             Route::get('/specialprice/{merchantId}/get', [DistributionController::class, 'getSpecialPrice'])->name('distribution.getSpecialPrice');
-            Route::post('/specialprice/insertOrUpdate', [DistributionController::class, 'insertOrUpdateSpecialPrice'])->name('distribution.insertOrUpdateSpecialPrice');
-            Route::post('/specialprice/delete', [DistributionController::class, 'deleteSpecialPrice'])->name('distribution.deleteSpecialPrice');
-            Route::post('/specialprice/reset', [DistributionController::class, 'resetSpecialPrice'])->name('distribution.resetSpecialPrice');
+            Route::group(['middleware' => ['checkRoleUser:IT,FI,BM']], function () {
+                Route::post('/specialprice/insertOrUpdate', [DistributionController::class, 'insertOrUpdateSpecialPrice'])->name('distribution.insertOrUpdateSpecialPrice');
+                Route::post('/specialprice/delete', [DistributionController::class, 'deleteSpecialPrice'])->name('distribution.deleteSpecialPrice');
+                Route::post('/specialprice/reset', [DistributionController::class, 'resetSpecialPrice'])->name('distribution.resetSpecialPrice');
+            });
         });
     });
 

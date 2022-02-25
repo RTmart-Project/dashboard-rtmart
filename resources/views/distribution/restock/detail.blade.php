@@ -95,7 +95,9 @@
                                 <div class="col-md-4 col-12">
                                     <label class="mb-0">Stock Order ID</label>
                                     <p class="m-0">{{ $merchantOrder->StockOrderID }}</p>
-                                    @if ($merchantOrder->StatusOrderID == "S023" || $merchantOrder->StatusOrderID == "S012" || $merchantOrder->StatusOrderID == "S018")
+                                    @if ($merchantOrder->StatusOrderID == "S012" || $merchantOrder->StatusOrderID == "S018")
+                                        <a href="{{ route('restock.invoice', ['stockOrderId' => $merchantOrder->StockOrderID]) }}" target="_blank" class="btn btn-sm btn-info mb-2">Lihat Invoice</a>
+                                    @elseif ($merchantOrder->StatusOrderID == "S023" || $merchantOrder->StatusOrderID == "S010")
                                         <a href="{{ route('restock.invoice', ['stockOrderId' => $merchantOrder->StockOrderID]) }}" target="_blank" class="btn btn-sm btn-info mb-2">Lihat Proforma Invoice</a>
                                     @endif
                                 </div>
