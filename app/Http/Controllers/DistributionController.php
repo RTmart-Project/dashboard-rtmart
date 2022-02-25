@@ -24,7 +24,7 @@ class DistributionController extends Controller
     }
 
     public function restock()
-    {    
+    {
         return view('distribution.restock.index');
     }
 
@@ -40,9 +40,10 @@ class DistributionController extends Controller
             ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tx_merchant_order.DistributorID')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
+            ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'ms_merchant_account.ReferralCode')
             ->where('ms_merchant_account.IsTesting', 0)
             ->where('tx_merchant_order.StatusOrderID', '=', $statusOrder)
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'ms_distributor.DistributorName', 'tx_merchant_order.ShipmentDate', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CancelReasonNote', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'ms_payment_method.PaymentMethodName');
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'ms_distributor.DistributorName', 'tx_merchant_order.ShipmentDate', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CancelReasonNote', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'ms_payment_method.PaymentMethodName', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesName');
 
         if (Auth::user()->RoleID == "AD" && Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
@@ -73,12 +74,15 @@ class DistributionController extends Controller
                 ->editColumn('CreatedDate', function ($data) {
                     return date('d M Y H:i', strtotime($data->CreatedDate));
                 })
-                ->editColumn('TotalTrx', function($data) {
+                ->addColumn('Sales', function ($data) {
+                    return $data->ReferralCode . ' ' . $data->SalesName;
+                })
+                ->editColumn('TotalTrx', function ($data) {
                     return $data->TotalPrice - $data->DiscountPrice + $data->ServiceChargeNett;
                 })
                 ->editColumn('Partner', function ($data) {
                     if ($data->Partner != null) {
-                        $partner = '<a class="badge badge-info">'.$data->Partner.'</a>';
+                        $partner = '<a class="badge badge-info">' . $data->Partner . '</a>';
                     } else {
                         $partner = '';
                     }
@@ -93,7 +97,7 @@ class DistributionController extends Controller
                     } else {
                         $textBtn = "Proforma";
                     }
-                    $stockOrderId = '<a href="/restock/invoice/'.$data->StockOrderID.'" target="_blank" class="btn btn-sm btn-info">'.$textBtn.'</a>';
+                    $stockOrderId = '<a href="/restock/invoice/' . $data->StockOrderID . '" target="_blank" class="btn btn-sm btn-info">' . $textBtn . '</a>';
                     return $stockOrderId;
                 })
                 ->addColumn('Action', function ($data) {
@@ -108,6 +112,10 @@ class DistributionController extends Controller
                 })
                 ->filterColumn('TotalTrx', function ($query, $keyword) {
                     $query->whereRaw("tx_merchant_order.TotalPrice - tx_merchant_order.DiscountPrice + tx_merchant_order.ServiceChargeNett like ?", ["%$keyword%"]);
+                })
+                ->filterColumn('Sales', function ($query, $keyword) {
+                    $sql = "CONCAT(ms_merchant_account.ReferralCode,' - ',ms_sales.SalesName)  like ?";
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
                 })
                 ->rawColumns(['Invoice', 'Partner', 'Action'])
                 ->make(true);
@@ -128,13 +136,33 @@ class DistributionController extends Controller
             ->leftJoin('ms_product', 'ms_product.ProductID', 'tx_merchant_delivery_order_detail.ProductID')
             ->leftJoin('ms_user', 'ms_user.UserID', 'tx_merchant_delivery_order.DriverID')
             ->leftJoin('ms_vehicle', 'ms_vehicle.VehicleID', 'tx_merchant_delivery_order.VehicleID')
+            ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'ms_merchant_account.ReferralCode')
             ->where('ms_merchant_account.IsTesting', 0)
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'ms_distributor.DistributorName', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.Partner', 'tx_merchant_order.StatusOrderID', 'ms_status_order.StatusOrder', 'tx_merchant_delivery_order.DeliveryOrderID', 'ms_product.ProductName', 'tx_merchant_delivery_order_detail.Qty', 'tx_merchant_delivery_order_detail.Price',
-            DB::raw("tx_merchant_order.TotalPrice - tx_merchant_order.DiscountPrice + tx_merchant_order.ServiceChargeNett AS TotalTrx"), 
-            DB::raw("tx_merchant_delivery_order.CreatedDate as TanggalDO"),
-            DB::raw("tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price AS TotalPrice"), 
-            DB::raw("CASE WHEN tx_merchant_delivery_order.StatusDO = 'S024' THEN 'Dalam Pengiriman' WHEN tx_merchant_delivery_order.StatusDO = 'S025' THEN 'Selesai' ELSE '' END AS StatusDO"), 
-            'ms_user.Name', 'ms_vehicle.VehicleName', 'tx_merchant_delivery_order.VehicleLicensePlate');
+            ->select(
+                'tx_merchant_order.StockOrderID',
+                'tx_merchant_order.CreatedDate',
+                'ms_distributor.DistributorName',
+                'tx_merchant_order.MerchantID',
+                'ms_merchant_account.StoreName',
+                'ms_merchant_account.OwnerFullName',
+                'ms_merchant_account.PhoneNumber',
+                'ms_merchant_account.Partner',
+                'tx_merchant_order.StatusOrderID',
+                'ms_status_order.StatusOrder',
+                'tx_merchant_delivery_order.DeliveryOrderID',
+                'ms_product.ProductName',
+                'tx_merchant_delivery_order_detail.Qty',
+                'tx_merchant_delivery_order_detail.Price',
+                DB::raw("tx_merchant_order.TotalPrice - tx_merchant_order.DiscountPrice + tx_merchant_order.ServiceChargeNett AS TotalTrx"),
+                DB::raw("tx_merchant_delivery_order.CreatedDate as TanggalDO"),
+                DB::raw("tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price AS TotalPrice"),
+                DB::raw("CASE WHEN tx_merchant_delivery_order.StatusDO = 'S024' THEN 'Dalam Pengiriman' WHEN tx_merchant_delivery_order.StatusDO = 'S025' THEN 'Selesai' ELSE '' END AS StatusDO"),
+                'ms_user.Name',
+                'ms_vehicle.VehicleName',
+                'tx_merchant_delivery_order.VehicleLicensePlate',
+                'ms_merchant_account.ReferralCode',
+                'ms_sales.SalesName'
+            );
 
         if (Auth::user()->RoleID == "AD" && Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
@@ -149,7 +177,7 @@ class DistributionController extends Controller
 
         // Get data response
         $data = $sqlAllRestockAndDO;
-        
+
         // Return Data Using DataTables with Ajax
         if ($request->ajax()) {
             return Datatables::of($data)
@@ -157,9 +185,12 @@ class DistributionController extends Controller
                 ->editColumn('CreatedDate', function ($data) {
                     return date('d M Y H:i', strtotime($data->CreatedDate));
                 })
+                ->addColumn('Sales', function ($data) {
+                    return $data->ReferralCode . ' ' . $data->SalesName;
+                })
                 ->editColumn('Partner', function ($data) {
                     if ($data->Partner != null) {
-                        $partner = '<a class="badge badge-info">'.$data->Partner.'</a>';
+                        $partner = '<a class="badge badge-info">' . $data->Partner . '</a>';
                     } else {
                         $partner = '';
                     }
@@ -197,7 +228,7 @@ class DistributionController extends Controller
                     } else {
                         $tanggalDO = "";
                     }
-                    
+
                     return $tanggalDO;
                 })
                 ->editColumn('StatusDO', function ($data) {
@@ -225,6 +256,10 @@ class DistributionController extends Controller
                 })
                 ->filterColumn('TotalPrice', function ($query, $keyword) {
                     $query->whereRaw("tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price like ?", ["%$keyword%"]);
+                })
+                ->filterColumn('Sales', function ($query, $keyword) {
+                    $sql = "CONCAT(ms_merchant_account.ReferralCode,' - ',ms_sales.SalesName)  like ?";
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
                 })
                 ->rawColumns(['Partner', 'StatusOrder', 'StatusDO'])
                 ->make(true);
@@ -310,7 +345,6 @@ class DistributionController extends Controller
                     $isHasHaistar = 1;
                 }
             }
-            
         }
 
         $drivers = DB::table('ms_user')
@@ -334,7 +368,7 @@ class DistributionController extends Controller
         }
 
         $vehicles = DB::table('ms_vehicle')
-            ->whereNotIn('VehicleID', [1,2,3])
+            ->whereNotIn('VehicleID', [1, 2, 3])
             ->select('*')
             ->orderBy('VehicleName')->get();
 
@@ -623,7 +657,7 @@ class DistributionController extends Controller
 
         $maxMonth = date('m', strtotime($max->ProcessTime));
         $now = date('m');
-            
+
         if ($max->DeliveryOrderID == null || (strcmp($maxMonth, $now) != 0)) {
             $newDeliveryOrderID = "DO-" . date('YmdHis') . '-000001';
         } else {
@@ -664,7 +698,7 @@ class DistributionController extends Controller
                 'Distributor' => "RT MART",
                 'CreatedDate' => $createdDateDO
             ];
-            
+
             foreach ($dataDetailDO as $key => $value) {
                 $dataDetailDO[$key][] = $newDeliveryOrderID;
             }
@@ -704,7 +738,7 @@ class DistributionController extends Controller
                         "date" => date("Y-m-d H:i:s"),
                         "merchantID" => $msMerchant->MerchantID,
                         "title" => "Pesanan Restok Dikirim",
-                        "body" => "Pesanan Anda sedang dikirim menuju alamat Anda oleh " . $msMerchant->DistributorName . " dengan nomor delivery ".$newDeliveryOrderID.".",
+                        "body" => "Pesanan Anda sedang dikirim menuju alamat Anda oleh " . $msMerchant->DistributorName . " dengan nomor delivery " . $newDeliveryOrderID . ".",
                         'large_icon' => $baseImageUrl . 'push/merchant_icon.png'
                     )
                 );
@@ -751,11 +785,11 @@ class DistributionController extends Controller
                 // $stockHaistar = 0;
                 $arrayExistStock = $checkStock->data->detail;
                 $existStock = array_sum(array_column($arrayExistStock, "exist_quantity"));
-                
+
                 if ($value['quantity'] > $existStock) {
                     return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Gagal, Stock Haistar tidak mencukupi!');
                 }
-                
+
                 $totalPrice += $value['quantity'] * $value['unit_price'];
 
                 $objectItems->item_code = $value['item_code'];
@@ -806,10 +840,10 @@ class DistributionController extends Controller
             $objectParams->items = $arrayItems;
 
             $haistarPushOrder = $haistarService->haistarPushOrder($objectParams);
-            
+
             // Insert ke Tx Transaction Log
             $txLogService->insertTxLog($stockOrderID, "PUSH ORDER HAISTAR", "MERCHANT", json_encode($objectParams), json_encode($haistarPushOrder), $haistarPushOrder->status);
-            
+
             if ($haistarPushOrder->status == 200) {
                 $dataDO = [
                     'DeliveryOrderID' => $newDeliveryOrderID,
@@ -822,7 +856,7 @@ class DistributionController extends Controller
                     'Distributor' => "HAISTAR",
                     'CreatedDate' => $createdDateDO
                 ];
-                
+
                 foreach ($dataDetailDO as $key => $value) {
                     $dataDetailDO[$key][] = $newDeliveryOrderID;
                 }
@@ -862,7 +896,7 @@ class DistributionController extends Controller
                             "date" => date("Y-m-d H:i:s"),
                             "merchantID" => $msMerchant->MerchantID,
                             "title" => "Pesanan Restok Dikirim",
-                            "body" => "Pesanan Anda sedang dikirim menuju alamat Anda oleh " . $msMerchant->DistributorName . " dengan nomor delivery ".$newDeliveryOrderID.".",
+                            "body" => "Pesanan Anda sedang dikirim menuju alamat Anda oleh " . $msMerchant->DistributorName . " dengan nomor delivery " . $newDeliveryOrderID . ".",
                             'large_icon' => $baseImageUrl . 'push/merchant_icon.png'
                         )
                     );
@@ -895,7 +929,6 @@ class DistributionController extends Controller
         } else {
             return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Gagal');
         }
-        
     }
 
     // Edit DO Ketika Status Dalam Pengiriman
@@ -985,10 +1018,10 @@ class DistributionController extends Controller
         ];
 
         $haistarCancelOrder = $haistarService->haistarCancelOrder($deliveryOrderId, $cancelReason);
-        
+
         if ($haistarCancelOrder->status == 200) {
             try {
-                DB::transaction(function() use ($deliveryOrderId, $cancelReason, $dataLogDO) {
+                DB::transaction(function () use ($deliveryOrderId, $cancelReason, $dataLogDO) {
                     DB::table('tx_merchant_delivery_order')
                         ->where('DeliveryOrderID', '=', $deliveryOrderId)
                         ->update([
@@ -1058,8 +1091,8 @@ class DistributionController extends Controller
                 })
                 ->addColumn('Action', function ($data) {
                     if (Auth::user()->RoleID != "AD") {
-                        $actionBtn = '<a href="#" data-distributor-id="' . $data->DistributorID . '" data-product-id="' . $data->ProductID . '" data-grade-id="' . $data->GradeID . '" data-product-name="' . $data->ProductName . '" data-grade-name="' . $data->Grade . '" data-price="' . $data->Price . '" class="btn-edit btn btn-sm btn-warning mr-1">Ubah Harga</a>
-                    <a data-distributor-id="' . $data->DistributorID . '" data-product-id="' . $data->ProductID . '" data-grade-id="' . $data->GradeID . '" data-product-name="' . $data->ProductName . '" data-grade-name="' . $data->Grade . '" href="#" class="btn-delete btn btn-sm btn-danger">Delete</a>';   
+                        $actionBtn = '<a href="#" data-distributor-id="' . $data->DistributorID . '" data-product-id="' . $data->ProductID . '" data-grade-id="' . $data->GradeID . '" data-product-name="' . $data->ProductName . '" data-grade-name="' . $data->Grade . '" data-price="' . $data->Price . '" class="btn-edit btn btn-sm btn-warning mr-1">Edit</a>
+                        <a data-distributor-id="' . $data->DistributorID . '" data-product-id="' . $data->ProductID . '" data-grade-id="' . $data->GradeID . '" data-product-name="' . $data->ProductName . '" data-grade-name="' . $data->Grade . '" href="#" class="btn-delete btn btn-sm btn-danger">Delete</a>';
                     } else {
                         $actionBtn = '';
                     }
@@ -1088,7 +1121,7 @@ class DistributionController extends Controller
                 ->leftJoin('ms_product_category', 'ms_product_category.ProductCategoryID', '=', 'ms_product.ProductCategoryID')
                 ->leftJoin('ms_product_uom', 'ms_product_uom.ProductUOMID', '=', 'ms_product.ProductUOMID')
                 ->leftJoin('ms_distributor_product_price', 'ms_distributor_product_price.ProductID', '=', 'ms_product.ProductID')
-                ->whereNotIn('ms_product.ProductID', function($query) use ($distributorName){
+                ->whereNotIn('ms_product.ProductID', function ($query) use ($distributorName) {
                     $query->select('ms_distributor_product_price.ProductID')->from('ms_distributor_product_price')->where('ms_distributor_product_price.DistributorID', '=', $distributorName->DistributorID);
                 })
                 ->select('ms_product.ProductID', 'ms_product.ProductName', 'ms_product.ProductUOMDesc', 'ms_product_category.ProductCategoryName', 'ms_product_uom.ProductUOMName')
@@ -1099,7 +1132,7 @@ class DistributionController extends Controller
                 ->where('ms_distributor_grade.DistributorID', '=', $distributorName->DistributorID)
                 ->select('ms_distributor_grade.GradeID', 'ms_distributor_grade.Grade')
                 ->get();
-            
+
             return view('distribution.product.new', [
                 'distributor' => $getDistributor,
                 'depo' => $distributorName,
@@ -1119,7 +1152,7 @@ class DistributionController extends Controller
             ->leftJoin('ms_product_category', 'ms_product_category.ProductCategoryID', '=', 'ms_product.ProductCategoryID')
             ->leftJoin('ms_product_uom', 'ms_product_uom.ProductUOMID', '=', 'ms_product.ProductUOMID')
             ->leftJoin('ms_distributor_product_price', 'ms_distributor_product_price.ProductID', '=', 'ms_product.ProductID')
-            ->whereNotIn('ms_product.ProductID', function($query) use ($distributorId){
+            ->whereNotIn('ms_product.ProductID', function ($query) use ($distributorId) {
                 $query->select('ms_distributor_product_price.ProductID')->from('ms_distributor_product_price')->where('ms_distributor_product_price.DistributorID', '=', $distributorId);
             })
             ->select('ms_product.ProductID', 'ms_product.ProductName', 'ms_product.ProductUOMDesc', 'ms_product_category.ProductCategoryName', 'ms_product_uom.ProductUOMName')
@@ -1256,14 +1289,14 @@ class DistributionController extends Controller
                     return $grade;
                 })
                 ->addColumn('Action', function ($data) {
-                    $actionBtn = '<a href="#" data-distributor-id="'.$data->DistributorID.'" data-merchant-id="'.$data->MerchantID.'" 
-                        data-store-name="'.$data->StoreName.'" data-owner-name="'.$data->OwnerFullName.'" data-grade-id="'.$data->GradeID.'" 
+                    $actionBtn = '<a href="#" data-distributor-id="' . $data->DistributorID . '" data-merchant-id="' . $data->MerchantID . '" 
+                        data-store-name="' . $data->StoreName . '" data-owner-name="' . $data->OwnerFullName . '" data-grade-id="' . $data->GradeID . '" 
                         class="btn btn-xs btn-warning edit-grade mb-1">Ubah Grade</a>
-                        <a href="/distribution/merchant/specialprice/'.$data->MerchantID.'" class="btn btn-xs btn-secondary mb-1">Special Price</a>';
+                        <a href="/distribution/merchant/specialprice/' . $data->MerchantID . '" class="btn btn-xs btn-secondary mb-1">Special Price</a>';
                     return $actionBtn;
                 })
                 ->addColumn('SpecialPrice', function ($data) {
-                    $specialPriceBtn = '<a href="/distribution/merchant/specialprice/'.$data->MerchantID.'" class="btn btn-sm btn-secondary">Special Price</a>';
+                    $specialPriceBtn = '<a href="/distribution/merchant/specialprice/' . $data->MerchantID . '" class="btn btn-sm btn-secondary">Special Price</a>';
                     return $specialPriceBtn;
                 })
                 ->filterColumn('ms_merchant_account.CreatedDate', function ($query, $keyword) {
@@ -1322,7 +1355,7 @@ class DistributionController extends Controller
             return Datatables::of($data)
                 ->editColumn('SpecialPrice', function ($data) {
                     if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "FI") {
-                        $specialPrice = '<input type="text" value="'.$data->SpecialPrice.'" class="special-price" autocomplete="off">';
+                        $specialPrice = '<input type="text" value="' . $data->SpecialPrice . '" class="special-price" autocomplete="off">';
                     } else {
                         if ($data->SpecialPrice == null) {
                             $specialPrice = '';
@@ -1335,12 +1368,12 @@ class DistributionController extends Controller
                 ->addColumn('Action', function ($data) use ($merchantID) {
                     if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "FI") {
                         if ($data->SpecialPrice != null) {
-                            $btn = '<button class="btn btn-xs btn-success btn-simpan" data-product-id="'.$data->ProductID.'" 
-                                    data-merchant-id="'.$merchantID.'" data-grade-id="'.$data->GradeID.'">Simpan</button>
-                                <button class="btn btn-xs btn-danger btn-hapus ml-1" data-product-id="'.$data->ProductID.'" 
-                                    data-merchant-id="'.$merchantID.'" data-grade-id="'.$data->GradeID.'">Hapus</button>';
+                            $btn = '<button class="btn btn-xs btn-success btn-simpan" data-product-id="' . $data->ProductID . '" 
+                                    data-merchant-id="' . $merchantID . '" data-grade-id="' . $data->GradeID . '">Simpan</button>
+                                <button class="btn btn-xs btn-danger btn-hapus ml-1" data-product-id="' . $data->ProductID . '" 
+                                    data-merchant-id="' . $merchantID . '" data-grade-id="' . $data->GradeID . '">Hapus</button>';
                         } else {
-                            $btn = '<button class="btn btn-xs btn-success btn-simpan" data-product-id="'.$data->ProductID.'" data-merchant-id="'.$merchantID.'" data-grade-id="'.$data->GradeID.'">Simpan</button>';
+                            $btn = '<button class="btn btn-xs btn-success btn-simpan" data-product-id="' . $data->ProductID . '" data-merchant-id="' . $merchantID . '" data-grade-id="' . $data->GradeID . '">Simpan</button>';
                         }
                     } else {
                         $btn = '';
@@ -1364,7 +1397,7 @@ class DistributionController extends Controller
         } else {
             $sql = false;
         }
-        
+
         if ($sql) {
             $status = "success";
             $message = "Special Price Merchant berhasil disimpan";

@@ -44,6 +44,10 @@ $(document).ready(function () {
                     name: "ms_merchant_account.StoreName",
                 },
                 {
+                    data: "Sales",
+                    name: "Sales",
+                },
+                {
                     data: "Partner",
                     name: "ms_merchant_account.Partner",
                 },
@@ -99,7 +103,7 @@ $(document).ready(function () {
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [6],
+                    aTargets: [7],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
