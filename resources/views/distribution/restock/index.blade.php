@@ -79,6 +79,7 @@
                                                     <th>Distributor</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
+                                                    <th>Sales</th>
                                                     <th>Total Transaksi</th>
                                                     <th>No. Telp</th>
                                                     <th>Partner</th>
@@ -114,6 +115,7 @@
                                                     <th>Distributor</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
+                                                    <th>Sales</th>
                                                     <th>Partner</th>
                                                     <th>Total Transaksi</th>
                                                     <th>Metode Pembayaran</th>
@@ -141,6 +143,7 @@
                                                     <th>Distributor</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
+                                                    <th>Sales</th>
                                                     <th>Partner</th>
                                                     <th>Total Transaksi</th>
                                                     <th>Metode Pembayaran</th>
@@ -169,6 +172,7 @@
                                                     <th>Distributor</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
+                                                    <th>Sales</th>
                                                     <th>Partner</th>
                                                     <th>Total Transaksi</th>
                                                     <th>Metode Pembayaran</th>
@@ -198,6 +202,7 @@
                                                     <th>Distributor</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
+                                                    <th>Sales</th>
                                                     <th>Partner</th>
                                                     <th>Total Transaksi</th>
                                                     <th>Metode Pembayaran</th>
@@ -227,6 +232,7 @@
                                                     <th>Distributor</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
+                                                    <th>Sales</th>
                                                     <th>Partner</th>
                                                     <th>Total Transaksi</th>
                                                     <th>Metode Pembayaran</th>
@@ -255,6 +261,7 @@
                                                     <th>Distributor</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
+                                                    <th>Sales</th>
                                                     <th>Partner</th>
                                                     <th>Total Transaksi</th>
                                                     <th>Metode Pembayaran</th>
@@ -312,7 +319,7 @@
 <script src="{{url('/')}}/main/js/helper/keep-tab-refresh.js"></script>
 <script src="https://unpkg.com/autonumeric"></script>
 <script>
-// Recall Responsive DataTables
+    // Recall Responsive DataTables
 $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
     $('.table-datatables:visible').each(function(e) {
         $(this).DataTable().columns.adjust().responsive.recalc();
