@@ -3,6 +3,7 @@
 
 @section('css-pages')
 <meta name="csrf_token" content="{{ csrf_token() }}">
+<meta name="role" content="{{ Auth::user()->RoleID }}">
 <!-- Datatables -->
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
@@ -59,7 +60,9 @@
                                         <th>Product Name</th>
                                         <th>Price</th>
                                         <th>Special Price</th>
+                                        @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "FI")
                                         <th>Action</th>
+                                        @endif
                                     </tr>
                                 </thead>
                                 <tbody>

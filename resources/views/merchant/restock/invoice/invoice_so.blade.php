@@ -131,7 +131,11 @@
 								</td>
 
 								<td>
-									<b>PROFORMA INVOICE</b><br>
+									@if ($merchant->StatusOrderID == "S012" || $merchant->StatusOrderID == "S018")
+										<b>INVOICE</b>
+									@else
+										<b>PROFORMA INVOICE</b>
+									@endif<br>
 									#{{ $stockOrderId }} <br>
 									Tgl Pesanan: {{ date('d M Y H:i', strtotime($merchant->CreatedDate)) }}<br>
 									{{ $merchant->StatusOrder }}

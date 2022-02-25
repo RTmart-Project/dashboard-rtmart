@@ -88,7 +88,12 @@ class DistributionController extends Controller
                     return date('d M Y', strtotime($data->ShipmentDate));
                 })
                 ->addColumn('Invoice', function ($data) {
-                    $stockOrderId = '<a href="/restock/invoice/'.$data->StockOrderID.'" target="_blank" class="btn btn-sm btn-info">Cetak</a>';
+                    if ($data->StatusOrderID == "S012" || $data->StatusOrderID == "S018") {
+                        $textBtn = "Invoice";
+                    } else {
+                        $textBtn = "Proforma";
+                    }
+                    $stockOrderId = '<a href="/restock/invoice/'.$data->StockOrderID.'" target="_blank" class="btn btn-sm btn-info">'.$textBtn.'</a>';
                     return $stockOrderId;
                 })
                 ->addColumn('Action', function ($data) {
@@ -1316,20 +1321,30 @@ class DistributionController extends Controller
         if ($request->ajax()) {
             return Datatables::of($data)
                 ->editColumn('SpecialPrice', function ($data) {
-                    $input = '<input type="text" value="'.$data->SpecialPrice.'" class="special-price" autocomplete="off">';
-
-                    return $input;
+                    if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "FI") {
+                        $specialPrice = '<input type="text" value="'.$data->SpecialPrice.'" class="special-price" autocomplete="off">';
+                    } else {
+                        if ($data->SpecialPrice == null) {
+                            $specialPrice = '';
+                        } else {
+                            $specialPrice = number_format($data->SpecialPrice, 0, '', '.');
+                        }
+                    }
+                    return $specialPrice;
                 })
                 ->addColumn('Action', function ($data) use ($merchantID) {
-                    if ($data->SpecialPrice != null) {
-                        $btn = '<button class="btn btn-xs btn-success btn-simpan" data-product-id="'.$data->ProductID.'" 
-                                data-merchant-id="'.$merchantID.'" data-grade-id="'.$data->GradeID.'">Simpan</button>
-                            <button class="btn btn-xs btn-danger btn-hapus ml-1" data-product-id="'.$data->ProductID.'" 
-                                data-merchant-id="'.$merchantID.'" data-grade-id="'.$data->GradeID.'">Hapus</button>';
+                    if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "FI") {
+                        if ($data->SpecialPrice != null) {
+                            $btn = '<button class="btn btn-xs btn-success btn-simpan" data-product-id="'.$data->ProductID.'" 
+                                    data-merchant-id="'.$merchantID.'" data-grade-id="'.$data->GradeID.'">Simpan</button>
+                                <button class="btn btn-xs btn-danger btn-hapus ml-1" data-product-id="'.$data->ProductID.'" 
+                                    data-merchant-id="'.$merchantID.'" data-grade-id="'.$data->GradeID.'">Hapus</button>';
+                        } else {
+                            $btn = '<button class="btn btn-xs btn-success btn-simpan" data-product-id="'.$data->ProductID.'" data-merchant-id="'.$merchantID.'" data-grade-id="'.$data->GradeID.'">Simpan</button>';
+                        }
                     } else {
-                        $btn = '<button class="btn btn-xs btn-success btn-simpan" data-product-id="'.$data->ProductID.'" data-merchant-id="'.$merchantID.'" data-grade-id="'.$data->GradeID.'">Simpan</button>';
+                        $btn = '';
                     }
-
                     return $btn;
                 })
                 ->rawColumns(['SpecialPrice', 'Action'])
