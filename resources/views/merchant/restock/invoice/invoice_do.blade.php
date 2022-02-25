@@ -129,7 +129,7 @@
 					<img src="{{ url('/') }}/dist/img/rtmart.png" alt="Company logo" style="width: 100%; max-width: 220px" />
 				</div>
 				<div class="col-6 text-right">
-					<b>DELIVERY ORDER INVOICE</b><br>
+					<b>DELIVERY ORDER</b><br>
 					#{{ $merchant->StockOrderID }} <br>
 					#{{ $merchant->DeliveryOrderID }} <br>
 					Tgl Pengiriman: {{ date('d M Y H:i', strtotime($merchant->CreatedDate)) }}<br>

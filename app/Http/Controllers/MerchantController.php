@@ -148,7 +148,7 @@ class MerchantController extends Controller
         $merchantById = DB::table('ms_merchant_account')
             ->leftJoin('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
             ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'ms_merchant_account.MerchantID')
-            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'ms_distributor.DistributorID', 'ms_distributor.DistributorName', 'ms_distributor_merchant_grade.GradeID')
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'ms_distributor.DistributorID', 'ms_distributor.DistributorName', 'ms_distributor_merchant_grade.GradeID', 'ms_merchant_account.ReferralCode')
             ->where('ms_merchant_account.MerchantID', '=', $merchantId)
             ->first();
 
@@ -185,7 +185,8 @@ class MerchantController extends Controller
             ],
             'distributor' => 'required|exists:ms_distributor,DistributorID',
             'grade' => 'required|exists:ms_distributor_grade,GradeID',
-            'address' => 'max:500'
+            'address' => 'max:500',
+            'referral_code' => 'string|nullable'
         ]);
 
         $data = [
@@ -196,7 +197,8 @@ class MerchantController extends Controller
             'StorePhoneNumber' => $request->input('phone_number'),
             'DistributorID' => $request->input('distributor'),
             'RealDistributorID' => $request->input('distributor'),
-            'StoreAddress' => $request->input('address')
+            'StoreAddress' => $request->input('address'),
+            'ReferralCode' => $request->input('referral_code')
         ];
 
         $dataGrade = [

@@ -146,6 +146,7 @@
                                                     <th>Metode Pembayaran</th>
                                                     <th>No. Telp</th>
                                                     <th>Alamat</th>
+                                                    <th>Invoice</th>
                                                     <th>Detail</th>
                                                 </tr>
                                             </thead>
@@ -173,7 +174,7 @@
                                                     <th>Metode Pembayaran</th>
                                                     <th>No. Telp</th>
                                                     <th>Alamat</th>
-                                                    <th>Proforma Invoice</th>
+                                                    <th>Invoice</th>
                                                     <th>Detail</th>
                                                 </tr>
                                             </thead>
@@ -202,7 +203,7 @@
                                                     <th>Metode Pembayaran</th>
                                                     <th>No. Telp</th>
                                                     <th>Alamat</th>
-                                                    <th>Proforma Invoice</th>
+                                                    <th>Invoice</th>
                                                     <th>Detail</th>
                                                 </tr>
                                             </thead>
@@ -231,7 +232,7 @@
                                                     <th>Metode Pembayaran</th>
                                                     <th>No. Telp</th>
                                                     <th>Alamat</th>
-                                                    <th>Proforma Invoice</th>
+                                                    <th>Invoice</th>
                                                     <th>Detail</th>
                                                 </tr>
                                             </thead>

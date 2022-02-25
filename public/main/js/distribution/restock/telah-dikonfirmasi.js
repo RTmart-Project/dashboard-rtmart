@@ -64,6 +64,12 @@ $(document).ready(function () {
                     name: "ms_merchant_account.StoreAddress",
                 },
                 {
+                    data: "Invoice",
+                    name: "Invoice",
+                    orderable: false,
+                    searchable: false,
+                },
+                {
                     data: "Action",
                     name: "Action",
                     orderable: false,

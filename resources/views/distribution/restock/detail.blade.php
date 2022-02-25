@@ -95,7 +95,9 @@
                                 <div class="col-md-4 col-12">
                                     <label class="mb-0">Stock Order ID</label>
                                     <p class="m-0">{{ $merchantOrder->StockOrderID }}</p>
-                                    @if ($merchantOrder->StatusOrderID == "S023" || $merchantOrder->StatusOrderID == "S012" || $merchantOrder->StatusOrderID == "S018")
+                                    @if ($merchantOrder->StatusOrderID == "S012" || $merchantOrder->StatusOrderID == "S018")
+                                        <a href="{{ route('restock.invoice', ['stockOrderId' => $merchantOrder->StockOrderID]) }}" target="_blank" class="btn btn-sm btn-info mb-2">Lihat Invoice</a>
+                                    @elseif ($merchantOrder->StatusOrderID == "S023" || $merchantOrder->StatusOrderID == "S010")
                                         <a href="{{ route('restock.invoice', ['stockOrderId' => $merchantOrder->StockOrderID]) }}" target="_blank" class="btn btn-sm btn-info mb-2">Lihat Proforma Invoice</a>
                                     @endif
                                 </div>
@@ -278,6 +280,9 @@
                                                             </button>
                                                         </div>
                                                         <div class="modal-body">
+                                                            <div class="callout callout-danger d-md-none py-2 mb-2">
+                                                                <p><strong>Direkomendasikan untuk buka di LAPTOP / PC</strong></p>
+                                                            </div>
                                                             @if ($deliveryOrder->count() > 0)
                                                                 @foreach ($deliveryOrder as $item)
                                                                 <div class="card @if ($item->StatusDO == "S025") card-success @elseif($item->StatusDO == "S024") card-warning @else card-danger @endif" detail-do>
@@ -306,7 +311,7 @@
                                                                                 </div>
                                                                                 <div class="col-3 align-self-center">
                                                                                     <label class="d-block">Qty</label>
-                                                                                    @if ($item->StatusOrder == "Selesai" || $item->Distributor == "HAISTAR")
+                                                                                    @if ($item->StatusOrder != "Dalam Pengiriman" || $item->Distributor == "HAISTAR")
                                                                                     <p>{{ $product->Qty }}x {{ Helper::formatCurrency($product->Price, '@Rp ') }}</p>
                                                                                     @else
                                                                                     <p>
@@ -323,15 +328,16 @@
                                                                             @endforeach
                                                                             <div class="row m-0 border-bottom">
                                                                                 <div class="col-6 col-md-8 pt-2">
-                                                                                    @if ($item->StatusOrder == "Selesai" || $item->Distributor == "HAISTAR")
-                                                                                        @if ($item->Name != null)
-                                                                                            <p class="m-0"><b>Driver : </b>{{ $item->Name }} - {{ $item->VehicleName }} ({{ $item->VehicleLicensePlate }})</p>
-                                                                                        @else
-                                                                                            <p class="m-0"><b>Driver : </b>-</p>
+                                                                                    @if ($item->StatusOrder != "Dalam Pengiriman" || $item->Distributor == "HAISTAR")
+                                                                                        <p class="m-0"><b>Driver : </b>{{ $item->Name }}</p>
+                                                                                        <p class="m-0"><b>Helper : </b>{{ $item->HelperName }}</p>
+                                                                                        <p class="m-0"><b>Kendaraan : </b>{{ $item->VehicleName }} {{ $item->VehicleLicensePlate }}</p>
+                                                                                        @if ($item->Distributor == "HAISTAR")
+                                                                                            <span class="badge badge-info">{{ $item->Distributor }}</span>
                                                                                         @endif
                                                                                     @else
                                                                                         <div class="row m-0">
-                                                                                            <div class="col-md-4 col-12 pl-0">
+                                                                                            <div class="col-md-6 col-12 pl-0">
                                                                                                 <div class="form-group m-0">
                                                                                                     <label class="my-0" for="driver">Driver</label>
                                                                                                     <select name="driver" id="driver" class="form-control border selectpicker" data-live-search="true" title="Pilih Driver" required>
@@ -343,7 +349,19 @@
                                                                                                     </select>
                                                                                                 </div>
                                                                                             </div>
-                                                                                            <div class="col-md-4 col-12 pl-0">
+                                                                                            <div class="col-md-6 col-12 pl-0">
+                                                                                                <div class="form-group m-0">
+                                                                                                    <label class="my-0" for="helper">Helper</label>
+                                                                                                    <select name="helper" id="helper" class="form-control border selectpicker" data-live-search="true" title="Pilih Helper" required>
+                                                                                                    @foreach ($helpers as $helper)
+                                                                                                        <option value="{{ $helper->UserID }}"
+                                                                                                            {{ collect($item->HelperID)->contains($helper->UserID) ? 'selected' : '' }}>
+                                                                                                        {{ $helper->Name }}</option>
+                                                                                                    @endforeach
+                                                                                                    </select>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <div class="col-md-6 col-12 pl-0">
                                                                                                 <div class="form-group m-0">
                                                                                                     <label class="my-0" for="vehicle">Jenis Kendaraan</label>
                                                                                                     <select name="vehicle" id="vehicle" class="form-control border selectpicker" data-live-search="true" title="Pilih Jenis Kendaraan" required>
@@ -355,26 +373,26 @@
                                                                                                     </select>
                                                                                                 </div>
                                                                                             </div>
-                                                                                            <div class="col-md-4 col-12 pl-0">
+                                                                                            <div class="col-md-6 col-12 pl-0">
                                                                                                 <div class="form-group m-0">
                                                                                                     <label class="my-0" for="license_plate">Plat Nomor Kendaraan</label>
-                                                                                                    <input type="text" name="license_plate" id="license_plate" class="form-control" value="{{ $item->VehicleLicensePlate }}" onkeyup="this.value = this.value.toUpperCase();" autocomplete="off" required>
+                                                                                                    <input type="text" name="license_plate" id="license_plate" class="form-control mb-2" value="{{ $item->VehicleLicensePlate }}" onkeyup="this.value = this.value.toUpperCase();" autocomplete="off" required>
                                                                                                 </div>
                                                                                             </div>
                                                                                         </div>
                                                                                     @endif
                                                                                 </div>
-                                                                                <div class="col-6 col-md-4 d-flex justify-content-end">
-                                                                                    <p class="text-center my-2 mr-md-4">
+                                                                                <div class="col-6 col-md-4 d-flex justify-content-between flex-column">
+                                                                                    <p class="text-center mt-3">
                                                                                         <b>SubTotal : </b>
                                                                                         <span class="price-subtotal">{{ Helper::formatCurrency($item->SubTotal, 'Rp ') }}</span>
                                                                                     </p>
+                                                                                    @if ($item->StatusOrder == "Dalam Pengiriman" && $item->Distributor != "HAISTAR")
+                                                                                        <div class="text-center">
+                                                                                            <button type="submit" id="update_qty" class="btn btn-xs btn-primary text-white mb-2 w-50">Simpan</button>
+                                                                                        </div>
+                                                                                    @endif
                                                                                 </div>
-                                                                                @if ($item->StatusOrder == "Dalam Pengiriman" && $item->Distributor != "HAISTAR")
-                                                                                <div class="col-11 d-flex justify-content-end">
-                                                                                    <button type="submit" id="update_qty" class="btn btn-xs btn-primary text-white mb-2">Simpan</button>
-                                                                                </div>
-                                                                                @endif
                                                                             </div>
                                                                         </form>
                                                                         <div class="row m-0 pt-2">
@@ -441,19 +459,6 @@
                                                                     </div>
                                                                     <div class="col-md-6 col-12">
                                                                         <div class="form-group">
-                                                                            <label class="my-0" for="driver">Driver</label>
-                                                                            <select name="driver" id="driver" class="form-control border selectpicker @if($errors->has('driver')) is-invalid @endif" data-live-search="true" title="Pilih Driver" required>
-                                                                            @foreach ($drivers as $driver)
-                                                                                <option value="{{ $driver->UserID }}">{{ $driver->Name }}</option>
-                                                                            @endforeach
-                                                                            </select>
-                                                                            @if($errors->has('driver'))
-                                                                                <span class="error invalid-feedback">{{ $errors->first('driver') }}</span>
-                                                                            @endif
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-md-6 col-12">
-                                                                        <div class="form-group">
                                                                             <label class="my-0" for="vehicle">Jenis Kendaraan</label>
                                                                         <select name="vehicle" id="vehicle" class="form-control border selectpicker @if($errors->has('vehicle')) is-invalid @endif" data-live-search="true" title="Pilih Jenis Kendaraan" required>
                                                                             @foreach ($vehicles as $vehicle)
@@ -465,7 +470,35 @@
                                                                         @endif
                                                                         </div>
                                                                     </div>
-                                                                    <div class="col-md-6 col-12">
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-md-4 col-12">
+                                                                        <div class="form-group">
+                                                                            <label class="my-0" for="driver">Driver</label>
+                                                                            <select name="driver" id="driver" class="form-control border selectpicker @if($errors->has('driver')) is-invalid @endif" data-live-search="true" title="Pilih Driver" required>
+                                                                            @foreach ($drivers as $driver)
+                                                                                <option value="{{ $driver->UserID }}">{{ $driver->Name }}</option>
+                                                                            @endforeach
+                                                                            </select>
+                                                                            @if($errors->has('driver'))
+                                                                                <span class="error invalid-feedback">{{ $errors->first('driver') }}</span>
+                                                                            @endif
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-4 col-12">
+                                                                        <div class="form-group">
+                                                                            <label class="my-0" for="helper">Helper</label>
+                                                                            <select name="helper" id="helper" class="form-control border selectpicker @if($errors->has('helper')) is-invalid @endif" data-live-search="true" title="Pilih Helper">
+                                                                            @foreach ($helpers as $helper)
+                                                                                <option value="{{ $helper->UserID }}">{{ $helper->Name }}</option>
+                                                                            @endforeach
+                                                                            </select>
+                                                                            @if($errors->has('helper'))
+                                                                                <span class="error invalid-feedback">{{ $errors->first('helper') }}</span>
+                                                                            @endif
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-md-4 col-12">
                                                                         <div class="form-group">
                                                                             <label class="my-0" for="license_plate">Plat Nomor Kendaraan</label>
                                                                             <input type="text" name="license_plate" id="license_plate" class="form-control @if($errors->has('license_plate')) is-invalid @endif" placeholder="Masukkan Plat Nomor Kendaraan" onkeyup="this.value = this.value.toUpperCase();" autocomplete="off" required>
@@ -614,13 +647,9 @@
                                                     @endforeach
                                                     <div class="row m-0 border-bottom border-top">
                                                         <div class="col-8 col-md-9 pt-2">
-                                                            @if ($do->Name != null)
-                                                                <p class="m-0"><b>Driver : </b>{{ $do->Name }} - {{ $do->VehicleName }} ({{ $do->VehicleLicensePlate }})</p>
-                                                            @elseif ($do->Distributor == "HAISTAR")
-                                                                <p class="m-0"><b>Driver : </b>HAISTAR</p>
-                                                            @else
-                                                                <p class="m-0"><b>Driver : </b>-</p>
-                                                            @endif
+                                                            <p class="m-0"><b>Driver : </b>{{ $do->Name }}</p>
+                                                            <p class="m-0"><b>Helper : </b>{{ $do->HelperName }}</p>
+                                                            <p class="m-0"><b>Kendaraan : </b>{{ $do->VehicleName }} {{ $do->VehicleLicensePlate }}</p>
                                                         </div>
                                                         <div class="col-4 col-md-3 d-flex justify-content-center">
                                                             <p class="text-center my-2">

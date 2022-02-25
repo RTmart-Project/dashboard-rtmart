@@ -110,6 +110,19 @@
                                         @endif
                                     </div>
                                 </div>
+                                @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "BM"))
+                                <div class="col-md-4 col-12">
+                                    <div class="form-group">
+                                        <label for="referral_code">Kode Referral</label>
+                                        <input type="text" name="referral_code"
+                                            class="form-control @if($errors->has('referral_code')) is-invalid @endif" id="referral_code"
+                                            placeholder="Masukkan Kode Referral" value="{{ $merchantById->ReferralCode }}" autocomplete="off" onkeyup="this.value = this.value.toUpperCase();">
+                                        @if($errors->has('referral_code'))
+                                        <span class="error invalid-feedback">{{ $errors->first('referral_code') }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                @endif
                             </div>
 
                             <div class="row">
