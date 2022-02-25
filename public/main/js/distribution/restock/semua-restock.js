@@ -41,6 +41,10 @@ $(document).ready(function () {
                     name: "ms_merchant_account.StoreName",
                 },
                 {
+                    data: "Sales",
+                    name: "Sales",
+                },
+                {
                     data: "TotalTrx",
                     name: "TotalTrx",
                 },
@@ -177,7 +181,7 @@ $(document).ready(function () {
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [5, 13, 14],
+                    aTargets: [6, 14, 15],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
