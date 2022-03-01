@@ -66,6 +66,7 @@
                                                     <th>Isi</th>
                                                     <th>Harga</th>
                                                     <th>Grade</th>
+                                                    <th>PreOrder</th>
                                                     <th class="{{ Auth::user()->RoleID == " AD" ? 'd-none' : '' }}">
                                                         Action</th>
                                                 </tr>

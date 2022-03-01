@@ -32,18 +32,22 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <a href="{{ route('distributor.productDetails', ['distributorId' => $distributorId]) }}" class="btn btn-sm btn-light mb-2"><i class="fas fa-arrow-left"></i>
+                        <a href="{{ route('distributor.productDetails', ['distributorId' => $distributorId]) }}"
+                            class="btn btn-sm btn-light mb-2"><i class="fas fa-arrow-left"></i>
                             Kembali</a>
                         <h6><strong>Distributor ID : </strong>{{ $distributorId }}</h6>
                         <h6><strong>Nama Distributor : </strong>{{ $distributorProduct->DistributorName }}</h6>
                         <h6><strong>Alamat : </strong>{{ $distributorProduct->Address }}</h6>
                     </div>
                     <div class="card-body">
-                        <form id="edit-product-distributor" method="post" action="{{ route('distributor.updateProduct', ['distributorId' => $distributorId, 'productId' => $productId, 'gradeId' => $gradeId]) }}" enctype="multipart/form-data">
+                        <form id="edit-product-distributor" method="post"
+                            action="{{ route('distributor.updateProduct', ['distributorId' => $distributorId, 'productId' => $productId, 'gradeId' => $gradeId]) }}"
+                            enctype="multipart/form-data">
                             @csrf
                             <div class="row">
                                 <div class="col-12 text-center">
-                                    <img src="{{ config('app.base_image_url') . 'product/'. $distributorProduct->ProductImage }}" id="output" height="130px"/>
+                                    <img src="{{ config('app.base_image_url') . 'product/'. $distributorProduct->ProductImage }}"
+                                        id="output" height="130px" />
                                 </div>
                             </div>
                             <div class="row">
@@ -56,29 +60,46 @@
                                 <div class="col-md-6 col-12">
                                     <div class="form-group">
                                         <label>Nama Produk</label>
-                                        <input type="text" value="{{ $distributorProduct->ProductName }}" class="form-control" readonly>
+                                        <input type="text" value="{{ $distributorProduct->ProductName }}"
+                                            class="form-control" readonly>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div class="row">
                                 <div class="col-md-6 col-12">
                                     <div class="form-group">
                                         <label>Grade</label>
-                                        <input type="text" value="{{ $distributorProduct->Grade }}" class="form-control" readonly>
+                                        <input type="text" value="{{ $distributorProduct->Grade }}" class="form-control"
+                                            readonly>
                                     </div>
                                 </div>
                                 <div class="col-md-6 col-12">
                                     <div class="form-group">
                                         <label for="price">Harga</label>
-                                        <input type="number" name="price" id="price" class="form-control @if($errors->has('price')) is-invalid @endif" value="{{ $distributorProduct->Price }}" placeholder="Masukkan Harga Produk" required>
+                                        <input type="number" name="price" id="price"
+                                            class="form-control @if($errors->has('price')) is-invalid @endif"
+                                            value="{{ $distributorProduct->Price }}" placeholder="Masukkan Harga Produk"
+                                            required>
                                         @if($errors->has('price'))
-                                            <span class="error invalid-feedback">{{ $errors->first('price') }}</span>
+                                        <span class="error invalid-feedback">{{ $errors->first('price') }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-12">
+                                    <div class="form-group">
+                                        <label for="is_pre_order">Pre Order</label>
+                                        <select name="is_pre_order"
+                                            class="form-control @if($errors->has('is_for')) is-invalid @endif">
+                                            <option value="1" {{ $distributorProduct->IsPreOrder == 1 ? 'selected' : ''
+                                                }}>Ya</option>
+                                            <option value="0" {{ $distributorProduct->IsPreOrder == 0 ? 'selected' : ''
+                                                }}>Tidak</option>
+                                        </select>
+                                        @if($errors->has('is_pre_order'))
+                                        <span class="error invalid-feedback">{{ $errors->first('is_pre_order') }}</span>
                                         @endif
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="form-group float-right">
                                 <button type="submit" class="btn btn-warning">Ubah</button>
                             </div>
@@ -92,5 +113,5 @@
 @endsection
 
 @section('js-pages')
-    <script src="{{url('/')}}/main/js/helper/input-image-view.js"></script>
+<script src="{{url('/')}}/main/js/helper/input-image-view.js"></script>
 @endsection

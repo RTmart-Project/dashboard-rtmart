@@ -1056,7 +1056,7 @@ class DistributionController extends Controller
             ->join('ms_product_category', 'ms_product_category.ProductCategoryID', '=', 'ms_product.ProductCategoryID')
             ->join('ms_product_type', 'ms_product_type.ProductTypeID', '=', 'ms_product.ProductTypeID')
             ->join('ms_product_uom', 'ms_product_uom.ProductUOMID', '=', 'ms_product.ProductUOMID')
-            ->select('ms_distributor_product_price.DistributorID', 'ms_distributor.DistributorName', 'ms_distributor_product_price.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product_category.ProductCategoryName', 'ms_product_type.ProductTypeName', 'ms_product_uom.ProductUOMName', 'ms_product.ProductUOMDesc', 'ms_distributor_product_price.Price', 'ms_distributor_product_price.GradeID', 'ms_distributor_grade.Grade');
+            ->select('ms_distributor_product_price.DistributorID', 'ms_distributor.DistributorName', 'ms_distributor_product_price.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product_category.ProductCategoryName', 'ms_product_type.ProductTypeName', 'ms_product_uom.ProductUOMName', 'ms_product.ProductUOMDesc', 'ms_distributor_product_price.Price', 'ms_distributor_product_price.GradeID', 'ms_distributor_grade.Grade', 'ms_distributor_product_price.IsPreOrder');
 
         if (Auth::user()->RoleID == "AD" && Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
@@ -1089,16 +1089,24 @@ class DistributionController extends Controller
                     }
                     return $grade;
                 })
+                ->editColumn('IsPreOrder', function ($data) {
+                    if ($data->IsPreOrder == 1) {
+                        $preOrder = "Ya";
+                    } else {
+                        $preOrder = "Tidak";
+                    }
+                    return $preOrder;
+                })
                 ->addColumn('Action', function ($data) {
                     if (Auth::user()->RoleID != "AD") {
-                        $actionBtn = '<a href="#" data-distributor-id="' . $data->DistributorID . '" data-product-id="' . $data->ProductID . '" data-grade-id="' . $data->GradeID . '" data-product-name="' . $data->ProductName . '" data-grade-name="' . $data->Grade . '" data-price="' . $data->Price . '" class="btn-edit btn btn-sm btn-warning mr-1">Edit</a>
+                        $actionBtn = '<a href="#" data-distributor-id="' . $data->DistributorID . '" data-product-id="' . $data->ProductID . '" data-grade-id="' . $data->GradeID . '" data-product-name="' . $data->ProductName . '" data-grade-name="' . $data->Grade . '" data-price="' . $data->Price . '" data-pre-order="' . $data->IsPreOrder . '" class="btn-edit btn btn-sm btn-warning mr-1">Edit</a>
                         <a data-distributor-id="' . $data->DistributorID . '" data-product-id="' . $data->ProductID . '" data-grade-id="' . $data->GradeID . '" data-product-name="' . $data->ProductName . '" data-grade-name="' . $data->Grade . '" href="#" class="btn-delete btn btn-sm btn-danger">Delete</a>';
                     } else {
                         $actionBtn = '';
                     }
                     return $actionBtn;
                 })
-                ->rawColumns(['Grade', 'ProductImage', 'Action'])
+                ->rawColumns(['Grade', 'ProductImage', 'IsPreOrder', 'Action'])
                 ->make(true);
         }
     }
@@ -1204,7 +1212,8 @@ class DistributionController extends Controller
     public function updateProduct(Request $request, $distributorId, $productId, $gradeId)
     {
         $request->validate([
-            'price' => 'required|integer'
+            'price' => 'required|integer',
+            'is_pre_order' => 'required|in:1,0'
         ]);
 
         $updateDistributorProduct = DB::table('ms_distributor_product_price')
@@ -1212,7 +1221,8 @@ class DistributionController extends Controller
             ->where('ProductID', '=', $productId)
             ->where('GradeID', '=', $gradeId)
             ->update([
-                'Price' => $request->input('price')
+                'Price' => $request->input('price'),
+                'IsPreOrder' => $request->input('is_pre_order')
             ]);
 
         if ($updateDistributorProduct) {
