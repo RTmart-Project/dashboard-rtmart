@@ -24,52 +24,52 @@ $(document).ready(function () {
             columns: [
                 {
                     data: "StockOrderID",
-                    name: "tx_merchant_order.StockOrderID",
+                    name: "RestockProduct.StockOrderID",
                 },
                 {
                     data: "CreatedDate",
-                    name: "tx_merchant_order.CreatedDate",
+                    name: "RestockProduct.CreatedDate",
                     type: "date",
                 },
                 {
                     data: "MerchantID",
-                    name: "tx_merchant_order.MerchantID",
+                    name: "RestockProduct.MerchantID",
                 },
                 {
                     data: "StoreName",
-                    name: "ms_merchant_account.StoreName",
+                    name: "RestockProduct.StoreName",
                 },
                 {
                     data: "Partner",
-                    name: "ms_merchant_account.Partner",
+                    name: "RestockProduct.Partner",
                 },
                 {
                     data: "PhoneNumber",
-                    name: "ms_merchant_account.PhoneNumber",
+                    name: "RestockProduct.PhoneNumber",
                 },
                 {
                     data: "DistributorName",
-                    name: "ms_distributor.DistributorName",
+                    name: "RestockProduct.DistributorName",
                 },
                 {
                     data: "PaymentMethodName",
-                    name: "ms_payment_method.PaymentMethodName",
+                    name: "RestockProduct.PaymentMethodName",
                 },
                 {
                     data: "StatusOrder",
-                    name: "ms_status_order.StatusOrder",
+                    name: "RestockProduct.StatusOrder",
                 },
                 {
                     data: "TotalPrice",
-                    name: "tx_merchant_order.TotalPrice",
+                    name: "RestockProduct.TotalPrice",
                 },
                 {
                     data: "DiscountPrice",
-                    name: "tx_merchant_order.DiscountPrice",
+                    name: "RestockProduct.DiscountPrice",
                 },
                 {
                     data: "ServiceChargeNett",
-                    name: "tx_merchant_order.ServiceChargeNett",
+                    name: "RestockProduct.ServiceChargeNett",
                 },
                 {
                     data: "TotalAmount",
@@ -77,35 +77,40 @@ $(document).ready(function () {
                 },
                 {
                     data: "ReferralCode",
-                    name: "ms_merchant_account.ReferralCode",
+                    name: "RestockProduct.ReferralCode",
                 },
                 {
                     data: "SalesName",
-                    name: "ms_sales.SalesName",
+                    name: "RestockProduct.SalesName",
                 },
                 {
                     data: "ProductID",
-                    name: "tx_merchant_order_detail.ProductID",
+                    name: "RestockProduct.ProductID",
                 },
                 {
                     data: "ProductName",
-                    name: "ms_product.ProductName",
+                    name: "RestockProduct.ProductName",
                 },
                 {
                     data: "PromisedQuantity",
-                    name: "tx_merchant_order_detail.PromisedQuantity",
+                    name: "RestockProduct.PromisedQuantity",
+                },
+                {
+                    data: "DOSelesai",
+                    name: "RestockProduct.DOSelesai",
+                    searchable: false,
                 },
                 {
                     data: "Price",
-                    name: "tx_merchant_order_detail.Price",
+                    name: "RestockProduct.Price",
                 },
                 {
                     data: "Discount",
-                    name: "tx_merchant_order_detail.Discount",
+                    name: "RestockProduct.Discount",
                 },
                 {
                     data: "Nett",
-                    name: "tx_merchant_order_detail.Nett",
+                    name: "RestockProduct.Nett",
                 },
                 {
                     data: "SubTotalPrice",
