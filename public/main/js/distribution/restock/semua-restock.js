@@ -147,7 +147,7 @@ $(document).ready(function () {
                     className: "btn-sm ml-1 rounded",
                     excelStyles: [
                         {
-                            cells: "A2:I2",
+                            cells: "A2:J2",
                             style: {
                                 fill: {
                                     pattern: {
@@ -157,7 +157,7 @@ $(document).ready(function () {
                             },
                         },
                         {
-                            cells: "J2:S2",
+                            cells: "K2:T2",
                             style: {
                                 fill: {
                                     pattern: {
