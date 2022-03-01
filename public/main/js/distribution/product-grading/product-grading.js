@@ -61,6 +61,10 @@ $(document).ready(function () {
                     name: "ms_distributor_grade.Grade",
                 },
                 {
+                    data: "IsPreOrder",
+                    name: "ms_distributor_product_price.IsPreOrder",
+                },
+                {
                     data: "Action",
                     name: "Action",
                     orderable: false,
@@ -153,13 +157,23 @@ $(document).ready(function () {
         const productId = $(this).data("product-id");
         const gradeId = $(this).data("grade-id");
         const priceProduct = $(this).data("price");
+        const isPreOrder = $(this).data("pre-order");
         $.confirm({
-            title: "Edit Harga",
-            content: `Ubah harga produk <b>${productName}</b> grade <b>${gradeName}</b><br>
-                <label class="mt-2 mb-0">Harga:</label>
+            title: "Edit Produk",
+            content: `Ubah produk <b>${productName}</b> grade <b>${gradeName}</b><br>
                 <form action="/distribution/product/update/${distributorId}/${productId}/${gradeId}" method="post">
+                    <label class="mt-2 mb-0">Harga:</label>
                     <input type="hidden" name="_token" value="${csrf}">
                     <input type="number" class="form-control price" value="${priceProduct}" name="price" autocomplete="off">
+                    <label class="mt-2 mb-0">Pre Order:</label>
+                    <select class="form-control" name="is_pre_order">
+                        <option value="1" ${
+                            isPreOrder == 1 ? "selected" : ""
+                        }>Ya</option>
+                        <option value="0" ${
+                            isPreOrder == 0 ? "selected" : ""
+                        }>Tidak</option>
+                    </select>
                 </form>`,
             closeIcon: true,
             buttons: {
