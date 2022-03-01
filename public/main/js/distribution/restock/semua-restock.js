@@ -116,7 +116,7 @@ $(document).ready(function () {
                     className: "btn-sm mr-1 rounded",
                     excelStyles: [
                         {
-                            cells: "A2:I2",
+                            cells: "A2:J2",
                             style: {
                                 fill: {
                                     pattern: {
