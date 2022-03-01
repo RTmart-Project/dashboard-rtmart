@@ -56,8 +56,14 @@ $(document).ready(function () {
                     name: "Grade",
                 },
                 {
+                    data: "IsPreOrder",
+                    name: "IsPreOrder",
+                },
+                {
                     data: "Action",
                     name: "Action",
+                    searchable: false,
+                    orderable: false,
                 },
             ],
             buttons: [
@@ -83,10 +89,6 @@ $(document).ready(function () {
             responsive: true,
             autoWidth: false,
             aoColumnDefs: [
-                {
-                    aTargets: [9],
-                    orderable: false,
-                },
                 {
                     aTargets: [7],
                     mRender: function (data, type, full) {

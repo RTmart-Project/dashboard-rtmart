@@ -40,7 +40,8 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <a href="{{ route('distributor.account') }}" class="btn btn-sm btn-light mb-2"><i class="fas fa-arrow-left"></i>
+                        <a href="{{ route('distributor.account') }}" class="btn btn-sm btn-light mb-2"><i
+                                class="fas fa-arrow-left"></i>
                             Kembali</a>
                         <h6><strong>Distributor ID : </strong>{{ $distributorId }}</h6>
                         <h6><strong>Nama Distributor : </strong>{{ $distributor->DistributorName }}</h6>
@@ -64,6 +65,7 @@
                                                     <th>Isi</th>
                                                     <th>Harga</th>
                                                     <th>Grade</th>
+                                                    <th>Pre Order</th>
                                                     <th>Action</th>
                                                 </tr>
                                             </thead>

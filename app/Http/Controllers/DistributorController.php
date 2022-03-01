@@ -121,7 +121,7 @@ class DistributorController extends Controller
             ->join('ms_product_type', 'ms_product_type.ProductTypeID', '=', 'ms_product.ProductTypeID')
             ->join('ms_product_uom', 'ms_product_uom.ProductUOMID', '=', 'ms_product.ProductUOMID')
             ->where('ms_distributor_product_price.DistributorID', '=', $distributorId)
-            ->select('ms_distributor_product_price.DistributorID', 'ms_distributor_product_price.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product_category.ProductCategoryName', 'ms_product_type.ProductTypeName', 'ms_product_uom.ProductUOMName', 'ms_product.ProductUOMDesc', 'ms_distributor_product_price.Price', 'ms_distributor_product_price.GradeID', 'ms_distributor_grade.Grade');
+            ->select('ms_distributor_product_price.DistributorID', 'ms_distributor_product_price.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product_category.ProductCategoryName', 'ms_product_type.ProductTypeName', 'ms_product_uom.ProductUOMName', 'ms_product.ProductUOMDesc', 'ms_distributor_product_price.Price', 'ms_distributor_product_price.GradeID', 'ms_distributor_grade.Grade', 'ms_distributor_product_price.IsPreOrder');
 
         $data = $distributorProducts->get();
 
@@ -145,6 +145,14 @@ class DistributorController extends Controller
                     }
                     return $grade;
                 })
+                ->editColumn('IsPreOrder', function ($data) {
+                    if ($data->IsPreOrder == 1) {
+                        $preOrder = "Ya";
+                    } else {
+                        $preOrder = "Tidak";
+                    }
+                    return $preOrder;
+                })
                 ->addColumn('Action', function ($data) {
                     $actionBtn = '<a href="/distributor/account/product/edit/' . $data->DistributorID . '/' . $data->ProductID . '/' . $data->GradeID . '" class="btn btn-sm btn-warning mr-1">Edit</a>
                     <a data-distributor-id="' . $data->DistributorID . '" data-product-id="' . $data->ProductID . '" data-grade-id="' . $data->GradeID . '" data-product-name="' . $data->ProductName . '" data-grade-name="' . $data->Grade . '" href="#" class="btn-delete btn btn-sm btn-danger">Delete</a>';
@@ -164,7 +172,7 @@ class DistributorController extends Controller
             ->where('ms_distributor_product_price.DistributorID', '=', $distributorId)
             ->where('ms_distributor_product_price.ProductID', '=', $productId)
             ->where('ms_distributor_product_price.GradeID', '=', $gradeId)
-            ->select('ms_distributor_product_price.*', 'ms_distributor.DistributorName', 'ms_distributor.Address', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_distributor_grade.Grade')
+            ->select('ms_distributor_product_price.*', 'ms_distributor.DistributorName', 'ms_distributor.Address', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_distributor_grade.Grade', 'ms_distributor_product_price.IsPreOrder')
             ->first();
 
         return view('distributor.product.edit', [
@@ -178,7 +186,8 @@ class DistributorController extends Controller
     public function updateProduct(Request $request, $distributorId, $productId, $gradeId)
     {
         $request->validate([
-            'price' => 'required|integer'
+            'price' => 'required|integer',
+            'is_pre_order' => 'required|in:1,0'
         ]);
 
         $updateDistributorProduct = DB::table('ms_distributor_product_price')
@@ -186,7 +195,8 @@ class DistributorController extends Controller
             ->where('ProductID', '=', $productId)
             ->where('GradeID', '=', $gradeId)
             ->update([
-                'Price' => $request->input('price')
+                'Price' => $request->input('price'),
+                'IsPreOrder' => $request->input('is_pre_order')
             ]);
 
         if ($updateDistributorProduct) {
