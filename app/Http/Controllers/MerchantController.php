@@ -104,7 +104,7 @@ class MerchantController extends Controller
                 })
                 ->editColumn('Partner', function ($data) {
                     if ($data->Partner != null) {
-                        $partner = '<a class="badge badge-info">'.$data->Partner.'</a>';
+                        $partner = '<a class="badge badge-info">' . $data->Partner . '</a>';
                     } else {
                         $partner = '';
                     }
@@ -433,14 +433,14 @@ class MerchantController extends Controller
             return Datatables::of($data)
                 ->editColumn('Partner', function ($data) {
                     if ($data->Partner != null) {
-                        $partner = '<a class="badge badge-info">'.$data->Partner.'</a>';
+                        $partner = '<a class="badge badge-info">' . $data->Partner . '</a>';
                     } else {
                         $partner = '';
                     }
                     return $partner;
                 })
                 ->addColumn('Action', function ($data) {
-                    $actionBtn = '<a class="btn btn-sm btn-danger delete-power-merchant" data-merchant-name="'.$data->StoreName.'" data-merchant-id="'.$data->MerchantID.'">Hapus</a>';
+                    $actionBtn = '<a class="btn btn-sm btn-danger delete-power-merchant" data-merchant-name="' . $data->StoreName . '" data-merchant-id="' . $data->MerchantID . '">Hapus</a>';
                     return $actionBtn;
                 })
                 ->rawColumns(['Partner', 'Action'])
@@ -492,7 +492,6 @@ class MerchantController extends Controller
         } else {
             return redirect()->route('merchant.powermerchant')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
         }
-        
     }
 
     public function otp()
@@ -551,7 +550,6 @@ class MerchantController extends Controller
 
     public function restock()
     {
-
         function countMerchantRestock($distributorId = "all", $thisYear = null, $thisMonth = null, $thisDay = null)
         {
             $merchantRestock = DB::table('tx_merchant_order')
@@ -636,7 +634,7 @@ class MerchantController extends Controller
                 })
                 ->editColumn('Partner', function ($data) {
                     if ($data->Partner != null) {
-                        $partner = '<a class="badge badge-info">'.$data->Partner.'</a>';
+                        $partner = '<a class="badge badge-info">' . $data->Partner . '</a>';
                     } else {
                         $partner = '';
                     }
@@ -646,7 +644,7 @@ class MerchantController extends Controller
                     if ($data->StatusOrderID == "S009") {
                         $invoice = "";
                     } else {
-                        $invoice = '<a href="/restock/invoice/'.$data->StockOrderID.'" target="_blank" class="btn-sm btn-primary">Cetak</a>';
+                        $invoice = '<a href="/restock/invoice/' . $data->StockOrderID . '" target="_blank" class="btn-sm btn-primary">Cetak</a>';
                     }
                     return $invoice;
                 })
@@ -697,7 +695,7 @@ class MerchantController extends Controller
         $toDate = $request->input('toDate');
         $paymentMethodId = $request->input('paymentMethodId');
 
-        $sqlAllAccount = DB::table('tx_merchant_order')
+        $sqlMain = DB::table('tx_merchant_order')
             ->leftJoin('tx_merchant_order_detail', 'tx_merchant_order_detail.StockOrderID', '=', 'tx_merchant_order.StockOrderID')
             ->leftJoin('ms_product', 'ms_product.ProductID', '=', 'tx_merchant_order_detail.ProductID')
             ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
@@ -705,17 +703,23 @@ class MerchantController extends Controller
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_order.StatusOrderID')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
             ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'ms_merchant_account.ReferralCode')
-            ->where('ms_merchant_account.IsTesting', 0)
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.MerchantID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.NettPrice', 'tx_merchant_order.StatusOrderID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesName', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order_detail.ProductID', 'ms_product.ProductName', 'tx_merchant_order_detail.PromisedQuantity', 'tx_merchant_order_detail.Price', 'tx_merchant_order_detail.Discount', 'tx_merchant_order_detail.Nett');
+            ->whereRaw('ms_merchant_account.IsTesting = 0')
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.MerchantID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.NettPrice', 'tx_merchant_order.StatusOrderID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesName', 'tx_merchant_order.PaymentMethodID', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order_detail.ProductID', 'ms_product.ProductName', 'tx_merchant_order_detail.PromisedQuantity', 'tx_merchant_order_detail.Price', 'tx_merchant_order_detail.Discount', 'tx_merchant_order_detail.Nett')->toSql();
+
+        $sqlAllAccount = DB::table(DB::raw("($sqlMain) AS RestockProduct"))
+            ->selectRaw("
+                RestockProduct.*,
+                (SELECT SUM(tx_merchant_delivery_order_detail.Qty) FROM tx_merchant_delivery_order_detail WHERE tx_merchant_delivery_order_detail.DeliveryOrderID IN (SELECT DeliveryOrderID FROM tx_merchant_delivery_order WHERE tx_merchant_delivery_order.StockOrderID = RestockProduct.StockOrderID AND tx_merchant_delivery_order.StatusDO = 'S025') AND tx_merchant_delivery_order_detail.ProductID = RestockProduct.ProductID) AS DOSelesai
+            ");
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
-            $sqlAllAccount->whereDate('tx_merchant_order.CreatedDate', '>=', $fromDate)
-                ->whereDate('tx_merchant_order.CreatedDate', '<=', $toDate);
+            $sqlAllAccount->whereDate('RestockProduct.CreatedDate', '>=', $fromDate)
+                ->whereDate('RestockProduct.CreatedDate', '<=', $toDate);
         }
 
         if ($paymentMethodId != null) {
-            $sqlAllAccount->where('tx_merchant_order.PaymentMethodID', '=', $paymentMethodId);
+            $sqlAllAccount->where('RestockProduct.PaymentMethodID', '=', $paymentMethodId);
         }
 
         // Get data response
@@ -729,7 +733,7 @@ class MerchantController extends Controller
                 })
                 ->editColumn('Partner', function ($data) {
                     if ($data->Partner != null) {
-                        $partner = '<a class="badge badge-info">'.$data->Partner.'</a>';
+                        $partner = '<a class="badge badge-info">' . $data->Partner . '</a>';
                     } else {
                         $partner = '';
                     }
@@ -768,9 +772,12 @@ class MerchantController extends Controller
 
                     return $statusOrder;
                 })
-                ->filterColumn('tx_merchant_order.CreatedDate', function ($query, $keyword) {
-                    $query->whereRaw("DATE_FORMAT(tx_merchant_order.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
+                ->filterColumn('RestockProduct.CreatedDate', function ($query, $keyword) {
+                    $query->whereRaw("DATE_FORMAT(RestockProduct.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
                 })
+                // ->filterColumn('RestockProduct.DOSelesai', function ($query, $keyword) {
+                //     $query->whereRaw("RestockProduct.DOSelesai like ?", ["%$keyword%"]);
+                // })
                 ->addColumn('SubTotalPrice', function ($data) {
                     $subTotalPrice = $data->Nett * $data->PromisedQuantity;
                     return "$subTotalPrice";
