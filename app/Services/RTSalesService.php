@@ -69,7 +69,9 @@ class RTSalesService
       ->join('ms_product', 'ms_visit_survey.ProductID', 'ms_product.ProductID')
       ->join('ms_sales', 'ms_visit_plan_result.SalesCode', 'ms_sales.SalesCode')
       ->join('ms_store', 'ms_visit_plan_result.StoreID', 'ms_store.StoreID')
-      ->whereBetween('ms_visit_survey.CreatedDate', [$startDateFormat, $endDateFormat])->get();
+      ->whereDate('ms_visit_survey.CreatedDate', '>=', $startDateFormat)
+      ->whereDate('ms_visit_survey.CreatedDate', '<=', $endDateFormat)
+      ->get();
 
     foreach ($sql as $key => $value) {
       $surveyPhoto = DB::table('ms_visit_survey_photo')
