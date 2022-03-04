@@ -36,87 +36,101 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <a href="{{ route('distribution.product') }}" class="btn btn-sm btn-light"><i class="fas fa-arrow-left"></i>
+                        <a href="{{ route('distribution.product') }}" class="btn btn-sm btn-light"><i
+                                class="fas fa-arrow-left"></i>
                             Kembali</a>
                     </div>
                     <div class="card-body">
-                        <form id="add-distribution-product" method="post" action="{{ route('distribution.insertProduct') }}">
+                        <form id="add-distribution-product" method="post"
+                            action="{{ route('distribution.insertProduct') }}">
                             @csrf
                             <div class="row">
                                 @if (Auth::user()->RoleID == "AD")
-                                    <div class="col-md-4 col-12">
-                                        <div class="form-group">
-                                            <label for="distributor">Distributor</label>
-                                            <input class="form-control-plaintext" value="{{ $depo->DistributorName }}" readonly>
-                                            <input type="hidden" name="distributor" value="{{ $depo->DistributorID }}">
-                                        </div>
+                                <div class="col-md-4 col-12">
+                                    <div class="form-group">
+                                        <label for="distributor">Distributor</label>
+                                        <input class="form-control-plaintext" value="{{ $depo->DistributorName }}"
+                                            readonly>
+                                        <input type="hidden" name="distributor" value="{{ $depo->DistributorID }}">
                                     </div>
-                                    <div class="col-md-8 col-12">
-                                        <div class="form-group">
-                                            <label for="product">Produk</label>
-                                            <select class="form-control selectpicker border @if($errors->has('product')) is-invalid @endif"
-                                                name="product" id="product" data-live-search="true" title="Pilih Produk" required>
-                                                @foreach ($productNotInDistributor as $item)
-                                                <option value="{{ $item->ProductID }}">{{ $item->ProductName }} -- Isi: {{ $item->ProductUOMDesc }} {{ $item->ProductUOMName }}</option>
+                                </div>
+                                <div class="col-md-8 col-12">
+                                    <div class="form-group">
+                                        <label for="product">Produk</label>
+                                        <select
+                                            class="form-control selectpicker border @if($errors->has('product')) is-invalid @endif"
+                                            name="product" id="product" data-live-search="true" title="Pilih Produk"
+                                            required>
+                                            @foreach ($productNotInDistributor as $item)
+                                            <option value="{{ $item->ProductID }}">{{ $item->ProductName }} -- Isi: {{
+                                                $item->ProductUOMDesc }} {{ $item->ProductUOMName }}</option>
                                             @endforeach
-                                            </select>
-                                            @if($errors->has('product'))
-                                                <span class="error invalid-feedback">{{ $errors->first('product') }}</span>
-                                            @endif
-                                        </div>
+                                        </select>
+                                        @if($errors->has('product'))
+                                        <span class="error invalid-feedback">{{ $errors->first('product') }}</span>
+                                        @endif
                                     </div>
-                                    <div class="col-12">
-                                        <label for="grade_price">Set Harga</label>
-                                        <div class="row">
-                                            @foreach ($gradeDistributor as $item)
-                                                <div class="col-4 d-flex justify-content-center">
-                                                    <label>{{ $item->Grade }}</label>
-                                                    <input type="hidden" name="grade_id[]" value="{{ $item->GradeID }}">
-                                                </div>
-                                                <div class="col-8">
-                                                    <div class="form-group">
-                                                        <input type="text" name="grade_price[]"
-                                                            class="form-control autonumeric @if($errors->has('grade_price')) is-invalid @endif" value="{{ collect(old('grade_price')) }}" autocomplete="off" required>
-                                                        @if($errors->has('grade_price'))
-                                                            <span class="error invalid-feedback">{{ $errors->first('grade_price') }}</span>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            @endforeach
+                                </div>
+                                <div class="col-12">
+                                    <label for="grade_price">Set Harga</label>
+                                    <div class="row">
+                                        @foreach ($gradeDistributor as $item)
+                                        <div class="col-4 d-flex justify-content-center">
+                                            <label>{{ $item->Grade }}</label>
+                                            <input type="hidden" name="grade_id[]" value="{{ $item->GradeID }}">
                                         </div>
+                                        <div class="col-8">
+                                            <div class="form-group">
+                                                <input type="text" name="grade_price[]"
+                                                    class="form-control autonumeric @if($errors->has('grade_price')) is-invalid @endif"
+                                                    value="{{ collect(old('grade_price')) }}" autocomplete="off"
+                                                    required>
+                                                @if($errors->has('grade_price'))
+                                                <span class="error invalid-feedback">{{ $errors->first('grade_price')
+                                                    }}</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        @endforeach
                                     </div>
+                                </div>
                                 @else
-                                    <div class="col-md-4 col-12">
-                                        <div class="form-group">
-                                            <label for="distributor">Distributor</label>
-                                            <select class="form-control selectpicker border @if($errors->has('distributor')) is-invalid @endif"
-                                                name="distributor" id="distributor" data-live-search="true" title="Pilih Distributor" required>
-                                                @foreach ($distributor as $item)
-                                                    <option value="{{ $item->DistributorID }}">{{ $item->DistributorName }}</option>
-                                                @endforeach
-                                            </select>
-                                            @if($errors->has('distributor'))
-                                                <span class="error invalid-feedback">{{ $errors->first('distributor') }}</span>
-                                            @endif
-                                        </div>
+                                <div class="col-md-4 col-12">
+                                    <div class="form-group">
+                                        <label for="distributor">Distributor</label>
+                                        <select
+                                            class="form-control selectpicker border @if($errors->has('distributor')) is-invalid @endif"
+                                            name="distributor" id="distributor" data-live-search="true"
+                                            title="Pilih Distributor" required>
+                                            @foreach ($distributor as $item)
+                                            <option value="{{ $item->DistributorID }}">{{ $item->DistributorName }}
+                                            </option>
+                                            @endforeach
+                                        </select>
+                                        @if($errors->has('distributor'))
+                                        <span class="error invalid-feedback">{{ $errors->first('distributor') }}</span>
+                                        @endif
                                     </div>
-                                    <div class="col-md-8 col-12">
-                                        <div class="form-group">
-                                            <label for="product">Produk</label>
-                                            <select class="form-control selectpicker border @if($errors->has('product')) is-invalid @endif"
-                                                name="product" id="product" data-live-search="true" title="Pilih Produk" required>
-                                            </select>
-                                            @if($errors->has('product'))
-                                                <span class="error invalid-feedback">{{ $errors->first('product') }}</span>
-                                            @endif
-                                        </div>
+                                </div>
+                                <div class="col-md-8 col-12">
+                                    <div class="form-group">
+                                        <label for="product">Produk</label>
+                                        <select
+                                            class="form-control selectpicker border @if($errors->has('product')) is-invalid @endif"
+                                            name="product" id="product" data-live-search="true" title="Pilih Produk"
+                                            required>
+                                        </select>
+                                        @if($errors->has('product'))
+                                        <span class="error invalid-feedback">{{ $errors->first('product') }}</span>
+                                        @endif
                                     </div>
-                                    <div class="col-12">
-                                        <label for="grade_price">Set Harga</label>
-                                        <div class="row grade-price">
-                                            
-                                        </div>
+                                </div>
+                                <div class="col-12">
+                                    <label for="grade_price">Set Harga</label>
+                                    <div class="row grade-price">
+
                                     </div>
+                                </div>
                                 @endif
                             </div>
 
