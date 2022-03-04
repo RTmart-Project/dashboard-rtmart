@@ -34,7 +34,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::group(['prefix' => 'distribution', 'middleware' => ['checkRoleUser:IT,AD,BM,FI,AH']], function () {
         // Distribution
-        Route::group(['prefix' => 'restock'], function(){
+        Route::group(['prefix' => 'restock'], function () {
             Route::get('/', [DistributionController::class, 'restock'])->name('distribution.restock');
             Route::get('/get/allRestockAndDO', [DistributionController::class, 'getAllRestockAndDO'])->name('distribution.getAllRestockAndDO');
             Route::get('/get/{statusOrder}', [DistributionController::class, 'getRestockByStatus'])->name('distribution.getRestockByStatus');
@@ -45,10 +45,10 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/update/qty/{deliveryOrderId}', [DistributionController::class, 'updateQtyDO'])->name('distribution.updateQtyDO');
             Route::post('/cancel/deliveryOrder/{deliveryOrderId}', [DistributionController::class, 'cancelDeliveryOrder'])->name('distribution.cancelDeliveryOrder');
         });
-        Route::group(['prefix' => 'product'], function(){
+        Route::group(['prefix' => 'product'], function () {
             Route::get('/', [DistributionController::class, 'product'])->name('distribution.product');
             Route::get('/get', [DistributionController::class, 'getProduct'])->name('distribution.getProduct');
-            Route::group(['middleware' => ['checkRoleUser:IT,FI,AH,BM']], function() {
+            Route::group(['middleware' => ['checkRoleUser:IT,FI,AH,BM']], function () {
                 Route::get('/add', [DistributionController::class, 'addProduct'])->name('distribution.addProduct');
                 Route::get('/ajax/get/{distributorId}', [DistributionController::class, 'ajaxGetProduct'])->name('distribution.ajaxGetProduct');
                 Route::post('/insert', [DistributionController::class, 'insertProduct'])->name('distribution.insertProduct');
@@ -56,7 +56,7 @@ Route::group(['middleware' => ['auth']], function () {
                 Route::get('/delete/{distributorId}/{productId}/{gradeId}', [DistributionController::class, 'deleteProduct'])->name('distribution.deleteProduct');
             });
         });
-        Route::group(['prefix' => 'merchant'], function(){
+        Route::group(['prefix' => 'merchant'], function () {
             Route::get('/', [DistributionController::class, 'merchant'])->name('distribution.merchant');
             Route::get('/get', [DistributionController::class, 'getMerchant'])->name('distribution.getMerchant');
             Route::post('/grade/update/{merchantId}', [DistributionController::class, 'updateGrade'])->name('distribution.updateGrade');
@@ -70,8 +70,20 @@ Route::group(['middleware' => ['auth']], function () {
         });
     });
 
-    Route::group(['prefix' => 'rtsales', 'middleware' => ['checkRoleUser:IT']], function () {
-        Route::group(['prefix' => 'saleslist'], function (){
+    Route::group(['prefix' => 'rtsales', 'middleware' => ['checkRoleUser:IT,FI']], function () {
+        Route::get('/summary', [RTSalesController::class, 'summary'])->name('rtsales.summary');
+
+        Route::group(['prefix' => 'callreport'], function () {
+            Route::get('/', [RTSalesController::class, 'callReport'])->name('rtsales.callReport');
+            Route::get('/get', [RTSalesController::class, 'getCallReport'])->name('rtsales.getCallReport');
+        });
+
+        Route::group(['prefix' => 'surveyreport'], function () {
+            Route::get('/', [RTSalesController::class, 'surveyReport'])->name('rtsales.surveyReport');
+            Route::get('/get', [RTSalesController::class, 'getSurveyReport'])->name('rtsales.getSurveyReport');
+        });
+
+        Route::group(['prefix' => 'saleslist'], function () {
             Route::get('/', [RTSalesController::class, 'saleslist'])->name('rtsales.saleslist');
             Route::get('/get', [RTSalesController::class, 'getDataSales'])->name('rtsales.getSaleslist');
             Route::get('/add', [RTSalesController::class, 'addSales'])->name('rtsales.addSales');
@@ -122,7 +134,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/update/{type}', [ProductController::class, 'updateType'])->name('product.updateType');
     });
 
-    Route::group(['prefix' => 'master/product/brand','middleware' => ['checkRoleUser:IT,BM,FI']], function () {
+    Route::group(['prefix' => 'master/product/brand', 'middleware' => ['checkRoleUser:IT,BM,FI']], function () {
         // Product Brand
         Route::get('/', [ProductController::class, 'brand'])->name('product.brand');
         Route::get('/get', [ProductController::class, 'getBrands'])->name('product.getBrands');
@@ -134,8 +146,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::group(['prefix', 'middleware' => ['checkRoleUser:IT,BM,FI,AH']], function () {
         // PPOB
-        Route::group(['prefix' => ''], function(){
-
+        Route::group(['prefix' => ''], function () {
         });
         Route::get('/ppob/topup', [PpobController::class, 'topup'])->name('ppob.topup');
         Route::get('/ppob/topup/get', [PpobController::class, 'getTopups'])->name('ppob.getTopups');
@@ -226,9 +237,9 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/setting/role/update/{role}', [AuthController::class, 'updateRole'])->name('setting.updateRole');
 
         // Module
-        Route::group(['prefix' => 'setting/module'], function() {
+        Route::group(['prefix' => 'setting/module'], function () {
             // Fairbanc
-            Route::group(['prefix' => 'fairbanc'], function() {
+            Route::group(['prefix' => 'fairbanc'], function () {
                 Route::get('/', [SettingController::class, 'fairbanc'])->name('setting.fairbanc');
                 Route::get('/get', [SettingController::class, 'getFairbanc'])->name('setting.getFairbanc');
                 Route::post('/insert', [SettingController::class, 'insertFairbanc'])->name('setting.insertFairbanc');
@@ -236,7 +247,7 @@ Route::group(['middleware' => ['auth']], function () {
             });
 
             // Haistar
-            Route::group(['prefix' => 'haistar'], function() {
+            Route::group(['prefix' => 'haistar'], function () {
                 Route::get('/', [SettingController::class, 'haistar'])->name('setting.haistar');
                 Route::get('/get', [SettingController::class, 'getHaistar'])->name('setting.getHaistar');
                 Route::post('/insert', [SettingController::class, 'insertHaistar'])->name('setting.insertHaistar');
