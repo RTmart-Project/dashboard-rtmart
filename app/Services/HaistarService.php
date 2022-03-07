@@ -4,7 +4,15 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
 
-class HaistarService {
+class HaistarService
+{
+
+    private $txLogService;
+
+    public function __construct(TxLogService $txLogService)
+    {
+        $this->txLogService = $txLogService;
+    }
 
     public function distributorHaistar()
     {
@@ -51,7 +59,7 @@ class HaistarService {
 
     public function insertBulkDistributorHaistar($arrDistributorID)
     {
-        $insert = DB::transaction(function() use ($arrDistributorID) {
+        $insert = DB::transaction(function () use ($arrDistributorID) {
             foreach ($arrDistributorID as &$value) {
                 $value = array_combine(['DistributorID', 'IsHaistar'], $value);
                 DB::table('ms_distributor')
@@ -76,6 +84,9 @@ class HaistarService {
         $result = curl_exec($ch);
 
         curl_close($ch);
+
+        $this->txLogService->insertTxLog("GetSignature", "GetSignature Haistar", "HAISTAR", "", json_encode($result), "hitted");
+
         return $result;
     }
 
