@@ -26,6 +26,7 @@ class RTSalesService
         $join->on('VisitResult.SalesCode', 'msales.SalesCode');
         $join->whereBetween('VisitResult.ActualVisitDate', [$startDateFormat, $endDateFormat]);
       })
+      ->where('msales.IsActive', 1)
       ->leftJoin('ms_team_name', 'ms_team_name.TeamCode', 'msales.Team')
       ->selectRaw("
                 ANY_VALUE(DATE_FORMAT('$startDateFormat', '%d-%b-%Y')) as StartDate,
@@ -69,6 +70,7 @@ class RTSalesService
       ->join('ms_product', 'ms_visit_survey.ProductID', 'ms_product.ProductID')
       ->join('ms_sales', 'ms_visit_plan_result.SalesCode', 'ms_sales.SalesCode')
       ->join('ms_store', 'ms_visit_plan_result.StoreID', 'ms_store.StoreID')
+      ->where('ms_sales.IsActive', 1)
       ->whereDate('ms_visit_survey.CreatedDate', '>=', $startDateFormat)
       ->whereDate('ms_visit_survey.CreatedDate', '<=', $endDateFormat)
       ->get();
