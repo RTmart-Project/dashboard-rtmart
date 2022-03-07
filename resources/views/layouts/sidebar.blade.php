@@ -226,7 +226,7 @@
             </li>
             @endif
 
-            @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "FI"))
+            @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "BM"))
             <li class="nav-item {{ Request::is('rtsales*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('rtsales*') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-chart-line"></i>
