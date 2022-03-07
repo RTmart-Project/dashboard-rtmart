@@ -70,7 +70,7 @@ Route::group(['middleware' => ['auth']], function () {
         });
     });
 
-    Route::group(['prefix' => 'rtsales', 'middleware' => ['checkRoleUser:IT,FI']], function () {
+    Route::group(['prefix' => 'rtsales', 'middleware' => ['checkRoleUser:IT,FI,BM']], function () {
         Route::get('/summary', [RTSalesController::class, 'summary'])->name('rtsales.summary');
 
         Route::group(['prefix' => 'callreport'], function () {
