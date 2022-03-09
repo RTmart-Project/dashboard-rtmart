@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use DateTime;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class RTSalesService
@@ -54,6 +55,11 @@ class RTSalesService
             ")
       ->groupBy('msales.SalesCode', 'msales.SalesName', 'msales.TeamBy', 'msales.Team');
 
+    if (Auth::user()->Depo != "ALL") {
+      $depoUser = Auth::user()->Depo;
+      $sql->where('msales.Depo', '=', $depoUser);
+    }
+
     return $sql;
   }
 
@@ -64,11 +70,18 @@ class RTSalesService
     $startDateFormat = $startDate->format('Y-m-d');
     $endDateFormat = $endDate->format('Y-m-d');
 
+    if (Auth::user()->Depo != "ALL") {
+      $depoUser = Auth::user()->Depo;
+    }
+
     $sql = DB::table('ms_visit_survey')
       ->select('ms_visit_survey.VisitSurveyID', 'ms_visit_survey.CreatedDate', 'ms_sales.SalesCode', 'ms_sales.SalesName', 'ms_visit_plan_result.StoreID', 'ms_store.StoreName', 'ms_store.PhoneNumber', 'ms_product.ProductName', 'ms_visit_survey.PurchasePrice', 'ms_visit_survey.SellingPrice', 'ms_visit_survey.Supplier')
       ->leftJoin('ms_visit_plan_result', 'ms_visit_survey.VisitResultID', 'ms_visit_plan_result.VisitResultID')
       ->join('ms_product', 'ms_visit_survey.ProductID', 'ms_product.ProductID')
-      ->join('ms_sales', 'ms_visit_plan_result.SalesCode', 'ms_sales.SalesCode')
+      ->join('ms_sales', function ($join) use ($depoUser) {
+        $join->on('ms_visit_plan_result.SalesCode', 'ms_sales.SalesCode');
+        $join->where('ms_sales.Depo', '=', $depoUser);
+      })
       ->join('ms_store', 'ms_visit_plan_result.StoreID', 'ms_store.StoreID')
       ->where('ms_sales.IsActive', 1)
       ->whereDate('ms_visit_survey.CreatedDate', '>=', $startDateFormat)
