@@ -44,6 +44,8 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/create/deliveryOrder/{stockOrderID}/{depoChannel}', [DistributionController::class, 'createDeliveryOrder'])->name('distribution.createDeliveryOrder');
             Route::get('/update/qty/{deliveryOrderId}', [DistributionController::class, 'updateQtyDO'])->name('distribution.updateQtyDO');
             Route::post('/cancel/deliveryOrder/{deliveryOrderId}', [DistributionController::class, 'cancelDeliveryOrder'])->name('distribution.cancelDeliveryOrder');
+            Route::post('/reject/request/{deliveryOrderId}', [DistributionController::class, 'rejectRequestDO'])->name('distribution.rejectRequestDO');
+            Route::post('/confirm/request/{deliveryOrderId}/{depoChannel}', [DistributionController::class, 'confirmRequestDO'])->name('distribution.confirmRequestDO');
         });
         Route::group(['prefix' => 'product'], function () {
             Route::get('/', [DistributionController::class, 'product'])->name('distribution.product');

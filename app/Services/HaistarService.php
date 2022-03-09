@@ -2,16 +2,19 @@
 
 namespace App\Services;
 
+use App\Helpers\Helper;
 use Illuminate\Support\Facades\DB;
 
 class HaistarService
 {
 
     private $txLogService;
+    private $merchantService;
 
-    public function __construct(TxLogService $txLogService)
+    public function __construct(TxLogService $txLogService, MerchantService $merchantService)
     {
         $this->txLogService = $txLogService;
+        $this->merchantService = $merchantService;
     }
 
     public function distributorHaistar()
@@ -85,7 +88,7 @@ class HaistarService
 
         curl_close($ch);
 
-        $this->txLogService->insertTxLog("GetSignature", "GetSignature Haistar", "HAISTAR", "", json_encode($result), "hitted");
+        // $this->txLogService->insertTxLog("GetSignature", "GetSignature Haistar", "HAISTAR", "", json_encode($result), "hitted");
 
         return $result;
     }
@@ -123,8 +126,22 @@ class HaistarService
         return json_decode($result);
     }
 
-    public function haistarPushOrder($objectParams)
+    public function haistarPushOrder($stockOrderID, $objectParams)
     {
+        $arrGetLocation = $this->haistarGetLocation();
+        $location = Helper::arrayFilterFirst($arrGetLocation->data, "location_name", config('app.haistar_location'));
+        $arrGetCourier = $this->haistarGetCourier();
+        $courier = Helper::arrayFilterFirst($arrGetCourier->data, "name", "Haistar");
+        $arrGetCourierDeliveryType = $this->haistarGetCourierDeliveryType("Haistar");
+        $courierDeliveryType = Helper::arrayFilterFirst($arrGetCourierDeliveryType->data, "delivery_type", "Reguler");
+
+        $dataMerchant = $this->merchantService->merchantAccountParamHaistar($stockOrderID);
+        if ($dataMerchant->PaymentMethodID == 1) {
+            $paymetType = "COD";
+        } else {
+            $paymetType = "NON COD";
+        }
+
         $url = config('app.haistar_url') . 'Push_order/?apikey=' . config('app.haistar_api_key');
         $getSignature = json_decode($this->haistarGetSignature());
 
@@ -142,29 +159,29 @@ class HaistarService
         $payload = json_encode(
             array(
                 "apikey" => config('app.haistar_api_key'),
-                "location" => $objectParams->location,
+                "location" => $location->location_code,
                 "code" => $objectParams->code,
                 "channel_id" => "MULTI CHANNEL",
-                "shop_name" => $objectParams->shop_name,
-                "courier_name" => $objectParams->courier_name,
-                "delivery_type_name" => $objectParams->delivery_type_name,
+                "shop_name" => $dataMerchant->StoreName,
+                "courier_name" => $courier->name,
+                "delivery_type_name" => $courierDeliveryType->delivery_type_id,
                 "stock_type_name" => "MULTI CHANNEL",
-                "payment_type" => $objectParams->payment_type,
+                "payment_type" => $paymetType,
                 "cod_price" => $objectParams->cod_price,
                 "total_price" => $objectParams->total_price,
                 "total_product_price" => $objectParams->total_product_price,
-                "recipient_name" => $objectParams->recipient_name,
-                "recipient_postal_code" => $objectParams->recipient_postal_code,
-                "recipient_phone" => $objectParams->recipient_phone,
-                "recipient_email" => $objectParams->recipient_email,
-                "recipient_address" => $objectParams->recipient_address,
+                "recipient_name" => $dataMerchant->OwnerFullName,
+                "recipient_postal_code" => $dataMerchant->PostalCode,
+                "recipient_phone" => $dataMerchant->PhoneNumber,
+                "recipient_email" => $dataMerchant->Email,
+                "recipient_address" => $dataMerchant->OrderAddress,
                 "recipient_country" => "Indonesia",
-                "recipient_province" => $objectParams->recipient_province,
-                "recipient_city" => $objectParams->recipient_city,
-                "recipient_district" => $objectParams->recipient_district,
+                "recipient_province" => $dataMerchant->Province,
+                "recipient_city" => $dataMerchant->City,
+                "recipient_district" => $dataMerchant->Subdistrict,
                 "stock_source" => "GOOD STOCK",
-                "payment_notes" => $objectParams->payment_notes,
-                "remark" => $objectParams->remark,
+                "payment_notes" => $dataMerchant->DistributorNote,
+                "remark" => $dataMerchant->MerchantNote,
                 "order_type" => "Sales Order",
                 "dfod_price" => 0,
                 "shipping_price" => 0,
@@ -179,6 +196,10 @@ class HaistarService
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $result = curl_exec($ch);
         curl_close($ch);
+
+        // Insert ke Tx Transaction Log
+        $resultDecode = json_decode($result);
+        $this->txLogService->insertTxLog($stockOrderID, "PUSH ORDER HAISTAR", "MERCHANT", $payload, $result, $resultDecode->status);
 
         return json_decode($result);
     }

@@ -1,9 +1,24 @@
 <?php
 
 namespace App\Services;
+
 use Illuminate\Support\Facades\DB;
 
-class MerchantService {
+class MerchantService
+{
+
+    public function merchantAccountParamHaistar($stockOrderID)
+    {
+        $sql = DB::table('tx_merchant_order')
+            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tx_merchant_order.DistributorID')
+            ->leftJoin('ms_area', 'ms_area.AreaID', 'ms_merchant_account.AreaID')
+            ->where('tx_merchant_order.StockOrderID', '=', $stockOrderID)
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.Email', 'ms_merchant_account.MerchantFirebaseToken', 'ms_distributor.DistributorName', 'tx_merchant_order.OrderAddress', 'tx_merchant_order.PaymentMethodID', 'ms_area.PostalCode', 'ms_area.Province', 'ms_area.City', 'ms_area.Subdistrict', 'tx_merchant_order.DistributorNote', 'tx_merchant_order.MerchantNote')
+            ->first();
+
+        return $sql;
+    }
 
     public function merchantAccount($merchantID)
     {
@@ -61,7 +76,7 @@ class MerchantService {
 
     public function insertBulkMerchantFairbanc($arrMerchantID)
     {
-        $insert = DB::transaction(function() use ($arrMerchantID) {
+        $insert = DB::transaction(function () use ($arrMerchantID) {
             foreach ($arrMerchantID as &$value) {
                 $value = array_combine(['MerchantID', 'Partner'], $value);
                 DB::table('ms_merchant_account')
@@ -98,15 +113,14 @@ class MerchantService {
         $sqlSpecialPrice = DB::table('ms_distributor_product_price')
             ->join('ms_distributor_grade', 'ms_distributor_grade.GradeID', '=', 'ms_distributor_product_price.GradeID')
             ->join('ms_product', 'ms_product.ProductID', '=', 'ms_distributor_product_price.ProductID')
-            ->leftJoin('ms_product_special_price', function($join) use ($merchantID) {
+            ->leftJoin('ms_product_special_price', function ($join) use ($merchantID) {
                 $join->on('ms_product_special_price.GradeID', '=', 'ms_distributor_product_price.GradeID')
                     ->on('ms_product_special_price.ProductID', '=', 'ms_distributor_product_price.ProductID')
                     ->where('ms_product_special_price.MerchantID', "$merchantID");
             })
             ->select('ms_distributor_product_price.ProductID', 'ms_product.ProductName', 'ms_distributor_grade.GradeID', 'ms_distributor_grade.Grade', 'ms_distributor_product_price.Price', 'ms_distributor_product_price.DistributorID', 'ms_product_special_price.SpecialPrice')
             ->where('ms_distributor_product_price.DistributorID', $distributorID)
-            ->where('ms_distributor_product_price.GradeID', $gradeID)
-            ;
+            ->where('ms_distributor_product_price.GradeID', $gradeID);
 
         return $sqlSpecialPrice;
     }
@@ -148,5 +162,4 @@ class MerchantService {
 
         return $sql;
     }
-
 }
