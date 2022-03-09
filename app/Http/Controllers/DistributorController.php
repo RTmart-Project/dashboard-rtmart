@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Validation\Rule;
@@ -35,6 +36,11 @@ class DistributorController extends Controller
         if ($fromDate != '' && $toDate != '') {
             $sqlAllAccount->whereDate('CreatedDate', '>=', $fromDate)
                 ->whereDate('CreatedDate', '<=', $toDate);
+        }
+
+        if (Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $sqlAllAccount->where('ms_distributor.Depo', '=', $depoUser);
         }
 
         $data = $sqlAllAccount->get();

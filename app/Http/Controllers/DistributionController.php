@@ -46,7 +46,7 @@ class DistributionController extends Controller
             ->where('tx_merchant_order.StatusOrderID', '=', $statusOrder)
             ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'ms_distributor.DistributorName', 'tx_merchant_order.ShipmentDate', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CancelReasonNote', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'ms_payment_method.PaymentMethodName', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesName');
 
-        if (Auth::user()->RoleID == "AD" && Auth::user()->Depo != "ALL") {
+        if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
             $sqlGetRestock->where('ms_distributor.Depo', '=', $depoUser);
         }
@@ -169,7 +169,7 @@ class DistributionController extends Controller
                 'ms_sales.SalesName'
             );
 
-        if (Auth::user()->RoleID == "AD" && Auth::user()->Depo != "ALL") {
+        if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
             $sqlAllRestockAndDO->where('ms_distributor.Depo', '=', $depoUser);
         }
@@ -1243,7 +1243,7 @@ class DistributionController extends Controller
             ->join('ms_product_uom', 'ms_product_uom.ProductUOMID', '=', 'ms_product.ProductUOMID')
             ->select('ms_distributor_product_price.DistributorID', 'ms_distributor.DistributorName', 'ms_distributor_product_price.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product_category.ProductCategoryName', 'ms_product_type.ProductTypeName', 'ms_product_uom.ProductUOMName', 'ms_product.ProductUOMDesc', 'ms_distributor_product_price.Price', 'ms_distributor_product_price.GradeID', 'ms_distributor_grade.Grade', 'ms_distributor_product_price.IsPreOrder');
 
-        if (Auth::user()->RoleID == "AD" && Auth::user()->Depo != "ALL") {
+        if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
             $distributorProducts->where('ms_distributor.Depo', '=', $depoUser);
         }
@@ -1457,7 +1457,7 @@ class DistributionController extends Controller
                 ->whereDate('ms_merchant_account.CreatedDate', '<=', $toDate);
         }
 
-        if (Auth::user()->RoleID == "AD" && Auth::user()->Depo != "ALL") {
+        if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
             $sqlAllAccount->where('ms_distributor.Depo', '=', $depoUser);
         }
