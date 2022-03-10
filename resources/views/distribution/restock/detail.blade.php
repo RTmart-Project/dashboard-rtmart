@@ -255,8 +255,9 @@
                                             </a>
                                         </div>
                                     </div>
-                                    @elseif ($merchantOrder->StatusOrderID == "S023") {{-- Dalam Proses --}}
-                                    <div class="row d-flex justify-content-center flex-wrap justify-content-md-end">
+                                    @elseif ($merchantOrder->StatusOrderID == "S012" ||
+                                    $merchantOrder->StatusOrderID == "S023") {{-- Dalam Proses atau Telah Dikirim --}}
+                                    <div class="text-center text-md-right">
                                         <button type="button" class="btn btn-warning ml-md-3 mb-2" data-toggle="modal"
                                             data-target="#request-do">
                                             Request Delivery Order
@@ -270,6 +271,7 @@
                                             Buat Delivery Order
                                         </button>
                                     </div>
+                                    @if ($merchantOrder->StatusOrderID == "S023")
                                     <div class="row d-md-flex justify-content-end">
                                         <div class="col-md-6 col-12 text-center">
                                             @if ($merchantOrder->PaymentMethodID == 1) {{-- Kalo pake tunai --}}
@@ -286,21 +288,7 @@
                                             </a>
                                         </div>
                                     </div>
-                                    @elseif ($merchantOrder->StatusOrderID == "S012") {{-- Telah Dikirim --}}
-                                    <div class="text-center text-md-right">
-                                        <button type="button" class="btn btn-warning ml-md-3 mb-2" data-toggle="modal"
-                                            data-target="#request-do">
-                                            Request Delivery Order
-                                        </button>
-                                        <button type="button" class="btn btn-info ml-md-3 mb-2" data-toggle="modal"
-                                            data-target="#detail-do">
-                                            Detail Delivery Order
-                                        </button>
-                                        <button type="button" class="btn btn-primary ml-md-3 mb-2" data-toggle="modal"
-                                            data-target="#add-do">
-                                            Buat Delivery Order
-                                        </button>
-                                    </div>
+                                    @endif
                                     {{-- Modal Detail Delivery Order --}}
                                     <div class="modal fade" id="detail-do">
                                         <div class="modal-dialog modal-lg">
@@ -338,8 +326,8 @@
                                     <div class="border-top border-secondary my-2">
                                         <h6 class="mt-2">Detail Delivery Order</h6>
                                         @foreach ($deliveryOrder as $do)
-                                        <div class="card card-outline @if ($do->StatusDO == " S025") card-success
-                                            @elseif($do->StatusDO == "S024") card-warning @else card-danger @endif">
+                                        <div class="card card-outline @if ($do->StatusDO == 'S025') card-success
+                                            @elseif($do->StatusDO == 'S024') card-warning @else card-danger @endif">
                                             <div class="card-header">
                                                 <h3 class="card-title font-weight-bold">
                                                     {{ $do->DeliveryOrderID }}

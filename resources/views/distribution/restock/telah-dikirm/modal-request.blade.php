@@ -80,8 +80,10 @@
         $firstInLoopHaistar = false;
         @endphp
         @endif
+        @endforeach
 
         {{-- Loop RTmart Product --}}
+        @foreach ($item->DetailProduct as $product)
         @if ($product->IsHaistarProduct == 0)
         @if ($firstInLoopRTmart == true)
         <div class="d-flex">
@@ -187,12 +189,12 @@
           <div class="col-6 align-self-center">
             <div class="d-flex flex-column flex-wrap">
               <b class="mb-2">{{ $item->StatusOrder }}</b>
-              <div>
-                <button href="#" class="btn btn-xs btn-success btn-confirm-request-do mb-2"
+              <div class="d-flex justify-content-center" style="gap: 8px">
+                <button href="#" class="btn btn-xs btn-success btn-confirm-request-do mb-1"
                   data-do-id="{{ $item->DeliveryOrderID }}">
                   Konfirmasi Pesanan
                 </button>
-                <a href="#" class="btn btn-xs btn-danger btn-cancel-request-do mb-2"
+                <a href="#" class="btn btn-xs btn-danger btn-cancel-request-do mb-1"
                   data-do-id="{{ $item->DeliveryOrderID }}" data-stockorder-id="{{ $stockOrderID }}">
                   Batalkan Pesanan
                 </a>
@@ -225,6 +227,26 @@
 
 @section('js-detail-restock')
 <script>
+  // Event listener saat mengetik qty request delivery order
+  $('.qty-request-do').on('keyup', function (e) {
+        e.preventDefault();
+        const priceProduct = $(this).next().text().replaceAll("x @Rp ", "").replaceAll(".", "");
+        const qtyDO = $(this).val();
+        
+        const totalPriceProduct = Number(qtyDO) * Number(priceProduct);
+        $(this).parent().parent().next().children().last().html('Rp ' + thousands_separators(totalPriceProduct));
+        
+        const totalPriceAllProductArr = $(this).closest('.request-do-wrapper').find('.price-total').text().replace("Rp ", "").replaceAll("Rp ", ",").replaceAll(".", "").split(",");
+
+        let priceAllProductNumber = totalPriceAllProductArr.map(Number);
+        let subTotalDO = 0;
+        $.each(priceAllProductNumber, function() {
+            subTotalDO += this;
+        });
+
+        $(this).closest('.request-do-wrapper').find('.price-subtotal').html('Rp ' + thousands_separators(subTotalDO));
+    });
+
   $('.check_rtmart_request').change(function() {
       if ($('.check_rtmart_request:checked').length > 0) {
           $('.check_haistar_request').prop('disabled', true);
