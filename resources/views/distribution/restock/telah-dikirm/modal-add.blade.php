@@ -113,7 +113,6 @@
         <img src="{{ config('app.base_image_url') . '/product/'. $item->ProductImage }}" alt="" width="80">
         <p class="mb-1">{{ $item->ProductName }}</p>
         <input type="hidden" name="product_id[]" id="product_id" value="{{ $item->ProductID }}" disabled="disabled">
-        <input type="hidden" name="price[]" id="price" value="{{ $item->Nett }}" disabled="disabled">
       </div>
       <div class="col-2 align-self-center">
         <label>Qty Beli</label>
@@ -162,7 +161,6 @@
         <img src="{{ config('app.base_image_url') . '/product/'. $item->ProductImage }}" alt="" width="80">
         <p class="mb-1">{{ $item->ProductName }}</p>
         <input type="hidden" name="product_id[]" id="product_id" value="{{ $item->ProductID }}" disabled="disabled">
-        <input type="hidden" name="price[]" id="price" value="{{ $item->Nett }}" disabled="disabled">
       </div>
       <div class="col-2 align-self-center">
         <label>Qty Beli</label>

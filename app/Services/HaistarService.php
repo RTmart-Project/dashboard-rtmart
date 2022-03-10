@@ -85,10 +85,9 @@ class HaistarService
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $result = curl_exec($ch);
-
         curl_close($ch);
 
-        // $this->txLogService->insertTxLog("GetSignature", "GetSignature Haistar", "HAISTAR", "", json_encode($result), "hitted");
+        $this->txLogService->insertTxLog("GET SIGNATURE", "HAISTAR API", "HAISTAR", "", json_encode($result), "HITTED");
 
         return $result;
     }
@@ -122,6 +121,8 @@ class HaistarService
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $result = curl_exec($ch);
         curl_close($ch);
+
+        $this->txLogService->insertTxLog("GET STOCK", "HAISTAR API", "HAISTAR", $payload, json_encode($result), "HITTED");
 
         return json_decode($result);
     }
@@ -199,7 +200,7 @@ class HaistarService
 
         // Insert ke Tx Transaction Log
         $resultDecode = json_decode($result);
-        $this->txLogService->insertTxLog($stockOrderID, "PUSH ORDER HAISTAR", "MERCHANT", $payload, $result, $resultDecode->status);
+        $this->txLogService->insertTxLog($stockOrderID, "PUSH ORDER HAISTAR", "HAISTAR", $payload, $result, $resultDecode->status);
 
         return json_decode($result);
     }
@@ -235,6 +236,8 @@ class HaistarService
         $result = curl_exec($ch);
         curl_close($ch);
 
+        $this->txLogService->insertTxLog($deliveryOrderID, "REQUEST CANCEL ORDER HAISTAR", "HAISTAR", $payload, json_encode($result), "HITTED");
+
         return json_decode($result);
     }
 
@@ -260,6 +263,8 @@ class HaistarService
         $result = curl_exec($ch);
         curl_close($ch);
 
+        $this->txLogService->insertTxLog("GET LOCATION", "HAISTAR API", "HAISTAR", "", json_encode($result), "HITTED");
+
         return json_decode($result);
     }
 
@@ -284,6 +289,8 @@ class HaistarService
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $result = curl_exec($ch);
         curl_close($ch);
+
+        $this->txLogService->insertTxLog("GET COURIER", "HAISTAR API", "HAISTAR", "", json_encode($result), "HITTED");
 
         return json_decode($result);
     }
@@ -317,6 +324,8 @@ class HaistarService
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $result = curl_exec($ch);
         curl_close($ch);
+
+        $this->txLogService->insertTxLog("GET COURIER DELIVERY TYPE", "HAISTAR API", "HAISTAR", $payload, json_encode($result), "HITTED");
 
         return json_decode($result);
     }
