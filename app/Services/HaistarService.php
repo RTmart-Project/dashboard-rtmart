@@ -146,16 +146,16 @@ class HaistarService
         $url = config('app.haistar_url') . 'Push_order/?apikey=' . config('app.haistar_api_key');
         $getSignature = json_decode($this->haistarGetSignature());
 
-        $ch = curl_init();
-        curl_setopt(
-            $ch,
-            CURLOPT_HTTPHEADER,
-            array(
-                'Content-Type:application/json',
-                'Apikey:' . config('app.haistar_api_key'),
-                'x-authorization:' . $getSignature->Data->Signature
-            )
-        );
+        // $ch = curl_init();
+        // curl_setopt(
+        //     $ch,
+        //     CURLOPT_HTTPHEADER,
+        //     array(
+        //         'Content-Type:application/json',
+        //         'Apikey:' . config('app.haistar_api_key'),
+        //         'x-authorization:' . $getSignature->Data->Signature
+        //     )
+        // );
 
         $payload = json_encode(
             array(
@@ -191,18 +191,18 @@ class HaistarService
             )
         );
 
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $result = curl_exec($ch);
-        curl_close($ch);
+        // curl_setopt($ch, CURLOPT_URL, $url);
+        // curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        // curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+        // curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        // $result = curl_exec($ch);
+        // curl_close($ch);
 
         // Insert ke Tx Transaction Log
-        $resultDecode = json_decode($result);
-        $this->txLogService->insertTxLog($stockOrderID, "PUSH ORDER HAISTAR", "HAISTAR", $payload, $result, $resultDecode->status);
+        // $resultDecode = json_decode($result);
+        // $this->txLogService->insertTxLog($stockOrderID, "PUSH ORDER HAISTAR", "HAISTAR", $payload, $result, $resultDecode->status);
 
-        return json_decode($result);
+        return json_decode($payload);
     }
 
     public function haistarCancelOrder($deliveryOrderID, $cancelReason)

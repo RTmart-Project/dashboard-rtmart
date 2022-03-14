@@ -42,8 +42,18 @@
                 <div class="card">
                     <div class="card-header p-2">
                         <ul class="nav nav-pills" id="tab-restock">
+                            {{-- <li class="nav-item">
+                                <a class="nav-link active" href="#restock" data-toggle="tab">
+                                    Restock
+                                </a>
+                            </li> --}}
                             <li class="nav-item">
-                                <a class="nav-link active" href="#semua-restock" data-toggle="tab">Semua Data</a>
+                                <a class="nav-link" href="#restock-all-product" data-toggle="tab">
+                                    Restock All Product
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#semua-restock" data-toggle="tab">Semua Data</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="#pesanan-baru" data-toggle="tab">Pesanan Baru</a>
@@ -67,8 +77,75 @@
                     </div><!-- /.card-header -->
                     <div class="card-body mt-2">
                         <div class="tab-content">
+                            <!-- Restock -->
+                            {{-- <div class="tab-pane active" id="restock">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <table class="table table-datatables table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Stock Order ID</th>
+                                                    <th>Tgl Transaksi</th>
+                                                    <th>Distributor</th>
+                                                    <th>Merchant ID</th>
+                                                    <th>Nama Toko</th>
+                                                    <th>Sales</th>
+                                                    <th>Partner</th>
+                                                    <th>Total Transaksi</th>
+                                                    <th>Status Restock</th>
+                                                    <th>Metode Pembayaran</th>
+                                                    <th>No. Telp</th>
+                                                    <th>Alamat</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div> --}}
+
                             <!-- Semua Data -->
-                            <div class="tab-pane active" id="semua-restock">
+                            <div class="tab-pane active" id="restock-all-product">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <table class="table table-datatables">
+                                            <thead>
+                                                <tr>
+                                                    <th>Stock Order ID</th>
+                                                    <th>Tgl Transaksi</th>
+                                                    <th>Distributor</th>
+                                                    <th>Merchant ID</th>
+                                                    <th>Nama Toko</th>
+                                                    <th>No. Telp</th>
+                                                    <th>Partner</th>
+                                                    <th>Metode Pembayaran</th>
+                                                    <th>Status Order</th>
+                                                    <th>Alamat</th>
+                                                    <th>Total Transaksi</th>
+                                                    <th>Diskon</th>
+                                                    <th>Biaya Layanan</th>
+                                                    <th>GrandTotal Transaksi</th>
+                                                    <th>Referral</th>
+                                                    <th>Nama Sales</th>
+                                                    <th>Product ID</th>
+                                                    <th>Deskripsi</th>
+                                                    <th>Qty</th>
+                                                    <th>Harga Satuan</th>
+                                                    <th>Diskon</th>
+                                                    <th>Harga stlh Diskon</th>
+                                                    <th>Total Harga Produk</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Semua Data -->
+                            <div class="tab-pane" id="semua-restock">
                                 <div class="row">
                                     <div class="col-12">
                                         <table class="table table-datatables table-striped">
@@ -309,6 +386,8 @@
 <!-- Main JS -->
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
 <script src="{{url('/')}}/main/js/custom/select-filter.js"></script>
+{{-- <script src="{{url('/')}}/main/js/distribution/restock/restock.js"></script> --}}
+<script src="{{url('/')}}/main/js/distribution/restock/restock-product.js"></script>
 <script src="{{url('/')}}/main/js/distribution/restock/semua-restock.js"></script>
 <script src="{{url('/')}}/main/js/distribution/restock/pesanan-baru.js"></script>
 <script src="{{url('/')}}/main/js/distribution/restock/telah-dikonfirmasi.js"></script>

@@ -815,24 +815,29 @@ class DistributionController extends Controller
             $arrayItems = [];
             $objectItems = new stdClass;
             foreach ($dataDetailDO as &$value) {
-                $value = array_combine(['item_code', 'quantity', 'unit_price'], $value);
+                $value = array_combine(['ProductID', 'Qty'], $value);
 
-                $checkStock = $haistarService->haistarGetStock($value['item_code']);
+                $value += ['DeliveryOrderID' => $newDeliveryOrderID];
+
+                $validation = $deliveryOrderService->validateRemainingQty($stockOrderID, $value['ProductID'], $value['Qty'], "CreateDO");
+                $value += ['Price' => $validation['price']];
+
+                $checkStock = $haistarService->haistarGetStock($value['ProductID']);
                 // $stockHaistar = 0;
                 $arrayExistStock = $checkStock->data->detail;
                 $existStock = array_sum(array_column($arrayExistStock, "exist_quantity"));
 
-                if ($value['quantity'] > $existStock) {
+                if ($value['Qty'] > $existStock) {
                     return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Gagal, Stock Haistar tidak mencukupi!');
                 }
 
-                $totalPrice += $value['quantity'] * $value['unit_price'];
+                $totalPrice += $value['Qty'] * $value['Price'];
 
-                $objectItems->item_code = $value['item_code'];
-                $objectItems->quantity = $value['quantity'] * 1;
-                $objectItems->unit_price = $value['unit_price'] * 1;
+                $objectItems->item_code = $value['ProductID'];
+                $objectItems->quantity = $value['Qty'] * 1;
+                $objectItems->unit_price = $value['Price'] * 1;
 
-                array_push($arrayItems, $objectItems);
+                array_push($arrayItems, clone $objectItems);
             }
 
             if ($msMerchant->PaymentMethodID == 1) {
@@ -864,16 +869,6 @@ class DistributionController extends Controller
                     'CreatedDate' => $createdDateDO
                 ];
 
-                $arrayDetailDO = [];
-                foreach ($dataDetailDO as $key => $value) {
-                    $value = array_combine(['ProductID', 'Qty'], $value);
-                    $value += ['DeliveryOrderID' => $newDeliveryOrderID];
-
-                    // $deliveryOrderService->validateRemainingQty($stockOrderID, $value['ProductID'], $value['Qty']);
-
-                    array_push($arrayDetailDO, $value);
-                }
-
                 $dataLogDO = [
                     'StockOrderID' => $stockOrderID,
                     'DeliveryOrderID' => $newDeliveryOrderID,
@@ -886,13 +881,11 @@ class DistributionController extends Controller
                 ];
 
                 try {
-                    DB::transaction(function () use ($dataDO, $arrayDetailDO, $dataLogDO) {
+                    DB::transaction(function () use ($dataDO, $dataDetailDO, $dataLogDO) {
                         DB::table('tx_merchant_delivery_order')
                             ->insert($dataDO);
-                        foreach ($arrayDetailDO as $value) {
-                            DB::table('tx_merchant_delivery_order_detail')
-                                ->insert($value);
-                        }
+                        DB::table('tx_merchant_delivery_order_detail')
+                            ->insert($dataDetailDO);
                         DB::table('tx_merchant_delivery_order_log')
                             ->insert($dataLogDO);
                     });
@@ -1209,7 +1202,7 @@ class DistributionController extends Controller
                 $objectItems->quantity = (int)$value['Qty'] * 1;
                 $objectItems->unit_price = (int)$value['Price'] * 1;
 
-                array_push($arrayItems, $objectItems);
+                array_push($arrayItems, clone $objectItems);
             }
 
             if ($getPaymentMethod->PaymentMethodID == 1) {

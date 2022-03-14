@@ -58,6 +58,29 @@
             </li>
             @endif
 
+            {{-- @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "BM")
+            ||
+            (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH"))
+            <li class="nav-item {{ Request::is('delivery*') ? 'menu-open' : '' }}">
+                <a href="#" class="nav-link {{ Request::is('delivery*') ? 'active' : '' }}">
+                    <i class="nav-icon fas fa-truck"></i>
+                    <p>
+                        Delivery
+                        <i class="right fas fa-angle-left"></i>
+                    </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="{{ route('delivery.request') }}"
+                            class="nav-link {{ Request::is('delivery/request*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Delivery Request</p>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            @endif --}}
+
             @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI") ||
             (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO"))
             <li class="nav-item {{ Request::is('master*') ? 'menu-open' : '' }}">

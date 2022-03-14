@@ -7,6 +7,7 @@ use App\Http\Controllers\MerchantController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DistributorController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\DistributionController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\PaymentMethodController;
@@ -69,6 +70,13 @@ Route::group(['middleware' => ['auth']], function () {
                 Route::post('/specialprice/delete', [DistributionController::class, 'deleteSpecialPrice'])->name('distribution.deleteSpecialPrice');
                 Route::post('/specialprice/reset', [DistributionController::class, 'resetSpecialPrice'])->name('distribution.resetSpecialPrice');
             });
+        });
+    });
+
+    Route::group(['prefix' => 'delivery', 'middleware' => ['checkRoleUser:IT,AD,BM,FI,AH']], function () {
+        Route::group(['prefix' => 'request'], function () {
+            Route::get('/', [DeliveryController::class, 'request'])->name('delivery.request');
+            Route::get('/get', [DeliveryController::class, 'getRequest'])->name('delivery.getRequest');
         });
     });
 
@@ -185,8 +193,10 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/merchant/account/operationalhour/edit/{merchantId}', [MerchantController::class, 'editOperationalHour'])->name('merchant.editOperationalHour');
             Route::post('/merchant/account/operationalhour/update/{merchantId}', [MerchantController::class, 'updateOperationalHour'])->name('merchant.updateOperationalHour');
             Route::get('/merchant/restock', [MerchantController::class, 'restock'])->name('merchant.restock');
-            Route::get('/merchant/restock/get', [MerchantController::class, 'getRestocks'])->name('merchant.getRestocks');
-            Route::get('/merchant/restock/product/get', [MerchantController::class, 'getRestockProduct'])->name('merchant.getRestockProduct');
+            Route::group(['middleware' => ['checkRoleUser:IT,BM,FI,AH,HR,AD,DMO']], function () {
+                Route::get('/merchant/restock/get', [MerchantController::class, 'getRestocks'])->name('merchant.getRestocks');
+                Route::get('/merchant/restock/product/get', [MerchantController::class, 'getRestockProduct'])->name('merchant.getRestockProduct');
+            });
             Route::get('/merchant/restock/detail/{stockOrderId}', [MerchantController::class, 'restockDetails'])->name('merchant.restockDetails');
             Route::get('/merchant/invoice/{stockOrderId}', [MerchantController::class, 'invoice'])->name('merchant.invoice');
         });
