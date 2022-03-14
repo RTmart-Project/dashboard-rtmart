@@ -42,7 +42,8 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <a href="{{ route('distribution.restock') }}" class="btn btn-sm btn-light"><i class="fas fa-arrow-left"></i>
+                        <a href="{{ route('distribution.restock') }}" class="btn btn-sm btn-light"><i
+                                class="fas fa-arrow-left"></i>
                             Kembali</a>
                     </div>
                     <div class="card-body">
@@ -52,7 +53,9 @@
                                     <h6>Informasi Pesanan</h6>
                                     <div class="row">
                                         <div class="col-6 col-md-3">
-                                            <img src="{{ config('app.base_image_url') . '/merchant/'. $merchantOrder->StoreImage }}" alt="{{ $merchantOrder->StoreName }}" style="object-fit: cover; width: 130px; height: 130px;">
+                                            <img src="{{ config('app.base_image_url') . '/merchant/'. $merchantOrder->StoreImage }}"
+                                                alt="{{ $merchantOrder->StoreName }}"
+                                                style="object-fit: cover; width: 130px; height: 130px;">
                                         </div>
                                         <div class="col-6 col-md-3">
                                             <p>{{ $merchantOrder->StoreName }}</p>
@@ -65,9 +68,9 @@
                                             <p class="mb-1 address">{{ $merchantOrder->StoreAddress }}</p>
                                             <label class="mb-0">Patokan:</label>
                                             @if ($merchantOrder->StoreAddressNote)
-                                                <p class="mb-1">{{ $merchantOrder->StoreAddressNote }}</p>
+                                            <p class="mb-1">{{ $merchantOrder->StoreAddressNote }}</p>
                                             @else
-                                                <p class="mb-1">-</p>
+                                            <p class="mb-1">-</p>
                                             @endif
                                             <label class="mb-0">Lat: </label>
                                             <p class="mb-1 latitude">{{ $merchantOrder->Latitude }}</p>
@@ -82,7 +85,8 @@
                                             <h6 class="mt-3 mt-md-0">Peta Alamat Pemesanan</h6>
                                         </div>
                                         <div class="col-md-4 col-12 p-md-0">
-                                            <button type="button" class="btn btn-sm btn-success float-md-right" id="open-maps">Buka di Maps</button>
+                                            <button type="button" class="btn btn-sm btn-success float-md-right"
+                                                id="open-maps">Buka di Maps</button>
                                         </div>
                                     </div>
                                     <div id="google-maps" style="width: 100%; height: 200px; margin: 20px 0;"></div>
@@ -95,27 +99,31 @@
                                 <div class="col-md-4 col-12">
                                     <label class="mb-0">Stock Order ID</label>
                                     <p class="m-0">{{ $merchantOrder->StockOrderID }}</p>
-                                    @if ($merchantOrder->StatusOrderID == "S012" || $merchantOrder->StatusOrderID == "S018")
-                                        <a href="{{ route('restock.invoice', ['stockOrderId' => $merchantOrder->StockOrderID]) }}" target="_blank" class="btn btn-sm btn-info mb-2">Lihat Invoice</a>
-                                    @elseif ($merchantOrder->StatusOrderID == "S023" || $merchantOrder->StatusOrderID == "S010")
-                                        <a href="{{ route('restock.invoice', ['stockOrderId' => $merchantOrder->StockOrderID]) }}" target="_blank" class="btn btn-sm btn-info mb-2">Lihat Proforma Invoice</a>
+                                    @if ($merchantOrder->StatusOrderID == "S012" || $merchantOrder->StatusOrderID ==
+                                    "S018")
+                                    <a href="{{ route('restock.invoice', ['stockOrderId' => $merchantOrder->StockOrderID]) }}"
+                                        target="_blank" class="btn btn-sm btn-info mb-2">Lihat Invoice</a>
+                                    @elseif ($merchantOrder->StatusOrderID == "S023" || $merchantOrder->StatusOrderID ==
+                                    "S010")
+                                    <a href="{{ route('restock.invoice', ['stockOrderId' => $merchantOrder->StockOrderID]) }}"
+                                        target="_blank" class="btn btn-sm btn-info mb-2">Lihat Proforma Invoice</a>
                                     @endif
                                 </div>
                                 <div class="col-md-4 col-12">
                                     <label class="mb-0">Status Pesanan</label>
                                     <p>
                                         @if ($merchantOrder->StatusOrderID == "S009")
-                                            <span class="badge badge-secondary">{{ $merchantOrder->StatusOrder }}</span>
+                                        <span class="badge badge-secondary">{{ $merchantOrder->StatusOrder }}</span>
                                         @elseif ($merchantOrder->StatusOrderID == "S010")
-                                            <span class="badge badge-primary">{{ $merchantOrder->StatusOrder }}</span>
+                                        <span class="badge badge-primary">{{ $merchantOrder->StatusOrder }}</span>
                                         @elseif ($merchantOrder->StatusOrderID == "S023")
-                                            <span class="badge badge-warning">{{ $merchantOrder->StatusOrder }}</span>
+                                        <span class="badge badge-warning">{{ $merchantOrder->StatusOrder }}</span>
                                         @elseif ($merchantOrder->StatusOrderID == "S012")
-                                            <span class="badge badge-info">{{ $merchantOrder->StatusOrder }}</span>
+                                        <span class="badge badge-info">{{ $merchantOrder->StatusOrder }}</span>
                                         @elseif ($merchantOrder->StatusOrderID == "S018")
-                                            <span class="badge badge-success">{{ $merchantOrder->StatusOrder }}</span>
+                                        <span class="badge badge-success">{{ $merchantOrder->StatusOrder }}</span>
                                         @elseif ($merchantOrder->StatusOrderID == "S011")
-                                            <span class="badge badge-danger">{{ $merchantOrder->StatusOrder }}</span>
+                                        <span class="badge badge-danger">{{ $merchantOrder->StatusOrder }}</span>
                                         @endif
                                     </p>
                                 </div>
@@ -129,17 +137,17 @@
                                     <label class="mb-0">Merchant Note</label>
                                     <p>@if ($merchantOrder->MerchantNote)
                                         {{ $merchantOrder->MerchantNote }}
-                                    @else
+                                        @else
                                         -
-                                    @endif</p>
+                                        @endif</p>
                                 </div>
                                 <div class="col-md-4 col-12">
                                     <label class="mb-0">Distributor Note</label>
                                     <p>@if ($merchantOrder->DistributorNote)
                                         {{ $merchantOrder->DistributorNote }}
-                                    @else
+                                        @else
                                         -
-                                    @endif</p>
+                                        @endif</p>
                                 </div>
                                 <div class="col-md-4 col-12">
                                     <label class="mb-0">Pesanan Dibuat</label>
@@ -151,11 +159,12 @@
                                 <div class="row detail-product border-top">
                                     <div class="col-md-3 col-12 text-center align-self-center mt-2">
                                         @if (!$value->ProductImage)
-                                            asas
+                                        asas
                                         @else
-                                        <img src="{{ config('app.base_image_url') . '/product/'. $value->ProductImage }}" alt="" width="100">    
+                                        <img src="{{ config('app.base_image_url') . '/product/'. $value->ProductImage }}"
+                                            alt="" width="100">
                                         @endif
-                                        
+
                                         <p class="mb-0">{{ $value->ProductName }}</p>
                                         <input type="hidden" name="product_id[]" value="{{ $value->ProductID }}">
                                     </div>
@@ -171,7 +180,9 @@
                                             </div>
                                             <div class="col-md-4 col-12">
                                                 <label class="mb-0">Total Harga Produk</label>
-                                                <p class="font-weight-bold">{{ Helper::formatCurrency($value->PromisedQuantity * ($value->Nett), 'Rp ') }}</p>
+                                                <p class="font-weight-bold">{{
+                                                    Helper::formatCurrency($value->PromisedQuantity * ($value->Nett),
+                                                    'Rp ') }}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -208,7 +219,8 @@
                                             </div>
                                             <div class="col-6">
                                                 <p class="font-weight-bold mb-0">
-                                                    {{ Helper::formatCurrency($merchantOrder->ServiceChargeNett, 'Rp ') }}
+                                                    {{ Helper::formatCurrency($merchantOrder->ServiceChargeNett, 'Rp ')
+                                                    }}
                                                 </p>
                                             </div>
                                         </div>
@@ -218,7 +230,8 @@
                                             </div>
                                             <div class="col-6">
                                                 <p class="font-weight-bold text-success mb-0" id="grand_total">
-                                                    {{ Helper::formatCurrency($merchantOrder->NettPrice + $merchantOrder->ServiceChargeNett, 'Rp ') }}
+                                                    {{ Helper::formatCurrency($merchantOrder->NettPrice +
+                                                    $merchantOrder->ServiceChargeNett, 'Rp ') }}
                                                 </p>
                                             </div>
                                         </div>
@@ -228,460 +241,169 @@
                             <div class="row konfirmasi m-0">
                                 <div class="col-12 ">
                                     @if ($merchantOrder->StatusOrderID == "S009") {{-- Pesanan Baru --}}
-                                        <div class="row d-md-flex justify-content-end">
-                                            <div class="col-md-6 col-12 text-center">
-                                                <a href="#" class="btn btn-danger btn-batal mr-3" data-order-id="{{ $stockOrderID }}" data-store-name="{{ $merchantOrder->StoreName }}">
-                                                    Tolak Pesanan
-                                                </a>
-                                                <a href="#" class="btn btn-success btn-terima" data-order-id="{{ $stockOrderID }}" data-store-name="{{ $merchantOrder->StoreName }}">
-                                                    Terima Pesanan
-                                                </a>        
+                                    <div class="row d-md-flex justify-content-end">
+                                        <div class="col-md-6 col-12 text-center">
+                                            <a href="#" class="btn btn-danger btn-batal mr-3"
+                                                data-order-id="{{ $stockOrderID }}"
+                                                data-store-name="{{ $merchantOrder->StoreName }}">
+                                                Tolak Pesanan
+                                            </a>
+                                            <a href="#" class="btn btn-success btn-terima"
+                                                data-order-id="{{ $stockOrderID }}"
+                                                data-store-name="{{ $merchantOrder->StoreName }}">
+                                                Terima Pesanan
+                                            </a>
+                                        </div>
+                                    </div>
+                                    @elseif ($merchantOrder->StatusOrderID == "S012" ||
+                                    $merchantOrder->StatusOrderID == "S023") {{-- Dalam Proses atau Telah Dikirim --}}
+                                    <div class="text-center text-md-right">
+                                        <button type="button" class="btn btn-warning ml-md-3 mb-2" data-toggle="modal"
+                                            data-target="#request-do">
+                                            Request Delivery Order
+                                        </button>
+                                        <button type="button" class="btn btn-info ml-md-3 mb-2" data-toggle="modal"
+                                            data-target="#detail-do">
+                                            Detail Delivery Order
+                                        </button>
+                                        <button type="button" class="btn btn-primary ml-md-3 mb-2" data-toggle="modal"
+                                            data-target="#add-do">
+                                            Buat Delivery Order
+                                        </button>
+                                    </div>
+                                    @if ($merchantOrder->StatusOrderID == "S023")
+                                    <div class="row d-md-flex justify-content-end">
+                                        <div class="col-md-6 col-12 text-center">
+                                            @if ($merchantOrder->PaymentMethodID == 1) {{-- Kalo pake tunai --}}
+                                            <a href="#" class="btn btn-danger btn-batal mr-4"
+                                                data-order-id="{{ $stockOrderID }}"
+                                                data-store-name="{{ $merchantOrder->StoreName }}">
+                                                Batalkan Pesanan
+                                            </a>
+                                            @endif
+                                            <a href="#" class="btn btn-success btn-kirim"
+                                                data-order-id="{{ $stockOrderID }}"
+                                                data-store-name="{{ $merchantOrder->StoreName }}">
+                                                Kirim Pesanan
+                                            </a>
+                                        </div>
+                                    </div>
+                                    @endif
+                                    {{-- Modal Detail Delivery Order --}}
+                                    <div class="modal fade" id="detail-do">
+                                        <div class="modal-dialog modal-lg">
+                                            <div class="modal-content">
+                                                @include('distribution.restock.telah-dikirm.modal-detail')
                                             </div>
                                         </div>
-                                    @elseif ($merchantOrder->StatusOrderID == "S023") {{-- Dalam Proses --}}
-                                        @if ($merchantOrder->PaymentMethodID == 1) {{-- Kalo pake tunai --}}
-                                        <div class="row d-md-flex justify-content-end">
-                                            <div class="col-md-6 col-12 text-center">
-                                                <a href="#" class="btn btn-danger btn-batal mr-4" data-order-id="{{ $stockOrderID }}" data-store-name="{{ $merchantOrder->StoreName }}">
-                                                    Batalkan Pesanan
-                                                </a>
-                                                <a href="#" class="btn btn-success btn-kirim" data-order-id="{{ $stockOrderID }}" data-store-name="{{ $merchantOrder->StoreName }}">
-                                                    Kirim Pesanan
-                                                </a>
+                                    </div>
+                                    {{-- Modal Request Delivery Order --}}
+                                    <div class="modal fade" id="request-do" aria-hidden="true"
+                                        aria-labelledby="modal-detail">
+                                        <div class="modal-dialog modal-lg">
+                                            <div class="modal-content">
+                                                @include('distribution.restock.telah-dikirm.modal-request')
                                             </div>
                                         </div>
-                                        @else {{-- Selain Tunai --}}
-                                        <div class="row d-md-flex justify-content-end">
-                                            <div class="col-md-6 col-12 text-center">
-                                                <a href="#" class="btn btn-success btn-kirim" data-order-id="{{ $stockOrderID }}" data-store-name="{{ $merchantOrder->StoreName }}">
-                                                    Kirim Pesanan
-                                                </a>
+                                    </div>
+                                    {{-- Modal Add Delivery Order --}}
+                                    <div class="modal fade" id="add-do">
+                                        <div class="modal-dialog modal-xl">
+                                            <div class="modal-content">
+                                                @include('distribution.restock.telah-dikirm.modal-add')
                                             </div>
                                         </div>
-                                        @endif
-                                    @elseif ($merchantOrder->StatusOrderID == "S012") {{-- Telah Dikirim --}}
-                                        <div class="row d-md-flex justify-content-end">
-                                            <div class="col-md-6 col-12 text-center">
-                                                <button type="button" class="btn btn-info mr-md-4" data-toggle="modal" data-target="#detail-do">
-                                                    Detail Delivery Order
-                                                </button>
-                                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add-do">
-                                                    Buat Delivery Order
-                                                </button>
-                                            </div>
-                                            {{-- Modal Detail Delivery Order --}}
-                                            <div class="modal fade" id="detail-do">
-                                                <div class="modal-dialog modal-lg">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h4 class="modal-title">Detail Delivery Order</h4>
-                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                <span aria-hidden="true">&times;</span>
-                                                            </button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <div class="callout callout-danger d-md-none py-2 mb-2">
-                                                                <p><strong>Direkomendasikan untuk buka di LAPTOP / PC</strong></p>
-                                                            </div>
-                                                            @if ($deliveryOrder->count() > 0)
-                                                                @foreach ($deliveryOrder as $item)
-                                                                <div class="card @if ($item->StatusDO == "S025") card-success @elseif($item->StatusDO == "S024") card-warning @else card-danger @endif" detail-do>
-                                                                    <div class="card-header">
-                                                                        <h3 class="card-title">
-                                                                            <b class="d-block d-md-inline">Delivery Order ID :</b> {{ $item->DeliveryOrderID }}
-                                                                        </h3>
-                                                                        <div class="card-tools">
-                                                                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                                                                <i class="fas fa-minus"></i>
-                                                                            </button>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="card-body py-1 px-2 detail-do-wrapper">
-                                                                        <form action="{{ route('distribution.updateQtyDO', ['deliveryOrderId' => $item->DeliveryOrderID]) }}" method="get" id="edit-qty-do{{ $loop->iteration }}">
-                                                                            @csrf
-                                                                            @foreach ($item->DetailProduct as $product)
-                                                                            <div class="row text-center border-bottom m-0 edit-do">
-                                                                                <div class="col-3 align-self-center">
-                                                                                    <img src="{{ config('app.base_image_url') . '/product/'. $product->ProductImage }}" alt="" width="80">
-                                                                                </div>
-                                                                                <div class="col-3 align-self-center">
-                                                                                    <label>Produk</label>
-                                                                                    <p>{{ $product->ProductName }}</p>
-                                                                                    <input type="hidden" name="product_id[]" value="{{ $product->ProductID }}">
-                                                                                </div>
-                                                                                <div class="col-3 align-self-center">
-                                                                                    <label class="d-block">Qty</label>
-                                                                                    @if ($item->StatusOrder != "Dalam Pengiriman" || $item->Distributor == "HAISTAR")
-                                                                                    <p>{{ $product->Qty }}x {{ Helper::formatCurrency($product->Price, '@Rp ') }}</p>
-                                                                                    @else
-                                                                                    <p>
-                                                                                        <input type="number" class="form-control edit-qty-do text-sm text-center p-0 d-inline" value="{{ $product->Qty }}" name="edit_qty_do[]" style="width: 40px; height: 30px;" max="{{ $product->OrderQty }}" min="1" required>
-                                                                                        <span class="price-do">{{ Helper::formatCurrency($product->Price, 'x @Rp ') }}</span>
-                                                                                    </p>
-                                                                                    @endif
-                                                                                </div>
-                                                                                <div class="col-3 align-self-center">
-                                                                                    <label>Total Harga</label>
-                                                                                    <p class="price-total">{{ Helper::formatCurrency($product->Qty * $product->Price, 'Rp ') }}</p>
-                                                                                </div>
-                                                                            </div>
-                                                                            @endforeach
-                                                                            <div class="row m-0 border-bottom">
-                                                                                <div class="col-6 col-md-8 pt-2">
-                                                                                    @if ($item->StatusOrder != "Dalam Pengiriman" || $item->Distributor == "HAISTAR")
-                                                                                        <p class="m-0"><b>Driver : </b>{{ $item->Name }}</p>
-                                                                                        <p class="m-0"><b>Helper : </b>{{ $item->HelperName }}</p>
-                                                                                        <p class="m-0"><b>Kendaraan : </b>{{ $item->VehicleName }} {{ $item->VehicleLicensePlate }}</p>
-                                                                                        @if ($item->Distributor == "HAISTAR")
-                                                                                            <span class="badge badge-info">{{ $item->Distributor }}</span>
-                                                                                        @endif
-                                                                                    @else
-                                                                                        <div class="row m-0">
-                                                                                            <div class="col-md-6 col-12 pl-0">
-                                                                                                <div class="form-group m-0">
-                                                                                                    <label class="my-0" for="driver">Driver</label>
-                                                                                                    <select name="driver" id="driver" class="form-control border selectpicker" data-live-search="true" title="Pilih Driver" required>
-                                                                                                    @foreach ($drivers as $driver)
-                                                                                                        <option value="{{ $driver->UserID }}"
-                                                                                                            {{ collect($item->DriverID)->contains($driver->UserID) ? 'selected' : '' }}>
-                                                                                                        {{ $driver->Name }}</option>
-                                                                                                    @endforeach
-                                                                                                    </select>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                            <div class="col-md-6 col-12 pl-0">
-                                                                                                <div class="form-group m-0">
-                                                                                                    <label class="my-0" for="helper">Helper</label>
-                                                                                                    <select name="helper" id="helper" class="form-control border selectpicker" data-live-search="true" title="Pilih Helper" required>
-                                                                                                    @foreach ($helpers as $helper)
-                                                                                                        <option value="{{ $helper->UserID }}"
-                                                                                                            {{ collect($item->HelperID)->contains($helper->UserID) ? 'selected' : '' }}>
-                                                                                                        {{ $helper->Name }}</option>
-                                                                                                    @endforeach
-                                                                                                    </select>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                            <div class="col-md-6 col-12 pl-0">
-                                                                                                <div class="form-group m-0">
-                                                                                                    <label class="my-0" for="vehicle">Jenis Kendaraan</label>
-                                                                                                    <select name="vehicle" id="vehicle" class="form-control border selectpicker" data-live-search="true" title="Pilih Jenis Kendaraan" required>
-                                                                                                        @foreach ($vehicles as $vehicle)
-                                                                                                            <option value="{{ $vehicle->VehicleID }}"
-                                                                                                                {{ collect($item->VehicleID)->contains($vehicle->VehicleID) ? 'selected' : '' }}>
-                                                                                                            {{ $vehicle->VehicleName }}</option>
-                                                                                                        @endforeach
-                                                                                                    </select>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                            <div class="col-md-6 col-12 pl-0">
-                                                                                                <div class="form-group m-0">
-                                                                                                    <label class="my-0" for="license_plate">Plat Nomor Kendaraan</label>
-                                                                                                    <input type="text" name="license_plate" id="license_plate" class="form-control mb-2" value="{{ $item->VehicleLicensePlate }}" onkeyup="this.value = this.value.toUpperCase();" autocomplete="off" required>
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    @endif
-                                                                                </div>
-                                                                                <div class="col-6 col-md-4 d-flex justify-content-between flex-column">
-                                                                                    <p class="text-center mt-3">
-                                                                                        <b>SubTotal : </b>
-                                                                                        <span class="price-subtotal">{{ Helper::formatCurrency($item->SubTotal, 'Rp ') }}</span>
-                                                                                    </p>
-                                                                                    @if ($item->StatusOrder == "Dalam Pengiriman" && $item->Distributor != "HAISTAR")
-                                                                                        <div class="text-center">
-                                                                                            <button type="submit" id="update_qty" class="btn btn-xs btn-primary text-white mb-2 w-50">Simpan</button>
-                                                                                        </div>
-                                                                                    @endif
-                                                                                </div>
-                                                                            </div>
-                                                                        </form>
-                                                                        <div class="row m-0 pt-2">
-                                                                            <div class="col-3 col-md-4 align-self-center">
-                                                                                <b>{{ $item->StatusOrder }}</b> <br>
-                                                                                @if ($item->StatusOrder == "Dalam Pengiriman" && $item->Distributor != "HAISTAR")
-                                                                                <a href="#" class="btn btn-xs btn-success btn-finish-do mb-2" data-do-id="{{ $item->DeliveryOrderID }}">Selesaikan Order</a>
-                                                                                @elseif ($item->StatusOrder == "Dalam Pengiriman" && $item->Distributor == "HAISTAR")
-                                                                                <a href="#" class="btn btn-xs btn-danger btn-cancel-do-haistar mb-2" data-do-id="{{ $item->DeliveryOrderID }}">Batalkan Order Haistar</a>
-                                                                                @endif
-                                                                            </div>
-                                                                            <div class="col-6 col-md-5 align-self-center">
-                                                                                Dikirim {{ date('d M Y H:i', strtotime($item->CreatedDate)) }}<br>
-                                                                                @if ($item->StatusOrder == "Selesai")
-                                                                                Selesai {{ date('d M Y H:i', strtotime($item->FinishDate)) }}
-                                                                                @endif
-                                                                            </div>
-                                                                            <div class="col-3 align-self-center">
-                                                                                <a href="{{ route('restockDeliveryOrder.invoice', ['deliveryOrderId' => $item->DeliveryOrderID]) }}" target="_blank" class="btn btn-sm btn-info">Delivery Invoice</a>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                @endforeach
-                                                            @else
-                                                            <div class="callout callout-info my-2">
-                                                                <h5>Belum ada delivery order.</h5>
-                                                                <button type="button" class="btn btn-primary" data-target="#add-do" data-toggle="modal">
-                                                                    Buat Delivery Order
-                                                                </button>
-                                                            </div>
-                                                            @endif
-                                                        </div>
-                                                        {{-- <div class="modal-footer justify-content-end">
-                                                            
-                                                        </div> --}}
-                                                    </div>
+                                    </div>
+                                    @elseif ($merchantOrder->StatusOrderID == "S018") Telah Selesai
+                                    <div class="col-6">
+                                        <label class="mb-0">Rating: </label>
+                                        {{ $merchantOrder->Rating }} / 5
+                                    </div>
+                                    <div class="col-6">
+                                        <label class="mb-0">Komentar: </label>
+                                        {{ $merchantOrder->Feedback }}
+                                    </div>
+                                    <div class="border-top border-secondary my-2">
+                                        <h6 class="mt-2">Detail Delivery Order</h6>
+                                        @foreach ($deliveryOrder as $do)
+                                        <div class="card card-outline @if ($do->StatusDO == 'S025') card-success
+                                            @elseif($do->StatusDO == 'S024') card-warning @else card-danger @endif">
+                                            <div class="card-header">
+                                                <h3 class="card-title font-weight-bold">
+                                                    {{ $do->DeliveryOrderID }}
+                                                    @if ($do->Distributor == "HAISTAR")
+                                                    <span class="badge badge-info">HAISTAR</span>
+                                                    @endif
+                                                </h3>
+                                                <div class="card-tools">
+                                                    <button type="button" class="btn btn-tool"
+                                                        data-card-widget="collapse"><i
+                                                            class="fas fa-minus"></i></button>
                                                 </div>
                                             </div>
-                                            {{-- Modal Add Delivery Order --}}
-                                            <div class="modal fade" id="add-do">
-                                                <div class="modal-dialog modal-xl">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h4 class="modal-title">Buat Delivery Order</h4>
-                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                <span aria-hidden="true">&times;</span>
-                                                            </button>
-                                                        </div>
-                                                        <div class="modal-body py-1">
-                                                            @if ($promisedQty == $deliveryOrderQty)
-                                                                <div class="callout callout-info my-2">
-                                                                    <h5 class="py-2">Semua Barang Telah Dikirim.</h5>
-                                                                </div>
-                                                            @else
-                                                            <form action="" method="post" id="form-add-do">
-                                                                @csrf
-                                                                <div class="row m-0">
-                                                                    <div class="col-md-6 col-12">
-                                                                        <div class="form-group">
-                                                                            <label class="my-0" for="created_date_do">Waktu Pengiriman :</label>
-                                                                            <input type="datetime-local" class="form-control" name="created_date_do" id="created_date_do" required>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-md-6 col-12">
-                                                                        <div class="form-group">
-                                                                            <label class="my-0" for="vehicle">Jenis Kendaraan</label>
-                                                                        <select name="vehicle" id="vehicle" class="form-control border selectpicker @if($errors->has('vehicle')) is-invalid @endif" data-live-search="true" title="Pilih Jenis Kendaraan" required>
-                                                                            @foreach ($vehicles as $vehicle)
-                                                                                <option value="{{ $vehicle->VehicleID }}">{{ $vehicle->VehicleName }}</option>
-                                                                            @endforeach
-                                                                        </select>
-                                                                        @if($errors->has('vehicle'))
-                                                                            <span class="error invalid-feedback">{{ $errors->first('vehicle') }}</span>
-                                                                        @endif
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="row">
-                                                                    <div class="col-md-4 col-12">
-                                                                        <div class="form-group">
-                                                                            <label class="my-0" for="driver">Driver</label>
-                                                                            <select name="driver" id="driver" class="form-control border selectpicker @if($errors->has('driver')) is-invalid @endif" data-live-search="true" title="Pilih Driver" required>
-                                                                            @foreach ($drivers as $driver)
-                                                                                <option value="{{ $driver->UserID }}">{{ $driver->Name }}</option>
-                                                                            @endforeach
-                                                                            </select>
-                                                                            @if($errors->has('driver'))
-                                                                                <span class="error invalid-feedback">{{ $errors->first('driver') }}</span>
-                                                                            @endif
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-md-4 col-12">
-                                                                        <div class="form-group">
-                                                                            <label class="my-0" for="helper">Helper</label>
-                                                                            <select name="helper" id="helper" class="form-control border selectpicker @if($errors->has('helper')) is-invalid @endif" data-live-search="true" title="Pilih Helper">
-                                                                            @foreach ($helpers as $helper)
-                                                                                <option value="{{ $helper->UserID }}">{{ $helper->Name }}</option>
-                                                                            @endforeach
-                                                                            </select>
-                                                                            @if($errors->has('helper'))
-                                                                                <span class="error invalid-feedback">{{ $errors->first('helper') }}</span>
-                                                                            @endif
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-md-4 col-12">
-                                                                        <div class="form-group">
-                                                                            <label class="my-0" for="license_plate">Plat Nomor Kendaraan</label>
-                                                                            <input type="text" name="license_plate" id="license_plate" class="form-control @if($errors->has('license_plate')) is-invalid @endif" placeholder="Masukkan Plat Nomor Kendaraan" onkeyup="this.value = this.value.toUpperCase();" autocomplete="off" required>
-                                                                            @if($errors->has('license_plate'))
-                                                                                <span class="error invalid-feedback">{{ $errors->first('license_plate') }}</span>
-                                                                            @endif
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="callout callout-danger d-md-none py-2 mb-1">
-                                                                    <p><strong>Direkomendasikan untuk buka di LAPTOP / PC</strong></p>
-                                                                </div>
-                                                                <div class="callout callout-warning py-2">
-                                                                    <p>Pilih terlebih dahulu barang yang ingin dikirim</p>
-                                                                </div>
-                                                                
-                                                                @if ($isHasHaistar == 1)
-                                                                    @foreach ($productAddDO as $item)
-                                                                        @if ($item->PromisedQuantity != $item->QtyDO && $item->IsHaistarProduct == 1)
-                                                                        @if ($loop->first)
-                                                                            <label class="m-0">Produk Haistar</label>
-                                                                        @endif
-                                                                        <div class="row text-center border-bottom m-0 add-do">
-                                                                            <div class="col-1 align-self-center">
-                                                                                <input type="checkbox" class="check_haistar">
-                                                                            </div>
-                                                                            <div class="col-3 align-self-center">
-                                                                                <img src="{{ config('app.base_image_url') . '/product/'. $item->ProductImage }}" alt="" width="80">
-                                                                                <p class="mb-1">{{ $item->ProductName }}</p>
-                                                                                <input type="hidden" name="product_id[]" id="product_id" value="{{ $item->ProductID }}" disabled="disabled">
-                                                                                <input type="hidden" name="price[]" id="price" value="{{ $item->Nett }}" disabled="disabled">
-                                                                            </div>
-                                                                            <div class="col-2 align-self-center">
-                                                                                <label>Qty Beli</label>
-                                                                                <p>{{ $item->PromisedQuantity }}x 
-                                                                                    <span class="nett-price">{{ Helper::formatCurrency($item->Nett, '@Rp ') }}</span>
-                                                                                </p>
-                                                                            </div>
-                                                                            <div class="col-2 align-self-center">
-                                                                                <label>Qty Belum Dikirim</label>
-                                                                                <p>{{ $item->PromisedQuantity - $item->QtyDO }}</p>
-                                                                                <input type="hidden" name="max_qty_do[]" id="max_qty_do" value="{{ $item->PromisedQuantity - $item->QtyDO }}" disabled="disabled">
-                                                                            </div>
-                                                                            <div class="col-2 align-self-center">
-                                                                                <label>Qty Kirim</label>
-                                                                                <input type="number" name="qty_do[]" id="qty_do" class="form-control text-center qty-do" max="{{ $item->PromisedQuantity - $item->QtyDO }}" min="1" disabled="disabled" required>
-                                                                            </div>
-                                                                            <div class="col-2 align-self-center">
-                                                                                <label>Total Harga</label>
-                                                                                <p>Rp <span class="total-price">0</span></p>
-                                                                            </div>
-                                                                        </div>
-                                                                        @endif
-                                                                    @endforeach
-                                                                @endif
-
-                                                                @foreach ($productAddDO as $item)
-                                                                    @if ($item->PromisedQuantity != $item->QtyDO && $item->IsHaistarProduct == 0)
-                                                                    @if ($loop->first)
-                                                                        <label class="m-0 mt-2">Produk RT Mart</label>
-                                                                    @endif
-                                                                    <div class="row text-center border-bottom m-0 add-do">
-                                                                        <div class="col-1 align-self-center">
-                                                                            <input type="checkbox" class="check_rtmart">
-                                                                        </div>
-                                                                        <div class="col-3 align-self-center">
-                                                                            <img src="{{ config('app.base_image_url') . '/product/'. $item->ProductImage }}" alt="" width="80">
-                                                                            <p class="mb-1">{{ $item->ProductName }}</p>
-                                                                            <input type="hidden" name="product_id[]" id="product_id" value="{{ $item->ProductID }}" disabled="disabled">
-                                                                            <input type="hidden" name="price[]" id="price" value="{{ $item->Nett }}" disabled="disabled">
-                                                                        </div>
-                                                                        <div class="col-2 align-self-center">
-                                                                            <label>Qty Beli</label>
-                                                                            <p>{{ $item->PromisedQuantity }}x 
-                                                                                <span class="nett-price">{{ Helper::formatCurrency($item->Nett, '@Rp ') }}</span>
-                                                                            </p>
-                                                                        </div>
-                                                                        <div class="col-2 align-self-center">
-                                                                            <label>Qty Belum Dikirim</label>
-                                                                            <p>{{ $item->PromisedQuantity - $item->QtyDO }}</p>
-                                                                            <input type="hidden" name="max_qty_do[]" id="max_qty_do" value="{{ $item->PromisedQuantity - $item->QtyDO }}" disabled="disabled">
-                                                                        </div>
-                                                                        <div class="col-2 align-self-center">
-                                                                            <label>Qty Kirim</label>
-                                                                            <input type="number" name="qty_do[]" id="qty_do" class="form-control text-center qty-do" max="{{ $item->PromisedQuantity - $item->QtyDO }}" min="1" disabled="disabled" required>
-                                                                        </div>
-                                                                        <div class="col-2 align-self-center">
-                                                                            <label>Total Harga</label>
-                                                                            <p>Rp <span class="total-price">0</span></p>
-                                                                        </div>
-                                                                    </div>
-                                                                    @endif
-                                                                @endforeach
-                                                                <p class="my-2 mr-md-4 text-right"><b>Subtotal : </b>Rp <span class="subtotal-do">0</span></p>
-                                                                <button type="submit" id="btn-do" disabled="disabled" class="btn btn-primary float-right my-3">Buat DO</button>
-                                                            </form>
-                                                            @endif
-                                                        </div>
-                                                        {{-- <div class="modal-footer justify-content-between">
-                                                        </div> --}}
+                                            <!-- /.card-header -->
+                                            <div class="card-body">
+                                                @foreach ($do->DetailProduct as $product)
+                                                <div class="row m-0 mb-2 text-center">
+                                                    <div class="col-3 align-self-center">
+                                                        <img src="{{ config('app.base_image_url') . '/product/'. $product->ProductImage }}"
+                                                            alt="" width="60">
+                                                    </div>
+                                                    <div class="col-3 align-self-center">
+                                                        <p class="m-0">{{ $product->ProductName }}</p>
+                                                    </div>
+                                                    <div class="col-3 align-self-center">
+                                                        <p class="m-0">{{ $product->Qty }}x {{
+                                                            Helper::formatCurrency($product->Price, '@Rp ') }}</p>
+                                                    </div>
+                                                    <div class="col-3 align-self-center">
+                                                        <p class="m-0">{{ Helper::formatCurrency($product->Qty *
+                                                            $product->Price, 'Rp ') }}</p>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    @elseif ($merchantOrder->StatusOrderID == "S018") {{-- Telah Selesai --}}
-                                        <div class="col-6">
-                                            <label class="mb-0">Rating: </label>
-                                            {{ $merchantOrder->Rating }} / 5
-                                        </div>
-                                        <div class="col-6">
-                                            <label class="mb-0">Komentar: </label>
-                                            {{ $merchantOrder->Feedback }}
-                                        </div>
-                                        <div class="border-top border-secondary my-2">
-                                            <h6 class="mt-2">Detail Delivery Order</h6>
-                                            @foreach ($deliveryOrder as $do)
-                                            <div class="card card-outline @if ($do->StatusDO == "S025") card-success @elseif($do->StatusDO == "S024") card-warning @else card-danger @endif">
-                                                <div class="card-header">
-                                                    <h3 class="card-title font-weight-bold">
-                                                        {{ $do->DeliveryOrderID }}
-                                                        @if ($do->Distributor == "HAISTAR")
-                                                            <span class="badge badge-info">HAISTAR</span>
+                                                @endforeach
+                                                <div class="row m-0 border-bottom border-top">
+                                                    <div class="col-8 col-md-9 pt-2">
+                                                        <p class="m-0"><b>Driver : </b>{{ $do->Name }}</p>
+                                                        <p class="m-0"><b>Helper : </b>{{ $do->HelperName }}</p>
+                                                        <p class="m-0"><b>Kendaraan : </b>{{ $do->VehicleName }} {{
+                                                            $do->VehicleLicensePlate }}</p>
+                                                    </div>
+                                                    <div class="col-4 col-md-3 d-flex justify-content-center">
+                                                        <p class="text-center my-2">
+                                                            <b>SubTotal : </b>
+                                                            <span class="price-subtotal">{{
+                                                                Helper::formatCurrency($do->SubTotal, 'Rp ') }}</span>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div class="row m-0 pt-2">
+                                                    <div class="col-4 col-md-4 align-self-center">
+                                                        <b>{{ $do->StatusOrder }}</b>
+                                                    </div>
+                                                    <div
+                                                        class="col-8 col-md-5 align-self-center text-right text-md-left">
+                                                        Dikirim {{ date('d M Y H:i', strtotime($do->CreatedDate)) }}<br>
+                                                        @if ($do->FinishDate != null)
+                                                        Selesai {{ date('d M Y H:i', strtotime($do->FinishDate)) }}
                                                         @endif
-                                                    </h3>
-                                                    <div class="card-tools">
-                                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                                    </div>
+                                                    <div class="col-12 col-md-3 align-self-center text-md-center">
+                                                        <a href="{{ route('restockDeliveryOrder.invoice', ['deliveryOrderId' => $do->DeliveryOrderID]) }}"
+                                                            target="_blank" class="btn btn-sm btn-info">Delivery
+                                                            Invoice</a>
                                                     </div>
                                                 </div>
-                                                <!-- /.card-header -->
-                                                <div class="card-body">
-                                                    @foreach ($do->DetailProduct as $product)
-                                                    <div class="row m-0 mb-2 text-center">
-                                                        <div class="col-3 align-self-center">
-                                                            <img src="{{ config('app.base_image_url') . '/product/'. $product->ProductImage }}" alt="" width="60">
-                                                        </div>
-                                                        <div class="col-3 align-self-center">
-                                                            <p class="m-0">{{ $product->ProductName }}</p>
-                                                        </div>
-                                                        <div class="col-3 align-self-center">
-                                                            <p class="m-0">{{ $product->Qty }}x {{ Helper::formatCurrency($product->Price, '@Rp ') }}</p>
-                                                        </div>
-                                                        <div class="col-3 align-self-center">
-                                                            <p class="m-0">{{ Helper::formatCurrency($product->Qty * $product->Price, 'Rp ') }}</p>
-                                                        </div>
-                                                    </div>
-                                                    @endforeach
-                                                    <div class="row m-0 border-bottom border-top">
-                                                        <div class="col-8 col-md-9 pt-2">
-                                                            <p class="m-0"><b>Driver : </b>{{ $do->Name }}</p>
-                                                            <p class="m-0"><b>Helper : </b>{{ $do->HelperName }}</p>
-                                                            <p class="m-0"><b>Kendaraan : </b>{{ $do->VehicleName }} {{ $do->VehicleLicensePlate }}</p>
-                                                        </div>
-                                                        <div class="col-4 col-md-3 d-flex justify-content-center">
-                                                            <p class="text-center my-2">
-                                                                <b>SubTotal : </b>
-                                                                <span class="price-subtotal">{{ Helper::formatCurrency($do->SubTotal, 'Rp ') }}</span>
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row m-0 pt-2">
-                                                        <div class="col-4 col-md-4 align-self-center">
-                                                            <b>{{ $do->StatusOrder }}</b>
-                                                        </div>
-                                                        <div class="col-8 col-md-5 align-self-center text-right text-md-left">
-                                                            Dikirim {{ date('d M Y H:i', strtotime($do->CreatedDate)) }}<br>
-                                                            @if ($do->FinishDate != null)
-                                                                Selesai {{ date('d M Y H:i', strtotime($do->FinishDate)) }}
-                                                            @endif
-                                                        </div>
-                                                        <div class="col-12 col-md-3 align-self-center text-md-center">
-                                                            <a href="{{ route('restockDeliveryOrder.invoice', ['deliveryOrderId' => $do->DeliveryOrderID]) }}" target="_blank" class="btn btn-sm btn-info">Delivery Invoice</a>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- /.card-body -->
                                             </div>
-                                            @endforeach
+                                            <!-- /.card-body -->
                                         </div>
+                                        @endforeach
+                                    </div>
                                     @elseif ($merchantOrder->StatusOrderID == "S011") {{-- Telah Dibatalkan --}}
-                                        <label class="mb-0">Alasan dibatalkan:</label>
-                                        {{ $merchantOrder->CancelReasonNote }}
+                                    <label class="mb-0">Alasan dibatalkan:</label>
+                                    {{ $merchantOrder->CancelReasonNote }}
                                     @else
-                                        &nbsp;
+                                    &nbsp;
                                     @endif
                                 </div>
                             </div>
@@ -695,16 +417,12 @@
 @endsection
 @section('js-pages')
 <script src="https://unpkg.com/autonumeric"></script>
-<script defer type="text/javascript" src="https://maps.googleapis.com/maps/api/js?callback=initMap&v=3&key=AIzaSyC9kPfmVtf71uGeDfHMMHDzHAl-FEBtOEw&libraries=places"></script>
+<script defer type="text/javascript"
+    src="https://maps.googleapis.com/maps/api/js?callback=initMap&v=3&key=AIzaSyC9kPfmVtf71uGeDfHMMHDzHAl-FEBtOEw&libraries=places">
+</script>
 <script src="{{ url('/') }}/plugins/bootstrap-select/bootstrap-select.min.js"></script>
+@yield('js-detail-restock')
 <script>
-    // const currencyJumlahTopup = new AutoNumeric.multiple('.autonumeric', {
-    //     allowDecimalPadding: false,
-    //     decimalCharacter: ',',
-    //     digitGroupSeparator: '.',
-    //     unformatOnSubmit: true
-    // });
-
     // Event listener saat mengetik qty edit delivery order
     $('.edit-qty-do').on('keyup', function (e) {
         e.preventDefault();
@@ -747,68 +465,6 @@
 
         updatePrice();
     });
-
-    // $('.detail-product').on('keyup', function (e) {
-    //     // event listener saat protongan harga diinput
-    //     const grandTotal = $('#grand_total');
-    //     const grandTotalValue = grandTotal.text().replaceAll("Rp ", "").replaceAll(".", "");
-    //     $('#discount_price').on('keyup', function (e) {
-    //         const newGrandTotal = Number(grandTotalValue) - Number(this.value.replaceAll(".", ""));
-    //         grandTotal.html("Rp " + thousands_separators(newGrandTotal));
-    //     });
-
-    //     // event listener saat qty product di input
-    //     $('.promised_qty').on('keyup', function (e){
-    //         e.preventDefault();
-    //         const indexProduct = $(this).closest('.detail-product').index();
-    //         const qtyProduct = e.target.value.replaceAll(".", "");
-    //         const priceProduct = $('.detail-product').find('.price').eq(indexProduct).text().replaceAll("Rp ", "").replaceAll(".", "");
-    //         const discountProduct = $('.detail-product').find('.discount_product').eq(indexProduct).val().replaceAll(".", "");
-
-    //         const newTotalPriceProduct = (Number(priceProduct) - Number(discountProduct)) * Number(qtyProduct);
-    //         const totalPriceProductElm = $('.detail-product').find('.total_price_product').eq(indexProduct);
-    //         const subTotalPriceElm = $('#sub_total');
-    //         const subTotalPrice = $('#sub_total').text().replaceAll("Rp ", "").replaceAll(".", "");
-    //         const oldTotalPriceProduct = totalPriceProductElm.text().replaceAll("Rp ", "").replaceAll(".", "");
-            
-    //         const oldSubTotalPrice = subTotalPriceElm.text().replaceAll("Rp ", "").replaceAll(".", "");
-    //         const newSubTotalPrice = Number(subTotalPrice) - Number(oldTotalPriceProduct) + Number(newTotalPriceProduct);
-    //         subTotalPriceElm.html("Rp " + thousands_separators(newSubTotalPrice));
-            
-    //         totalPriceProductElm.html("Rp " + thousands_separators(newTotalPriceProduct));
-
-    //         const grandTotalValue = grandTotal.text().replaceAll("Rp ", "").replaceAll(".", "");
-            
-    //         const newGrandTotal = Number(grandTotalValue) - Number(oldSubTotalPrice) + Number(newSubTotalPrice);
-    //         grandTotal.html("Rp " + thousands_separators(newGrandTotal));
-    //     });
-
-    //     // event listener saat potongan di input
-    //     $('.discount_product').on('keyup', function (e){
-    //         e.preventDefault();
-    //         const indexProduct = $(this).closest('.detail-product').index();
-    //         const discountProduct = e.target.value.replaceAll(".", "");
-    //         const priceProduct = $('.detail-product').find('.price').eq(indexProduct).text().replaceAll("Rp ", "").replaceAll(".", "");
-    //         const qtyProduct = $('.detail-product').find('.promised_qty').eq(indexProduct).val().replaceAll(".", "");
-
-    //         const newTotalPriceProduct = (Number(priceProduct) - Number(discountProduct)) * Number(qtyProduct);
-    //         const totalPriceProductElm = $('.detail-product').find('.total_price_product').eq(indexProduct);
-    //         const subTotalPriceElm = $('#sub_total');
-    //         const subTotalPrice = $('#sub_total').text().replaceAll("Rp ", "").replaceAll(".", "");
-    //         const oldTotalPriceProduct = totalPriceProductElm.text().replaceAll("Rp ", "").replaceAll(".", "");
-            
-    //         const oldSubTotalPrice = subTotalPriceElm.text().replaceAll("Rp ", "").replaceAll(".", "");
-    //         const newSubTotalPrice = Number(subTotalPrice) - Number(oldTotalPriceProduct) + Number(newTotalPriceProduct);
-    //         subTotalPriceElm.html("Rp " + thousands_separators(newSubTotalPrice));
-            
-    //         totalPriceProductElm.html("Rp " + thousands_separators(newTotalPriceProduct));
-
-    //         const grandTotalValue = grandTotal.text().replaceAll("Rp ", "").replaceAll(".", "");
-            
-    //         const newGrandTotal = Number(grandTotalValue) - Number(oldSubTotalPrice) + Number(newSubTotalPrice);
-    //         grandTotal.html("Rp " + thousands_separators(newGrandTotal));
-    //     });
-    // });
 
     $(':checkbox').change(function() {
         $(this).closest(".add-do").find("#qty_do, #product_id, #price, #max_qty_do").prop('disabled', !$(this).is(':checked'));

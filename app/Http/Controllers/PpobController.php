@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -45,9 +46,17 @@ class PpobController extends Controller
         $marginDeposit = $arrayRes['data']['balance'] - $sumMerchantSaldo;
 
         // Transaction Count Topup for Bubble Notif
-        $topupTransaction = DB::table('tx_topup_saldo_ppob')
-            ->select('TxTopupSaldoPpobID', 'Status')
-            ->get();
+        $topupTx = DB::table('tx_topup_saldo_ppob')
+            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_topup_saldo_ppob.MerchantID')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_merchant_account.DistributorID')
+            ->select('TxTopupSaldoPpobID', 'Status');
+
+        if (Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $topupTx->where('ms_distributor.Depo', '=', $depoUser);
+        }
+
+        $topupTransaction = $topupTx->get();
 
         $statusMenungguPembayaran = 'TPS-001';
         $statusMenungguValidasi = 'TPS-002';
@@ -80,6 +89,7 @@ class PpobController extends Controller
         // Get data topup with status, jika tanggal filter kosong tampilkan semua data.
         $sqlTopupWithStatus = DB::table('tx_topup_saldo_ppob')
             ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_topup_saldo_ppob.MerchantID')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_merchant_account.DistributorID')
             ->join('ms_status_ppob', 'ms_status_ppob.StatusPPOBID', '=', 'tx_topup_saldo_ppob.Status')
             ->where('tx_topup_saldo_ppob.Status', '=', $topupStatus)
             ->select('tx_topup_saldo_ppob.*', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreName', 'ms_status_ppob.StatusName')
@@ -89,6 +99,11 @@ class PpobController extends Controller
         if ($fromDate != '' && $toDate != '') {
             $sqlTopupWithStatus->whereDate('tx_topup_saldo_ppob.TransactionDate', '>=', $fromDate)
                 ->whereDate('tx_topup_saldo_ppob.TransactionDate', '<=', $toDate);
+        }
+
+        if (Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $sqlTopupWithStatus->where('ms_distributor.Depo', '=', $depoUser);
         }
 
         // Get data response
@@ -127,6 +142,7 @@ class PpobController extends Controller
         // Get data topup with status, jika tanggal filter kosong tampilkan semua data.
         $sqlAllTopup = DB::table('tx_topup_saldo_ppob')
             ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_topup_saldo_ppob.MerchantID')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_merchant_account.DistributorID')
             ->join('ms_status_ppob', 'ms_status_ppob.StatusPPOBID', '=', 'tx_topup_saldo_ppob.Status')
             ->select('tx_topup_saldo_ppob.*', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreName', 'ms_status_ppob.StatusName')
             ->orderByDesc('tx_topup_saldo_ppob.TransactionDate');
@@ -135,6 +151,11 @@ class PpobController extends Controller
         if ($fromDate != '' && $toDate != '') {
             $sqlAllTopup->whereDate('tx_topup_saldo_ppob.TransactionDate', '>=', $fromDate)
                 ->whereDate('tx_topup_saldo_ppob.TransactionDate', '<=', $toDate);
+        }
+
+        if (Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $sqlAllTopup->where('ms_distributor.Depo', '=', $depoUser);
         }
 
         // Get data response
@@ -255,32 +276,46 @@ class PpobController extends Controller
 
     public function transaction()
     {
-        $activeMerchant = DB::table('ms_merchant_account')
-            ->where('ms_merchant_account.ActivatedPPOB', '=', 1)
-            ->count('ms_merchant_account.MerchantID');
+        $sqlActiveMerchant = DB::table('ms_merchant_account')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_merchant_account.DistributorID')
+            ->where('ms_merchant_account.ActivatedPPOB', '=', 1);
+        if (Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $sqlActiveMerchant->where('ms_distributor.Depo', '=', $depoUser);
+        }
+        $activeMerchant = $sqlActiveMerchant->count('ms_merchant_account.MerchantID');
 
         // Transaksi Sukses
         $transactionSuccess = DB::table('tx_ppob_order')
             ->join('ms_status_ppob', 'ms_status_ppob.StatusPPOBID', '=', 'tx_ppob_order.StatusOrder')
+            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_ppob_order.MerchantID')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_merchant_account.DistributorID')
             ->where('ms_status_ppob.IsActive', '=', 1)
-            ->where('ms_status_ppob.StatusPPOBID', '=', 'PST-002')
-            ->orWhere('ms_status_ppob.StatusPPOBID', '=', 'PRE-002');
+            ->whereIn('ms_status_ppob.StatusPPOBID', ['PST-002', 'PRE-002']);
 
-        $sumProfitMargin = $transactionSuccess
-            ->sum('tx_ppob_order.CompanyMargin');
+        if (Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $transactionSuccess->where('ms_distributor.Depo', '=', $depoUser);
+        }
 
-        $sumValueTransaction = $transactionSuccess
-            ->sum('tx_ppob_order.TotalPrice');
+        $sumProfitMargin = $transactionSuccess->sum('tx_ppob_order.CompanyMargin');
 
-        $totalTransactionSuccess = $transactionSuccess
-            ->count('tx_ppob_order.PPOBOrderID');
+        $sumValueTransaction = $transactionSuccess->sum('tx_ppob_order.TotalPrice');
+
+        $totalTransactionSuccess = $transactionSuccess->count('tx_ppob_order.PPOBOrderID');
 
         // Transaksi Dalam Proses
         $transactionPending = DB::table('tx_ppob_order')
             ->join('ms_status_ppob', 'ms_status_ppob.StatusPPOBID', '=', 'tx_ppob_order.StatusOrder')
+            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_ppob_order.MerchantID')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_merchant_account.DistributorID')
             ->where('ms_status_ppob.IsActive', '=', 1)
-            ->Where('ms_status_ppob.StatusPPOBID', '=', 'PST-001')
-            ->orWhere('ms_status_ppob.StatusPPOBID', '=', 'PRE-001');
+            ->Where('ms_status_ppob.StatusPPOBID', ['PST-001', 'PRE-001']);
+
+        if (Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $transactionPending->where('ms_distributor.Depo', '=', $depoUser);
+        }
 
         $totalTransactionPending = $transactionPending
             ->count('tx_ppob_order.PPOBOrderID');
@@ -288,9 +323,15 @@ class PpobController extends Controller
         // Transaksi Gagal
         $transactionFailed = DB::table('tx_ppob_order')
             ->join('ms_status_ppob', 'ms_status_ppob.StatusPPOBID', '=', 'tx_ppob_order.StatusOrder')
+            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_ppob_order.MerchantID')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_merchant_account.DistributorID')
             ->where('ms_status_ppob.IsActive', '=', 1)
-            ->where('ms_status_ppob.StatusPPOBID', '=', 'PST-003')
-            ->orWhere('ms_status_ppob.StatusPPOBID', '=', 'PRE-003');
+            ->where('ms_status_ppob.StatusPPOBID', ['PST-003', 'PRE-003']);
+
+        if (Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $transactionFailed->where('ms_distributor.Depo', '=', $depoUser);
+        }
 
         $totalTransactionFailed = $transactionFailed
             ->count('tx_ppob_order.PPOBOrderID');
@@ -314,6 +355,7 @@ class PpobController extends Controller
         $sqlPPPOBTransaction = DB::table('tx_ppob_order')
             ->join('ms_status_ppob', 'ms_status_ppob.StatusPPOBID', '=', 'tx_ppob_order.StatusOrder')
             ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_ppob_order.MerchantID')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_merchant_account.DistributorID')
             ->where('ms_status_ppob.IsActive', '=', 1)
             ->select('tx_ppob_order.*', 'ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber', 'ms_status_ppob.StatusName')
             ->orderByDesc('tx_ppob_order.TransactionDate');
@@ -322,6 +364,11 @@ class PpobController extends Controller
         if ($fromDate != '' && $toDate != '') {
             $sqlPPPOBTransaction->whereDate('tx_ppob_order.TransactionDate', '>=', $fromDate)
                 ->whereDate('tx_ppob_order.TransactionDate', '<=', $toDate);
+        }
+
+        if (Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $sqlPPPOBTransaction->where('ms_distributor.Depo', '=', $depoUser);
         }
 
         // Get data response
@@ -365,6 +412,7 @@ class PpobController extends Controller
         $toDate = $request->input('toDate');
 
         $sqlPPOBActivated = DB::table('ms_merchant_account')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_merchant_account.DistributorID')
             ->where('ms_merchant_account.ActivatedPPOB', '=', 1)
             ->select('ms_merchant_account.*')
             ->orderByDesc('ms_merchant_account.ActivatedPPOBDate');
@@ -373,6 +421,11 @@ class PpobController extends Controller
         if ($fromDate != '' && $toDate != '') {
             $sqlPPOBActivated->whereDate('ms_merchant_account.ActivatedPPOBDate', '>=', $fromDate)
                 ->whereDate('ms_merchant_account.ActivatedPPOBDate', '<=', $toDate);
+        }
+
+        if (Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $sqlPPOBActivated->where('ms_distributor.Depo', '=', $depoUser);
         }
 
         // Get data response

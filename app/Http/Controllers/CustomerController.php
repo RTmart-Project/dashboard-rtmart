@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -30,6 +31,10 @@ class CustomerController extends Controller
             }
             if ($distributorId != "all") {
                 $customerAccount->where('ms_merchant_account.DistributorID', '=', $distributorId);
+            }
+            if (Auth::user()->Depo != "ALL") {
+                $depoUser = Auth::user()->Depo;
+                $customerAccount->where('ms_distributor.Depo', '=', $depoUser);
             }
 
             return $customerAccount->count();
@@ -74,6 +79,11 @@ class CustomerController extends Controller
         if ($fromDate != '' && $toDate != '') {
             $sqlAllAccount->whereDate('ms_customer_account.CreatedDate', '>=', $fromDate)
                 ->whereDate('ms_customer_account.CreatedDate', '<=', $toDate);
+        }
+
+        if (Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $sqlAllAccount->where('ms_distributor.Depo', '=', $depoUser);
         }
 
         // Get data response
@@ -152,6 +162,7 @@ class CustomerController extends Controller
         {
             $customerTransaction = DB::table('tx_product_order')
                 ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_product_order.MerchantID')
+                ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
                 ->where('ms_merchant_account.IsTesting', 0)
                 ->select('tx_product_order.OrderID');
 
@@ -167,6 +178,10 @@ class CustomerController extends Controller
             }
             if ($distributorId != "all") {
                 $customerTransaction->where('ms_merchant_account.DistributorID', '=', $distributorId);
+            }
+            if (Auth::user()->Depo != "ALL") {
+                $depoUser = Auth::user()->Depo;
+                $customerTransaction->where('ms_distributor.Depo', '=', $depoUser);
             }
 
             return $customerTransaction->count();
@@ -219,6 +234,11 @@ class CustomerController extends Controller
 
         if ($paymentMethodId != null) {
             $sqlAllAccount->where('tx_product_order.PaymentMethodID', '=', $paymentMethodId);
+        }
+
+        if (Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $sqlAllAccount->where('ms_distributor.Depo', '=', $depoUser);
         }
 
         // Get data response
@@ -294,6 +314,11 @@ class CustomerController extends Controller
 
         if ($paymentMethodId != null) {
             $sqlAllAccount->where('tx_product_order.PaymentMethodID', '=', $paymentMethodId);
+        }
+
+        if (Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $sqlAllAccount->where('ms_distributor.Depo', '=', $depoUser);
         }
 
         // Get data response

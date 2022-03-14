@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\MerchantService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Prophecy\Doubler\Generator\Node\ReturnTypeNode;
@@ -41,6 +43,10 @@ class MerchantController extends Controller
             }
             if ($distributorId != "all") {
                 $merchantAccount->where('ms_merchant_account.DistributorID', '=', $distributorId);
+            }
+            if (Auth::user()->Depo != "ALL") {
+                $depoUser = Auth::user()->Depo;
+                $merchantAccount->where('ms_distributor.Depo', '=', $depoUser);
             }
 
             return $merchantAccount->count();
@@ -91,6 +97,11 @@ class MerchantController extends Controller
 
         if ($distributorId != null) {
             $sqlAllAccount->where('ms_merchant_account.DistributorID', '=', $distributorId);
+        }
+
+        if (Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $sqlAllAccount->where('ms_distributor.Depo', '=', $depoUser);
         }
 
         // Get data response
@@ -571,6 +582,10 @@ class MerchantController extends Controller
             if ($distributorId != "all") {
                 $merchantRestock->where('tx_merchant_order.DistributorID', '=', $distributorId);
             }
+            if (Auth::user()->Depo != "ALL") {
+                $depoUser = Auth::user()->Depo;
+                $merchantRestock->where('ms_distributor.Depo', '=', $depoUser);
+            }
 
             return $merchantRestock->count();
         }
@@ -598,20 +613,13 @@ class MerchantController extends Controller
         ]);
     }
 
-    public function getRestocks(Request $request)
+    public function getRestocks(Request $request, MerchantService $merchantService)
     {
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
         $paymentMethodId = $request->input('paymentMethodId');
 
-        $sqlAllAccount = DB::table('tx_merchant_order')
-            ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
-            ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tx_merchant_order.DistributorID')
-            ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_order.StatusOrderID')
-            ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
-            ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'ms_merchant_account.ReferralCode')
-            ->where('ms_merchant_account.IsTesting', 0)
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.MerchantID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.NettPrice', 'tx_merchant_order.StatusOrderID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesName', 'ms_payment_method.PaymentMethodName');
+        $sqlAllAccount = $merchantService->merchantRestock();
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
@@ -621,6 +629,10 @@ class MerchantController extends Controller
 
         if ($paymentMethodId != null) {
             $sqlAllAccount->where('tx_merchant_order.PaymentMethodID', '=', $paymentMethodId);
+        }
+        if (Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $sqlAllAccount->where('ms_distributor.Depo', '=', $depoUser);
         }
 
         // Get data response
@@ -689,22 +701,13 @@ class MerchantController extends Controller
         }
     }
 
-    public function getRestockProduct(Request $request)
+    public function getRestockProduct(Request $request, MerchantService $merchantService)
     {
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
         $paymentMethodId = $request->input('paymentMethodId');
 
-        $sqlMain = DB::table('tx_merchant_order')
-            ->leftJoin('tx_merchant_order_detail', 'tx_merchant_order_detail.StockOrderID', '=', 'tx_merchant_order.StockOrderID')
-            ->leftJoin('ms_product', 'ms_product.ProductID', '=', 'tx_merchant_order_detail.ProductID')
-            ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
-            ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tx_merchant_order.DistributorID')
-            ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_order.StatusOrderID')
-            ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
-            ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'ms_merchant_account.ReferralCode')
-            ->whereRaw('ms_merchant_account.IsTesting = 0')
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.MerchantID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.NettPrice', 'tx_merchant_order.StatusOrderID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesName', 'tx_merchant_order.PaymentMethodID', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order_detail.ProductID', 'ms_product.ProductName', 'tx_merchant_order_detail.PromisedQuantity', 'tx_merchant_order_detail.Price', 'tx_merchant_order_detail.Discount', 'tx_merchant_order_detail.Nett')->toSql();
+        $sqlMain = $merchantService->merchantRestockAllProduct()->toSql();
 
         $sqlAllAccount = DB::table(DB::raw("($sqlMain) AS RestockProduct"))
             ->selectRaw("
@@ -720,6 +723,11 @@ class MerchantController extends Controller
 
         if ($paymentMethodId != null) {
             $sqlAllAccount->where('RestockProduct.PaymentMethodID', '=', $paymentMethodId);
+        }
+
+        if (Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $sqlAllAccount->where('RestockProduct.Depo', '=', $depoUser);
         }
 
         // Get data response
