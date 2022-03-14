@@ -7,6 +7,7 @@ use App\Http\Controllers\MerchantController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DistributorController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\DistributionController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\PaymentMethodController;
@@ -69,6 +70,13 @@ Route::group(['middleware' => ['auth']], function () {
                 Route::post('/specialprice/delete', [DistributionController::class, 'deleteSpecialPrice'])->name('distribution.deleteSpecialPrice');
                 Route::post('/specialprice/reset', [DistributionController::class, 'resetSpecialPrice'])->name('distribution.resetSpecialPrice');
             });
+        });
+    });
+
+    Route::group(['prefix' => 'delivery', 'middleware' => ['checkRoleUser:IT,AD,BM,FI,AH']], function () {
+        Route::group(['prefix' => 'request'], function () {
+            Route::get('/', [DeliveryController::class, 'request'])->name('delivery.request');
+            Route::get('/get', [DeliveryController::class, 'getRequest'])->name('delivery.getRequest');
         });
     });
 
