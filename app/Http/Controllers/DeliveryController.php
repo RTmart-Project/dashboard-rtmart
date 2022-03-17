@@ -8,6 +8,7 @@ use App\Services\HaistarService;
 use App\Services\VehicleService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Str;
 
@@ -126,10 +127,65 @@ class DeliveryController extends Controller
         ]);
     }
 
-    public function createExpedition(Request $request)
+    public function createExpedition(Request $request, DeliveryOrderService $deliveryOrderService)
     {
         $dataExpedition = json_decode($request->dataExpedition);
 
-        return $dataExpedition;
+        $newMerchantExpeditionID = $deliveryOrderService->generateExpeditionID();
+
+        $createdDate = str_replace("T", " ", $dataExpedition->createdDate);
+        $vehicleLicensePlate = str_replace(" ", "-", $dataExpedition->licensePlate);
+
+        $dataInsertExpedition = [
+            'MerchantExpeditionID' => $newMerchantExpeditionID,
+            'StatusExpedition' => 'S032',
+            'DriverID' => $dataExpedition->driverID,
+            'HelperID' => $dataExpedition->helperID,
+            'VehicleID' => $dataExpedition->vehicleID,
+            'VehicleLicensePlate' => $vehicleLicensePlate,
+            'CreatedDate' => $createdDate,
+            'Distributor' => $dataExpedition->distributor
+        ];
+
+        $dataInsertExpeditionLog = [
+            'MerchantExpeditionID' => $newMerchantExpeditionID,
+            'StatusExpedition' => 'S032',
+            'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo . ' ' . Auth::user()->Name
+        ];
+
+        $dataDetailExpedition = [];
+        foreach ($dataExpedition->dataDetail as $key => $value) {
+            array_push($dataDetailExpedition, [
+                'MerchantExpeditionID' => $newMerchantExpeditionID,
+                'DeliveryOrderDetailID' => $value->deliveryOrderDetailID
+            ]);
+        }
+
+        if ($dataExpedition->distributor == "RT MART") {
+            $sqlTransaction = true;
+            DB::transaction(function () use ($deliveryOrderService, $dataInsertExpedition, $dataDetailExpedition, $dataInsertExpeditionLog, $dataExpedition) {
+                $deliveryOrderService->insertTable("tx_merchant_expedition", $dataInsertExpedition);
+                $deliveryOrderService->insertTable("tx_merchant_expedition_detail", $dataDetailExpedition);
+                $deliveryOrderService->insertTable("tx_merchant_expedition_log", $dataInsertExpeditionLog);
+                foreach ($dataExpedition->dataDetail as $key => $value) {
+                    $deliveryOrderService->updateDetailDeliveryOrder($value->deliveryOrderDetailID, $value->qtyExpedition, "S030");
+                }
+            });
+        } else {
+            $sqlTransaction = false;
+        }
+
+        if ($sqlTransaction) {
+            $status = "success";
+            $message = "Ekspedisi berhasil dibuat";
+        } else {
+            $status = "failed";
+            $message = "Terjadi kesalahan";
+        }
+
+        return response()->json([
+            'status' => $status,
+            'message' => $message
+        ]);
     }
 }

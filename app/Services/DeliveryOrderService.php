@@ -6,6 +6,56 @@ use Illuminate\Support\Facades\DB;
 
 class DeliveryOrderService
 {
+  public function generateExpeditionID()
+  {
+    $max = DB::table('tx_merchant_expedition_log')
+      ->selectRaw('MAX(MerchantExpeditionID) AS MerchantExpeditionID, MAX(ProcessTime) AS ProcessTime')
+      ->first();
+
+    $maxMonth = date('m', strtotime($max->ProcessTime));
+    $now = date('m');
+
+    if ($max->MerchantExpeditionID == null || (strcmp($maxMonth, $now) != 0)) {
+      $newMerchantExpeditionID = "EXPD-" . date('YmdHis') . '-000001';
+    } else {
+      $maxExpeditionID = substr($max->MerchantExpeditionID, -6);
+      $newExpeditionID = $maxExpeditionID + 1;
+      $newMerchantExpeditionID = "EXPD-" . date('YmdHis') . "-" . str_pad($newExpeditionID, 6, '0', STR_PAD_LEFT);
+    }
+
+    return $newMerchantExpeditionID;
+  }
+
+  public function insertTable($tableName, $data)
+  {
+    $sql = DB::table($tableName)
+      ->insert($data);
+
+    return $sql;
+  }
+
+  public function updateDetailDeliveryOrder($deliveryOrderDetailID, $qty, $statusExpedition)
+  {
+    $update = DB::table('tx_merchant_delivery_order_detail')
+      ->where('DeliveryOrderDetailID', $deliveryOrderDetailID)
+      ->update([
+        'Qty' => $qty,
+        'StatusExpedition' => $statusExpedition
+      ]);
+
+    return $update;
+  }
+
+  public function getDOfromDetailDO($deliveryOrderDetailID)
+  {
+    $deliveryOrderID = DB::table('tx_merchant_delivery_order_detail')
+      ->select('DeliveryOrderID')
+      ->where('DeliveryOrderDetailID', $deliveryOrderDetailID)
+      ->first();
+
+    return $deliveryOrderID;
+  }
+
   public function getArea()
   {
     $sql = DB::table('ms_area')

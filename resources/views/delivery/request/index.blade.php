@@ -160,25 +160,49 @@
                   <!-- Modal -->
                   <div class="modal fade" id="modalKirimBarang" data-backdrop="static" tabindex="-1" role="dialog"
                     aria-labelledby="modalKirimBarangLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-dialog" role="document">
                       <div class="modal-content">
                         <div class="modal-header">
-                          <h5 class="modal-title" id="modalKirimBarangLabel">Konfirmasi</h5>
+                          <h6 class="modal-title" id="modalKirimBarangLabel"><i class="fas fa-info"></i> Konfirmasi</h6>
                           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                           </button>
                         </div>
                         <div class="modal-body">
-                          Apakah yakin ingin mengirim barang?
+                          <h5>Apakah barang yang akan dikirim sudah benar?</h5>
                         </div>
                         <div class="modal-footer">
                           <button type="button" class="btn btn-sm btn-outline-secondary"
                             data-dismiss="modal">Kembali</button>
-                          <button type="button" class="btn btn-sm btn-success">Yakin</button>
+                          <button type="button" class="btn btn-sm btn-success" data-target="#modalKirimBarang2"
+                            data-toggle="modal" data-dismiss="modal">Benar</button>
                         </div>
                       </div>
                     </div>
                   </div>
+                  <div class="modal fade" id="modalKirimBarang2" aria-hidden="true" data-backdrop="static"
+                    tabindex="-1">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h6 class="modal-title"><i class="far fa-question-circle"></i> Buat Ekspedisi</h6>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <h5>Apakah yakin ingin membuat ekspedisi?</h5>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal"
+                            data-dismiss="modal">Batal</button>
+                          <button type="button" class="btn btn-sm btn-success" id="create-expedition-btn"
+                            data-toggle="modal" data-dismiss="modal">Yakin</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   <div id="create-expedition">
                     <div class="row m-0">
                       <div class="col-md-6 col-12">

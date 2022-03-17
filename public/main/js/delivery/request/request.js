@@ -311,6 +311,7 @@ $(document).ready(function () {
         $("#preview-product .label-product").addClass("d-none");
     });
 
+    let dataExpedition;
     let dataDeliveryOrderDetail = [];
 
     $("#kirim-barang").click(function (e) {
@@ -373,7 +374,7 @@ $(document).ready(function () {
             });
         });
 
-        let dataExpedition = JSON.stringify({
+        dataExpedition = JSON.stringify({
             createdDate: createdDate,
             vehicleID: vehicle,
             driverID: driver,
@@ -382,7 +383,9 @@ $(document).ready(function () {
             distributor: distributor,
             dataDetail: dataDeliveryOrderDetail,
         });
+    });
 
+    $("#create-expedition-btn").click(function (e) {
         $.ajax({
             url: `/delivery/request/createExpedition`,
             headers: {
@@ -393,7 +396,24 @@ $(document).ready(function () {
             },
             type: "post",
             success: function (result) {
-                console.log(result);
+                if (result.status == "success") {
+                    iziToast.success({
+                        title: "Berhasil",
+                        message: result.message,
+                        position: "topRight",
+                    });
+                }
+
+                if (result.status == "failed") {
+                    iziToast.error({
+                        title: "Gagal",
+                        message: result.message,
+                        position: "topRight",
+                    });
+                }
+                setTimeout(function () {
+                    location.reload(true);
+                }, 3000);
             },
         });
     });
