@@ -72,6 +72,8 @@ class RTSalesService
 
     if (Auth::user()->Depo != "ALL") {
       $depoUser = Auth::user()->Depo;
+    } else {
+      $depoUser = "";
     }
 
     $sql = DB::table('ms_visit_survey')

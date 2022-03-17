@@ -6,6 +6,99 @@ use Illuminate\Support\Facades\DB;
 
 class DeliveryOrderService
 {
+  public function getArea()
+  {
+    $sql = DB::table('ms_area')
+      ->distinct('City')
+      ->whereNotNull('Province')
+      ->whereIn('City', ['Bandung', 'Bandung (KAB)', 'Bandung Barat (KAB)', 'Kepulauan Seribu (KAB)', 'Jakarta Pusat', 'Jakarta Barat', 'Jakarta Selatan', 'Jakarta Utara', 'Jakarta Timur', 'Bogor', 'Depok', 'Tangerang', 'Tangerang (KAB)', 'Tangerang Selatan', 'Bekasi', 'Bekasi (KAB)'])
+      ->select(DB::raw("ANY_VALUE(Subdistrict) AS Subdistrict"), 'City')
+      ->orderBy('City')
+      ->get();
+
+    $collection = collect($sql);
+
+    return $collection;
+  }
+
+  public function getMultipleDeliveryOrder($stringDeliveryOrderID, $arrayDeliveryOrderID)
+  {
+    $sql2 = DB::table('tx_merchant_delivery_order')
+      ->join('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order.DeliveryOrderID', 'tx_merchant_delivery_order_detail.DeliveryOrderID')
+      ->whereRaw("tx_merchant_delivery_order.StockOrderID IN (
+          SELECT StockOrderID 
+          FROM tx_merchant_delivery_order 
+          WHERE DeliveryOrderID IN ($stringDeliveryOrderID)
+      )")
+      ->selectRaw("
+        ANY_VALUE(tx_merchant_delivery_order.StockOrderID) AS StockOrderID,
+        ANY_VALUE(tx_merchant_delivery_order.DeliveryOrderID) AS DeliveryOrderID,
+        ANY_VALUE(tx_merchant_delivery_order_detail.ProductID) AS ProductID,
+        IFNULL(SUM(IF(tx_merchant_delivery_order.StatusDO != 'S026', tx_merchant_delivery_order_detail.Qty, 0)), 0) AS QtyDONotBatal
+      ")
+      ->groupBy('tx_merchant_delivery_order.StockOrderID', 'tx_merchant_delivery_order_detail.ProductID')->toSql();
+
+    $sql = DB::table('tx_merchant_delivery_order')
+      ->join('tx_merchant_delivery_order_detail', function ($join) use ($arrayDeliveryOrderID) {
+        $join->on('tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID');
+        $join->whereIn('tx_merchant_delivery_order_detail.DeliveryOrderID', $arrayDeliveryOrderID);
+      })
+      ->join('ms_product', 'ms_product.ProductID', 'tx_merchant_delivery_order_detail.ProductID')
+      ->join('tx_merchant_order', 'tx_merchant_order.StockOrderID', 'tx_merchant_delivery_order.StockOrderID')
+      ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
+      ->join('tx_merchant_order_detail as tmod', function ($join) {
+        $join->on('tmod.StockOrderID', 'tx_merchant_delivery_order.StockOrderID');
+        $join->on('tmod.ProductID', 'tx_merchant_delivery_order_detail.ProductID');
+      })
+      ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
+      ->join(DB::raw("($sql2) as sql2"), function ($join) {
+        $join->on('tx_merchant_delivery_order.StockOrderID', '=', 'sql2.StockOrderID');
+        $join->on('tx_merchant_delivery_order_detail.ProductID', '=', 'sql2.ProductID');
+      })
+      ->selectRaw("
+        ANY_VALUE(tx_merchant_delivery_order.StockOrderID) AS StockOrderID,
+        ANY_VALUE(tx_merchant_delivery_order.DeliveryOrderID) AS DeliveryOrderID,
+        ANY_VALUE(tx_merchant_delivery_order_detail.DeliveryOrderDetailID) AS DeliveryOrderDetailID,
+        ANY_VALUE(ms_merchant_account.StoreName) AS StoreName,
+        ANY_VALUE(ms_distributor.IsHaistar) AS IsHaistar,
+        ANY_VALUE(tx_merchant_delivery_order_detail.ProductID) AS ProductID,
+        ANY_VALUE(tx_merchant_delivery_order_detail.Qty) AS QtyDO,
+        ANY_VALUE(tx_merchant_delivery_order_detail.Price) AS PriceDO,
+        ANY_VALUE(ms_product.ProductName) AS ProductName,
+        ANY_VALUE(ms_product.ProductImage) AS ProductImage,
+        ANY_VALUE(tmod.PromisedQuantity) AS PromisedQty,
+        ANY_VALUE(tmod.Nett) AS Nett,
+        ANY_VALUE(sql2.QtyDONotBatal) AS QtyDONotBatal
+      ")
+      ->groupBy('tx_merchant_delivery_order.StockOrderID', 'tx_merchant_delivery_order.DeliveryOrderID', 'tx_merchant_delivery_order_detail.ProductID');
+
+    return $sql;
+  }
+
+  public function getPreviewProduct()
+  {
+    $sql = DB::table('tx_merchant_delivery_order')
+      ->join('tx_merchant_delivery_order_detail', function ($join) {
+        $join->on('tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID');
+        $join->whereIn('tx_merchant_delivery_order_detail.DeliveryOrderDetailID', ['89', '102', '103']);
+      })
+      ->join('ms_product', 'ms_product.ProductID', 'tx_merchant_delivery_order_detail.ProductID')
+      ->join('tx_merchant_order', 'tx_merchant_order.StockOrderID', 'tx_merchant_delivery_order.StockOrderID')
+      ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
+      ->selectRaw("
+        ANY_VALUE(tx_merchant_delivery_order.StockOrderID) AS StockOrderID,
+        ANY_VALUE(ms_merchant_account.StoreName) AS StoreName,
+        ANY_VALUE(tx_merchant_delivery_order.DeliveryOrderID) AS DeliveryOrderID,
+        ANY_VALUE(tx_merchant_delivery_order_detail.DeliveryOrderDetailID) AS DeliveryOrderDetailID,
+        ANY_VALUE(tx_merchant_delivery_order_detail.ProductID) AS ProductID,
+        ANY_VALUE(ms_product.ProductName) AS ProductName,
+        ANY_VALUE(ms_product.ProductImage) AS ProductImage,
+        ANY_VALUE(tx_merchant_delivery_order_detail.Price) AS Price
+      ");
+
+    return $sql;
+  }
+
   public function getDeliveryRequest()
   {
     $sql = DB::table('tx_merchant_delivery_order')
@@ -22,7 +115,8 @@ class DeliveryOrderService
       ->selectRaw("
         tx_merchant_delivery_order.StockOrderID, 
         tx_merchant_delivery_order.DeliveryOrderID, 
-        tx_merchant_delivery_order.CreatedDate, 
+        tx_merchant_delivery_order.CreatedDate,
+        DATEDIFF(CURDATE(), DATE(tx_merchant_delivery_order.CreatedDate)) AS DueDate,
         ANY_VALUE(ms_distributor.DistributorName) AS DistributorName, 
         ANY_VALUE(tx_merchant_order.MerchantID) AS MerchantID,
         ANY_VALUE(ms_merchant_account.StoreName) AS StoreName,
@@ -34,7 +128,7 @@ class DeliveryOrderService
         ANY_VALUE(IFNULL(ms_distributor_grade.Grade, 'Retail')) AS Grade,
         ANY_VALUE(tx_merchant_order.OrderLatitude) AS OrderLatitude,
         ANY_VALUE(tx_merchant_order.OrderLongitude) AS OrderLongitude,
-        ANY_VALUE(CONCAT(ms_area.Subdistrict, ', ', ms_area.City)) AS Area
+        ANY_VALUE(CONCAT(ms_area.AreaName, ', ', ms_area.Subdistrict)) AS Area
       ")
       ->groupBy('tx_merchant_delivery_order.DeliveryOrderID');
 
@@ -45,7 +139,7 @@ class DeliveryOrderService
   {
     $sql = DB::table('tx_merchant_order_detail')
       ->leftJoin('tx_merchant_delivery_order', 'tx_merchant_order_detail.StockOrderID', 'tx_merchant_delivery_order.StockOrderID')
-      ->join('tx_merchant_delivery_order_detail', function ($join) use ($productID) {
+      ->leftJoin('tx_merchant_delivery_order_detail', function ($join) use ($productID) {
         $join->on('tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID');
         $join->where('tx_merchant_delivery_order_detail.ProductID', $productID);
       })

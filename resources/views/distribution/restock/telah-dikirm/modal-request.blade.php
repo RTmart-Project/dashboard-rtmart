@@ -229,23 +229,23 @@
 <script>
   // Event listener saat mengetik qty request delivery order
   $('.qty-request-do').on('keyup', function (e) {
-        e.preventDefault();
-        const priceProduct = $(this).next().text().replaceAll("x @Rp ", "").replaceAll(".", "");
-        const qtyDO = $(this).val();
-        
-        const totalPriceProduct = Number(qtyDO) * Number(priceProduct);
-        $(this).parent().parent().next().children().last().html('Rp ' + thousands_separators(totalPriceProduct));
-        
-        const totalPriceAllProductArr = $(this).closest('.request-do-wrapper').find('.price-total').text().replace("Rp ", "").replaceAll("Rp ", ",").replaceAll(".", "").split(",");
+      e.preventDefault();
+      const priceProduct = $(this).next().text().replaceAll("x @Rp ", "").replaceAll(".", "");
+      const qtyDO = $(this).val();
+      
+      const totalPriceProduct = Number(qtyDO) * Number(priceProduct);
+      $(this).parent().parent().next().children().last().html('Rp ' + thousands_separators(totalPriceProduct));
+      
+      const totalPriceAllProductArr = $(this).closest('.request-do-wrapper').find('.price-total').text().replace("Rp ", "").replaceAll("Rp ", ",").replaceAll(".", "").split(",");
 
-        let priceAllProductNumber = totalPriceAllProductArr.map(Number);
-        let subTotalDO = 0;
-        $.each(priceAllProductNumber, function() {
-            subTotalDO += this;
-        });
+      let priceAllProductNumber = totalPriceAllProductArr.map(Number);
+      let subTotalDO = 0;
+      $.each(priceAllProductNumber, function() {
+          subTotalDO += this;
+      });
 
-        $(this).closest('.request-do-wrapper').find('.price-subtotal').html('Rp ' + thousands_separators(subTotalDO));
-    });
+      $(this).closest('.request-do-wrapper').find('.price-subtotal').html('Rp ' + thousands_separators(subTotalDO));
+  });
 
   $('.check_rtmart_request').change(function() {
       if ($('.check_rtmart_request:checked').length > 0) {
