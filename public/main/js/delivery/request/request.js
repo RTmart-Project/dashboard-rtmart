@@ -19,7 +19,7 @@ $(document).ready(function () {
     function dataTablesDeliveryRequest() {
         $("#delivery-request .table-datatables").DataTable({
             dom:
-                "<'row'<'col-sm-12 col-md-5'<'filter-delivery-request'>tl><'col-sm-12 col-md-1'l><'col-sm-12 col-md-4'f><''>>" +
+                "<'row'<'col-sm-12 col-md-6'<'filter-delivery-request'>tl><'col-sm-12 col-md-1'l><'col-sm-12 col-md-5'f><''>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
@@ -270,6 +270,7 @@ $(document).ready(function () {
 
     // Second Next Step
     $("#second-next-step").click(function () {
+        let next = true;
         let cloneProduct = $("#delivery-order-result").clone();
 
         $("#preview-product").html(cloneProduct);
@@ -285,16 +286,22 @@ $(document).ready(function () {
                     .find("#qty-request-do");
                 let qtyVal = Number(qty.val());
                 let maxQty = Number(qty.next().next().next().children().text());
-                if (qtyVal > maxQty) {
+                if (Number(qtyVal) > Number(maxQty)) {
                     Toast.fire({
                         icon: "error",
                         title: "Terdapat quantity yang melebihi maksimum!",
                     });
-                } else {
-                    stepper.next();
+                    return (next = false);
                 }
                 let newQtyElement = `<span id='qty-expedition'>${qty.val()}</span>`;
                 qty.replaceWith(newQtyElement);
+
+                $(this)
+                    .parent()
+                    .siblings()
+                    .siblings()
+                    .siblings()
+                    .addClass("col-3");
             }
         });
         $("#preview-product .card").each(function () {
@@ -305,14 +312,35 @@ $(document).ready(function () {
             if (checked == 0) {
                 $(this).addClass("d-none");
             }
+
+            let maxNominal = $(this)
+                .find("#max-nominal")
+                .text()
+                .replaceAll("Rp ", "")
+                .replaceAll(".", "");
+            let subtotalNominal = $(this)
+                .find("#price-subtotal")
+                .text()
+                .replaceAll("Rp ", "")
+                .replaceAll(".", "");
+            if (Number(subtotalNominal) > Number(maxNominal)) {
+                Toast.fire({
+                    icon: "error",
+                    title: "Terdapat nominal yang melebihi maksimum!",
+                });
+                return (next = false);
+            }
         });
         $("#preview-product input[type=checkbox]").parent().addClass("d-none");
         $("#preview-product .label-product").removeClass("d-flex");
         $("#preview-product .label-product").addClass("d-none");
+        if (next == true) {
+            stepper.next();
+        }
     });
 
     let dataExpedition;
-    let dataDeliveryOrderDetail = [];
+    let dataDeliveryOrderDetail;
 
     $("#kirim-barang").click(function (e) {
         e.preventDefault();
@@ -324,41 +352,40 @@ $(document).ready(function () {
         let vehicle = $(this).parent().parent().find("#vehicle").val();
         let driver = $(this).parent().parent().find("#driver").val();
         let helper = $(this).parent().parent().find("#helper").val();
-        let distributor = $(this).parent().parent().find("#distributor").val();
         let licensePlate = $(this)
             .parent()
             .parent()
             .find("#license_plate")
             .val();
 
-        if (createdDate == "") {
-            Toast.fire({
-                icon: "error",
-                title: "Harap isi waktu pengiriman!",
-            });
-        } else if (vehicle == "") {
-            Toast.fire({
-                icon: "error",
-                title: "Harap isi jenis kendaraan!",
-            });
-        } else if (driver == "") {
-            Toast.fire({
-                icon: "error",
-                title: "Harap isi driver!",
-            });
-        } else if (helper == "") {
-            Toast.fire({
-                icon: "error",
-                title: "Harap isi helper!",
-            });
-        } else if (licensePlate == "") {
-            Toast.fire({
-                icon: "error",
-                title: "Harap isi Plat Nomor Kendaraan!",
-            });
-        } else {
-            $("#modalKirimBarang").modal("show");
-        }
+        // if (createdDate == "") {
+        //     Toast.fire({
+        //         icon: "error",
+        //         title: "Harap isi waktu pengiriman!",
+        //     });
+        // } else if (vehicle == "") {
+        //     Toast.fire({
+        //         icon: "error",
+        //         title: "Harap isi jenis kendaraan!",
+        //     });
+        // } else if (driver == "") {
+        //     Toast.fire({
+        //         icon: "error",
+        //         title: "Harap isi driver!",
+        //     });
+        // } else if (helper == "") {
+        //     Toast.fire({
+        //         icon: "error",
+        //         title: "Harap isi helper!",
+        //     });
+        // } else if (licensePlate == "") {
+        //     Toast.fire({
+        //         icon: "error",
+        //         title: "Harap isi Plat Nomor Kendaraan!",
+        //     });
+        // } else {
+        $("#modalKirimBarang").modal("show");
+        // }
 
         // Expedition Data
         dataDeliveryOrderDetail = [];
@@ -366,10 +393,12 @@ $(document).ready(function () {
             let deliveryOrderDetailID = $(this)
                 .find("input[type=checkbox]")
                 .val();
+            let distributor = $(this).find("#distributor").val();
             let qtyExpedition = $(this).find("#qty-expedition").text();
 
             dataDeliveryOrderDetail.push({
                 deliveryOrderDetailID: deliveryOrderDetailID,
+                distributor: distributor,
                 qtyExpedition: qtyExpedition,
             });
         });
@@ -380,7 +409,6 @@ $(document).ready(function () {
             driverID: driver,
             helperID: helper,
             licensePlate: licensePlate,
-            distributor: distributor,
             dataDetail: dataDeliveryOrderDetail,
         });
     });
@@ -396,24 +424,25 @@ $(document).ready(function () {
             },
             type: "post",
             success: function (result) {
-                if (result.status == "success") {
-                    iziToast.success({
-                        title: "Berhasil",
-                        message: result.message,
-                        position: "topRight",
-                    });
-                }
+                console.log(result);
+                // if (result.status == "success") {
+                //     iziToast.success({
+                //         title: "Berhasil",
+                //         message: result.message,
+                //         position: "topRight",
+                //     });
+                // }
 
-                if (result.status == "failed") {
-                    iziToast.error({
-                        title: "Gagal",
-                        message: result.message,
-                        position: "topRight",
-                    });
-                }
-                setTimeout(function () {
-                    location.reload(true);
-                }, 3000);
+                // if (result.status == "failed") {
+                //     iziToast.error({
+                //         title: "Gagal",
+                //         message: result.message,
+                //         position: "topRight",
+                //     });
+                // }
+                // setTimeout(function () {
+                //     location.reload(true);
+                // }, 3000);
             },
         });
     });

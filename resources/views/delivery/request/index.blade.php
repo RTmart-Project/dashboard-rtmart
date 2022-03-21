@@ -35,13 +35,13 @@
         <div class="card card-default mt-3">
           <div class="card-body p-0">
             <div class="bs-stepper">
-              <div class="bs-stepper-header" role="tablist">
+              <div class="bs-stepper-header d-flex flex-wrap justify-content-center" role="tablist">
                 <!-- your steps here -->
                 <div class="step" data-target="#do-part">
                   <button type="button" class="step-trigger p-2" role="tab" aria-controls="do-part"
                     id="do-part-trigger">
                     <span class="bs-stepper-circle">1</span>
-                    <span class="bs-stepper-label">Pilih DO</span>
+                    <span class="bs-stepper-label">Pilih Area & Kiriman</span>
                   </button>
                 </div>
                 <div class="line"></div>
@@ -49,7 +49,7 @@
                   <button type="button" class="step-trigger p-2" role="tab" aria-controls="product-part"
                     id="product-part-trigger">
                     <span class="bs-stepper-circle">2</span>
-                    <span class="bs-stepper-label">Pilih Produk</span>
+                    <span class="bs-stepper-label">Pilih Detail Kiriman</span>
                   </button>
                 </div>
                 <div class="line"></div>
@@ -57,7 +57,7 @@
                   <button type="button" class="step-trigger p-2" role="tab" aria-controls="preview-part"
                     id="preview-part-trigger">
                     <span class="bs-stepper-circle">3</span>
-                    <span class="bs-stepper-label">Preview Produk</span>
+                    <span class="bs-stepper-label">Preview Kiriman</span>
                   </button>
                 </div>
               </div>
@@ -68,7 +68,7 @@
                     <p class="font-weight-bold mb-1">Delivery Order yang dipilih : </p>
                     <span id="do-selected"></span>
                   </div>
-                  <div class="card-footer d-flex justify-content-center">
+                  <div class="card-footer d-flex justify-content-end">
                     <button class="btn btn-sm btn-primary" id="first-next-step">Selanjutnya</button>
                   </div>
                   <div class="card-body p-0 pt-2">
@@ -140,7 +140,7 @@
                   </div>
                 </div>
                 <div id="product-part" class="content" role="tabpanel" aria-labelledby="product-part-trigger">
-                  <div class="card-footer d-flex justify-content-center">
+                  <div class="card-footer d-flex justify-content-end">
                     <button class="btn btn-sm btn-outline-dark mr-2" onclick="stepper.previous()">Kembali</button>
                     <button type="submit" class="btn btn-sm btn-primary" id="second-next-step">Selanjutnya</button>
                   </div>
@@ -151,7 +151,7 @@
                   </div>
                 </div>
                 <div id="preview-part" class="content" role="tabpanel" aria-labelledby="preview-part-trigger">
-                  <div class="card-footer d-flex justify-content-center mb-2">
+                  <div class="card-footer d-flex justify-content-end mb-2">
                     <button class="btn btn-sm btn-outline-dark mr-2" onclick="stepper.previous()">Kembali</button>
                     <button type="button" class="btn btn-sm btn-success" id="kirim-barang">
                       Kirim Barang
@@ -210,7 +210,6 @@
                           <label class="my-0" for="created_date_do">Waktu Pengiriman</label>
                           <input type="datetime-local" class="form-control" name="created_date_do" id="created_date_do"
                             required>
-                          <input type="hidden" name="distributor" id="distributor">
                         </div>
                       </div>
                       <div class="col-md-6 col-12">
@@ -327,24 +326,10 @@
 
   $('#delivery-order-result').on('change', '.check_rtmart', function () {
     $(this).closest(".request-do").find("#qty-request-do, #product-id").prop('disabled', !$(this).is(':checked'));
-    if ($('.check_rtmart:checked').length > 0) {
-      $('#distributor').val("RT MART");
-      $('.check_haistar').prop('disabled', true);
-    } else {
-      $('#distributor').val("");
-      $('.check_haistar').prop('disabled', false);
-    }
   });
 
   $('#delivery-order-result').on('change', '.check_haistar', function () {
     $(this).closest(".request-do").find("#qty-request-do, #product-id").prop('disabled', !$(this).is(':checked'));
-    if ($('.check_haistar:checked').length > 0) {
-      $('#distributor').val("HAISTAR");
-      $('.check_rtmart').prop('disabled', true);
-    } else {
-      $('#distributor').val("");
-      $('.check_rtmart').prop('disabled', false);
-    }
   });
 
   // Event listener saat mengetik qty do

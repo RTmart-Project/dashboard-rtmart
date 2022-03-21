@@ -189,7 +189,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::group(['middleware' => ['checkRoleUser:IT,BM,FI,AH,HR,DMO']], function () {
             Route::get('/merchant/account', [MerchantController::class, 'account'])->name('merchant.account');
             Route::get('/merchant/account/get', [MerchantController::class, 'getAccounts'])->name('merchant.getAccounts');
-            Route::get('/merchant/account/grade/get/{distributorId}', [MerchantController::class, 'getGrade'])->withoutMiddleware('checkRoleUser:IT,BM,FI,AH,HR')->name('merchant.getGrade');
+            Route::get('/merchant/account/grade/get/{distributorId}', [MerchantController::class, 'getGrade'])->withoutMiddleware('checkRoleUser:IT,BM,FI,AH,HR,DMO')->name('merchant.getGrade');
             Route::get('/merchant/account/edit/{merchantId}', [MerchantController::class, 'editAccount'])->name('merchant.editAccount');
             Route::post('/merchant/account/update/{merchantId}', [MerchantController::class, 'updateAccount'])->name('merchant.updateAccount');
             Route::get('/merchant/account/product/{merchantId}', [MerchantController::class, 'product'])->name('merchant.product');

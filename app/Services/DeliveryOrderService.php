@@ -49,7 +49,7 @@ class DeliveryOrderService
   public function getDOfromDetailDO($deliveryOrderDetailID)
   {
     $deliveryOrderID = DB::table('tx_merchant_delivery_order_detail')
-      ->select('DeliveryOrderID')
+      ->select('DeliveryOrderID', 'ProductID', 'Price')
       ->where('DeliveryOrderDetailID', $deliveryOrderDetailID)
       ->first();
 
@@ -73,6 +73,22 @@ class DeliveryOrderService
 
   public function getMultipleDeliveryOrder($stringDeliveryOrderID, $arrayDeliveryOrderID)
   {
+    $sql1 = DB::table('tx_merchant_delivery_order')
+      ->join('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order.DeliveryOrderID', 'tx_merchant_delivery_order_detail.DeliveryOrderID')
+      ->join('tx_merchant_order', 'tx_merchant_order.StockOrderID', 'tx_merchant_delivery_order.StockOrderID')
+      ->whereRaw("tx_merchant_delivery_order.StockOrderID IN (
+          SELECT StockOrderID 
+          FROM tx_merchant_delivery_order 
+          WHERE DeliveryOrderID IN ($stringDeliveryOrderID)
+      )")
+      ->selectRaw("
+        ANY_VALUE(tx_merchant_order.StockOrderID) AS StockOrderID,
+        ANY_VALUE(tx_merchant_order.TotalPrice) AS TotalPrice,
+        IFNULL(SUM(IF(tx_merchant_delivery_order.StatusDO != 'S026' AND tx_merchant_delivery_order.StatusDO != 'S028', tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price, 0)), 0) AS SumPriceCreatedDO,
+        COUNT(DISTINCT CASE WHEN tx_merchant_delivery_order.StatusDO = 'S028' THEN tx_merchant_delivery_order.DeliveryOrderID END) AS CountCreatedDO
+      ")
+      ->groupBy('tx_merchant_order.StockOrderID')->toSql();
+
     $sql2 = DB::table('tx_merchant_delivery_order')
       ->join('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order.DeliveryOrderID', 'tx_merchant_delivery_order_detail.DeliveryOrderID')
       ->whereRaw("tx_merchant_delivery_order.StockOrderID IN (
@@ -84,13 +100,14 @@ class DeliveryOrderService
         ANY_VALUE(tx_merchant_delivery_order.StockOrderID) AS StockOrderID,
         ANY_VALUE(tx_merchant_delivery_order.DeliveryOrderID) AS DeliveryOrderID,
         ANY_VALUE(tx_merchant_delivery_order_detail.ProductID) AS ProductID,
-        IFNULL(SUM(IF(tx_merchant_delivery_order.StatusDO != 'S026', tx_merchant_delivery_order_detail.Qty, 0)), 0) AS QtyDONotBatal
+        IFNULL(SUM(IF(tx_merchant_delivery_order.StatusDO != 'S026' AND tx_merchant_delivery_order.StatusDO != 'S028' AND tx_merchant_delivery_order_detail.StatusExpedition != 'S029', tx_merchant_delivery_order_detail.Qty, 0)), 0) AS QtyDONotBatal
       ")
       ->groupBy('tx_merchant_delivery_order.StockOrderID', 'tx_merchant_delivery_order_detail.ProductID')->toSql();
 
     $sql = DB::table('tx_merchant_delivery_order')
       ->join('tx_merchant_delivery_order_detail', function ($join) use ($arrayDeliveryOrderID) {
         $join->on('tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID');
+        $join->where('tx_merchant_delivery_order_detail.StatusExpedition', 'S029');
         $join->whereIn('tx_merchant_delivery_order_detail.DeliveryOrderID', $arrayDeliveryOrderID);
       })
       ->join('ms_product', 'ms_product.ProductID', 'tx_merchant_delivery_order_detail.ProductID')
@@ -105,11 +122,19 @@ class DeliveryOrderService
         $join->on('tx_merchant_delivery_order.StockOrderID', '=', 'sql2.StockOrderID');
         $join->on('tx_merchant_delivery_order_detail.ProductID', '=', 'sql2.ProductID');
       })
+      ->join(DB::raw("($sql1) as sql1"), function ($join) {
+        $join->on('tx_merchant_delivery_order.StockOrderID', '=', 'sql1.StockOrderID');
+      })
       ->selectRaw("
         ANY_VALUE(tx_merchant_delivery_order.StockOrderID) AS StockOrderID,
         ANY_VALUE(tx_merchant_delivery_order.DeliveryOrderID) AS DeliveryOrderID,
         ANY_VALUE(tx_merchant_delivery_order_detail.DeliveryOrderDetailID) AS DeliveryOrderDetailID,
         ANY_VALUE(ms_merchant_account.StoreName) AS StoreName,
+        ANY_VALUE(ms_merchant_account.MerchantID) AS MerchantID,
+        ANY_VALUE(ms_merchant_account.PhoneNumber) AS PhoneNumber,
+        ANY_VALUE(sql1.TotalPrice) AS TotalPrice,
+        ANY_VALUE(sql1.SumPriceCreatedDO) AS SumPriceCreatedDO,
+        ANY_VALUE(sql1.CountCreatedDO) AS CountCreatedDO,
         ANY_VALUE(ms_distributor.IsHaistar) AS IsHaistar,
         ANY_VALUE(tx_merchant_delivery_order_detail.ProductID) AS ProductID,
         ANY_VALUE(tx_merchant_delivery_order_detail.Qty) AS QtyDO,
@@ -125,34 +150,13 @@ class DeliveryOrderService
     return $sql;
   }
 
-  public function getPreviewProduct()
+  public function getDeliveryRequest()
   {
     $sql = DB::table('tx_merchant_delivery_order')
       ->join('tx_merchant_delivery_order_detail', function ($join) {
         $join->on('tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID');
-        $join->whereIn('tx_merchant_delivery_order_detail.DeliveryOrderDetailID', ['89', '102', '103']);
+        $join->where('tx_merchant_delivery_order_detail.StatusExpedition', 'S029');
       })
-      ->join('ms_product', 'ms_product.ProductID', 'tx_merchant_delivery_order_detail.ProductID')
-      ->join('tx_merchant_order', 'tx_merchant_order.StockOrderID', 'tx_merchant_delivery_order.StockOrderID')
-      ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
-      ->selectRaw("
-        ANY_VALUE(tx_merchant_delivery_order.StockOrderID) AS StockOrderID,
-        ANY_VALUE(ms_merchant_account.StoreName) AS StoreName,
-        ANY_VALUE(tx_merchant_delivery_order.DeliveryOrderID) AS DeliveryOrderID,
-        ANY_VALUE(tx_merchant_delivery_order_detail.DeliveryOrderDetailID) AS DeliveryOrderDetailID,
-        ANY_VALUE(tx_merchant_delivery_order_detail.ProductID) AS ProductID,
-        ANY_VALUE(ms_product.ProductName) AS ProductName,
-        ANY_VALUE(ms_product.ProductImage) AS ProductImage,
-        ANY_VALUE(tx_merchant_delivery_order_detail.Price) AS Price
-      ");
-
-    return $sql;
-  }
-
-  public function getDeliveryRequest()
-  {
-    $sql = DB::table('tx_merchant_delivery_order')
-      ->join('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID')
       ->join('ms_product', 'ms_product.ProductID', 'tx_merchant_delivery_order_detail.ProductID')
       ->join('tx_merchant_order', 'tx_merchant_order.StockOrderID', 'tx_merchant_delivery_order.StockOrderID')
       ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
