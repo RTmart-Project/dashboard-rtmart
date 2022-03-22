@@ -66,8 +66,10 @@
               <input type="number" class="form-control qty-request-do text-sm text-center p-0 d-inline"
                 value="{{ $product->Qty }}" id="qty-request-do" name="qty_request_do_haistar[]"
                 style="width: 40px; height: 30px;"
-                max="{{ $product->OrderQty - $product->QtyDOSelesai - $product->QtyDODlmPengiriman }}" min="1" required>
-              <span class="price-do">{{ Helper::formatCurrency($product->Price, 'x @Rp ') }}</span>
+                max="{{ $product->OrderQty - $product->QtyDOSelesai - $product->QtyDODlmPengiriman }}" min="0" required>
+              <span class="price-do">{{ Helper::formatCurrency($product->Price, 'x @Rp ') }}</span><br>
+              <small>Max Qty dapat dikirm : {{ $product->OrderQty - $product->QtyDOSelesai -
+                $product->QtyDODlmPengiriman }}</small>
               <input type="hidden" name="price_haistar[]" value="{{ $product->Price }}">
             </p>
           </div>
@@ -109,8 +111,10 @@
               <input type="number" class="form-control qty-request-do text-sm text-center p-0 d-inline"
                 value="{{ $product->Qty }}" id="qty-request-do" name="qty_request_do_rtmart[]"
                 style="width: 40px; height: 30px;"
-                max="{{ $product->OrderQty - $product->QtyDOSelesai - $product->QtyDODlmPengiriman }}" min="1" required>
-              <span class="price-do">{{ Helper::formatCurrency($product->Price, 'x @Rp ') }}</span>
+                max="{{ $product->OrderQty - $product->QtyDOSelesai - $product->QtyDODlmPengiriman }}" min="0" required>
+              <span class="price-do">{{ Helper::formatCurrency($product->Price, 'x @Rp ') }}</span><br>
+              <small>Max Qty dapat dikirm : {{ $product->OrderQty - $product->QtyDOSelesai -
+                $product->QtyDODlmPengiriman }}</small>
               <input type="hidden" name="price_rtmart[]" value="{{ $product->Price }}">
             </p>
           </div>
@@ -229,23 +233,23 @@
 <script>
   // Event listener saat mengetik qty request delivery order
   $('.qty-request-do').on('keyup', function (e) {
-        e.preventDefault();
-        const priceProduct = $(this).next().text().replaceAll("x @Rp ", "").replaceAll(".", "");
-        const qtyDO = $(this).val();
-        
-        const totalPriceProduct = Number(qtyDO) * Number(priceProduct);
-        $(this).parent().parent().next().children().last().html('Rp ' + thousands_separators(totalPriceProduct));
-        
-        const totalPriceAllProductArr = $(this).closest('.request-do-wrapper').find('.price-total').text().replace("Rp ", "").replaceAll("Rp ", ",").replaceAll(".", "").split(",");
+      e.preventDefault();
+      const priceProduct = $(this).next().text().replaceAll("x @Rp ", "").replaceAll(".", "");
+      const qtyDO = $(this).val();
+      
+      const totalPriceProduct = Number(qtyDO) * Number(priceProduct);
+      $(this).parent().parent().next().children().last().html('Rp ' + thousands_separators(totalPriceProduct));
+      
+      const totalPriceAllProductArr = $(this).closest('.request-do-wrapper').find('.price-total').text().replace("Rp ", "").replaceAll("Rp ", ",").replaceAll(".", "").split(",");
 
-        let priceAllProductNumber = totalPriceAllProductArr.map(Number);
-        let subTotalDO = 0;
-        $.each(priceAllProductNumber, function() {
-            subTotalDO += this;
-        });
+      let priceAllProductNumber = totalPriceAllProductArr.map(Number);
+      let subTotalDO = 0;
+      $.each(priceAllProductNumber, function() {
+          subTotalDO += this;
+      });
 
-        $(this).closest('.request-do-wrapper').find('.price-subtotal').html('Rp ' + thousands_separators(subTotalDO));
-    });
+      $(this).closest('.request-do-wrapper').find('.price-subtotal').html('Rp ' + thousands_separators(subTotalDO));
+  });
 
   $('.check_rtmart_request').change(function() {
       if ($('.check_rtmart_request:checked').length > 0) {

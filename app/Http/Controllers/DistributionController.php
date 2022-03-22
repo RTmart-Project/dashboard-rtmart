@@ -134,7 +134,7 @@ class DistributionController extends Controller
             ->leftJoin('ms_status_order', 'ms_status_order.StatusOrderID', 'tx_merchant_order.StatusOrderID')
             ->leftJoin('tx_merchant_delivery_order', function ($join) {
                 $join->on('tx_merchant_delivery_order.StockOrderID', 'tx_merchant_order.StockOrderID');
-                $join->where('tx_merchant_delivery_order.StatusDO', '!=', 'S028');
+                // $join->where('tx_merchant_delivery_order.StatusDO', '!=', 'S028');
             })
 
             ->leftJoin('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID')
@@ -161,7 +161,12 @@ class DistributionController extends Controller
                 DB::raw("tx_merchant_order.TotalPrice - tx_merchant_order.DiscountPrice + tx_merchant_order.ServiceChargeNett AS TotalTrx"),
                 DB::raw("tx_merchant_delivery_order.CreatedDate as TanggalDO"),
                 DB::raw("tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price AS TotalPrice"),
-                DB::raw("CASE WHEN tx_merchant_delivery_order.StatusDO = 'S024' THEN 'Dalam Pengiriman' WHEN tx_merchant_delivery_order.StatusDO = 'S025' THEN 'Selesai' ELSE '' END AS StatusDO"),
+                DB::raw("CASE WHEN tx_merchant_delivery_order.StatusDO = 'S024' THEN 'Dalam Pengiriman' 
+                            WHEN tx_merchant_delivery_order.StatusDO = 'S025' THEN 'Selesai' 
+                            WHEN tx_merchant_delivery_order.StatusDO = 'S026' THEN 'Dibatalkan' 
+                            WHEN tx_merchant_delivery_order.StatusDO = 'S027' THEN 'Permintaan Batal' 
+                            WHEN tx_merchant_delivery_order.StatusDO = 'S028' THEN 'Menunggu Konfirmasi' 
+                            ELSE '' END AS StatusDO"),
                 'ms_user.Name',
                 'ms_vehicle.VehicleName',
                 'tx_merchant_delivery_order.VehicleLicensePlate',
@@ -242,7 +247,7 @@ class DistributionController extends Controller
                     } elseif ($data->StatusDO == "Selesai") {
                         $statusOrder = '<span class="badge badge-success">' . $data->StatusDO . '</span>';
                     } else {
-                        $statusOrder = '';
+                        $statusOrder = '<span class="badge badge-info">' . $data->StatusDO . '</span>';
                     }
 
                     return $statusOrder;
@@ -734,7 +739,7 @@ class DistributionController extends Controller
                 $value = array_combine(['ProductID', 'Qty'], $value);
                 $value += ['DeliveryOrderID' => $newDeliveryOrderID];
 
-                $validation = $deliveryOrderService->validateRemainingQty($stockOrderID, $value['ProductID'], $value['Qty'], "CreateDO");
+                $validation = $deliveryOrderService->validateRemainingQty($stockOrderID, "", $value['ProductID'], $value['Qty'], "CreateDO");
                 $value += ['Price' => $validation['price']];
                 if ($validation['status'] == false) {
                     $validationStatus = false;
@@ -819,7 +824,7 @@ class DistributionController extends Controller
 
                 $value += ['DeliveryOrderID' => $newDeliveryOrderID];
 
-                $validation = $deliveryOrderService->validateRemainingQty($stockOrderID, $value['ProductID'], $value['Qty'], "CreateDO");
+                $validation = $deliveryOrderService->validateRemainingQty($stockOrderID, "", $value['ProductID'], $value['Qty'], "CreateDO");
                 $value += ['Price' => $validation['price']];
 
                 $checkStock = $haistarService->haistarGetStock($value['ProductID']);
@@ -936,7 +941,7 @@ class DistributionController extends Controller
     {
         $request->validate([
             'edit_qty_do' => 'required',
-            'edit_qty_do.*' => 'required|numeric|lte:max_edit_qty_do.*|gte:1',
+            'edit_qty_do.*' => 'required|numeric|lte:max_edit_qty_do.*|gte:0',
             'driver' => 'required',
             'vehicle' => 'required',
             'license_plate' => 'required'
@@ -959,7 +964,7 @@ class DistributionController extends Controller
             $value = array_combine(['ProductID', 'Qty'], $value);
             $value += ['DeliveryOrderID' => $deliveryOrderId];
 
-            $validation = $deliveryOrderService->validateRemainingQty($stockOrderID->StockOrderID, $value['ProductID'], $value['Qty'], "EditDetailDO");
+            $validation = $deliveryOrderService->validateRemainingQty($stockOrderID->StockOrderID, $deliveryOrderId, $value['ProductID'], $value['Qty'], "EditDetailDO");
             if ($validation['status'] == false) {
                 $validationStatus = false;
                 break;
@@ -1116,7 +1121,7 @@ class DistributionController extends Controller
         if ($depoChannel == "rtmart") {
             $request->validate([
                 'qty_request_do_rtmart' => 'required',
-                'qty_request_do_rtmart.*' => 'required|numeric|lte:max_qty_request_do_rtmart.*|gte:1'
+                'qty_request_do_rtmart.*' => 'required|numeric|lte:max_qty_request_do_rtmart.*|gte:0'
             ]);
 
             // generate DO ID
@@ -1131,7 +1136,7 @@ class DistributionController extends Controller
         } elseif ($depoChannel == "haistar") {
             $request->validate([
                 'qty_request_do_haistar' => 'required',
-                'qty_request_do_haistar.*' => 'required|numeric|lte:max_qty_request_do_haistar.*|gte:1'
+                'qty_request_do_haistar.*' => 'required|numeric|lte:max_qty_request_do_haistar.*|gte:0'
             ]);
             if ($arrProductRTmart == null) {
                 $confirmDeliveryOrderID = $deliveryOrderId;
@@ -1172,7 +1177,7 @@ class DistributionController extends Controller
         foreach ($dataDetailDO as &$value) {
             $value = array_combine(['ProductID', 'Qty', 'DeliveryOrderID'], $value);
 
-            $validation = $deliveryOrderService->validateRemainingQty($stockOrderID, $value['ProductID'], $value['Qty'], "ConfirmRequestDO");
+            $validation = $deliveryOrderService->validateRemainingQty($stockOrderID, $deliveryOrderId, $value['ProductID'], $value['Qty'], "ConfirmRequestDO");
             $value += ['Price' => $validation['price']];
             if ($validation['status'] == false) {
                 $validationStatus = false;

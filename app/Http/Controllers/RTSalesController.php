@@ -269,10 +269,6 @@ class RTSalesController extends Controller
 
     public function surveyReport(RTSalesService $rTSalesService)
     {
-        $data = $rTSalesService->surveyReportData("2022-02-26", "2022-03-04");
-        // foreach ($data as $key => $value) {
-        // dd($data);
-        // }
         return view('rtsales.surveyReport.index');
     }
 

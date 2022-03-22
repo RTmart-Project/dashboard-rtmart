@@ -257,7 +257,7 @@
                                     </div>
                                     @elseif ($merchantOrder->StatusOrderID == "S012" ||
                                     $merchantOrder->StatusOrderID == "S023") {{-- Dalam Proses atau Telah Dikirim --}}
-                                    <div class="text-center text-md-right">
+                                    <div class="col-12 col-md-6 offset-md-6 text-center">
                                         <button type="button" class="btn btn-warning ml-md-3 mb-2" data-toggle="modal"
                                             data-target="#request-do">
                                             Request Delivery Order
@@ -266,10 +266,10 @@
                                             data-target="#detail-do">
                                             Detail Delivery Order
                                         </button>
-                                        <button type="button" class="btn btn-primary ml-md-3 mb-2" data-toggle="modal"
-                                            data-target="#add-do">
+                                        {{-- <button type="button" class="btn btn-primary ml-md-3 mb-2"
+                                            data-toggle="modal" data-target="#add-do">
                                             Buat Delivery Order
-                                        </button>
+                                        </button> --}}
                                     </div>
                                     @if ($merchantOrder->StatusOrderID == "S023")
                                     <div class="row d-md-flex justify-content-end">
@@ -473,7 +473,6 @@
         } else {
             $("#btn-do").prop('disabled', true);
         }
-        
     });
 
     $('.check_rtmart').change(function() {
