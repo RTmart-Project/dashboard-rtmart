@@ -51,11 +51,15 @@
             <p>{{ $product->Qty }}x {{ Helper::formatCurrency($product->Price, '@Rp ') }}</p>
             @else
             <p>
-              <input type="hidden" name="max_edit_qty_do[]" value="{{ $product->OrderQty - $product->QtyDOSelesai }}">
+              <input type="hidden" name="max_edit_qty_do[]"
+                value="{{ $product->OrderQty - $product->QtyDOSelesai - $product->QtyDODlmPengiriman + $product->Qty }}">
               <input type="number" class="form-control edit-qty-do text-sm text-center p-0 d-inline"
                 value="{{ $product->Qty }}" name="edit_qty_do[]" style="width: 40px; height: 30px;"
-                max="{{ $product->OrderQty - $product->QtyDOSelesai }}" min="1" required>
-              <span class="price-do">{{ Helper::formatCurrency($product->Price, 'x @Rp ') }}</span>
+                max="{{ $product->OrderQty - $product->QtyDOSelesai - $product->QtyDODlmPengiriman + $product->Qty }}"
+                min="0" required>
+              <span class="price-do">{{ Helper::formatCurrency($product->Price, 'x @Rp ') }}</span><br>
+              <small>Max Qty dapat diubah : {{ $product->OrderQty - $product->QtyDOSelesai -
+                $product->QtyDODlmPengiriman + $product->Qty }}</small>
             </p>
             @endif
           </div>

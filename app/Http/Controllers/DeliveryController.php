@@ -142,25 +142,24 @@ class DeliveryController extends Controller
         $newMerchantExpeditionID = $deliveryOrderService->generateExpeditionID();
         $user = 'DISTRIBUTOR ' . Auth::user()->Depo . ' ' . Auth::user()->Name;
 
-        // $createdDate = str_replace("T", " ", $dataExpedition->createdDate);
+        $createdDate = str_replace("T", " ", $dataExpedition->createdDate);
         $vehicleLicensePlate = str_replace(" ", "-", $dataExpedition->licensePlate);
 
-        // $dataInsertExpedition = [
-        //     'MerchantExpeditionID' => $newMerchantExpeditionID,
-        //     'StatusExpedition' => 'S032',
-        //     'DriverID' => $dataExpedition->driverID,
-        //     'HelperID' => $dataExpedition->helperID,
-        //     'VehicleID' => $dataExpedition->vehicleID,
-        //     'VehicleLicensePlate' => $vehicleLicensePlate,
-        //     'CreatedDate' => $createdDate,
-        //     'Distributor' => $dataExpedition->distributor
-        // ];
+        $dataInsertExpedition = [
+            'MerchantExpeditionID' => $newMerchantExpeditionID,
+            'StatusExpedition' => 'S032',
+            'DriverID' => $dataExpedition->driverID,
+            'HelperID' => $dataExpedition->helperID,
+            'VehicleID' => $dataExpedition->vehicleID,
+            'VehicleLicensePlate' => $vehicleLicensePlate,
+            'CreatedDate' => $createdDate
+        ];
 
-        // $dataInsertExpeditionLog = [
-        //     'MerchantExpeditionID' => $newMerchantExpeditionID,
-        //     'StatusExpedition' => 'S032',
-        //     'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo . ' ' . Auth::user()->Name
-        // ];
+        $dataInsertExpeditionLog = [
+            'MerchantExpeditionID' => $newMerchantExpeditionID,
+            'StatusExpedition' => 'S032',
+            'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo . ' ' . Auth::user()->Name
+        ];
 
         // $dataDetailExpedition = [];
         // foreach ($dataExpedition->dataDetail as $key => $value) {
@@ -236,26 +235,34 @@ class DeliveryController extends Controller
 
                     // $haistarPushOrder = $haistarService->haistarPushOrder($value['StockOrderID'], $objectParams);
                     $haistarPushOrder = 200;
-                    // if ($haistarPushOrder == 200) {
-                    //     DB::transaction(function () use ($deliveryOrderService, $dataExpedition, $vehicleLicensePlate, $newMerchantExpeditionID, $user) {
-                    //         foreach ($dataExpedition->dataDetail as $key => $value) {
-                    //             $deliveryOrderService->updateDetailDeliveryOrder($value->deliveryOrderDetailID, $value->qtyExpedition, "S030");
-                    //             $deliveryOrderService->updateDeliveryOrder($value->deliveryOrderDetailID, "S024", $dataExpedition->driverID, $dataExpedition->helperID, $dataExpedition->vehicleID, $vehicleLicensePlate);
-                    //             $deliveryOrderService->insertExpeditionDetail($newMerchantExpeditionID, $value->deliveryOrderDetailID);
-                    //         }
-                    //         $deliveryOrderService->insertDeliveryOrderLog($value['StockOrderID'], $value['DeliveryOrderID'], "S024", $dataExpedition->driverID, $dataExpedition->helperID, $dataExpedition->vehicleID, $vehicleLicensePlate, $user);
-                    //     });
-                    // }
+                    if ($haistarPushOrder == 200) {
+                        $doID = $value['DeliveryOrderID'];
+                        DB::transaction(function () use ($deliveryOrderService, $dataExpedition, $vehicleLicensePlate, $newMerchantExpeditionID, $user) {
+                            foreach ($dataExpedition->dataDetail as $key => $detailExpd) {
+                                $detailDO = $deliveryOrderService->getDOfromDetailDO($detailExpd->deliveryOrderDetailID);
+                                // if ($detailDO->DeliveryOrderID == $doID) {
+                                //     $message = $doID;
+                                // }
+                                // $deliveryOrderService->updateDetailDeliveryOrder($value->deliveryOrderDetailID, $value->qtyExpedition, "S030");
+                                // $deliveryOrderService->updateDeliveryOrder($value->deliveryOrderDetailID, "S024", $dataExpedition->driverID, $dataExpedition->helperID, $dataExpedition->vehicleID, $vehicleLicensePlate);
+                                // $deliveryOrderService->insertExpeditionDetail($newMerchantExpeditionID, $value->deliveryOrderDetailID);
+                            }
+                            // $deliveryOrderService->insertDeliveryOrderLog($value['StockOrderID'], $value['DeliveryOrderID'], "S024", $dataExpedition->driverID, $dataExpedition->helperID, $dataExpedition->vehicleID, $vehicleLicensePlate, $user);
+                        });
+                    }
+                    $oke = "ada haistar";
                 } else {
-                    $oke = "kesana";
+                    $oke = $dataExpedition->dataDetail;
                 }
             }
+            // $deliveryOrderService->insertTable("tx_merchant_expedition", $dataInsertExpedition);
+            // $deliveryOrderService->insertTable("tx_merchant_expedition_log", $dataInsertExpeditionLog);
         } else {
             $status = "failed";
             $message = "Stock Haistar tidak mencukupi";
         }
 
-        return $dataExpedition->dataDetail;
+        return $oke;
 
         // if ($stockHaistarResponse == 200) {
 
