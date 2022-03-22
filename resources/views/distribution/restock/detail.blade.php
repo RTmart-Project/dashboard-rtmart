@@ -473,7 +473,6 @@
         } else {
             $("#btn-do").prop('disabled', true);
         }
-        
     });
 
     $('.check_rtmart').change(function() {
