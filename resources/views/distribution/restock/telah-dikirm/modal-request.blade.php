@@ -219,9 +219,9 @@
   @if ($count == 0)
   <div class="callout callout-info my-2">
     <h5>Tidak ada request delivery order.</h5>
-    <button type="button" class="btn btn-primary" data-target="#add-do" data-toggle="modal">
+    {{-- <button type="button" class="btn btn-primary" data-target="#add-do" data-toggle="modal">
       Buat Delivery Order
-    </button>
+    </button> --}}
   </div>
   @endif
 </div>
