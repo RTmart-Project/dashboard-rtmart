@@ -197,7 +197,11 @@ $(document).ready(function () {
                     },
                 },
             ],
-            order: [1, "desc"],
+            order: [
+                [10, "desc"],
+                [11, "desc"],
+                [16, "desc"],
+            ],
             lengthChange: false,
             responsive: true,
             autoWidth: false,

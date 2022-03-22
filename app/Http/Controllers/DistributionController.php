@@ -739,7 +739,7 @@ class DistributionController extends Controller
                 $value = array_combine(['ProductID', 'Qty'], $value);
                 $value += ['DeliveryOrderID' => $newDeliveryOrderID];
 
-                $validation = $deliveryOrderService->validateRemainingQty($stockOrderID, $value['ProductID'], $value['Qty'], "CreateDO");
+                $validation = $deliveryOrderService->validateRemainingQty($stockOrderID, "", $value['ProductID'], $value['Qty'], "CreateDO");
                 $value += ['Price' => $validation['price']];
                 if ($validation['status'] == false) {
                     $validationStatus = false;
@@ -824,7 +824,7 @@ class DistributionController extends Controller
 
                 $value += ['DeliveryOrderID' => $newDeliveryOrderID];
 
-                $validation = $deliveryOrderService->validateRemainingQty($stockOrderID, $value['ProductID'], $value['Qty'], "CreateDO");
+                $validation = $deliveryOrderService->validateRemainingQty($stockOrderID, "", $value['ProductID'], $value['Qty'], "CreateDO");
                 $value += ['Price' => $validation['price']];
 
                 $checkStock = $haistarService->haistarGetStock($value['ProductID']);
@@ -941,7 +941,7 @@ class DistributionController extends Controller
     {
         $request->validate([
             'edit_qty_do' => 'required',
-            'edit_qty_do.*' => 'required|numeric|lte:max_edit_qty_do.*|gte:1',
+            'edit_qty_do.*' => 'required|numeric|lte:max_edit_qty_do.*|gte:0',
             'driver' => 'required',
             'vehicle' => 'required',
             'license_plate' => 'required'
@@ -964,7 +964,7 @@ class DistributionController extends Controller
             $value = array_combine(['ProductID', 'Qty'], $value);
             $value += ['DeliveryOrderID' => $deliveryOrderId];
 
-            $validation = $deliveryOrderService->validateRemainingQty($stockOrderID->StockOrderID, $value['ProductID'], $value['Qty'], "EditDetailDO");
+            $validation = $deliveryOrderService->validateRemainingQty($stockOrderID->StockOrderID, $deliveryOrderId, $value['ProductID'], $value['Qty'], "EditDetailDO");
             if ($validation['status'] == false) {
                 $validationStatus = false;
                 break;
@@ -1121,7 +1121,7 @@ class DistributionController extends Controller
         if ($depoChannel == "rtmart") {
             $request->validate([
                 'qty_request_do_rtmart' => 'required',
-                'qty_request_do_rtmart.*' => 'required|numeric|lte:max_qty_request_do_rtmart.*|gte:1'
+                'qty_request_do_rtmart.*' => 'required|numeric|lte:max_qty_request_do_rtmart.*|gte:0'
             ]);
 
             // generate DO ID
@@ -1136,7 +1136,7 @@ class DistributionController extends Controller
         } elseif ($depoChannel == "haistar") {
             $request->validate([
                 'qty_request_do_haistar' => 'required',
-                'qty_request_do_haistar.*' => 'required|numeric|lte:max_qty_request_do_haistar.*|gte:1'
+                'qty_request_do_haistar.*' => 'required|numeric|lte:max_qty_request_do_haistar.*|gte:0'
             ]);
             if ($arrProductRTmart == null) {
                 $confirmDeliveryOrderID = $deliveryOrderId;
@@ -1177,7 +1177,7 @@ class DistributionController extends Controller
         foreach ($dataDetailDO as &$value) {
             $value = array_combine(['ProductID', 'Qty', 'DeliveryOrderID'], $value);
 
-            $validation = $deliveryOrderService->validateRemainingQty($stockOrderID, $value['ProductID'], $value['Qty'], "ConfirmRequestDO");
+            $validation = $deliveryOrderService->validateRemainingQty($stockOrderID, $deliveryOrderId, $value['ProductID'], $value['Qty'], "ConfirmRequestDO");
             $value += ['Price' => $validation['price']];
             if ($validation['status'] == false) {
                 $validationStatus = false;

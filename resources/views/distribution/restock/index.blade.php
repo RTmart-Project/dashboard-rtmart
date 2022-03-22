@@ -48,7 +48,7 @@
                                 </a>
                             </li> --}}
                             <li class="nav-item">
-                                <a class="nav-link" href="#restock-all-product" data-toggle="tab">
+                                <a class="nav-link active" href="#restock-all-product" data-toggle="tab">
                                     Restock All Product
                                 </a>
                             </li>

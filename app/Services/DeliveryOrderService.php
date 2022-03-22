@@ -236,7 +236,7 @@ class DeliveryOrderService
     return $sql;
   }
 
-  public function validateRemainingQty($stockOrderID, $productID, $qty, $validateFor)
+  public function validateRemainingQty($stockOrderID, $deliveryOrderID, $productID, $qty, $validateFor)
   {
     $sql = DB::table('tx_merchant_order_detail')
       ->leftJoin('tx_merchant_delivery_order', 'tx_merchant_order_detail.StockOrderID', 'tx_merchant_delivery_order.StockOrderID')
@@ -250,6 +250,7 @@ class DeliveryOrderService
         tx_merchant_order_detail.ProductID,
         ANY_VALUE(tx_merchant_order_detail.PromisedQuantity) AS PromisedQty,
         ANY_VALUE(tx_merchant_order_detail.Nett) AS Nett,
+        (SELECT Qty FROM tx_merchant_delivery_order_detail WHERE DeliveryOrderID = '$deliveryOrderID' AND ProductID = '$productID') AS QtyDO,
         IFNULL(SUM(IF(tx_merchant_delivery_order.StatusDO = 'S025', tx_merchant_delivery_order_detail.Qty, 0)), 0) AS QtyDOSelesai,
         IFNULL(SUM(IF(tx_merchant_delivery_order.StatusDO = 'S024', tx_merchant_delivery_order_detail.Qty, 0)), 0) AS QtyDODlmPengiriman,
         IFNULL(SUM(IF(tx_merchant_delivery_order.StatusDO != 'S026', tx_merchant_delivery_order_detail.Qty, 0)), 0) AS QtyDONotBatal
@@ -258,23 +259,23 @@ class DeliveryOrderService
       ->first();
 
     $maxCreateDO = $sql->PromisedQty - $sql->QtyDONotBatal;
-    $maxEditDetailDO = $sql->PromisedQty - $sql->QtyDOSelesai;
+    $maxEditDetailDO = $sql->PromisedQty - $sql->QtyDOSelesai - $sql->QtyDODlmPengiriman + $sql->QtyDO;
     $maxRequestDO = $sql->PromisedQty - $sql->QtyDOSelesai - $sql->QtyDODlmPengiriman;
 
     if ($validateFor == "CreateDO") {
-      if ($qty > 0 && $qty <= $maxCreateDO) {
+      if ($qty <= $maxCreateDO) {
         $status = true;
       } else {
         $status = false;
       }
     } elseif ($validateFor == "EditDetailDO") {
-      if ($qty > 0 && $qty <= $maxEditDetailDO) {
+      if ($qty <= $maxEditDetailDO) {
         $status = true;
       } else {
         $status = false;
       }
     } elseif ($validateFor == "ConfirmRequestDO") {
-      if ($qty > 0 && $qty <= $maxRequestDO) {
+      if ($qty <= $maxRequestDO) {
         $status = true;
       } else {
         $status = false;
