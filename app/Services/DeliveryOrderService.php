@@ -34,22 +34,69 @@ class DeliveryOrderService
     return $sql;
   }
 
+  public function updateDeliveryOrder($deliveryOrderDetailID, $statusDO, $driverID, $helperID, $vehicleID, $vehicleLicensePlate)
+  {
+    $sql = DB::table('tx_merchant_delivery_order')
+      ->whereRaw("
+          DeliveryOrderID = (SELECT DeliveryOrderID FROM tx_merchant_delivery_order_detail WHERE DeliveryOrderDetailID = $deliveryOrderDetailID)
+      ")
+      ->update([
+        'StatusDO' => $statusDO,
+        'DriverID' => $driverID,
+        'HelperID' => $helperID,
+        'VehicleID' => $vehicleID,
+        'VehicleLicensePlate' => $vehicleLicensePlate
+      ]);
+
+    return $sql;
+  }
+
   public function updateDetailDeliveryOrder($deliveryOrderDetailID, $qty, $statusExpedition)
   {
-    $update = DB::table('tx_merchant_delivery_order_detail')
+    $sql = DB::table('tx_merchant_delivery_order_detail')
       ->where('DeliveryOrderDetailID', $deliveryOrderDetailID)
       ->update([
         'Qty' => $qty,
         'StatusExpedition' => $statusExpedition
       ]);
 
-    return $update;
+    return $sql;
+  }
+
+  public function insertDeliveryOrderLog($stockOrderID, $deliveryOrderID, $statusDO, $driverID, $helperID, $vehicleID, $vehicleLicensePlate, $actionBy)
+  {
+    $sql = DB::table('tx_merchant_delivery_order_log')
+      ->insert([
+        'StockOrderID' => $stockOrderID,
+        'DeliveryOrderID' => $deliveryOrderID,
+        'StatusDO' => $statusDO,
+        'DriverID' => $driverID,
+        'HelperID' => $helperID,
+        'VehicleID' => $vehicleID,
+        'VehicleLicensePlate' => $vehicleLicensePlate,
+        'ActionBy' => $actionBy
+      ]);
+
+    return $sql;
+  }
+
+  public function insertExpeditionDetail($merchantExpeditionID, $deliveryOrderDetailID)
+  {
+    $sql = DB::table('tx_merchant_expedition_detail')
+      ->insert([
+        'MerchantExpeditionID' => $merchantExpeditionID,
+        'DeliveryOrderDetailID' => $deliveryOrderDetailID
+      ]);
+
+    return $sql;
   }
 
   public function getDOfromDetailDO($deliveryOrderDetailID)
   {
     $deliveryOrderID = DB::table('tx_merchant_delivery_order_detail')
-      ->select('DeliveryOrderID', 'ProductID', 'Price')
+      ->join('tx_merchant_delivery_order', 'tx_merchant_delivery_order.DeliveryOrderID', 'tx_merchant_delivery_order_detail.DeliveryOrderID')
+      ->join('tx_merchant_order', 'tx_merchant_order.StockOrderID', 'tx_merchant_delivery_order.StockOrderID')
+      ->select('tx_merchant_delivery_order.StockOrderID', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_order.PaymentMethodID', 'tx_merchant_delivery_order_detail.ProductID', 'tx_merchant_delivery_order_detail.Price')
       ->where('DeliveryOrderDetailID', $deliveryOrderDetailID)
       ->first();
 

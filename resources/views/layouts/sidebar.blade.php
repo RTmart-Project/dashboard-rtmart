@@ -58,7 +58,7 @@
             </li>
             @endif
 
-            @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "BM")
+            {{-- @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "BM")
             ||
             (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH"))
             <li class="nav-item {{ Request::is('delivery*') ? 'menu-open' : '' }}">
@@ -79,7 +79,7 @@
                     </li>
                 </ul>
             </li>
-            @endif
+            @endif --}}
 
             @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI") ||
             (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO"))

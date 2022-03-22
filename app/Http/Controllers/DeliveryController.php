@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Str;
+use stdClass;
 
 class DeliveryController extends Controller
 {
@@ -138,10 +139,11 @@ class DeliveryController extends Controller
     {
         $dataExpedition = json_decode($request->dataExpedition);
 
-        // $newMerchantExpeditionID = $deliveryOrderService->generateExpeditionID();
+        $newMerchantExpeditionID = $deliveryOrderService->generateExpeditionID();
+        $user = 'DISTRIBUTOR ' . Auth::user()->Depo . ' ' . Auth::user()->Name;
 
         // $createdDate = str_replace("T", " ", $dataExpedition->createdDate);
-        // $vehicleLicensePlate = str_replace(" ", "-", $dataExpedition->licensePlate);
+        $vehicleLicensePlate = str_replace(" ", "-", $dataExpedition->licensePlate);
 
         // $dataInsertExpedition = [
         //     'MerchantExpeditionID' => $newMerchantExpeditionID,
@@ -172,8 +174,12 @@ class DeliveryController extends Controller
         $dataForHaistar = [];
         $arrayDataDO = [
             'DeliveryOrderID' => '',
+            'StockOrderID' => '',
+            'PaymentMethodID' => '',
+            'TotalPrice' => '',
             'Items' => []
         ];
+        $totalPrice = 0;
         foreach ($dataExpedition->dataDetail as $key => $value) {
             $stockHaistarResponse = 200;
             if ($value->distributor == "HAISTAR") {
@@ -195,13 +201,17 @@ class DeliveryController extends Controller
                     }
                     $arrayDataDO['Items'] = [];
                     $arrayDataDO['DeliveryOrderID'] = $deliveryOrderID;
+                    $arrayDataDO['StockOrderID'] = $detailDO->StockOrderID;
+                    $arrayDataDO['PaymentMethodID'] = $detailDO->PaymentMethodID;
                 }
 
-                $items = [];
-                $items['ProductID'] = $detailDO->ProductID;
-                $items['Price'] = $detailDO->Price;
-                $items['Qty'] = $value->qtyExpedition;
-                array_push($arrayDataDO['Items'], $items);
+                $totalPrice += $value->qtyExpedition * $detailDO->Price;
+                $arrayDataDO['TotalPrice'] = $totalPrice;
+                $objectItems = new stdClass;
+                $objectItems->item_code = $detailDO->ProductID;
+                $objectItems->unit_price = $detailDO->Price;
+                $objectItems->quantity = $value->qtyExpedition;
+                array_push($arrayDataDO['Items'], clone $objectItems);
 
                 $previousDeliveryOrderID = $deliveryOrderID;
             }
@@ -211,7 +221,31 @@ class DeliveryController extends Controller
         if ($stockHaistarResponse == 200) {
             foreach ($dataForHaistar as $key => $value) {
                 if ($value['DeliveryOrderID'] != "") {
-                    $oke = "kesini";
+                    if ($value['PaymentMethodID'] == 1) {
+                        $codPrice = $value['TotalPrice'];
+                    } else {
+                        $codPrice = "0";
+                    }
+                    // Parameter Push Order Haistar
+                    $objectParams = new stdClass;
+                    $objectParams->code = $value['DeliveryOrderID'];
+                    $objectParams->cod_price = $codPrice;
+                    $objectParams->total_price = $value['TotalPrice'];
+                    $objectParams->total_product_price = $value['TotalPrice'];
+                    $objectParams->items = $value['Items'];
+
+                    // $haistarPushOrder = $haistarService->haistarPushOrder($value['StockOrderID'], $objectParams);
+                    $haistarPushOrder = 200;
+                    // if ($haistarPushOrder == 200) {
+                    //     DB::transaction(function () use ($deliveryOrderService, $dataExpedition, $vehicleLicensePlate, $newMerchantExpeditionID, $user) {
+                    //         foreach ($dataExpedition->dataDetail as $key => $value) {
+                    //             $deliveryOrderService->updateDetailDeliveryOrder($value->deliveryOrderDetailID, $value->qtyExpedition, "S030");
+                    //             $deliveryOrderService->updateDeliveryOrder($value->deliveryOrderDetailID, "S024", $dataExpedition->driverID, $dataExpedition->helperID, $dataExpedition->vehicleID, $vehicleLicensePlate);
+                    //             $deliveryOrderService->insertExpeditionDetail($newMerchantExpeditionID, $value->deliveryOrderDetailID);
+                    //         }
+                    //         $deliveryOrderService->insertDeliveryOrderLog($value['StockOrderID'], $value['DeliveryOrderID'], "S024", $dataExpedition->driverID, $dataExpedition->helperID, $dataExpedition->vehicleID, $vehicleLicensePlate, $user);
+                    //     });
+                    // }
                 } else {
                     $oke = "kesana";
                 }
@@ -221,7 +255,7 @@ class DeliveryController extends Controller
             $message = "Stock Haistar tidak mencukupi";
         }
 
-        return $oke;
+        return $dataExpedition->dataDetail;
 
         // if ($stockHaistarResponse == 200) {
 
