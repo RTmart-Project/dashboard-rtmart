@@ -34,12 +34,10 @@ class DeliveryOrderService
     return $sql;
   }
 
-  public function updateDeliveryOrder($deliveryOrderDetailID, $statusDO, $driverID, $helperID, $vehicleID, $vehicleLicensePlate)
+  public function updateDeliveryOrder($deliveryOrderID, $statusDO, $driverID, $helperID, $vehicleID, $vehicleLicensePlate)
   {
     $sql = DB::table('tx_merchant_delivery_order')
-      ->whereRaw("
-          DeliveryOrderID = (SELECT DeliveryOrderID FROM tx_merchant_delivery_order_detail WHERE DeliveryOrderDetailID = $deliveryOrderDetailID)
-      ")
+      ->where('DeliveryOrderID', $deliveryOrderID)
       ->update([
         'StatusDO' => $statusDO,
         'DriverID' => $driverID,
@@ -51,13 +49,15 @@ class DeliveryOrderService
     return $sql;
   }
 
-  public function updateDetailDeliveryOrder($deliveryOrderDetailID, $qty, $statusExpedition)
+  public function updateDetailDeliveryOrder($deliveryOrderID, $productID, $qty, $statusExpedition, $distributor)
   {
     $sql = DB::table('tx_merchant_delivery_order_detail')
-      ->where('DeliveryOrderDetailID', $deliveryOrderDetailID)
+      ->where('DeliveryOrderID', $deliveryOrderID)
+      ->where('ProductID', $productID)
       ->update([
         'Qty' => $qty,
-        'StatusExpedition' => $statusExpedition
+        'StatusExpedition' => $statusExpedition,
+        'Distributor' => $distributor
       ]);
 
     return $sql;

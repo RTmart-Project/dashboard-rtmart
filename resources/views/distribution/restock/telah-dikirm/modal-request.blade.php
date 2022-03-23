@@ -206,7 +206,7 @@
             </div>
           </div>
           <div class="col-6 align-self-center">
-            Dikirim {{ date('d M Y H:i', strtotime($item->CreatedDate)) }}
+            Rencana kirim {{ date('d F Y', strtotime($item->CreatedDate)) }}
             <input type="hidden" name="created_date" value="{{ $item->CreatedDate }}">
           </div>
         </div>
