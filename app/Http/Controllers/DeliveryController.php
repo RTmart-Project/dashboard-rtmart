@@ -18,7 +18,8 @@ class DeliveryController extends Controller
     public function request(DeliveryOrderService $deliveryOrderService, DriverService $driverService, VehicleService $vehicleService)
     {
         // $data = $deliveryOrderService->getMultipleDeliveryOrder("'DO-20220107154018-000002'", ['DO-20220107154018-000002'])->get();
-        // // dd(($data[0]->TotalPrice - $data[0]->SumPriceCreatedDO) / $data[0]->CountCreatedDO);
+        // dd(($data[0]->TotalPrice - $data[0]->SumPriceCreatedDO) / $data[0]->CountCreatedDO);
+        // $data = $deliveryOrderService->insertDeliveryOrderLog("DO-20220322162128-000090", "1", "2", "3", "4", "5", "6");
         // dd($data);
         return view('delivery.request.index', [
             'areas' => $deliveryOrderService->getArea(),
@@ -158,16 +159,8 @@ class DeliveryController extends Controller
         $dataInsertExpeditionLog = [
             'MerchantExpeditionID' => $newMerchantExpeditionID,
             'StatusExpedition' => 'S032',
-            'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo . ' ' . Auth::user()->Name
+            'ActionBy' => $user
         ];
-
-        // $dataDetailExpedition = [];
-        // foreach ($dataExpedition->dataDetail as $key => $value) {
-        //     array_push($dataDetailExpedition, [
-        //         'MerchantExpeditionID' => $newMerchantExpeditionID,
-        //         'DeliveryOrderDetailID' => $value->deliveryOrderDetailID
-        //     ]);
-        // }
 
         $previousDeliveryOrderID = null;
         $dataForHaistar = [];
@@ -238,19 +231,65 @@ class DeliveryController extends Controller
                     $objectParams->total_product_price = $value['TotalPrice'];
                     $objectParams->items = $value['Items'];
 
-                    // $haistarPushOrder = $haistarService->haistarPushOrder($value['StockOrderID'], $objectParams);
-                    $haistarPushOrder = 200;
-                    if ($haistarPushOrder == 200) {
-                        DB::transaction(function () use ($deliveryOrderService, $dataExpedition, $value, $vehicleLicensePlate) {
-                            foreach ($value['Items'] as $key => $item) {
-                                $deliveryOrderService->updateDetailDeliveryOrder($value['DeliveryOrderID'], $item->item_code, $item->quantity, "S030", "HAISTAR");
-                            }
-                            $deliveryOrderService->updateDeliveryOrder($value['DeliveryOrderID'], "S024", $dataExpedition->driverID, $dataExpedition->helperID, $dataExpedition->vehicleID, $vehicleLicensePlate);
-                        });
+                    $haistarPushOrder = $haistarService->haistarPushOrder($value['StockOrderID'], $objectParams);
+                    $haistarResponse = $haistarPushOrder->status;
+
+                    if ($haistarResponse == 200) {
+                        $statusDetailDO = "S030"; // Dalam Perjalanan
+                    } else {
+                        $statusDetailDO = "S034"; // Gagal
                     }
-                    $oke = "ada haistar";
+                    try {
+                        DB::transaction(function () use ($newMerchantExpeditionID, $deliveryOrderService, $value, $statusDetailDO) {
+                            foreach ($value['Items'] as $key => $item) {
+                                $deliveryOrderService->updateDetailDeliveryOrder($value['DeliveryOrderID'], $item->item_code, $item->quantity, $statusDetailDO, "HAISTAR");
+                                $deliveryOrderService->insertExpeditionDetail($newMerchantExpeditionID, $value['DeliveryOrderID'], $item->item_code);
+                            }
+                        });
+                        $sqlTransaction = "success";
+                    } catch (\Throwable $th) {
+                        $status = "failed";
+                        $message = "Terjadi gangguan jaringan";
+                    }
                 } else {
-                    $oke = $dataExpedition->dataDetail;
+                    break;
+                }
+            }
+            if (!empty($dataForRTmart)) {
+                foreach ($dataForRTmart as $key => $value) {
+                    $detailDO = $deliveryOrderService->getDOfromDetailDO($value->deliveryOrderDetailID);
+                    try {
+                        DB::transaction(function () use ($deliveryOrderService, $detailDO, $value, $newMerchantExpeditionID) {
+                            $deliveryOrderService->updateDetailDeliveryOrder($detailDO->DeliveryOrderID, $detailDO->ProductID, $value->qtyExpedition, "S030", "RT MART");
+                            $deliveryOrderService->insertExpeditionDetail($newMerchantExpeditionID, $detailDO->DeliveryOrderID, $detailDO->ProductID);
+                        });
+                        $sqlTransaction = "success";
+                    } catch (\Throwable $th) {
+                        $status = "failed";
+                        $message = "Terjadi gangguan";
+                    }
+                }
+            }
+            if ($sqlTransaction == "success") {
+                try {
+                    DB::transaction(function () use ($dataInsertExpedition, $dataInsertExpeditionLog, $deliveryOrderService, $dataExpedition, $vehicleLicensePlate, $user) {
+                        $deliveryOrderService->insertTable("tx_merchant_expedition", $dataInsertExpedition);
+                        $deliveryOrderService->insertTable("tx_merchant_expedition_log", $dataInsertExpeditionLog);
+                        foreach ($dataExpedition->dataDeliveryOrderID as $key => $value) {
+                            $deliveryOrderService->updateDeliveryOrder($value->deliveryOrderID, "S024", $dataExpedition->driverID, $dataExpedition->helperID, $dataExpedition->vehicleID, $vehicleLicensePlate);
+                            $deliveryOrderService->insertDeliveryOrderLog($value->deliveryOrderID, "S024", $dataExpedition->driverID, $dataExpedition->helperID, $dataExpedition->vehicleID, $vehicleLicensePlate, $user);
+                        }
+                        foreach ($dataExpedition->dataDeliveryOrderDetailNotChecked as $key => $value) {
+                            DB::table('tx_merchant_delivery_order_detail')
+                                ->where('DeliveryOrderDetailID', $value->deliveryOrderDetailIDNotChecked)
+                                ->delete();
+                        }
+                    });
+                    $status = "success";
+                    $message = "Data Ekspedisi berhasil dibuat";
+                } catch (\Throwable $th) {
+                    $status = "failed";
+                    $message = "Terjadi kesalahan";
                 }
             }
         } else {
@@ -258,49 +297,9 @@ class DeliveryController extends Controller
             $message = "Stock Haistar tidak mencukupi";
         }
 
-        return $dataForRTmart;
-
-        // if ($stockHaistarResponse == 200) {
-
-        //     foreach ($dataForHaistar as $key => $value) {
-        //         $stockOrder = DB::table('tx_merchant_delivery_order')->where('DeliveryOrderID', $value['DeliveryOrderID'])->select('StockOrderID')->first();
-
-        //     }
-
-        //     $status = "success";
-        //     $message = "Delivery Order Haistar berhasil dibuat";
-        // } else {
-        //     $status = "failed";
-        //     $message = "Stock Haistar tidak mencukupi!";
-        // }
-        // return $stockOrder->StockOrderID;
-
-
-        // if ($dataExpedition->distributor == "RT MART") {
-        //     $sqlTransaction = true;
-        //     DB::transaction(function () use ($deliveryOrderService, $dataInsertExpedition, $dataDetailExpedition, $dataInsertExpeditionLog, $dataExpedition) {
-        //         $deliveryOrderService->insertTable("tx_merchant_expedition", $dataInsertExpedition);
-        //         $deliveryOrderService->insertTable("tx_merchant_expedition_detail", $dataDetailExpedition);
-        //         $deliveryOrderService->insertTable("tx_merchant_expedition_log", $dataInsertExpeditionLog);
-        //         foreach ($dataExpedition->dataDetail as $key => $value) {
-        //             $deliveryOrderService->updateDetailDeliveryOrder($value->deliveryOrderDetailID, $value->qtyExpedition, "S030");
-        //         }
-        //     });
-        // } else {
-        //     $sqlTransaction = false;
-        // }
-
-        // if ($sqlTransaction) {
-        //     $status = "success";
-        //     $message = "Ekspedisi berhasil dibuat";
-        // } else {
-        //     $status = "failed";
-        //     $message = "Terjadi kesalahan";
-        // }
-
-        // return response()->json([
-        //     'status' => $status,
-        //     'message' => $message
-        // ]);
+        return response()->json([
+            'status' => $status,
+            'message' => $message
+        ]);
     }
 }

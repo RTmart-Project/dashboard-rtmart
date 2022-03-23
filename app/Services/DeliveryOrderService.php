@@ -63,11 +63,16 @@ class DeliveryOrderService
     return $sql;
   }
 
-  public function insertDeliveryOrderLog($stockOrderID, $deliveryOrderID, $statusDO, $driverID, $helperID, $vehicleID, $vehicleLicensePlate, $actionBy)
+  public function insertDeliveryOrderLog($deliveryOrderID, $statusDO, $driverID, $helperID, $vehicleID, $vehicleLicensePlate, $actionBy)
   {
+    $getSO = DB::table('tx_merchant_delivery_order')
+      ->where('DeliveryOrderID', $deliveryOrderID)
+      ->select('StockOrderID')
+      ->first();
+
     $sql = DB::table('tx_merchant_delivery_order_log')
       ->insert([
-        'StockOrderID' => $stockOrderID,
+        'StockOrderID' => $getSO->StockOrderID,
         'DeliveryOrderID' => $deliveryOrderID,
         'StatusDO' => $statusDO,
         'DriverID' => $driverID,
@@ -80,12 +85,18 @@ class DeliveryOrderService
     return $sql;
   }
 
-  public function insertExpeditionDetail($merchantExpeditionID, $deliveryOrderDetailID)
+  public function insertExpeditionDetail($merchantExpeditionID, $deliveryOrderID, $productID)
   {
+    $doDetailID = DB::table('tx_merchant_delivery_order_detail')
+      ->where('DeliveryOrderID', $deliveryOrderID)
+      ->where('ProductID', $productID)
+      ->select('DeliveryOrderDetailID')
+      ->first();
+
     $sql = DB::table('tx_merchant_expedition_detail')
       ->insert([
         'MerchantExpeditionID' => $merchantExpeditionID,
-        'DeliveryOrderDetailID' => $deliveryOrderDetailID
+        'DeliveryOrderDetailID' => $doDetailID->DeliveryOrderDetailID
       ]);
 
     return $sql;

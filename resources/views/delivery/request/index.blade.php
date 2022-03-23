@@ -209,7 +209,7 @@
                         <div class="form-group">
                           <label class="my-0" for="created_date_do">Waktu Pengiriman</label>
                           <input type="datetime-local" class="form-control" name="created_date_do" id="created_date_do"
-                            required>
+                            value="{{ date('Y-m-d\TH:i') }}" required>
                         </div>
                       </div>
                       <div class="col-md-6 col-12">
