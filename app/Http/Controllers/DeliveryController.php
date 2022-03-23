@@ -178,6 +178,7 @@ class DeliveryController extends Controller
             'TotalPrice' => '',
             'Items' => []
         ];
+        $dataForRTmart = [];
         $totalPrice = 0;
         foreach ($dataExpedition->dataDetail as $key => $value) {
             $stockHaistarResponse = 200;
@@ -213,6 +214,10 @@ class DeliveryController extends Controller
                 array_push($arrayDataDO['Items'], clone $objectItems);
 
                 $previousDeliveryOrderID = $deliveryOrderID;
+            } elseif ($value->distributor == "RT MART") {
+                array_push($dataForRTmart, $value);
+            } else {
+                return "error";
             }
         }
         array_push($dataForHaistar, $arrayDataDO);
@@ -236,18 +241,11 @@ class DeliveryController extends Controller
                     // $haistarPushOrder = $haistarService->haistarPushOrder($value['StockOrderID'], $objectParams);
                     $haistarPushOrder = 200;
                     if ($haistarPushOrder == 200) {
-                        $doID = $value['DeliveryOrderID'];
-                        DB::transaction(function () use ($deliveryOrderService, $dataExpedition, $vehicleLicensePlate, $newMerchantExpeditionID, $user) {
-                            foreach ($dataExpedition->dataDetail as $key => $detailExpd) {
-                                $detailDO = $deliveryOrderService->getDOfromDetailDO($detailExpd->deliveryOrderDetailID);
-                                // if ($detailDO->DeliveryOrderID == $doID) {
-                                //     $message = $doID;
-                                // }
-                                // $deliveryOrderService->updateDetailDeliveryOrder($value->deliveryOrderDetailID, $value->qtyExpedition, "S030");
-                                // $deliveryOrderService->updateDeliveryOrder($value->deliveryOrderDetailID, "S024", $dataExpedition->driverID, $dataExpedition->helperID, $dataExpedition->vehicleID, $vehicleLicensePlate);
-                                // $deliveryOrderService->insertExpeditionDetail($newMerchantExpeditionID, $value->deliveryOrderDetailID);
+                        DB::transaction(function () use ($deliveryOrderService, $dataExpedition, $value, $vehicleLicensePlate) {
+                            foreach ($value['Items'] as $key => $item) {
+                                $deliveryOrderService->updateDetailDeliveryOrder($value['DeliveryOrderID'], $item->item_code, $item->quantity, "S030", "HAISTAR");
                             }
-                            // $deliveryOrderService->insertDeliveryOrderLog($value['StockOrderID'], $value['DeliveryOrderID'], "S024", $dataExpedition->driverID, $dataExpedition->helperID, $dataExpedition->vehicleID, $vehicleLicensePlate, $user);
+                            $deliveryOrderService->updateDeliveryOrder($value['DeliveryOrderID'], "S024", $dataExpedition->driverID, $dataExpedition->helperID, $dataExpedition->vehicleID, $vehicleLicensePlate);
                         });
                     }
                     $oke = "ada haistar";
@@ -255,14 +253,12 @@ class DeliveryController extends Controller
                     $oke = $dataExpedition->dataDetail;
                 }
             }
-            // $deliveryOrderService->insertTable("tx_merchant_expedition", $dataInsertExpedition);
-            // $deliveryOrderService->insertTable("tx_merchant_expedition_log", $dataInsertExpeditionLog);
         } else {
             $status = "failed";
             $message = "Stock Haistar tidak mencukupi";
         }
 
-        return $oke;
+        return $dataForRTmart;
 
         // if ($stockHaistarResponse == 200) {
 
