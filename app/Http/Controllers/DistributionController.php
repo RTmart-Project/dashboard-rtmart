@@ -303,6 +303,12 @@ class DistributionController extends Controller
             ->get();
 
         foreach ($deliveryOrder as $key => $value) {
+            $dateDlmPengiriman = DB::table('tx_merchant_delivery_order_log')
+                ->where('DeliveryOrderID', $value->DeliveryOrderID)
+                ->where('StatusDO', 'S024')
+                ->selectRaw("MAX(ProcessTime) AS DateKirim")->first();
+            $value->DateKirim = $dateDlmPengiriman->DateKirim;
+
             $deliveryOrderDetail = DB::table('tx_merchant_delivery_order_detail')
                 ->join('ms_product', 'ms_product.ProductID', '=', 'tx_merchant_delivery_order_detail.ProductID')
                 ->join('tx_merchant_delivery_order', 'tx_merchant_delivery_order.DeliveryOrderID', '=', 'tx_merchant_delivery_order_detail.DeliveryOrderID')

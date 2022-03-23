@@ -155,7 +155,7 @@
           @endif
         </div>
         <div class="col-6 col-md-5 align-self-center">
-          Dikirim {{ date('d M Y H:i', strtotime($item->CreatedDate)) }}<br>
+          Dikirim {{ date('d M Y H:i', strtotime($item->DateKirim)) }}<br>
           @if ($item->StatusOrder == "Selesai")
           Selesai {{ date('d M Y H:i', strtotime($item->FinishDate)) }}
           @endif
