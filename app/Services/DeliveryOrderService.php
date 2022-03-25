@@ -352,4 +352,70 @@ class DeliveryOrderService
 
     return $update;
   }
+
+  public function expeditions()
+  {
+    $sql = DB::table('tx_merchant_expedition AS expd')
+      ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'expd.StatusExpedition')
+      ->leftJoin('ms_user AS driver', 'driver.UserID', 'expd.DriverID')
+      ->leftJoin('ms_user AS helper', 'helper.UserID', 'expd.HelperID')
+      ->leftJoin('ms_vehicle', 'ms_vehicle.VehicleID', 'expd.VehicleID')
+      ->join('tx_merchant_expedition_detail', 'tx_merchant_expedition_detail.MerchantExpeditionID', 'expd.MerchantExpeditionID')
+      ->join('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderDetailID', 'tx_merchant_expedition_detail.DeliveryOrderDetailID')
+      ->join('tx_merchant_delivery_order', 'tx_merchant_delivery_order.DeliveryOrderID', 'tx_merchant_delivery_order_detail.DeliveryOrderID')
+      ->join('tx_merchant_order', 'tx_merchant_order.StockOrderID', 'tx_merchant_delivery_order.StockOrderID')
+      ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
+      ->distinct()
+      ->selectRaw("
+        expd.MerchantExpeditionID,
+        expd.StatusExpedition,
+        expd.CreatedDate,
+        ANY_VALUE(ms_status_order.StatusOrder) AS StatusOrder,
+        ANY_VALUE(driver.Name) AS DriverName,
+        ANY_VALUE(helper.Name) AS HelperName,
+        expd.VehicleLicensePlate,
+        ANY_VALUE(ms_vehicle.VehicleName) AS VehicleName,
+        COUNT(DISTINCT tx_merchant_delivery_order_detail.DeliveryOrderID) AS CountDO
+      ")
+      ->groupBy('expd.MerchantExpeditionID');
+
+    return $sql;
+  }
+
+  public function expedition($expeditionID)
+  {
+    $sql = DB::table('tx_merchant_expedition AS expd')
+      ->join('ms_status_order AS StatusExpd', 'StatusExpd.StatusOrderID', 'expd.StatusExpedition')
+      ->leftJoin('ms_user AS driver', 'driver.UserID', 'expd.DriverID')
+      ->leftJoin('ms_user AS helper', 'helper.UserID', 'expd.HelperID')
+      ->leftJoin('ms_vehicle', 'ms_vehicle.VehicleID', 'expd.VehicleID')
+      ->join('tx_merchant_expedition_detail', 'tx_merchant_expedition_detail.MerchantExpeditionID', 'expd.MerchantExpeditionID')
+      ->join('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderDetailID', 'tx_merchant_expedition_detail.DeliveryOrderDetailID')
+      ->join('ms_status_order AS StatusExpdProduct', 'StatusExpdProduct.StatusOrderID', 'tx_merchant_delivery_order_detail.StatusExpedition')
+      ->join('ms_product', 'ms_product.ProductID', 'tx_merchant_delivery_order_detail.ProductID')
+      ->join('tx_merchant_delivery_order', 'tx_merchant_delivery_order.DeliveryOrderID', 'tx_merchant_delivery_order_detail.DeliveryOrderID')
+      ->join('tx_merchant_order', 'tx_merchant_order.StockOrderID', 'tx_merchant_delivery_order.StockOrderID')
+      ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
+      ->where('tx_merchant_expedition_detail.MerchantExpeditionID', $expeditionID)
+      ->select('tx_merchant_expedition_detail.MerchantExpeditionID', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.StockOrderID', 'tx_merchant_expedition_detail.DeliveryOrderDetailID', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber', 'tx_merchant_delivery_order_detail.ProductID', 'StatusExpdProduct.StatusOrder AS StatusProduct', 'ms_product.ProductName', 'ms_product.ProductImage', 'tx_merchant_delivery_order_detail.Qty', 'tx_merchant_delivery_order_detail.Price', 'tx_merchant_delivery_order_detail.StatusExpedition', 'tx_merchant_delivery_order_detail.Distributor', 'expd.CreatedDate', 'expd.StatusExpedition AS StatusExpd', 'StatusExpd.StatusOrder', 'driver.Name AS DriverName', 'helper.Name AS HelperName', 'expd.VehicleLicensePlate', 'ms_vehicle.VehicleName');
+
+    return $sql;
+  }
+
+  public function countStatusDeliveryDetail($merchantExpeditionID)
+  {
+    $sql = DB::table('tx_merchant_delivery_order_detail')
+      ->whereRaw("DeliveryOrderDetailID IN (
+        SELECT DeliveryOrderDetailID FROM tx_merchant_expedition_detail 
+        WHERE MerchantExpeditionID = '$merchantExpeditionID')")
+      ->selectRaw("
+        COUNT(DISTINCT CASE 
+              WHEN tx_merchant_delivery_order_detail.StatusExpedition = 'S030' OR tx_merchant_delivery_order_detail.StatusExpedition = 'S029' 
+              THEN tx_merchant_delivery_order_detail.DeliveryOrderDetailID 
+              END)
+        AS CountStatus
+      ");
+
+    return $sql;
+  }
 }

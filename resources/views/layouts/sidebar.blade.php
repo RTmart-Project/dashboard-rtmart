@@ -77,6 +77,13 @@
                             <p>Delivery Request</p>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="{{ route('delivery.expedition') }}"
+                            class="nav-link {{ Request::is('delivery/expedition*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Ekspedisi</p>
+                        </a>
+                    </li>
                 </ul>
             </li>
             @endif

@@ -80,6 +80,14 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/getDeliveryOrderByID', [DeliveryController::class, 'getDeliveryOrderByID'])->name('delivery.getDeliveryOrderByID');
             Route::post('/createExpedition', [DeliveryController::class, 'createExpedition'])->name('delivery.createExpedition');
         });
+
+        Route::group(['prefix' => 'expedition'], function () {
+            Route::get('/', [DeliveryController::class, 'expedition'])->name('delivery.expedition');
+            Route::get('/get', [DeliveryController::class, 'getExpedition'])->name('delivery.getExpedition');
+            Route::get('/detail/{expeditionID}', [DeliveryController::class, 'detailExpedition'])->name('delivery.detailExpedition');
+            Route::get('/confirmExpedition/{status}/{expeditionID}', [DeliveryController::class, 'confirmExpedition'])->name('delivery.confirmExpedition');
+            Route::get('/confirmProduct/{status}/{deliveryOrderDetailID}', [DeliveryController::class, 'confirmProduct'])->name('delivery.confirmProduct');
+        });
     });
 
     Route::group(['prefix' => 'rtsales', 'middleware' => ['checkRoleUser:IT,FI,BM,DMO']], function () {

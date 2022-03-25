@@ -68,7 +68,6 @@ $(document).ready(function () {
                 {
                     data: "DueDate",
                     name: "DueDate",
-                    searchable: false,
                 },
                 {
                     data: "StoreName",
@@ -270,7 +269,7 @@ $(document).ready(function () {
 
     // Second Next Step
     $("#second-next-step").click(function () {
-        let next = true;
+        let next = false;
         let cloneProduct = $("#delivery-order-result").clone();
 
         $("#preview-product").html(cloneProduct);
@@ -292,6 +291,8 @@ $(document).ready(function () {
                         title: "Terdapat quantity yang melebihi maksimum!",
                     });
                     return (next = false);
+                } else {
+                    next = true;
                 }
                 let newQtyElement = `<span id='qty-expedition'>${qty.val()}</span>`;
                 qty.replaceWith(newQtyElement);
@@ -329,6 +330,8 @@ $(document).ready(function () {
                     title: "Terdapat nominal yang melebihi maksimum!",
                 });
                 return (next = false);
+            } else {
+                next = true;
             }
         });
         $("#preview-product input[type=checkbox]").parent().addClass("d-none");
@@ -438,6 +441,12 @@ $(document).ready(function () {
     });
 
     $("#create-expedition-btn").click(function (e) {
+        $("body").append(`<div class="card m-0" style="z-index:99999;">
+                            <div class="overlay position-fixed flex-column">
+                                <i class="fas fa-4x fa-spinner fa-spin"></i>
+                                <h4 class="mt-4">Harap tunggu</h4>
+                            </div>
+                        </div>`);
         $.ajax({
             url: `/delivery/request/createExpedition`,
             headers: {
@@ -448,7 +457,6 @@ $(document).ready(function () {
             },
             type: "post",
             success: function (result) {
-                // console.log(result);
                 if (result.status == "success") {
                     iziToast.success({
                         title: "Berhasil",
@@ -456,7 +464,6 @@ $(document).ready(function () {
                         position: "topRight",
                     });
                 }
-
                 if (result.status == "failed") {
                     iziToast.error({
                         title: "Gagal",
