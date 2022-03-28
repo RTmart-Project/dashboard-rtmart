@@ -68,7 +68,6 @@ $(document).ready(function () {
                 {
                     data: "DueDate",
                     name: "DueDate",
-                    searchable: false,
                 },
                 {
                     data: "StoreName",
@@ -270,7 +269,7 @@ $(document).ready(function () {
 
     // Second Next Step
     $("#second-next-step").click(function () {
-        let next = true;
+        let next = false;
         let cloneProduct = $("#delivery-order-result").clone();
 
         $("#preview-product").html(cloneProduct);
@@ -292,6 +291,8 @@ $(document).ready(function () {
                         title: "Terdapat quantity yang melebihi maksimum!",
                     });
                     return (next = false);
+                } else {
+                    next = true;
                 }
                 let newQtyElement = `<span id='qty-expedition'>${qty.val()}</span>`;
                 qty.replaceWith(newQtyElement);
@@ -329,6 +330,8 @@ $(document).ready(function () {
                     title: "Terdapat nominal yang melebihi maksimum!",
                 });
                 return (next = false);
+            } else {
+                next = true;
             }
         });
         $("#preview-product input[type=checkbox]").parent().addClass("d-none");
@@ -358,34 +361,43 @@ $(document).ready(function () {
             .find("#license_plate")
             .val();
 
-        // if (createdDate == "") {
-        //     Toast.fire({
-        //         icon: "error",
-        //         title: "Harap isi waktu pengiriman!",
-        //     });
-        // } else if (vehicle == "") {
-        //     Toast.fire({
-        //         icon: "error",
-        //         title: "Harap isi jenis kendaraan!",
-        //     });
-        // } else if (driver == "") {
-        //     Toast.fire({
-        //         icon: "error",
-        //         title: "Harap isi driver!",
-        //     });
-        // } else if (helper == "") {
-        //     Toast.fire({
-        //         icon: "error",
-        //         title: "Harap isi helper!",
-        //     });
-        // } else if (licensePlate == "") {
-        //     Toast.fire({
-        //         icon: "error",
-        //         title: "Harap isi Plat Nomor Kendaraan!",
-        //     });
-        // } else {
-        $("#modalKirimBarang").modal("show");
-        // }
+        if (createdDate == "") {
+            Toast.fire({
+                icon: "error",
+                title: "Harap isi waktu pengiriman!",
+            });
+        } else if (vehicle == "") {
+            Toast.fire({
+                icon: "error",
+                title: "Harap isi jenis kendaraan!",
+            });
+        } else if (driver == "") {
+            Toast.fire({
+                icon: "error",
+                title: "Harap isi driver!",
+            });
+        } else if (helper == "") {
+            Toast.fire({
+                icon: "error",
+                title: "Harap isi helper!",
+            });
+        } else if (licensePlate == "") {
+            Toast.fire({
+                icon: "error",
+                title: "Harap isi Plat Nomor Kendaraan!",
+            });
+        } else {
+            $("#modalKirimBarang").modal("show");
+        }
+
+        // Data per DO
+        dataDeliveryOrderID = [];
+        $("#preview-product .card-do:not(.d-none)").each(function () {
+            let doID = $(this).children().children().find(".do-id").text();
+            dataDeliveryOrderID.push({
+                deliveryOrderID: doID,
+            });
+        });
 
         // Expedition Data
         dataDeliveryOrderDetail = [];
@@ -403,6 +415,18 @@ $(document).ready(function () {
             });
         });
 
+        // DO Detail ID not checked
+        dataDeliveryOrderDetailNotChecked = [];
+        $("#preview-product .request-do.d-none").each(function () {
+            let deliveryOrderDetailID = $(this)
+                .find("input[type=checkbox]")
+                .val();
+
+            dataDeliveryOrderDetailNotChecked.push({
+                deliveryOrderDetailIDNotChecked: deliveryOrderDetailID,
+            });
+        });
+
         dataExpedition = JSON.stringify({
             createdDate: createdDate,
             vehicleID: vehicle,
@@ -410,10 +434,19 @@ $(document).ready(function () {
             helperID: helper,
             licensePlate: licensePlate,
             dataDetail: dataDeliveryOrderDetail,
+            dataDeliveryOrderID: dataDeliveryOrderID,
+            dataDeliveryOrderDetailNotChecked:
+                dataDeliveryOrderDetailNotChecked,
         });
     });
 
     $("#create-expedition-btn").click(function (e) {
+        $("body").append(`<div class="card m-0" style="z-index:99999;">
+                            <div class="overlay position-fixed flex-column">
+                                <i class="fas fa-4x fa-spinner fa-spin"></i>
+                                <h4 class="mt-4">Harap tunggu</h4>
+                            </div>
+                        </div>`);
         $.ajax({
             url: `/delivery/request/createExpedition`,
             headers: {
@@ -424,25 +457,23 @@ $(document).ready(function () {
             },
             type: "post",
             success: function (result) {
-                console.log(result);
-                // if (result.status == "success") {
-                //     iziToast.success({
-                //         title: "Berhasil",
-                //         message: result.message,
-                //         position: "topRight",
-                //     });
-                // }
-
-                // if (result.status == "failed") {
-                //     iziToast.error({
-                //         title: "Gagal",
-                //         message: result.message,
-                //         position: "topRight",
-                //     });
-                // }
-                // setTimeout(function () {
-                //     location.reload(true);
-                // }, 3000);
+                if (result.status == "success") {
+                    iziToast.success({
+                        title: "Berhasil",
+                        message: result.message,
+                        position: "topRight",
+                    });
+                }
+                if (result.status == "failed") {
+                    iziToast.error({
+                        title: "Gagal",
+                        message: result.message,
+                        position: "topRight",
+                    });
+                }
+                setTimeout(function () {
+                    location.reload(true);
+                }, 2500);
             },
         });
     });
