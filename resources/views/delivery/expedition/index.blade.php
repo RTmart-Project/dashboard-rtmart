@@ -34,6 +34,7 @@
                       <thead>
                         <tr>
                           <th>Ekspedisi ID</th>
+                          <th>Distributor</th>
                           <th>Tanggal Kirim</th>
                           <th>Jumlah DO</th>
                           <th>Driver</th>

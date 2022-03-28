@@ -24,6 +24,10 @@ $(document).ready(function () {
                     name: "expd.MerchantExpeditionID",
                 },
                 {
+                    data: "DistributorName",
+                    name: "ms_distributor.DistributorName",
+                },
+                {
                     data: "CreatedDate",
                     name: "expd.CreatedDate",
                     type: "data",
@@ -81,7 +85,7 @@ $(document).ready(function () {
                     },
                 },
             ],
-            order: [1, "desc"],
+            order: [2, "desc"],
             lengthChange: false,
             responsive: true,
             autoWidth: false,

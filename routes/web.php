@@ -87,6 +87,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/detail/{expeditionID}', [DeliveryController::class, 'detailExpedition'])->name('delivery.detailExpedition');
             Route::get('/confirmExpedition/{status}/{expeditionID}', [DeliveryController::class, 'confirmExpedition'])->name('delivery.confirmExpedition');
             Route::get('/confirmProduct/{status}/{deliveryOrderDetailID}', [DeliveryController::class, 'confirmProduct'])->name('delivery.confirmProduct');
+            Route::get('/resendHaistar/{deliveryOrderID}', [DeliveryController::class, 'resendHaistar'])->name('delivery.resendHaistar');
         });
     });
 

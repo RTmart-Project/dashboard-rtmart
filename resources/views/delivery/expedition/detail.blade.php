@@ -24,19 +24,20 @@
             <div class="d-flex flex-column align-items-center">
               <div>
                 <button class="btn btn-sm btn-success btn-finish-expedition mb-1"
-                  data-expedition="{{ $expd[0]->MerchantExpeditionID }}" {{ $countStatus->CountStatus > 0 ? 'disabled' :
+                  data-expedition="{{ $expd[0]->MerchantExpeditionID }}" {{ $countStatus->DlmPengiriman > 0 ? 'disabled'
+                  :
                   ''
                   }}>
                   <i class="fas fa-check"></i> Selesaikan Ekspedisi
                 </button>
+                @if ($countStatus->Selesai == 0)
                 <button class="btn btn-sm btn-danger btn-cancel-expedition mb-1"
-                  data-expedition="{{ $expd[0]->MerchantExpeditionID }}" {{ $countStatus->CountStatus > 0 ? 'disabled' :
-                  ''
-                  }}>
+                  data-expedition="{{ $expd[0]->MerchantExpeditionID }}">
                   <i class="fas fa-times"></i> Batalkan Ekspedisi
                 </button>
+                @endif
               </div>
-              @if ($countStatus->CountStatus > 0)
+              @if ($countStatus->DlmPengiriman > 0)
               <small class="text-center">
                 *Ekspedisi dapat diselesaikan jika semua produk telah dikonfirmasi (Selesai / Batal)
               </small>
@@ -70,6 +71,7 @@
         <div class="card @if($expd[0]->StatusExpd == 'S035') card-success @else card-warning @endif card-outline">
           <div class="card-header">
             <h3 class="card-title">
+              {{ $order[0]->Distributor }}
               <b>Delivery Order ID :</b> {{ $order[0]->DeliveryOrderID }} <br>
               {{ $order[0]->StockOrderID }} <br>
               {{ $order[0]->MerchantID }} - {{ $order[0]->StoreName }} - {{ $order[0]->PhoneNumber }}
@@ -83,8 +85,16 @@
           <div class="card-body">
             @php
             $subtotal = 0;
+            $firstLoopHaistar = true;
             @endphp
             @foreach ($order as $item)
+            @if ($firstLoopHaistar == true && $item->Distributor == "HAISTAR" && $item->StatusExpedition == "S034")
+            <div class="text-right">
+              <a data-delivery-order="{{ $order[0]->DeliveryOrderID }}"
+                class="btn btn-sm bg-lightblue btn-resend-haistar">Resend Produk Haistar
+              </a>
+            </div>
+            @endif
             <div class="row text-center align-items-center">
               <div class="col-6 col-md-3">
                 <img src="{{ config('app.base_image_url') . '/product/'. $item->ProductImage }}" alt="" width="80">
@@ -105,7 +115,7 @@
                 <label class="m-0">Status Produk</label><br>
                 @if ($item->StatusExpedition == "S031")
                 <span class="badge badge-success mb-2">{{ $item->StatusProduct }}</span>
-                @elseif ($item->StatusExpedition == "S037")
+                @elseif ($item->StatusExpedition == "S037" || $item->StatusExpedition == "S034")
                 <span class="badge badge-danger mb-2">{{ $item->StatusProduct }}</span>
                 @else
                 <span class="badge badge-warning mb-2">{{ $item->StatusProduct }}</span>
@@ -125,6 +135,7 @@
             <hr class="m-2">
             @php
             $subtotal += $item->Qty * $item->Price;
+            $firstLoopHaistar = false;
             @endphp
             @endforeach
             <div class="row">
@@ -147,6 +158,31 @@
 
 @section('js-pages')
 <script>
+  // Event listener saat tombol selesaikan ekspedisi diklik
+$('.btn-resend-haistar').on('click', function (e) {
+      e.preventDefault();
+      const deliveryOrder = $(this).data("delivery-order");
+      $.confirm({
+          title: 'Resend Produk Haistar',
+          content: `Apakah yakin ingin mengirim ulang order haistar dengan ID <b>${deliveryOrder}</b>?`,
+          closeIcon: true,
+          type: 'blue',
+          typeAnimated: true,
+          buttons: {
+              ya: {
+                  btnClass: 'bg-lightblue',
+                  draggable: true,
+                  dragWindowGap: 0,
+                  action: function () {
+                      window.location = '/delivery/expedition/resendHaistar/' + deliveryOrder
+                  }
+              },
+              tidak: function () {
+              }
+          }
+      });
+  });
+
   // Event listener saat tombol selesaikan ekspedisi diklik
 $('.btn-finish-expedition').on('click', function (e) {
       e.preventDefault();
@@ -232,7 +268,7 @@ $('.btn-cancel-product').on('click', function (e) {
       const detailDO = $(this).data("detail-do");
       $.confirm({
           title: 'Konfirmasi Order',
-          content: `Apakah produk <b>${product}</b> tidak diterima oleh <b>${store}</b>?`,
+          content: `Apakah yakin ingin membatalkan produk <b>${product}</b> dari <b>${store}</b>?`,
           closeIcon: true,
           type: 'red',
           typeAnimated: true,

@@ -375,7 +375,7 @@ class DeliveryController extends Controller
 
     public function detailExpedition(DeliveryOrderService $deliveryOrderService, $expeditionID)
     {
-        // dd($deliveryOrderService->countStatusDeliveryDetail($expeditionID)->first());
+        // dd($deliveryOrderService->expedition($expeditionID)->get());
         return view('delivery.expedition.detail', [
             'expedition' => $deliveryOrderService->expedition($expeditionID)->get(),
             'countStatus' => $deliveryOrderService->countStatusDeliveryDetail($expeditionID)->first()
@@ -420,7 +420,7 @@ class DeliveryController extends Controller
         ];
 
         try {
-            DB::transaction(function () use ($status, $expeditionID, $dataUpdateExpedition, $dataExpeditionLog, $getDOandSO, $dataUpdateDO, $statusDO, $message) {
+            DB::transaction(function () use ($status, $expeditionID, $dataUpdateExpedition, $dataExpeditionLog, $getDOandSO, $dataUpdateDO, $statusDO) {
                 DB::table('tx_merchant_expedition')
                     ->where('MerchantExpeditionID', $expeditionID)
                     ->update($dataUpdateExpedition);
@@ -476,6 +476,70 @@ class DeliveryController extends Controller
             return redirect()->back()->with('success', $message);
         } else {
             return redirect()->back()->with('failed', 'Terjadi kesalahan');
+        }
+    }
+
+    public function resendHaistar($deliveryOrderID, HaistarService $haistarService)
+    {
+        $items = [];
+        $objectItems = new stdClass;
+        $stockOrder = DB::table('tx_merchant_delivery_order')
+            ->where('tx_merchant_delivery_order.DeliveryOrderID', $deliveryOrderID)
+            ->join('tx_merchant_order', 'tx_merchant_order.StockOrderID', 'tx_merchant_delivery_order.StockOrderID')
+            ->select('tx_merchant_delivery_order.StockOrderID', 'tx_merchant_order.PaymentMethodID')
+            ->first();
+        $getItems = DB::table('tx_merchant_delivery_order_detail')
+            ->where('DeliveryOrderID', $deliveryOrderID)
+            ->where('Distributor', 'HAISTAR')
+            ->where('StatusExpedition', 'S034')
+            ->select('ProductID', 'Qty', 'Price')
+            ->get();
+        $totalPrice = 0;
+        foreach ($getItems as $key => $value) {
+            $objectItems->item_code = $value->ProductID;
+            $objectItems->quantity = $value->Qty * 1;
+            $objectItems->unit_price = $value->Price * 1;
+
+            array_push($items, clone $objectItems);
+            $totalPrice += $value->Price * $value->Qty;
+        }
+
+        if ($stockOrder->PaymentMethodID == 1) {
+            $codPrice = $totalPrice;
+        } else {
+            $codPrice = "0";
+        }
+
+        // Parameter Push Order Haistar
+        $objectParams = new stdClass;
+        $objectParams->code = $deliveryOrderID;
+        $objectParams->cod_price = $codPrice;
+        $objectParams->total_price = $totalPrice;
+        $objectParams->total_product_price = $totalPrice;
+        $objectParams->items = $items;
+
+        $haistarPushOrder = $haistarService->haistarPushOrder($stockOrder->StockOrderID, $objectParams);
+
+        $haistarResponse = $haistarPushOrder->status;
+
+        if ($haistarResponse == 200) {
+            try {
+                DB::transaction(function () use ($deliveryOrderID, $items) {
+                    foreach ($items as $key => $value) {
+                        DB::table('tx_merchant_delivery_order_detail')
+                            ->where('DeliveryOrderID', $deliveryOrderID)
+                            ->where('ProductID', $value->item_code)
+                            ->update([
+                                'StatusExpedition' => 'S030'
+                            ]);
+                    }
+                });
+                return redirect()->back()->with('success', 'Order Haistar berhasil di-resend');
+            } catch (\Throwable $th) {
+                return redirect()->back()->with('failed', 'Terjadi kesalahan');
+            }
+        } else {
+            return redirect()->back()->with('failed', $haistarPushOrder->data);
         }
     }
 }
