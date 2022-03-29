@@ -58,7 +58,7 @@
             </li>
             @endif
 
-            @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "BM")
+            {{-- @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "BM")
             || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH"))
             <li class="nav-item {{ Request::is('delivery*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('delivery*') ? 'active' : '' }}">
@@ -85,7 +85,7 @@
                     </li>
                 </ul>
             </li>
-            @endif
+            @endif --}}
 
             @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI") ||
             (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO"))
@@ -210,6 +210,16 @@
                         </a>
                     </li>
                 </ul>
+            </li>
+            @endif
+
+            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI"))
+            <li class="nav-item">
+                <a href="{{ route('monthlyReport') }}"
+                    class="nav-link {{ Request::is('monthly-report*') ? 'active' : '' }}">
+                    <i class="nav-icon fas fa-file-invoice"></i>
+                    <p>Monthly Report</p>
+                </a>
             </li>
             @endif
 

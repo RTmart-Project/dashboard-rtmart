@@ -10,6 +10,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\DistributionController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\MonthlyReportController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RTSalesController;
@@ -89,6 +90,17 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/confirmProduct/{status}/{deliveryOrderDetailID}', [DeliveryController::class, 'confirmProduct'])->name('delivery.confirmProduct');
             Route::get('/resendHaistar/{deliveryOrderID}', [DeliveryController::class, 'resendHaistar'])->name('delivery.resendHaistar');
         });
+    });
+
+    Route::group(['prefix' => 'monthly-report', 'middleware' => ['checkRoleUser:IT,FI']], function () {
+        Route::get('/', [MonthlyReportController::class, 'index'])->name('monthlyReport');
+        Route::post('/', [MonthlyReportController::class, 'index'])->name('monthlyReport.post');
+        Route::post('/getOneData', [MonthlyReportController::class, 'getOneData'])->name('monthlyReport.getOneData');
+        Route::get('/create', [MonthlyReportController::class, 'create'])->name('monthlyReport.create');
+        Route::post('/store', [MonthlyReportController::class, 'store'])->name('monthlyReport.store');
+        Route::get('/edit', [MonthlyReportController::class, 'edit'])->name('monthlyReport.edit');
+        Route::post('/update', [MonthlyReportController::class, 'update'])->name('monthlyReport.update');
+        Route::get('/delete', [MonthlyReportController::class, 'delete'])->name('monthlyReport.delete');
     });
 
     Route::group(['prefix' => 'rtsales', 'middleware' => ['checkRoleUser:IT,FI,BM,DMO']], function () {
