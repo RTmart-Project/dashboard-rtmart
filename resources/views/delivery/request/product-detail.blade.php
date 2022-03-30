@@ -38,10 +38,14 @@
     </div>
     @endif
     <div class="row text-center border-bottom m-0 request-do">
-      <div class="col-1 align-self-center">
+      <div class="col-3 col-md-2 align-self-center">
+        <select class="form-control form-control-sm mb-2" name="send_by" id="send_by">
+          <option value="HAISTAR">Kirim Haistar</option>
+          <option value="RT MART">Kirim RT Mart</option>
+        </select>
         <input type="checkbox" class="check_haistar larger" value="{{ $product->DeliveryOrderDetailID }}">
       </div>
-      <div class="col-3 align-self-center">
+      <div class="col-2 col-md-3 align-self-center">
         <img src="{{ config('app.base_image_url') . '/product/'. $product->ProductImage }}" alt="" width="80">
         <p>{{ $product->ProductName }}</p>
         <input type="hidden" name="product_id_haistar[]" id="product-id" value="{{ $product->ProductID }}"
@@ -67,7 +71,7 @@
           </small>
         </div>
       </div>
-      <div class="col-3 align-self-center">
+      <div class="col-2 align-self-center">
         <label>Total Harga</label>
         <p class="price-total">Rp 0</p>
       </div>

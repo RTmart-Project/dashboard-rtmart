@@ -322,14 +322,41 @@
           $(this).addClass('d-none'); 
         }
       });
+  });   
+
+  $('#delivery-order-result').on('change', '#send_by', function () {
+    let valueDistributor = $(this).val();
+    $(this).closest('.request-do').find('#distributor').val(valueDistributor);
   });
 
   $('#delivery-order-result').on('change', '.check_rtmart', function () {
     $(this).closest(".request-do").find("#qty-request-do, #product-id").prop('disabled', !$(this).is(':checked'));
+    if ($(this).is(":checked")) {
+      let priceTotal = $(this).closest('.request-do').find('.price-total').text().replaceAll("Rp ", "").replaceAll(".", "");
+      let subTotal = $(this).closest('.request-do-wrapper').find('.price-subtotal').text().replaceAll("Rp ", "").replaceAll(".", "");
+      let newSubTotal = Number(subTotal) + Number(priceTotal);
+      $(this).closest('.request-do-wrapper').find('.price-subtotal').html('Rp ' + thousands_separators(newSubTotal));
+    } else {
+      let priceTotal = $(this).closest('.request-do').find('.price-total').text().replaceAll("Rp ", "").replaceAll(".", "");
+      let subTotal = $(this).closest('.request-do-wrapper').find('.price-subtotal').text().replaceAll("Rp ", "").replaceAll(".", "");
+      let newSubTotal = Number(subTotal) - Number(priceTotal);
+      $(this).closest('.request-do-wrapper').find('.price-subtotal').html('Rp ' + thousands_separators(newSubTotal));
+    }
   });
 
   $('#delivery-order-result').on('change', '.check_haistar', function () {
     $(this).closest(".request-do").find("#qty-request-do, #product-id").prop('disabled', !$(this).is(':checked'));
+    if ($(this).is(":checked")) {
+      let priceTotal = $(this).closest('.request-do').find('.price-total').text().replaceAll("Rp ", "").replaceAll(".", "");
+      let subTotal = $(this).closest('.request-do-wrapper').find('.price-subtotal').text().replaceAll("Rp ", "").replaceAll(".", "");
+      let newSubTotal = Number(subTotal) + Number(priceTotal);
+      $(this).closest('.request-do-wrapper').find('.price-subtotal').html('Rp ' + thousands_separators(newSubTotal));
+    } else {
+      let priceTotal = $(this).closest('.request-do').find('.price-total').text().replaceAll("Rp ", "").replaceAll(".", "");
+      let subTotal = $(this).closest('.request-do-wrapper').find('.price-subtotal').text().replaceAll("Rp ", "").replaceAll(".", "");
+      let newSubTotal = Number(subTotal) - Number(priceTotal);
+      $(this).closest('.request-do-wrapper').find('.price-subtotal').html('Rp ' + thousands_separators(newSubTotal));
+    }
   });
 
   // Event listener saat mengetik qty do

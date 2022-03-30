@@ -269,7 +269,15 @@ $(document).ready(function () {
 
     // Second Next Step
     $("#second-next-step").click(function () {
-        let next = false;
+        let next = true;
+        if ($("#delivery-order-result :checkbox:checked").length < 1) {
+            Toast.fire({
+                icon: "error",
+                title: "Pilih produk terlebih dahulu!",
+            });
+            return (next = false);
+        }
+
         let cloneProduct = $("#delivery-order-result").clone();
 
         $("#preview-product").html(cloneProduct);
@@ -291,8 +299,12 @@ $(document).ready(function () {
                         title: "Terdapat quantity yang melebihi maksimum!",
                     });
                     return (next = false);
-                } else {
-                    next = true;
+                } else if (qtyVal < 1) {
+                    Toast.fire({
+                        icon: "error",
+                        title: "Quantity harus lebih dari 0!",
+                    });
+                    return (next = false);
                 }
                 let newQtyElement = `<span id='qty-expedition'>${qty.val()}</span>`;
                 qty.replaceWith(newQtyElement);
@@ -330,8 +342,6 @@ $(document).ready(function () {
                     title: "Terdapat nominal yang melebihi maksimum!",
                 });
                 return (next = false);
-            } else {
-                next = true;
             }
         });
         $("#preview-product input[type=checkbox]").parent().addClass("d-none");
