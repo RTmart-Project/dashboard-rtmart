@@ -1423,6 +1423,21 @@ class DistributionController extends Controller
                             'GradeID' => $value['GradeID'],
                             'Price' => $value['Price']
                         ]);
+                    $getProduct = DB::table('ms_product')->where('ProductID', $value['ProductID'])->select('ProductName')->first();
+                    DB::table('ms_product_price_log')
+                        ->insert([
+                            'LogType' => 'DISTRIBUTOR PRODUCT',
+                            'LogAction' => 'INSERT PRODUCT',
+                            'OldPrice' => 0,
+                            'NewPrice' => $value['Price'],
+                            'DistributorID' => $value['DistributorID'],
+                            'GradeID' => $value['GradeID'],
+                            'ProductID' => $value['ProductID'],
+                            'ProductName' => $getProduct->ProductName,
+                            'ActionByID' => Auth::user()->UserID,
+                            'ActionByName' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo,
+                            'CreatedDate' => date('Y-m-d H:i:s')
+                        ]);
                 }
             });
 
@@ -1439,33 +1454,79 @@ class DistributionController extends Controller
             'is_pre_order' => 'required|in:1,0'
         ]);
 
-        $updateDistributorProduct = DB::table('ms_distributor_product_price')
-            ->where('DistributorID', '=', $distributorId)
-            ->where('ProductID', '=', $productId)
-            ->where('GradeID', '=', $gradeId)
-            ->update([
-                'Price' => $request->input('price'),
-                'IsPreOrder' => $request->input('is_pre_order')
-            ]);
+        $getProduct = DB::table('ms_product')->where('ProductID', $productId)->select('ProductName')->first();
+        $getOldPrice = DB::table('ms_distributor_product_price')
+            ->where('DistributorID', $distributorId)
+            ->where('ProductID', $productId)
+            ->where('GradeID', $gradeId)
+            ->select('Price')->first();
 
-        if ($updateDistributorProduct) {
+        $data = [
+            'LogType' => 'DISTRIBUTOR PRODUCT',
+            'LogAction' => 'UPDATE',
+            'OldPrice' => $getOldPrice->Price,
+            'NewPrice' => $request->input('price'),
+            'DistributorID' => $distributorId,
+            'GradeID' => $gradeId,
+            'ProductID' => $productId,
+            'ProductName' => $getProduct->ProductName,
+            'ActionByID' => Auth::user()->UserID,
+            'ActionByName' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo,
+            'CreatedDate' => date('Y-m-d H:i:s')
+        ];
+
+        try {
+            DB::transaction(function () use ($distributorId, $productId, $gradeId, $request, $data) {
+                DB::table('ms_distributor_product_price')
+                    ->where('DistributorID', '=', $distributorId)
+                    ->where('ProductID', '=', $productId)
+                    ->where('GradeID', '=', $gradeId)
+                    ->update([
+                        'Price' => $request->input('price'),
+                        'IsPreOrder' => $request->input('is_pre_order')
+                    ]);
+                DB::table('ms_product_price_log')->insert($data);
+            });
             return redirect()->route('distribution.product')->with('success', 'Harga produk telah berhasil diubah');
-        } else {
+        } catch (\Throwable $th) {
             return redirect()->route('distribution.product')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
         }
     }
 
     public function deleteProduct($distributorId, $productId, $gradeId)
     {
-        $deleteProduct = DB::table('ms_distributor_product_price')
-            ->where('DistributorID', '=', $distributorId)
-            ->where('ProductID', '=', $productId)
-            ->where('GradeID', '=', $gradeId)
-            ->delete();
+        $getProduct = DB::table('ms_product')->where('ProductID', $productId)->select('ProductName')->first();
+        $getOldPrice = DB::table('ms_distributor_product_price')
+            ->where('DistributorID', $distributorId)
+            ->where('ProductID', $productId)
+            ->where('GradeID', $gradeId)
+            ->select('Price')->first();
 
-        if ($deleteProduct) {
+        $data = [
+            'LogType' => 'DISTRIBUTOR PRODUCT',
+            'LogAction' => 'REMOVE PRODUCT',
+            'OldPrice' => $getOldPrice->Price,
+            'NewPrice' => 0,
+            'DistributorID' => $distributorId,
+            'GradeID' => $gradeId,
+            'ProductID' => $productId,
+            'ProductName' => $getProduct->ProductName,
+            'ActionByID' => Auth::user()->UserID,
+            'ActionByName' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo,
+            'CreatedDate' => date('Y-m-d H:i:s')
+        ];
+
+        try {
+            DB::transaction(function () use ($distributorId, $productId, $gradeId, $data) {
+                DB::table('ms_distributor_product_price')
+                    ->where('DistributorID', '=', $distributorId)
+                    ->where('ProductID', '=', $productId)
+                    ->where('GradeID', '=', $gradeId)
+                    ->delete();
+                DB::table('ms_product_price_log')->insert($data);
+            });
             return redirect()->route('distribution.product')->with('success', 'Data produk berhasil dihapus');
-        } else {
+        } catch (\Throwable $th) {
             return redirect()->route('distribution.product')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
         }
     }
@@ -1626,14 +1687,14 @@ class DistributionController extends Controller
         $specialPrice = $request->specialPrice;
 
         if ($specialPrice != null) {
-            $sql = $merchantService->updateOrInsertSpecialPrice($merchantID, $productID, $gradeID, $specialPrice);
-        } else {
-            $sql = false;
-        }
-
-        if ($sql) {
-            $status = "success";
-            $message = "Special Price Merchant berhasil disimpan";
+            try {
+                $merchantService->updateOrInsertSpecialPrice($merchantID, $productID, $gradeID, $specialPrice);
+                $status = "success";
+                $message = "Special Price Merchant berhasil disimpan";
+            } catch (\Throwable $th) {
+                $status = "failed";
+                $message = "Terjadi kesalahan";
+            }
         } else {
             $status = "failed";
             $message = "Terjadi kesalahan, pastikan input data dengan benar";
@@ -1651,12 +1712,11 @@ class DistributionController extends Controller
         $productID = $request->productID;
         $gradeID = $request->gradeID;
 
-        $delete = $merchantService->deleteSpecialPriceMerchant($merchantID, $productID, $gradeID);
-
-        if ($delete) {
+        try {
+            $merchantService->deleteSpecialPriceMerchant($merchantID, $productID, $gradeID);
             $status = "success";
             $message = "Special Price Merchant berhasil dihapus";
-        } else {
+        } catch (\Throwable $th) {
             $status = "failed";
             $message = "Terjadi kesalahan sistem atau jaringan";
         }
@@ -1672,12 +1732,11 @@ class DistributionController extends Controller
         $merchantID = $request->merchantID;
         $gradeID = $request->gradeID;
 
-        $reset = $merchantService->resetSpecialPriceMerchant($merchantID, $gradeID);
-
-        if ($reset) {
+        try {
+            $merchantService->resetSpecialPriceMerchant($merchantID, $gradeID);
             $status = "success";
             $message = "Special Price Merchant berhasil direset";
-        } else {
+        } catch (\Throwable $th) {
             $status = "failed";
             $message = "Terjadi kesalahan";
         }
