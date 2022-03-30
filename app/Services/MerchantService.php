@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class MerchantService
@@ -157,38 +158,111 @@ class MerchantService
 
     public function updateOrInsertSpecialPrice($merchantID, $productID, $gradeID, $specialPrice)
     {
-        $sql = DB::table('ms_product_special_price')
-            ->updateOrInsert(
-                [
-                    'MerchantID' => $merchantID,
-                    'ProductID' => $productID,
-                    'GradeID' => $gradeID
-                ],
-                [
-                    'SpecialPrice' => $specialPrice
-                ]
-            );
+        $getProduct = DB::table('ms_product')->where('ProductID', $productID)->select('ProductName')->first();
+        $getData = DB::table('ms_merchant_account')->where('MerchantID', $merchantID)->select('DistributorID')->first();
 
+        $getOldPrice = DB::table('ms_product_special_price')
+            ->where('ProductID', $productID)
+            ->where('MerchantID', $merchantID)
+            ->where('GradeID', $gradeID)->select('SpecialPrice')->first();
+
+        if ($getOldPrice) {
+            $logAction = "UPDATE";
+            $oldPrice = $getOldPrice->SpecialPrice;
+        } else {
+            $logAction = "CREATE";
+            $oldPrice = "0";
+        }
+
+        $data = [
+            'LogType' => 'SPECIAL PRICE',
+            'LogAction' => $logAction,
+            'OldPrice' => $oldPrice,
+            'NewPrice' => $specialPrice,
+            'DistributorID' => $getData->DistributorID,
+            'GradeID' => $gradeID,
+            'MerchantID' => $merchantID,
+            'ProductID' => $productID,
+            'ProductName' => $getProduct->ProductName,
+            'ActionByID' => Auth::user()->UserID,
+            'ActionByName' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo,
+            'CreatedDate' => date('Y-m-d H:i:s')
+        ];
+
+        $sql = DB::transaction(function () use ($merchantID, $productID, $gradeID, $specialPrice, $data) {
+            DB::table('ms_product_special_price')
+                ->updateOrInsert(
+                    [
+                        'MerchantID' => $merchantID,
+                        'ProductID' => $productID,
+                        'GradeID' => $gradeID
+                    ],
+                    [
+                        'SpecialPrice' => $specialPrice
+                    ]
+                );
+            DB::table('ms_product_price_log')->insert($data);
+        });
         return $sql;
     }
 
     public function deleteSpecialPriceMerchant($merchantID, $productID, $gradeID)
     {
-        $sql = DB::table('ms_product_special_price')
-            ->where('MerchantID', $merchantID)
+        $getProduct = DB::table('ms_product')->where('ProductID', $productID)->select('ProductName')->first();
+        $getData = DB::table('ms_merchant_account')->where('MerchantID', $merchantID)->select('DistributorID')->first();
+        $getOldPrice = DB::table('ms_product_special_price')
             ->where('ProductID', $productID)
-            ->where('GradeID', $gradeID)
-            ->delete();
+            ->where('MerchantID', $merchantID)
+            ->where('GradeID', $gradeID)->select('SpecialPrice')->first();
+
+        $data = [
+            'LogType' => 'SPECIAL PRICE',
+            'LogAction' => 'DELETE',
+            'OldPrice' => $getOldPrice->SpecialPrice,
+            'NewPrice' => 0,
+            'DistributorID' => $getData->DistributorID,
+            'GradeID' => $gradeID,
+            'MerchantID' => $merchantID,
+            'ProductID' => $productID,
+            'ProductName' => $getProduct->ProductName,
+            'ActionByID' => Auth::user()->UserID,
+            'ActionByName' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo,
+            'CreatedDate' => date('Y-m-d H:i:s')
+        ];
+
+        $sql = DB::transaction(function () use ($merchantID, $productID, $gradeID, $data) {
+            DB::table('ms_product_special_price')
+                ->where('MerchantID', $merchantID)
+                ->where('ProductID', $productID)
+                ->where('GradeID', $gradeID)
+                ->delete();
+            DB::table('ms_product_price_log')->insert($data);
+        });
 
         return $sql;
     }
 
     public function resetSpecialPriceMerchant($merchantID, $gradeID)
     {
-        $sql = DB::table('ms_product_special_price')
-            ->where('MerchantID', $merchantID)
-            ->where('GradeID', $gradeID)
-            ->delete();
+        $getData = DB::table('ms_merchant_account')->where('MerchantID', $merchantID)->select('DistributorID')->first();
+        $data = [
+            'LogType' => 'SPECIAL PRICE',
+            'LogAction' => 'RESET',
+            'DistributorID' => $getData->DistributorID,
+            'GradeID' => $gradeID,
+            'MerchantID' => $merchantID,
+            'ActionByID' => Auth::user()->UserID,
+            'ActionByName' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo,
+            'CreatedDate' => date('Y-m-d H:i:s')
+        ];
+
+        $sql = DB::transaction(function () use ($merchantID, $gradeID, $data) {
+            DB::table('ms_product_special_price')
+                ->where('MerchantID', $merchantID)
+                ->where('GradeID', $gradeID)
+                ->delete();
+            DB::table('ms_product_price_log')->insert($data);
+        });
 
         return $sql;
     }

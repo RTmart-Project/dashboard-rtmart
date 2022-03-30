@@ -73,14 +73,14 @@
                         <a href="{{ route('delivery.request') }}"
                             class="nav-link {{ Request::is('delivery/request*') ? 'active' : '' }}">
                             <i class="far fa-circle nav-icon"></i>
-                            <p>Delivery Request</p>
+                            <p>Delivery Plan</p>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="{{ route('delivery.expedition') }}"
                             class="nav-link {{ Request::is('delivery/expedition*') ? 'active' : '' }}">
                             <i class="far fa-circle nav-icon"></i>
-                            <p>Ekspedisi</p>
+                            <p>Delivery On Going</p>
                         </a>
                     </li>
                 </ul>
