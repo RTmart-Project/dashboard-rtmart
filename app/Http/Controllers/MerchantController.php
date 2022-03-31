@@ -287,8 +287,17 @@ class MerchantController extends Controller
                     return $data->ProductName . '<br>' . $fulfillment;
                 })
                 ->addColumn('Action', function ($data) {
-                    $actionBtn = '<a href="/merchant/account/product/edit/' . $data->MerchantID . '/' . $data->ProductID . '" class="btn btn-sm btn-warning mr-1">Edit</a>
-                    <a data-merchant-id="' . $data->MerchantID . '" data-product-id="' . $data->ProductID . '" data-product-name="' . $data->ProductName . '" href="#" class="btn-delete btn btn-sm btn-danger">Delete</a>';
+                    if (
+                        Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" ||
+                        Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "AH" ||
+                        Auth::user()->RoleID == "HR"
+                    ) {
+                        $actionBtn = '<a href="/merchant/account/product/edit/' . $data->MerchantID . '/' . $data->ProductID . '" class="btn btn-sm btn-warning mr-1">Edit</a>
+                        <a data-merchant-id="' . $data->MerchantID . '" data-product-id="' . $data->ProductID . '" data-product-name="' . $data->ProductName . '" href="#" class="btn-delete btn btn-sm btn-danger">Delete</a>';
+                    } else {
+                        $actionBtn = '';
+                    }
+
                     return $actionBtn;
                 })
                 ->rawColumns(['ProductName', 'ProductImage', 'Action'])

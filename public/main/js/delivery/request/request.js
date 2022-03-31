@@ -35,6 +35,9 @@ $(document).ready(function () {
                     d.fromDate = $("#delivery-request #from_date").val();
                     d.toDate = $("#delivery-request #to_date").val();
                     d.checkFilter = checkboxFilter;
+                    d.urutanDO = $(
+                        "#delivery-request .select-filter-custom select"
+                    ).val();
                 },
             },
             columns: [
@@ -49,34 +52,34 @@ $(document).ready(function () {
                     searchable: false,
                 },
                 {
-                    data: "DeliveryOrderID",
-                    name: "tx_merchant_delivery_order.DeliveryOrderID",
-                },
-                {
-                    data: "StockOrderID",
-                    name: "tx_merchant_delivery_order.StockOrderID",
-                },
-                {
-                    data: "Area",
-                    name: "Area",
-                },
-                {
                     data: "CreatedDate",
-                    name: "tx_merchant_delivery_order.CreatedDate",
+                    name: "tmdo.CreatedDate",
                     type: "date",
                 },
                 {
-                    data: "DueDate",
-                    name: "DueDate",
+                    data: "DeliveryOrderID",
+                    name: "tmdo.DeliveryOrderID",
+                },
+                {
+                    data: "UrutanDO",
+                    name: "UrutanDO",
+                    searchable: false,
+                },
+                {
+                    data: "StockOrderID",
+                    name: "tmdo.StockOrderID",
                 },
                 {
                     data: "StoreName",
                     name: "StoreName",
                 },
                 {
-                    data: "Products",
-                    name: "Products",
-                    searchable: false,
+                    data: "PhoneNumber",
+                    name: "PhoneNumber",
+                },
+                {
+                    data: "Area",
+                    name: "Area",
                 },
                 {
                     data: "DistributorName",
@@ -87,11 +90,12 @@ $(document).ready(function () {
                     name: "Sales",
                 },
                 {
-                    data: "PhoneNumber",
-                    name: "PhoneNumber",
+                    data: "Products",
+                    name: "Products",
+                    searchable: false,
                 },
             ],
-            order: [5, "asc"],
+            order: [2, "asc"],
             lengthChange: false,
             responsive: true,
             autoWidth: false,
@@ -127,6 +131,14 @@ $(document).ready(function () {
                           <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
                           <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
                           <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-2">Refresh</button>
+                          <div class="select-filter-custom ml-2">
+                                <select class="form-control form-control-sm">
+                                    <option value="">All</option>
+                                    <option value="DO ke-1">DO ke-1</option>
+                                    <option value="DO ke-2">DO ke-2</option>
+                                    <option value="DO ke-3">DO ke-3</option>
+                                </select>
+                            </div>
                       </div>`);
 
     // Setting Awal Daterangepicker
@@ -199,8 +211,8 @@ $(document).ready(function () {
     // Menyisipkan Placeholder Date
     $("#delivery-request #from_date").val("");
     $("#delivery-request #to_date").val("");
-    $("#delivery-request #from_date").attr("placeholder", "From Date");
-    $("#delivery-request #to_date").attr("placeholder", "To Date");
+    $("#delivery-request #from_date").attr("placeholder", "From Date Plan");
+    $("#delivery-request #to_date").attr("placeholder", "To Date Plan");
 
     // Event Listener saat tombol refresh diklik
     $("#delivery-request #refresh").click(function () {
@@ -214,6 +226,11 @@ $(document).ready(function () {
 
     // Event listener saat tombol filter diklik
     $("#delivery-request #filter").click(function () {
+        $("#delivery-request .table-datatables").DataTable().ajax.reload();
+    });
+
+    // Event listener saat tombol select option diklik
+    $("#delivery-request .select-filter-custom select").change(function () {
         $("#delivery-request .table-datatables").DataTable().ajax.reload();
     });
 

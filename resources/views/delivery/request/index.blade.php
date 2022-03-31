@@ -116,16 +116,16 @@
                                     <tr>
                                       <th></th>
                                       <th></th>
+                                      <th>Tanggal Plan</th>
                                       <th>Delivery Order ID</th>
+                                      <th>Urutan</th>
                                       <th>Stock Order ID</th>
-                                      <th>Area</th>
-                                      <th>Tanggal Request</th>
-                                      <th>Tenggat Waktu</th>
                                       <th>Nama Toko</th>
-                                      <th>Produk</th>
+                                      <th>No. Telp</th>
+                                      <th>Area</th>
                                       <th>Distributor</th>
                                       <th>Sales</th>
-                                      <th>No. Telp</th>
+                                      <th>Produk</th>
                                     </tr>
                                   </thead>
                                   <tbody>

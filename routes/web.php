@@ -82,25 +82,24 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/createExpedition', [DeliveryController::class, 'createExpedition'])->name('delivery.createExpedition');
         });
 
-        Route::group(['prefix' => 'expedition'], function () {
+        Route::group(['prefix' => 'on-going'], function () {
             Route::get('/', [DeliveryController::class, 'expedition'])->name('delivery.expedition');
-            Route::get('/get', [DeliveryController::class, 'getExpedition'])->name('delivery.getExpedition');
+            Route::get('/get/{status}', [DeliveryController::class, 'getExpedition'])->name('delivery.getExpedition');
             Route::get('/detail/{expeditionID}', [DeliveryController::class, 'detailExpedition'])->name('delivery.detailExpedition');
             Route::get('/confirmExpedition/{status}/{expeditionID}', [DeliveryController::class, 'confirmExpedition'])->name('delivery.confirmExpedition');
             Route::get('/confirmProduct/{status}/{deliveryOrderDetailID}', [DeliveryController::class, 'confirmProduct'])->name('delivery.confirmProduct');
             Route::get('/resendHaistar/{deliveryOrderID}', [DeliveryController::class, 'resendHaistar'])->name('delivery.resendHaistar');
+        });
+
+        Route::group(['prefix' => 'history'], function () {
+            Route::get('/', [DeliveryController::class, 'history'])->name('delivery.history');
+            Route::get('/detail/{expeditionID}', [DeliveryController::class, 'detailHistory'])->name('delivery.detailHistory');
         });
     });
 
     Route::group(['prefix' => 'monthly-report', 'middleware' => ['checkRoleUser:IT,FI']], function () {
         Route::get('/', [MonthlyReportController::class, 'index'])->name('monthlyReport');
         Route::post('/', [MonthlyReportController::class, 'index'])->name('monthlyReport.post');
-        Route::post('/getOneData', [MonthlyReportController::class, 'getOneData'])->name('monthlyReport.getOneData');
-        Route::get('/create', [MonthlyReportController::class, 'create'])->name('monthlyReport.create');
-        Route::post('/store', [MonthlyReportController::class, 'store'])->name('monthlyReport.store');
-        Route::get('/edit', [MonthlyReportController::class, 'edit'])->name('monthlyReport.edit');
-        Route::post('/update', [MonthlyReportController::class, 'update'])->name('monthlyReport.update');
-        Route::get('/delete', [MonthlyReportController::class, 'delete'])->name('monthlyReport.delete');
     });
 
     Route::group(['prefix' => 'rtsales', 'middleware' => ['checkRoleUser:IT,FI,BM,DMO']], function () {
@@ -213,8 +212,8 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/merchant/account/grade/get/{distributorId}', [MerchantController::class, 'getGrade'])->withoutMiddleware('checkRoleUser:IT,BM,FI,AH,HR,DMO')->name('merchant.getGrade');
             Route::get('/merchant/account/edit/{merchantId}', [MerchantController::class, 'editAccount'])->name('merchant.editAccount');
             Route::post('/merchant/account/update/{merchantId}', [MerchantController::class, 'updateAccount'])->name('merchant.updateAccount');
-            Route::get('/merchant/account/product/{merchantId}', [MerchantController::class, 'product'])->name('merchant.product');
-            Route::get('/merchant/account/product/get/{merchantId}', [MerchantController::class, 'getProducts'])->name('merchant.getProducts');
+            Route::get('/merchant/account/product/{merchantId}', [MerchantController::class, 'product'])->withoutMiddleware('checkRoleUser:IT,BM,FI,AH,HR,DMO')->name('merchant.product');
+            Route::get('/merchant/account/product/get/{merchantId}', [MerchantController::class, 'getProducts'])->withoutMiddleware('checkRoleUser:IT,BM,FI,AH,HR,DMO')->name('merchant.getProducts');
             Route::get('/merchant/account/product/edit/{merchantId}/{productId}', [MerchantController::class, 'editProduct'])->name('merchant.editProduct');
             Route::post('/merchant/account/product/update/{merchantId}/{productId}', [MerchantController::class, 'updateProduct'])->name('merchant.updateProduct');
             Route::get('/merchant/account/product/delete/{merchantId}/{productId}', [MerchantController::class, 'deleteProduct'])->name('merchant.deleteProduct');
@@ -250,6 +249,15 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     Route::group(['middleware' => ['checkRoleUser:IT']], function () {
+        // Monthly Report
+        Route::group(['prefix' => 'setting/monthly-report'], function () {
+            Route::get('/', [MonthlyReportController::class, 'setting'])->name('setting.monthlyReport');
+            Route::post('/getOneData', [MonthlyReportController::class, 'getOneData'])->name('monthlyReport.getOneData');
+            Route::post('/store', [MonthlyReportController::class, 'store'])->name('monthlyReport.store');
+            Route::post('/update', [MonthlyReportController::class, 'update'])->name('monthlyReport.update');
+            Route::get('/delete/{area}/{periode}', [MonthlyReportController::class, 'delete'])->name('monthlyReport.delete');
+        });
+
         // Voucher
         Route::get('/voucher/list', [VoucherController::class, 'list'])->name('voucher.list');
         Route::get('/voucher/list/get', [VoucherController::class, 'getList'])->name('voucher.getList');

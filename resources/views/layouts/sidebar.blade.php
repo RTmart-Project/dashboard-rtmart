@@ -78,9 +78,16 @@
                     </li>
                     <li class="nav-item">
                         <a href="{{ route('delivery.expedition') }}"
-                            class="nav-link {{ Request::is('delivery/expedition*') ? 'active' : '' }}">
+                            class="nav-link {{ Request::is('delivery/on-going*') ? 'active' : '' }}">
                             <i class="far fa-circle nav-icon"></i>
                             <p>Delivery On Going</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('delivery.history') }}"
+                            class="nav-link {{ Request::is('delivery/history*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Delivery History</p>
                         </a>
                     </li>
                 </ul>
@@ -406,6 +413,13 @@
                     </p>
                 </a>
                 <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="{{ route('setting.monthlyReport') }}"
+                            class="nav-link {{ Request::is('setting/monthly-report*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Monthly Report</p>
+                        </a>
+                    </li>
                     <li class="nav-item">
                         <a href="{{ route('setting.users') }}"
                             class="nav-link {{ Request::is('setting/users*') ? 'active' : '' }}">
