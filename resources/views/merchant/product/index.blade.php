@@ -40,14 +40,17 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <a href="{{ route('merchant.account') }}" class="btn btn-sm btn-light mb-2"><i class="fas fa-arrow-left"></i>
+                        <a href="{{ route('merchant.account') }}" class="btn btn-sm btn-light mb-2"><i
+                                class="fas fa-arrow-left"></i>
                             Kembali</a>
                         <div class="col-12 d-flex align-items-stretch flex-column">
                             <div class="card d-flex flex-fill">
                                 <div class="card-body pt-3 pb-3">
                                     <div class="row">
                                         <div class="col-12 col-md-2 text-center">
-                                            <img src="{{ config('app.base_image_url') . '/merchant/'. $merchant->StoreImage }}" alt="Store Image" class="rounded img-fluid pb-2 pb-md-0" style="object-fit: cover; width: 130px; height: 130px;">
+                                            <img src="{{ config('app.base_image_url') . '/merchant/'. $merchant->StoreImage }}"
+                                                alt="Store Image" class="rounded img-fluid pb-2 pb-md-0"
+                                                style="object-fit: cover; width: 130px; height: 130px;">
                                         </div>
                                         <div class="col-12 col-md-10 align-self-center">
                                             <div class="row">
@@ -58,10 +61,13 @@
                                                     <h6><strong>Nama Toko : </strong>{{ $merchant->StoreName }}</h6>
                                                 </div>
                                                 <div class="col-md-6 col-12">
-                                                    <h6><strong>Nama Pemilik : </strong>{{ $merchant->OwnerFullName }}</h6>
+                                                    <h6><strong>Nama Pemilik : </strong>{{ $merchant->OwnerFullName }}
+                                                    </h6>
                                                 </div>
                                                 <div class="col-md-6 col-12">
-                                                    <h6><strong>No. Telp : </strong><a href="tel:{{ $merchant->PhoneNumber }}">{{ $merchant->PhoneNumber }}</a></h6>
+                                                    <h6><strong>No. Telp : </strong><a
+                                                            href="tel:{{ $merchant->PhoneNumber }}">{{
+                                                            $merchant->PhoneNumber }}</a></h6>
                                                 </div>
                                                 <div class="col-md-6 col-12">
                                                     <h6><strong>Latitude : </strong>{{ $merchant->Latitude }}</h6>
@@ -84,7 +90,8 @@
                                 <div class="card-header">
                                     <h3 class="card-title">Operational Hour</h3>
                                     <div class="card-tools">
-                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i></button>
+                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i
+                                                class="fas fa-plus"></i></button>
                                     </div>
                                 </div>
                                 <div class="card-body">
@@ -92,27 +99,32 @@
                                         <div class="col-md-12">
                                             <div class="card-body p-0">
                                                 <div class="row">
+                                                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" ||
+                                                    Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "AH" ||
+                                                    Auth::user()->RoleID == "HR")
                                                     <div class="ml-auto pr-2">
-                                                        <a href="{{ route('merchant.editOperationalHour', ['merchantId' => $merchantId]) }}" class="btn btn-warning btn-sm">Edit</a>
+                                                        <a href="{{ route('merchant.editOperationalHour', ['merchantId' => $merchantId]) }}"
+                                                            class="btn btn-warning btn-sm">Edit</a>
                                                     </div>
+                                                    @endif
                                                 </div>
                                                 <table class="table table-sm">
-                                                  <thead>
-                                                    <tr>
-                                                      <th>Hari</th>
-                                                      <th>Jam Buka</th>
-                                                      <th>Jam Tutup</th>
-                                                    </tr>
-                                                  </thead>
-                                                  <tbody>
-                                                    @foreach ($operationalHour as $value)
-                                                    <tr>
-                                                        <td>{{ $value->DayOfWeek }}</td>
-                                                        <td>{{ date('H:i', strtotime($value->OpeningHour)) }}</td>
-                                                        <td>{{ date('H:i', strtotime($value->ClosingHour)) }}</td>
-                                                    </tr>
-                                                    @endforeach
-                                                  </tbody>
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Hari</th>
+                                                            <th>Jam Buka</th>
+                                                            <th>Jam Tutup</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach ($operationalHour as $value)
+                                                        <tr>
+                                                            <td>{{ $value->DayOfWeek }}</td>
+                                                            <td>{{ date('H:i', strtotime($value->OpeningHour)) }}</td>
+                                                            <td>{{ date('H:i', strtotime($value->ClosingHour)) }}</td>
+                                                        </tr>
+                                                        @endforeach
+                                                    </tbody>
                                                 </table>
                                             </div>
                                         </div>
@@ -140,7 +152,11 @@
                                                     <th>Isi</th>
                                                     <th>Harga Jual</th>
                                                     <th>Harga Beli</th>
+                                                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" ||
+                                                    Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "AH" ||
+                                                    Auth::user()->RoleID == "HR")
                                                     <th>Action</th>
+                                                    @endif
                                                 </tr>
                                             </thead>
                                             <tbody>

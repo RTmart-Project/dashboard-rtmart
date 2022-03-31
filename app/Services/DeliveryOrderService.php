@@ -210,29 +210,34 @@ class DeliveryOrderService
 
   public function getDeliveryRequest()
   {
-    $sql = DB::table('tx_merchant_delivery_order')
+    $sql = DB::table('tx_merchant_delivery_order AS tmdo')
       ->join('tx_merchant_delivery_order_detail', function ($join) {
-        $join->on('tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID');
+        $join->on('tx_merchant_delivery_order_detail.DeliveryOrderID', 'tmdo.DeliveryOrderID');
         $join->where('tx_merchant_delivery_order_detail.StatusExpedition', 'S029');
       })
       ->join('ms_product', 'ms_product.ProductID', 'tx_merchant_delivery_order_detail.ProductID')
-      ->join('tx_merchant_order', 'tx_merchant_order.StockOrderID', 'tx_merchant_delivery_order.StockOrderID')
+      ->join('tx_merchant_order', 'tx_merchant_order.StockOrderID', 'tmdo.StockOrderID')
       ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
       ->leftJoin('ms_area', 'ms_area.AreaID', 'ms_merchant_account.AreaID')
       ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
       ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'ms_merchant_account.MerchantID')
       ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', 'ms_distributor_merchant_grade.GradeID')
-      ->whereIn('tx_merchant_delivery_order.StatusDO', ['S024', 'S028'])
+      ->whereIn('tmdo.StatusDO', ['S024', 'S028'])
       ->selectRaw("
-        tx_merchant_delivery_order.StockOrderID, 
-        tx_merchant_delivery_order.DeliveryOrderID, 
-        tx_merchant_delivery_order.CreatedDate,
-        DATEDIFF(CURDATE(), DATE(tx_merchant_delivery_order.CreatedDate)) AS DueDate,
+        (
+          SELECT CONCAT('DO ke-', COUNT(*)) FROM tx_merchant_delivery_order
+          WHERE tx_merchant_delivery_order.CreatedDate <= tmdo.CreatedDate
+          AND tx_merchant_delivery_order.StockOrderID = tmdo.StockOrderID
+        ) AS UrutanDO,
+        tmdo.StockOrderID,
+        tmdo.DeliveryOrderID,
+        tmdo.CreatedDate,
+        DATEDIFF(CURDATE(), DATE(tmdo.CreatedDate)) AS DueDate,
         ANY_VALUE(ms_distributor.DistributorName) AS DistributorName, 
         ANY_VALUE(tx_merchant_order.MerchantID) AS MerchantID,
         ANY_VALUE(ms_merchant_account.StoreName) AS StoreName,
-        GROUP_CONCAT(CONCAT(ms_product.ProductName, ' (', tx_merchant_delivery_order_detail.Qty, 'pcs)') SEPARATOR ', ') AS Products,
+        GROUP_CONCAT(CONCAT(ms_product.ProductName, ' (', tx_merchant_delivery_order_detail.Qty, 'pcs)') SEPARATOR ',<br> ') AS Products,
         ANY_VALUE(ms_merchant_account.PhoneNumber) AS PhoneNumber,
         ANY_VALUE(ms_merchant_account.StoreAddress) AS StoreAddress,
         ANY_VALUE(CONCAT(ms_sales.SalesCode, ' - ', ms_sales.SalesName)) AS Sales,
@@ -242,7 +247,7 @@ class DeliveryOrderService
         ANY_VALUE(tx_merchant_order.OrderLongitude) AS OrderLongitude,
         ANY_VALUE(CONCAT(ms_area.AreaName, ', ', ms_area.Subdistrict)) AS Area
       ")
-      ->groupBy('tx_merchant_delivery_order.DeliveryOrderID');
+      ->groupBy('tmdo.DeliveryOrderID');
 
     return $sql;
   }

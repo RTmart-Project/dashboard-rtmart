@@ -43,9 +43,9 @@ class MonthlyReportController extends Controller
         ]);
     }
 
-    public function create()
+    public function setting()
     {
-        return view('monthly-report.create');
+        return view('setting.monthly-report.index');
     }
 
     public function store(Request $request)
@@ -78,11 +78,6 @@ class MonthlyReportController extends Controller
         } else {
             return redirect()->route('monthlyReport')->with('failed', 'Terjadi kesalahan');
         }
-    }
-
-    public function edit()
-    {
-        return view('monthly-report.edit');
     }
 
     public function getOneData(Request $request)
@@ -129,8 +124,17 @@ class MonthlyReportController extends Controller
         }
     }
 
-    public function delete()
+    public function delete($area, $periode)
     {
-        return view('monthly-report.edit');
+        $delete = DB::table('ms_monthly_report')
+            ->where('AreaName', $area)
+            ->where('Periode', $periode . "-01")
+            ->delete();
+
+        if ($delete) {
+            return redirect()->route('monthlyReport')->with('success', 'Data report berhasil dihapus');
+        } else {
+            return redirect()->route('monthlyReport')->with('failed', 'Terjadi kesalahan');
+        }
     }
 }

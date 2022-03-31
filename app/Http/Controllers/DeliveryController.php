@@ -33,6 +33,7 @@ class DeliveryController extends Controller
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
         $checkboxFilter = $request->checkFilter;
+        $urutanDO = $request->input('urutanDO');
 
         $sqlDeliveryRequest = $deliveryOrderService->getDeliveryRequest();
 
@@ -41,11 +42,16 @@ class DeliveryController extends Controller
             $sqlDeliveryRequest->where('ms_distributor.Depo', '=', $depoUser);
         }
         if ($fromDate != '' && $toDate != '') {
-            $sqlDeliveryRequest->whereDate('tx_merchant_delivery_order.CreatedDate', '>=', $fromDate)
-                ->whereDate('tx_merchant_delivery_order.CreatedDate', '<=', $toDate);
+            $sqlDeliveryRequest->whereDate('tmdo.CreatedDate', '>=', $fromDate)
+                ->whereDate('tmdo.CreatedDate', '<=', $toDate);
         }
         if ($checkboxFilter != "") {
             $sqlDeliveryRequest->whereIn('ms_area.Subdistrict', $checkboxFilter);
+        }
+        if ($urutanDO != null) {
+            $sqlDeliveryRequest->whereRaw("(SELECT CONCAT('DO ke-', COUNT(*)) FROM tx_merchant_delivery_order
+                WHERE tx_merchant_delivery_order.CreatedDate <= tmdo.CreatedDate
+                AND tx_merchant_delivery_order.StockOrderID = tmdo.StockOrderID) = '$urutanDO'");
         }
 
         // Get data response
@@ -57,9 +63,7 @@ class DeliveryController extends Controller
                     return "";
                 })
                 ->editColumn('CreatedDate', function ($data) {
-                    return date('d-M-Y H:i', strtotime($data->CreatedDate));
-                })
-                ->editColumn('DueDate', function ($data) {
+                    $date = date('d-M-Y H:i', strtotime($data->CreatedDate));
                     $dateDiff = $data->DueDate;
                     if ($dateDiff == 0) {
                         $dueDate = "<a class='badge badge-danger'>H " . $dateDiff . " (Hari H)</a>";
@@ -69,27 +73,22 @@ class DeliveryController extends Controller
                         } else {
                             $dueDate = "H" . $dateDiff;
                         }
-                        return $dueDate;
                     } else {
                         $dueDate = "<a class='badge badge-danger'>H+" . $dateDiff . "</a>";
                     }
-                    return $dueDate;
+
+                    return $date . '<br>' . $dueDate;
                 })
                 ->addColumn('Checkbox', function ($data) {
                     $checkbox = "<input type='checkbox' class='check-do-id larger' name='confirm[]' value='" . $data->DeliveryOrderID . "' />";
                     return $checkbox;
                 })
-                ->filterColumn('DueDate', function ($query, $keyword) {
-                    $query->whereRaw("CONCAT('H ',DATEDIFF(CURDATE(), DATE(tx_merchant_delivery_order.CreatedDate)), ' (Hari H)') like ?", ["%$keyword%"]);
-                    $query->orWhereRaw("CONCAT('H',DATEDIFF(CURDATE(), DATE(tx_merchant_delivery_order.CreatedDate))) like ?", ["%$keyword%"]);
-                    $query->orWhereRaw("CONCAT('H+',DATEDIFF(CURDATE(), DATE(tx_merchant_delivery_order.CreatedDate))) like ?", ["%$keyword%"]);
-                })
                 ->filterColumn('Area', function ($query, $keyword) {
                     $sql = "CONCAT(ms_area.AreaName, ', ', ms_area.Subdistrict) like ?";
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 })
-                ->filterColumn('tx_merchant_delivery_order.CreatedDate', function ($query, $keyword) {
-                    $query->whereRaw("DATE_FORMAT(tx_merchant_delivery_order.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
+                ->filterColumn('tmdo.CreatedDate', function ($query, $keyword) {
+                    $query->whereRaw("DATE_FORMAT(tmdo.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
                 })
                 ->filterColumn('DistributorName', function ($query, $keyword) {
                     $sql = "ms_distributor.DistributorName like ?";
@@ -107,7 +106,7 @@ class DeliveryController extends Controller
                     $sql = "CONCAT(ms_sales.SalesCode, ' - ', ms_sales.SalesName) like ?";
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 })
-                ->rawColumns(['Checkbox', 'DueDate'])
+                ->rawColumns(['Checkbox', 'CreatedDate', 'Products'])
                 ->make(true);
         }
     }
@@ -308,18 +307,17 @@ class DeliveryController extends Controller
         ]);
     }
 
-    public function expedition(DeliveryOrderService $deliveryOrderService)
+    public function expedition()
     {
-        // dd($deliveryOrderService->expeditions()->get());
         return view('delivery.expedition.index');
     }
 
-    public function getExpedition(DeliveryOrderService $deliveryOrderService, Request $request)
+    public function getExpedition(DeliveryOrderService $deliveryOrderService, Request $request, $status)
     {
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
 
-        $sqlExpedition = $deliveryOrderService->expeditions();
+        $sqlExpedition = $deliveryOrderService->expeditions()->where('expd.StatusExpedition', $status);
 
         if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
@@ -350,7 +348,12 @@ class DeliveryController extends Controller
                     return '<span class="badge badge-' . $color . '">' . $data->StatusOrder . '</span>';
                 })
                 ->addColumn('Detail', function ($data) {
-                    $btn = '<a class="btn btn-sm btn-secondary" href="/delivery/expedition/detail/' . $data->MerchantExpeditionID . '">Lihat</a>';
+                    if ($data->StatusExpedition == "S032") {
+                        $link = "on-going";
+                    } else {
+                        $link = "history";
+                    }
+                    $btn = '<a class="btn btn-sm btn-secondary" href="/delivery/' . $link . '/detail/' . $data->MerchantExpeditionID . '">Lihat</a>';
                     return $btn;
                 })
                 ->filterColumn('expd.CreatedDate', function ($query, $keyword) {
@@ -541,5 +544,18 @@ class DeliveryController extends Controller
         } else {
             return redirect()->back()->with('failed', $haistarPushOrder->data);
         }
+    }
+
+    public function history()
+    {
+        return view('delivery.history.index');
+    }
+
+    public function detailHistory(DeliveryOrderService $deliveryOrderService, $expeditionID)
+    {
+        return view('delivery.expedition.detail', [
+            'expedition' => $deliveryOrderService->expedition($expeditionID)->get(),
+            'countStatus' => $deliveryOrderService->countStatusDeliveryDetail($expeditionID)->first()
+        ]);
     }
 }

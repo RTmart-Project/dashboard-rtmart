@@ -5,13 +5,16 @@
   <p>Pilih terlebih dahulu barang yang ingin dikirim</p>
 </div>
 @foreach ($detailProduct->groupBy('DeliveryOrderID')->all() as $item)
-<div class="card card-info card-do">
+<div class="card card-info card-outline card-do">
   <div class="card-header">
     <h3 class="card-title">
       <b class="d-block d-md-inline">Delivery Order ID :</b>
       <span class="do-id">{{ $item[0]->DeliveryOrderID }}</span> <br>
-      <span id="stock-order-id">{{ $item[0]->StockOrderID }}</span><br>
-      <span>{{ $item[0]->MerchantID }} - {{ $item[0]->StoreName }} - {{ $item[0]->PhoneNumber }}</span>
+      <a href="{{ route('distribution.restockDetail', ['stockOrderID' => $item[0]->StockOrderID]) }}"
+        id="stock-order-id" target="_blank">{{ $item[0]->StockOrderID }}</a><br>
+      <a href="{{ route('merchant.product', ['merchantId' => $item[0]->MerchantID ]) }}" target="_blank">
+        {{ $item[0]->MerchantID }}
+      </a> - {{ $item[0]->StoreName }} - {{ $item[0]->PhoneNumber }}
     </h3>
     <div class="card-tools">
       <button type="button" class="btn btn-tool" data-card-widget="collapse">

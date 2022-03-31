@@ -12,7 +12,7 @@ $(document).ready(function () {
             serverSide: true,
             stateServe: true,
             ajax: {
-                url: "/delivery/on-going/get/S032",
+                url: "/delivery/on-going/get/S035",
                 data: function (d) {
                     d.fromDate = $("#expedition #from_date").val();
                     d.toDate = $("#expedition #to_date").val();
@@ -94,14 +94,14 @@ $(document).ready(function () {
 
     // Create element for DateRange Filter
     $("div.filter-expedition").html(`<div class="input-group">
-                        <input type="text" name="from_date" id="from_date" class="form-control form-control-sm"
-                            readonly>
-                        <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm"
-                            readonly>
-                        <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
-                        <button type="button" name="refresh" id="refresh"
-                            class="btn btn-sm btn-warning ml-2">Refresh</button>
-                    </div>`);
+                      <input type="text" name="from_date" id="from_date" class="form-control form-control-sm"
+                          readonly>
+                      <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm"
+                          readonly>
+                      <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
+                      <button type="button" name="refresh" id="refresh"
+                          class="btn btn-sm btn-warning ml-2">Refresh</button>
+                  </div>`);
 
     // Setting Awal Daterangepicker
     $("#expedition #from_date").daterangepicker({

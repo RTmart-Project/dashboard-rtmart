@@ -62,19 +62,6 @@
                 <div class="col-3 col-md-1 text-md-center pt-md-0">
                   <a href="{{ route('monthlyReport') }}" class="btn btn-warning btn-sm">Refresh</a>
                 </div>
-                <div class="col-4 mt-md-2">
-                  <div class="btn-group">
-                    <button type="button" class="btn btn-info btn-sm">Action</button>
-                    <button type="button" class="btn btn-info btn-sm dropdown-toggle dropdown-icon"
-                      data-toggle="dropdown" aria-expanded="false">
-                    </button>
-                    <div class="dropdown-menu" role="menu" style="">
-                      <a class="dropdown-item" href="{{ route('monthlyReport.create') }}">Tambah</a>
-                      <a class="dropdown-item" href="{{ route('monthlyReport.edit') }}">Ubah</a>
-                      {{-- <a class="dropdown-item" href="{{ route('monthlyReport.edit') }}">Hapus</a> --}}
-                    </div>
-                  </div>
-                </div>
               </div>
             </form>
           </div>
