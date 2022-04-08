@@ -65,8 +65,13 @@ class AuthController extends Controller
 
     public function logout()
     {
+        $isRTRabat = Auth::user()->IsDashboardRTRabat;
         Auth::logout();
-        return redirect('/');
+        if ($isRTRabat == 1) {
+            return redirect()->route('auth.login.rabat');
+        } else {
+            return redirect()->route('auth.login');
+        }
     }
 
     public function users()
