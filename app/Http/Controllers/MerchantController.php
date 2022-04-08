@@ -163,9 +163,15 @@ class MerchantController extends Controller
             ->where('ms_merchant_account.MerchantID', '=', $merchantId)
             ->first();
 
-        $distributor = DB::table('ms_distributor')
-            ->select('DistributorID', 'DistributorName')
-            ->get();
+        $distributorSql = DB::table('ms_distributor')
+            ->select('DistributorID', 'DistributorName');
+
+        if (Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $distributorSql->where('ms_distributor.Depo', '=', $depoUser);
+        }
+
+        $distributor = $distributorSql->get();
 
         $grade = DB::table('ms_merchant_account')
             ->join('ms_distributor_grade', 'ms_distributor_grade.DistributorID', '=', 'ms_merchant_account.DistributorID')

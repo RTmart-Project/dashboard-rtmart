@@ -25,7 +25,9 @@
                         <div class="card-body pt-3 pb-3">
                             <div class="row">
                                 <div class="col-12 col-md-2 text-center">
-                                    <img src="{{ config('app.base_image_url') . '/merchant/'. $merchant->StoreImage }}" alt="Store Image" class="rounded img-fluid pb-2 pb-md-0" style="object-fit: cover; width: 110px; height: 110px;">
+                                    <img src="{{ config('app.base_image_url') . '/merchant/'. $merchant->StoreImage }}"
+                                        alt="Store Image" class="rounded img-fluid pb-2 pb-md-0"
+                                        style="object-fit: cover; width: 110px; height: 110px;">
                                 </div>
                                 <div class="col-12 col-md-10 align-self-center">
                                     <div class="row">
@@ -39,7 +41,9 @@
                                             <h6><strong>Nama Pemilik : </strong>{{ $merchant->OwnerFullName }}</h6>
                                         </div>
                                         <div class="col-md-6 col-12">
-                                            <h6><strong>No. Telp : </strong><a href="tel:{{ $merchant->PhoneNumber }}">{{ $merchant->PhoneNumber }}</a></h6>
+                                            <h6><strong>No. Telp : </strong><a
+                                                    href="tel:{{ $merchant->PhoneNumber }}">{{ $merchant->PhoneNumber }}</a>
+                                            </h6>
                                         </div>
                                     </div>
 
@@ -60,7 +64,8 @@
                                         <th>Product Name</th>
                                         <th>Price</th>
                                         <th>Special Price</th>
-                                        @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "FI")
+                                        @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" ||
+                                        Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "RBTAD")
                                         <th>Action</th>
                                         @endif
                                     </tr>
@@ -96,8 +101,8 @@
 <script src="{{url('/')}}/main/js/distribution/merchant/special-price.js"></script>
 <script src="https://unpkg.com/autonumeric"></script>
 <script>
-    const storeName = `{{ $merchant->StoreName }}`;
-    const merchantID = `{{ $merchant->MerchantID }}`;
-    const gradeID = `{{ $grade->GradeID }}`;
+const storeName = `{{ $merchant->StoreName }}`;
+const merchantID = `{{ $merchant->MerchantID }}`;
+const gradeID = `{{ $grade->GradeID }}`;
 </script>
 @endsection
