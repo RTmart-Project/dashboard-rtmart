@@ -136,7 +136,6 @@ class DistributionController extends Controller
                 $join->on('tx_merchant_delivery_order.StockOrderID', 'tx_merchant_order.StockOrderID');
                 // $join->where('tx_merchant_delivery_order.StatusDO', '!=', 'S028');
             })
-
             ->leftJoin('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID')
             ->leftJoin('ms_product', 'ms_product.ProductID', 'tx_merchant_delivery_order_detail.ProductID')
             ->leftJoin('ms_user', 'ms_user.UserID', 'tx_merchant_delivery_order.DriverID')
@@ -448,6 +447,7 @@ class DistributionController extends Controller
         $dikirim = "S012";
         $selesai = "S018";
         $dibatalkan = "S011";
+        $authUser = Auth::user()->Name . "-" . Auth::user()->RoleID . "-" . Auth::user()->Depo;
 
         $baseImageUrl = config('app.base_image_url');
 
@@ -470,7 +470,7 @@ class DistributionController extends Controller
                 'MerchantID' => $txMerchantOrder->MerchantID,
                 'StatusOrderId' => $dibatalkan,
                 'ProcessTime' => date("Y-m-d H:i:s"),
-                'ActionBy' => 'DISTRIBUTOR'
+                'ActionBy' => $authUser
             ];
 
             try {
@@ -533,7 +533,7 @@ class DistributionController extends Controller
                 'MerchantID' => $txMerchantOrder->MerchantID,
                 'StatusOrderId' => $statusOrder,
                 'ProcessTime' => date("Y-m-d H:i:s"),
-                'ActionBy' => 'DISTRIBUTOR'
+                'ActionBy' => $authUser
             ];
 
             try {
@@ -598,7 +598,7 @@ class DistributionController extends Controller
                 'MerchantID' => $txMerchantOrder->MerchantID,
                 'StatusOrderId' => $dikirim,
                 'ProcessTime' => date("Y-m-d H:i:s"),
-                'ActionBy' => 'DISTRIBUTOR'
+                'ActionBy' => $authUser
             ];
 
             try {
@@ -1336,45 +1336,54 @@ class DistributionController extends Controller
 
     public function addProduct()
     {
-        $getDistributor = DB::table('ms_distributor')
-            ->where('Ownership', '=', 'RTMart')
+        $getDistributorSql = DB::table('ms_distributor')
+            ->where('IsActive', '=', 1)
             ->where('Email', '!=', NULL)
-            ->select('DistributorID', 'DistributorName', 'Email', 'Address', 'CreatedDate')
-            ->get();
+            ->select('DistributorID', 'DistributorName', 'Email', 'Address', 'CreatedDate');
 
-        if (Auth::user()->RoleID == "AD") {
-            $distributorName = DB::table('ms_distributor')
-                ->where('Depo', '=', Auth::user()->Depo)
-                ->select('DistributorID', 'DistributorName')
-                ->first();
-
-            $productNotInDistributor = $getProduct = DB::table('ms_product')
-                ->leftJoin('ms_product_category', 'ms_product_category.ProductCategoryID', '=', 'ms_product.ProductCategoryID')
-                ->leftJoin('ms_product_uom', 'ms_product_uom.ProductUOMID', '=', 'ms_product.ProductUOMID')
-                ->leftJoin('ms_distributor_product_price', 'ms_distributor_product_price.ProductID', '=', 'ms_product.ProductID')
-                ->whereNotIn('ms_product.ProductID', function ($query) use ($distributorName) {
-                    $query->select('ms_distributor_product_price.ProductID')->from('ms_distributor_product_price')->where('ms_distributor_product_price.DistributorID', '=', $distributorName->DistributorID);
-                })
-                ->select('ms_product.ProductID', 'ms_product.ProductName', 'ms_product.ProductUOMDesc', 'ms_product_category.ProductCategoryName', 'ms_product_uom.ProductUOMName')
-                ->distinct()
-                ->get();
-
-            $gradeDistributor = DB::table('ms_distributor_grade')
-                ->where('ms_distributor_grade.DistributorID', '=', $distributorName->DistributorID)
-                ->select('ms_distributor_grade.GradeID', 'ms_distributor_grade.Grade')
-                ->get();
-
-            return view('distribution.product.new', [
-                'distributor' => $getDistributor,
-                'depo' => $distributorName,
-                'productNotInDistributor' => $productNotInDistributor,
-                'gradeDistributor' => $gradeDistributor
-            ]);
-        } else {
-            return view('distribution.product.new', [
-                'distributor' => $getDistributor
-            ]);
+        if (Auth::user()->Depo != "ALL") {
+            $getDistributorSql->where('Depo', '=', Auth::user()->Depo);
         }
+
+        $getDistributor = $getDistributorSql->get();
+
+        return view('distribution.product.new', [
+            'distributor' => $getDistributor
+        ]);
+
+        // if (Auth::user()->RoleID == "AD") {
+        //     $distributorName = DB::table('ms_distributor')
+        //         ->where('Depo', '=', Auth::user()->Depo)
+        //         ->select('DistributorID', 'DistributorName')
+        //         ->first();
+
+        //     $productNotInDistributor = DB::table('ms_product')
+        //         ->leftJoin('ms_product_category', 'ms_product_category.ProductCategoryID', '=', 'ms_product.ProductCategoryID')
+        //         ->leftJoin('ms_product_uom', 'ms_product_uom.ProductUOMID', '=', 'ms_product.ProductUOMID')
+        //         ->leftJoin('ms_distributor_product_price', 'ms_distributor_product_price.ProductID', '=', 'ms_product.ProductID')
+        //         ->whereNotIn('ms_product.ProductID', function ($query) use ($distributorName) {
+        //             $query->select('ms_distributor_product_price.ProductID')->from('ms_distributor_product_price')->where('ms_distributor_product_price.DistributorID', '=', $distributorName->DistributorID);
+        //         })
+        //         ->select('ms_product.ProductID', 'ms_product.ProductName', 'ms_product.ProductUOMDesc', 'ms_product_category.ProductCategoryName', 'ms_product_uom.ProductUOMName')
+        //         ->distinct()
+        //         ->get();
+
+        //     $gradeDistributor = DB::table('ms_distributor_grade')
+        //         ->where('ms_distributor_grade.DistributorID', '=', $distributorName->DistributorID)
+        //         ->select('ms_distributor_grade.GradeID', 'ms_distributor_grade.Grade')
+        //         ->get();
+
+        //     return view('distribution.product.new', [
+        //         'distributor' => $getDistributor,
+        //         'depo' => $distributorName,
+        //         'productNotInDistributor' => $productNotInDistributor,
+        //         'gradeDistributor' => $gradeDistributor
+        //     ]);
+        // } else {
+        // return view('distribution.product.new', [
+        //     'distributor' => $getDistributor
+        // ]);
+        // }
     }
 
     public function ajaxGetProduct($distributorId)
@@ -1648,7 +1657,7 @@ class DistributionController extends Controller
         if ($request->ajax()) {
             return Datatables::of($data)
                 ->editColumn('SpecialPrice', function ($data) {
-                    if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "FI") {
+                    if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "RBTAD") {
                         $specialPrice = '<input type="text" value="' . $data->SpecialPrice . '" class="special-price" autocomplete="off">';
                     } else {
                         if ($data->SpecialPrice == null) {
@@ -1660,7 +1669,7 @@ class DistributionController extends Controller
                     return $specialPrice;
                 })
                 ->addColumn('Action', function ($data) use ($merchantID) {
-                    if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "FI") {
+                    if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "RBTAD") {
                         if ($data->SpecialPrice != null) {
                             $btn = '<button class="btn btn-xs btn-success btn-simpan" data-product-id="' . $data->ProductID . '" 
                                     data-merchant-id="' . $merchantID . '" data-grade-id="' . $data->GradeID . '">Simpan</button>

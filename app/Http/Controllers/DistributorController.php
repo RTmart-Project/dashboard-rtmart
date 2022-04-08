@@ -28,7 +28,7 @@ class DistributorController extends Controller
         $toDate = $request->input('toDate');
 
         $sqlAllAccount = DB::table('ms_distributor')
-            ->where('Ownership', '=', 'RTMart')
+            ->where('IsActive', '=', 1)
             ->where('Email', '!=', NULL)
             ->select('DistributorID', 'DistributorName', 'Email', 'Address', 'CreatedDate')
             ->orderByDesc('CreatedDate');

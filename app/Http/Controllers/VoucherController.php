@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use PhpParser\Node\Stmt\Foreach_;
 use Illuminate\Support\Facades\File;
@@ -63,7 +64,11 @@ class VoucherController extends Controller
                     return $detailBtn;
                 })
                 ->addColumn('Action', function ($data) {
-                    $detailBtn = '<a href="/voucher/list/edit/' . $data->VoucherCode . '" class="btn btn-xs btn-warning">Edit</a>';
+                    if (Auth::user()->RoleID == 'IT') {
+                        $detailBtn = '<a href="/voucher/list/edit/' . $data->VoucherCode . '" class="btn btn-xs btn-warning">Edit</a>';
+                    } else {
+                        $detailBtn = '';
+                    }
                     return $detailBtn;
                 })
                 ->rawColumns(['ValidityPeriod', 'IsActive', 'IsFor', 'Detail', 'Action'])
@@ -550,7 +555,7 @@ class VoucherController extends Controller
             'EndDateCustomerTrx' => $endDateCustomerTx,
             'Details' => $request->input('details')
         ];
-        
+
         if ($request->hasFile('banner')) {
             $bannerName = $voucherCode . '.' . $request->file('banner')->extension();
             $request->file('banner')->move($this->saveImageUrl . 'voucher/banner/', $bannerName);
@@ -734,7 +739,11 @@ class VoucherController extends Controller
                     return date('d-M-Y H:i', strtotime($data->ProcessTime));
                 })
                 ->editColumn('OrderID', function ($data) {
-                    return "<a target='_blank' href='/customer/transaction/detail/" . $data->OrderID . "'>$data->OrderID</a>";
+                    if (substr($data->OrderID, 0, 2) == "SO") {
+                        return "<a target='_blank' href='/merchant/restock/detail/" . $data->OrderID . "'>$data->OrderID</a>";
+                    } else {
+                        return "<a target='_blank' href='/customer/transaction/detail/" . $data->OrderID . "'>$data->OrderID</a>";
+                    }
                 })
                 ->rawColumns(['OrderID', 'ProcessTime'])
                 ->make(true);
