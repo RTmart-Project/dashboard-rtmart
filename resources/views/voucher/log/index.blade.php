@@ -41,7 +41,7 @@
             <div class="col-12">
                 <div class="card">
                     {{-- <div class="card-header">
-                        
+
                     </div> --}}
                     <div class="card-body mt-2">
                         <div class="tab-content">
@@ -53,6 +53,7 @@
                                             <thead>
                                                 <tr>
                                                     <th>Order ID</th>
+                                                    <th>Status Order</th>
                                                     <th>Kode Voucher</th>
                                                     <th>Jenis Voucher</th>
                                                     <th>Nominal Promo</th>

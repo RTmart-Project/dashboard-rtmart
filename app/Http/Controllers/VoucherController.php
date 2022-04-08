@@ -720,10 +720,16 @@ class VoucherController extends Controller
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
 
-        $sqlGetLog = DB::table('ms_voucher_log')
-            ->join('ms_voucher', 'ms_voucher.VoucherCode', '=', 'ms_voucher_log.VoucherCode')
+        $sqlGetLog = DB::table('ms_voucher_log AS vl')
+            ->join('ms_voucher', 'ms_voucher.VoucherCode', '=', 'vl.VoucherCode')
+            ->leftJoin('tx_merchant_order', 'tx_merchant_order.StockOrderID', 'vl.OrderID')
+            ->leftJoin('tx_product_order', 'tx_product_order.OrderID', 'vl.OrderID')
+            ->leftJoin('ms_status_order', function ($join) {
+                $join->on('ms_status_order.StatusOrderID', 'tx_merchant_order.StatusOrderID');
+                $join->orOn('ms_status_order.StatusOrderID', 'tx_product_order.StatusOrderID');
+            })
             ->join('ms_voucher_type', 'ms_voucher_type.VoucherTypeID', '=', 'ms_voucher.VoucherTypeID')
-            ->select('ms_voucher_log.*', 'ms_voucher_type.VoucherTypeName');
+            ->select('vl.*', 'ms_voucher_type.VoucherTypeName', 'ms_status_order.StatusOrder');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {

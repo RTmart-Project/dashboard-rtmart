@@ -270,21 +270,37 @@
                                             data-target="#add-do">
                                             Buat Delivery Order
                                         </button>
+                                        @if ($merchantOrder->StatusOrderID == "S012")
+                                        <div class="row d-md-flex justify-content-end">
+                                            <div class="col-md-6 col-12 text-center">
+                                                <a href="#" class="btn btn-secondary btn-refund"
+                                                    data-order-id="{{ $stockOrderID }}"
+                                                    data-store-name="{{ $merchantOrder->StoreName }}">
+                                                    Refund
+                                                </a>
+                                            </div>
+                                        </div>
+                                        @endif
                                     </div>
                                     @if ($merchantOrder->StatusOrderID == "S023")
                                     <div class="row d-md-flex justify-content-end">
                                         <div class="col-md-6 col-12 text-center">
                                             @if ($merchantOrder->PaymentMethodID == 1) {{-- Kalo pake tunai --}}
-                                            <a href="#" class="btn btn-danger btn-batal mr-4"
+                                            <a href="#" class="btn btn-danger btn-batal"
                                                 data-order-id="{{ $stockOrderID }}"
                                                 data-store-name="{{ $merchantOrder->StoreName }}">
                                                 Batalkan Pesanan
                                             </a>
                                             @endif
-                                            <a href="#" class="btn btn-success btn-kirim"
+                                            <a href="#" class="btn btn-success btn-kirim mx-3"
                                                 data-order-id="{{ $stockOrderID }}"
                                                 data-store-name="{{ $merchantOrder->StoreName }}">
                                                 Kirim Pesanan
+                                            </a>
+                                            <a href="#" class="btn btn-secondary btn-refund"
+                                                data-order-id="{{ $stockOrderID }}"
+                                                data-store-name="{{ $merchantOrder->StoreName }}">
+                                                Refund
                                             </a>
                                         </div>
                                     </div>
@@ -373,7 +389,8 @@
                                                         <p class="text-center my-2">
                                                             <b>SubTotal : </b>
                                                             <span class="price-subtotal">{{
-                                                                Helper::formatCurrency($do->SubTotal, 'Rp ') }}</span>
+                                                                Helper::formatCurrency($do->SubTotal, 'Rp ')
+                                                                }}</span>
                                                         </p>
                                                     </div>
                                                 </div>
@@ -383,7 +400,8 @@
                                                     </div>
                                                     <div
                                                         class="col-8 col-md-5 align-self-center text-right text-md-left">
-                                                        Dikirim {{ date('d M Y H:i', strtotime($do->CreatedDate)) }}<br>
+                                                        Dikirim {{ date('d M Y H:i', strtotime($do->CreatedDate))
+                                                        }}<br>
                                                         @if ($do->FinishDate != null)
                                                         Selesai {{ date('d M Y H:i', strtotime($do->FinishDate)) }}
                                                         @endif
@@ -491,6 +509,35 @@
         } else {
             $('.check_rtmart').prop('disabled', false);
         }
+    });
+
+    // Event listener saat tombol refund diklik
+    $('.konfirmasi').on('click', '.btn-refund', function (e) {
+        e.preventDefault();
+        const orderID = $(this).data("order-id");
+        const storeName = $(this).data("store-name");
+        const form = $('form');
+        $.confirm({
+            typeAnimated: true,
+            title: 'Refund Order',
+            content: `Apakah ykain pesanan <b>${orderID}</b> dari <b>${storeName}</b> ingin di-refund?
+                <form action="/distribution/restock/update/${orderID}/refund" method="post">
+                    @csrf
+                </form>`,
+            closeIcon: true,
+            buttons: {
+                ya: {
+                    btnClass: 'btn-secondary',
+                    draggable: true,
+                    dragWindowGap: 0,
+                    action: function () {
+                        this.$content.find('form').submit();
+                    }
+                },
+                kembali: function () {
+                }
+            }
+        });
     });
 
     // Event listener saat tombol batal diklik

@@ -643,6 +643,32 @@ class DistributionController extends Controller
             } catch (\Throwable $th) {
                 return redirect()->route('distribution.restock')->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
             }
+        } elseif ($status == "refund") {
+            // data untuk insert tx merchant order log
+            $dataLog = [
+                'StockOrderId' => $stockOrderID,
+                'DistributorID' => $txMerchantOrder->DistributorID,
+                'MerchantID' => $txMerchantOrder->MerchantID,
+                'StatusOrderId' => $selesai,
+                'ProcessTime' => date("Y-m-d H:i:s"),
+                'ActionBy' => $authUser
+            ];
+
+            try {
+                DB::transaction(function () use ($stockOrderID, $selesai, $dataLog) {
+                    DB::table('tx_merchant_order')
+                        ->where('StockOrderID', '=', $stockOrderID)
+                        ->update([
+                            'StatusOrderID' => $selesai,
+                            'IsRefund' => 1
+                        ]);
+                    DB::table('tx_merchant_order_log')
+                        ->insert($dataLog);
+                });
+                return redirect()->route('distribution.restock')->with('success', 'Data pesanan berhasil di-refund');
+            } catch (\Throwable $th) {
+                return redirect()->route('distribution.restock')->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
+            }
         }
     }
 
@@ -1256,7 +1282,7 @@ class DistributionController extends Controller
                     return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Gagal, terjadi kesalahan');
                 }
             } else {
-                return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Terjadi kesalahan sistem');
+                return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', $haistarPushOrder->data);
             }
         } else {
             return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Quantity yang dikirim tidak mencukupi');
