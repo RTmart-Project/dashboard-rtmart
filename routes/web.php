@@ -15,6 +15,7 @@ use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RTSalesController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\StockController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\VoucherController;
 use Illuminate\Support\Facades\Auth;
@@ -100,6 +101,19 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['prefix' => 'monthly-report', 'middleware' => ['checkRoleUser:IT,FI']], function () {
         Route::get('/', [MonthlyReportController::class, 'index'])->name('monthlyReport');
         Route::post('/', [MonthlyReportController::class, 'index'])->name('monthlyReport.post');
+    });
+
+    Route::group(['prefix' => 'stock', 'middleware' => ['checkRoleUser:IT,FI']], function () {
+        Route::prefix('purchase')->group(function () {
+            Route::get('/', [StockController::class, 'purchase'])->name('stock.purchase');
+            Route::get('/get', [StockController::class, 'getPurchase'])->name('stock.getPurchase');
+            Route::get('/create', [StockController::class, 'createPurchase'])->name('stock.createPurchase');
+            Route::post('/store', [StockController::class, 'storePurchase'])->name('stock.storePurchase');
+            Route::get('/edit/{purchaseID}', [StockController::class, 'editPurchase'])->name('stock.editPurchase');
+            Route::post('/update/{purchaseID}', [StockController::class, 'updatePurchase'])->name('stock.updatePurchase');
+            Route::get('/detail/{purchaseID}', [StockController::class, 'detailPurchase'])->name('stock.detailPurchase');
+            Route::get('/confirmation/{status}/{purchaseID}', [StockController::class, 'confirmPurchase'])->name('stock.confirmPurchase');
+        });
     });
 
     Route::group(['prefix' => 'rtsales', 'middleware' => ['checkRoleUser:IT,FI,BM,DMO']], function () {

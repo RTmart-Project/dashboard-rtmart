@@ -71,7 +71,6 @@
         <div class="card @if($expd[0]->StatusExpd == 'S035') card-success @else card-warning @endif card-outline">
           <div class="card-header">
             <h3 class="card-title">
-              {{ $order[0]->Distributor }}
               <b>Delivery Order ID :</b> {{ $order[0]->DeliveryOrderID }} <br>
               {{ $order[0]->StockOrderID }} <br>
               {{ $order[0]->MerchantID }} - {{ $order[0]->StoreName }} - {{ $order[0]->PhoneNumber }}
