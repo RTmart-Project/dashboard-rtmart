@@ -235,6 +235,27 @@
             </li>
             @endif
 
+            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI"))
+            <li class="nav-item {{ Request::is('stock*') ? 'menu-open' : '' }}">
+                <a href="#" class="nav-link {{ Request::is('stock*') ? 'active' : '' }}">
+                    <i class="nav-icon fas fa-cubes"></i>
+                    <p>
+                        Stock
+                        <i class="right fas fa-angle-left"></i>
+                    </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="{{ route('stock.purchase') }}"
+                            class="nav-link {{ Request::is('stock/purchase*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Purchase Stock</p>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            @endif
+
             @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID == "BM")
             || (Auth::user()->RoleID == "FI") ||
             (Auth::user()->RoleID == "HR") || (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO"))
@@ -319,160 +340,161 @@
                     </li>
                     {{-- <li class="nav-item">
                         <a href="{{ route('rtsales.summary') }}"
-                    class="nav-link {{ Request::is('rtsales/summary*') ? 'active' : '' }}">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Summary Depo</p>
-                    </a>
+                            class="nav-link {{ Request::is('rtsales/summary*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Summary Depo</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('rtsales.saleslist') }}"
+                            class="nav-link {{ Request::is('rtsales/saleslist*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Sales List</p>
+                        </a>
+                    </li> --}}
+                </ul>
             </li>
-            <li class="nav-item">
-                <a href="{{ route('rtsales.saleslist') }}"
-                    class="nav-link {{ Request::is('rtsales/saleslist*') ? 'active' : '' }}">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Sales List</p>
+            @endif
+
+            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID == "BM")
+            ||
+            (Auth::user()->RoleID == "FI") ||
+            (Auth::user()->RoleID == "HR") || (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO"))
+            <li class="nav-item {{ Request::is('customer*') ? 'menu-open' : '' }}">
+                <a href="#" class="nav-link {{ Request::is('customer*') ? 'active' : '' }}">
+                    <i class="nav-icon fas fa-users"></i>
+                    <p>
+                        Customer
+                        <i class="right fas fa-angle-left"></i>
+                    </p>
                 </a>
-            </li> --}}
-        </ul>
-        </li>
-        @endif
+                <ul class="nav nav-treeview">
+                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID ==
+                    "BM") ||
+                    (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "HR") ||
+                    (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO"))
+                    <li class="nav-item">
+                        <a href="{{ route('customer.account') }}"
+                            class="nav-link {{ Request::is('customer/account*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Akun</p>
+                        </a>
+                    </li>
+                    @endif
+                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") ||
+                    (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "HR") ||
+                    (Auth::user()->RoleID == "AH"))
+                    <li class="nav-item">
+                        <a href="{{ route('customer.otp') }}"
+                            class="nav-link {{ Request::is('customer/otp*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>OTP</p>
+                        </a>
+                    </li>
+                    @endif
+                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID ==
+                    "BM") ||
+                    (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "HR") ||
+                    (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO"))
+                    <li class="nav-item">
+                        <a href="{{ route('customer.transaction') }}"
+                            class="nav-link {{ Request::is('customer/transaction*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Transaksi</p>
+                        </a>
+                    </li>
+                    @endif
+                </ul>
+            </li>
+            @endif
 
-        @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID == "BM") ||
-        (Auth::user()->RoleID == "FI") ||
-        (Auth::user()->RoleID == "HR") || (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO"))
-        <li class="nav-item {{ Request::is('customer*') ? 'menu-open' : '' }}">
-            <a href="#" class="nav-link {{ Request::is('customer*') ? 'active' : '' }}">
-                <i class="nav-icon fas fa-users"></i>
-                <p>
-                    Customer
-                    <i class="right fas fa-angle-left"></i>
-                </p>
-            </a>
-            <ul class="nav nav-treeview">
-                @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID ==
-                "BM") ||
-                (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "HR") ||
-                (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO"))
-                <li class="nav-item">
-                    <a href="{{ route('customer.account') }}"
-                        class="nav-link {{ Request::is('customer/account*') ? 'active' : '' }}">
-                        <i class="far fa-circle nav-icon"></i>
-                        <p>Akun</p>
-                    </a>
-                </li>
-                @endif
-                @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") ||
-                (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "HR") ||
-                (Auth::user()->RoleID == "AH"))
-                <li class="nav-item">
-                    <a href="{{ route('customer.otp') }}"
-                        class="nav-link {{ Request::is('customer/otp*') ? 'active' : '' }}">
-                        <i class="far fa-circle nav-icon"></i>
-                        <p>OTP</p>
-                    </a>
-                </li>
-                @endif
-                @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID ==
-                "BM") ||
-                (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "HR") ||
-                (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO"))
-                <li class="nav-item">
-                    <a href="{{ route('customer.transaction') }}"
-                        class="nav-link {{ Request::is('customer/transaction*') ? 'active' : '' }}">
-                        <i class="far fa-circle nav-icon"></i>
-                        <p>Transaksi</p>
-                    </a>
-                </li>
-                @endif
-            </ul>
-        </li>
-        @endif
+            @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID == "FI") ||
+            (Auth::user()->RoleID == "BM"))
+            <li class="nav-item {{ Request::is('voucher*') ? 'menu-open' : '' }}">
+                <a href="#" class="nav-link {{ Request::is('voucher*') ? 'active' : '' }}">
+                    <i class="nav-icon fas fa-ticket-alt"></i>
+                    <p>
+                        Voucher
+                        <i class="right fas fa-angle-left"></i>
+                    </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="{{ route('voucher.list') }}"
+                            class="nav-link {{ Request::is('voucher/list*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Voucher List</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('voucher.log') }}"
+                            class="nav-link {{ Request::is('voucher/log*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Penggunaan Voucher</p>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            @endif
 
-        @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID == "FI") ||
-        (Auth::user()->RoleID == "BM"))
-        <li class="nav-item {{ Request::is('voucher*') ? 'menu-open' : '' }}">
-            <a href="#" class="nav-link {{ Request::is('voucher*') ? 'active' : '' }}">
-                <i class="nav-icon fas fa-ticket-alt"></i>
-                <p>
-                    Voucher
-                    <i class="right fas fa-angle-left"></i>
-                </p>
-            </a>
-            <ul class="nav nav-treeview">
-                <li class="nav-item">
-                    <a href="{{ route('voucher.list') }}"
-                        class="nav-link {{ Request::is('voucher/list*') ? 'active' : '' }}">
-                        <i class="far fa-circle nav-icon"></i>
-                        <p>Voucher List</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('voucher.log') }}"
-                        class="nav-link {{ Request::is('voucher/log*') ? 'active' : '' }}">
-                        <i class="far fa-circle nav-icon"></i>
-                        <p>Penggunaan Voucher</p>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        @endif
-
-        @if (Auth::user()->RoleID == "IT")
-        <li class="nav-item {{ Request::is('setting*') ? 'menu-open' : '' }}">
-            <a href="#" class="nav-link {{ Request::is('setting*') ? 'active' : '' }}">
-                <i class="nav-icon fas fa-tools"></i>
-                <p>
-                    Pengaturan
-                    <i class="right fas fa-angle-left"></i>
-                </p>
-            </a>
-            <ul class="nav nav-treeview">
-                <li class="nav-item">
-                    <a href="{{ route('setting.monthlyReport') }}"
-                        class="nav-link {{ Request::is('setting/monthly-report*') ? 'active' : '' }}">
-                        <i class="far fa-circle nav-icon"></i>
-                        <p>Monthly Report</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('setting.users') }}"
-                        class="nav-link {{ Request::is('setting/users*') ? 'active' : '' }}">
-                        <i class="far fa-circle nav-icon"></i>
-                        <p>Pengguna</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('setting.role') }}"
-                        class="nav-link {{ Request::is('setting/role*') ? 'active' : '' }}">
-                        <i class="far fa-circle nav-icon"></i>
-                        <p>Role</p>
-                    </a>
-                </li>
-                <li class="nav-item {{ Request::is('setting/module*') ? 'menu-open' : '' }}">
-                    <a href="#" class="nav-link {{ Request::is('setting/module*') ? 'active' : '' }}">
-                        <i class="far fa-circle nav-icon"></i>
-                        <p>Module
-                            <i class="right fas fa-angle-left"></i>
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="{{ route('setting.fairbanc') }}"
-                                class="nav-link {{ Request::is('*module/fairbanc*') ? 'active' : '' }}">
-                                <i class="far fa-dot-circle nav-icon"></i>
-                                <p>Fairbanc</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ route('setting.haistar') }}"
-                                class="nav-link {{ Request::is('*module/haistar*') ? 'active' : '' }}">
-                                <i class="far fa-dot-circle nav-icon"></i>
-                                <p>Haistar</p>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
-        </li>
-        @endif
+            @if (Auth::user()->RoleID == "IT")
+            <li class="nav-item {{ Request::is('setting*') ? 'menu-open' : '' }}">
+                <a href="#" class="nav-link {{ Request::is('setting*') ? 'active' : '' }}">
+                    <i class="nav-icon fas fa-tools"></i>
+                    <p>
+                        Pengaturan
+                        <i class="right fas fa-angle-left"></i>
+                    </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="{{ route('setting.monthlyReport') }}"
+                            class="nav-link {{ Request::is('setting/monthly-report*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Monthly Report</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('setting.users') }}"
+                            class="nav-link {{ Request::is('setting/users*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Pengguna</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('setting.role') }}"
+                            class="nav-link {{ Request::is('setting/role*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Role</p>
+                        </a>
+                    </li>
+                    <li class="nav-item {{ Request::is('setting/module*') ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ Request::is('setting/module*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Module
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="{{ route('setting.fairbanc') }}"
+                                    class="nav-link {{ Request::is('*module/fairbanc*') ? 'active' : '' }}">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    <p>Fairbanc</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('setting.haistar') }}"
+                                    class="nav-link {{ Request::is('*module/haistar*') ? 'active' : '' }}">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    <p>Haistar</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            @endif
 
         </ul>
     </nav>

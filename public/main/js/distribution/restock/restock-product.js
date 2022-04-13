@@ -62,6 +62,7 @@ $(document).ready(function () {
                 {
                     data: "StoreAddress",
                     name: "ms_merchant_account.StoreAddress",
+                    searchable: false,
                 },
                 {
                     data: "TotalPrice",
