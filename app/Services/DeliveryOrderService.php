@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class DeliveryOrderService
@@ -85,7 +86,7 @@ class DeliveryOrderService
     return $sql;
   }
 
-  public function insertExpeditionDetail($merchantExpeditionID, $deliveryOrderID, $productID)
+  public function insertExpeditionDetail($merchantExpeditionID, $deliveryOrderID, $productID, $statusExpeditionDetail)
   {
     $doDetailID = DB::table('tx_merchant_delivery_order_detail')
       ->where('DeliveryOrderID', $deliveryOrderID)
@@ -96,7 +97,8 @@ class DeliveryOrderService
     $sql = DB::table('tx_merchant_expedition_detail')
       ->insert([
         'MerchantExpeditionID' => $merchantExpeditionID,
-        'DeliveryOrderDetailID' => $doDetailID->DeliveryOrderDetailID
+        'DeliveryOrderDetailID' => $doDetailID->DeliveryOrderDetailID,
+        'StatusExpeditionDetail' => $statusExpeditionDetail
       ]);
 
     return $sql;
@@ -107,7 +109,7 @@ class DeliveryOrderService
     $deliveryOrderID = DB::table('tx_merchant_delivery_order_detail')
       ->join('tx_merchant_delivery_order', 'tx_merchant_delivery_order.DeliveryOrderID', 'tx_merchant_delivery_order_detail.DeliveryOrderID')
       ->join('tx_merchant_order', 'tx_merchant_order.StockOrderID', 'tx_merchant_delivery_order.StockOrderID')
-      ->select('tx_merchant_delivery_order.StockOrderID', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_order.PaymentMethodID', 'tx_merchant_delivery_order_detail.ProductID', 'tx_merchant_delivery_order_detail.Price')
+      ->select('tx_merchant_delivery_order.StockOrderID', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_order.PaymentMethodID', 'tx_merchant_delivery_order_detail.ProductID', 'tx_merchant_delivery_order_detail.Price', 'tx_merchant_order.DistributorID')
       ->where('DeliveryOrderDetailID', $deliveryOrderDetailID)
       ->first();
 
@@ -142,8 +144,8 @@ class DeliveryOrderService
       ->selectRaw("
         ANY_VALUE(tx_merchant_order.StockOrderID) AS StockOrderID,
         ANY_VALUE(tx_merchant_order.TotalPrice) AS TotalPrice,
-        IFNULL(SUM(IF(tx_merchant_delivery_order.StatusDO != 'S026' AND tx_merchant_delivery_order.StatusDO != 'S028', tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price, 0)), 0) AS SumPriceCreatedDO,
-        COUNT(DISTINCT CASE WHEN tx_merchant_delivery_order.StatusDO = 'S028' THEN tx_merchant_delivery_order.DeliveryOrderID END) AS CountCreatedDO
+        IFNULL(SUM(IF(tx_merchant_delivery_order_detail.StatusExpedition != 'S029' AND tx_merchant_delivery_order_detail.StatusExpedition != 'S037', tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price, 0)), 0) AS SumPriceCreatedDO,
+        COUNT(DISTINCT CASE WHEN tx_merchant_delivery_order.StatusDO IN ('S024', 'S026', 'S028') THEN tx_merchant_delivery_order.DeliveryOrderID END) AS CountCreatedDO
       ")
       ->groupBy('tx_merchant_order.StockOrderID')->toSql();
 
@@ -183,18 +185,24 @@ class DeliveryOrderService
       ->join(DB::raw("($sql1) as sql1"), function ($join) {
         $join->on('tx_merchant_delivery_order.StockOrderID', '=', 'sql1.StockOrderID');
       })
+      ->leftJoin('ms_stock_product', function ($join) {
+        $join->on('ms_stock_product.ProductID', 'tx_merchant_delivery_order_detail.ProductID');
+        $join->on('ms_stock_product.DistributorID', 'tx_merchant_order.DistributorID');
+      })
       ->selectRaw("
         ANY_VALUE(tx_merchant_delivery_order.StockOrderID) AS StockOrderID,
         ANY_VALUE(tx_merchant_delivery_order.DeliveryOrderID) AS DeliveryOrderID,
         ANY_VALUE(tx_merchant_delivery_order_detail.DeliveryOrderDetailID) AS DeliveryOrderDetailID,
         ANY_VALUE(ms_merchant_account.StoreName) AS StoreName,
         ANY_VALUE(ms_merchant_account.MerchantID) AS MerchantID,
+        ANY_VALUE(tx_merchant_order.DistributorID) AS DistributorID,
         ANY_VALUE(ms_merchant_account.PhoneNumber) AS PhoneNumber,
         ANY_VALUE(sql1.TotalPrice) AS TotalPrice,
         ANY_VALUE(sql1.SumPriceCreatedDO) AS SumPriceCreatedDO,
         ANY_VALUE(sql1.CountCreatedDO) AS CountCreatedDO,
         ANY_VALUE(ms_distributor.IsHaistar) AS IsHaistar,
         ANY_VALUE(tx_merchant_delivery_order_detail.ProductID) AS ProductID,
+        IFNULL(SUM(ms_stock_product.Qty), 0) AS QtyStock,
         ANY_VALUE(tx_merchant_delivery_order_detail.Qty) AS QtyDO,
         ANY_VALUE(tx_merchant_delivery_order_detail.Price) AS PriceDO,
         ANY_VALUE(ms_product.ProductName) AS ProductName,
@@ -213,7 +221,7 @@ class DeliveryOrderService
     $sql = DB::table('tx_merchant_delivery_order AS tmdo')
       ->join('tx_merchant_delivery_order_detail', function ($join) {
         $join->on('tx_merchant_delivery_order_detail.DeliveryOrderID', 'tmdo.DeliveryOrderID');
-        $join->where('tx_merchant_delivery_order_detail.StatusExpedition', 'S029');
+        $join->whereIn('tx_merchant_delivery_order_detail.StatusExpedition', ['S029', 'S037']);
       })
       ->join('ms_product', 'ms_product.ProductID', 'tx_merchant_delivery_order_detail.ProductID')
       ->join('tx_merchant_order', 'tx_merchant_order.StockOrderID', 'tmdo.StockOrderID')
@@ -223,7 +231,7 @@ class DeliveryOrderService
       ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
       ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'ms_merchant_account.MerchantID')
       ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', 'ms_distributor_merchant_grade.GradeID')
-      ->whereIn('tmdo.StatusDO', ['S024', 'S028'])
+      ->whereIn('tmdo.StatusDO', ['S024', 'S026', 'S028'])
       ->selectRaw("
         (
           SELECT CONCAT('DO ke-', COUNT(*)) FROM tx_merchant_delivery_order
@@ -250,6 +258,69 @@ class DeliveryOrderService
       ->groupBy('tmdo.DeliveryOrderID');
 
     return $sql;
+  }
+
+  public function reduceStock($productID, $distributorID, $qtyReduce, $deliveryOrderDetailID)
+  {
+    $sql = DB::table('ms_stock_product')
+      ->where('ProductID', $productID)
+      ->where('DistributorID', $distributorID)
+      ->where('Qty', '!=', 0)
+      ->orderBy('CreatedDate')
+      ->select('StockProductID', 'Qty', 'PurchasePrice')->first();
+
+    $sellingPrice = DB::table('tx_merchant_delivery_order_detail')
+      ->where('DeliveryOrderDetailID', $deliveryOrderDetailID)
+      ->select('Price')->first();
+
+    $user = Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo;
+
+    $qtyAfter = $sql->Qty - $qtyReduce;
+
+    if ($qtyAfter < 0) {
+      DB::table('ms_stock_product')
+        ->where('StockProductID', $sql->StockProductID)
+        ->update([
+          'Qty' => 0
+        ]);
+      DB::table('ms_stock_product_log')
+        ->insert([
+          'StockProductID' => $sql->StockProductID,
+          'ProductID' => $productID,
+          'QtyBefore' => $sql->Qty,
+          'QtyAction' => $sql->Qty,
+          'QtyAfter' => 0,
+          'PurchasePrice' => $sql->PurchasePrice,
+          'SellingPrice' => $sellingPrice->Price,
+          'DeliveryOrderDetailID' => $deliveryOrderDetailID,
+          'CreatedDate' => date('Y-m-d H:i:s'),
+          'ActionBy' => $user,
+          'ActionType' => 'REDUCE'
+        ]);
+      $this->reduceStock($productID, $distributorID, $qtyAfter * (-1), $deliveryOrderDetailID);
+    } else {
+      DB::table('ms_stock_product')
+        ->where('StockProductID', $sql->StockProductID)
+        ->update([
+          'Qty' => $qtyAfter
+        ]);
+      DB::table('ms_stock_product_log')
+        ->insert([
+          'StockProductID' => $sql->StockProductID,
+          'ProductID' => $productID,
+          'QtyBefore' => $sql->Qty,
+          'QtyAction' => $qtyReduce,
+          'QtyAfter' => $qtyAfter,
+          'PurchasePrice' => $sql->PurchasePrice,
+          'SellingPrice' => $sellingPrice->Price,
+          'DeliveryOrderDetailID' => $deliveryOrderDetailID,
+          'CreatedDate' => date('Y-m-d H:i:s'),
+          'ActionBy' => $user,
+          'ActionType' => 'REDUCE'
+        ]);
+    }
+
+    return;
   }
 
   public function validateRemainingQty($stockOrderID, $deliveryOrderID, $productID, $qty, $validateFor)
@@ -403,7 +474,7 @@ class DeliveryOrderService
       ->join('tx_merchant_order', 'tx_merchant_order.StockOrderID', 'tx_merchant_delivery_order.StockOrderID')
       ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
       ->where('tx_merchant_expedition_detail.MerchantExpeditionID', $expeditionID)
-      ->select('tx_merchant_expedition_detail.MerchantExpeditionID', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.StockOrderID', 'tx_merchant_expedition_detail.DeliveryOrderDetailID', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber', 'tx_merchant_delivery_order_detail.ProductID', 'StatusExpdProduct.StatusOrder AS StatusProduct', 'ms_product.ProductName', 'ms_product.ProductImage', 'tx_merchant_delivery_order_detail.Qty', 'tx_merchant_delivery_order_detail.Price', 'tx_merchant_delivery_order_detail.StatusExpedition', 'tx_merchant_delivery_order_detail.Distributor', 'expd.CreatedDate', 'expd.StatusExpedition AS StatusExpd', 'StatusExpd.StatusOrder', 'driver.Name AS DriverName', 'helper.Name AS HelperName', 'expd.VehicleLicensePlate', 'ms_vehicle.VehicleName')
+      ->select('tx_merchant_expedition_detail.MerchantExpeditionID', 'tx_merchant_expedition_detail.MerchantExpeditionDetailID', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.StockOrderID', 'tx_merchant_expedition_detail.DeliveryOrderDetailID', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber', 'tx_merchant_delivery_order_detail.ProductID', 'StatusExpdProduct.StatusOrder AS StatusProduct', 'ms_product.ProductName', 'ms_product.ProductImage', 'tx_merchant_delivery_order_detail.Qty', 'tx_merchant_delivery_order_detail.Price', 'tx_merchant_delivery_order_detail.StatusExpedition', 'tx_merchant_delivery_order_detail.Distributor', 'expd.CreatedDate', 'expd.StatusExpedition AS StatusExpd', 'StatusExpd.StatusOrder', 'driver.Name AS DriverName', 'helper.Name AS HelperName', 'expd.VehicleLicensePlate', 'ms_vehicle.VehicleName')
       ->orderBy('tx_merchant_delivery_order_detail.Distributor');
 
     return $sql;

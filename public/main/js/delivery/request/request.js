@@ -52,13 +52,13 @@ $(document).ready(function () {
                     searchable: false,
                 },
                 {
+                    data: "DeliveryOrderID",
+                    name: "tmdo.DeliveryOrderID",
+                },
+                {
                     data: "CreatedDate",
                     name: "tmdo.CreatedDate",
                     type: "date",
-                },
-                {
-                    data: "DeliveryOrderID",
-                    name: "tmdo.DeliveryOrderID",
                 },
                 {
                     data: "UrutanDO",
@@ -95,7 +95,7 @@ $(document).ready(function () {
                     searchable: false,
                 },
             ],
-            order: [2, "asc"],
+            order: [3, "asc"],
             lengthChange: false,
             responsive: true,
             autoWidth: false,
@@ -299,10 +299,29 @@ $(document).ready(function () {
 
         $("#preview-product").html(cloneProduct);
         $("#preview-product .warning-choose-product").addClass("d-none");
+
+        let dataProduct = [];
+
         $("#preview-product input[type=checkbox]").each(function () {
             if (!$(this).is(":checked")) {
                 $(this).parent().parent().addClass("d-none");
             } else {
+                let productName = $(this)
+                    .parent()
+                    .siblings()
+                    .find("#product-name")
+                    .text();
+                let productID = $(this)
+                    .parent()
+                    .siblings()
+                    .find("#product-id")
+                    .val();
+                let distributor = $(this)
+                    .parent()
+                    .siblings()
+                    .find("#distributor")
+                    .val();
+
                 let qty = $(this)
                     .parent()
                     .siblings()
@@ -310,19 +329,42 @@ $(document).ready(function () {
                     .find("#qty-request-do");
                 let qtyVal = Number(qty.val());
                 let maxQty = Number(qty.next().next().next().children().text());
+                let existQty = Number(
+                    qty.next().next().next().next().children().text()
+                );
+
+                if (distributor == "RT MART") {
+                    if (Number(qtyVal) > Number(existQty)) {
+                        Toast.fire({
+                            icon: "error",
+                            title: productName + " melebihi qty stok tersedia!",
+                        });
+                        return (next = false);
+                    }
+
+                    dataProduct.push({
+                        productName: productName,
+                        productID: productID,
+                        qty: qtyVal,
+                        existQty: existQty,
+                    });
+                }
+
                 if (Number(qtyVal) > Number(maxQty)) {
                     Toast.fire({
                         icon: "error",
-                        title: "Terdapat quantity yang melebihi maksimum!",
+                        title: productName + " melebihi maksimum quantity!",
                     });
                     return (next = false);
                 } else if (qtyVal < 1) {
                     Toast.fire({
                         icon: "error",
-                        title: "Quantity harus lebih dari 0!",
+                        title:
+                            "Quantity " + productName + " harus lebih dari 0!",
                     });
                     return (next = false);
                 }
+
                 let newQtyElement = `<span id='qty-expedition'>${qty.val()}</span>`;
                 qty.replaceWith(newQtyElement);
 
@@ -334,6 +376,30 @@ $(document).ready(function () {
                     .addClass("col-3");
             }
         });
+
+        let resultDataProduct = Object.values(
+            dataProduct.reduce(
+                (c, { productID, qty, existQty, productName }) => {
+                    c[productID] = c[productID] || { productID, qty: 0 };
+                    c[productID].qty += qty;
+                    c[productID].existQty = existQty;
+                    c[productID].productName = productName;
+                    return c;
+                },
+                {}
+            )
+        );
+
+        $.each(resultDataProduct, function (key, value) {
+            if (value.qty > value.existQty) {
+                Toast.fire({
+                    icon: "error",
+                    title: value.productName + " melebihi qty stok tersedia",
+                });
+                return (next = false);
+            }
+        });
+
         $("#preview-product .card").each(function () {
             let checked = $(this)
                 .find("input[type=checkbox]")
@@ -342,7 +408,7 @@ $(document).ready(function () {
             if (checked == 0) {
                 $(this).addClass("d-none");
             }
-
+            let deliveryOrderID = $(this).find(".do-id").text();
             let maxNominal = $(this)
                 .find("#max-nominal")
                 .text()
@@ -356,7 +422,8 @@ $(document).ready(function () {
             if (Number(subtotalNominal) > Number(maxNominal)) {
                 Toast.fire({
                     icon: "error",
-                    title: "Terdapat nominal yang melebihi maksimum!",
+                    title:
+                        deliveryOrderID + " melebihi maksimum nominal kirim!",
                 });
                 return (next = false);
             }
@@ -433,11 +500,15 @@ $(document).ready(function () {
                 .find("input[type=checkbox]")
                 .val();
             let distributor = $(this).find("#distributor").val();
+            let distributorID = $(this).find("#distributor-id").val();
+            let productID = $(this).find("#product-id").val();
             let qtyExpedition = $(this).find("#qty-expedition").text();
 
             dataDeliveryOrderDetail.push({
                 deliveryOrderDetailID: deliveryOrderDetailID,
                 distributor: distributor,
+                distributorID: distributorID,
+                productID: productID,
                 qtyExpedition: qtyExpedition,
             });
         });
