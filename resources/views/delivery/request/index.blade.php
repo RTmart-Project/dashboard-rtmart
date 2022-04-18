@@ -116,8 +116,8 @@
                                     <tr>
                                       <th></th>
                                       <th></th>
-                                      <th>Tanggal Plan</th>
                                       <th>Delivery Order ID</th>
+                                      <th>Tanggal Plan</th>
                                       <th>Urutan</th>
                                       <th>Stock Order ID</th>
                                       <th>Nama Toko</th>

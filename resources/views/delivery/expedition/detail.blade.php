@@ -24,10 +24,7 @@
             <div class="d-flex flex-column align-items-center">
               <div>
                 <button class="btn btn-sm btn-success btn-finish-expedition mb-1"
-                  data-expedition="{{ $expd[0]->MerchantExpeditionID }}" {{ $countStatus->DlmPengiriman > 0 ? 'disabled'
-                  :
-                  ''
-                  }}>
+                  data-expedition="{{ $expd[0]->MerchantExpeditionID }}" {{ $countStatus->DlmPengiriman > 0 ? 'disabled' : '' }}>
                   <i class="fas fa-check"></i> Selesaikan Ekspedisi
                 </button>
                 @if ($countStatus->Selesai == 0)
@@ -54,7 +51,7 @@
                 @elseif ($expd[0]->StatusExpd == 'S032')
                 <span class="badge badge-warning">{{ $expd[0]->StatusOrder }}</span>
                 @else
-                <span class="badge badge-info">{{ $expd[0]->StatusOrder }}</span>
+                <span class="badge badge-danger">{{ $expd[0]->StatusOrder }}</span>
                 @endif
               </div>
               <div class="col-12 col-md-6">
@@ -87,7 +84,7 @@
             $firstLoopHaistar = true;
             @endphp
             @foreach ($order as $item)
-            @if ($firstLoopHaistar == true && $item->Distributor == "HAISTAR" && $item->StatusExpedition == "S034")
+            @if ($firstLoopHaistar == true && $item->Distributor == "HAISTAR" && $item->StatusExpeditionDetail == "S034")
             <div class="text-right">
               <a data-delivery-order="{{ $order[0]->DeliveryOrderID }}"
                 class="btn btn-sm bg-lightblue btn-resend-haistar">Resend Produk Haistar
@@ -112,20 +109,22 @@
               </div>
               <div class="col-6 col-md-3">
                 <label class="m-0">Status Produk</label><br>
-                @if ($item->StatusExpedition == "S031")
+                @if ($item->StatusExpeditionDetail == "S031")
                 <span class="badge badge-success mb-2">{{ $item->StatusProduct }}</span>
-                @elseif ($item->StatusExpedition == "S037" || $item->StatusExpedition == "S034")
+                @elseif ($item->StatusExpeditionDetail == "S037" || $item->StatusExpeditionDetail == "S034")
                 <span class="badge badge-danger mb-2">{{ $item->StatusProduct }}</span>
                 @else
                 <span class="badge badge-warning mb-2">{{ $item->StatusProduct }}</span>
                 @endif<br>
-                @if ($item->Distributor == "RT MART" && $item->StatusExpedition == "S030")
+                @if ($item->Distributor == "RT MART" && $item->StatusExpeditionDetail == "S030")
                 <a class="btn btn-sm btn-success btn-finish-product" data-product="{{ $item->ProductName }}"
-                  data-store="{{ $order[0]->StoreName }}" data-detail-do="{{ $item->DeliveryOrderDetailID }}">
+                  data-store="{{ $order[0]->StoreName }}"
+                  data-expedition-detail="{{ $item->MerchantExpeditionDetailID }}">
                   Selesaikan
                 </a>
                 <a class="btn btn-sm btn-danger btn-cancel-product" data-product="{{ $item->ProductName }}"
-                  data-store="{{ $order[0]->StoreName }}" data-detail-do="{{ $item->DeliveryOrderDetailID }}">
+                  data-store="{{ $order[0]->StoreName }}"
+                  data-expedition-detail="{{ $item->MerchantExpeditionDetailID }}">
                   Batalkan
                 </a>
                 @endif
@@ -198,7 +197,7 @@ $('.btn-finish-expedition').on('click', function (e) {
                   draggable: true,
                   dragWindowGap: 0,
                   action: function () {
-                      window.location = '/delivery/expedition/confirmExpedition/finish/' + expedition
+                      window.location = '/delivery/on-going/confirmExpedition/finish/' + expedition
                   }
               },
               tidak: function () {
@@ -223,7 +222,7 @@ $('.btn-cancel-expedition').on('click', function (e) {
                   draggable: true,
                   dragWindowGap: 0,
                   action: function () {
-                      window.location = '/delivery/expedition/confirmExpedition/cancel/' + expedition
+                      window.location = '/delivery/on-going/confirmExpedition/cancel/' + expedition
                   }
               },
               tidak: function () {
@@ -237,7 +236,7 @@ $('.btn-finish-product').on('click', function (e) {
       e.preventDefault();
       const product = $(this).data("product");
       const store = $(this).data("store");
-      const detailDO = $(this).data("detail-do");
+      const expedition = $(this).data("expedition-detail");
       $.confirm({
           title: 'Konfirmasi Order',
           content: `Apakah produk <b>${product}</b> telah diterima oleh <b>${store}</b>?`,
@@ -250,7 +249,7 @@ $('.btn-finish-product').on('click', function (e) {
                   draggable: true,
                   dragWindowGap: 0,
                   action: function () {
-                      window.location = '/delivery/expedition/confirmProduct/finish/' + detailDO
+                      window.location = '/delivery/on-going/confirmProduct/finish/' + expedition
                   }
               },
               tidak: function () {
@@ -264,7 +263,7 @@ $('.btn-cancel-product').on('click', function (e) {
       e.preventDefault();
       const product = $(this).data("product");
       const store = $(this).data("store");
-      const detailDO = $(this).data("detail-do");
+      const expedition = $(this).data("expedition-detail");
       $.confirm({
           title: 'Konfirmasi Order',
           content: `Apakah yakin ingin membatalkan produk <b>${product}</b> dari <b>${store}</b>?`,
@@ -277,7 +276,7 @@ $('.btn-cancel-product').on('click', function (e) {
                   draggable: true,
                   dragWindowGap: 0,
                   action: function () {
-                      window.location = '/delivery/expedition/confirmProduct/cancel/' + detailDO
+                      window.location = '/delivery/on-going/confirmProduct/cancel/' + expedition
                   }
               },
               tidak: function () {

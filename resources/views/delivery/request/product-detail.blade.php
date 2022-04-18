@@ -50,10 +50,11 @@
       </div>
       <div class="col-2 col-md-3 align-self-center">
         <img src="{{ config('app.base_image_url') . '/product/'. $product->ProductImage }}" alt="" width="80">
-        <p>{{ $product->ProductName }}</p>
+        <p id="product-name">{{ $product->ProductName }}</p>
         <input type="hidden" name="product_id_haistar[]" id="product-id" value="{{ $product->ProductID }}"
           disabled="disabled">
         <input type="hidden" name="distributor[]" id="distributor" value="HAISTAR">
+        <input type="hidden" name="distributor_id[]" id="distributor-id" value="{{ $product->DistributorID }}">
       </div>
       <div class="col-2 align-self-center">
         <label class="d-block">Qty DO</label>
@@ -64,8 +65,9 @@
         <div>
           <input type="hidden" name="max_qty_request_do_haistar[]"
             value="{{ $product->QtyDO + $product->PromisedQty - $product->QtyDONotBatal }}">
-          <input type="number" class="form-control qty-request-do text-sm text-center p-0 d-inline" id="qty-request-do"
-            name="qty_request_do_haistar[]" style="width: 40px; height: 30px;"
+          <input type="number"
+            class="form-control qty-request-do text-sm text-center p-0 d-inline {{ $product->ProductID }}"
+            id="qty-request-do" name="qty_request_do_haistar[]" style="width: 40px; height: 30px;"
             max="{{ $product->QtyDO + $product->PromisedQty - $product->QtyDONotBatal }}" min="1" required
             disabled="disabled">
           <span class="price-do">{{ Helper::formatCurrency($product->PriceDO, 'x @Rp ') }}</span><br>
@@ -103,10 +105,11 @@
       </div>
       <div class="col-3 align-self-center">
         <img src="{{ config('app.base_image_url') . '/product/'. $product->ProductImage }}" alt="" width="80">
-        <p>{{ $product->ProductName }}</p>
+        <p id="product-name">{{ $product->ProductName }}</p>
         <input type="hidden" name="product_id_rtmart[]" id="product-id" value="{{ $product->ProductID }}"
           disabled="disabled">
         <input type="hidden" name="distributor[]" id="distributor" value="RT MART">
+        <input type="hidden" name="distributor_id[]" id="distributor-id" value="{{ $product->DistributorID }}">
       </div>
       <div class="col-2 align-self-center">
         <label class="d-block">Qty DO</label>
@@ -117,13 +120,17 @@
         <div>
           <input type="hidden" name="max_qty_request_do_rtmart[]"
             value="{{ $product->QtyDO + $product->PromisedQty - $product->QtyDONotBatal }}">
-          <input type="number" class="form-control qty-request-do text-sm text-center p-0 d-inline" id="qty-request-do"
-            name="qty_request_do_rtmart[]" style="width: 40px; height: 30px;"
+          <input type="number"
+            class="form-control qty-request-do text-sm text-center p-0 d-inline {{ $product->ProductID }}"
+            id="qty-request-do" name="qty_request_do_rtmart[]" style="width: 40px; height: 30px;"
             max="{{ $product->QtyDO + $product->PromisedQty - $product->QtyDONotBatal }}" min="1" required
             disabled="disabled">
           <span class="price-do">{{ Helper::formatCurrency($product->PriceDO, 'x @Rp ') }}</span><br>
           <small>
             Max Qty dapat dikirim : <span id="max-qty">{{ $product->PromisedQty - $product->QtyDONotBatal }}</span>
+          </small>
+          <small class="d-block">
+            Qty Stok Tersedia : <span id="exist-qty">{{ $product->QtyStock }}</span>
           </small>
         </div>
       </div>
