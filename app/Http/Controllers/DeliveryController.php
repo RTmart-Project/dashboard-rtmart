@@ -300,7 +300,7 @@ class DeliveryController extends Controller
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
 
-        $sqlExpedition = $deliveryOrderService->expeditions()->where('expd.StatusExpedition', $status);
+        $sqlExpedition = $deliveryOrderService->expeditions()->whereRaw("expd.StatusExpedition IN ($status)");
 
         if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
@@ -375,23 +375,16 @@ class DeliveryController extends Controller
             ->join('tx_merchant_delivery_order', 'tx_merchant_delivery_order.DeliveryOrderID', 'tx_merchant_delivery_order_detail.DeliveryOrderID')
             ->where('tx_merchant_expedition_detail.MerchantExpeditionID', $expeditionID)
             ->distinct()
-            ->select('tx_merchant_delivery_order.DeliveryOrderID', 'tx_merchant_delivery_order.StockOrderID', 'tx_merchant_expedition.DriverID', 'tx_merchant_expedition.HelperID', 'tx_merchant_expedition.VehicleID', 'tx_merchant_expedition.VehicleLicensePlate')
+            ->select('tx_merchant_delivery_order.DeliveryOrderID', 'tx_merchant_delivery_order.StatusDO', 'tx_merchant_delivery_order.StockOrderID', 'tx_merchant_expedition.DriverID', 'tx_merchant_expedition.HelperID', 'tx_merchant_expedition.VehicleID', 'tx_merchant_expedition.VehicleLicensePlate')
             ->get();
 
         if ($status == "finish") {
             $statusExpedition = "S035";
-            $statusDO = "S025";
             $message = "Ekspedisi berhasil diselesaikan";
         } else {
             $statusExpedition = "S036";
-            $statusDO = "S028";
             $message = "Ekspedisi telah dibatalkan";
         }
-
-        $dataUpdateDO = [
-            'StatusDO' => $statusDO,
-            'FinishDate' => date('Y-m-d H:i:s')
-        ];
 
         $dataUpdateExpedition = [
             'StatusExpedition' => $statusExpedition,
@@ -405,16 +398,47 @@ class DeliveryController extends Controller
         ];
 
         try {
-            DB::transaction(function () use ($status, $expeditionID, $dataUpdateExpedition, $dataExpeditionLog, $getDOandSO, $dataUpdateDO, $statusDO) {
+            DB::transaction(function () use ($status, $expeditionID, $dataUpdateExpedition, $dataExpeditionLog, $getDOandSO) {
                 DB::table('tx_merchant_expedition')
                     ->where('MerchantExpeditionID', $expeditionID)
                     ->update($dataUpdateExpedition);
                 DB::table('tx_merchant_expedition_log')->insert($dataExpeditionLog);
                 foreach ($getDOandSO as $key => $value) {
-                    DB::table('tx_merchant_delivery_order')
-                        ->where('DeliveryOrderID', $value->DeliveryOrderID)
-                        ->where('StockOrderID', $value->StockOrderID)
-                        ->update($dataUpdateDO);
+                    $getDOdetail = DB::table('tx_merchant_delivery_order')
+                        ->join('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID')
+                        ->join('tx_merchant_expedition_detail', 'tx_merchant_expedition_detail.DeliveryOrderDetailID', 'tx_merchant_delivery_order_detail.DeliveryOrderDetailID')
+                        ->where('tx_merchant_delivery_order.DeliveryOrderID', $value->DeliveryOrderID)
+                        ->select('tx_merchant_delivery_order.DeliveryOrderID', 'tx_merchant_delivery_order_detail.DeliveryOrderDetailID', 'tx_merchant_expedition_detail.DeliveryOrderDetailID', 'tx_merchant_expedition_detail.StatusExpeditionDetail');
+
+                    if ($status == "finish") {
+                        $statusDO = "S025";
+                        $countSelesai = $getDOdetail->where('tx_merchant_expedition_detail.StatusExpeditionDetail', '!=', 'S031')->count();
+                        if ($countSelesai == 0) {
+                            DB::table('tx_merchant_delivery_order')
+                                ->where('DeliveryOrderID', $value->DeliveryOrderID)
+                                ->where('StockOrderID', $value->StockOrderID)
+                                ->update([
+                                    'StatusDO' => $statusDO,
+                                    'FinishDate' => date('Y-m-d H:i:s')
+                                ]);
+                        }
+                    } else {
+                        $statusDO = $value->StatusDO;
+                        DB::table('tx_merchant_delivery_order_detail')
+                            ->where('DeliveryOrderID', $value->DeliveryOrderID)
+                            ->update([
+                                'StatusExpedition' => 'S037'
+                            ]);
+                        foreach ($getDOdetail->where('tx_merchant_delivery_order_detail.Distributor', 'RT MART')->get() as $key => $item) {
+                            DB::table('tx_merchant_expedition_detail')
+                                ->where('MerchantExpeditionID', $expeditionID)
+                                ->where('DeliveryOrderDetailID', $item->DeliveryOrderDetailID)
+                                ->update([
+                                    'StatusExpeditionDetail' => 'S037'
+                                ]);
+                        }
+                    }
+
                     DB::table('tx_merchant_delivery_order_log')->insert([
                         'StockOrderID' => $value->StockOrderID,
                         'DeliveryOrderID' => $value->DeliveryOrderID,
@@ -425,14 +449,6 @@ class DeliveryController extends Controller
                         'VehicleLicensePlate' => $value->VehicleLicensePlate,
                         'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo . ' ' . Auth::user()->Name
                     ]);
-                    if ($status == "cancel") {
-                        DB::table('tx_merchant_delivery_order_detail')
-                            ->where('DeliveryOrderID', $value->DeliveryOrderID)
-                            ->update([
-                                'StatusExpedition' => 'S029',
-                                'Distributor' => NULL
-                            ]);
-                    }
                 }
             });
             return redirect()->route('delivery.expedition')->with('success', $message);
@@ -443,18 +459,23 @@ class DeliveryController extends Controller
 
     public function confirmProduct($status, $expeditionDetailID)
     {
+        $deliveryOrderDetailID = DB::table('tx_merchant_expedition_detail')
+            ->where('MerchantExpeditionDetailID', $expeditionDetailID)
+            ->select('DeliveryOrderDetailID')
+            ->first();
+
         if ($status == "finish") {
             $statusExpedition = "S031";
             $message = "Produk berhasil diselesaikan";
         } else {
             $statusExpedition = "S037";
-            $message = "Produk dibatalkan";
+            $message = "Produk berhasil dibatalkan";
         }
 
         try {
-            DB::transaction(function () use ($statusExpedition, $expeditionDetailID) {
+            DB::transaction(function () use ($deliveryOrderDetailID, $statusExpedition, $expeditionDetailID) {
                 DB::table('tx_merchant_delivery_order_detail')
-                    ->where('DeliveryOrderDetailID', DB::raw("SELECT DeliveryOrderDetailID FROM tx_merchant_expedition_detail WHERE MerchantExpeditionDetailID = $expeditionDetailID"))
+                    ->where('DeliveryOrderDetailID', $deliveryOrderDetailID->DeliveryOrderDetailID)
                     ->update([
                         'StatusExpedition' => $statusExpedition
                     ]);

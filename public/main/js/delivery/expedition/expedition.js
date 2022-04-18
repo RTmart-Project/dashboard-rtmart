@@ -12,7 +12,7 @@ $(document).ready(function () {
             serverSide: true,
             stateServe: true,
             ajax: {
-                url: "/delivery/on-going/get/S032",
+                url: "/delivery/on-going/get/'S032'",
                 data: function (d) {
                     d.fromDate = $("#expedition #from_date").val();
                     d.toDate = $("#expedition #to_date").val();

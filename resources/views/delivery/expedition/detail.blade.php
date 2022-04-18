@@ -24,10 +24,7 @@
             <div class="d-flex flex-column align-items-center">
               <div>
                 <button class="btn btn-sm btn-success btn-finish-expedition mb-1"
-                  data-expedition="{{ $expd[0]->MerchantExpeditionID }}" {{ $countStatus->DlmPengiriman > 0 ? 'disabled'
-                  :
-                  ''
-                  }}>
+                  data-expedition="{{ $expd[0]->MerchantExpeditionID }}" {{ $countStatus->DlmPengiriman > 0 ? 'disabled' : '' }}>
                   <i class="fas fa-check"></i> Selesaikan Ekspedisi
                 </button>
                 @if ($countStatus->Selesai == 0)
@@ -54,7 +51,7 @@
                 @elseif ($expd[0]->StatusExpd == 'S032')
                 <span class="badge badge-warning">{{ $expd[0]->StatusOrder }}</span>
                 @else
-                <span class="badge badge-info">{{ $expd[0]->StatusOrder }}</span>
+                <span class="badge badge-danger">{{ $expd[0]->StatusOrder }}</span>
                 @endif
               </div>
               <div class="col-12 col-md-6">
@@ -87,7 +84,7 @@
             $firstLoopHaistar = true;
             @endphp
             @foreach ($order as $item)
-            @if ($firstLoopHaistar == true && $item->Distributor == "HAISTAR" && $item->StatusExpedition == "S034")
+            @if ($firstLoopHaistar == true && $item->Distributor == "HAISTAR" && $item->StatusExpeditionDetail == "S034")
             <div class="text-right">
               <a data-delivery-order="{{ $order[0]->DeliveryOrderID }}"
                 class="btn btn-sm bg-lightblue btn-resend-haistar">Resend Produk Haistar
@@ -112,14 +109,14 @@
               </div>
               <div class="col-6 col-md-3">
                 <label class="m-0">Status Produk</label><br>
-                @if ($item->StatusExpedition == "S031")
+                @if ($item->StatusExpeditionDetail == "S031")
                 <span class="badge badge-success mb-2">{{ $item->StatusProduct }}</span>
-                @elseif ($item->StatusExpedition == "S037" || $item->StatusExpedition == "S034")
+                @elseif ($item->StatusExpeditionDetail == "S037" || $item->StatusExpeditionDetail == "S034")
                 <span class="badge badge-danger mb-2">{{ $item->StatusProduct }}</span>
                 @else
                 <span class="badge badge-warning mb-2">{{ $item->StatusProduct }}</span>
                 @endif<br>
-                @if ($item->Distributor == "RT MART" && $item->StatusExpedition == "S030")
+                @if ($item->Distributor == "RT MART" && $item->StatusExpeditionDetail == "S030")
                 <a class="btn btn-sm btn-success btn-finish-product" data-product="{{ $item->ProductName }}"
                   data-store="{{ $order[0]->StoreName }}"
                   data-expedition-detail="{{ $item->MerchantExpeditionDetailID }}">
