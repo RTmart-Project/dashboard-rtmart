@@ -42,7 +42,7 @@
     @endif
     <div class="row text-center border-bottom m-0 request-do">
       <div class="col-3 col-md-2 align-self-center">
-        <select class="form-control form-control-sm mb-2" name="send_by" id="send_by">
+        <select class="form-control form-control-sm mb-2 send-by" name="send_by" id="send_by">
           <option value="HAISTAR">Kirim Haistar</option>
           <option value="RT MART">Kirim RT Mart</option>
         </select>
@@ -73,6 +73,9 @@
           <span class="price-do">{{ Helper::formatCurrency($product->PriceDO, 'x @Rp ') }}</span><br>
           <small>
             Max Qty dapat dikirim : <span id="max-qty">{{ $product->PromisedQty - $product->QtyDONotBatal }}</span>
+          </small>
+          <small id="exist-stock" class="d-none">
+            Qty Stok Tersedia : <span id="exist-qty">{{ $product->QtyStock }}</span>
           </small>
         </div>
       </div>

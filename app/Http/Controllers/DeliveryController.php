@@ -6,6 +6,7 @@ use App\Services\DeliveryOrderService;
 use App\Services\DriverService;
 use App\Services\HaistarService;
 use App\Services\VehicleService;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -367,7 +368,7 @@ class DeliveryController extends Controller
         ]);
     }
 
-    public function confirmExpedition($status, $expeditionID)
+    public function confirmExpedition($status, $expeditionID, DeliveryOrderService $deliveryOrderService)
     {
         $getDOandSO = DB::table('tx_merchant_expedition')
             ->join('tx_merchant_expedition_detail', 'tx_merchant_expedition_detail.MerchantExpeditionID', 'tx_merchant_expedition.MerchantExpeditionID')
@@ -398,7 +399,7 @@ class DeliveryController extends Controller
         ];
 
         try {
-            DB::transaction(function () use ($status, $expeditionID, $dataUpdateExpedition, $dataExpeditionLog, $getDOandSO) {
+            DB::transaction(function () use ($status, $expeditionID, $dataUpdateExpedition, $dataExpeditionLog, $getDOandSO, $deliveryOrderService) {
                 DB::table('tx_merchant_expedition')
                     ->where('MerchantExpeditionID', $expeditionID)
                     ->update($dataUpdateExpedition);
@@ -408,7 +409,14 @@ class DeliveryController extends Controller
                         ->join('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID')
                         ->join('tx_merchant_expedition_detail', 'tx_merchant_expedition_detail.DeliveryOrderDetailID', 'tx_merchant_delivery_order_detail.DeliveryOrderDetailID')
                         ->where('tx_merchant_delivery_order.DeliveryOrderID', $value->DeliveryOrderID)
-                        ->select('tx_merchant_delivery_order.DeliveryOrderID', 'tx_merchant_delivery_order_detail.DeliveryOrderDetailID', 'tx_merchant_expedition_detail.DeliveryOrderDetailID', 'tx_merchant_expedition_detail.StatusExpeditionDetail');
+                        ->select('tx_merchant_delivery_order_detail.Distributor', 'tx_merchant_delivery_order.DeliveryOrderID', 'tx_merchant_delivery_order_detail.DeliveryOrderDetailID', 'tx_merchant_expedition_detail.DeliveryOrderDetailID', 'tx_merchant_expedition_detail.StatusExpeditionDetail', 'tx_merchant_expedition_detail.MerchantExpeditionDetailID');
+
+                    $countNotBatal = (clone $getDOdetail)->where('tx_merchant_delivery_order_detail.Distributor', 'HAISTAR')->where('tx_merchant_expedition_detail.StatusExpeditionDetail', '!=', 'S037')->count();
+
+                    if ($countNotBatal > 0) {
+                        $messageError = "Terdapat Order Haistar yang tidak batal";
+                        throw new Exception($messageError);
+                    }
 
                     if ($status == "finish") {
                         $statusDO = "S025";
@@ -436,6 +444,10 @@ class DeliveryController extends Controller
                                 ->update([
                                     'StatusExpeditionDetail' => 'S037'
                                 ]);
+                            if ($item->StatusExpeditionDetail == "S030") {
+                                // Balikin stok
+                                $deliveryOrderService->cancelProductExpedition($item->MerchantExpeditionDetailID);
+                            }
                         }
                     }
 
@@ -453,11 +465,11 @@ class DeliveryController extends Controller
             });
             return redirect()->route('delivery.expedition')->with('success', $message);
         } catch (\Throwable $th) {
-            return redirect()->route('delivery.expedition')->with('failed', 'Terjadi kesalahan');
+            return redirect()->route('delivery.expedition')->with('failed', $th->getMessage());
         }
     }
 
-    public function confirmProduct($status, $expeditionDetailID)
+    public function confirmProduct($status, $expeditionDetailID, DeliveryOrderService $deliveryOrderService)
     {
         $deliveryOrderDetailID = DB::table('tx_merchant_expedition_detail')
             ->where('MerchantExpeditionDetailID', $expeditionDetailID)
@@ -473,7 +485,7 @@ class DeliveryController extends Controller
         }
 
         try {
-            DB::transaction(function () use ($deliveryOrderDetailID, $statusExpedition, $expeditionDetailID) {
+            DB::transaction(function () use ($deliveryOrderDetailID, $statusExpedition, $expeditionDetailID, $status, $deliveryOrderService) {
                 DB::table('tx_merchant_delivery_order_detail')
                     ->where('DeliveryOrderDetailID', $deliveryOrderDetailID->DeliveryOrderDetailID)
                     ->update([
@@ -484,6 +496,9 @@ class DeliveryController extends Controller
                     ->update([
                         'StatusExpeditionDetail' => $statusExpedition
                     ]);
+                if ($status == "cancel") {
+                    $deliveryOrderService->cancelProductExpedition($expeditionDetailID);
+                }
             });
             return redirect()->back()->with('success', $message);
         } catch (\Throwable $th) {
@@ -552,6 +567,37 @@ class DeliveryController extends Controller
             }
         } else {
             return redirect()->back()->with('failed', $haistarPushOrder->data);
+        }
+    }
+
+    public function requestCancelHaistar($deliveryOrderID, $expeditionID, HaistarService $haistarService)
+    {
+        $haistarCancelOrder = $haistarService->haistarCancelOrder($deliveryOrderID, "Batal");
+
+        if ($haistarCancelOrder->status == 200) {
+            try {
+                DB::transaction(function () use ($deliveryOrderID, $expeditionID) {
+                    DB::table('tx_merchant_delivery_order_detail')
+                        ->where('DeliveryOrderID', $deliveryOrderID)
+                        ->where('Distributor', 'HAISTAR')
+                        ->update([
+                            'StatusExpedition' => 'S038'
+                        ]);
+                    DB::table('tx_merchant_expedition_detail')
+                        ->where('MerchantExpeditionID', $expeditionID)
+                        ->whereRaw("DeliveryOrderDetailID IN (
+                            SELECT DeliveryOrderDetailID FROM tx_merchant_delivery_order_detail
+                            WHERE DeliveryOrderID = '$deliveryOrderID' AND Distributor = 'HAISTAR')")
+                        ->update([
+                            'StatusExpeditionDetail' => 'S038'
+                        ]);
+                });
+                return redirect()->back()->with('success', 'Request Cancel berhasil dibuat');
+            } catch (\Throwable $th) {
+                return redirect()->back()->with('failed', 'Terjadi kesalahan');
+            }
+        } else {
+            return redirect()->back()->with('failed', 'Terjadi kesalahan Haistar');
         }
     }
 

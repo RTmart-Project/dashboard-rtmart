@@ -482,23 +482,109 @@ class DeliveryOrderService
 
   public function countStatusDeliveryDetail($merchantExpeditionID)
   {
-    $sql = DB::table('tx_merchant_delivery_order_detail')
-      ->whereRaw("DeliveryOrderDetailID IN (
-        SELECT DeliveryOrderDetailID FROM tx_merchant_expedition_detail 
-        WHERE MerchantExpeditionID = '$merchantExpeditionID')")
+    $sql = DB::table('tx_merchant_expedition_detail')
+      ->where('MerchantExpeditionID', $merchantExpeditionID)
       ->selectRaw("
         COUNT(DISTINCT CASE 
-              WHEN tx_merchant_delivery_order_detail.StatusExpedition = 'S030' OR tx_merchant_delivery_order_detail.StatusExpedition = 'S029' 
-              THEN tx_merchant_delivery_order_detail.DeliveryOrderDetailID 
+              WHEN tx_merchant_expedition_detail.StatusExpeditionDetail = 'S030' OR tx_merchant_expedition_detail.StatusExpeditionDetail = 'S029' 
+              THEN tx_merchant_expedition_detail.DeliveryOrderDetailID 
               END)
         AS DlmPengiriman,
         COUNT(DISTINCT CASE 
-              WHEN tx_merchant_delivery_order_detail.StatusExpedition = 'S031'
-              THEN tx_merchant_delivery_order_detail.DeliveryOrderDetailID 
+              WHEN tx_merchant_expedition_detail.StatusExpeditionDetail = 'S031'
+              THEN tx_merchant_expedition_detail.DeliveryOrderDetailID 
               END)
         AS Selesai
       ");
 
     return $sql;
+  }
+
+  public function generateReturID()
+  {
+    $max = DB::table('ms_stock_purchase')
+      ->where('PurchaseID', 'like', '%RETUR%')
+      ->selectRaw('MAX(PurchaseID) AS PurchaseID, MAX(CreatedDate) AS CreatedDate')
+      ->first();
+
+    $maxMonth = date('m', strtotime($max->CreatedDate));
+    $now = date('m');
+
+    if ($max->PurchaseID == null || (strcmp($maxMonth, $now) != 0)) {
+      $newReturID = "RETUR-" . date('YmdHis') . '-000001';
+    } else {
+      $maxExpeditionID = substr($max->PurchaseID, -6);
+      $newExpeditionID = $maxExpeditionID + 1;
+      $newReturID = "RETUR-" . date('YmdHis') . "-" . str_pad($newExpeditionID, 6, '0', STR_PAD_LEFT);
+    }
+
+    return $newReturID;
+  }
+
+  public function cancelProductExpedition($expeditionDetailID)
+  {
+    $sql = DB::table('tx_merchant_expedition_detail')
+      ->join('ms_stock_product_log', 'ms_stock_product_log.DeliveryOrderDetailID', 'tx_merchant_expedition_detail.DeliveryOrderDetailID')
+      ->join('ms_stock_product', 'ms_stock_product.StockProductID', 'ms_stock_product_log.StockProductID')
+      ->join('ms_stock_purchase', 'ms_stock_purchase.PurchaseID', 'ms_stock_product.PurchaseID')
+      ->where('tx_merchant_expedition_detail.MerchantExpeditionDetailID', $expeditionDetailID)
+      ->select('ms_stock_product.DistributorID', 'ms_stock_purchase.SupplierID', 'ms_stock_product.ProductID', 'ms_stock_product.PurchasePrice', 'ms_stock_product_log.QtyAction', 'ms_stock_product.Qty', 'ms_stock_product_log.SellingPrice', 'ms_stock_product_log.DeliveryOrderDetailID')
+      ->first();
+
+    $returID = $this->generateReturID();
+    $dateTime = date('Y-m-d H:i:s');
+    $user = Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo;
+
+    $dataStockPurchase = [
+      'PurchaseID' => $returID,
+      'DistributorID' => $sql->DistributorID,
+      'SupplierID' => $sql->SupplierID,
+      'PurchaseDate' => $dateTime,
+      'CreatedBy' => $user,
+      'StatusID' => 2,
+      'StatusBy' => $user,
+      'StatusDate' => $dateTime,
+      'CreatedDate' => $dateTime,
+      'Type' => 'RETUR'
+    ];
+
+    $dataStockPurchaseDetail = [
+      'PurchaseID' => $returID,
+      'ProductID' => $sql->ProductID,
+      'Qty' => $sql->QtyAction,
+      'PurchasePrice' => $sql->PurchasePrice
+    ];
+
+    $dataStockProduct = [
+      'PurchaseID' => $returID,
+      'ProductID' => $sql->ProductID,
+      'Qty' => $sql->QtyAction,
+      'PurchasePrice' => $sql->PurchasePrice,
+      'DistributorID' => $sql->DistributorID,
+      'CreatedDate' => $dateTime
+    ];
+
+    $dbTransaction = DB::transaction(function () use ($dataStockPurchase, $dataStockPurchaseDetail, $dataStockProduct, $returID, $sql, $dateTime, $user) {
+      DB::table('ms_stock_purchase')->insert($dataStockPurchase);
+      DB::table('ms_stock_purchase_detail')->insert($dataStockPurchaseDetail);
+      DB::table('ms_stock_product')->insert($dataStockProduct);
+      $getStockProductID = DB::table('ms_stock_product')->where('PurchaseID', $returID)->select('StockProductID')->first();
+      $stockProductID = $getStockProductID->StockProductID;
+      DB::table('ms_stock_product_log')->insert([
+        'StockProductID' => $stockProductID,
+        'ProductID' => $sql->ProductID,
+        'QtyBefore' => $sql->Qty,
+        'QtyAction' => $sql->QtyAction,
+        'QtyAfter' => $sql->Qty + $sql->QtyAction,
+        'PurchasePrice' => $sql->PurchasePrice,
+        'SellingPrice' => $sql->SellingPrice,
+        'DeliveryOrderDetailID' => $sql->DeliveryOrderDetailID,
+        'CreatedDate' => $dateTime,
+        'ActionBy' => $user,
+        'ActionType' => 'RETUR'
+      ]);
+    });
+
+    return $dbTransaction;
   }
 }

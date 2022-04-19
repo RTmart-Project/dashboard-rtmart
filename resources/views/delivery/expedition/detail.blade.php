@@ -84,13 +84,17 @@
             $firstLoopHaistar = true;
             @endphp
             @foreach ($order as $item)
-            @if ($firstLoopHaistar == true && $item->Distributor == "HAISTAR" && $item->StatusExpeditionDetail == "S034")
             <div class="text-right">
+            @if ($firstLoopHaistar == true && $item->Distributor == "HAISTAR" && $item->StatusExpeditionDetail == "S034")
               <a data-delivery-order="{{ $order[0]->DeliveryOrderID }}"
                 class="btn btn-sm bg-lightblue btn-resend-haistar">Resend Produk Haistar
               </a>
+              @elseif ($firstLoopHaistar == true && $item->Distributor == "HAISTAR" && $item->StatusExpeditionDetail == "S030")
+              <a data-delivery-order="{{ $order[0]->DeliveryOrderID }}" data-expedition="{{ $expd[0]->MerchantExpeditionID }}"
+                class="btn btn-sm bg-danger btn-req-cancel-haistar">Request Cancel Haistar
+              </a>
+              @endif
             </div>
-            @endif
             <div class="row text-center align-items-center">
               <div class="col-6 col-md-3">
                 <img src="{{ config('app.base_image_url') . '/product/'. $item->ProductImage }}" alt="" width="80">
@@ -113,8 +117,10 @@
                 <span class="badge badge-success mb-2">{{ $item->StatusProduct }}</span>
                 @elseif ($item->StatusExpeditionDetail == "S037" || $item->StatusExpeditionDetail == "S034")
                 <span class="badge badge-danger mb-2">{{ $item->StatusProduct }}</span>
-                @else
+                @elseif ($item->StatusExpeditionDetail == "S030")
                 <span class="badge badge-warning mb-2">{{ $item->StatusProduct }}</span>
+                @else
+                <span class="badge badge-info mb-2">{{ $item->StatusProduct }}</span>
                 @endif<br>
                 @if ($item->Distributor == "RT MART" && $item->StatusExpeditionDetail == "S030")
                 <a class="btn btn-sm btn-success btn-finish-product" data-product="{{ $item->ProductName }}"
@@ -157,7 +163,7 @@
 @section('js-pages')
 <script>
   // Event listener saat tombol selesaikan ekspedisi diklik
-$('.btn-resend-haistar').on('click', function (e) {
+  $('.btn-resend-haistar').on('click', function (e) {
       e.preventDefault();
       const deliveryOrder = $(this).data("delivery-order");
       $.confirm({
@@ -172,7 +178,7 @@ $('.btn-resend-haistar').on('click', function (e) {
                   draggable: true,
                   dragWindowGap: 0,
                   action: function () {
-                      window.location = '/delivery/expedition/resendHaistar/' + deliveryOrder
+                      window.location = '/delivery/on-going/resendHaistar/' + deliveryOrder
                   }
               },
               tidak: function () {
@@ -182,7 +188,33 @@ $('.btn-resend-haistar').on('click', function (e) {
   });
 
   // Event listener saat tombol selesaikan ekspedisi diklik
-$('.btn-finish-expedition').on('click', function (e) {
+  $('.btn-req-cancel-haistar').on('click', function (e) {
+      e.preventDefault();
+      const deliveryOrder = $(this).data("delivery-order");
+      const expedition = $(this).data("expedition");
+      $.confirm({
+          title: 'Request Cancel Haistar',
+          content: `Apakah yakin ingin mengajukan pembatalan order haistar dengan ID <b>${deliveryOrder}</b>?`,
+          closeIcon: true,
+          type: 'red',
+          typeAnimated: true,
+          buttons: {
+              ya: {
+                  btnClass: 'btn-danger',
+                  draggable: true,
+                  dragWindowGap: 0,
+                  action: function () {
+                      window.location = '/delivery/on-going/requestCancelHaistar/' + deliveryOrder + '/' + expedition
+                  }
+              },
+              tidak: function () {
+              }
+          }
+      });
+  });
+
+  // Event listener saat tombol selesaikan ekspedisi diklik
+  $('.btn-finish-expedition').on('click', function (e) {
       e.preventDefault();
       const expedition = $(this).data("expedition");
       $.confirm({

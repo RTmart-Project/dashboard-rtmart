@@ -80,7 +80,7 @@
                         {{ $supplier->SupplierName }}
                       </option>
                       @endforeach
-                      <option value="Lainnya" {{ old('supplier')=='Lainnya' ? 'selected' : '' }}>Lainnya</option>
+                      <option value="Lainnya" {{ old('supplier')=='Lainnya' ? 'selected' : '' }}>- Tambah Baru -</option>
                     </select>
                     @if($errors->has('supplier'))
                     <span class="error invalid-feedback">{{ $errors->first('supplier') }}</span>

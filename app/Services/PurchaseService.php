@@ -40,6 +40,7 @@ class PurchaseService
   public function generatePurchaseID()
   {
     $max = DB::table('ms_stock_purchase')
+      ->where('PurchaseID', 'like', '%PRCH%')
       ->selectRaw('MAX(PurchaseID) AS PurchaseID, MAX(CreatedDate) AS CreatedDate')
       ->first();
 
