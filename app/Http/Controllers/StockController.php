@@ -253,4 +253,37 @@ class StockController extends Controller
             return redirect()->route('stock.purchase')->with('failed', 'Terjadi kesalahan!');
         }
     }
+
+    public function readyStock()
+    {
+        return view('stock.ready.index');
+    }
+
+    public function getReadyStock(Request $request, PurchaseService $purchaseService)
+    {
+        $distributorId = $request->input('distributorId');
+
+        $sqlGetReadyStocks = $purchaseService->getStocks();
+
+        if ($distributorId != null) {
+            $sqlGetReadyStocks->where('ms_distributor.DistributorID', '=', $distributorId);
+        }
+        if (Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $sqlGetReadyStocks->where('ms_distributor.Depo', '=', $depoUser);
+        }
+
+        // Get data response
+        $data = $sqlGetReadyStocks;
+
+        // Return Data Using DataTables with Ajax
+        if ($request->ajax()) {
+            return Datatables::of($data)
+                ->editColumn('ProductImage', function ($data) {
+                    return '<img src="' . $this->baseImageUrl . 'product/' . $data->ProductImage . '" alt="Product Image" height="80">';
+                })
+                ->rawColumns(['ProductImage'])
+                ->make(true);
+        }
+    }
 }

@@ -136,4 +136,21 @@ class PurchaseService
 
     return $products;
   }
+
+  public function getStocks()
+  {
+    $sql = DB::table('ms_stock_product')
+      ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_stock_product.DistributorID')
+      ->join('ms_product', 'ms_product.ProductID', 'ms_stock_product.ProductID')
+      ->selectRaw("
+        ANY_VALUE(ms_distributor.DistributorName) AS DistributorName, 
+        ANY_VALUE(ms_product.ProductName) AS ProductName,
+        ANY_VALUE(ms_product.ProductImage) AS ProductImage, 
+        ms_stock_product.ProductID, 
+        CONCAT(SUM(ms_stock_product.Qty), ' pcs') AS Qty
+      ")
+      ->groupBy('ms_stock_product.DistributorID', 'ms_stock_product.ProductID');
+
+    return $sql;
+  }
 }

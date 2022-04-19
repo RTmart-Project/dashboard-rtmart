@@ -115,6 +115,11 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/detail/{purchaseID}', [StockController::class, 'detailPurchase'])->name('stock.detailPurchase');
             Route::get('/confirmation/{status}/{purchaseID}', [StockController::class, 'confirmPurchase'])->name('stock.confirmPurchase');
         });
+
+        Route::prefix('ready')->group(function () {
+            Route::get('/', [StockController::class, 'readyStock'])->name('stock.readyStock');
+            Route::get('/get', [StockController::class, 'getReadyStock'])->name('stock.getReadyStock');
+        });
     });
 
     Route::group(['prefix' => 'rtsales', 'middleware' => ['checkRoleUser:IT,FI,BM,DMO']], function () {
