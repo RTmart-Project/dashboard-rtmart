@@ -28,6 +28,10 @@ $(document).ready(function () {
                     name: "ms_distributor.DistributorName",
                 },
                 {
+                    data: "InvestorName",
+                    name: "ms_investor.InvestorName",
+                },
+                {
                     data: "SupplierName",
                     name: "ms_suppliers.SupplierName",
                 },
@@ -84,12 +88,12 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8],
                         orthogonal: "export",
                     },
                 },
             ],
-            order: [3, "desc"],
+            order: [4, "desc"],
             lengthChange: false,
             responsive: true,
             autoWidth: false,

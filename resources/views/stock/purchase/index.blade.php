@@ -59,6 +59,7 @@
                         <tr>
                           <th>Purchase ID</th>
                           <th>Distributor</th>
+                          <th>Investor</th>
                           <th>Supplier</th>
                           <th>Tanggal Pembelian</th>
                           <th>Dibuat Oleh</th>

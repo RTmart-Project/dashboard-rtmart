@@ -528,7 +528,7 @@ class DeliveryOrderService
       ->join('ms_stock_product', 'ms_stock_product.StockProductID', 'ms_stock_product_log.StockProductID')
       ->join('ms_stock_purchase', 'ms_stock_purchase.PurchaseID', 'ms_stock_product.PurchaseID')
       ->where('tx_merchant_expedition_detail.MerchantExpeditionDetailID', $expeditionDetailID)
-      ->select('ms_stock_product.DistributorID', 'ms_stock_purchase.SupplierID', 'ms_stock_product.ProductID', 'ms_stock_product.PurchasePrice', 'ms_stock_product_log.QtyAction', 'ms_stock_product.Qty', 'ms_stock_product_log.SellingPrice', 'ms_stock_product_log.DeliveryOrderDetailID')
+      ->select('ms_stock_product.DistributorID', 'ms_stock_purchase.InvestorID', 'ms_stock_purchase.SupplierID', 'ms_stock_product.ProductID', 'ms_stock_product.PurchasePrice', 'ms_stock_product_log.QtyAction', 'ms_stock_product.Qty', 'ms_stock_product_log.SellingPrice', 'ms_stock_product_log.DeliveryOrderDetailID')
       ->first();
 
     $returID = $this->generateReturID();
@@ -538,6 +538,7 @@ class DeliveryOrderService
     $dataStockPurchase = [
       'PurchaseID' => $returID,
       'DistributorID' => $sql->DistributorID,
+      'InvestorID' => $sql->InvestorID,
       'SupplierID' => $sql->SupplierID,
       'PurchaseDate' => $dateTime,
       'CreatedBy' => $user,
@@ -552,7 +553,8 @@ class DeliveryOrderService
       'PurchaseID' => $returID,
       'ProductID' => $sql->ProductID,
       'Qty' => $sql->QtyAction,
-      'PurchasePrice' => $sql->PurchasePrice
+      'PurchasePrice' => $sql->PurchasePrice,
+      'Type' => 'RETUR'
     ];
 
     $dataStockProduct = [
@@ -561,7 +563,8 @@ class DeliveryOrderService
       'Qty' => $sql->QtyAction,
       'PurchasePrice' => $sql->PurchasePrice,
       'DistributorID' => $sql->DistributorID,
-      'CreatedDate' => $dateTime
+      'CreatedDate' => $dateTime,
+      'Type' => 'RETUR'
     ];
 
     $dbTransaction = DB::transaction(function () use ($dataStockPurchase, $dataStockPurchaseDetail, $dataStockProduct, $returID, $sql, $dateTime, $user) {

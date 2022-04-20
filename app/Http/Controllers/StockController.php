@@ -94,13 +94,15 @@ class StockController extends Controller
     public function createPurchase(PurchaseService $purchaseService)
     {
         $suppliers = DB::table('ms_suppliers')->get();
+        $investors = DB::table('ms_investor')->get();
         $products = $purchaseService->getProducts()->get();
         $distributors = $purchaseService->getDistributors()->get();
 
         return view('stock.purchase.create', [
             'suppliers' => $suppliers,
             'products' => $products,
-            'distributors' => $distributors
+            'distributors' => $distributors,
+            'investors' => $investors
         ]);
     }
 
@@ -131,7 +133,6 @@ class StockController extends Controller
         }
 
         $supplier = $request->input('supplier');
-
         if ($supplier == "Lainnya") {
             $request->validate([
                 'other_supplier' => 'unique:ms_suppliers,SupplierName'
@@ -143,9 +144,22 @@ class StockController extends Controller
             $supplierID = $supplier;
         }
 
+        $investor = $request->input('investor');
+        if ($investor == "Lainnya") {
+            $request->validate([
+                'other_investor' => 'unique:ms_investor,InvestorName'
+            ]);
+            DB::table('ms_investor')->insert(['InvestorName' => $request->input('other_investor')]);
+            $getInvestor = DB::table('ms_investor')->where('InvestorName', $request->input('other_investor'))->select('InvestorID')->first();
+            $investorID = $getInvestor->InvestorID;
+        } else {
+            $investorID = $investor;
+        }
+
         $dataPurchase = [
             'PurchaseID' => $purchaseID,
             'DistributorID' => $request->input('distributor'),
+            'InvestorID' => $investorID,
             'SupplierID' => $supplierID,
             'PurchaseDate' => $purchaseDate,
             'CreatedBy' => $user,
@@ -175,6 +189,7 @@ class StockController extends Controller
     public function editPurchase(PurchaseService $purchaseService, $purchaseID)
     {
         $suppliers = DB::table('ms_suppliers')->get();
+        $investors = DB::table('ms_investor')->get();
         $products = $purchaseService->getProducts()->get();
         $distributors = $purchaseService->getDistributors()->get();
         $purchaseByID = $purchaseService->getStockPurchaseByID($purchaseID);
@@ -183,7 +198,8 @@ class StockController extends Controller
             'suppliers' => $suppliers,
             'products' => $products,
             'distributors' => $distributors,
-            'purchaseByID' => $purchaseByID
+            'purchaseByID' => $purchaseByID,
+            'investors' => $investors
         ]);
     }
 
@@ -214,7 +230,6 @@ class StockController extends Controller
         }
 
         $supplier = $request->input('supplier');
-
         if ($supplier == "Lainnya") {
             $request->validate([
                 'other_supplier' => 'unique:ms_suppliers,SupplierName'
@@ -226,8 +241,21 @@ class StockController extends Controller
             $supplierID = $supplier;
         }
 
+        $investor = $request->input('investor');
+        if ($investor == "Lainnya") {
+            $request->validate([
+                'other_investor' => 'unique:ms_investor,InvestorName'
+            ]);
+            DB::table('ms_investor')->insert(['InvestorName' => $request->input('other_investor')]);
+            $getInvestor = DB::table('ms_investor')->where('InvestorName', $request->input('other_investor'))->select('InvestorID')->first();
+            $investorID = $getInvestor->InvestorID;
+        } else {
+            $investorID = $investor;
+        }
+
         $dataPurchase = [
             'DistributorID' => $request->input('distributor'),
+            'InvestorID' => $investorID,
             'SupplierID' => $supplierID,
             'PurchaseDate' => $purchaseDate,
             'InvoiceNumber' => $request->input('invoice_number'),

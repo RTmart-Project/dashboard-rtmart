@@ -2,6 +2,7 @@
 @section('title', 'Dashboard - Detail Delivery Order')
 
 @section('css-pages')
+<link rel="stylesheet" href="{{url('/')}}/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
 @endsection
 
 @section('header-menu', 'Data Detail Delivery Order')
@@ -123,9 +124,8 @@
                 <span class="badge badge-info mb-2">{{ $item->StatusProduct }}</span>
                 @endif<br>
                 @if ($item->Distributor == "RT MART" && $item->StatusExpeditionDetail == "S030")
-                <a class="btn btn-sm btn-success btn-finish-product" data-product="{{ $item->ProductName }}"
-                  data-store="{{ $order[0]->StoreName }}"
-                  data-expedition-detail="{{ $item->MerchantExpeditionDetailID }}">
+                <a class="btn btn-sm btn-success btn-finish-product" data-product="{{ $item->ProductName }}" data-qty="{{ $item->Qty }}"
+                  data-store="{{ $order[0]->StoreName }}" data-expedition-detail="{{ $item->MerchantExpeditionDetailID }}">
                   Selesaikan
                 </a>
                 <a class="btn btn-sm btn-danger btn-cancel-product" data-product="{{ $item->ProductName }}"
@@ -153,6 +153,66 @@
 
         @endforeach
 
+        {{-- Modal Selesaikan Produk --}}
+        <form method="POST" enctype="multipart/form-data" id="form-selesaikan">
+          <div class="modal fade" id="modal-finish-product">
+            <div class="modal-dialog modal-lg">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title">Selesaikan Produk</h4>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body pt-2">
+                  <p id="detail" class="text-center"></p>
+                  <div class="row">
+                    <div class="col-md-6 col-12">
+                      <div class="form-group">
+                        <label for="receipt_qty">Qty Diterima</label>
+                        <input type="number" class="form-control" name="receipt_qty" id="receipt_qty">
+                        <span id="max-qty"></span>
+                      </div>
+                    </div>
+                    <div class="col-md-6 col-12">
+                      <div class="form-group">
+                        <label for="receipt_image">Foto Bukti Terima</label>
+                        <input type="file" class="form-control" name="receipt_image" id="receipt_image" onchange="loadFile(event)">
+                      </div>
+                    </div>
+                    <div class="col-12 text-md-center">
+                      <img id="output" height="160" />
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+                  <button type="button" class="btn btn-success btn-modal-selesaikan">Selesaikan</button>
+                </div>
+              </div>
+            </div>
+          </div>
+  
+          <div class="modal fade" id="modalKonfirmasi" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel2" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel2">Konfirmasi</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <h5>Apakah yakin ingin menyelesaikan produk?</h5>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal" data-toggle="modal" data-target="#modal-finish-product">Kembali</button>
+                  <button type="submit" class="btn btn-success">Ya</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
 
       </div>
     </div>
@@ -161,6 +221,8 @@
 @endsection
 
 @section('js-pages')
+<script src="{{url('/')}}/main/js/helper/input-image-view.js"></script>
+<script src="{{url('/')}}/plugins/sweetalert2/sweetalert2.min.js"></script>
 <script>
   // Event listener saat tombol selesaikan ekspedisi diklik
   $('.btn-resend-haistar').on('click', function (e) {
@@ -239,7 +301,7 @@
   });
 
   // Event listener saat tombol selesaikan ekspedisi diklik
-$('.btn-cancel-expedition').on('click', function (e) {
+  $('.btn-cancel-expedition').on('click', function (e) {
       e.preventDefault();
       const expedition = $(this).data("expedition");
       $.confirm({
@@ -263,32 +325,91 @@ $('.btn-cancel-expedition').on('click', function (e) {
       });
   });
 
-  // Event listener saat tombol selesaikan product diklik
-$('.btn-finish-product').on('click', function (e) {
-      e.preventDefault();
-      const product = $(this).data("product");
-      const store = $(this).data("store");
-      const expedition = $(this).data("expedition-detail");
-      $.confirm({
-          title: 'Konfirmasi Order',
-          content: `Apakah produk <b>${product}</b> telah diterima oleh <b>${store}</b>?`,
-          closeIcon: true,
-          type: 'green',
-          typeAnimated: true,
-          buttons: {
-              ya: {
-                  btnClass: 'btn-success',
-                  draggable: true,
-                  dragWindowGap: 0,
-                  action: function () {
-                      window.location = '/delivery/on-going/confirmProduct/finish/' + expedition
-                  }
-              },
-              tidak: function () {
-              }
-          }
-      });
+  $(".btn-finish-product").click(function() {
+    // e.preventDefault();
+    const product = $(this).data("product");
+    const qty = $(this).data("qty");
+    const store = $(this).data("store");
+    const expedition = $(this).data("expedition-detail");
+
+    const a = $("#form-selesaikan").attr("action", `/delivery/on-going/confirmProduct/finish/${expedition}`);
+
+    $('#modal-finish-product').modal('show').on('shown.bs.modal', function() {
+      $("#detail").html(`Selesaikan produk <b>${product}</b> dari <b>${store}</b>`);
+      $("#receipt_qty").attr({"max" : qty, "min" : 0});
+      $("#receipt_qty").attr("placeholder", `Maksimum : ${qty}`);
+      $("#max-qty").html(`Maksimum  : ${qty}`);
+    });
   });
+
+  let Toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 4000,
+  });
+
+  $(".btn-modal-selesaikan").click(function () {
+    const form = $(this).parent().prev();
+    const qtyVal = form.find("#receipt_qty").val();
+    const maxQty = form.find("#receipt_qty").attr("max");
+    const imgVal = form.find("#receipt_image").val();
+
+    let next = true;
+    if (!qtyVal) {
+      Toast.fire({
+        icon: "error",
+        title: "Harap isi Qty Diterima!",
+      });
+      return (next = false);
+    }
+    if (Number(qtyVal) > Number(maxQty)) {
+      Toast.fire({
+        icon: "error",
+        title: "Qty melebihi maksimum!",
+      });
+      return (next = false);
+    }
+    if (!imgVal) {
+      Toast.fire({
+        icon: "error",
+        title: "Harap isi Foto Bukti Terima!",
+      });
+      return (next = false);
+    }
+
+    if (next == true) {
+      $('#modal-finish-product').modal('hide');
+      $('#modalKonfirmasi').modal('show');
+    }
+  });
+
+  // Event listener saat tombol selesaikan product diklik
+  // $('.btn-finish-product').on('click', function (e) {
+  //     e.preventDefault();
+  //     const product = $(this).data("product");
+  //     const store = $(this).data("store");
+  //     const expedition = $(this).data("expedition-detail");
+  //     $.confirm({
+  //         title: 'Konfirmasi Order',
+  //         content: `Apakah produk <b>${product}</b> telah diterima oleh <b>${store}</b>?`,
+  //         closeIcon: true,
+  //         type: 'green',
+  //         typeAnimated: true,
+  //         buttons: {
+  //             ya: {
+  //                 btnClass: 'btn-success',
+  //                 draggable: true,
+  //                 dragWindowGap: 0,
+  //                 action: function () {
+  //                     window.location = '/delivery/on-going/confirmProduct/finish/' + expedition
+  //                 }
+  //             },
+  //             tidak: function () {
+  //             }
+  //         }
+  //     });
+  // });
 
   // Event listener saat tombol batalkan product diklik
 $('.btn-cancel-product').on('click', function (e) {

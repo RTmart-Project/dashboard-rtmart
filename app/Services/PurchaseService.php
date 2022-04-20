@@ -11,9 +11,10 @@ class PurchaseService
   {
     $sql = DB::table('ms_stock_purchase')
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_stock_purchase.DistributorID')
+      ->leftJoin('ms_investor', 'ms_investor.InvestorID', 'ms_stock_purchase.InvestorID')
       ->join('ms_suppliers', 'ms_suppliers.SupplierID', 'ms_stock_purchase.SupplierID')
       ->join('ms_status_stock', 'ms_status_stock.StatusID', 'ms_stock_purchase.StatusID')
-      ->select('ms_stock_purchase.PurchaseID', 'ms_distributor.DistributorName', 'ms_stock_purchase.PurchaseDate', 'ms_stock_purchase.CreatedBy', 'ms_suppliers.SupplierName', 'ms_stock_purchase.StatusID', 'ms_status_stock.StatusName', 'ms_stock_purchase.StatusBy', 'ms_stock_purchase.InvoiceNumber', 'ms_stock_purchase.InvoiceFile');
+      ->select('ms_stock_purchase.PurchaseID', 'ms_distributor.DistributorName', 'ms_stock_purchase.PurchaseDate', 'ms_stock_purchase.CreatedBy', 'ms_suppliers.SupplierName', 'ms_stock_purchase.StatusID', 'ms_status_stock.StatusName', 'ms_stock_purchase.StatusBy', 'ms_stock_purchase.InvoiceNumber', 'ms_stock_purchase.InvoiceFile', 'ms_investor.InvestorName');
 
     return $sql;
   }
@@ -22,10 +23,11 @@ class PurchaseService
   {
     $sql = DB::table('ms_stock_purchase')
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_stock_purchase.DistributorID')
+      ->leftJoin('ms_investor', 'ms_investor.InvestorID', 'ms_stock_purchase.InvestorID')
       ->join('ms_suppliers', 'ms_suppliers.SupplierID', 'ms_stock_purchase.SupplierID')
       ->join('ms_status_stock', 'ms_status_stock.StatusID', 'ms_stock_purchase.StatusID')
       ->where('ms_stock_purchase.PurchaseID', $purchaseID)
-      ->select('ms_stock_purchase.PurchaseID', 'ms_stock_purchase.DistributorID', 'ms_stock_purchase.SupplierID', 'ms_distributor.DistributorName', 'ms_stock_purchase.PurchaseDate', 'ms_stock_purchase.CreatedBy', 'ms_stock_purchase.CreatedDate', 'ms_stock_purchase.StatusID', 'ms_suppliers.SupplierName', 'ms_status_stock.StatusName', 'ms_stock_purchase.StatusBy', 'ms_stock_purchase.StatusDate', 'ms_stock_purchase.InvoiceNumber', 'ms_stock_purchase.InvoiceFile')->first();
+      ->select('ms_stock_purchase.PurchaseID', 'ms_stock_purchase.DistributorID', 'ms_stock_purchase.SupplierID', 'ms_distributor.DistributorName', 'ms_stock_purchase.PurchaseDate', 'ms_stock_purchase.CreatedBy', 'ms_stock_purchase.CreatedDate', 'ms_stock_purchase.StatusID', 'ms_suppliers.SupplierName', 'ms_status_stock.StatusName', 'ms_stock_purchase.StatusBy', 'ms_stock_purchase.StatusDate', 'ms_stock_purchase.InvoiceNumber', 'ms_stock_purchase.InvoiceFile', 'ms_stock_purchase.InvestorID', 'ms_investor.InvestorName')->first();
 
     $sqlDetail = DB::table('ms_stock_purchase_detail')
       ->join('ms_product', 'ms_product.ProductID', 'ms_stock_purchase_detail.ProductID')
@@ -68,6 +70,7 @@ class PurchaseService
     foreach ($purchaseDetail as $key => $value) {
       $value = array_combine(['ProductID', 'Qty', 'PurchasePrice'], $value);
       $value += ['PurchaseID' => $purchaseID];
+      $value += ['Type' => 'INBOUND'];
       array_push($dataPurchaseDetail, $value);
     }
 
@@ -84,7 +87,9 @@ class PurchaseService
         $item->CreatedDate  = date('Y-m-d H:i:s');
         return (array) $item;
       })
-      ->all();;
+      ->all();
+
+    $detail[0]['Type'] = 'INBOUND';
 
     if ($status == "approved") {
       $confirm = DB::transaction(function () use ($purchaseID, $detail) {
