@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Yajra\DataTables\Facades\DataTables;
@@ -30,7 +31,13 @@ class ProductController extends Controller
             ->leftJoin('ms_product_type', 'ms_product_type.ProductTypeID', '=', 'ms_product.ProductTypeID')
             ->leftJoin('ms_brand_type', 'ms_brand_type.BrandID', '=', 'ms_product.BrandTypeID')
             ->leftJoin('ms_product_uom', 'ms_product_uom.ProductUOMID', '=', 'ms_product.ProductUOMID')
-            ->select('ms_product.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product.ProductUOMDesc', 'ms_product.Price', 'ms_product_category.ProductCategoryName', 'ms_product_type.ProductTypeName', 'ms_brand_type.Brand', 'ms_product_uom.ProductUOMName');
+            ->leftJoin('ms_distributor', 'ms_distributor.DistributorID', 'ms_product.ProductOwner')
+            ->select('ms_product.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product.ProductUOMDesc', 'ms_product.Price', 'ms_product.ProductOwner', 'ms_product_category.ProductCategoryName', 'ms_product_type.ProductTypeName', 'ms_brand_type.Brand', 'ms_product_uom.ProductUOMName', 'ms_distributor.DistributorName');
+
+        $depoUser = Auth::user()->Depo;
+        if ($depoUser != "ALL") {
+            $sqlAllProduct->where('ms_distributor.Depo', '=', $depoUser);
+        }
 
         // Get data response
         $data = $sqlAllProduct;
@@ -38,6 +45,14 @@ class ProductController extends Controller
         // Return Data Using DataTables with Ajax
         if ($request->ajax()) {
             return Datatables::of($data)
+                ->editColumn('ProductOwner', function ($data) {
+                    if ($data->ProductOwner == "ALL") {
+                        $productOwner = "ALL";
+                    } else {
+                        $productOwner = $data->DistributorName;
+                    }
+                    return $productOwner;
+                })
                 ->editColumn('ProductImage', function ($data) {
                     if ($data->ProductImage == null) {
                         $data->ProductImage = 'not-found.png';
@@ -47,6 +62,9 @@ class ProductController extends Controller
                 ->addColumn('Action', function ($data) {
                     $actionBtn = '<a href="/master/product/list/edit/' . $data->ProductID . '" class="btn-sm btn-warning">Edit</a>';
                     return $actionBtn;
+                })
+                ->filterColumn('ms_product.ProductOwner', function ($query, $keyword) {
+                    $query->whereRaw("ms_distributor.DistributorName like ?", ["%$keyword%"]);
                 })
                 ->rawColumns(['ProductImage', 'Action'])
                 ->make(true);
@@ -97,6 +115,14 @@ class ProductController extends Controller
 
         $request->file('product_image')->move($this->saveImageUrl . 'product/', $imageName);
 
+        $depoUser = Auth::user()->Depo;
+        if ($depoUser == "ALL") {
+            $productOwner = "ALL";
+        } else {
+            $sql = DB::table('ms_distributor')->where('Depo', $depoUser)->select('DistributorID')->first();
+            $productOwner = $sql->DistributorID;
+        }
+
         $data = [
             'ProductID' => $newProductId,
             'ProductName' => $request->input('product_name'),
@@ -110,7 +136,8 @@ class ProductController extends Controller
             'Price' => $request->input('price'),
             'IsCustom' => 0,
             'IsActive' => 1,
-            'IsDefault' => 0
+            'IsDefault' => 0,
+            'ProductOwner' => $productOwner
         ];
 
         $insertProduct = DB::table('ms_product')->insert($data);

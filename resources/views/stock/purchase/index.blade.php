@@ -64,7 +64,8 @@
                           <th>Dibuat Oleh</th>
                           <th>Status</th>
                           <th>Dikonfirmasi oleh</th>
-                          <th>Invoice</th>
+                          <th>Invoice Number</th>
+                          <th>Invoice File</th>
                           <th>Action</th>
                           <th>Konfirmasi</th>
                         </tr>

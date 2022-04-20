@@ -51,6 +51,7 @@
                                         <table class="table table-datatables">
                                             <thead>
                                                 <tr>
+                                                    <th>Product Owner</th>
                                                     <th>Product ID</th>
                                                     <th>Nama Produk</th>
                                                     <th>Gambar</th>

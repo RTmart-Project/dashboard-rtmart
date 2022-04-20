@@ -83,6 +83,7 @@
                   </div>
                   <div class="col-12 col-md-4 mb-3">
                     <strong><i class="fas fa-file-alt mr-1"></i> Invoice</strong><br>
+                    <p class="m-0">{{ $purchaseByID->InvoiceNumber }}</p>
                     @if ($purchaseByID->InvoiceFile != NULL)
                     <a href="{{ config('app.base_image_url').'stock_invoice/'.$purchaseByID->InvoiceFile }}"
                       target="_blank">{{ $purchaseByID->InvoiceFile }}</a>

@@ -288,6 +288,7 @@
                                                     <th>Status Order</th>
                                                     <th>Total Harga</th>
                                                     <th>Diskon</th>
+                                                    <th>Voucher</th>
                                                     <th>Biaya Layanan</th>
                                                     <th>Total Harga Bersih</th>
                                                     <th>Referral</th>
@@ -319,6 +320,7 @@
                                                     <th>Status Order</th>
                                                     <th>Total Harga</th>
                                                     <th>Diskon</th>
+                                                    <th>Voucher</th>
                                                     <th>Biaya Layanan</th>
                                                     <th>Total Harga Bersih</th>
                                                     <th>Referral</th>

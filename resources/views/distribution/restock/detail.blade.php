@@ -215,6 +215,16 @@
                                         </div>
                                         <div class="row">
                                             <div class="col-6 text-right">
+                                                <label>Voucher :</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <p class="font-weight-bold mb-0 text-danger">
+                                                    {{ Helper::formatCurrency($merchantOrder->DiscountVoucher, 'Rp ') }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-6 text-right">
                                                 <label>Biaya Layanan :</label>
                                             </div>
                                             <div class="col-6">

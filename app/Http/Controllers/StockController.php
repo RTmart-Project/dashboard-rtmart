@@ -110,6 +110,7 @@ class StockController extends Controller
             'distributor' => 'required',
             'purchase_date' => 'required',
             'supplier' => 'required',
+            'invoice_number' => 'required',
             'product' => 'required',
             'product.*' => 'required',
             'quantity' => 'required',
@@ -150,6 +151,7 @@ class StockController extends Controller
             'CreatedBy' => $user,
             'StatusID' => 1,
             'CreatedDate' => date('Y-m-d H:i:s'),
+            'InvoiceNumber' => $request->input('invoice_number'),
             'InvoiceFile' => $invoiceFile
         ];
 
@@ -187,6 +189,19 @@ class StockController extends Controller
 
     public function updatePurchase($purchaseID, Request $request, PurchaseService $purchaseService)
     {
+        $request->validate([
+            'distributor' => 'required',
+            'purchase_date' => 'required',
+            'supplier' => 'required',
+            'invoice_number' => 'required',
+            'product' => 'required',
+            'product.*' => 'required',
+            'quantity' => 'required',
+            'quantity.*' => 'required|numeric|gte:1',
+            'purchase_price' => 'required',
+            'purchase_price.*' => 'required|numeric|gte:1'
+        ]);
+
         $purchaseDate = str_replace("T", " ", $request->input('purchase_date'));
         $invoiceOld = DB::table('ms_stock_purchase')->where('PurchaseID', $purchaseID)->select('InvoiceFile')->first();
 
@@ -215,6 +230,7 @@ class StockController extends Controller
             'DistributorID' => $request->input('distributor'),
             'SupplierID' => $supplierID,
             'PurchaseDate' => $purchaseDate,
+            'InvoiceNumber' => $request->input('invoice_number'),
             'InvoiceFile' => $invoiceFile
         ];
 

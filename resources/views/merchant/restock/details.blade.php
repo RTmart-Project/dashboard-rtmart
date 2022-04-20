@@ -150,13 +150,18 @@
                                                 </tr>
                                                 <tr>
                                                     <th class="p-1 border-0" colspan="5"></th>
+                                                    <th class="p-1 border-0 text-center">Voucher</th>
+                                                    <th class="py-1 px-2 border-0 text-danger">{{ Helper::formatCurrency($merchant->DiscountVoucher, 'Rp ') }}</th>
+                                                </tr>
+                                                <tr>
+                                                    <th class="p-1 border-0" colspan="5"></th>
                                                     <th class="p-1 border-0 text-center">Biaya Layanan</th>
                                                     <th class="py-1 px-2 border-0">{{ Helper::formatCurrency($merchant->ServiceChargeNett, 'Rp ') }}</th>
                                                 </tr>
                                                 <tr>
                                                     <th class="p-1 border-0" colspan="5"></th>
                                                     <th class="p-1 border-0 text-center">Grand Total</th>
-                                                    <th class="py-1 px-2 border-0">{{ Helper::formatCurrency($subTotal - $merchant->DiscountPrice + $merchant->ServiceChargeNett, 'Rp ') }}</th>
+                                                    <th class="py-1 px-2 border-0">{{ Helper::formatCurrency($subTotal - $merchant->DiscountPrice - $merchant->DiscountVoucher + $merchant->ServiceChargeNett, 'Rp ') }}</th>
                                                 </tr>
                                             </tfoot>
                                         </table>

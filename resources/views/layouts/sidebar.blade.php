@@ -98,7 +98,7 @@
             @endif
 
             @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI") ||
-            (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO"))
+            (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID == "DMO"))
             <li class="nav-item {{ Request::is('master*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('master*') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-layer-group"></i>
@@ -116,8 +116,8 @@
                         </a>
                         <ul class="nav nav-treeview">
                             @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") ||
-                            (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID ==
-                            "DMO"))
+                            (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "RBTAD") || 
+                            (Auth::user()->RoleID == "DMO"))
                             <li class="nav-item">
                                 <a href="{{ route('product.list') }}"
                                     class="nav-link {{ Request::is('*product/list*') ? 'active' : '' }}">

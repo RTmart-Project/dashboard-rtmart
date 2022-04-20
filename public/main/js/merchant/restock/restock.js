@@ -68,6 +68,10 @@ $(document).ready(function () {
                     name: "tx_merchant_order.DiscountPrice",
                 },
                 {
+                    data: "DiscountVoucher",
+                    name: "tx_merchant_order.DiscountVoucher",
+                },
+                {
                     data: "ServiceChargeNett",
                     name: "tx_merchant_order.ServiceChargeNett",
                 },
@@ -113,6 +117,7 @@ $(document).ready(function () {
                         },
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+                            15,
                         ],
                         orthogonal: "export",
                     },
@@ -124,7 +129,7 @@ $(document).ready(function () {
             autoWidth: false,
             aoColumnDefs: [
                 {
-                    aTargets: [8, 9, 10, 11, 12],
+                    aTargets: [8, 9, 10, 11, 12, 13],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;

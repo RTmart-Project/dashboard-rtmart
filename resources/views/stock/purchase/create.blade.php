@@ -102,7 +102,17 @@
                 </div>
                 <div class="col-md-6 col-12">
                   <div class="form-group">
-                    <label for="invoice_image">Gambar Nota / Invoice</label>
+                    <label for="invoice_number">No. Invoice</label>
+                    <input type="text" name="invoice_number" id="invoice_number" placeholder="Masukkan Nomor Invoice"
+                      class="form-control @if($errors->has('invoice_number')) is-invalid @endif" required>
+                    @if($errors->has('invoice_number'))
+                    <span class="error invalid-feedback">{{ $errors->first('invoice_number') }}</span>
+                    @endif
+                  </div>
+                </div>
+                <div class="col-md-6 col-12">
+                  <div class="form-group">
+                    <label for="invoice_image">File Invoice</label>
                     <input type="file" name="invoice_image" id="invoice_image"
                       class="form-control @if($errors->has('invoice_image')) is-invalid @endif">
                     @if($errors->has('invoice_image'))

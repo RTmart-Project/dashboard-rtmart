@@ -49,6 +49,10 @@ $(document).ready(function () {
                     name: "ms_stock_purchase.StatusBy",
                 },
                 {
+                    data: "InvoiceNumber",
+                    name: "ms_stock_purchase.InvoiceNumber",
+                },
+                {
                     data: "InvoiceFile",
                     name: "ms_stock_purchase.InvoiceFile",
                 },
@@ -74,12 +78,13 @@ $(document).ready(function () {
                         );
                     },
                     text: "Export",
+                    className: "btn-sm",
                     titleAttr: "Excel",
                     exportOptions: {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7],
                         orthogonal: "export",
                     },
                 },
