@@ -60,9 +60,8 @@
             </li>
             @endif
 
-            @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "RBTAD") ||
-            (Auth::user()->RoleID == "BM")
-            || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH"))
+            {{-- @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "RBTAD") ||
+            (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH"))
             <li class="nav-item {{ Request::is('delivery*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('delivery*') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-truck"></i>
@@ -95,7 +94,7 @@
                     </li>
                 </ul>
             </li>
-            @endif
+            @endif --}}
 
             @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI") ||
             (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID == "DMO"))
@@ -233,7 +232,7 @@
             </li>
             @endif
 
-            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI"))
+            {{-- @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI"))
             <li class="nav-item {{ Request::is('stock*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('stock*') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-cubes"></i>
@@ -259,7 +258,7 @@
                     </li>
                 </ul>
             </li>
-            @endif
+            @endif --}}
 
             @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID == "BM")
             || (Auth::user()->RoleID == "FI") ||
