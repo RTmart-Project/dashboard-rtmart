@@ -290,6 +290,7 @@
                                                     <th>Diskon</th>
                                                     <th>Voucher</th>
                                                     <th>Biaya Layanan</th>
+                                                    <th>Biaya Pengiriman</th>
                                                     <th>Total Harga Bersih</th>
                                                     <th>Referral</th>
                                                     <th>Nama Sales</th>
@@ -322,6 +323,7 @@
                                                     <th>Diskon</th>
                                                     <th>Voucher</th>
                                                     <th>Biaya Layanan</th>
+                                                    <th>Biaya Pengiriman</th>
                                                     <th>Total Harga Bersih</th>
                                                     <th>Referral</th>
                                                     <th>Nama Sales</th>

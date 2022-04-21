@@ -95,7 +95,6 @@ class ProductController extends Controller
             'product_brand' => 'required|integer|exists:ms_brand_type,BrandID',
             'product_uom' => 'required|integer|exists:ms_product_uom,ProductUOMID',
             'uom_desc' => 'required|numeric',
-            'price' => 'required|numeric',
             'product_image' => 'required|image'
         ]);
 
@@ -133,7 +132,7 @@ class ProductController extends Controller
             'BrandTypeID' => $request->input('product_brand'),
             'ProductUOMID' => $request->input('product_uom'),
             'ProductUOMDesc' => $request->input('uom_desc'),
-            'Price' => $request->input('price'),
+            'Price' => 0,
             'IsCustom' => 0,
             'IsActive' => 1,
             'IsDefault' => 0,
@@ -178,7 +177,6 @@ class ProductController extends Controller
             'product_brand' => 'required|integer|exists:ms_brand_type,BrandID',
             'product_uom' => 'required|integer|exists:ms_product_uom,ProductUOMID',
             'uom_desc' => 'required|numeric',
-            'price' => 'required|numeric',
             'product_image' => 'image'
         ]);
 
@@ -193,8 +191,7 @@ class ProductController extends Controller
                 'ProductTypeID' => $request->input('product_type'),
                 'BrandTypeID' => $request->input('product_brand'),
                 'ProductUOMID' => $request->input('product_uom'),
-                'ProductUOMDesc' => $request->input('uom_desc'),
-                'Price' => $request->input('price')
+                'ProductUOMDesc' => $request->input('uom_desc')
             ];
         } else {
             $data = [
@@ -204,8 +201,7 @@ class ProductController extends Controller
                 'ProductTypeID' => $request->input('product_type'),
                 'BrandTypeID' => $request->input('product_brand'),
                 'ProductUOMID' => $request->input('product_uom'),
-                'ProductUOMDesc' => $request->input('uom_desc'),
-                'Price' => $request->input('price')
+                'ProductUOMDesc' => $request->input('uom_desc')
             ];
         }
 

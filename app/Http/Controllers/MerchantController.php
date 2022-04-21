@@ -680,7 +680,7 @@ class MerchantController extends Controller
                     return $actionBtn;
                 })
                 ->addColumn('TotalAmount', function ($data) {
-                    return $data->NettPrice + $data->ServiceChargeNett;
+                    return $data->NettPrice + $data->ServiceChargeNett + $data->DeliveryFee;
                 })
                 ->editColumn('StatusOrder', function ($data) {
                     $pesananBaru = "S009";
@@ -767,7 +767,7 @@ class MerchantController extends Controller
                     return $actionBtn;
                 })
                 ->addColumn('TotalAmount', function ($data) {
-                    return $data->NettPrice + $data->ServiceChargeNett;
+                    return $data->NettPrice + $data->ServiceChargeNett + $data->DeliveryFee;
                 })
                 ->editColumn('StatusOrder', function ($data) {
                     $pesananBaru = "S009";
@@ -820,7 +820,7 @@ class MerchantController extends Controller
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_order.StatusOrderID')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
             ->where('tx_merchant_order.StockOrderID', '=', $stockOrderId)
-            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.ServiceChargeNett', 'ms_status_order.StatusOrder', 'ms_payment_method.PaymentMethodName')
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_status_order.StatusOrder', 'ms_payment_method.PaymentMethodName')
             ->first();
 
         $merchantOrderHistory = DB::table('tx_merchant_order_log')

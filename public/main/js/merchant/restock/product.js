@@ -76,6 +76,10 @@ $(document).ready(function () {
                     name: "RestockProduct.ServiceChargeNett",
                 },
                 {
+                    data: "DeliveryFee",
+                    name: "tx_merchant_order.DeliveryFee",
+                },
+                {
                     data: "TotalAmount",
                     name: "TotalAmount",
                 },
@@ -138,7 +142,7 @@ $(document).ready(function () {
                         },
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-                            15, 16, 17, 18, 19, 20, 21, 22, 23,
+                            15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
                         ],
                         orthogonal: "export",
                     },
@@ -150,7 +154,7 @@ $(document).ready(function () {
             autoWidth: false,
             aoColumnDefs: [
                 {
-                    aTargets: [9, 10, 11, 12, 13, 19, 20, 21, 22, 23],
+                    aTargets: [9, 10, 11, 12, 13, 14, 19, 20, 21, 22, 23, 24],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;

@@ -60,7 +60,6 @@
                                                     <th>Merek</th>
                                                     <th>Jenis</th>
                                                     <th>Isi</th>
-                                                    <th>Harga</th>
                                                     <th>Action</th>
                                                 </tr>
                                             </thead>

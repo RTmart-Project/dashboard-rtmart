@@ -201,9 +201,7 @@
             </li>
             @endif
 
-            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID == "BM")
-            ||
-            (Auth::user()->RoleID == "FI") ||
+            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI") ||
             (Auth::user()->RoleID == "HR") || (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO"))
             <li class="nav-item {{ Request::is('distributor*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('distributor*') ? 'active' : '' }}">

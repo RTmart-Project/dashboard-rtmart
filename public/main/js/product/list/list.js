@@ -52,10 +52,6 @@ $(document).ready(function () {
                     name: "ms_product.ProductUOMDesc",
                 },
                 {
-                    data: "Price",
-                    name: "ms_product.Price",
-                },
-                {
                     data: "Action",
                     name: "Action",
                     orderable: false,
@@ -77,7 +73,7 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 3, 4, 5, 6, 7, 8, 9],
+                        columns: [0, 1, 2, 4, 5, 6, 7, 8],
                         orthogonal: "export",
                     },
                 },
@@ -85,24 +81,6 @@ $(document).ready(function () {
             lengthChange: false,
             responsive: true,
             autoWidth: false,
-            aoColumnDefs: [
-                {
-                    aTargets: [9],
-                    mRender: function (data, type, full) {
-                        if (type === "export") {
-                            return data;
-                        } else {
-                            if (data == null || data == "") {
-                                return data;
-                            } else {
-                                var currencySeperatorFormat =
-                                    thousands_separators(data);
-                                return currencySeperatorFormat;
-                            }
-                        }
-                    },
-                },
-            ],
         });
     }
 });
