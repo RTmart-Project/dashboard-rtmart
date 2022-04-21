@@ -59,12 +59,14 @@
                         <tr>
                           <th>Purchase ID</th>
                           <th>Distributor</th>
+                          <th>Investor</th>
                           <th>Supplier</th>
                           <th>Tanggal Pembelian</th>
                           <th>Dibuat Oleh</th>
                           <th>Status</th>
                           <th>Dikonfirmasi oleh</th>
-                          <th>Invoice</th>
+                          <th>Invoice Number</th>
+                          <th>Invoice File</th>
                           <th>Action</th>
                           <th>Konfirmasi</th>
                         </tr>

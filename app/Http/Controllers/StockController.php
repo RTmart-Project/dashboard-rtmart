@@ -94,13 +94,15 @@ class StockController extends Controller
     public function createPurchase(PurchaseService $purchaseService)
     {
         $suppliers = DB::table('ms_suppliers')->get();
+        $investors = DB::table('ms_investor')->get();
         $products = $purchaseService->getProducts()->get();
         $distributors = $purchaseService->getDistributors()->get();
 
         return view('stock.purchase.create', [
             'suppliers' => $suppliers,
             'products' => $products,
-            'distributors' => $distributors
+            'distributors' => $distributors,
+            'investors' => $investors
         ]);
     }
 
@@ -110,6 +112,7 @@ class StockController extends Controller
             'distributor' => 'required',
             'purchase_date' => 'required',
             'supplier' => 'required',
+            'invoice_number' => 'required',
             'product' => 'required',
             'product.*' => 'required',
             'quantity' => 'required',
@@ -130,7 +133,6 @@ class StockController extends Controller
         }
 
         $supplier = $request->input('supplier');
-
         if ($supplier == "Lainnya") {
             $request->validate([
                 'other_supplier' => 'unique:ms_suppliers,SupplierName'
@@ -142,14 +144,28 @@ class StockController extends Controller
             $supplierID = $supplier;
         }
 
+        $investor = $request->input('investor');
+        if ($investor == "Lainnya") {
+            $request->validate([
+                'other_investor' => 'unique:ms_investor,InvestorName'
+            ]);
+            DB::table('ms_investor')->insert(['InvestorName' => $request->input('other_investor')]);
+            $getInvestor = DB::table('ms_investor')->where('InvestorName', $request->input('other_investor'))->select('InvestorID')->first();
+            $investorID = $getInvestor->InvestorID;
+        } else {
+            $investorID = $investor;
+        }
+
         $dataPurchase = [
             'PurchaseID' => $purchaseID,
             'DistributorID' => $request->input('distributor'),
+            'InvestorID' => $investorID,
             'SupplierID' => $supplierID,
             'PurchaseDate' => $purchaseDate,
             'CreatedBy' => $user,
             'StatusID' => 1,
             'CreatedDate' => date('Y-m-d H:i:s'),
+            'InvoiceNumber' => $request->input('invoice_number'),
             'InvoiceFile' => $invoiceFile
         ];
 
@@ -173,6 +189,7 @@ class StockController extends Controller
     public function editPurchase(PurchaseService $purchaseService, $purchaseID)
     {
         $suppliers = DB::table('ms_suppliers')->get();
+        $investors = DB::table('ms_investor')->get();
         $products = $purchaseService->getProducts()->get();
         $distributors = $purchaseService->getDistributors()->get();
         $purchaseByID = $purchaseService->getStockPurchaseByID($purchaseID);
@@ -181,12 +198,26 @@ class StockController extends Controller
             'suppliers' => $suppliers,
             'products' => $products,
             'distributors' => $distributors,
-            'purchaseByID' => $purchaseByID
+            'purchaseByID' => $purchaseByID,
+            'investors' => $investors
         ]);
     }
 
     public function updatePurchase($purchaseID, Request $request, PurchaseService $purchaseService)
     {
+        $request->validate([
+            'distributor' => 'required',
+            'purchase_date' => 'required',
+            'supplier' => 'required',
+            'invoice_number' => 'required',
+            'product' => 'required',
+            'product.*' => 'required',
+            'quantity' => 'required',
+            'quantity.*' => 'required|numeric|gte:1',
+            'purchase_price' => 'required',
+            'purchase_price.*' => 'required|numeric|gte:1'
+        ]);
+
         $purchaseDate = str_replace("T", " ", $request->input('purchase_date'));
         $invoiceOld = DB::table('ms_stock_purchase')->where('PurchaseID', $purchaseID)->select('InvoiceFile')->first();
 
@@ -199,7 +230,6 @@ class StockController extends Controller
         }
 
         $supplier = $request->input('supplier');
-
         if ($supplier == "Lainnya") {
             $request->validate([
                 'other_supplier' => 'unique:ms_suppliers,SupplierName'
@@ -211,10 +241,24 @@ class StockController extends Controller
             $supplierID = $supplier;
         }
 
+        $investor = $request->input('investor');
+        if ($investor == "Lainnya") {
+            $request->validate([
+                'other_investor' => 'unique:ms_investor,InvestorName'
+            ]);
+            DB::table('ms_investor')->insert(['InvestorName' => $request->input('other_investor')]);
+            $getInvestor = DB::table('ms_investor')->where('InvestorName', $request->input('other_investor'))->select('InvestorID')->first();
+            $investorID = $getInvestor->InvestorID;
+        } else {
+            $investorID = $investor;
+        }
+
         $dataPurchase = [
             'DistributorID' => $request->input('distributor'),
+            'InvestorID' => $investorID,
             'SupplierID' => $supplierID,
             'PurchaseDate' => $purchaseDate,
+            'InvoiceNumber' => $request->input('invoice_number'),
             'InvoiceFile' => $invoiceFile
         ];
 
@@ -252,5 +296,60 @@ class StockController extends Controller
         } catch (\Throwable $th) {
             return redirect()->route('stock.purchase')->with('failed', 'Terjadi kesalahan!');
         }
+    }
+
+    public function listStock()
+    {
+        return view('stock.list.index');
+    }
+
+    public function getListStock(Request $request, PurchaseService $purchaseService)
+    {
+        $distributorId = $request->input('distributorId');
+
+        $sqlGetListStocks = $purchaseService->getStocks();
+
+        if ($distributorId != null) {
+            $sqlGetListStocks->where('ms_distributor.DistributorID', '=', $distributorId);
+        }
+        if (Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $sqlGetListStocks->where('ms_distributor.Depo', '=', $depoUser);
+        }
+
+        // Get data response
+        $data = $sqlGetListStocks;
+
+        // Return Data Using DataTables with Ajax
+        if ($request->ajax()) {
+            return Datatables::of($data)
+                ->editColumn('ProductImage', function ($data) {
+                    return '<img src="' . $this->baseImageUrl . 'product/' . $data->ProductImage . '" alt="Product Image" height="80">';
+                })
+                ->addColumn('Detail', function ($data) {
+                    return '<a class="btn btn-sm btn-warning" href="/stock/list/detail/' . $data->DistributorID . '/' . $data->ProductID . '">Detail</a>';
+                })
+                ->rawColumns(['ProductImage', 'Detail'])
+                ->make(true);
+        }
+    }
+
+    public function detailStock($distributorID, $productID, PurchaseService $purchaseService, Request $request)
+    {
+        $data = $purchaseService->getDetailStock($distributorID, $productID)->get();
+
+        // Return Data Using DataTables with Ajax
+        if ($request->ajax()) {
+            return Datatables::of($data)
+                ->editColumn('CreatedDate', function ($data) {
+                    return date('d M Y H:i', strtotime($data->CreatedDate));
+                })
+                ->make(true);
+        }
+
+        return view('stock.list.detail', [
+            'distributor' => DB::table('ms_distributor')->where('DistributorID', $distributorID)->select('DistributorName')->first(),
+            'product' => DB::table('ms_product')->where('ProductID', $productID)->select('ProductImage', 'ProductName')->first()
+        ]);
     }
 }

@@ -124,7 +124,9 @@
                                                     <th>Alamat</th>
                                                     <th>Total Transaksi</th>
                                                     <th>Diskon</th>
+                                                    <th>Voucher</th>
                                                     <th>Biaya Layanan</th>
+                                                    <th>Biaya Pengiriman</th>
                                                     <th>GrandTotal Transaksi</th>
                                                     <th>Referral</th>
                                                     <th>Nama Sales</th>

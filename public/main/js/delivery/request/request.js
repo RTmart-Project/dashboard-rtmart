@@ -277,6 +277,18 @@ $(document).ready(function () {
         stepper.next();
     });
 
+    $("#delivery-order-result").on("change", ".send-by", function () {
+        let value = $(this).val();
+        let existStock = $(this).parent().parent().find("#exist-stock");
+        if (value == "RT MART") {
+            existStock.removeClass("d-none");
+            existStock.addClass("d-block");
+        } else {
+            existStock.removeClass("d-block");
+            existStock.addClass("d-none");
+        }
+    });
+
     let Toast = Swal.mixin({
         toast: true,
         position: "top-end",

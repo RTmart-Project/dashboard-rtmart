@@ -50,6 +50,14 @@
                     <p>{{ $purchaseByID->DistributorName }}</p>
                   </div>
                   <div class="col-12 col-md-4 mb-3">
+                    <strong><i class="fas fa-money-bill-wave mr-1"></i> Investor</strong>
+                    @if ($purchaseByID->InvestorName)
+                    <p>{{ $purchaseByID->InvestorName }}</p>
+                    @else
+                    <p>-</p>
+                    @endif
+                  </div>
+                  <div class="col-12 col-md-4 mb-3">
                     <strong><i class="fas fa-truck-loading mr-1"></i> Supplier</strong>
                     <p>{{ $purchaseByID->SupplierName }}</p>
                   </div>
@@ -58,9 +66,14 @@
                     <p>{{ date('d F Y\, H:i', strtotime($purchaseByID->PurchaseDate)) }}</p>
                   </div>
                   <div class="col-12 col-md-4 mb-3">
-                    <strong><i class="fas fa-user-edit mr-1"></i> Dibuat oleh</strong>
-                    <p class="m-0">{{ $purchaseByID->CreatedBy }}</p>
-                    <small>pada : {{ date('d F Y\, H:i', strtotime($purchaseByID->CreatedDate)) }}</small>
+                    <strong><i class="fas fa-file-alt mr-1"></i> Invoice</strong><br>
+                    <p class="m-0">{{ $purchaseByID->InvoiceNumber }}</p>
+                    @if ($purchaseByID->InvoiceFile != NULL)
+                    <a href="{{ config('app.base_image_url').'stock_invoice/'.$purchaseByID->InvoiceFile }}"
+                      target="_blank">{{ $purchaseByID->InvoiceFile }}</a>
+                    @else
+                    <p>-</p>
+                    @endif
                   </div>
                   <div class="col-12 col-md-4 mb-3">
                     <strong><i class="fas fa-info mr-1"></i> Status</strong><br>
@@ -73,21 +86,17 @@
                     @endif
                   </div>
                   <div class="col-12 col-md-4 mb-3">
+                    <strong><i class="fas fa-user-edit mr-1"></i> Dibuat oleh</strong>
+                    <p class="m-0">{{ $purchaseByID->CreatedBy }}</p>
+                    <small>pada : {{ date('d F Y\, H:i', strtotime($purchaseByID->CreatedDate)) }}</small>
+                  </div>
+                  <div class="col-12 col-md-4 mb-3">
                     <strong><i class="fas fa-user-check mr-1"></i> Dikonfirmasi oleh</strong><br>
                     @if ($purchaseByID->StatusBy)
                     <p class="m-0">{{ $purchaseByID->StatusBy }}</p>
                     <small>pada : {{ date('d F Y\, H:i', strtotime($purchaseByID->StatusDate)) }}</small>
                     @else
                     -
-                    @endif
-                  </div>
-                  <div class="col-12 col-md-4 mb-3">
-                    <strong><i class="fas fa-file-alt mr-1"></i> Invoice</strong><br>
-                    @if ($purchaseByID->InvoiceFile != NULL)
-                    <a href="{{ config('app.base_image_url').'stock_invoice/'.$purchaseByID->InvoiceFile }}"
-                      target="_blank">{{ $purchaseByID->InvoiceFile }}</a>
-                    @else
-                    <p>-</p>
                     @endif
                   </div>
                   <div class="col-12">

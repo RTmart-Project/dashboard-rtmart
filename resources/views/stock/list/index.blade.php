@@ -1,7 +1,8 @@
 @extends('layouts.master')
-@section('title', 'Dashboard - Product List')
+@section('title', 'Dashboard - Ready Stock')
 
 @section('css-pages')
+<meta name="depo" content="{{ Auth::user()->Depo }}">
 <!-- Datatables -->
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
@@ -10,7 +11,7 @@
 <link rel="stylesheet" href="{{url('/')}}/main/css/custom/select-filter.css">
 @endsection
 
-@section('header-menu', 'Daftar Produk')
+@section('header-menu', 'Ready Stock')
 
 @section('content')
 <!-- Content Header (Page header) -->
@@ -39,28 +40,21 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    <div class="card-header">
-                        <a href="{{ route('product.addList') }}" class="btn btn-sm btn-success"><i class="fas fa-plus"></i> Tambah
-                            Produk</a>
-                    </div>
                     <div class="card-body mt-2">
                         <div class="tab-content">
-                            <div class="tab-pane active" id="product-list">
+                            <div class="tab-pane active" id="list-stock">
                                 <div class="row">
                                     <div class="col-12">
                                         <table class="table table-datatables">
                                             <thead>
                                                 <tr>
-                                                    <th>Product Owner</th>
-                                                    <th>Product ID</th>
-                                                    <th>Nama Produk</th>
+                                                    <th>Distributor</th>
+                                                    <th>Produk ID</th>
                                                     <th>Gambar</th>
-                                                    <th>Kategori</th>
-                                                    <th>Tipe</th>
-                                                    <th>Merek</th>
-                                                    <th>Jenis</th>
-                                                    <th>Isi</th>
-                                                    <th>Action</th>
+                                                    <th>Nama Produk</th>
+                                                    <th>Good Stock</th>
+                                                    <th>Bad Stock</th>
+                                                    <th>Detail</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -98,7 +92,8 @@
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!-- Main JS -->
-<script src="{{url('/')}}/main/js/product/list/list.js"></script>
+<script src="{{url('/')}}/main/js/custom/select-filter.js"></script>
+<script src="{{url('/')}}/main/js/stock/list/list-stock.js"></script>
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
 <script>
 </script>

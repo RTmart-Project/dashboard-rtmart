@@ -66,6 +66,31 @@
                 </div>
                 <div class="col-md-6 col-12">
                   <div class="form-group">
+                    <label for="investor">Investor</label>
+                    <select name="investor" id="investor" data-live-search="true" title="Pilih Investor"
+                      class="form-control selectpicker border @if($errors->has('investor')) is-invalid @endif">
+                      @foreach ($investors as $investor)
+                      <option value="{{ $investor->InvestorID }}" {{ old('investor')==$investor->InvestorID ? 'selected'
+                        : '' }}>
+                        {{ $investor->InvestorName }}
+                      </option>
+                      @endforeach
+                      <option value="Lainnya" {{ old('investor')=='Lainnya' ? 'selected' : '' }}>- Tambah Baru -</option>
+                    </select>
+                    @if($errors->has('investor'))
+                    <span class="error invalid-feedback">{{ $errors->first('investor') }}</span>
+                    @endif
+
+                    <input type="text" name="other_investor" id="other_investor"
+                      class="form-control mt-2 {{ old('other_investor') ? '' : 'd-none' }} @if($errors->has('other_investor')) is-invalid @endif"
+                      placeholder="Isi Nama investor" value="{{ old('other_investor') }}" autocomplete="off">
+                    @if($errors->has('other_investor'))
+                    <span class="error invalid-feedback">{{ $errors->first('other_investor') }}</span>
+                    @endif
+                  </div>
+                </div>
+                <div class="col-md-6 col-12">
+                  <div class="form-group">
                     <label for="supplier">Supplier</label>
                     <select name="supplier" id="supplier" data-live-search="true" title="Pilih Supplier"
                       class="form-control selectpicker border @if($errors->has('supplier')) is-invalid @endif" required>
@@ -75,7 +100,7 @@
                         {{ $supplier->SupplierName }}
                       </option>
                       @endforeach
-                      <option value="Lainnya" {{ old('supplier')=='Lainnya' ? 'selected' : '' }}>Lainnya</option>
+                      <option value="Lainnya" {{ old('supplier')=='Lainnya' ? 'selected' : '' }}>- Tambah Baru -</option>
                     </select>
                     @if($errors->has('supplier'))
                     <span class="error invalid-feedback">{{ $errors->first('supplier') }}</span>
@@ -102,7 +127,17 @@
                 </div>
                 <div class="col-md-6 col-12">
                   <div class="form-group">
-                    <label for="invoice_image">Gambar Nota / Invoice</label>
+                    <label for="invoice_number">No. Invoice</label>
+                    <input type="text" name="invoice_number" id="invoice_number" placeholder="Masukkan Nomor Invoice"
+                      class="form-control @if($errors->has('invoice_number')) is-invalid @endif" required>
+                    @if($errors->has('invoice_number'))
+                    <span class="error invalid-feedback">{{ $errors->first('invoice_number') }}</span>
+                    @endif
+                  </div>
+                </div>
+                <div class="col-md-6 col-12">
+                  <div class="form-group">
+                    <label for="invoice_image">File Invoice</label>
                     <input type="file" name="invoice_image" id="invoice_image"
                       class="form-control @if($errors->has('invoice_image')) is-invalid @endif">
                     @if($errors->has('invoice_image'))
@@ -173,6 +208,14 @@
       $('#other_supplier').removeClass('d-none');
     } else {
       $('#other_supplier').addClass('d-none');
+    }
+  });
+
+  $('#investor').on('change', function() {
+    if ($(this).val() == 'Lainnya') {
+      $('#other_investor').removeClass('d-none');
+    } else {
+      $('#other_investor').addClass('d-none');
     }
   });
 

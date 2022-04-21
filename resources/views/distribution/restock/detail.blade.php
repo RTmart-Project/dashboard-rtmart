@@ -203,6 +203,7 @@
                                                 </p>
                                             </div>
                                         </div>
+                                        @if ($merchantOrder->DiscountPrice != 0)
                                         <div class="row">
                                             <div class="col-6 text-right">
                                                 <label>Potongan :</label>
@@ -213,6 +214,20 @@
                                                 </p>
                                             </div>
                                         </div>
+                                        @endif
+                                        @if ($merchantOrder->DiscountVoucher != 0)
+                                        <div class="row">
+                                            <div class="col-6 text-right">
+                                                <label>Voucher :</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <p class="font-weight-bold mb-0 text-danger">
+                                                    {{ Helper::formatCurrency($merchantOrder->DiscountVoucher, 'Rp ') }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        @endif
+                                        @if ($merchantOrder->ServiceChargeNett != 0)
                                         <div class="row">
                                             <div class="col-6 text-right">
                                                 <label>Biaya Layanan :</label>
@@ -224,6 +239,20 @@
                                                 </p>
                                             </div>
                                         </div>
+                                        @endif
+                                        @if ($merchantOrder->DeliveryFee != 0)
+                                        <div class="row">
+                                            <div class="col-6 text-right">
+                                                <label>Biaya Pengiriman :</label>
+                                            </div>
+                                            <div class="col-6">
+                                                <p class="font-weight-bold mb-0">
+                                                    {{ Helper::formatCurrency($merchantOrder->DeliveryFee, 'Rp ')
+                                                    }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        @endif
                                         <div class="row">
                                             <div class="col-6 text-right">
                                                 <label>GrandTotal :</label>

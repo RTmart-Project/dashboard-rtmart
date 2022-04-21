@@ -28,6 +28,10 @@ $(document).ready(function () {
                     name: "ms_distributor.DistributorName",
                 },
                 {
+                    data: "InvestorName",
+                    name: "ms_investor.InvestorName",
+                },
+                {
                     data: "SupplierName",
                     name: "ms_suppliers.SupplierName",
                 },
@@ -47,6 +51,10 @@ $(document).ready(function () {
                 {
                     data: "StatusBy",
                     name: "ms_stock_purchase.StatusBy",
+                },
+                {
+                    data: "InvoiceNumber",
+                    name: "ms_stock_purchase.InvoiceNumber",
                 },
                 {
                     data: "InvoiceFile",
@@ -74,17 +82,18 @@ $(document).ready(function () {
                         );
                     },
                     text: "Export",
+                    className: "btn-sm",
                     titleAttr: "Excel",
                     exportOptions: {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8],
                         orthogonal: "export",
                     },
                 },
             ],
-            order: [3, "desc"],
+            order: [4, "desc"],
             lengthChange: false,
             responsive: true,
             autoWidth: false,

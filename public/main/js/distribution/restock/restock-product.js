@@ -73,8 +73,16 @@ $(document).ready(function () {
                     name: "RestockProduct.DiscountPrice",
                 },
                 {
+                    data: "DiscountVoucher",
+                    name: "RestockProduct.DiscountVoucher",
+                },
+                {
                     data: "ServiceChargeNett",
                     name: "RestockProduct.ServiceChargeNett",
+                },
+                {
+                    data: "DeliveryFee",
+                    name: "RestockProduct.DeliveryFee",
                 },
                 {
                     data: "TotalAmount",
@@ -135,7 +143,7 @@ $(document).ready(function () {
                         },
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-                            15, 16, 17, 18, 19, 20, 21, 22,
+                            15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
                         ],
                         orthogonal: "export",
                     },
@@ -147,7 +155,7 @@ $(document).ready(function () {
             autoWidth: false,
             aoColumnDefs: [
                 {
-                    aTargets: [10, 11, 12, 13, 19, 20, 21, 22],
+                    aTargets: [10, 11, 12, 13, 14, 15, 20, 21, 22, 23, 24],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;

@@ -88,8 +88,9 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/get/{status}', [DeliveryController::class, 'getExpedition'])->name('delivery.getExpedition');
             Route::get('/detail/{expeditionID}', [DeliveryController::class, 'detailExpedition'])->name('delivery.detailExpedition');
             Route::get('/confirmExpedition/{status}/{expeditionID}', [DeliveryController::class, 'confirmExpedition'])->name('delivery.confirmExpedition');
-            Route::get('/confirmProduct/{status}/{expeditionDetailID}', [DeliveryController::class, 'confirmProduct'])->name('delivery.confirmProduct');
+            Route::post('/confirmProduct/{status}/{expeditionDetailID}', [DeliveryController::class, 'confirmProduct'])->name('delivery.confirmProduct');
             Route::get('/resendHaistar/{deliveryOrderID}', [DeliveryController::class, 'resendHaistar'])->name('delivery.resendHaistar');
+            Route::get('/requestCancelHaistar/{deliveryOrderID}/{expeditionID}', [DeliveryController::class, 'requestCancelHaistar'])->name('delivery.requestCancelHaistar');
         });
 
         Route::group(['prefix' => 'history'], function () {
@@ -113,6 +114,12 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/update/{purchaseID}', [StockController::class, 'updatePurchase'])->name('stock.updatePurchase');
             Route::get('/detail/{purchaseID}', [StockController::class, 'detailPurchase'])->name('stock.detailPurchase');
             Route::get('/confirmation/{status}/{purchaseID}', [StockController::class, 'confirmPurchase'])->name('stock.confirmPurchase');
+        });
+
+        Route::prefix('list')->group(function () {
+            Route::get('/', [StockController::class, 'listStock'])->name('stock.listStock');
+            Route::get('/get', [StockController::class, 'getListStock'])->name('stock.getListStock');
+            Route::get('/detail/{distributorID}/{productID}', [StockController::class, 'detailStock'])->name('stock.detailStock');
         });
     });
 
@@ -140,7 +147,7 @@ Route::group(['middleware' => ['auth']], function () {
         });
     });
 
-    Route::group(['prefix' => 'master/product/list', 'middleware' => ['checkRoleUser:IT,BM,FI,AH,DMO']], function () {
+    Route::group(['prefix' => 'master/product/list', 'middleware' => ['checkRoleUser:IT,BM,FI,AH,DMO,RBTAD']], function () {
         // Product List
         Route::get('/', [ProductController::class, 'list'])->name('product.list');
         Route::get('/get', [ProductController::class, 'getLists'])->name('product.getLists');
