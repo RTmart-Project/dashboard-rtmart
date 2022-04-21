@@ -10,10 +10,12 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\DistributionController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\MonthlyReportController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RTSalesController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\StockController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\VoucherController;
 use Illuminate\Support\Facades\Auth;
@@ -33,7 +35,7 @@ Route::group(['middleware' => ['auth']], function () {
     // Home
     Route::get('/home', [HomeController::class, 'home'])->name('home');
 
-    Route::group(['prefix' => 'distribution', 'middleware' => ['checkRoleUser:IT,AD,BM,FI,AH,DMO']], function () {
+    Route::group(['prefix' => 'distribution', 'middleware' => ['checkRoleUser:IT,AD,RBTAD,BM,FI,AH,DMO']], function () {
         // Distribution
         Route::group(['prefix' => 'restock'], function () {
             Route::get('/', [DistributionController::class, 'restock'])->name('distribution.restock');
@@ -51,7 +53,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::group(['prefix' => 'product'], function () {
             Route::get('/', [DistributionController::class, 'product'])->name('distribution.product');
             Route::get('/get', [DistributionController::class, 'getProduct'])->name('distribution.getProduct');
-            Route::group(['middleware' => ['checkRoleUser:IT,FI,AH,BM']], function () {
+            Route::group(['middleware' => ['checkRoleUser:IT,FI,AH,BM,RBTAD']], function () {
                 Route::get('/add', [DistributionController::class, 'addProduct'])->name('distribution.addProduct');
                 Route::get('/ajax/get/{distributorId}', [DistributionController::class, 'ajaxGetProduct'])->name('distribution.ajaxGetProduct');
                 Route::post('/insert', [DistributionController::class, 'insertProduct'])->name('distribution.insertProduct');
@@ -65,7 +67,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/grade/update/{merchantId}', [DistributionController::class, 'updateGrade'])->name('distribution.updateGrade');
             Route::get('/specialprice/{merchantId}', [DistributionController::class, 'specialPrice'])->name('distribution.specialPrice');
             Route::get('/specialprice/{merchantId}/get', [DistributionController::class, 'getSpecialPrice'])->name('distribution.getSpecialPrice');
-            Route::group(['middleware' => ['checkRoleUser:IT,FI,BM']], function () {
+            Route::group(['middleware' => ['checkRoleUser:IT,FI,BM,RBTAD']], function () {
                 Route::post('/specialprice/insertOrUpdate', [DistributionController::class, 'insertOrUpdateSpecialPrice'])->name('distribution.insertOrUpdateSpecialPrice');
                 Route::post('/specialprice/delete', [DistributionController::class, 'deleteSpecialPrice'])->name('distribution.deleteSpecialPrice');
                 Route::post('/specialprice/reset', [DistributionController::class, 'resetSpecialPrice'])->name('distribution.resetSpecialPrice');
@@ -73,12 +75,51 @@ Route::group(['middleware' => ['auth']], function () {
         });
     });
 
-    Route::group(['prefix' => 'delivery', 'middleware' => ['checkRoleUser:IT,AD,BM,FI,AH']], function () {
+    Route::group(['prefix' => 'delivery', 'middleware' => ['checkRoleUser:IT,AD,BM,FI,AH,RBTAD']], function () {
         Route::group(['prefix' => 'request'], function () {
             Route::get('/', [DeliveryController::class, 'request'])->name('delivery.request');
             Route::post('/get', [DeliveryController::class, 'getRequest'])->name('delivery.getRequest');
             Route::post('/getDeliveryOrderByID', [DeliveryController::class, 'getDeliveryOrderByID'])->name('delivery.getDeliveryOrderByID');
             Route::post('/createExpedition', [DeliveryController::class, 'createExpedition'])->name('delivery.createExpedition');
+        });
+
+        Route::group(['prefix' => 'on-going'], function () {
+            Route::get('/', [DeliveryController::class, 'expedition'])->name('delivery.expedition');
+            Route::get('/get/{status}', [DeliveryController::class, 'getExpedition'])->name('delivery.getExpedition');
+            Route::get('/detail/{expeditionID}', [DeliveryController::class, 'detailExpedition'])->name('delivery.detailExpedition');
+            Route::get('/confirmExpedition/{status}/{expeditionID}', [DeliveryController::class, 'confirmExpedition'])->name('delivery.confirmExpedition');
+            Route::post('/confirmProduct/{status}/{expeditionDetailID}', [DeliveryController::class, 'confirmProduct'])->name('delivery.confirmProduct');
+            Route::get('/resendHaistar/{deliveryOrderID}', [DeliveryController::class, 'resendHaistar'])->name('delivery.resendHaistar');
+            Route::get('/requestCancelHaistar/{deliveryOrderID}/{expeditionID}', [DeliveryController::class, 'requestCancelHaistar'])->name('delivery.requestCancelHaistar');
+        });
+
+        Route::group(['prefix' => 'history'], function () {
+            Route::get('/', [DeliveryController::class, 'history'])->name('delivery.history');
+            Route::get('/detail/{expeditionID}', [DeliveryController::class, 'detailHistory'])->name('delivery.detailHistory');
+        });
+    });
+
+    Route::group(['prefix' => 'monthly-report', 'middleware' => ['checkRoleUser:IT,FI']], function () {
+        Route::get('/', [MonthlyReportController::class, 'index'])->name('monthlyReport');
+        Route::post('/', [MonthlyReportController::class, 'index'])->name('monthlyReport.post');
+    });
+
+    Route::group(['prefix' => 'stock', 'middleware' => ['checkRoleUser:IT,FI']], function () {
+        Route::prefix('purchase')->group(function () {
+            Route::get('/', [StockController::class, 'purchase'])->name('stock.purchase');
+            Route::get('/get', [StockController::class, 'getPurchase'])->name('stock.getPurchase');
+            Route::get('/create', [StockController::class, 'createPurchase'])->name('stock.createPurchase');
+            Route::post('/store', [StockController::class, 'storePurchase'])->name('stock.storePurchase');
+            Route::get('/edit/{purchaseID}', [StockController::class, 'editPurchase'])->name('stock.editPurchase');
+            Route::post('/update/{purchaseID}', [StockController::class, 'updatePurchase'])->name('stock.updatePurchase');
+            Route::get('/detail/{purchaseID}', [StockController::class, 'detailPurchase'])->name('stock.detailPurchase');
+            Route::get('/confirmation/{status}/{purchaseID}', [StockController::class, 'confirmPurchase'])->name('stock.confirmPurchase');
+        });
+
+        Route::prefix('list')->group(function () {
+            Route::get('/', [StockController::class, 'listStock'])->name('stock.listStock');
+            Route::get('/get', [StockController::class, 'getListStock'])->name('stock.getListStock');
+            Route::get('/detail/{distributorID}/{productID}', [StockController::class, 'detailStock'])->name('stock.detailStock');
         });
     });
 
@@ -106,7 +147,7 @@ Route::group(['middleware' => ['auth']], function () {
         });
     });
 
-    Route::group(['prefix' => 'master/product/list', 'middleware' => ['checkRoleUser:IT,BM,FI,AH,DMO']], function () {
+    Route::group(['prefix' => 'master/product/list', 'middleware' => ['checkRoleUser:IT,BM,FI,AH,DMO,RBTAD']], function () {
         // Product List
         Route::get('/', [ProductController::class, 'list'])->name('product.list');
         Route::get('/get', [ProductController::class, 'getLists'])->name('product.getLists');
@@ -169,14 +210,15 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
 
-    Route::group(['middleware' => ['checkRoleUser:IT,BM,FI,AH,HR,AD,DMO']], function () {
+    Route::group(['middleware' => ['checkRoleUser:IT,BM,FI,AH,HR,AD,DMO,RBTAD']], function () {
         Route::get('/merchant/restock/get', [MerchantController::class, 'getRestocks'])->name('merchant.getRestocks');
         Route::get('/merchant/restock/product/get', [MerchantController::class, 'getRestockProduct'])->name('merchant.getRestockProduct');
     });
-    Route::group(['middleware' => ['checkRoleUser:IT,BM,FI,AH,HR,DMO']], function () {
+
+    Route::group(['middleware' => ['checkRoleUser:IT,BM,FI,AH,HR,DMO,RBTAD']], function () {
         // Distributor
         Route::get('/distributor/account', [DistributorController::class, 'account'])->name('distributor.account');
-        Route::get('/distributor/account/get', [DistributorController::class, 'getAccounts'])->withoutMiddleware('checkRoleUser:IT,BM,FI,AH,HR,DMO')->name('distributor.getAccounts');
+        Route::get('/distributor/account/get', [DistributorController::class, 'getAccounts'])->withoutMiddleware('checkRoleUser:IT,BM,FI,AH,HR,DMO,RBTAD')->name('distributor.getAccounts');
         Route::get('/distributor/account/edit/{distributorId}', [DistributorController::class, 'editAccount'])->name('distributor.editAccount');
         Route::post('/distributor/account/update/{distributorId}', [DistributorController::class, 'updateAccount'])->name('distributor.updateAccount');
         Route::get('/distributor/account/product/{distributorId}', [DistributorController::class, 'productDetails'])->name('distributor.productDetails');
@@ -184,51 +226,51 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/distributor/account/product/edit/{distributorId}/{productId}/{gradeId}', [DistributorController::class, 'editProduct'])->name('distributor.editProduct');
         Route::post('/distributor/account/product/update/{distributorId}/{productId}/{gradeId}', [DistributorController::class, 'updateProduct'])->name('distributor.updateProduct');
         Route::get('/distributor/account/product/delete/{distributorId}/{productId}/{gradeId}', [DistributorController::class, 'deleteProduct'])->name('distributor.deleteProduct');
-
-        // Merchant
-        Route::group(['middleware' => ['checkRoleUser:IT,BM,FI,AH,HR,DMO']], function () {
-            Route::get('/merchant/account', [MerchantController::class, 'account'])->name('merchant.account');
-            Route::get('/merchant/account/get', [MerchantController::class, 'getAccounts'])->name('merchant.getAccounts');
-            Route::get('/merchant/account/grade/get/{distributorId}', [MerchantController::class, 'getGrade'])->withoutMiddleware('checkRoleUser:IT,BM,FI,AH,HR,DMO')->name('merchant.getGrade');
-            Route::get('/merchant/account/edit/{merchantId}', [MerchantController::class, 'editAccount'])->name('merchant.editAccount');
-            Route::post('/merchant/account/update/{merchantId}', [MerchantController::class, 'updateAccount'])->name('merchant.updateAccount');
-            Route::get('/merchant/account/product/{merchantId}', [MerchantController::class, 'product'])->name('merchant.product');
-            Route::get('/merchant/account/product/get/{merchantId}', [MerchantController::class, 'getProducts'])->name('merchant.getProducts');
-            Route::get('/merchant/account/product/edit/{merchantId}/{productId}', [MerchantController::class, 'editProduct'])->name('merchant.editProduct');
-            Route::post('/merchant/account/product/update/{merchantId}/{productId}', [MerchantController::class, 'updateProduct'])->name('merchant.updateProduct');
-            Route::get('/merchant/account/product/delete/{merchantId}/{productId}', [MerchantController::class, 'deleteProduct'])->name('merchant.deleteProduct');
-            Route::get('/merchant/account/operationalhour/edit/{merchantId}', [MerchantController::class, 'editOperationalHour'])->name('merchant.editOperationalHour');
-            Route::post('/merchant/account/operationalhour/update/{merchantId}', [MerchantController::class, 'updateOperationalHour'])->name('merchant.updateOperationalHour');
-            Route::get('/merchant/restock', [MerchantController::class, 'restock'])->name('merchant.restock');
-            Route::get('/merchant/restock/detail/{stockOrderId}', [MerchantController::class, 'restockDetails'])->name('merchant.restockDetails');
-            Route::get('/merchant/invoice/{stockOrderId}', [MerchantController::class, 'invoice'])->name('merchant.invoice');
-        });
-        Route::group(['middleware' => ['checkRoleUser:IT,BM,FI,AH,HR']], function () {
-            Route::get('/merchant/powermerchant', [MerchantController::class, 'powerMerchant'])->name('merchant.powermerchant');
-            Route::get('/merchant/powermerchant/get', [MerchantController::class, 'getPowerMerchant'])->name('merchant.getPowerMerchant');
-            Route::post('/merchant/powermerchant/insert', [MerchantController::class, 'insertPowerMerchant'])->name('merchant.insertPowerMerchant');
-            Route::get('/merchant/powermerchant/delete/{merchantId}', [MerchantController::class, 'deletePowerMerchant'])->name('merchant.deletePowerMerchant');
-            Route::get('/merchant/otp', [MerchantController::class, 'otp'])->name('merchant.otp');
-            Route::get('/merchant/otp/get', [MerchantController::class, 'getOtps'])->name('merchant.getOtps');
-        });
-
-        // Customer
-        Route::group(['middleware' => ['checkRoleUser:IT,BM,FI,AH,HR,DMO']], function () {
-            Route::get('/customer/account', [CustomerController::class, 'account'])->name('customer.account');
-            Route::get('/customer/account/get', [CustomerController::class, 'getAccounts'])->name('customer.getAccounts');
-            Route::get('/customer/transaction', [CustomerController::class, 'transaction'])->name('customer.transaction');
-            Route::get('/customer/transaction/get', [CustomerController::class, 'getTransactions'])->name('customer.getTransactions');
-            Route::get('/customer/transaction/product/get', [CustomerController::class, 'getTransactionProduct'])->name('customer.getTransactionProduct');
-            Route::get('/customer/transaction/detail/{orderId}', [CustomerController::class, 'transactionDetails'])->name('customer.transactionDetails');
-            Route::get('/customer/transaction/detail/get/{orderId}', [CustomerController::class, 'getTransactionDetails'])->name('customer.getTransactionDetails');
-        });
-        Route::group(['middleware' => ['checkRoleUser:IT,BM,FI,AH,HR']], function () {
-            Route::get('/customer/otp', [CustomerController::class, 'otp'])->name('customer.otp');
-            Route::get('/customer/otp/get', [CustomerController::class, 'getOtps'])->name('customer.getOtps');
-        });
     });
 
-    Route::group(['middleware' => ['checkRoleUser:IT']], function () {
+    // Merchant
+    Route::group(['middleware' => ['checkRoleUser:IT,BM,FI,AH,HR,DMO,RBTAD']], function () {
+        Route::get('/merchant/account', [MerchantController::class, 'account'])->name('merchant.account');
+        Route::get('/merchant/account/get', [MerchantController::class, 'getAccounts'])->name('merchant.getAccounts');
+        Route::get('/merchant/account/grade/get/{distributorId}', [MerchantController::class, 'getGrade'])->withoutMiddleware('checkRoleUser:IT,BM,FI,AH,HR,DMO,RBTAD')->name('merchant.getGrade');
+        Route::get('/merchant/account/edit/{merchantId}', [MerchantController::class, 'editAccount'])->name('merchant.editAccount');
+        Route::post('/merchant/account/update/{merchantId}', [MerchantController::class, 'updateAccount'])->name('merchant.updateAccount');
+        Route::get('/merchant/account/product/{merchantId}', [MerchantController::class, 'product'])->withoutMiddleware('checkRoleUser:IT,BM,FI,AH,HR,DMO,RBTAD')->name('merchant.product');
+        Route::get('/merchant/account/product/get/{merchantId}', [MerchantController::class, 'getProducts'])->withoutMiddleware('checkRoleUser:IT,BM,FI,AH,HR,DMO,RBTAD')->name('merchant.getProducts');
+        Route::get('/merchant/account/product/edit/{merchantId}/{productId}', [MerchantController::class, 'editProduct'])->name('merchant.editProduct');
+        Route::post('/merchant/account/product/update/{merchantId}/{productId}', [MerchantController::class, 'updateProduct'])->name('merchant.updateProduct');
+        Route::get('/merchant/account/product/delete/{merchantId}/{productId}', [MerchantController::class, 'deleteProduct'])->name('merchant.deleteProduct');
+        Route::get('/merchant/account/operationalhour/edit/{merchantId}', [MerchantController::class, 'editOperationalHour'])->name('merchant.editOperationalHour');
+        Route::post('/merchant/account/operationalhour/update/{merchantId}', [MerchantController::class, 'updateOperationalHour'])->name('merchant.updateOperationalHour');
+        Route::get('/merchant/restock', [MerchantController::class, 'restock'])->name('merchant.restock');
+        Route::get('/merchant/restock/detail/{stockOrderId}', [MerchantController::class, 'restockDetails'])->name('merchant.restockDetails');
+        Route::get('/merchant/invoice/{stockOrderId}', [MerchantController::class, 'invoice'])->name('merchant.invoice');
+    });
+    Route::group(['middleware' => ['checkRoleUser:IT,BM,FI,AH,HR']], function () {
+        Route::get('/merchant/powermerchant', [MerchantController::class, 'powerMerchant'])->name('merchant.powermerchant');
+        Route::get('/merchant/powermerchant/get', [MerchantController::class, 'getPowerMerchant'])->name('merchant.getPowerMerchant');
+        Route::post('/merchant/powermerchant/insert', [MerchantController::class, 'insertPowerMerchant'])->name('merchant.insertPowerMerchant');
+        Route::get('/merchant/powermerchant/delete/{merchantId}', [MerchantController::class, 'deletePowerMerchant'])->name('merchant.deletePowerMerchant');
+        Route::get('/merchant/otp', [MerchantController::class, 'otp'])->name('merchant.otp');
+        Route::get('/merchant/otp/get', [MerchantController::class, 'getOtps'])->name('merchant.getOtps');
+    });
+
+    // Customer
+    Route::group(['middleware' => ['checkRoleUser:IT,BM,FI,AH,HR,DMO,RBTAD']], function () {
+        Route::get('/customer/account', [CustomerController::class, 'account'])->name('customer.account');
+        Route::get('/customer/account/get', [CustomerController::class, 'getAccounts'])->name('customer.getAccounts');
+        Route::get('/customer/transaction', [CustomerController::class, 'transaction'])->name('customer.transaction');
+        Route::get('/customer/transaction/get', [CustomerController::class, 'getTransactions'])->name('customer.getTransactions');
+        Route::get('/customer/transaction/product/get', [CustomerController::class, 'getTransactionProduct'])->name('customer.getTransactionProduct');
+        Route::get('/customer/transaction/detail/{orderId}', [CustomerController::class, 'transactionDetails'])->name('customer.transactionDetails');
+        Route::get('/customer/transaction/detail/get/{orderId}', [CustomerController::class, 'getTransactionDetails'])->name('customer.getTransactionDetails');
+    });
+    Route::group(['middleware' => ['checkRoleUser:IT,BM,FI,AH,HR']], function () {
+        Route::get('/customer/otp', [CustomerController::class, 'otp'])->name('customer.otp');
+        Route::get('/customer/otp/get', [CustomerController::class, 'getOtps'])->name('customer.getOtps');
+    });
+
+    Route::group(['middleware' => ['checkRoleUser:IT,RBTAD']], function () {
         // Voucher
         Route::get('/voucher/list', [VoucherController::class, 'list'])->name('voucher.list');
         Route::get('/voucher/list/get', [VoucherController::class, 'getList'])->name('voucher.getList');
@@ -239,6 +281,17 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/voucher/list/update/{voucherCodeDB}', [VoucherController::class, 'updateList'])->name('voucher.updateList');
         Route::get('/voucher/log', [VoucherController::class, 'log'])->name('voucher.log');
         Route::get('/voucher/log/get', [VoucherController::class, 'getLog'])->name('voucher.getLog');
+    });
+
+    Route::group(['middleware' => ['checkRoleUser:IT']], function () {
+        // Monthly Report
+        Route::group(['prefix' => 'setting/monthly-report'], function () {
+            Route::get('/', [MonthlyReportController::class, 'setting'])->name('setting.monthlyReport');
+            Route::post('/getOneData', [MonthlyReportController::class, 'getOneData'])->name('monthlyReport.getOneData');
+            Route::post('/store', [MonthlyReportController::class, 'store'])->name('monthlyReport.store');
+            Route::post('/update', [MonthlyReportController::class, 'update'])->name('monthlyReport.update');
+            Route::get('/delete/{area}/{periode}', [MonthlyReportController::class, 'delete'])->name('monthlyReport.delete');
+        });
 
         // User
         Route::get('/setting/users', [AuthController::class, 'users'])->name('setting.users');
@@ -288,6 +341,9 @@ Route::group(['middleware' => ['guest']], function () {
     // Login
     Route::get('/', [AuthController::class, 'login'])->name('auth.login');
     Route::post('/', [AuthController::class, 'validateLogin'])->name('auth.validateLogin');
+
+    Route::get('/rtrabat', [AuthController::class, 'loginRabat'])->name('auth.login.rabat');
+    Route::post('/rtrabat', [AuthController::class, 'validateLoginRabat'])->name('auth.validateLoginRabat');
 });
 
 Route::get('/restock/invoice/{stockOrderId}', [InvoiceController::class, 'invoiceSO'])->name('restock.invoice');

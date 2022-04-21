@@ -143,20 +143,38 @@
                                                     <th class="p-1 text-center">SubTotal</th>
                                                     <th class="py-1 px-2">{{ Helper::formatCurrency($subTotal, 'Rp ') }}</th>
                                                 </tr>
+                                                @if ($merchant->DiscountPrice != 0)
                                                 <tr>
                                                     <th class="p-1 border-0" colspan="5"></th>
                                                     <th class="p-1 border-0 text-center">Diskon</th>
                                                     <th class="py-1 px-2 border-0 text-danger">{{ Helper::formatCurrency($merchant->DiscountPrice, 'Rp ') }}</th>
                                                 </tr>
+                                                @endif
+                                                @if ($merchant->DiscountVoucher != 0)
+                                                <tr>
+                                                    <th class="p-1 border-0" colspan="5"></th>
+                                                    <th class="p-1 border-0 text-center">Voucher</th>
+                                                    <th class="py-1 px-2 border-0 text-danger">{{ Helper::formatCurrency($merchant->DiscountVoucher, 'Rp ') }}</th>
+                                                </tr>
+                                                @endif
+                                                @if ($merchant->ServiceChargeNett != 0)
                                                 <tr>
                                                     <th class="p-1 border-0" colspan="5"></th>
                                                     <th class="p-1 border-0 text-center">Biaya Layanan</th>
                                                     <th class="py-1 px-2 border-0">{{ Helper::formatCurrency($merchant->ServiceChargeNett, 'Rp ') }}</th>
                                                 </tr>
+                                                @endif
+                                                @if ($merchant->DeliveryFee != 0)
+                                                <tr>
+                                                    <th class="p-1 border-0" colspan="5"></th>
+                                                    <th class="p-1 border-0 text-center">Biaya Pengiriman</th>
+                                                    <th class="py-1 px-2 border-0">{{ Helper::formatCurrency($merchant->DeliveryFee, 'Rp ') }}</th>
+                                                </tr>
+                                                @endif
                                                 <tr>
                                                     <th class="p-1 border-0" colspan="5"></th>
                                                     <th class="p-1 border-0 text-center">Grand Total</th>
-                                                    <th class="py-1 px-2 border-0">{{ Helper::formatCurrency($subTotal - $merchant->DiscountPrice + $merchant->ServiceChargeNett, 'Rp ') }}</th>
+                                                    <th class="py-1 px-2 border-0">{{ Helper::formatCurrency($subTotal - $merchant->DiscountPrice - $merchant->DiscountVoucher + $merchant->ServiceChargeNett + $merchant->DeliveryFee, 'Rp ') }}</th>
                                                 </tr>
                                             </tfoot>
                                         </table>

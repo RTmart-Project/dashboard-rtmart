@@ -310,7 +310,7 @@ class PpobController extends Controller
             ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_ppob_order.MerchantID')
             ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_merchant_account.DistributorID')
             ->where('ms_status_ppob.IsActive', '=', 1)
-            ->Where('ms_status_ppob.StatusPPOBID', ['PST-001', 'PRE-001']);
+            ->whereIn('ms_status_ppob.StatusPPOBID', ['PST-001', 'PRE-001']);
 
         if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
@@ -326,7 +326,7 @@ class PpobController extends Controller
             ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_ppob_order.MerchantID')
             ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_merchant_account.DistributorID')
             ->where('ms_status_ppob.IsActive', '=', 1)
-            ->where('ms_status_ppob.StatusPPOBID', ['PST-003', 'PRE-003']);
+            ->whereIn('ms_status_ppob.StatusPPOBID', ['PST-003', 'PRE-003']);
 
         if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;

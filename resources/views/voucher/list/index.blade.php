@@ -40,8 +40,11 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <a href="{{ route('voucher.addList') }}" class="btn btn-sm btn-success"><i class="fas fa-plus"></i> Tambah
+                        @if ((Auth::user()->RoleID == "IT"))
+                        <a href="{{ route('voucher.addList') }}" class="btn btn-sm btn-success"><i
+                                class="fas fa-plus"></i> Tambah
                             Voucher</a>
+                        @endif
                     </div>
                     <div class="card-body mt-2">
                         <div class="tab-content">
@@ -60,7 +63,9 @@
                                                     <th>Aktif</th>
                                                     <th>Untuk</th>
                                                     <th>Detail</th>
+                                                    @if ((Auth::user()->RoleID == "IT"))
                                                     <th>Action</th>
+                                                    @endif
                                                 </tr>
                                             </thead>
                                             <tbody>

@@ -51,6 +51,7 @@
                                         <table class="table table-datatables">
                                             <thead>
                                                 <tr>
+                                                    <th>Product Owner</th>
                                                     <th>Product ID</th>
                                                     <th>Nama Produk</th>
                                                     <th>Gambar</th>
@@ -59,7 +60,6 @@
                                                     <th>Merek</th>
                                                     <th>Jenis</th>
                                                     <th>Isi</th>
-                                                    <th>Harga</th>
                                                     <th>Action</th>
                                                 </tr>
                                             </thead>

@@ -35,6 +35,9 @@ $(document).ready(function () {
                     d.fromDate = $("#delivery-request #from_date").val();
                     d.toDate = $("#delivery-request #to_date").val();
                     d.checkFilter = checkboxFilter;
+                    d.urutanDO = $(
+                        "#delivery-request .select-filter-custom select"
+                    ).val();
                 },
             },
             columns: [
@@ -50,34 +53,33 @@ $(document).ready(function () {
                 },
                 {
                     data: "DeliveryOrderID",
-                    name: "tx_merchant_delivery_order.DeliveryOrderID",
-                },
-                {
-                    data: "StockOrderID",
-                    name: "tx_merchant_delivery_order.StockOrderID",
-                },
-                {
-                    data: "Area",
-                    name: "Area",
+                    name: "tmdo.DeliveryOrderID",
                 },
                 {
                     data: "CreatedDate",
-                    name: "tx_merchant_delivery_order.CreatedDate",
+                    name: "tmdo.CreatedDate",
                     type: "date",
                 },
                 {
-                    data: "DueDate",
-                    name: "DueDate",
+                    data: "UrutanDO",
+                    name: "UrutanDO",
                     searchable: false,
+                },
+                {
+                    data: "StockOrderID",
+                    name: "tmdo.StockOrderID",
                 },
                 {
                     data: "StoreName",
                     name: "StoreName",
                 },
                 {
-                    data: "Products",
-                    name: "Products",
-                    searchable: false,
+                    data: "PhoneNumber",
+                    name: "PhoneNumber",
+                },
+                {
+                    data: "Area",
+                    name: "Area",
                 },
                 {
                     data: "DistributorName",
@@ -88,11 +90,12 @@ $(document).ready(function () {
                     name: "Sales",
                 },
                 {
-                    data: "PhoneNumber",
-                    name: "PhoneNumber",
+                    data: "Products",
+                    name: "Products",
+                    searchable: false,
                 },
             ],
-            order: [5, "asc"],
+            order: [3, "asc"],
             lengthChange: false,
             responsive: true,
             autoWidth: false,
@@ -128,6 +131,14 @@ $(document).ready(function () {
                           <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
                           <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
                           <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-2">Refresh</button>
+                          <div class="select-filter-custom ml-2">
+                                <select class="form-control form-control-sm">
+                                    <option value="">All</option>
+                                    <option value="DO ke-1">DO ke-1</option>
+                                    <option value="DO ke-2">DO ke-2</option>
+                                    <option value="DO ke-3">DO ke-3</option>
+                                </select>
+                            </div>
                       </div>`);
 
     // Setting Awal Daterangepicker
@@ -200,8 +211,8 @@ $(document).ready(function () {
     // Menyisipkan Placeholder Date
     $("#delivery-request #from_date").val("");
     $("#delivery-request #to_date").val("");
-    $("#delivery-request #from_date").attr("placeholder", "From Date");
-    $("#delivery-request #to_date").attr("placeholder", "To Date");
+    $("#delivery-request #from_date").attr("placeholder", "From Date Plan");
+    $("#delivery-request #to_date").attr("placeholder", "To Date Plan");
 
     // Event Listener saat tombol refresh diklik
     $("#delivery-request #refresh").click(function () {
@@ -215,6 +226,11 @@ $(document).ready(function () {
 
     // Event listener saat tombol filter diklik
     $("#delivery-request #filter").click(function () {
+        $("#delivery-request .table-datatables").DataTable().ajax.reload();
+    });
+
+    // Event listener saat tombol select option diklik
+    $("#delivery-request .select-filter-custom select").change(function () {
         $("#delivery-request .table-datatables").DataTable().ajax.reload();
     });
 
@@ -261,6 +277,18 @@ $(document).ready(function () {
         stepper.next();
     });
 
+    $("#delivery-order-result").on("change", ".send-by", function () {
+        let value = $(this).val();
+        let existStock = $(this).parent().parent().find("#exist-stock");
+        if (value == "RT MART") {
+            existStock.removeClass("d-none");
+            existStock.addClass("d-block");
+        } else {
+            existStock.removeClass("d-block");
+            existStock.addClass("d-none");
+        }
+    });
+
     let Toast = Swal.mixin({
         toast: true,
         position: "top-end",
@@ -271,14 +299,41 @@ $(document).ready(function () {
     // Second Next Step
     $("#second-next-step").click(function () {
         let next = true;
+        if ($("#delivery-order-result :checkbox:checked").length < 1) {
+            Toast.fire({
+                icon: "error",
+                title: "Pilih produk terlebih dahulu!",
+            });
+            return (next = false);
+        }
+
         let cloneProduct = $("#delivery-order-result").clone();
 
         $("#preview-product").html(cloneProduct);
         $("#preview-product .warning-choose-product").addClass("d-none");
+
+        let dataProduct = [];
+
         $("#preview-product input[type=checkbox]").each(function () {
             if (!$(this).is(":checked")) {
                 $(this).parent().parent().addClass("d-none");
             } else {
+                let productName = $(this)
+                    .parent()
+                    .siblings()
+                    .find("#product-name")
+                    .text();
+                let productID = $(this)
+                    .parent()
+                    .siblings()
+                    .find("#product-id")
+                    .val();
+                let distributor = $(this)
+                    .parent()
+                    .siblings()
+                    .find("#distributor")
+                    .val();
+
                 let qty = $(this)
                     .parent()
                     .siblings()
@@ -286,13 +341,42 @@ $(document).ready(function () {
                     .find("#qty-request-do");
                 let qtyVal = Number(qty.val());
                 let maxQty = Number(qty.next().next().next().children().text());
+                let existQty = Number(
+                    qty.next().next().next().next().children().text()
+                );
+
+                if (distributor == "RT MART") {
+                    if (Number(qtyVal) > Number(existQty)) {
+                        Toast.fire({
+                            icon: "error",
+                            title: productName + " melebihi qty stok tersedia!",
+                        });
+                        return (next = false);
+                    }
+
+                    dataProduct.push({
+                        productName: productName,
+                        productID: productID,
+                        qty: qtyVal,
+                        existQty: existQty,
+                    });
+                }
+
                 if (Number(qtyVal) > Number(maxQty)) {
                     Toast.fire({
                         icon: "error",
-                        title: "Terdapat quantity yang melebihi maksimum!",
+                        title: productName + " melebihi maksimum quantity!",
+                    });
+                    return (next = false);
+                } else if (qtyVal < 1) {
+                    Toast.fire({
+                        icon: "error",
+                        title:
+                            "Quantity " + productName + " harus lebih dari 0!",
                     });
                     return (next = false);
                 }
+
                 let newQtyElement = `<span id='qty-expedition'>${qty.val()}</span>`;
                 qty.replaceWith(newQtyElement);
 
@@ -304,6 +388,30 @@ $(document).ready(function () {
                     .addClass("col-3");
             }
         });
+
+        let resultDataProduct = Object.values(
+            dataProduct.reduce(
+                (c, { productID, qty, existQty, productName }) => {
+                    c[productID] = c[productID] || { productID, qty: 0 };
+                    c[productID].qty += qty;
+                    c[productID].existQty = existQty;
+                    c[productID].productName = productName;
+                    return c;
+                },
+                {}
+            )
+        );
+
+        $.each(resultDataProduct, function (key, value) {
+            if (value.qty > value.existQty) {
+                Toast.fire({
+                    icon: "error",
+                    title: value.productName + " melebihi qty stok tersedia",
+                });
+                return (next = false);
+            }
+        });
+
         $("#preview-product .card").each(function () {
             let checked = $(this)
                 .find("input[type=checkbox]")
@@ -312,7 +420,7 @@ $(document).ready(function () {
             if (checked == 0) {
                 $(this).addClass("d-none");
             }
-
+            let deliveryOrderID = $(this).find(".do-id").text();
             let maxNominal = $(this)
                 .find("#max-nominal")
                 .text()
@@ -326,7 +434,8 @@ $(document).ready(function () {
             if (Number(subtotalNominal) > Number(maxNominal)) {
                 Toast.fire({
                     icon: "error",
-                    title: "Terdapat nominal yang melebihi maksimum!",
+                    title:
+                        deliveryOrderID + " melebihi maksimum nominal kirim!",
                 });
                 return (next = false);
             }
@@ -358,34 +467,43 @@ $(document).ready(function () {
             .find("#license_plate")
             .val();
 
-        // if (createdDate == "") {
-        //     Toast.fire({
-        //         icon: "error",
-        //         title: "Harap isi waktu pengiriman!",
-        //     });
-        // } else if (vehicle == "") {
-        //     Toast.fire({
-        //         icon: "error",
-        //         title: "Harap isi jenis kendaraan!",
-        //     });
-        // } else if (driver == "") {
-        //     Toast.fire({
-        //         icon: "error",
-        //         title: "Harap isi driver!",
-        //     });
-        // } else if (helper == "") {
-        //     Toast.fire({
-        //         icon: "error",
-        //         title: "Harap isi helper!",
-        //     });
-        // } else if (licensePlate == "") {
-        //     Toast.fire({
-        //         icon: "error",
-        //         title: "Harap isi Plat Nomor Kendaraan!",
-        //     });
-        // } else {
-        $("#modalKirimBarang").modal("show");
-        // }
+        if (createdDate == "") {
+            Toast.fire({
+                icon: "error",
+                title: "Harap isi waktu pengiriman!",
+            });
+        } else if (vehicle == "") {
+            Toast.fire({
+                icon: "error",
+                title: "Harap isi jenis kendaraan!",
+            });
+        } else if (driver == "") {
+            Toast.fire({
+                icon: "error",
+                title: "Harap isi driver!",
+            });
+        } else if (helper == "") {
+            Toast.fire({
+                icon: "error",
+                title: "Harap isi helper!",
+            });
+        } else if (licensePlate == "") {
+            Toast.fire({
+                icon: "error",
+                title: "Harap isi Plat Nomor Kendaraan!",
+            });
+        } else {
+            $("#modalKirimBarang").modal("show");
+        }
+
+        // Data per DO
+        dataDeliveryOrderID = [];
+        $("#preview-product .card-do:not(.d-none)").each(function () {
+            let doID = $(this).children().children().find(".do-id").text();
+            dataDeliveryOrderID.push({
+                deliveryOrderID: doID,
+            });
+        });
 
         // Expedition Data
         dataDeliveryOrderDetail = [];
@@ -394,12 +512,28 @@ $(document).ready(function () {
                 .find("input[type=checkbox]")
                 .val();
             let distributor = $(this).find("#distributor").val();
+            let distributorID = $(this).find("#distributor-id").val();
+            let productID = $(this).find("#product-id").val();
             let qtyExpedition = $(this).find("#qty-expedition").text();
 
             dataDeliveryOrderDetail.push({
                 deliveryOrderDetailID: deliveryOrderDetailID,
                 distributor: distributor,
+                distributorID: distributorID,
+                productID: productID,
                 qtyExpedition: qtyExpedition,
+            });
+        });
+
+        // DO Detail ID not checked
+        dataDeliveryOrderDetailNotChecked = [];
+        $("#preview-product .request-do.d-none").each(function () {
+            let deliveryOrderDetailID = $(this)
+                .find("input[type=checkbox]")
+                .val();
+
+            dataDeliveryOrderDetailNotChecked.push({
+                deliveryOrderDetailIDNotChecked: deliveryOrderDetailID,
             });
         });
 
@@ -410,10 +544,19 @@ $(document).ready(function () {
             helperID: helper,
             licensePlate: licensePlate,
             dataDetail: dataDeliveryOrderDetail,
+            dataDeliveryOrderID: dataDeliveryOrderID,
+            dataDeliveryOrderDetailNotChecked:
+                dataDeliveryOrderDetailNotChecked,
         });
     });
 
     $("#create-expedition-btn").click(function (e) {
+        $("body").append(`<div class="card m-0" style="z-index:99999;">
+                            <div class="overlay position-fixed flex-column">
+                                <i class="fas fa-4x fa-spinner fa-spin"></i>
+                                <h4 class="mt-4">Harap tunggu</h4>
+                            </div>
+                        </div>`);
         $.ajax({
             url: `/delivery/request/createExpedition`,
             headers: {
@@ -424,25 +567,23 @@ $(document).ready(function () {
             },
             type: "post",
             success: function (result) {
-                console.log(result);
-                // if (result.status == "success") {
-                //     iziToast.success({
-                //         title: "Berhasil",
-                //         message: result.message,
-                //         position: "topRight",
-                //     });
-                // }
-
-                // if (result.status == "failed") {
-                //     iziToast.error({
-                //         title: "Gagal",
-                //         message: result.message,
-                //         position: "topRight",
-                //     });
-                // }
-                // setTimeout(function () {
-                //     location.reload(true);
-                // }, 3000);
+                if (result.status == "success") {
+                    iziToast.success({
+                        title: "Berhasil",
+                        message: result.message,
+                        position: "topRight",
+                    });
+                }
+                if (result.status == "failed") {
+                    iziToast.error({
+                        title: "Gagal",
+                        message: result.message,
+                        position: "topRight",
+                    });
+                }
+                setTimeout(function () {
+                    location.reload(true);
+                }, 2500);
             },
         });
     });

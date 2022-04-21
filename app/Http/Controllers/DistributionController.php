@@ -44,7 +44,7 @@ class DistributionController extends Controller
             ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'ms_merchant_account.ReferralCode')
             ->where('ms_merchant_account.IsTesting', 0)
             ->where('tx_merchant_order.StatusOrderID', '=', $statusOrder)
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'ms_distributor.DistributorName', 'tx_merchant_order.ShipmentDate', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CancelReasonNote', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'ms_payment_method.PaymentMethodName', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesName');
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'ms_distributor.DistributorName', 'tx_merchant_order.ShipmentDate', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CancelReasonNote', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesName');
 
         if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
@@ -79,7 +79,7 @@ class DistributionController extends Controller
                     return $data->ReferralCode . ' ' . $data->SalesName;
                 })
                 ->editColumn('TotalTrx', function ($data) {
-                    return $data->TotalPrice - $data->DiscountPrice + $data->ServiceChargeNett;
+                    return $data->TotalPrice - $data->DiscountPrice - $data->DiscountVoucher + $data->ServiceChargeNett + $data->DeliveryFee;
                 })
                 ->editColumn('Partner', function ($data) {
                     if ($data->Partner != null) {
@@ -112,7 +112,7 @@ class DistributionController extends Controller
                     $query->whereRaw("DATE_FORMAT(tx_merchant_order.ShipmentDate,'%d-%b-%Y') like ?", ["%$keyword%"]);
                 })
                 ->filterColumn('TotalTrx', function ($query, $keyword) {
-                    $query->whereRaw("tx_merchant_order.TotalPrice - tx_merchant_order.DiscountPrice + tx_merchant_order.ServiceChargeNett like ?", ["%$keyword%"]);
+                    $query->whereRaw("tx_merchant_order.TotalPrice - tx_merchant_order.DiscountPrice - tx_merchant_order.DiscountVoucher + tx_merchant_order.ServiceChargeNett + tx_merchant_order.DeliveryFee like ?", ["%$keyword%"]);
                 })
                 ->filterColumn('Sales', function ($query, $keyword) {
                     $sql = "CONCAT(ms_merchant_account.ReferralCode,' - ',ms_sales.SalesName)  like ?";
@@ -136,7 +136,6 @@ class DistributionController extends Controller
                 $join->on('tx_merchant_delivery_order.StockOrderID', 'tx_merchant_order.StockOrderID');
                 // $join->where('tx_merchant_delivery_order.StatusDO', '!=', 'S028');
             })
-
             ->leftJoin('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID')
             ->leftJoin('ms_product', 'ms_product.ProductID', 'tx_merchant_delivery_order_detail.ProductID')
             ->leftJoin('ms_user', 'ms_user.UserID', 'tx_merchant_delivery_order.DriverID')
@@ -158,7 +157,7 @@ class DistributionController extends Controller
                 'ms_product.ProductName',
                 'tx_merchant_delivery_order_detail.Qty',
                 'tx_merchant_delivery_order_detail.Price',
-                DB::raw("tx_merchant_order.TotalPrice - tx_merchant_order.DiscountPrice + tx_merchant_order.ServiceChargeNett AS TotalTrx"),
+                DB::raw("tx_merchant_order.TotalPrice - tx_merchant_order.DiscountPrice - tx_merchant_order.DiscountVoucher + tx_merchant_order.ServiceChargeNett + tx_merchant_order.DeliveryFee AS TotalTrx"),
                 DB::raw("tx_merchant_delivery_order.CreatedDate as TanggalDO"),
                 DB::raw("tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price AS TotalPrice"),
                 DB::raw("CASE WHEN tx_merchant_delivery_order.StatusDO = 'S024' THEN 'Dalam Pengiriman' 
@@ -256,7 +255,7 @@ class DistributionController extends Controller
                     $query->whereRaw("DATE_FORMAT(tx_merchant_order.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
                 })
                 ->filterColumn('TotalTrx', function ($query, $keyword) {
-                    $query->whereRaw("tx_merchant_order.TotalPrice - tx_merchant_order.DiscountPrice + tx_merchant_order.ServiceChargeNett like ?", ["%$keyword%"]);
+                    $query->whereRaw("tx_merchant_order.TotalPrice - tx_merchant_order.DiscountPrice - tx_merchant_order.DiscountVoucher + tx_merchant_order.ServiceChargeNett + tx_merchant_order.DeliveryFee like ?", ["%$keyword%"]);
                 })
                 ->filterColumn('TanggalDO', function ($query, $keyword) {
                     $query->whereRaw("DATE_FORMAT(tx_merchant_delivery_order.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
@@ -284,7 +283,7 @@ class DistributionController extends Controller
             ->leftJoin('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
             ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
             ->where('tx_merchant_order.StockOrderID', '=', $stockOrderID)
-            ->select('ms_merchant_account.StoreImage', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'tx_merchant_order.MerchantID', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.StoreAddressNote', 'ms_merchant_account.Latitude', 'ms_merchant_account.Longitude', 'tx_merchant_order.StockOrderID', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.PaymentMethodID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.NettPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.ShipmentDate', 'tx_merchant_order.MerchantNote', 'tx_merchant_order.DistributorNote', 'tx_merchant_order.Rating', 'tx_merchant_order.Feedback', 'tx_merchant_order.CancelReasonNote', 'ms_status_order.StatusOrder', 'ms_payment_method.PaymentMethodName', 'ms_distributor.IsHaistar')
+            ->select('ms_merchant_account.StoreImage', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'tx_merchant_order.MerchantID', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.StoreAddressNote', 'ms_merchant_account.Latitude', 'ms_merchant_account.Longitude', 'tx_merchant_order.StockOrderID', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.PaymentMethodID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.NettPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.ShipmentDate', 'tx_merchant_order.MerchantNote', 'tx_merchant_order.DistributorNote', 'tx_merchant_order.Rating', 'tx_merchant_order.Feedback', 'tx_merchant_order.CancelReasonNote', 'ms_status_order.StatusOrder', 'ms_payment_method.PaymentMethodName', 'ms_distributor.IsHaistar')
             ->first();
 
         $merchantOrderDetail = DB::table('tx_merchant_order_detail')
@@ -448,6 +447,7 @@ class DistributionController extends Controller
         $dikirim = "S012";
         $selesai = "S018";
         $dibatalkan = "S011";
+        $authUser = Auth::user()->Name . "-" . Auth::user()->RoleID . "-" . Auth::user()->Depo;
 
         $baseImageUrl = config('app.base_image_url');
 
@@ -470,7 +470,7 @@ class DistributionController extends Controller
                 'MerchantID' => $txMerchantOrder->MerchantID,
                 'StatusOrderId' => $dibatalkan,
                 'ProcessTime' => date("Y-m-d H:i:s"),
-                'ActionBy' => 'DISTRIBUTOR'
+                'ActionBy' => $authUser
             ];
 
             try {
@@ -533,7 +533,7 @@ class DistributionController extends Controller
                 'MerchantID' => $txMerchantOrder->MerchantID,
                 'StatusOrderId' => $statusOrder,
                 'ProcessTime' => date("Y-m-d H:i:s"),
-                'ActionBy' => 'DISTRIBUTOR'
+                'ActionBy' => $authUser
             ];
 
             try {
@@ -598,7 +598,7 @@ class DistributionController extends Controller
                 'MerchantID' => $txMerchantOrder->MerchantID,
                 'StatusOrderId' => $dikirim,
                 'ProcessTime' => date("Y-m-d H:i:s"),
-                'ActionBy' => 'DISTRIBUTOR'
+                'ActionBy' => $authUser
             ];
 
             try {
@@ -640,6 +640,32 @@ class DistributionController extends Controller
                 curl_close($ch);
 
                 return redirect()->route('distribution.restock')->with('success', 'Data pesanan berhasil dikirim');
+            } catch (\Throwable $th) {
+                return redirect()->route('distribution.restock')->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
+            }
+        } elseif ($status == "refund") {
+            // data untuk insert tx merchant order log
+            $dataLog = [
+                'StockOrderId' => $stockOrderID,
+                'DistributorID' => $txMerchantOrder->DistributorID,
+                'MerchantID' => $txMerchantOrder->MerchantID,
+                'StatusOrderId' => $selesai,
+                'ProcessTime' => date("Y-m-d H:i:s"),
+                'ActionBy' => $authUser
+            ];
+
+            try {
+                DB::transaction(function () use ($stockOrderID, $selesai, $dataLog) {
+                    DB::table('tx_merchant_order')
+                        ->where('StockOrderID', '=', $stockOrderID)
+                        ->update([
+                            'StatusOrderID' => $selesai,
+                            'IsRefund' => 1
+                        ]);
+                    DB::table('tx_merchant_order_log')
+                        ->insert($dataLog);
+                });
+                return redirect()->route('distribution.restock')->with('success', 'Data pesanan berhasil di-refund');
             } catch (\Throwable $th) {
                 return redirect()->route('distribution.restock')->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
             }
@@ -1256,7 +1282,7 @@ class DistributionController extends Controller
                     return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Gagal, terjadi kesalahan');
                 }
             } else {
-                return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Terjadi kesalahan sistem');
+                return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', $haistarPushOrder->data);
             }
         } else {
             return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Quantity yang dikirim tidak mencukupi');
@@ -1336,45 +1362,54 @@ class DistributionController extends Controller
 
     public function addProduct()
     {
-        $getDistributor = DB::table('ms_distributor')
-            ->where('Ownership', '=', 'RTMart')
+        $getDistributorSql = DB::table('ms_distributor')
+            ->where('IsActive', '=', 1)
             ->where('Email', '!=', NULL)
-            ->select('DistributorID', 'DistributorName', 'Email', 'Address', 'CreatedDate')
-            ->get();
+            ->select('DistributorID', 'DistributorName', 'Email', 'Address', 'CreatedDate');
 
-        if (Auth::user()->RoleID == "AD") {
-            $distributorName = DB::table('ms_distributor')
-                ->where('Depo', '=', Auth::user()->Depo)
-                ->select('DistributorID', 'DistributorName')
-                ->first();
-
-            $productNotInDistributor = $getProduct = DB::table('ms_product')
-                ->leftJoin('ms_product_category', 'ms_product_category.ProductCategoryID', '=', 'ms_product.ProductCategoryID')
-                ->leftJoin('ms_product_uom', 'ms_product_uom.ProductUOMID', '=', 'ms_product.ProductUOMID')
-                ->leftJoin('ms_distributor_product_price', 'ms_distributor_product_price.ProductID', '=', 'ms_product.ProductID')
-                ->whereNotIn('ms_product.ProductID', function ($query) use ($distributorName) {
-                    $query->select('ms_distributor_product_price.ProductID')->from('ms_distributor_product_price')->where('ms_distributor_product_price.DistributorID', '=', $distributorName->DistributorID);
-                })
-                ->select('ms_product.ProductID', 'ms_product.ProductName', 'ms_product.ProductUOMDesc', 'ms_product_category.ProductCategoryName', 'ms_product_uom.ProductUOMName')
-                ->distinct()
-                ->get();
-
-            $gradeDistributor = DB::table('ms_distributor_grade')
-                ->where('ms_distributor_grade.DistributorID', '=', $distributorName->DistributorID)
-                ->select('ms_distributor_grade.GradeID', 'ms_distributor_grade.Grade')
-                ->get();
-
-            return view('distribution.product.new', [
-                'distributor' => $getDistributor,
-                'depo' => $distributorName,
-                'productNotInDistributor' => $productNotInDistributor,
-                'gradeDistributor' => $gradeDistributor
-            ]);
-        } else {
-            return view('distribution.product.new', [
-                'distributor' => $getDistributor
-            ]);
+        if (Auth::user()->Depo != "ALL") {
+            $getDistributorSql->where('Depo', '=', Auth::user()->Depo);
         }
+
+        $getDistributor = $getDistributorSql->get();
+
+        return view('distribution.product.new', [
+            'distributor' => $getDistributor
+        ]);
+
+        // if (Auth::user()->RoleID == "AD") {
+        //     $distributorName = DB::table('ms_distributor')
+        //         ->where('Depo', '=', Auth::user()->Depo)
+        //         ->select('DistributorID', 'DistributorName')
+        //         ->first();
+
+        //     $productNotInDistributor = DB::table('ms_product')
+        //         ->leftJoin('ms_product_category', 'ms_product_category.ProductCategoryID', '=', 'ms_product.ProductCategoryID')
+        //         ->leftJoin('ms_product_uom', 'ms_product_uom.ProductUOMID', '=', 'ms_product.ProductUOMID')
+        //         ->leftJoin('ms_distributor_product_price', 'ms_distributor_product_price.ProductID', '=', 'ms_product.ProductID')
+        //         ->whereNotIn('ms_product.ProductID', function ($query) use ($distributorName) {
+        //             $query->select('ms_distributor_product_price.ProductID')->from('ms_distributor_product_price')->where('ms_distributor_product_price.DistributorID', '=', $distributorName->DistributorID);
+        //         })
+        //         ->select('ms_product.ProductID', 'ms_product.ProductName', 'ms_product.ProductUOMDesc', 'ms_product_category.ProductCategoryName', 'ms_product_uom.ProductUOMName')
+        //         ->distinct()
+        //         ->get();
+
+        //     $gradeDistributor = DB::table('ms_distributor_grade')
+        //         ->where('ms_distributor_grade.DistributorID', '=', $distributorName->DistributorID)
+        //         ->select('ms_distributor_grade.GradeID', 'ms_distributor_grade.Grade')
+        //         ->get();
+
+        //     return view('distribution.product.new', [
+        //         'distributor' => $getDistributor,
+        //         'depo' => $distributorName,
+        //         'productNotInDistributor' => $productNotInDistributor,
+        //         'gradeDistributor' => $gradeDistributor
+        //     ]);
+        // } else {
+        // return view('distribution.product.new', [
+        //     'distributor' => $getDistributor
+        // ]);
+        // }
     }
 
     public function ajaxGetProduct($distributorId)
@@ -1423,6 +1458,21 @@ class DistributionController extends Controller
                             'GradeID' => $value['GradeID'],
                             'Price' => $value['Price']
                         ]);
+                    $getProduct = DB::table('ms_product')->where('ProductID', $value['ProductID'])->select('ProductName')->first();
+                    DB::table('ms_product_price_log')
+                        ->insert([
+                            'LogType' => 'DISTRIBUTOR PRODUCT',
+                            'LogAction' => 'INSERT PRODUCT',
+                            'OldPrice' => 0,
+                            'NewPrice' => $value['Price'],
+                            'DistributorID' => $value['DistributorID'],
+                            'GradeID' => $value['GradeID'],
+                            'ProductID' => $value['ProductID'],
+                            'ProductName' => $getProduct->ProductName,
+                            'ActionByID' => Auth::user()->UserID,
+                            'ActionByName' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo,
+                            'CreatedDate' => date('Y-m-d H:i:s')
+                        ]);
                 }
             });
 
@@ -1439,33 +1489,79 @@ class DistributionController extends Controller
             'is_pre_order' => 'required|in:1,0'
         ]);
 
-        $updateDistributorProduct = DB::table('ms_distributor_product_price')
-            ->where('DistributorID', '=', $distributorId)
-            ->where('ProductID', '=', $productId)
-            ->where('GradeID', '=', $gradeId)
-            ->update([
-                'Price' => $request->input('price'),
-                'IsPreOrder' => $request->input('is_pre_order')
-            ]);
+        $getProduct = DB::table('ms_product')->where('ProductID', $productId)->select('ProductName')->first();
+        $getOldPrice = DB::table('ms_distributor_product_price')
+            ->where('DistributorID', $distributorId)
+            ->where('ProductID', $productId)
+            ->where('GradeID', $gradeId)
+            ->select('Price')->first();
 
-        if ($updateDistributorProduct) {
+        $data = [
+            'LogType' => 'DISTRIBUTOR PRODUCT',
+            'LogAction' => 'UPDATE',
+            'OldPrice' => $getOldPrice->Price,
+            'NewPrice' => $request->input('price'),
+            'DistributorID' => $distributorId,
+            'GradeID' => $gradeId,
+            'ProductID' => $productId,
+            'ProductName' => $getProduct->ProductName,
+            'ActionByID' => Auth::user()->UserID,
+            'ActionByName' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo,
+            'CreatedDate' => date('Y-m-d H:i:s')
+        ];
+
+        try {
+            DB::transaction(function () use ($distributorId, $productId, $gradeId, $request, $data) {
+                DB::table('ms_distributor_product_price')
+                    ->where('DistributorID', '=', $distributorId)
+                    ->where('ProductID', '=', $productId)
+                    ->where('GradeID', '=', $gradeId)
+                    ->update([
+                        'Price' => $request->input('price'),
+                        'IsPreOrder' => $request->input('is_pre_order')
+                    ]);
+                DB::table('ms_product_price_log')->insert($data);
+            });
             return redirect()->route('distribution.product')->with('success', 'Harga produk telah berhasil diubah');
-        } else {
+        } catch (\Throwable $th) {
             return redirect()->route('distribution.product')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
         }
     }
 
     public function deleteProduct($distributorId, $productId, $gradeId)
     {
-        $deleteProduct = DB::table('ms_distributor_product_price')
-            ->where('DistributorID', '=', $distributorId)
-            ->where('ProductID', '=', $productId)
-            ->where('GradeID', '=', $gradeId)
-            ->delete();
+        $getProduct = DB::table('ms_product')->where('ProductID', $productId)->select('ProductName')->first();
+        $getOldPrice = DB::table('ms_distributor_product_price')
+            ->where('DistributorID', $distributorId)
+            ->where('ProductID', $productId)
+            ->where('GradeID', $gradeId)
+            ->select('Price')->first();
 
-        if ($deleteProduct) {
+        $data = [
+            'LogType' => 'DISTRIBUTOR PRODUCT',
+            'LogAction' => 'REMOVE PRODUCT',
+            'OldPrice' => $getOldPrice->Price,
+            'NewPrice' => 0,
+            'DistributorID' => $distributorId,
+            'GradeID' => $gradeId,
+            'ProductID' => $productId,
+            'ProductName' => $getProduct->ProductName,
+            'ActionByID' => Auth::user()->UserID,
+            'ActionByName' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo,
+            'CreatedDate' => date('Y-m-d H:i:s')
+        ];
+
+        try {
+            DB::transaction(function () use ($distributorId, $productId, $gradeId, $data) {
+                DB::table('ms_distributor_product_price')
+                    ->where('DistributorID', '=', $distributorId)
+                    ->where('ProductID', '=', $productId)
+                    ->where('GradeID', '=', $gradeId)
+                    ->delete();
+                DB::table('ms_product_price_log')->insert($data);
+            });
             return redirect()->route('distribution.product')->with('success', 'Data produk berhasil dihapus');
-        } else {
+        } catch (\Throwable $th) {
             return redirect()->route('distribution.product')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
         }
     }
@@ -1587,7 +1683,7 @@ class DistributionController extends Controller
         if ($request->ajax()) {
             return Datatables::of($data)
                 ->editColumn('SpecialPrice', function ($data) {
-                    if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "FI") {
+                    if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "RBTAD") {
                         $specialPrice = '<input type="text" value="' . $data->SpecialPrice . '" class="special-price" autocomplete="off">';
                     } else {
                         if ($data->SpecialPrice == null) {
@@ -1599,7 +1695,7 @@ class DistributionController extends Controller
                     return $specialPrice;
                 })
                 ->addColumn('Action', function ($data) use ($merchantID) {
-                    if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "FI") {
+                    if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "RBTAD") {
                         if ($data->SpecialPrice != null) {
                             $btn = '<button class="btn btn-xs btn-success btn-simpan" data-product-id="' . $data->ProductID . '" 
                                     data-merchant-id="' . $merchantID . '" data-grade-id="' . $data->GradeID . '">Simpan</button>
@@ -1626,14 +1722,14 @@ class DistributionController extends Controller
         $specialPrice = $request->specialPrice;
 
         if ($specialPrice != null) {
-            $sql = $merchantService->updateOrInsertSpecialPrice($merchantID, $productID, $gradeID, $specialPrice);
-        } else {
-            $sql = false;
-        }
-
-        if ($sql) {
-            $status = "success";
-            $message = "Special Price Merchant berhasil disimpan";
+            try {
+                $merchantService->updateOrInsertSpecialPrice($merchantID, $productID, $gradeID, $specialPrice);
+                $status = "success";
+                $message = "Special Price Merchant berhasil disimpan";
+            } catch (\Throwable $th) {
+                $status = "failed";
+                $message = "Terjadi kesalahan";
+            }
         } else {
             $status = "failed";
             $message = "Terjadi kesalahan, pastikan input data dengan benar";
@@ -1651,12 +1747,11 @@ class DistributionController extends Controller
         $productID = $request->productID;
         $gradeID = $request->gradeID;
 
-        $delete = $merchantService->deleteSpecialPriceMerchant($merchantID, $productID, $gradeID);
-
-        if ($delete) {
+        try {
+            $merchantService->deleteSpecialPriceMerchant($merchantID, $productID, $gradeID);
             $status = "success";
             $message = "Special Price Merchant berhasil dihapus";
-        } else {
+        } catch (\Throwable $th) {
             $status = "failed";
             $message = "Terjadi kesalahan sistem atau jaringan";
         }
@@ -1672,12 +1767,11 @@ class DistributionController extends Controller
         $merchantID = $request->merchantID;
         $gradeID = $request->gradeID;
 
-        $reset = $merchantService->resetSpecialPriceMerchant($merchantID, $gradeID);
-
-        if ($reset) {
+        try {
+            $merchantService->resetSpecialPriceMerchant($merchantID, $gradeID);
             $status = "success";
             $message = "Special Price Merchant berhasil direset";
-        } else {
+        } catch (\Throwable $th) {
             $status = "failed";
             $message = "Terjadi kesalahan";
         }

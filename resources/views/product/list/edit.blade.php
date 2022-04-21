@@ -127,16 +127,6 @@
                             <div class="row">
                                 <div class="col-md-4 col-12">
                                     <div class="form-group">
-                                        <label for="price">Harga</label>
-                                        <input type="number" name="price" id="price" placeholder="Masukan Harga" value="{{ $productById->Price }}"
-                                            class="form-control @if($errors->has('price')) is-invalid @endif" required>
-                                        @if($errors->has('price'))
-                                            <span class="error invalid-feedback">{{ $errors->first('price') }}</span>
-                                        @endif
-                                    </div>
-                                </div>
-                                <div class="col-md-4 col-12">
-                                    <div class="form-group">
                                         <label for="product_image">Upload Foto Produk</label>
                                         <input type="file" name="product_image" id="product_image" accept="image/*" onchange="loadFile(event)" class="form-control 
                                             @if($errors->has('product_image')) is-invalid @endif">

@@ -1,7 +1,8 @@
 <!-- Brand Logo -->
 <a href="#" class="brand-link">
     <img src="{{ url('/') }}/dist/img/rtmart_logo.png" alt="RTmart" class="brand-image ml-2" style="opacity: .8">
-    <span class="brand-text font-weight-light">RTmart Dashboard</span>
+    <span class="brand-text font-weight-light">
+        Dashboard</span>
 </a>
 
 <!-- Sidebar -->
@@ -22,7 +23,8 @@
                 </a>
             </li>
 
-            @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "BM") ||
+            @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "RBTAD") ||
+            (Auth::user()->RoleID == "BM") ||
             (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO"))
             <li class="nav-item {{ Request::is('distribution*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('distribution*') ? 'active' : '' }}">
@@ -58,9 +60,8 @@
             </li>
             @endif
 
-            {{-- @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "BM")
-            ||
-            (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH"))
+            {{-- @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "RBTAD") ||
+            (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH"))
             <li class="nav-item {{ Request::is('delivery*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('delivery*') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-truck"></i>
@@ -74,7 +75,21 @@
                         <a href="{{ route('delivery.request') }}"
                             class="nav-link {{ Request::is('delivery/request*') ? 'active' : '' }}">
                             <i class="far fa-circle nav-icon"></i>
-                            <p>Delivery Request</p>
+                            <p>Delivery Plan</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('delivery.expedition') }}"
+                            class="nav-link {{ Request::is('delivery/on-going*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Delivery On Going</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('delivery.history') }}"
+                            class="nav-link {{ Request::is('delivery/history*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Delivery History</p>
                         </a>
                     </li>
                 </ul>
@@ -82,7 +97,7 @@
             @endif --}}
 
             @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI") ||
-            (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO"))
+            (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID == "DMO"))
             <li class="nav-item {{ Request::is('master*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('master*') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-layer-group"></i>
@@ -100,8 +115,8 @@
                         </a>
                         <ul class="nav nav-treeview">
                             @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") ||
-                            (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID ==
-                            "DMO"))
+                            (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "RBTAD") || 
+                            (Auth::user()->RoleID == "DMO"))
                             <li class="nav-item">
                                 <a href="{{ route('product.list') }}"
                                     class="nav-link {{ Request::is('*product/list*') ? 'active' : '' }}">
@@ -207,7 +222,46 @@
             </li>
             @endif
 
-            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI") ||
+            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI"))
+            <li class="nav-item">
+                <a href="{{ route('monthlyReport') }}"
+                    class="nav-link {{ Request::is('monthly-report*') ? 'active' : '' }}">
+                    <i class="nav-icon fas fa-file-invoice"></i>
+                    <p>Monthly Report</p>
+                </a>
+            </li>
+            @endif
+
+            {{-- @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI"))
+            <li class="nav-item {{ Request::is('stock*') ? 'menu-open' : '' }}">
+                <a href="#" class="nav-link {{ Request::is('stock*') ? 'active' : '' }}">
+                    <i class="nav-icon fas fa-cubes"></i>
+                    <p>
+                        Stock
+                        <i class="right fas fa-angle-left"></i>
+                    </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="{{ route('stock.purchase') }}"
+                            class="nav-link {{ Request::is('stock/purchase*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Purchase Stock</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('stock.listStock') }}"
+                            class="nav-link {{ Request::is('stock/list*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>List Stock</p>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            @endif --}}
+
+            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID == "BM")
+            || (Auth::user()->RoleID == "FI") ||
             (Auth::user()->RoleID == "HR") || (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO"))
             <li class="nav-item {{ Request::is('merchant*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('merchant*') ? 'active' : '' }}">
@@ -218,7 +272,8 @@
                     </p>
                 </a>
                 <ul class="nav nav-treeview">
-                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") ||
+                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID ==
+                    "BM") ||
                     (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "HR") ||
                     (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO"))
                     <li class="nav-item">
@@ -246,7 +301,8 @@
                         </a>
                     </li>
                     @endif
-                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") ||
+                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID ==
+                    "BM") ||
                     (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "HR") ||
                     (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO"))
                     <li class="nav-item">
@@ -304,7 +360,9 @@
             </li>
             @endif
 
-            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI") ||
+            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID == "BM")
+            ||
+            (Auth::user()->RoleID == "FI") ||
             (Auth::user()->RoleID == "HR") || (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO"))
             <li class="nav-item {{ Request::is('customer*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('customer*') ? 'active' : '' }}">
@@ -315,7 +373,8 @@
                     </p>
                 </a>
                 <ul class="nav nav-treeview">
-                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") ||
+                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID ==
+                    "BM") ||
                     (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "HR") ||
                     (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO"))
                     <li class="nav-item">
@@ -337,7 +396,8 @@
                         </a>
                     </li>
                     @endif
-                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") ||
+                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID ==
+                    "BM") ||
                     (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "HR") ||
                     (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO"))
                     <li class="nav-item">
@@ -352,7 +412,8 @@
             </li>
             @endif
 
-            @if (Auth::user()->RoleID == "IT")
+            @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID == "FI") ||
+            (Auth::user()->RoleID == "BM"))
             <li class="nav-item {{ Request::is('voucher*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('voucher*') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-ticket-alt"></i>
@@ -390,6 +451,13 @@
                     </p>
                 </a>
                 <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="{{ route('setting.monthlyReport') }}"
+                            class="nav-link {{ Request::is('setting/monthly-report*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Monthly Report</p>
+                        </a>
+                    </li>
                     <li class="nav-item">
                         <a href="{{ route('setting.users') }}"
                             class="nav-link {{ Request::is('setting/users*') ? 'active' : '' }}">

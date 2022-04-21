@@ -163,9 +163,15 @@ class MerchantController extends Controller
             ->where('ms_merchant_account.MerchantID', '=', $merchantId)
             ->first();
 
-        $distributor = DB::table('ms_distributor')
-            ->select('DistributorID', 'DistributorName')
-            ->get();
+        $distributorSql = DB::table('ms_distributor')
+            ->select('DistributorID', 'DistributorName');
+
+        if (Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $distributorSql->where('ms_distributor.Depo', '=', $depoUser);
+        }
+
+        $distributor = $distributorSql->get();
 
         $grade = DB::table('ms_merchant_account')
             ->join('ms_distributor_grade', 'ms_distributor_grade.DistributorID', '=', 'ms_merchant_account.DistributorID')
@@ -287,8 +293,17 @@ class MerchantController extends Controller
                     return $data->ProductName . '<br>' . $fulfillment;
                 })
                 ->addColumn('Action', function ($data) {
-                    $actionBtn = '<a href="/merchant/account/product/edit/' . $data->MerchantID . '/' . $data->ProductID . '" class="btn btn-sm btn-warning mr-1">Edit</a>
-                    <a data-merchant-id="' . $data->MerchantID . '" data-product-id="' . $data->ProductID . '" data-product-name="' . $data->ProductName . '" href="#" class="btn-delete btn btn-sm btn-danger">Delete</a>';
+                    if (
+                        Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" ||
+                        Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "AH" ||
+                        Auth::user()->RoleID == "HR"
+                    ) {
+                        $actionBtn = '<a href="/merchant/account/product/edit/' . $data->MerchantID . '/' . $data->ProductID . '" class="btn btn-sm btn-warning mr-1">Edit</a>
+                        <a data-merchant-id="' . $data->MerchantID . '" data-product-id="' . $data->ProductID . '" data-product-name="' . $data->ProductName . '" href="#" class="btn-delete btn btn-sm btn-danger">Delete</a>';
+                    } else {
+                        $actionBtn = '';
+                    }
+
                     return $actionBtn;
                 })
                 ->rawColumns(['ProductName', 'ProductImage', 'Action'])
@@ -665,7 +680,7 @@ class MerchantController extends Controller
                     return $actionBtn;
                 })
                 ->addColumn('TotalAmount', function ($data) {
-                    return $data->NettPrice + $data->ServiceChargeNett;
+                    return $data->NettPrice + $data->ServiceChargeNett + $data->DeliveryFee;
                 })
                 ->editColumn('StatusOrder', function ($data) {
                     $pesananBaru = "S009";
@@ -752,7 +767,7 @@ class MerchantController extends Controller
                     return $actionBtn;
                 })
                 ->addColumn('TotalAmount', function ($data) {
-                    return $data->NettPrice + $data->ServiceChargeNett;
+                    return $data->NettPrice + $data->ServiceChargeNett + $data->DeliveryFee;
                 })
                 ->editColumn('StatusOrder', function ($data) {
                     $pesananBaru = "S009";
@@ -805,7 +820,7 @@ class MerchantController extends Controller
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_order.StatusOrderID')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
             ->where('tx_merchant_order.StockOrderID', '=', $stockOrderId)
-            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.ServiceChargeNett', 'ms_status_order.StatusOrder', 'ms_payment_method.PaymentMethodName')
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_status_order.StatusOrder', 'ms_payment_method.PaymentMethodName')
             ->first();
 
         $merchantOrderHistory = DB::table('tx_merchant_order_log')

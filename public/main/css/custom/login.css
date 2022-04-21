@@ -7,3 +7,14 @@
     background-size: cover;
     position: relative;
 }
+
+.bg_login_rabat {
+    background-image: url(/dist/img/bg_login_main_rabat.jpg);
+    width: 100%;
+    height: 100vh;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+    box-shadow:inset 0 0 0 2000px rgba(22, 22, 22, 0.6);
+}

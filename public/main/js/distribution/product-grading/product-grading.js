@@ -115,7 +115,7 @@ $(document).ready(function () {
         });
     }
 
-    // Create element for DateRange Filter
+    // Create element for Filter
     let depo = $('meta[name="depo"]').attr("content");
     if (depo == "ALL") {
         $("div.filter-product-grading").html(`<div class="input-group">

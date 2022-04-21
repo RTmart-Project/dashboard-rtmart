@@ -27,16 +27,37 @@ class AuthController extends Controller
 
         $credentials = array(
             'email' => $request->input('email'),
-            'password' => $request->input('password')
+            'password' => $request->input('password'),
+            'IsDashboardRTMart' => 1
         );
 
-        $ms_user = MsUser::where('Email', '=', $request->input('email'))
-            ->first();
+        if (Auth::attempt($credentials)) {
+            return redirect('/home')->with('success', 'Berhasil. Selamat datang!');
+        }
+
+        return redirect()->back()->with('failed', 'Gagal. Email atau password salah silahkan coba lagi!');
+    }
+
+    public function loginRabat()
+    {
+        return view('auth.login_rabat');
+    }
+
+    public function validateLoginRabat(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|string|email',
+            'password' => 'required|string',
+        ]);
+
+        $credentials = array(
+            'email' => $request->input('email'),
+            'password' => $request->input('password'),
+            'IsDashboardRTRabat' => 1
+        );
 
         if (Auth::attempt($credentials)) {
-            if ($ms_user->IsDashboardRTMart == 1) {
-                return redirect('/home')->with('success', 'Berhasil. Selamat datang!');
-            }
+            return redirect('/home')->with('success', 'Berhasil. Selamat datang!');
         }
 
         return redirect()->back()->with('failed', 'Gagal. Email atau password salah silahkan coba lagi!');
@@ -44,8 +65,13 @@ class AuthController extends Controller
 
     public function logout()
     {
+        $isRTRabat = Auth::user()->IsDashboardRTRabat;
         Auth::logout();
-        return redirect('/');
+        if ($isRTRabat == 1) {
+            return redirect()->route('auth.login.rabat');
+        } else {
+            return redirect()->route('auth.login');
+        }
     }
 
     public function users()

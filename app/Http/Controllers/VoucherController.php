@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use PhpParser\Node\Stmt\Foreach_;
 use Illuminate\Support\Facades\File;
@@ -63,7 +64,11 @@ class VoucherController extends Controller
                     return $detailBtn;
                 })
                 ->addColumn('Action', function ($data) {
-                    $detailBtn = '<a href="/voucher/list/edit/' . $data->VoucherCode . '" class="btn btn-xs btn-warning">Edit</a>';
+                    if (Auth::user()->RoleID == 'IT') {
+                        $detailBtn = '<a href="/voucher/list/edit/' . $data->VoucherCode . '" class="btn btn-xs btn-warning">Edit</a>';
+                    } else {
+                        $detailBtn = '';
+                    }
                     return $detailBtn;
                 })
                 ->rawColumns(['ValidityPeriod', 'IsActive', 'IsFor', 'Detail', 'Action'])
@@ -550,7 +555,7 @@ class VoucherController extends Controller
             'EndDateCustomerTrx' => $endDateCustomerTx,
             'Details' => $request->input('details')
         ];
-        
+
         if ($request->hasFile('banner')) {
             $bannerName = $voucherCode . '.' . $request->file('banner')->extension();
             $request->file('banner')->move($this->saveImageUrl . 'voucher/banner/', $bannerName);
@@ -715,10 +720,16 @@ class VoucherController extends Controller
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
 
-        $sqlGetLog = DB::table('ms_voucher_log')
-            ->join('ms_voucher', 'ms_voucher.VoucherCode', '=', 'ms_voucher_log.VoucherCode')
+        $sqlGetLog = DB::table('ms_voucher_log AS vl')
+            ->join('ms_voucher', 'ms_voucher.VoucherCode', '=', 'vl.VoucherCode')
+            ->leftJoin('tx_merchant_order', 'tx_merchant_order.StockOrderID', 'vl.OrderID')
+            ->leftJoin('tx_product_order', 'tx_product_order.OrderID', 'vl.OrderID')
+            ->leftJoin('ms_status_order', function ($join) {
+                $join->on('ms_status_order.StatusOrderID', 'tx_merchant_order.StatusOrderID');
+                $join->orOn('ms_status_order.StatusOrderID', 'tx_product_order.StatusOrderID');
+            })
             ->join('ms_voucher_type', 'ms_voucher_type.VoucherTypeID', '=', 'ms_voucher.VoucherTypeID')
-            ->select('ms_voucher_log.*', 'ms_voucher_type.VoucherTypeName');
+            ->select('vl.*', 'ms_voucher_type.VoucherTypeName', 'ms_status_order.StatusOrder');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
@@ -734,7 +745,11 @@ class VoucherController extends Controller
                     return date('d-M-Y H:i', strtotime($data->ProcessTime));
                 })
                 ->editColumn('OrderID', function ($data) {
-                    return "<a target='_blank' href='/customer/transaction/detail/" . $data->OrderID . "'>$data->OrderID</a>";
+                    if (substr($data->OrderID, 0, 2) == "SO") {
+                        return "<a target='_blank' href='/merchant/restock/detail/" . $data->OrderID . "'>$data->OrderID</a>";
+                    } else {
+                        return "<a target='_blank' href='/customer/transaction/detail/" . $data->OrderID . "'>$data->OrderID</a>";
+                    }
                 })
                 ->rawColumns(['OrderID', 'ProcessTime'])
                 ->make(true);

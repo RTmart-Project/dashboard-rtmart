@@ -42,6 +42,7 @@
             <div class="col-12">
                 <div class="card">
                     @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID ==
+                    "RBTAD") || (Auth::user()->RoleID ==
                     "AH") || (Auth::user()->RoleID == "BM"))
                     <div class="card-header">
                         <a href="{{ route('distribution.addProduct') }}" class="btn btn-sm btn-success"><i
@@ -82,32 +83,34 @@
                 </div>
             </div>
         </div>
-        @endsection
+    </div>
+</div>
+@endsection
 
-        @section('js-pages')
-        <!-- InputMask -->
-        <script src="{{url('/')}}/plugins/moment/moment.min.js"></script>
-        <script src="{{url('/')}}/plugins/inputmask/jquery.inputmask.min.js"></script>
-        <!-- date-range-picker -->
-        <script src="{{url('/')}}/plugins/daterangepicker/daterangepicker.js"></script>
-        <!-- DataTables  & Plugins -->
-        <script src="{{url('/')}}/plugins/datatables/jquery.dataTables.min.js"></script>
-        <script src="{{url('/')}}/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
-        <script src="{{url('/')}}/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
-        <script src="{{url('/')}}/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
-        <script src="{{url('/')}}/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
-        <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
-        <script src="{{url('/')}}/plugins/jszip/jszip.min.js"></script>
-        <script src="{{url('/')}}/plugins/pdfmake/pdfmake.min.js"></script>
-        <script src="{{url('/')}}/plugins/pdfmake/vfs_fonts.js"></script>
-        <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
-        <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.print.min.js"></script>
-        <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
-        <!-- Main JS -->
-        <script src="https://unpkg.com/autonumeric"></script>
-        <script src="{{url('/')}}/main/js/custom/select-filter.js"></script>
-        <script src="{{url('/')}}/main/js/distribution/product-grading/product-grading.js"></script>
-        <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
-        <script>
-        </script>
-        @endsection
+@section('js-pages')
+<!-- InputMask -->
+<script src="{{url('/')}}/plugins/moment/moment.min.js"></script>
+<script src="{{url('/')}}/plugins/inputmask/jquery.inputmask.min.js"></script>
+<!-- date-range-picker -->
+<script src="{{url('/')}}/plugins/daterangepicker/daterangepicker.js"></script>
+<!-- DataTables  & Plugins -->
+<script src="{{url('/')}}/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="{{url('/')}}/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="{{url('/')}}/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="{{url('/')}}/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="{{url('/')}}/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="{{url('/')}}/plugins/jszip/jszip.min.js"></script>
+<script src="{{url('/')}}/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="{{url('/')}}/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<!-- Main JS -->
+<script src="https://unpkg.com/autonumeric"></script>
+<script src="{{url('/')}}/main/js/custom/select-filter.js"></script>
+<script src="{{url('/')}}/main/js/distribution/product-grading/product-grading.js"></script>
+<script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
+<script>
+</script>
+@endsection
