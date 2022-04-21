@@ -18,6 +18,15 @@ use Yajra\DataTables\DataTables as DataTablesDataTables;
 
 class DeliveryController extends Controller
 {
+    protected $saveImageUrl;
+    protected $baseImageUrl;
+
+    public function __construct()
+    {
+        $this->saveImageUrl = config('app.save_image_url');
+        $this->baseImageUrl = config('app.base_image_url');
+    }
+
     public function request(DeliveryOrderService $deliveryOrderService, DriverService $driverService, VehicleService $vehicleService)
     {
         return view('delivery.request.index', [
@@ -256,8 +265,8 @@ class DeliveryController extends Controller
                         foreach ($dataForRTmart as $key => $value) {
                             $detailDO = $deliveryOrderService->getDOfromDetailDO($value->deliveryOrderDetailID);
                             $deliveryOrderService->updateDetailDeliveryOrder($detailDO->DeliveryOrderID, $detailDO->ProductID, $value->qtyExpedition, "S030", "RT MART");
-                            $deliveryOrderService->insertExpeditionDetail($newMerchantExpeditionID, $detailDO->DeliveryOrderID, $detailDO->ProductID, "S030");
-                            $deliveryOrderService->reduceStock($detailDO->ProductID, $detailDO->DistributorID, $value->qtyExpedition, $value->deliveryOrderDetailID);
+                            $merchantExpeditionDetailID = $deliveryOrderService->insertExpeditionDetail($newMerchantExpeditionID, $detailDO->DeliveryOrderID, $detailDO->ProductID, "S030");
+                            $deliveryOrderService->reduceStock($detailDO->ProductID, $detailDO->DistributorID, $value->qtyExpedition, $value->deliveryOrderDetailID, $merchantExpeditionDetailID);
                         }
                     }
                     $deliveryOrderService->insertTable("tx_merchant_expedition", $dataInsertExpedition);
@@ -469,7 +478,7 @@ class DeliveryController extends Controller
         }
     }
 
-    public function confirmProduct($status, $expeditionDetailID, DeliveryOrderService $deliveryOrderService)
+    public function confirmProduct($status, $expeditionDetailID, DeliveryOrderService $deliveryOrderService, Request $request)
     {
         $deliveryOrderDetailID = DB::table('tx_merchant_expedition_detail')
             ->where('MerchantExpeditionDetailID', $expeditionDetailID)
@@ -484,19 +493,42 @@ class DeliveryController extends Controller
             $message = "Produk berhasil dibatalkan";
         }
 
+        $qtyDiterima = $request->input('receipt_qty');
+        $imageName = date('YmdHis') . $expeditionDetailID . '.' . $request->file('receipt_image')->extension();
+        $request->file('receipt_image')->move($this->saveImageUrl . 'receipt_image_expedition/', $imageName);
+
         try {
-            DB::transaction(function () use ($deliveryOrderDetailID, $statusExpedition, $expeditionDetailID, $status, $deliveryOrderService) {
-                DB::table('tx_merchant_delivery_order_detail')
-                    ->where('DeliveryOrderDetailID', $deliveryOrderDetailID->DeliveryOrderDetailID)
-                    ->update([
+            DB::transaction(function () use ($deliveryOrderDetailID, $statusExpedition, $expeditionDetailID, $status, $deliveryOrderService, $qtyDiterima, $imageName) {
+                $deliveryOrderDetail = DB::table('tx_merchant_delivery_order_detail')
+                    ->where('DeliveryOrderDetailID', $deliveryOrderDetailID->DeliveryOrderDetailID);
+                $expeditionDetail = DB::table('tx_merchant_expedition_detail')
+                    ->where('MerchantExpeditionDetailID', $expeditionDetailID);
+
+                $currentQty = (clone $deliveryOrderDetail)->select('Qty')->first();
+
+                if ($status == "finish" && $qtyDiterima <= $currentQty->Qty) {
+                    (clone $deliveryOrderDetail)->update([
+                        'StatusExpedition' => $statusExpedition,
+                        'Qty' => $qtyDiterima
+                    ]);
+                    (clone $expeditionDetail)->update([
+                        'StatusExpeditionDetail' => $statusExpedition,
+                        'ReceiptImage' => $imageName
+                    ]);
+
+                    $qtyTdkDiterima = $currentQty->Qty - $qtyDiterima;
+                    // if ($qtyTdkDiterima > 0) {
+
+                    // }
+                }
+
+                if ($status == "cancel") {
+                    (clone $deliveryOrderDetail)->update([
                         'StatusExpedition' => $statusExpedition
                     ]);
-                DB::table('tx_merchant_expedition_detail')
-                    ->where('MerchantExpeditionDetailID', $expeditionDetailID)
-                    ->update([
+                    (clone $expeditionDetail)->update([
                         'StatusExpeditionDetail' => $statusExpedition
                     ]);
-                if ($status == "cancel") {
                     $deliveryOrderService->cancelProductExpedition($expeditionDetailID);
                 }
             });

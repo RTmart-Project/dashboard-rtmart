@@ -298,27 +298,27 @@ class StockController extends Controller
         }
     }
 
-    public function readyStock()
+    public function listStock()
     {
-        return view('stock.ready.index');
+        return view('stock.list.index');
     }
 
-    public function getReadyStock(Request $request, PurchaseService $purchaseService)
+    public function getListStock(Request $request, PurchaseService $purchaseService)
     {
         $distributorId = $request->input('distributorId');
 
-        $sqlGetReadyStocks = $purchaseService->getStocks();
+        $sqlGetListStocks = $purchaseService->getStocks();
 
         if ($distributorId != null) {
-            $sqlGetReadyStocks->where('ms_distributor.DistributorID', '=', $distributorId);
+            $sqlGetListStocks->where('ms_distributor.DistributorID', '=', $distributorId);
         }
         if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
-            $sqlGetReadyStocks->where('ms_distributor.Depo', '=', $depoUser);
+            $sqlGetListStocks->where('ms_distributor.Depo', '=', $depoUser);
         }
 
         // Get data response
-        $data = $sqlGetReadyStocks;
+        $data = $sqlGetListStocks;
 
         // Return Data Using DataTables with Ajax
         if ($request->ajax()) {
@@ -326,8 +326,30 @@ class StockController extends Controller
                 ->editColumn('ProductImage', function ($data) {
                     return '<img src="' . $this->baseImageUrl . 'product/' . $data->ProductImage . '" alt="Product Image" height="80">';
                 })
-                ->rawColumns(['ProductImage'])
+                ->addColumn('Detail', function ($data) {
+                    return '<a class="btn btn-sm btn-warning" href="/stock/list/detail/' . $data->DistributorID . '/' . $data->ProductID . '">Detail</a>';
+                })
+                ->rawColumns(['ProductImage', 'Detail'])
                 ->make(true);
         }
+    }
+
+    public function detailStock($distributorID, $productID, PurchaseService $purchaseService, Request $request)
+    {
+        $data = $purchaseService->getDetailStock($distributorID, $productID)->get();
+
+        // Return Data Using DataTables with Ajax
+        if ($request->ajax()) {
+            return Datatables::of($data)
+                ->editColumn('CreatedDate', function ($data) {
+                    return date('d M Y H:i', strtotime($data->CreatedDate));
+                })
+                ->make(true);
+        }
+
+        return view('stock.list.detail', [
+            'distributor' => DB::table('ms_distributor')->where('DistributorID', $distributorID)->select('DistributorName')->first(),
+            'product' => DB::table('ms_product')->where('ProductID', $productID)->select('ProductImage', 'ProductName')->first()
+        ]);
     }
 }

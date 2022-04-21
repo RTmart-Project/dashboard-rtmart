@@ -88,7 +88,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/get/{status}', [DeliveryController::class, 'getExpedition'])->name('delivery.getExpedition');
             Route::get('/detail/{expeditionID}', [DeliveryController::class, 'detailExpedition'])->name('delivery.detailExpedition');
             Route::get('/confirmExpedition/{status}/{expeditionID}', [DeliveryController::class, 'confirmExpedition'])->name('delivery.confirmExpedition');
-            Route::get('/confirmProduct/{status}/{expeditionDetailID}', [DeliveryController::class, 'confirmProduct'])->name('delivery.confirmProduct');
+            Route::post('/confirmProduct/{status}/{expeditionDetailID}', [DeliveryController::class, 'confirmProduct'])->name('delivery.confirmProduct');
             Route::get('/resendHaistar/{deliveryOrderID}', [DeliveryController::class, 'resendHaistar'])->name('delivery.resendHaistar');
             Route::get('/requestCancelHaistar/{deliveryOrderID}/{expeditionID}', [DeliveryController::class, 'requestCancelHaistar'])->name('delivery.requestCancelHaistar');
         });
@@ -116,9 +116,10 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/confirmation/{status}/{purchaseID}', [StockController::class, 'confirmPurchase'])->name('stock.confirmPurchase');
         });
 
-        Route::prefix('ready')->group(function () {
-            Route::get('/', [StockController::class, 'readyStock'])->name('stock.readyStock');
-            Route::get('/get', [StockController::class, 'getReadyStock'])->name('stock.getReadyStock');
+        Route::prefix('list')->group(function () {
+            Route::get('/', [StockController::class, 'listStock'])->name('stock.listStock');
+            Route::get('/get', [StockController::class, 'getListStock'])->name('stock.getListStock');
+            Route::get('/detail/{distributorID}/{productID}', [StockController::class, 'detailStock'])->name('stock.detailStock');
         });
     });
 

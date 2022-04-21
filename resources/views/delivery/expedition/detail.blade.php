@@ -155,6 +155,7 @@
 
         {{-- Modal Selesaikan Produk --}}
         <form method="POST" enctype="multipart/form-data" id="form-selesaikan">
+          @csrf
           <div class="modal fade" id="modal-finish-product">
             <div class="modal-dialog modal-lg">
               <div class="modal-content">
@@ -180,7 +181,7 @@
                         <input type="file" class="form-control" name="receipt_image" id="receipt_image" onchange="loadFile(event)">
                       </div>
                     </div>
-                    <div class="col-12 text-md-center">
+                    <div class="col-12 text-md-center d-none" id="img_output">
                       <img id="output" height="160" />
                     </div>
                   </div>
@@ -326,7 +327,6 @@
   });
 
   $(".btn-finish-product").click(function() {
-    // e.preventDefault();
     const product = $(this).data("product");
     const qty = $(this).data("qty");
     const store = $(this).data("store");
@@ -341,6 +341,10 @@
       $("#max-qty").html(`Maksimum  : ${qty}`);
     });
   });
+  
+  $("#receipt_image").change(function (){
+    $("#img_output").removeClass("d-none");
+  })
 
   let Toast = Swal.mixin({
     toast: true,

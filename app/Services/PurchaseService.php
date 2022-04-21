@@ -85,11 +85,11 @@ class PurchaseService
       ->select('ms_stock_purchase_detail.PurchaseID', 'ms_stock_purchase_detail.ProductID', 'ms_stock_purchase_detail.Qty', 'ms_stock_purchase_detail.PurchasePrice', 'ms_stock_purchase.DistributorID')->get()
       ->map(function ($item, $key) {
         $item->CreatedDate  = date('Y-m-d H:i:s');
+        $item->Type = 'INBOUND';
+        $item->LevelType = 3;
         return (array) $item;
       })
       ->all();
-
-    $detail[0]['Type'] = 'INBOUND';
 
     if ($status == "approved") {
       $confirm = DB::transaction(function () use ($purchaseID, $detail) {
@@ -100,7 +100,31 @@ class PurchaseService
             'StatusBy' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo,
             'StatusDate' => date('Y-m-d H:i:s')
           ]);
-        DB::table('ms_stock_product')->insert($detail);
+        // $stockProductID = DB::table('ms_stock_product')->insertGetId($detail, 'StockProductID');
+        foreach ($detail as $key => $value) {
+          $stockProductID = DB::table('ms_stock_product')->insertGetId($value, 'StockProductID');
+          $qtyBefore = DB::table('ms_stock_product')
+            ->where('ms_stock_product.StockProductID', '!=', $stockProductID)
+            ->where('ms_stock_product.ProductID', $value['ProductID'])
+            ->where('ms_stock_product.DistributorID', $value['DistributorID'])
+            ->selectRaw("IFNULL(SUM(ms_stock_product.Qty), 0) AS QtyBefore")
+            ->first();
+
+          DB::table('ms_stock_product_log')
+            ->insert([
+              'StockProductID' => $stockProductID,
+              'ProductID' => $value['ProductID'],
+              'QtyBefore' => $qtyBefore->QtyBefore,
+              'QtyAction' => $value['Qty'],
+              'QtyAfter' => $qtyBefore->QtyBefore + $value['Qty'],
+              'PurchasePrice' => $value['PurchasePrice'],
+              'SellingPrice' => 0,
+              'DeliveryOrderDetailID' => 0,
+              'CreatedDate' => date('Y-m-d H:i:s'),
+              'ActionBy' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo,
+              'ActionType' => 'INBOUND'
+            ]);
+        }
       });
     } else {
       $confirm = DB::table('ms_stock_purchase')
@@ -148,13 +172,28 @@ class PurchaseService
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_stock_product.DistributorID')
       ->join('ms_product', 'ms_product.ProductID', 'ms_stock_product.ProductID')
       ->selectRaw("
-        ANY_VALUE(ms_distributor.DistributorName) AS DistributorName, 
+        ANY_VALUE(ms_distributor.DistributorID) AS DistributorID,
+        ANY_VALUE(ms_distributor.DistributorName) AS DistributorName,
         ANY_VALUE(ms_product.ProductName) AS ProductName,
         ANY_VALUE(ms_product.ProductImage) AS ProductImage, 
         ms_stock_product.ProductID, 
-        CONCAT(SUM(ms_stock_product.Qty), ' pcs') AS Qty
+        SUM(CASE WHEN ms_stock_product.ConditionStock = 'GOOD STOCK' THEN ms_stock_product.Qty ELSE 0 END) AS GoodStock,
+        SUM(CASE WHEN ms_stock_product.ConditionStock = 'BAD STOCK' THEN ms_stock_product.Qty ELSE 0 END) AS BadStock
       ")
       ->groupBy('ms_stock_product.DistributorID', 'ms_stock_product.ProductID');
+
+    return $sql;
+  }
+
+  public function getDetailStock($distributorID, $productID)
+  {
+    $sql = DB::table('ms_stock_product_log')
+      ->join('ms_product', 'ms_product.ProductID', 'ms_stock_product_log.ProductID')
+      ->join('ms_stock_product', 'ms_stock_product.StockProductID', 'ms_stock_product_log.StockProductID')
+      ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_stock_product.DistributorID')
+      ->where('ms_stock_product.DistributorID', $distributorID)
+      ->where('ms_stock_product_log.ProductID', $productID)
+      ->select('ms_stock_product.PurchaseID', 'ms_stock_product.ConditionStock', 'ms_stock_product_log.PurchasePrice', 'ms_stock_product_log.ActionType', 'ms_stock_product_log.ActionBy', 'ms_stock_product_log.QtyBefore', 'ms_stock_product_log.QtyAction', 'ms_stock_product_log.QtyAfter', 'ms_stock_product_log.CreatedDate', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_distributor.DistributorName');
 
     return $sql;
   }

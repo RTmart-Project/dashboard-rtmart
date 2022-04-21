@@ -42,7 +42,7 @@
                 <div class="card">
                     <div class="card-body mt-2">
                         <div class="tab-content">
-                            <div class="tab-pane active" id="ready-stock">
+                            <div class="tab-pane active" id="list-stock">
                                 <div class="row">
                                     <div class="col-12">
                                         <table class="table table-datatables">
@@ -52,7 +52,9 @@
                                                     <th>Produk ID</th>
                                                     <th>Gambar</th>
                                                     <th>Nama Produk</th>
-                                                    <th>Stok Tersedia</th>
+                                                    <th>Good Stock</th>
+                                                    <th>Bad Stock</th>
+                                                    <th>Detail</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -91,7 +93,7 @@
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!-- Main JS -->
 <script src="{{url('/')}}/main/js/custom/select-filter.js"></script>
-<script src="{{url('/')}}/main/js/stock/ready/ready-stock.js"></script>
+<script src="{{url('/')}}/main/js/stock/list/list-stock.js"></script>
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
 <script>
 </script>

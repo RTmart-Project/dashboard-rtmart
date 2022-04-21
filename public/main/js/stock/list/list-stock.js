@@ -3,19 +3,19 @@ $(document).ready(function () {
     dataTablesReadyStock();
 
     function dataTablesReadyStock() {
-        $("#ready-stock .table-datatables").DataTable({
+        $("#list-stock .table-datatables").DataTable({
             dom:
-                "<'row'<'col-sm-12 col-md-5'<'filter-ready-stock'>tl><'col-sm-12 col-md-3'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
+                "<'row'<'col-sm-12 col-md-5'<'filter-list-stock'>tl><'col-sm-12 col-md-3'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
             serverSide: false,
             stateServe: true,
             ajax: {
-                url: "/stock/ready/get",
+                url: "/stock/list/get",
                 data: function (d) {
                     d.distributorId = $(
-                        "#ready-stock .select-filter-custom select"
+                        "#list-stock .select-filter-custom select"
                     ).val();
                 },
             },
@@ -37,9 +37,18 @@ $(document).ready(function () {
                     name: "ms_product.ProductName",
                 },
                 {
-                    data: "Qty",
-                    name: "Qty",
+                    data: "GoodStock",
+                    name: "GoodStock",
+                },
+                {
+                    data: "BadStock",
+                    name: "BadStock",
+                },
+                {
+                    data: "Detail",
+                    name: "Detail",
                     searchable: false,
+                    orderable: false,
                 },
             ],
             buttons: [
@@ -57,7 +66,7 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 3, 4],
+                        columns: [0, 1, 3, 4, 5],
                         orthogonal: "export",
                     },
                 },
@@ -71,7 +80,7 @@ $(document).ready(function () {
     // Create element for Filter
     let depo = $('meta[name="depo"]').attr("content");
     if (depo == "ALL") {
-        $("div.filter-ready-stock").html(`<div class="input-group">
+        $("div.filter-list-stock").html(`<div class="input-group">
                           <div class="select-filter-custom ml-2">
                               <select>
                                   <option value="">All</option>
@@ -90,13 +99,13 @@ $(document).ready(function () {
             for (const item of dataDistributor) {
                 option += `<option value="${item.DistributorID}">${item.DistributorName}</option>`;
             }
-            $("#ready-stock .select-filter-custom select").append(option);
+            $("#list-stock .select-filter-custom select").append(option);
             customDropdownFilter.createCustomDropdowns();
         },
     });
 
     // Event listener saat tombol select option diklik
-    $("#ready-stock .select-filter-custom select").change(function () {
-        $("#ready-stock .table-datatables").DataTable().ajax.reload();
+    $("#list-stock .select-filter-custom select").change(function () {
+        $("#list-stock .table-datatables").DataTable().ajax.reload();
     });
 });

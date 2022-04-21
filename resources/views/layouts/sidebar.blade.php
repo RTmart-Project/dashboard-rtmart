@@ -253,10 +253,10 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="{{ route('stock.readyStock') }}"
-                            class="nav-link {{ Request::is('stock/ready*') ? 'active' : '' }}">
+                        <a href="{{ route('stock.listStock') }}"
+                            class="nav-link {{ Request::is('stock/list*') ? 'active' : '' }}">
                             <i class="far fa-circle nav-icon"></i>
-                            <p>Ready Stock</p>
+                            <p>List Stock</p>
                         </a>
                     </li>
                 </ul>

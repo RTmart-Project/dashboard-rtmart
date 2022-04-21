@@ -94,14 +94,14 @@ class DeliveryOrderService
       ->select('DeliveryOrderDetailID')
       ->first();
 
-    $sql = DB::table('tx_merchant_expedition_detail')
-      ->insert([
+    $merchantExpeditionDetailID = DB::table('tx_merchant_expedition_detail')
+      ->insertGetId([
         'MerchantExpeditionID' => $merchantExpeditionID,
         'DeliveryOrderDetailID' => $doDetailID->DeliveryOrderDetailID,
         'StatusExpeditionDetail' => $statusExpeditionDetail
-      ]);
+      ], 'MerchantExpeditionDetailID');
 
-    return $sql;
+    return $merchantExpeditionDetailID;
   }
 
   public function getDOfromDetailDO($deliveryOrderDetailID)
@@ -188,6 +188,7 @@ class DeliveryOrderService
       ->leftJoin('ms_stock_product', function ($join) {
         $join->on('ms_stock_product.ProductID', 'tx_merchant_delivery_order_detail.ProductID');
         $join->on('ms_stock_product.DistributorID', 'tx_merchant_order.DistributorID');
+        $join->where('ms_stock_product.ConditionStock', 'GOOD STOCK');
       })
       ->selectRaw("
         ANY_VALUE(tx_merchant_delivery_order.StockOrderID) AS StockOrderID,
@@ -260,12 +261,14 @@ class DeliveryOrderService
     return $sql;
   }
 
-  public function reduceStock($productID, $distributorID, $qtyReduce, $deliveryOrderDetailID)
+  public function reduceStock($productID, $distributorID, $qtyReduce, $deliveryOrderDetailID, $merchantExpeditionDetailID)
   {
     $sql = DB::table('ms_stock_product')
       ->where('ProductID', $productID)
       ->where('DistributorID', $distributorID)
-      ->where('Qty', '!=', 0)
+      ->where('Qty', '>', 0)
+      ->where('ConditionStock', 'GOOD STOCK')
+      ->orderBy('LevelType')
       ->orderBy('CreatedDate')
       ->select('StockProductID', 'Qty', 'PurchasePrice')->first();
 
@@ -292,12 +295,13 @@ class DeliveryOrderService
           'QtyAfter' => 0,
           'PurchasePrice' => $sql->PurchasePrice,
           'SellingPrice' => $sellingPrice->Price,
+          'MerchantExpeditionDetailID' => $merchantExpeditionDetailID,
           'DeliveryOrderDetailID' => $deliveryOrderDetailID,
           'CreatedDate' => date('Y-m-d H:i:s'),
           'ActionBy' => $user,
           'ActionType' => 'REDUCE'
         ]);
-      $this->reduceStock($productID, $distributorID, $qtyAfter * (-1), $deliveryOrderDetailID);
+      $this->reduceStock($productID, $distributorID, $qtyAfter * (-1), $deliveryOrderDetailID, $merchantExpeditionDetailID);
     } else {
       DB::table('ms_stock_product')
         ->where('StockProductID', $sql->StockProductID)
@@ -313,6 +317,7 @@ class DeliveryOrderService
           'QtyAfter' => $qtyAfter,
           'PurchasePrice' => $sql->PurchasePrice,
           'SellingPrice' => $sellingPrice->Price,
+          'MerchantExpeditionDetailID' => $merchantExpeditionDetailID,
           'DeliveryOrderDetailID' => $deliveryOrderDetailID,
           'CreatedDate' => date('Y-m-d H:i:s'),
           'ActionBy' => $user,
@@ -531,6 +536,13 @@ class DeliveryOrderService
       ->select('ms_stock_product.DistributorID', 'ms_stock_purchase.InvestorID', 'ms_stock_purchase.SupplierID', 'ms_stock_product.ProductID', 'ms_stock_product.PurchasePrice', 'ms_stock_product_log.QtyAction', 'ms_stock_product.Qty', 'ms_stock_product_log.SellingPrice', 'ms_stock_product_log.DeliveryOrderDetailID')
       ->first();
 
+    $sql = DB::table('ms_stock_product_log')
+      ->join('ms_stock_product', 'ms_stock_product.StockProductID', 'ms_stock_product.StockProductID')
+      ->leftJoin('ms_stock_purchase', 'ms_stock_purchase.PurchaseID', 'ms_stock_purchase.PurchaseID')
+      ->where('ms_stock_product_log.MerchantExpeditionDetailID', $expeditionDetailID)
+      ->select('ms_stock_product.DistributorID', 'ms_stock_purchase.InvestorID', 'ms_stock_purchase.SupplierID', 'ms_stock_product_log.ProductID', 'ms_stock_product_log.PurchasePrice')
+      ->get();
+
     $returID = $this->generateReturID();
     $dateTime = date('Y-m-d H:i:s');
     $user = Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo;
@@ -564,7 +576,8 @@ class DeliveryOrderService
       'PurchasePrice' => $sql->PurchasePrice,
       'DistributorID' => $sql->DistributorID,
       'CreatedDate' => $dateTime,
-      'Type' => 'RETUR'
+      'Type' => 'RETUR',
+      'LevelType' => 1
     ];
 
     $dbTransaction = DB::transaction(function () use ($dataStockPurchase, $dataStockPurchaseDetail, $dataStockProduct, $returID, $sql, $dateTime, $user) {
