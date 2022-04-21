@@ -266,11 +266,17 @@ class DeliveryOrderService
     $sql = DB::table('ms_stock_product')
       ->where('ProductID', $productID)
       ->where('DistributorID', $distributorID)
-      ->where('Qty', '>', 0)
       ->where('ConditionStock', 'GOOD STOCK')
+      ->where('Qty', '>', 0)
       ->orderBy('LevelType')
       ->orderBy('CreatedDate')
       ->select('StockProductID', 'Qty', 'PurchasePrice')->first();
+
+    $stockBefore =  DB::table('ms_stock_product')
+      ->where('ProductID', $productID)
+      ->where('DistributorID', $distributorID)
+      ->where('ConditionStock', 'GOOD STOCK')
+      ->sum('Qty');
 
     $sellingPrice = DB::table('tx_merchant_delivery_order_detail')
       ->where('DeliveryOrderDetailID', $deliveryOrderDetailID)
@@ -290,7 +296,7 @@ class DeliveryOrderService
         ->insert([
           'StockProductID' => $sql->StockProductID,
           'ProductID' => $productID,
-          'QtyBefore' => $sql->Qty,
+          'QtyBefore' => $stockBefore,
           'QtyAction' => $sql->Qty,
           'QtyAfter' => 0,
           'PurchasePrice' => $sql->PurchasePrice,
@@ -312,9 +318,9 @@ class DeliveryOrderService
         ->insert([
           'StockProductID' => $sql->StockProductID,
           'ProductID' => $productID,
-          'QtyBefore' => $sql->Qty,
+          'QtyBefore' => $stockBefore,
           'QtyAction' => $qtyReduce,
-          'QtyAfter' => $qtyAfter,
+          'QtyAfter' => $stockBefore - $qtyReduce,
           'PurchasePrice' => $sql->PurchasePrice,
           'SellingPrice' => $sellingPrice->Price,
           'MerchantExpeditionDetailID' => $merchantExpeditionDetailID,
@@ -526,79 +532,94 @@ class DeliveryOrderService
     return $newReturID;
   }
 
-  public function cancelProductExpedition($expeditionDetailID)
+  public function cancelProductExpedition($expeditionDetailID, $qtyRetur)
   {
-    $sql = DB::table('tx_merchant_expedition_detail')
-      ->join('ms_stock_product_log', 'ms_stock_product_log.DeliveryOrderDetailID', 'tx_merchant_expedition_detail.DeliveryOrderDetailID')
+    $sql = DB::table('ms_stock_product_log')
       ->join('ms_stock_product', 'ms_stock_product.StockProductID', 'ms_stock_product_log.StockProductID')
       ->join('ms_stock_purchase', 'ms_stock_purchase.PurchaseID', 'ms_stock_product.PurchaseID')
-      ->where('tx_merchant_expedition_detail.MerchantExpeditionDetailID', $expeditionDetailID)
-      ->select('ms_stock_product.DistributorID', 'ms_stock_purchase.InvestorID', 'ms_stock_purchase.SupplierID', 'ms_stock_product.ProductID', 'ms_stock_product.PurchasePrice', 'ms_stock_product_log.QtyAction', 'ms_stock_product.Qty', 'ms_stock_product_log.SellingPrice', 'ms_stock_product_log.DeliveryOrderDetailID')
-      ->first();
-
-    $sql = DB::table('ms_stock_product_log')
-      ->join('ms_stock_product', 'ms_stock_product.StockProductID', 'ms_stock_product.StockProductID')
-      ->leftJoin('ms_stock_purchase', 'ms_stock_purchase.PurchaseID', 'ms_stock_purchase.PurchaseID')
       ->where('ms_stock_product_log.MerchantExpeditionDetailID', $expeditionDetailID)
-      ->select('ms_stock_product.DistributorID', 'ms_stock_purchase.InvestorID', 'ms_stock_purchase.SupplierID', 'ms_stock_product_log.ProductID', 'ms_stock_product_log.PurchasePrice')
+      ->select(
+        'ms_stock_product.DistributorID',
+        'ms_stock_purchase.InvestorID',
+        'ms_stock_purchase.SupplierID',
+        'ms_stock_product_log.ProductID',
+        'ms_stock_product_log.PurchasePrice',
+        'ms_stock_product_log.QtyAction',
+        'ms_stock_product.Qty',
+        'ms_stock_product_log.SellingPrice',
+        'ms_stock_product_log.DeliveryOrderDetailID',
+        'ms_stock_product_log.MerchantExpeditionDetailID'
+      )
+      ->orderByDesc('ms_stock_product.CreatedDate')
       ->get();
 
-    $returID = $this->generateReturID();
     $dateTime = date('Y-m-d H:i:s');
     $user = Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo;
 
-    $dataStockPurchase = [
-      'PurchaseID' => $returID,
-      'DistributorID' => $sql->DistributorID,
-      'InvestorID' => $sql->InvestorID,
-      'SupplierID' => $sql->SupplierID,
-      'PurchaseDate' => $dateTime,
-      'CreatedBy' => $user,
-      'StatusID' => 2,
-      'StatusBy' => $user,
-      'StatusDate' => $dateTime,
-      'CreatedDate' => $dateTime,
-      'Type' => 'RETUR'
-    ];
+    $dbTransaction = DB::transaction(function () use ($sql, $dateTime, $user, $qtyRetur) {
+      foreach ($sql as $key => $value) {
+        $stockBefore = DB::table('ms_stock_product')
+          ->where('ProductID', $value->ProductID)
+          ->where('DistributorID', $value->DistributorID)
+          ->where('ConditionStock', 'GOOD STOCK')
+          ->sum('Qty');
 
-    $dataStockPurchaseDetail = [
-      'PurchaseID' => $returID,
-      'ProductID' => $sql->ProductID,
-      'Qty' => $sql->QtyAction,
-      'PurchasePrice' => $sql->PurchasePrice,
-      'Type' => 'RETUR'
-    ];
+        if ($qtyRetur > $value->QtyAction) {
+          $qtyRetur = $value->QtyAction;
+          $selisihQtyRetur = $qtyRetur - $value->QtyAction;
+        } else {
+          $selisihQtyRetur = $qtyRetur;
+        }
 
-    $dataStockProduct = [
-      'PurchaseID' => $returID,
-      'ProductID' => $sql->ProductID,
-      'Qty' => $sql->QtyAction,
-      'PurchasePrice' => $sql->PurchasePrice,
-      'DistributorID' => $sql->DistributorID,
-      'CreatedDate' => $dateTime,
-      'Type' => 'RETUR',
-      'LevelType' => 1
-    ];
+        $returID = $this->generateReturID();
 
-    $dbTransaction = DB::transaction(function () use ($dataStockPurchase, $dataStockPurchaseDetail, $dataStockProduct, $returID, $sql, $dateTime, $user) {
-      DB::table('ms_stock_purchase')->insert($dataStockPurchase);
-      DB::table('ms_stock_purchase_detail')->insert($dataStockPurchaseDetail);
-      DB::table('ms_stock_product')->insert($dataStockProduct);
-      $getStockProductID = DB::table('ms_stock_product')->where('PurchaseID', $returID)->select('StockProductID')->first();
-      $stockProductID = $getStockProductID->StockProductID;
-      DB::table('ms_stock_product_log')->insert([
-        'StockProductID' => $stockProductID,
-        'ProductID' => $sql->ProductID,
-        'QtyBefore' => $sql->Qty,
-        'QtyAction' => $sql->QtyAction,
-        'QtyAfter' => $sql->Qty + $sql->QtyAction,
-        'PurchasePrice' => $sql->PurchasePrice,
-        'SellingPrice' => $sql->SellingPrice,
-        'DeliveryOrderDetailID' => $sql->DeliveryOrderDetailID,
-        'CreatedDate' => $dateTime,
-        'ActionBy' => $user,
-        'ActionType' => 'RETUR'
-      ]);
+        DB::table('ms_stock_purchase')->insert([
+          'PurchaseID' => $returID,
+          'DistributorID' => $value->DistributorID,
+          'InvestorID' => $value->InvestorID,
+          'SupplierID' => $value->SupplierID,
+          'PurchaseDate' => $dateTime,
+          'CreatedBy' => $user,
+          'StatusID' => 2,
+          'StatusBy' => $user,
+          'StatusDate' => $dateTime,
+          'CreatedDate' => $dateTime,
+          'Type' => 'RETUR'
+        ]);
+        DB::table('ms_stock_purchase_detail')->insert([
+          'PurchaseID' => $returID,
+          'ProductID' => $value->ProductID,
+          'Qty' => $qtyRetur,
+          'PurchasePrice' => $value->PurchasePrice,
+          'Type' => 'RETUR'
+        ]);
+        $stockProductID = DB::table('ms_stock_product')->insertGetId([
+          'PurchaseID' => $returID,
+          'ProductID' => $value->ProductID,
+          'Qty' => $qtyRetur,
+          'PurchasePrice' => $value->PurchasePrice,
+          'DistributorID' => $value->DistributorID,
+          'CreatedDate' => $dateTime,
+          'Type' => 'RETUR',
+          'LevelType' => 1
+        ], 'StockProductID');
+
+        DB::table('ms_stock_product_log')->insert([
+          'StockProductID' => $stockProductID,
+          'ProductID' => $value->ProductID,
+          'QtyBefore' => $stockBefore,
+          'QtyAction' => $qtyRetur,
+          'QtyAfter' => $stockBefore + $qtyRetur,
+          'PurchasePrice' => $value->PurchasePrice,
+          'SellingPrice' => $value->SellingPrice,
+          'DeliveryOrderDetailID' => $value->DeliveryOrderDetailID,
+          'CreatedDate' => $dateTime,
+          'ActionBy' => $user,
+          'ActionType' => 'RETUR'
+        ]);
+
+        $qtyRetur = $selisihQtyRetur;
+      }
     });
 
     return $dbTransaction;

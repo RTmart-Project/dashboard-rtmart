@@ -418,7 +418,7 @@ class DeliveryController extends Controller
                         ->join('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID')
                         ->join('tx_merchant_expedition_detail', 'tx_merchant_expedition_detail.DeliveryOrderDetailID', 'tx_merchant_delivery_order_detail.DeliveryOrderDetailID')
                         ->where('tx_merchant_delivery_order.DeliveryOrderID', $value->DeliveryOrderID)
-                        ->select('tx_merchant_delivery_order_detail.Distributor', 'tx_merchant_delivery_order.DeliveryOrderID', 'tx_merchant_delivery_order_detail.DeliveryOrderDetailID', 'tx_merchant_expedition_detail.DeliveryOrderDetailID', 'tx_merchant_expedition_detail.StatusExpeditionDetail', 'tx_merchant_expedition_detail.MerchantExpeditionDetailID');
+                        ->select('tx_merchant_delivery_order_detail.Distributor', 'tx_merchant_delivery_order.DeliveryOrderID', 'tx_merchant_delivery_order_detail.DeliveryOrderDetailID', 'tx_merchant_delivery_order_detail.Qty', 'tx_merchant_expedition_detail.DeliveryOrderDetailID', 'tx_merchant_expedition_detail.StatusExpeditionDetail', 'tx_merchant_expedition_detail.MerchantExpeditionDetailID');
 
                     $countNotBatal = (clone $getDOdetail)->where('tx_merchant_delivery_order_detail.Distributor', 'HAISTAR')->where('tx_merchant_expedition_detail.StatusExpeditionDetail', '!=', 'S037')->count();
 
@@ -455,7 +455,7 @@ class DeliveryController extends Controller
                                 ]);
                             if ($item->StatusExpeditionDetail == "S030") {
                                 // Balikin stok
-                                $deliveryOrderService->cancelProductExpedition($item->MerchantExpeditionDetailID);
+                                $deliveryOrderService->cancelProductExpedition($item->MerchantExpeditionDetailID, $item->Qty);
                             }
                         }
                     }
@@ -486,16 +486,17 @@ class DeliveryController extends Controller
             ->first();
 
         if ($status == "finish") {
+            $qtyDiterima = $request->input('receipt_qty');
+            $imageName = date('YmdHis') . '_' . $expeditionDetailID . '.' . $request->file('receipt_image')->extension();
+            $request->file('receipt_image')->move($this->saveImageUrl . 'receipt_image_expedition/', $imageName);
             $statusExpedition = "S031";
             $message = "Produk berhasil diselesaikan";
         } else {
+            $qtyDiterima = 0;
+            $imageName = "";
             $statusExpedition = "S037";
             $message = "Produk berhasil dibatalkan";
         }
-
-        $qtyDiterima = $request->input('receipt_qty');
-        $imageName = date('YmdHis') . $expeditionDetailID . '.' . $request->file('receipt_image')->extension();
-        $request->file('receipt_image')->move($this->saveImageUrl . 'receipt_image_expedition/', $imageName);
 
         try {
             DB::transaction(function () use ($deliveryOrderDetailID, $statusExpedition, $expeditionDetailID, $status, $deliveryOrderService, $qtyDiterima, $imageName) {
@@ -504,9 +505,9 @@ class DeliveryController extends Controller
                 $expeditionDetail = DB::table('tx_merchant_expedition_detail')
                     ->where('MerchantExpeditionDetailID', $expeditionDetailID);
 
-                $currentQty = (clone $deliveryOrderDetail)->select('Qty')->first();
+                $DOdetail = (clone $deliveryOrderDetail)->select('Qty')->first();
 
-                if ($status == "finish" && $qtyDiterima <= $currentQty->Qty) {
+                if ($status == "finish" && $qtyDiterima <= $DOdetail->Qty) {
                     (clone $deliveryOrderDetail)->update([
                         'StatusExpedition' => $statusExpedition,
                         'Qty' => $qtyDiterima
@@ -516,10 +517,10 @@ class DeliveryController extends Controller
                         'ReceiptImage' => $imageName
                     ]);
 
-                    $qtyTdkDiterima = $currentQty->Qty - $qtyDiterima;
-                    // if ($qtyTdkDiterima > 0) {
-
-                    // }
+                    $qtyTdkDiterima = $DOdetail->Qty - $qtyDiterima;
+                    if ($qtyTdkDiterima > 0) {
+                        $deliveryOrderService->cancelProductExpedition($expeditionDetailID, $qtyTdkDiterima);
+                    }
                 }
 
                 if ($status == "cancel") {
@@ -529,11 +530,12 @@ class DeliveryController extends Controller
                     (clone $expeditionDetail)->update([
                         'StatusExpeditionDetail' => $statusExpedition
                     ]);
-                    $deliveryOrderService->cancelProductExpedition($expeditionDetailID);
+                    $deliveryOrderService->cancelProductExpedition($expeditionDetailID, $DOdetail->Qty);
                 }
             });
             return redirect()->back()->with('success', $message);
         } catch (\Throwable $th) {
+            dd($th->getMessage());
             return redirect()->back()->with('failed', 'Terjadi kesalahan');
         }
     }

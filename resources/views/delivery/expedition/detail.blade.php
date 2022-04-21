@@ -2,6 +2,7 @@
 @section('title', 'Dashboard - Detail Delivery Order')
 
 @section('css-pages')
+<meta name="csrf_token" content="{{ csrf_token() }}">
 <link rel="stylesheet" href="{{url('/')}}/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
 @endsection
 
@@ -388,42 +389,19 @@
     }
   });
 
-  // Event listener saat tombol selesaikan product diklik
-  // $('.btn-finish-product').on('click', function (e) {
-  //     e.preventDefault();
-  //     const product = $(this).data("product");
-  //     const store = $(this).data("store");
-  //     const expedition = $(this).data("expedition-detail");
-  //     $.confirm({
-  //         title: 'Konfirmasi Order',
-  //         content: `Apakah produk <b>${product}</b> telah diterima oleh <b>${store}</b>?`,
-  //         closeIcon: true,
-  //         type: 'green',
-  //         typeAnimated: true,
-  //         buttons: {
-  //             ya: {
-  //                 btnClass: 'btn-success',
-  //                 draggable: true,
-  //                 dragWindowGap: 0,
-  //                 action: function () {
-  //                     window.location = '/delivery/on-going/confirmProduct/finish/' + expedition
-  //                 }
-  //             },
-  //             tidak: function () {
-  //             }
-  //         }
-  //     });
-  // });
-
   // Event listener saat tombol batalkan product diklik
-$('.btn-cancel-product').on('click', function (e) {
+  let csrf = $('meta[name="csrf_token"]').attr("content");
+  $('.btn-cancel-product').on('click', function (e) {
       e.preventDefault();
       const product = $(this).data("product");
       const store = $(this).data("store");
       const expedition = $(this).data("expedition-detail");
       $.confirm({
           title: 'Konfirmasi Order',
-          content: `Apakah yakin ingin membatalkan produk <b>${product}</b> dari <b>${store}</b>?`,
+          content: `Apakah yakin ingin membatalkan produk <b>${product}</b> dari <b>${store}</b>?
+              <form action="/delivery/on-going/confirmProduct/cancel/${expedition}" method="post">
+                <input type="hidden" name="_token" value="${csrf}">
+              </form>`,
           closeIcon: true,
           type: 'red',
           typeAnimated: true,
@@ -433,7 +411,7 @@ $('.btn-cancel-product').on('click', function (e) {
                   draggable: true,
                   dragWindowGap: 0,
                   action: function () {
-                      window.location = '/delivery/on-going/confirmProduct/cancel/' + expedition
+                    this.$content.find("form").submit();
                   }
               },
               tidak: function () {
