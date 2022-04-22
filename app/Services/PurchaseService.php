@@ -52,9 +52,9 @@ class PurchaseService
     if ($max->PurchaseID == null || (strcmp($maxMonth, $now) != 0)) {
       $newPurchaseID = "PRCH-" . date('YmdHis') . '-000001';
     } else {
-      $maxExpeditionID = substr($max->PurchaseID, -6);
-      $newExpeditionID = $maxExpeditionID + 1;
-      $newPurchaseID = "PRCH-" . date('YmdHis') . "-" . str_pad($newExpeditionID, 6, '0', STR_PAD_LEFT);
+      $maxPurchaseNumber = substr($max->PurchaseID, -6);
+      $newPurchaseNumber = $maxPurchaseNumber + 1;
+      $newPurchaseID = "PRCH-" . date('YmdHis') . "-" . str_pad($newPurchaseNumber, 6, '0', STR_PAD_LEFT);
     }
 
     return $newPurchaseID;
@@ -164,6 +164,17 @@ class PurchaseService
       ->orderBy('ms_product.ProductID');
 
     return $products;
+  }
+
+  public function getUsers()
+  {
+    $users = DB::table('ms_user')
+      ->where('IsTesting', 0)
+      ->whereNotIn('RoleID', ['SL', 'DRV', 'HLP'])
+      ->select('Name', 'UserID')
+      ->orderBy('Name');
+
+    return $users;
   }
 
   public function getStocks()

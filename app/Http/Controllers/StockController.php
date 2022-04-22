@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Helper;
+use App\Services\OpnameService;
 use App\Services\PurchaseService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use stdClass;
 use Yajra\DataTables\Facades\DataTables;
 
 class StockController extends Controller
@@ -18,6 +20,93 @@ class StockController extends Controller
     {
         $this->saveImageUrl = config('app.save_image_url');
         $this->baseImageUrl = config('app.base_image_url');
+    }
+
+    public function opname()
+    {
+        return view('stock.opname.index');
+    }
+
+    public function getOpname(Request $request, OpnameService $opnameService)
+    {
+        $fromDate = $request->input('fromDate');
+        $toDate = $request->input('toDate');
+
+        $sqlGetOpname = $opnameService->getStockOpname();
+
+        if ($fromDate != '' && $toDate != '') {
+            $sqlGetOpname->whereDate('ms_stock_opname.OpnameDate', '>=', $fromDate)
+                ->whereDate('ms_stock_opname.OpnameDate', '<=', $toDate);
+        }
+
+        if (Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $sqlGetOpname->where('ms_distributor.Depo', '=', $depoUser);
+        }
+
+        $data = $sqlGetOpname;
+
+        if ($request->ajax()) {
+            return DataTables::of($data)
+                ->editColumn('OpnameDate', function ($data) {
+                    return date('d M Y H:i', strtotime($data->OpnameDate));
+                })
+                ->make(true);
+        }
+    }
+
+    public function sumOldProduct($distributorID, $productID)
+    {
+        $sumOldProduct = DB::table('ms_stock_product')
+            ->where('DistributorID', $distributorID)
+            ->where('ProductID', $productID)
+            ->where('ConditionStock', 'GOOD STOCK')
+            ->sum('Qty');
+
+        $sumOld = new stdClass();
+        $sumOld->goodStock = $sumOldProduct;
+
+        $response = json_encode($sumOld);
+
+        return $response;
+    }
+
+    public function storeOpname(Request $request, OpnameService $opnameService)
+    {
+        $opnameID = $opnameService->generateOpnameID();
+        $purchaseDate = str_replace("T", " ", $request->input('opname_date'));
+        $user = Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo;
+        $distributor = $request->input('distributor');
+
+        $dataStockOpname = [
+            'StockOpnameID' => $opnameID,
+            'OpnameDate' => $purchaseDate,
+            'CreatedBy' => $user,
+            'CreatedDate' => date('Y-m-d H:i:s'),
+            'DistributorID' => $distributor,
+            'Notes' => $request->input('notes')
+        ];
+
+        $opnameOfficer = $request->input('opname_officer');
+        $dataOpnameOfficer = array_map(function () {
+            return func_get_args();
+        }, $opnameOfficer);
+        foreach ($dataOpnameOfficer as $key => &$value) {
+            $value = array_combine(['UserID'], $value);
+            $dataOpnameOfficer[$key]['StockOpnameID'] = $opnameID;
+        }
+    }
+
+    public function createOpname(PurchaseService $purchaseService)
+    {
+        $distributors = $purchaseService->getDistributors()->get();
+        $users = $purchaseService->getUsers()->get();
+        $products = $purchaseService->getProducts()->get();
+        return view('stock.opname.create', [
+            'distributors' => $distributors,
+            'products' => $products,
+            'users' => $users
+        ]);
     }
 
     public function purchase()

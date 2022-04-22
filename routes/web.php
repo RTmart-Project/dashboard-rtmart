@@ -105,6 +105,14 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     Route::group(['prefix' => 'stock', 'middleware' => ['checkRoleUser:IT,FI']], function () {
+        Route::prefix('opname')->group(function () {
+            Route::get('/', [StockController::class, 'opname'])->name('stock.opname');
+            Route::get('/get', [StockController::class, 'getOpname'])->name('stock.getOpname');
+            Route::get('/create', [StockController::class, 'createOpname'])->name('stock.createOpname');
+            Route::get('sumOldProduct/{distributorID}/{productID}', [StockController::class, 'sumOldProduct'])->name('stock.sumOldProduct');
+            Route::post('/store', [StockController::class, 'storeOpname'])->name('stock.storeOpname');
+        });
+
         Route::prefix('purchase')->group(function () {
             Route::get('/', [StockController::class, 'purchase'])->name('stock.purchase');
             Route::get('/get', [StockController::class, 'getPurchase'])->name('stock.getPurchase');
