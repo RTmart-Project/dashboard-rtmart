@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Helper;
 use App\Services\PurchaseService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -341,9 +342,23 @@ class StockController extends Controller
         // Return Data Using DataTables with Ajax
         if ($request->ajax()) {
             return Datatables::of($data)
+                ->editColumn('PurchaseID', function ($data) {
+                    if ($data->RefPurchaseID != null) {
+                        $ref = '<br> dari ' . $data->RefPurchaseID;
+                    } else {
+                        $ref = "";
+                    }
+
+                    $purchaseID = $data->PurchaseID . $ref;
+                    return $purchaseID;
+                })
                 ->editColumn('CreatedDate', function ($data) {
                     return date('d M Y H:i', strtotime($data->CreatedDate));
                 })
+                ->editColumn('PurchasePrice', function ($data) {
+                    return Helper::formatCurrency($data->PurchasePrice, "Rp ");
+                })
+                ->rawColumns(['PurchaseID'])
                 ->make(true);
         }
 

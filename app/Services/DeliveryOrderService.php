@@ -270,6 +270,7 @@ class DeliveryOrderService
       ->where('Qty', '>', 0)
       ->orderBy('LevelType')
       ->orderBy('CreatedDate')
+      ->orderBy('PurchaseID')
       ->select('StockProductID', 'Qty', 'PurchasePrice')->first();
 
     $stockBefore =  DB::table('ms_stock_product')
@@ -305,7 +306,7 @@ class DeliveryOrderService
           'DeliveryOrderDetailID' => $deliveryOrderDetailID,
           'CreatedDate' => date('Y-m-d H:i:s'),
           'ActionBy' => $user,
-          'ActionType' => 'REDUCE'
+          'ActionType' => 'OUTBOUND'
         ]);
       $this->reduceStock($productID, $distributorID, $qtyAfter * (-1), $deliveryOrderDetailID, $merchantExpeditionDetailID);
     } else {
@@ -327,7 +328,7 @@ class DeliveryOrderService
           'DeliveryOrderDetailID' => $deliveryOrderDetailID,
           'CreatedDate' => date('Y-m-d H:i:s'),
           'ActionBy' => $user,
-          'ActionType' => 'REDUCE'
+          'ActionType' => 'OUTBOUND'
         ]);
     }
 
@@ -539,6 +540,7 @@ class DeliveryOrderService
       ->join('ms_stock_purchase', 'ms_stock_purchase.PurchaseID', 'ms_stock_product.PurchaseID')
       ->where('ms_stock_product_log.MerchantExpeditionDetailID', $expeditionDetailID)
       ->select(
+        'ms_stock_product.StockProductID',
         'ms_stock_product.DistributorID',
         'ms_stock_purchase.InvestorID',
         'ms_stock_purchase.SupplierID',
@@ -565,8 +567,8 @@ class DeliveryOrderService
           ->sum('Qty');
 
         if ($qtyRetur > $value->QtyAction) {
-          $qtyRetur = $value->QtyAction;
           $selisihQtyRetur = $qtyRetur - $value->QtyAction;
+          $qtyRetur = $value->QtyAction;
         } else {
           $selisihQtyRetur = $qtyRetur;
         }
@@ -606,12 +608,14 @@ class DeliveryOrderService
 
         DB::table('ms_stock_product_log')->insert([
           'StockProductID' => $stockProductID,
+          'ReferenceStockProductID' => $value->StockProductID,
           'ProductID' => $value->ProductID,
           'QtyBefore' => $stockBefore,
           'QtyAction' => $qtyRetur,
           'QtyAfter' => $stockBefore + $qtyRetur,
           'PurchasePrice' => $value->PurchasePrice,
           'SellingPrice' => $value->SellingPrice,
+          'MerchantExpeditionDetailID' => $value->MerchantExpeditionDetailID,
           'DeliveryOrderDetailID' => $value->DeliveryOrderDetailID,
           'CreatedDate' => $dateTime,
           'ActionBy' => $user,
