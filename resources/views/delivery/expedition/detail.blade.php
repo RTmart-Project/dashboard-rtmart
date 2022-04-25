@@ -87,7 +87,7 @@
             @endphp
             @foreach ($order as $item)
             <div class="text-right">
-            @if ($firstLoopHaistar == true && $item->Distributor == "HAISTAR" && $item->StatusExpeditionDetail == "S034")
+              @if ($firstLoopHaistar == true && $item->Distributor == "HAISTAR" && $item->StatusExpeditionDetail == "S034")
               <a data-delivery-order="{{ $order[0]->DeliveryOrderID }}"
                 class="btn btn-sm bg-lightblue btn-resend-haistar">Resend Produk Haistar
               </a>
@@ -116,7 +116,8 @@
               <div class="col-6 col-md-3">
                 <label class="m-0">Status Produk</label><br>
                 @if ($item->StatusExpeditionDetail == "S031")
-                <span class="badge badge-success mb-2">{{ $item->StatusProduct }}</span>
+                <span class="badge badge-success">{{ $item->StatusProduct }}</span>
+                <a class="lihat-bukti d-block" href="{{ config('app.base_image_url').'receipt_image_expedition/'.$item->ReceiptImage }}" target="_blank" data-product="{{ $item->ProductName }}" data-store="{{ $order[0]->StoreName }}">Lihat Bukti</a>
                 @elseif ($item->StatusExpeditionDetail == "S037" || $item->StatusExpeditionDetail == "S034")
                 <span class="badge badge-danger mb-2">{{ $item->StatusProduct }}</span>
                 @elseif ($item->StatusExpeditionDetail == "S030")
@@ -419,5 +420,16 @@
           }
       });
   });
+
+  $('.lihat-bukti').on('click', function (e) {
+        e.preventDefault();
+        const urlImg = $(this).attr("href");
+        const storeName = $(this).data("store");
+        const product = $(this).data("product");
+        $.dialog({
+            title: `${product} - ${storeName}`,
+            content: `<img  style="object-fit: contain; height: 330px; width: 100%;" src="${urlImg}">`,
+        });
+    });
 </script>
 @endsection

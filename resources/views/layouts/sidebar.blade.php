@@ -243,6 +243,13 @@
                 </a>
                 <ul class="nav nav-treeview">
                     <li class="nav-item">
+                        <a href="{{ route('stock.opname') }}"
+                            class="nav-link {{ Request::is('stock/opname*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Stock Opname</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="{{ route('stock.purchase') }}"
                             class="nav-link {{ Request::is('stock/purchase*') ? 'active' : '' }}">
                             <i class="far fa-circle nav-icon"></i>
