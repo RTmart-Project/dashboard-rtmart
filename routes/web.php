@@ -111,6 +111,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/create', [StockController::class, 'createOpname'])->name('stock.createOpname');
             Route::get('sumOldProduct/{distributorID}/{productID}', [StockController::class, 'sumOldProduct'])->name('stock.sumOldProduct');
             Route::post('/store', [StockController::class, 'storeOpname'])->name('stock.storeOpname');
+            Route::get('/detail/{stockOpnameID}', [StockController::class, 'detailOpname'])->name('stock.detailOpname');
         });
 
         Route::prefix('purchase')->group(function () {

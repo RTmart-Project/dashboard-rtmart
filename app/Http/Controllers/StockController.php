@@ -6,6 +6,7 @@ use App\Helpers\Helper;
 use App\Services\OpnameService;
 use App\Services\PurchaseService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use stdClass;
@@ -51,50 +52,30 @@ class StockController extends Controller
                 ->editColumn('OpnameDate', function ($data) {
                     return date('d M Y H:i', strtotime($data->OpnameDate));
                 })
+                ->addColumn('Detail', function ($data) {
+                    return '<a class="btn btn-sm btn-warning" href="/stock/opname/detail/' . $data->StockOpnameID . '">Detail</a>';
+                })
+                ->rawColumns(['Detail'])
                 ->make(true);
         }
     }
 
     public function sumOldProduct($distributorID, $productID)
     {
-        $sumOldProduct = DB::table('ms_stock_product')
+        $sql = DB::table('ms_stock_product')
             ->where('DistributorID', $distributorID)
-            ->where('ProductID', $productID)
-            ->where('ConditionStock', 'GOOD STOCK')
-            ->sum('Qty');
+            ->where('ProductID', $productID);
+
+        $sumOldGoodStock = (clone $sql)->where('ConditionStock', 'GOOD STOCK')->sum('Qty');
+        $sumOldBadStock = (clone $sql)->where('ConditionStock', 'BAD STOCK')->sum('Qty');
 
         $sumOld = new stdClass();
-        $sumOld->goodStock = $sumOldProduct;
+        $sumOld->goodStock = $sumOldGoodStock;
+        $sumOld->badStock = $sumOldBadStock;
 
         $response = json_encode($sumOld);
 
         return $response;
-    }
-
-    public function storeOpname(Request $request, OpnameService $opnameService)
-    {
-        $opnameID = $opnameService->generateOpnameID();
-        $purchaseDate = str_replace("T", " ", $request->input('opname_date'));
-        $user = Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo;
-        $distributor = $request->input('distributor');
-
-        $dataStockOpname = [
-            'StockOpnameID' => $opnameID,
-            'OpnameDate' => $purchaseDate,
-            'CreatedBy' => $user,
-            'CreatedDate' => date('Y-m-d H:i:s'),
-            'DistributorID' => $distributor,
-            'Notes' => $request->input('notes')
-        ];
-
-        $opnameOfficer = $request->input('opname_officer');
-        $dataOpnameOfficer = array_map(function () {
-            return func_get_args();
-        }, $opnameOfficer);
-        foreach ($dataOpnameOfficer as $key => &$value) {
-            $value = array_combine(['UserID'], $value);
-            $dataOpnameOfficer[$key]['StockOpnameID'] = $opnameID;
-        }
     }
 
     public function createOpname(PurchaseService $purchaseService)
@@ -106,6 +87,94 @@ class StockController extends Controller
             'distributors' => $distributors,
             'products' => $products,
             'users' => $users
+        ]);
+    }
+
+    public function storeOpname(Request $request, OpnameService $opnameService)
+    {
+        $request->validate([
+            'distributor' => 'required|exists:ms_distributor,DistributorID',
+            'opname_date' => 'required',
+            'opname_officer' => 'required',
+            'opname_officer.*' => 'required|exists:ms_user,UserID',
+            'product' => 'required',
+            'product.*' => 'required',
+            'new_good_stock' => 'required',
+            'new_good_stock.*' => 'required|numeric|gte:0',
+            'new_bad_stock' => 'required',
+            'new_bad_stock.*' => 'required|numeric|gte:0'
+        ]);
+
+        $opnameID = $opnameService->generateOpnameID();
+        $purchaseDate = str_replace("T", " ", $request->input('opname_date'));
+        $user = Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo;
+        $distributor = $request->input('distributor');
+
+        // insert data ms_stock_opname
+        $dataStockOpname = [
+            'StockOpnameID' => $opnameID,
+            'OpnameDate' => $purchaseDate,
+            'CreatedBy' => $user,
+            'CreatedDate' => date('Y-m-d H:i:s'),
+            'DistributorID' => $distributor,
+            'Notes' => $request->input('notes')
+        ];
+
+        $opnameOfficer = $request->input('opname_officer');
+        // insert data ms_stock_opname_officer
+        $dataOpnameOfficer = $opnameService->dataOfficer($opnameOfficer, $opnameID);
+
+        $productID = $request->input('product');
+        $oldGoodStock = $request->input('old_good_stock');
+        $newGoodStock = $request->input('new_good_stock');
+        $oldBadStock = $request->input('old_bad_stock');
+        $newBadStock = $request->input('new_bad_stock');
+        // insert data ms_stock_opname_detail
+        $dataStockOpnameDetail = $opnameService->dataStockOpnameDetail($distributor, $productID, $oldGoodStock, $newGoodStock, $oldBadStock, $newBadStock, $opnameID);
+
+        try {
+            DB::transaction(function () use ($dataStockOpname, $dataStockOpnameDetail, $dataOpnameOfficer, $distributor, $user) {
+                DB::table('ms_stock_opname')->insert($dataStockOpname);
+                DB::table('ms_stock_opname_detail')->insert($dataStockOpnameDetail);
+                DB::table('ms_stock_opname_officer')->insert($dataOpnameOfficer);
+                foreach ($dataStockOpnameDetail as $key => $value) {
+                    $stockProductID = DB::table('ms_stock_product')->insertGetId([
+                        'PurchaseID' => $value['StockOpnameID'],
+                        'ProductID' => $value['ProductID'],
+                        'ConditionStock' => $value['ConditionStock'],
+                        'Qty' => $value['NewQty'] - $value['OldQty'],
+                        'PurchasePrice' => $value['PurchasePrice'],
+                        'DistributorID' => $distributor,
+                        'CreatedDate' => date('Y-m-d H:i:s'),
+                        'Type' => 'OPNAME',
+                        'LevelType' => 2
+                    ], 'StockProductID');
+
+                    DB::table('ms_stock_product_log')->insert([
+                        'StockProductID' => $stockProductID,
+                        'ProductID' => $value['ProductID'],
+                        'QtyBefore' => $value['OldQty'],
+                        'QtyAction' => $value['NewQty'] - $value['OldQty'],
+                        'QtyAfter' => $value['NewQty'],
+                        'PurchasePrice' => $value['PurchasePrice'],
+                        'SellingPrice' => 0,
+                        'CreatedDate' => date('Y-m-d H:i:s'),
+                        'ActionBy' => $user,
+                        'ActionType' => 'OPNAME'
+                    ]);
+                }
+            });
+            return redirect()->route('stock.opname')->with('success', 'Data Stock Opname berhasil ditambahkan');
+        } catch (\Throwable $th) {
+            return redirect()->route('stock.opname')->with('failed', 'Terjadi kesalahan!');
+        }
+    }
+
+    public function detailOpname($stockOpnameID, OpnameService $opnameService)
+    {
+        $opnameByID = $opnameService->getStockOpnameByID($stockOpnameID);
+        return view('stock.opname.detail', [
+            'opnameByID' => $opnameByID
         ]);
     }
 

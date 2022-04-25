@@ -62,6 +62,7 @@
                           <th>Tanggal Opname</th>
                           <th>Petugas Opname</th>
                           <th>Catatan</th>
+                          <th>Detail</th>
                         </tr>
                       </thead>
                       <tbody>

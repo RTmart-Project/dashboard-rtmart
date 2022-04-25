@@ -535,7 +535,6 @@ class DeliveryController extends Controller
             });
             return redirect()->back()->with('success', $message);
         } catch (\Throwable $th) {
-            dd($th->getMessage());
             return redirect()->back()->with('failed', 'Terjadi kesalahan');
         }
     }

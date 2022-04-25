@@ -106,7 +106,7 @@
                   <div class="col-12">
                     <a class="btn btn-sm float-right remove"><i class="far fa-times-circle fa-lg text-danger"></i></a>
                   </div>
-                  <div class="col-md-6 col-12">
+                  <div class="col-12">
                     <div class="form-group">
                       <label for="product">Nama Produk</label>
                       <select title="Pilih Produk" name="product[]" id="product" data-live-search="true"
@@ -119,26 +119,33 @@
                       </select>
                       <span id="no-distributor"></span>
                     </div>
-                  </div>
+                  </div>                  
                   <div class="col-md-6 col-12">
                     <div class="form-group">
-                      <label for="purchase_price">Harga Beli</label>
-                      <input type="text" id="purchase_price" name="purchase_price[]" class="form-control autonumeric"
-                        value="{{ collect(old('purchase_price')) }}" placeholder="Masukkan Harga Beli" required>
+                      <label for="old_good_stock">Kuantiti Lama (Good Stock)</label>
+                      <input type="number" id="old_good_stock" name="old_good_stock[]" class="form-control" autocomplete="off"
+                        value="{{ collect(old('old_good_stock')) }}" placeholder="Jumlah Kuantiti Lama (Good Stock)" required readonly>
                     </div>
                   </div>
                   <div class="col-md-6 col-12">
                     <div class="form-group">
-                      <label for="old_quantity">Kuantiti Lama</label>
-                      <input type="number" id="old_quantity" name="old_quantity[]" class="form-control" autocomplete="off"
-                        value="{{ collect(old('old_quantity')) }}" placeholder="Jumlah Kuantiti Lama" required readonly>
+                      <label for="new_good_stock">Kuantiti Baru (Good Stock)</label>
+                      <input type="text" id="new_good_stock" name="new_good_stock[]" class="form-control autonumeric" autocomplete="off"
+                        value="{{ collect(old('new_good_stock')) }}" placeholder="Masukkan Jumlah Kuantiti Baru (Good Stock)" required>
                     </div>
                   </div>
                   <div class="col-md-6 col-12">
                     <div class="form-group">
-                      <label for="new_quantity">Kuantiti Baru</label>
-                      <input type="text" id="new_quantity" name="new_quantity[]" class="form-control autonumeric" autocomplete="off"
-                        value="{{ collect(old('new_quantity')) }}" placeholder="Masukkan Jumlah Kuantiti Baru" required>
+                      <label for="old_bad_stock">Kuantiti Lama (Bad Stock)</label>
+                      <input type="number" id="old_bad_stock" name="old_bad_stock[]" class="form-control" autocomplete="off"
+                        value="{{ collect(old('old_bad_stock')) }}" placeholder="Jumlah Kuantiti Lama (Bad Stock)" required readonly>
+                    </div>
+                  </div>
+                  <div class="col-md-6 col-12">
+                    <div class="form-group">
+                      <label for="new_bad_stock">Kuantiti Baru (Bad Stock)</label>
+                      <input type="text" id="new_bad_stock" name="new_bad_stock[]" class="form-control autonumeric" autocomplete="off"
+                        value="{{ collect(old('new_bad_stock')) }}" placeholder="Masukkan Jumlah Kuantiti Baru (Bad Stock)" required>
                     </div>
                   </div>
                 </div>
@@ -170,7 +177,8 @@
       allowDecimalPadding: false,
       decimalCharacter: ',',
       digitGroupSeparator: '.',
-      unformatOnSubmit: true
+      unformatOnSubmit: true,
+      minimumValue: 0
   });
 
   $("#wrapper-opname-detail").on('change', '.select-product select', function () {
@@ -183,7 +191,8 @@
         url: `/stock/opname/sumOldProduct/${distributorID}/${productID}`,
         success: function (response) {
           const res = $.parseJSON(response);
-          selectProduct.closest('#opname-detail').find('#old_quantity').val(res.goodStock);
+          selectProduct.closest('#opname-detail').find('#old_good_stock').val(res.goodStock);
+          selectProduct.closest('#opname-detail').find('#old_bad_stock').val(res.badStock);
           selectProduct.closest('#opname-detail').find('#no-distributor').html('');
         }
       });

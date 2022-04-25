@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -43,5 +44,108 @@ class OpnameService
       ->groupBy('ms_stock_opname.StockOpnameID');
 
     return $sql;
+  }
+
+  public function getStockOpnameByID($stockOpnameID)
+  {
+    $sql = DB::table('ms_stock_opname')
+      ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_stock_opname.DistributorID')
+      ->where('ms_stock_opname.StockOpnameID', $stockOpnameID)
+      ->select('ms_stock_opname.StockOpnameID', 'ms_stock_opname.OpnameDate', 'ms_stock_opname.Notes', 'ms_distributor.DistributorName')
+      ->first();
+
+    $sql->Officer = DB::table('ms_stock_opname_officer')
+      ->join('ms_user', 'ms_user.UserID', 'ms_stock_opname_officer.UserID')
+      ->where('ms_stock_opname_officer.StockOpnameID', $stockOpnameID)
+      ->select('ms_user.Name', 'ms_user.RoleID')
+      ->get()->toArray();
+
+    $sql->Detail = DB::table('ms_stock_opname_detail')
+      ->join('ms_product', 'ms_product.ProductID', 'ms_stock_opname_detail.ProductID')
+      ->where('ms_stock_opname_detail.StockOpnameID', $stockOpnameID)
+      ->select('ms_stock_opname_detail.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_stock_opname_detail.PurchasePrice', 'ms_stock_opname_detail.OldQty', 'ms_stock_opname_detail.NewQty', 'ms_stock_opname_detail.ConditionStock')
+      ->get()->toArray();
+
+    return $sql;
+  }
+
+  public function dataOfficer($officer, $opnameID)
+  {
+    $dataOpnameOfficer = array_map(function () {
+      return func_get_args();
+    }, $officer);
+    foreach ($dataOpnameOfficer as $key => &$value) {
+      $value = array_combine(['UserID'], $value);
+      $dataOpnameOfficer[$key]['StockOpnameID'] = $opnameID;
+    }
+
+    return $dataOpnameOfficer;
+  }
+
+  public function dataStockOpnameDetail($distributorID, $productID, $oldGoodStock, $newGoodStock, $oldBadStock, $newBadStock, $opnameID)
+  {
+    $dataDetailGoodStock = array_map(function () {
+      return func_get_args();
+    }, $productID, $oldGoodStock, $newGoodStock);
+    foreach ($dataDetailGoodStock as $key => &$value) {
+      $value = array_combine(['ProductID', 'OldQty', 'NewQty'], $value);
+      $dataDetailGoodStock[$key]['StockOpnameID'] = $opnameID;
+      $dataDetailGoodStock[$key]['ConditionStock'] = 'GOOD STOCK';
+    }
+
+    $dataDetailBadStock = array_map(function () {
+      return func_get_args();
+    }, $productID, $oldBadStock, $newBadStock);
+    foreach ($dataDetailBadStock as $key => &$value) {
+      $value = array_combine(['ProductID', 'OldQty', 'NewQty'], $value);
+      $dataDetailBadStock[$key]['StockOpnameID'] = $opnameID;
+      $dataDetailBadStock[$key]['ConditionStock'] = 'BAD STOCK';
+    }
+    $dataStockOpnameDetail = array_merge($dataDetailGoodStock, $dataDetailBadStock);
+
+    foreach ($dataStockOpnameDetail as $key => &$value) {
+      $sql = DB::table('ms_stock_product')
+        ->where('ProductID', $value['ProductID'])
+        ->where('DistributorID', $distributorID)
+        ->where('Qty', '>', 0)
+        ->where('ConditionStock', 'GOOD STOCK')
+        ->orderBy('CreatedDate')
+        ->orderBy('PurchaseID')
+        ->select('PurchasePrice')
+        ->first();
+
+      if ($sql == null) {
+        $purchasePrice = 0;
+      } else {
+        $purchasePrice = $sql->PurchasePrice;
+      }
+
+      $dataStockOpnameDetail[$key]['PurchasePrice'] = $purchasePrice;
+    }
+
+    $sortDataStockOpnameDetail = array_values(Arr::sort($dataStockOpnameDetail, function ($value) {
+      return $value['ProductID'];
+    }));
+
+    return $sortDataStockOpnameDetail;
+  }
+
+  public function dataStockProduct($dataStockOpnameDetail, $distributorID)
+  {
+    $dataStockProduct = array_map(function ($data) use ($distributorID) {
+      return array(
+        'PurchaseID' => $data['StockOpnameID'],
+        'ProductID' => $data['ProductID'],
+        'ConditionStock' => $data['ConditionStock'],
+        'Qty' => $data['NewQty'] - $data['OldQty'],
+        'PurchasePrice' => $data['PurchasePrice'],
+        'DistributorID' => $distributorID,
+        'CreatedDate' => date('Y-m-d H:i:s'),
+        'Type' => 'OPNAME',
+        'LevelType' => 2
+      );
+    }, $dataStockOpnameDetail);
+
+    return $dataStockProduct;
   }
 }
