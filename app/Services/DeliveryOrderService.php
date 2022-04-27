@@ -533,11 +533,12 @@ class DeliveryOrderService
     return $newReturID;
   }
 
-  public function cancelProductExpedition($expeditionDetailID, $qtyRetur)
+  public function cancelProductExpedition($expeditionDetailID, $qtyRetur, $conditionStock)
   {
     $sql = DB::table('ms_stock_product_log')
       ->join('ms_stock_product', 'ms_stock_product.StockProductID', 'ms_stock_product_log.StockProductID')
-      ->join('ms_stock_purchase', 'ms_stock_purchase.PurchaseID', 'ms_stock_product.PurchaseID')
+      ->leftJoin('ms_stock_opname', 'ms_stock_opname.StockOpnameID', 'ms_stock_product.PurchaseID')
+      ->leftJoin('ms_stock_purchase', 'ms_stock_purchase.PurchaseID', 'ms_stock_product.PurchaseID')
       ->where('ms_stock_product_log.MerchantExpeditionDetailID', $expeditionDetailID)
       ->select(
         'ms_stock_product.StockProductID',
@@ -558,7 +559,7 @@ class DeliveryOrderService
     $dateTime = date('Y-m-d H:i:s');
     $user = Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo;
 
-    $dbTransaction = DB::transaction(function () use ($sql, $dateTime, $user, $qtyRetur) {
+    $dbTransaction = DB::transaction(function () use ($sql, $dateTime, $user, $qtyRetur, $conditionStock) {
       foreach ($sql as $key => $value) {
         $stockBefore = DB::table('ms_stock_product')
           ->where('ProductID', $value->ProductID)
@@ -591,6 +592,7 @@ class DeliveryOrderService
         DB::table('ms_stock_purchase_detail')->insert([
           'PurchaseID' => $returID,
           'ProductID' => $value->ProductID,
+          'ConditionStock' => $conditionStock,
           'Qty' => $qtyRetur,
           'PurchasePrice' => $value->PurchasePrice,
           'Type' => 'RETUR'
@@ -598,6 +600,7 @@ class DeliveryOrderService
         $stockProductID = DB::table('ms_stock_product')->insertGetId([
           'PurchaseID' => $returID,
           'ProductID' => $value->ProductID,
+          'ConditionStock' => $conditionStock,
           'Qty' => $qtyRetur,
           'PurchasePrice' => $value->PurchasePrice,
           'DistributorID' => $value->DistributorID,
