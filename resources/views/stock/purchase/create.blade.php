@@ -188,7 +188,54 @@
               </div>
 
               <div class="form-group float-right mt-4">
-                <button type="submit" class="btn btn-success">Simpan</button>
+                <button type="button" class="btn btn-success" data-target="#konfirmasi"
+                data-toggle="modal" data-dismiss="modal">Simpan</button>
+              </div>
+              
+              <!-- Modal -->
+              <div class="modal fade" id="konfirmasi" data-backdrop="static" tabindex="-1" role="dialog"
+              aria-labelledby="konfirmasiLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h6 class="modal-title" id="konfirmasiLabel"><i class="fas fa-info"></i> Konfirmasi</h6>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <h5>Apakah produk yang di-input sudah benar?</h5>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-sm btn-outline-secondary"
+                        data-dismiss="modal">Kembali</button>
+                      <button type="button" class="btn btn-sm btn-success" data-target="#konfirmasi2"
+                        data-toggle="modal" data-dismiss="modal">Benar</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal fade" id="konfirmasi2" aria-hidden="true" data-backdrop="static"
+                tabindex="-1">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h6 class="modal-title"><i class="far fa-question-circle"></i> Buat Purchase Stock</h6>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <h5>Apakah yakin ingin membuat Purchase Stock?</h5>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-sm btn-outline-secondary" data-toggle="modal"
+                        data-dismiss="modal">Batal</button>
+                      <button type="submit" class="btn btn-sm btn-success"
+                        data-toggle="modal">Yakin</button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </form>
           </div>

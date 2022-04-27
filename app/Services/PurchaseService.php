@@ -107,6 +107,7 @@ class PurchaseService
             ->where('ms_stock_product.StockProductID', '!=', $stockProductID)
             ->where('ms_stock_product.ProductID', $value['ProductID'])
             ->where('ms_stock_product.DistributorID', $value['DistributorID'])
+            ->where('ms_stock_product.ConditionStock', 'GOOD STOCK')
             ->selectRaw("IFNULL(SUM(ms_stock_product.Qty), 0) AS QtyBefore")
             ->first();
 
@@ -202,10 +203,11 @@ class PurchaseService
       ->join('ms_product', 'ms_product.ProductID', 'ms_stock_product_log.ProductID')
       ->join('ms_stock_product AS stock_product', 'stock_product.StockProductID', 'ms_stock_product_log.StockProductID')
       ->leftJoin('ms_stock_product AS reference_stock_product', 'reference_stock_product.StockProductID', 'ms_stock_product_log.ReferenceStockProductID')
+      ->leftJoin('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderDetailID', 'ms_stock_product_log.DeliveryOrderDetailID')
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'stock_product.DistributorID')
       ->where('stock_product.DistributorID', $distributorID)
       ->where('ms_stock_product_log.ProductID', $productID)
-      ->select('stock_product.PurchaseID', 'stock_product.ConditionStock', 'ms_stock_product_log.PurchasePrice', 'ms_stock_product_log.ActionType', 'ms_stock_product_log.ActionBy', 'ms_stock_product_log.QtyBefore', 'ms_stock_product_log.QtyAction', 'ms_stock_product_log.QtyAfter', 'ms_stock_product_log.CreatedDate', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_distributor.DistributorName', 'reference_stock_product.PurchaseID AS RefPurchaseID');
+      ->select('stock_product.PurchaseID', 'stock_product.ConditionStock', 'ms_stock_product_log.PurchasePrice', 'ms_stock_product_log.ActionType', 'ms_stock_product_log.ActionBy', 'ms_stock_product_log.QtyBefore', 'ms_stock_product_log.QtyAction', 'ms_stock_product_log.QtyAfter', 'ms_stock_product_log.CreatedDate', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_distributor.DistributorName', 'reference_stock_product.PurchaseID AS RefPurchaseID', 'tx_merchant_delivery_order_detail.DeliveryOrderID');
 
     return $sql;
   }

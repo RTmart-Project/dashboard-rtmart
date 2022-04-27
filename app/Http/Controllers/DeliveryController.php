@@ -455,7 +455,7 @@ class DeliveryController extends Controller
                                 ]);
                             if ($item->StatusExpeditionDetail == "S030") {
                                 // Balikin stok
-                                $deliveryOrderService->cancelProductExpedition($item->MerchantExpeditionDetailID, $item->Qty);
+                                $deliveryOrderService->cancelProductExpedition($item->MerchantExpeditionDetailID, $item->Qty, "GOOD STOCK");
                             }
                         }
                     }
@@ -519,7 +519,7 @@ class DeliveryController extends Controller
 
                     $qtyTdkDiterima = $DOdetail->Qty - $qtyDiterima;
                     if ($qtyTdkDiterima > 0) {
-                        $deliveryOrderService->cancelProductExpedition($expeditionDetailID, $qtyTdkDiterima);
+                        $deliveryOrderService->cancelProductExpedition($expeditionDetailID, $qtyTdkDiterima, "BAD STOCK");
                     }
                 }
 
@@ -530,7 +530,7 @@ class DeliveryController extends Controller
                     (clone $expeditionDetail)->update([
                         'StatusExpeditionDetail' => $statusExpedition
                     ]);
-                    $deliveryOrderService->cancelProductExpedition($expeditionDetailID, $DOdetail->Qty);
+                    $deliveryOrderService->cancelProductExpedition($expeditionDetailID, $DOdetail->Qty, "GOOD STOCK");
                 }
             });
             return redirect()->back()->with('success', $message);

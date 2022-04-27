@@ -502,12 +502,13 @@ class StockController extends Controller
             return Datatables::of($data)
                 ->editColumn('PurchaseID', function ($data) {
                     if ($data->RefPurchaseID != null) {
-                        $ref = '<br> dari ' . $data->RefPurchaseID;
+                        $purchaseID = $data->PurchaseID . '<br> dari ' . $data->RefPurchaseID;
+                    } elseif ($data->ActionType == "OUTBOUND") {
+                        $purchaseID = $data->DeliveryOrderID . '<br> dari ' . $data->PurchaseID;
                     } else {
-                        $ref = "";
+                        $purchaseID = $data->PurchaseID;
                     }
 
-                    $purchaseID = $data->PurchaseID . $ref;
                     return $purchaseID;
                 })
                 ->editColumn('CreatedDate', function ($data) {
