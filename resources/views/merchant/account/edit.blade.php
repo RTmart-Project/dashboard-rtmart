@@ -123,6 +123,28 @@
                                     </div>
                                 </div>
                                 @endif
+                                <div class="col-md-4 col-12">
+                                    <div class="form-group">
+                                        <label for="latitude">Latitude</label>
+                                        <input type="text" name="latitude"
+                                            class="form-control @if($errors->has('latitude')) is-invalid @endif" id="latitude"
+                                            placeholder="Masukkan Kode Referral" value="{{ $merchantById->Latitude }}" autocomplete="off">
+                                        @if($errors->has('latitude'))
+                                        <span class="error invalid-feedback">{{ $errors->first('latitude') }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <div class="form-group">
+                                        <label for="longitude">Longitude</label>
+                                        <input type="text" name="longitude"
+                                            class="form-control @if($errors->has('longitude')) is-invalid @endif" id="longitude"
+                                            placeholder="Masukkan Kode Referral" value="{{ $merchantById->Longitude }}" autocomplete="off">
+                                        @if($errors->has('longitude'))
+                                        <span class="error invalid-feedback">{{ $errors->first('longitude') }}</span>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="row">
