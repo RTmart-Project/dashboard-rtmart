@@ -204,6 +204,8 @@ class DeliveryOrderService
         ANY_VALUE(ms_distributor.IsHaistar) AS IsHaistar,
         ANY_VALUE(tx_merchant_delivery_order_detail.ProductID) AS ProductID,
         IFNULL(SUM(ms_stock_product.Qty), 0) AS QtyStock,
+        SUM(IF(ms_stock_product.ProductLabel = 'PKP', ms_stock_product.Qty, 0)) AS QtyStockPKP,
+        SUM(IF(ms_stock_product.ProductLabel = 'NON-PKP', ms_stock_product.Qty, 0)) AS QtyStockNonPKP,
         ANY_VALUE(tx_merchant_delivery_order_detail.Qty) AS QtyDO,
         ANY_VALUE(tx_merchant_delivery_order_detail.Price) AS PriceDO,
         ANY_VALUE(ms_product.ProductName) AS ProductName,
