@@ -25,6 +25,10 @@ $(document).ready(function () {
                     name: "ms_distributor.DistributorName",
                 },
                 {
+                    data: "InvestorName",
+                    name: "ms_investor.InvestorName",
+                },
+                {
                     data: "ProductID",
                     name: "ms_stock_product.ProductID",
                 },
@@ -35,6 +39,10 @@ $(document).ready(function () {
                 {
                     data: "ProductName",
                     name: "ms_product.ProductName",
+                },
+                {
+                    data: "ProductLabel",
+                    name: "ms_stock_product.ProductLabel",
                 },
                 {
                     data: "GoodStock",

@@ -61,9 +61,25 @@
                 </div>
                 <div class="col-md-6 col-12">
                   <div class="form-group">
+                    <label for="investor">Investor</label>
+                    <select name="investor" id="investor" data-live-search="true" title="Pilih Investor"
+                      class="form-control selectpicker border @if($errors->has('investor')) is-invalid @endif">
+                      @foreach ($investors as $investor)
+                      <option value="{{ $investor->InvestorID }}" {{ old('investor') == $investor->InvestorID ? 'selected' : '' }}>
+                        {{ $investor->InvestorName }}
+                      </option>
+                      @endforeach
+                    </select>
+                    @if($errors->has('investor'))
+                    <span class="error invalid-feedback">{{ $errors->first('investor') }}</span>
+                    @endif
+                  </div>
+                </div>
+                <div class="col-md-6 col-12">
+                  <div class="form-group">
                     <label for="opname_date">Tanggal Opname</label>
                     <input type="datetime-local" name="opname_date" id="opname_date"
-                      placeholder="Masukan Nama Produk" value="{{ old('opname_date') }}"
+                      value="{{ old('opname_date') }}"
                       class="form-control @if($errors->has('opname_date')) is-invalid @endif" required>
                     @if($errors->has('opname_date'))
                     <span class="error invalid-feedback">{{ $errors->first('opname_date') }}</span>
@@ -74,7 +90,7 @@
                   <div class="form-group">
                     <label for="opname_officer">Petugas Opname</label>
                     <select name="opname_officer[]" id="opname_officer" data-live-search="true" title="Pilih Petugas Opname"
-                      class="form-control selectpicker border @if($errors->has('opname_officer')) is-invalid @endif"
+                      class="form-control selectpicker border opname-officer @if($errors->has('opname_officer')) is-invalid @endif"
                       required multiple>
                       @foreach ($users as $user)
                       <option value="{{ $user->UserID }}"
@@ -106,7 +122,7 @@
                   <div class="col-12">
                     <a class="btn btn-sm float-right remove"><i class="far fa-times-circle fa-lg text-danger"></i></a>
                   </div>
-                  <div class="col-12">
+                  <div class="col-md-6 col-12">
                     <div class="form-group">
                       <label for="product">Nama Produk</label>
                       <select title="Pilih Produk" name="product[]" id="product" data-live-search="true"
@@ -119,32 +135,48 @@
                       </select>
                       <span id="no-distributor"></span>
                     </div>
-                  </div>                  
+                  </div>
+                  <div class="col-md-6 col-12">
+                    <div class="form-group">
+                      <label for="labeling">Label Produk</label>
+                      <select title="Pilih Labeling Produk" name="labeling[]" id="labeling"
+                        class="form-control selectpicker border label-product" required>
+                        <option value="PKP"
+                          {{ collect(old('labeling'))->contains('PKP') ? 'selected' : '' }}>
+                          PKP
+                        </option>
+                        <option value="NON-PKP"
+                          {{ collect(old('labeling'))->contains('NON PKP') ? 'selected' : '' }}>
+                          NON PKP
+                        </option>
+                      </select>
+                    </div>
+                  </div>
                   <div class="col-md-6 col-12">
                     <div class="form-group">
                       <label for="old_good_stock">Kuantiti Lama (Good Stock)</label>
-                      <input type="number" id="old_good_stock" name="old_good_stock[]" class="form-control" autocomplete="off"
+                      <input type="number" id="old_good_stock" name="old_good_stock[]" class="form-control oldGS" autocomplete="off"
                         value="{{ collect(old('old_good_stock')) }}" placeholder="Jumlah Kuantiti Lama (Good Stock)" required readonly>
                     </div>
                   </div>
                   <div class="col-md-6 col-12">
                     <div class="form-group">
                       <label for="new_good_stock">Kuantiti Baru (Good Stock)</label>
-                      <input type="text" id="new_good_stock" name="new_good_stock[]" class="form-control autonumeric" autocomplete="off"
+                      <input type="text" id="new_good_stock" name="new_good_stock[]" class="form-control autonumeric newGS" autocomplete="off"
                         value="{{ collect(old('new_good_stock')) }}" placeholder="Masukkan Jumlah Kuantiti Baru (Good Stock)" required>
                     </div>
                   </div>
                   <div class="col-md-6 col-12">
                     <div class="form-group">
                       <label for="old_bad_stock">Kuantiti Lama (Bad Stock)</label>
-                      <input type="number" id="old_bad_stock" name="old_bad_stock[]" class="form-control" autocomplete="off"
+                      <input type="number" id="old_bad_stock" name="old_bad_stock[]" class="form-control oldBS" autocomplete="off"
                         value="{{ collect(old('old_bad_stock')) }}" placeholder="Jumlah Kuantiti Lama (Bad Stock)" required readonly>
                     </div>
                   </div>
                   <div class="col-md-6 col-12">
                     <div class="form-group">
                       <label for="new_bad_stock">Kuantiti Baru (Bad Stock)</label>
-                      <input type="text" id="new_bad_stock" name="new_bad_stock[]" class="form-control autonumeric" autocomplete="off"
+                      <input type="text" id="new_bad_stock" name="new_bad_stock[]" class="form-control autonumeric newBS" autocomplete="off"
                         value="{{ collect(old('new_bad_stock')) }}" placeholder="Masukkan Jumlah Kuantiti Baru (Bad Stock)" required>
                     </div>
                   </div>
@@ -228,23 +260,67 @@
       minimumValue: 0
   });
 
-  $("#wrapper-opname-detail").on('change', '.select-product select', function () {
+  $("#distributor").change(function () {
+    $("#investor").val('').trigger('change');
+    $(".select-product").val('').trigger('change');
+    $(".opname-officer").val('').trigger('change');
+    $(".label-product").val('').trigger('change');
+    $(".oldGS").val('');
+    $(".newGS").val('');
+    $(".oldBS").val('');
+    $(".newBS").val('');
+  });
+
+  $("#investor").change(function () {
+    $(".select-product").val('').trigger('change');
+    $(".opname-officer").val('').trigger('change');
+    $(".label-product").val('').trigger('change');
+    $(".oldGS").val('');
+    $(".newGS").val('');
+    $(".oldBS").val('');
+    $(".newBS").val('');
+  });
+
+  $("#opname-detail").on('change', '.select-product select', function () {
+    $(this).closest('#opname-detail').find('.label-product').val('').trigger('change');
+    $(this).closest('#opname-detail').find('.oldGS').val('').trigger('change');
+    $(this).closest('#opname-detail').find('.newGS').val('').trigger('change');
+    $(this).closest('#opname-detail').find('.oldBS').val('').trigger('change');
+    $(this).closest('#opname-detail').find('.newBS').val('').trigger('change');
+  });
+
+  $("#opname-detail-append").on('change', '.select-product select', function () {
+    $(this).closest('#opname-detail').find('.label-product').val('').trigger('change');
+    $(this).closest('#opname-detail').find('.oldGS').val('').trigger('change');
+    $(this).closest('#opname-detail').find('.newGS').val('').trigger('change');
+    $(this).closest('#opname-detail').find('.oldBS').val('').trigger('change');
+    $(this).closest('#opname-detail').find('.newBS').val('').trigger('change');
+  });
+
+  $("#wrapper-opname-detail").on('change', '.label-product select', function () {
     const distributorID = $('#distributor').val();
-    const selectProduct = $(this);
-    const productID = selectProduct.val();
+    let investorID = $('#investor').val();
+    const productID = $(this).closest('#opname-detail').find('#product').val();
+    const label = $(this);
+    const labelProduct = label.val();
+    
+    if (!investorID) {
+      investorID = null;
+    }
+
     if (distributorID != "") {
       $.ajax({
         type: "get",
-        url: `/stock/opname/sumOldProduct/${distributorID}/${productID}`,
+        url: `/stock/opname/sumOldProduct/${distributorID}/${investorID}/${productID}/${labelProduct}`,
         success: function (response) {
           const res = $.parseJSON(response);
-          selectProduct.closest('#opname-detail').find('#old_good_stock').val(res.goodStock);
-          selectProduct.closest('#opname-detail').find('#old_bad_stock').val(res.badStock);
-          selectProduct.closest('#opname-detail').find('#no-distributor').html('');
+          label.closest('#opname-detail').find('#old_good_stock').val(res.goodStock);
+          label.closest('#opname-detail').find('#old_bad_stock').val(res.badStock);
+          label.closest('#opname-detail').find('#no-distributor').html('');
         }
       });
     } else {
-      selectProduct.closest('#opname-detail').find('#no-distributor').html('Harap pilih distributor terlebih dahulu');
+      label.closest('#opname-detail').find('#no-distributor').html('Harap pilih distributor terlebih dahulu');
     }
   });
 

@@ -546,6 +546,7 @@ class DeliveryOrderService
         'ms_stock_purchase.InvestorID',
         'ms_stock_purchase.SupplierID',
         'ms_stock_product_log.ProductID',
+        'ms_stock_product.ProductLabel',
         'ms_stock_product_log.PurchasePrice',
         'ms_stock_product_log.QtyAction',
         'ms_stock_product.Qty',
@@ -592,6 +593,7 @@ class DeliveryOrderService
         DB::table('ms_stock_purchase_detail')->insert([
           'PurchaseID' => $returID,
           'ProductID' => $value->ProductID,
+          'ProductLabel' => $value->ProductLabel,
           'ConditionStock' => $conditionStock,
           'Qty' => $qtyRetur,
           'PurchasePrice' => $value->PurchasePrice,
@@ -600,6 +602,7 @@ class DeliveryOrderService
         $stockProductID = DB::table('ms_stock_product')->insertGetId([
           'PurchaseID' => $returID,
           'ProductID' => $value->ProductID,
+          'ProductLabel' => $value->ProductLabel,
           'ConditionStock' => $conditionStock,
           'Qty' => $qtyRetur,
           'PurchasePrice' => $value->PurchasePrice,
