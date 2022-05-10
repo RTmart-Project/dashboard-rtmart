@@ -114,7 +114,7 @@
         <input type="hidden" name="distributor[]" id="distributor" value="RT MART">
         <input type="hidden" name="distributor_id[]" id="distributor-id" value="{{ $product->DistributorID }}">
       </div>
-      <div class="col-2 align-self-center">
+      <div class="col-1 align-self-center">
         <label class="d-block">Qty DO</label>
         <p>{{ $product->QtyDO }}</p>
       </div>
@@ -124,7 +124,7 @@
           <input type="hidden" name="max_qty_request_do_rtmart[]"
             value="{{ $product->QtyDO + $product->PromisedQty - $product->QtyDONotBatal }}">
           <input type="number"
-            class="form-control qty-request-do text-sm text-center p-0 d-inline {{ $product->ProductID }}"
+            class="form-control form-control-sm qty-request-do text-sm text-center p-0 d-inline {{ $product->ProductID }}"
             id="qty-request-do" name="qty_request_do_rtmart[]" style="width: 40px; height: 30px;"
             max="{{ $product->QtyDO + $product->PromisedQty - $product->QtyDONotBatal }}" min="1" required
             disabled="disabled">
@@ -133,13 +133,22 @@
             Max Qty dapat dikirim : <span id="max-qty">{{ $product->PromisedQty - $product->QtyDONotBatal }}</span>
           </small>
           <small class="d-block">
-            Qty Stok Tersedia : <span id="exist-qty">{{ $product->QtyStock }}</span>
+            Qty Stok Tersedia : 
+            <span id="exist-qty-pkp" class="active-exist-qty">{{ $product->QtyStockPKP }}</span>
+            <span id="exist-qty-non-pkp" class="d-none">{{ $product->QtyStockNonPKP }}</span>
           </small>
         </div>
       </div>
-      <div class="col-3 align-self-center">
+      <div class="col-2 align-self-center">
         <label>Total Harga</label>
         <p class="price-total">Rp 0</p>
+      </div>
+      <div class="col-2">
+        <label class="d-block" for="label">Source Produk</label>
+        <select id="label" class="form-control form-control-sm source-product">
+          <option value="PKP" selected>PKP</option>
+          <option value="NON-PKP">NON-PKP</option>
+        </select>
       </div>
     </div>
     @php

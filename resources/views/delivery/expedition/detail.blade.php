@@ -87,7 +87,7 @@
             @endphp
             @foreach ($order as $item)
             <div class="text-right">
-            @if ($firstLoopHaistar == true && $item->Distributor == "HAISTAR" && $item->StatusExpeditionDetail == "S034")
+              @if ($firstLoopHaistar == true && $item->Distributor == "HAISTAR" && $item->StatusExpeditionDetail == "S034")
               <a data-delivery-order="{{ $order[0]->DeliveryOrderID }}"
                 class="btn btn-sm bg-lightblue btn-resend-haistar">Resend Produk Haistar
               </a>
@@ -116,7 +116,8 @@
               <div class="col-6 col-md-3">
                 <label class="m-0">Status Produk</label><br>
                 @if ($item->StatusExpeditionDetail == "S031")
-                <span class="badge badge-success mb-2">{{ $item->StatusProduct }}</span>
+                <span class="badge badge-success">{{ $item->StatusProduct }}</span>
+                <a class="lihat-bukti d-block" href="{{ config('app.base_image_url').'receipt_image_expedition/'.$item->ReceiptImage }}" target="_blank" data-product="{{ $item->ProductName }}" data-store="{{ $order[0]->StoreName }}">Lihat Bukti</a>
                 @elseif ($item->StatusExpeditionDetail == "S037" || $item->StatusExpeditionDetail == "S034")
                 <span class="badge badge-danger mb-2">{{ $item->StatusProduct }}</span>
                 @elseif ($item->StatusExpeditionDetail == "S030")
@@ -169,14 +170,21 @@
                 <div class="modal-body pt-2">
                   <p id="detail" class="text-center"></p>
                   <div class="row">
-                    <div class="col-md-6 col-12">
+                    <div class="col-md-4 col-12">
                       <div class="form-group">
                         <label for="receipt_qty">Qty Diterima</label>
-                        <input type="number" class="form-control" name="receipt_qty" id="receipt_qty">
-                        <span id="max-qty"></span>
+                        <input type="number" class="form-control" name="receipt_qty" id="receipt_qty" placeholder="Qty Diterima">
+                        <span id="maksimum"></span>
                       </div>
                     </div>
-                    <div class="col-md-6 col-12">
+                    <div class="col-md-4 col-12">
+                      <div class="form-group">
+                        <label for="badstock_qty">Qty BadStock</label>
+                        <input type="number" class="form-control" name="badstock_qty" id="badstock_qty" placeholder="Qty BadStock">
+                        <span id="maksimum-badstock"></span>
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-12">
                       <div class="form-group">
                         <label for="receipt_image">Foto Bukti Terima</label>
                         <input type="file" class="form-control" name="receipt_image" id="receipt_image" onchange="loadFile(event)">
@@ -336,10 +344,7 @@
     const a = $("#form-selesaikan").attr("action", `/delivery/on-going/confirmProduct/finish/${expedition}`);
 
     $('#modal-finish-product').modal('show').on('shown.bs.modal', function() {
-      $("#detail").html(`Selesaikan produk <b>${product}</b> dari <b>${store}</b>`);
-      $("#receipt_qty").attr({"max" : qty, "min" : 0});
-      $("#receipt_qty").attr("placeholder", `Maksimum : ${qty}`);
-      $("#max-qty").html(`Maksimum  : ${qty}`);
+      $("#detail").html(`Selesaikan produk <b>${product}</b> dari <b>${store}</b> <br> Jumlah dikirim : <b id="qty-kirim">${qty}</b>`);
     });
   });
   
@@ -354,10 +359,30 @@
     timer: 4000,
   });
 
+  $('#receipt_qty').keyup(function () {
+    const maxQty = $("#qty-kirim").text();
+    const qtyVal = $(this).val();
+
+    const maxBadStock = maxQty - qtyVal;
+    $("#badstock_qty").attr({"max" : maxBadStock, "min" : 0});
+    $("#maksimum-badstock").html(`Maksimum  : ${maxBadStock}`);
+  });
+  
+  $('#badstock_qty').keyup(function () {
+    const maxQty = $("#qty-kirim").text();
+    const qtyVal = $(this).val();
+    
+    const maxQtyDiterima = maxQty - qtyVal;
+    $("#receipt_qty").attr({"max" : maxQtyDiterima, "min" : 0});
+    $("#maksimum").html(`Maksimum  : ${maxQtyDiterima}`);
+  });
+
   $(".btn-modal-selesaikan").click(function () {
     const form = $(this).parent().prev();
     const qtyVal = form.find("#receipt_qty").val();
     const maxQty = form.find("#receipt_qty").attr("max");
+    const qtyBadstockVal = form.find("#badstock_qty").val();
+    const maxQtyBadStock = form.find("#badstock_qty").attr("max");
     const imgVal = form.find("#receipt_image").val();
 
     let next = true;
@@ -368,10 +393,38 @@
       });
       return (next = false);
     }
+    if (qtyVal <= 0) {
+      Toast.fire({
+        icon: "error",
+        title: "Qty Diterima harus lebih dari 0!",
+      });
+      return (next = false);
+    }
     if (Number(qtyVal) > Number(maxQty)) {
       Toast.fire({
         icon: "error",
-        title: "Qty melebihi maksimum!",
+        title: "Qty Diterima melebihi maksimum!",
+      });
+      return (next = false);
+    }
+    if (!qtyBadstockVal) {
+      Toast.fire({
+        icon: "error",
+        title: "Harap isi Qty BadStock!",
+      });
+      return (next = false);
+    }
+    if (qtyBadstockVal < 0) {
+      Toast.fire({
+        icon: "error",
+        title: "Qty BadStock minimum 0!",
+      });
+      return (next = false);
+    }
+    if (Number(qtyBadstockVal) > Number(maxQtyBadStock)) {
+      Toast.fire({
+        icon: "error",
+        title: "Qty BadStock melebihi maksimum!",
       });
       return (next = false);
     }
@@ -419,5 +472,16 @@
           }
       });
   });
+
+  $('.lihat-bukti').on('click', function (e) {
+        e.preventDefault();
+        const urlImg = $(this).attr("href");
+        const storeName = $(this).data("store");
+        const product = $(this).data("product");
+        $.dialog({
+            title: `${product} - ${storeName}`,
+            content: `<img  style="object-fit: contain; height: 330px; width: 100%;" src="${urlImg}">`,
+        });
+    });
 </script>
 @endsection

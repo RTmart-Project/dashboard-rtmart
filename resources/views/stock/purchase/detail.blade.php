@@ -106,6 +106,7 @@
                         <tr>
                           <th>Produk ID</th>
                           <th>Nama Produk</th>
+                          <th>Label Produk</th>
                           <th>Qty</th>
                           <th>Harga Beli</th>
                         </tr>
@@ -115,6 +116,7 @@
                         <tr>
                           <td>{{ $detail->ProductID }}</td>
                           <td>{{ $detail->ProductName }}</td>
+                          <td>{{ $detail->ProductLabel }}</td>
                           <td>{{ $detail->Qty }}</td>
                           <td>{{ Helper::formatCurrency($detail->PurchasePrice, 'Rp ') }}</td>
                         </tr>

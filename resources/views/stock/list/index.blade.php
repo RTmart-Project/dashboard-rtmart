@@ -49,9 +49,11 @@
                                             <thead>
                                                 <tr>
                                                     <th>Distributor</th>
+                                                    <th>Investor</th>
                                                     <th>Produk ID</th>
                                                     <th>Gambar</th>
                                                     <th>Nama Produk</th>
+                                                    <th>Label Produk</th>
                                                     <th>Good Stock</th>
                                                     <th>Bad Stock</th>
                                                     <th>Detail</th>

@@ -1,14 +1,20 @@
 @extends('layouts.master')
-@section('title', 'Dashboard - Detail Stock')
+@section('title', 'Dashboard - Stock Opname')
 
 @section('css-pages')
+<!-- daterange picker -->
+<link rel="stylesheet" href="{{url('/')}}/plugins/daterangepicker/daterangepicker.css">
 <!-- Datatables -->
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+<!-- Main -->
+<link rel="stylesheet" href="{{url('/')}}/main/css/custom/select-filter.css">
+
+<meta name="base-image" content="{{ config('app.base_image_url') }}">
 @endsection
 
-@section('header-menu', 'Detail Stock')
+@section('header-menu', 'Stock Opname')
 
 @section('content')
 <!-- Content Header (Page header) -->
@@ -38,44 +44,34 @@
       <div class="col-12">
         <div class="card">
           <div class="card-header">
-            <a href="{{ route('stock.listStock') }}" class="btn btn-sm btn-light"><i class="fas fa-arrow-left"></i> Kembali</a>
+            <a href="{{ route('stock.createOpname') }}" class="btn btn-sm btn-success">
+              <i class="fas fa-plus"></i> Tambah Opname
+            </a>
           </div>
           <div class="card-body mt-2">
-            <div class="row">
-              <div class="col-12 col-md-3 mb-3">
-                <strong><i class="fas fa-map-marker-alt mr-1"></i> Distributor</strong>
-                <p>{{ $distributor->DistributorName }}</p>
+            <div class="tab-content">
+
+              <div class="tab-pane active" id="opname-stock">
+                <div class="row">
+                  <div class="col-12">
+                    <table class="table table-datatables">
+                      <thead>
+                        <tr>
+                          <th>Stock Opname ID</th>
+                          <th>Distributor</th>
+                          <th>Tanggal Opname</th>
+                          <th>Petugas Opname</th>
+                          <th>Catatan</th>
+                          <th>Detail</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
-              <div class="col-12 col-md-3 mb-3">
-                <strong><i class="fas fa-money-bill-wave-alt mr-1"></i> Investor</strong>
-                <p>{{ $investor }}</p>
-              </div>
-              <div class="col-12 col-md-3 mb-3">
-                <strong><i class="far fa-images mr-1"></i> Gambar Produk</strong><br>
-                <img src="{{ config('app.base_image_url') . '/product/'. $product->ProductImage }}" alt="Store Image" height="130">
-              </div>
-              <div class="col-12 col-md-3 mb-3">
-                <strong><i class="fas fa-dice-d6 mr-1"></i> Nama Produk</strong>
-                <p>{{ $product->ProductName }} ({{ $product->ProductLabel }})</p>
-              </div>
-              <div class="table-responsive" id="detail-stock">
-                <table class="table table-datatables table-bordered text-nowrap">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Qty Sebelum</th>
-                      <th>Qty Action</th>
-                      <th>Qty Sesudah</th>
-                      <th>Harga Beli</th>
-                      <th>Tanggal</th>
-                      <th>Kondisi Barang</th>
-                      <th>Tipe</th>
-                      <th>Action By</th>
-                    </tr>
-                  </thead>
-                  <tbody></tbody>
-                </table>
-              </div>
+
             </div>
           </div>
         </div>
@@ -86,6 +82,11 @@
 @endsection
 
 @section('js-pages')
+<!-- InputMask -->
+<script src="{{url('/')}}/plugins/moment/moment.min.js"></script>
+<script src="{{url('/')}}/plugins/inputmask/jquery.inputmask.min.js"></script>
+<!-- date-range-picker -->
+<script src="{{url('/')}}/plugins/daterangepicker/daterangepicker.js"></script>
 <!-- DataTables  & Plugins -->
 <script src="{{url('/')}}/plugins/datatables/jquery.dataTables.min.js"></script>
 <script src="{{url('/')}}/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
@@ -99,6 +100,9 @@
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
-<script src="{{url('/')}}/main/js/stock/list/detail-stock.js"></script>
+<!-- Main JS -->
+<script src="{{url('/')}}/main/js/stock/opname/opname.js"></script>
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
+<script>
+</script>
 @endsection

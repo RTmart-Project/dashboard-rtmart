@@ -204,6 +204,8 @@ class DeliveryOrderService
         ANY_VALUE(ms_distributor.IsHaistar) AS IsHaistar,
         ANY_VALUE(tx_merchant_delivery_order_detail.ProductID) AS ProductID,
         IFNULL(SUM(ms_stock_product.Qty), 0) AS QtyStock,
+        SUM(IF(ms_stock_product.ProductLabel = 'PKP', ms_stock_product.Qty, 0)) AS QtyStockPKP,
+        SUM(IF(ms_stock_product.ProductLabel = 'NON-PKP', ms_stock_product.Qty, 0)) AS QtyStockNonPKP,
         ANY_VALUE(tx_merchant_delivery_order_detail.Qty) AS QtyDO,
         ANY_VALUE(tx_merchant_delivery_order_detail.Price) AS PriceDO,
         ANY_VALUE(ms_product.ProductName) AS ProductName,
@@ -270,6 +272,7 @@ class DeliveryOrderService
       ->where('Qty', '>', 0)
       ->orderBy('LevelType')
       ->orderBy('CreatedDate')
+      ->orderBy('PurchaseID')
       ->select('StockProductID', 'Qty', 'PurchasePrice')->first();
 
     $stockBefore =  DB::table('ms_stock_product')
@@ -305,7 +308,7 @@ class DeliveryOrderService
           'DeliveryOrderDetailID' => $deliveryOrderDetailID,
           'CreatedDate' => date('Y-m-d H:i:s'),
           'ActionBy' => $user,
-          'ActionType' => 'REDUCE'
+          'ActionType' => 'OUTBOUND'
         ]);
       $this->reduceStock($productID, $distributorID, $qtyAfter * (-1), $deliveryOrderDetailID, $merchantExpeditionDetailID);
     } else {
@@ -327,7 +330,7 @@ class DeliveryOrderService
           'DeliveryOrderDetailID' => $deliveryOrderDetailID,
           'CreatedDate' => date('Y-m-d H:i:s'),
           'ActionBy' => $user,
-          'ActionType' => 'REDUCE'
+          'ActionType' => 'OUTBOUND'
         ]);
     }
 
@@ -485,7 +488,7 @@ class DeliveryOrderService
       ->join('tx_merchant_order', 'tx_merchant_order.StockOrderID', 'tx_merchant_delivery_order.StockOrderID')
       ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
       ->where('tx_merchant_expedition_detail.MerchantExpeditionID', $expeditionID)
-      ->select('tx_merchant_expedition_detail.MerchantExpeditionID', 'tx_merchant_expedition_detail.StatusExpeditionDetail', 'tx_merchant_expedition_detail.MerchantExpeditionDetailID', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.StockOrderID', 'tx_merchant_expedition_detail.DeliveryOrderDetailID', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber', 'tx_merchant_delivery_order_detail.ProductID', 'StatusExpdProduct.StatusOrder AS StatusProduct', 'ms_product.ProductName', 'ms_product.ProductImage', 'tx_merchant_delivery_order_detail.Qty', 'tx_merchant_delivery_order_detail.Price', 'tx_merchant_delivery_order_detail.StatusExpedition', 'tx_merchant_delivery_order_detail.Distributor', 'expd.CreatedDate', 'expd.StatusExpedition AS StatusExpd', 'StatusExpd.StatusOrder', 'driver.Name AS DriverName', 'helper.Name AS HelperName', 'expd.VehicleLicensePlate', 'ms_vehicle.VehicleName')
+      ->select('tx_merchant_expedition_detail.MerchantExpeditionID', 'tx_merchant_expedition_detail.StatusExpeditionDetail', 'tx_merchant_expedition_detail.MerchantExpeditionDetailID', 'tx_merchant_expedition_detail.ReceiptImage', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.StockOrderID', 'tx_merchant_expedition_detail.DeliveryOrderDetailID', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber', 'tx_merchant_delivery_order_detail.ProductID', 'StatusExpdProduct.StatusOrder AS StatusProduct', 'ms_product.ProductName', 'ms_product.ProductImage', 'tx_merchant_delivery_order_detail.Qty', 'tx_merchant_delivery_order_detail.Price', 'tx_merchant_delivery_order_detail.StatusExpedition', 'tx_merchant_delivery_order_detail.Distributor', 'expd.CreatedDate', 'expd.StatusExpedition AS StatusExpd', 'StatusExpd.StatusOrder', 'driver.Name AS DriverName', 'helper.Name AS HelperName', 'expd.VehicleLicensePlate', 'ms_vehicle.VehicleName')
       ->orderBy('tx_merchant_delivery_order_detail.Distributor');
 
     return $sql;
@@ -532,17 +535,20 @@ class DeliveryOrderService
     return $newReturID;
   }
 
-  public function cancelProductExpedition($expeditionDetailID, $qtyRetur)
+  public function cancelProductExpedition($expeditionDetailID, $qtyRetur, $conditionStock)
   {
     $sql = DB::table('ms_stock_product_log')
       ->join('ms_stock_product', 'ms_stock_product.StockProductID', 'ms_stock_product_log.StockProductID')
-      ->join('ms_stock_purchase', 'ms_stock_purchase.PurchaseID', 'ms_stock_product.PurchaseID')
+      ->leftJoin('ms_stock_opname', 'ms_stock_opname.StockOpnameID', 'ms_stock_product.PurchaseID')
+      ->leftJoin('ms_stock_purchase', 'ms_stock_purchase.PurchaseID', 'ms_stock_product.PurchaseID')
       ->where('ms_stock_product_log.MerchantExpeditionDetailID', $expeditionDetailID)
       ->select(
+        'ms_stock_product.StockProductID',
         'ms_stock_product.DistributorID',
         'ms_stock_purchase.InvestorID',
         'ms_stock_purchase.SupplierID',
         'ms_stock_product_log.ProductID',
+        'ms_stock_product.ProductLabel',
         'ms_stock_product_log.PurchasePrice',
         'ms_stock_product_log.QtyAction',
         'ms_stock_product.Qty',
@@ -556,7 +562,7 @@ class DeliveryOrderService
     $dateTime = date('Y-m-d H:i:s');
     $user = Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo;
 
-    $dbTransaction = DB::transaction(function () use ($sql, $dateTime, $user, $qtyRetur) {
+    $dbTransaction = DB::transaction(function () use ($sql, $dateTime, $user, $qtyRetur, $conditionStock) {
       foreach ($sql as $key => $value) {
         $stockBefore = DB::table('ms_stock_product')
           ->where('ProductID', $value->ProductID)
@@ -565,8 +571,8 @@ class DeliveryOrderService
           ->sum('Qty');
 
         if ($qtyRetur > $value->QtyAction) {
-          $qtyRetur = $value->QtyAction;
           $selisihQtyRetur = $qtyRetur - $value->QtyAction;
+          $qtyRetur = $value->QtyAction;
         } else {
           $selisihQtyRetur = $qtyRetur;
         }
@@ -589,6 +595,8 @@ class DeliveryOrderService
         DB::table('ms_stock_purchase_detail')->insert([
           'PurchaseID' => $returID,
           'ProductID' => $value->ProductID,
+          'ProductLabel' => $value->ProductLabel,
+          'ConditionStock' => $conditionStock,
           'Qty' => $qtyRetur,
           'PurchasePrice' => $value->PurchasePrice,
           'Type' => 'RETUR'
@@ -596,6 +604,8 @@ class DeliveryOrderService
         $stockProductID = DB::table('ms_stock_product')->insertGetId([
           'PurchaseID' => $returID,
           'ProductID' => $value->ProductID,
+          'ProductLabel' => $value->ProductLabel,
+          'ConditionStock' => $conditionStock,
           'Qty' => $qtyRetur,
           'PurchasePrice' => $value->PurchasePrice,
           'DistributorID' => $value->DistributorID,
@@ -606,12 +616,14 @@ class DeliveryOrderService
 
         DB::table('ms_stock_product_log')->insert([
           'StockProductID' => $stockProductID,
+          'ReferenceStockProductID' => $value->StockProductID,
           'ProductID' => $value->ProductID,
           'QtyBefore' => $stockBefore,
           'QtyAction' => $qtyRetur,
           'QtyAfter' => $stockBefore + $qtyRetur,
           'PurchasePrice' => $value->PurchasePrice,
           'SellingPrice' => $value->SellingPrice,
+          'MerchantExpeditionDetailID' => $value->MerchantExpeditionDetailID,
           'DeliveryOrderDetailID' => $value->DeliveryOrderDetailID,
           'CreatedDate' => $dateTime,
           'ActionBy' => $user,

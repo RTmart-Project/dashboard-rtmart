@@ -289,6 +289,26 @@ $(document).ready(function () {
         }
     });
 
+    $("#delivery-order-result").on("change", ".source-product", function () {
+        const sourceProduct = $(this).val();
+        const pkpClass = $(this).closest(".request-do").find("#exist-qty-pkp");
+        const nonPkpClass = $(this)
+            .closest(".request-do")
+            .find("#exist-qty-non-pkp");
+
+        if (sourceProduct == "PKP") {
+            pkpClass.removeClass("d-none");
+            pkpClass.addClass("active-exist-qty");
+            nonPkpClass.addClass("d-none");
+            nonPkpClass.removeClass("active-exist-qty");
+        } else {
+            pkpClass.addClass("d-none");
+            pkpClass.removeClass("active-exist-qty");
+            nonPkpClass.removeClass("d-none");
+            nonPkpClass.addClass("active-exist-qty");
+        }
+    });
+
     let Toast = Swal.mixin({
         toast: true,
         position: "top-end",
@@ -342,7 +362,13 @@ $(document).ready(function () {
                 let qtyVal = Number(qty.val());
                 let maxQty = Number(qty.next().next().next().children().text());
                 let existQty = Number(
-                    qty.next().next().next().next().children().text()
+                    qty
+                        .next()
+                        .next()
+                        .next()
+                        .next()
+                        .find(".active-exist-qty")
+                        .text()
                 );
 
                 if (distributor == "RT MART") {

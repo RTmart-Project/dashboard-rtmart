@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Helper;
+use App\Services\OpnameService;
 use App\Services\PurchaseService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use stdClass;
 use Yajra\DataTables\Facades\DataTables;
 
 class StockController extends Controller
@@ -17,6 +21,177 @@ class StockController extends Controller
     {
         $this->saveImageUrl = config('app.save_image_url');
         $this->baseImageUrl = config('app.base_image_url');
+    }
+
+    public function opname()
+    {
+        return view('stock.opname.index');
+    }
+
+    public function getOpname(Request $request, OpnameService $opnameService)
+    {
+        $fromDate = $request->input('fromDate');
+        $toDate = $request->input('toDate');
+
+        $sqlGetOpname = $opnameService->getStockOpname();
+
+        if ($fromDate != '' && $toDate != '') {
+            $sqlGetOpname->whereDate('ms_stock_opname.OpnameDate', '>=', $fromDate)
+                ->whereDate('ms_stock_opname.OpnameDate', '<=', $toDate);
+        }
+
+        if (Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $sqlGetOpname->where('ms_distributor.Depo', '=', $depoUser);
+        }
+
+        $data = $sqlGetOpname;
+
+        if ($request->ajax()) {
+            return DataTables::of($data)
+                ->editColumn('OpnameDate', function ($data) {
+                    return date('d M Y H:i', strtotime($data->OpnameDate));
+                })
+                ->addColumn('Detail', function ($data) {
+                    return '<a class="btn btn-sm btn-warning" href="/stock/opname/detail/' . $data->StockOpnameID . '">Detail</a>';
+                })
+                ->rawColumns(['Detail'])
+                ->make(true);
+        }
+    }
+
+    public function sumOldProduct($distributorID, $investorID, $productID, $label)
+    {
+        $sql = DB::table('ms_stock_product')
+            ->where('DistributorID', $distributorID)
+            ->where('ProductID', $productID)
+            ->where('ProductLabel', $label);
+
+        if ($investorID != "null") {
+            $sql->where('InvestorID', $investorID);
+        } else {
+            $sql->whereNull('InvestorID');
+        }
+
+        $sumOldGoodStock = (clone $sql)->where('ConditionStock', 'GOOD STOCK')->sum('Qty');
+        $sumOldBadStock = (clone $sql)->where('ConditionStock', 'BAD STOCK')->sum('Qty');
+
+        $sumOld = new stdClass();
+        $sumOld->goodStock = $sumOldGoodStock;
+        $sumOld->badStock = $sumOldBadStock;
+
+        $response = json_encode($sumOld);
+
+        return $response;
+    }
+
+    public function createOpname(PurchaseService $purchaseService)
+    {
+        $distributors = $purchaseService->getDistributors()->get();
+        $users = $purchaseService->getUsers()->get();
+        $products = $purchaseService->getProducts()->get();
+        $investors = DB::table('ms_investor')->get();
+        return view('stock.opname.create', [
+            'distributors' => $distributors,
+            'products' => $products,
+            'users' => $users,
+            'investors' => $investors
+        ]);
+    }
+
+    public function storeOpname(Request $request, OpnameService $opnameService)
+    {
+        $request->validate([
+            'distributor' => 'required|exists:ms_distributor,DistributorID',
+            'opname_date' => 'required',
+            'opname_officer' => 'required',
+            'opname_officer.*' => 'required|exists:ms_user,UserID',
+            'product' => 'required',
+            'product.*' => 'required',
+            'labeling' => 'required',
+            'labeling.*' => 'required',
+            'new_good_stock' => 'required',
+            'new_good_stock.*' => 'required|numeric|gte:0',
+            'new_bad_stock' => 'required',
+            'new_bad_stock.*' => 'required|numeric|gte:0'
+        ]);
+
+        $opnameID = $opnameService->generateOpnameID();
+        $purchaseDate = str_replace("T", " ", $request->input('opname_date'));
+        $user = Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo;
+        $distributor = $request->input('distributor');
+        $investor = $request->input('investor');
+
+        // insert data ms_stock_opname
+        $dataStockOpname = [
+            'StockOpnameID' => $opnameID,
+            'OpnameDate' => $purchaseDate,
+            'CreatedBy' => $user,
+            'CreatedDate' => date('Y-m-d H:i:s'),
+            'DistributorID' => $distributor,
+            'InvestorID' => $investor,
+            'Notes' => $request->input('notes')
+        ];
+
+        $opnameOfficer = $request->input('opname_officer');
+        // insert data ms_stock_opname_officer
+        $dataOpnameOfficer = $opnameService->dataOfficer($opnameOfficer, $opnameID);
+
+        $productID = $request->input('product');
+        $label = $request->input('labeling');
+        $oldGoodStock = $request->input('old_good_stock');
+        $newGoodStock = $request->input('new_good_stock');
+        $oldBadStock = $request->input('old_bad_stock');
+        $newBadStock = $request->input('new_bad_stock');
+        // insert data ms_stock_opname_detail
+        $dataStockOpnameDetail = $opnameService->dataStockOpnameDetail($distributor, $productID, $label, $oldGoodStock, $newGoodStock, $oldBadStock, $newBadStock, $opnameID);
+
+        try {
+            DB::transaction(function () use ($dataStockOpname, $dataStockOpnameDetail, $dataOpnameOfficer, $distributor, $investor, $user) {
+                DB::table('ms_stock_opname')->insert($dataStockOpname);
+                DB::table('ms_stock_opname_detail')->insert($dataStockOpnameDetail);
+                DB::table('ms_stock_opname_officer')->insert($dataOpnameOfficer);
+                foreach ($dataStockOpnameDetail as $key => $value) {
+                    $stockProductID = DB::table('ms_stock_product')->insertGetId([
+                        'PurchaseID' => $value['StockOpnameID'],
+                        'ProductID' => $value['ProductID'],
+                        'ProductLabel' => $value['ProductLabel'],
+                        'ConditionStock' => $value['ConditionStock'],
+                        'Qty' => $value['NewQty'] - $value['OldQty'],
+                        'PurchasePrice' => $value['PurchasePrice'],
+                        'DistributorID' => $distributor,
+                        'InvestorID' => $investor,
+                        'CreatedDate' => date('Y-m-d H:i:s'),
+                        'Type' => 'OPNAME',
+                        'LevelType' => 2
+                    ], 'StockProductID');
+
+                    DB::table('ms_stock_product_log')->insert([
+                        'StockProductID' => $stockProductID,
+                        'ProductID' => $value['ProductID'],
+                        'QtyBefore' => $value['OldQty'],
+                        'QtyAction' => $value['NewQty'] - $value['OldQty'],
+                        'QtyAfter' => $value['NewQty'],
+                        'PurchasePrice' => $value['PurchasePrice'],
+                        'SellingPrice' => 0,
+                        'CreatedDate' => date('Y-m-d H:i:s'),
+                        'ActionBy' => $user,
+                        'ActionType' => 'OPNAME'
+                    ]);
+                }
+            });
+            return redirect()->route('stock.opname')->with('success', 'Data Stock Opname berhasil ditambahkan');
+        } catch (\Throwable $th) {
+            return redirect()->route('stock.opname')->with('failed', 'Terjadi kesalahan!');
+        }
+    }
+
+    public function detailOpname($stockOpnameID, OpnameService $opnameService)
+    {
+        $opnameByID = $opnameService->getStockOpnameByID($stockOpnameID);
+        return view('stock.opname.detail', [
+            'opnameByID' => $opnameByID
+        ]);
     }
 
     public function purchase()
@@ -115,6 +290,8 @@ class StockController extends Controller
             'invoice_number' => 'required',
             'product' => 'required',
             'product.*' => 'required',
+            'labeling' => 'required',
+            'labeling.*' => 'required',
             'quantity' => 'required',
             'quantity.*' => 'required|numeric|gte:1',
             'purchase_price' => 'required',
@@ -170,10 +347,11 @@ class StockController extends Controller
         ];
 
         $productID = $request->input('product');
+        $labeling = $request->input('labeling');
         $qty = $request->input('quantity');
         $purchasePrice = $request->input('purchase_price');
 
-        $dataPurchaseDetail = $purchaseService->dataPurchaseDetail($productID, $qty, $purchasePrice, $purchaseID);
+        $dataPurchaseDetail = $purchaseService->dataPurchaseDetail($productID, $labeling, $qty, $purchasePrice, $purchaseID);
 
         try {
             DB::transaction(function () use ($dataPurchase, $dataPurchaseDetail) {
@@ -212,6 +390,8 @@ class StockController extends Controller
             'invoice_number' => 'required',
             'product' => 'required',
             'product.*' => 'required',
+            'labeling' => 'required',
+            'labeling.*' => 'required',
             'quantity' => 'required',
             'quantity.*' => 'required|numeric|gte:1',
             'purchase_price' => 'required',
@@ -263,10 +443,11 @@ class StockController extends Controller
         ];
 
         $productID = $request->input('product');
+        $labeling = $request->input('labeling');
         $qty = $request->input('quantity');
         $purchasePrice = $request->input('purchase_price');
 
-        $dataPurchaseDetail = $purchaseService->dataPurchaseDetail($productID, $qty, $purchasePrice, $purchaseID);
+        $dataPurchaseDetail = $purchaseService->dataPurchaseDetail($productID, $labeling, $qty, $purchasePrice, $purchaseID);
 
         try {
             DB::transaction(function () use ($purchaseID, $dataPurchase, $dataPurchaseDetail) {
@@ -327,29 +508,64 @@ class StockController extends Controller
                     return '<img src="' . $this->baseImageUrl . 'product/' . $data->ProductImage . '" alt="Product Image" height="80">';
                 })
                 ->addColumn('Detail', function ($data) {
-                    return '<a class="btn btn-sm btn-warning" href="/stock/list/detail/' . $data->DistributorID . '/' . $data->ProductID . '">Detail</a>';
+                    if ($data->InvestorID == null) {
+                        $data->InvestorID = "no-investor";
+                    }
+                    return '<a class="btn btn-sm btn-warning" href="/stock/list/detail/' . $data->DistributorID . '/' . $data->InvestorID . '/' . $data->ProductID . '/' . $data->ProductLabel . '">Detail</a>';
                 })
                 ->rawColumns(['ProductImage', 'Detail'])
                 ->make(true);
         }
     }
 
-    public function detailStock($distributorID, $productID, PurchaseService $purchaseService, Request $request)
+    public function detailStock($distributorID, $investorID, $productID, $label, PurchaseService $purchaseService, Request $request)
     {
-        $data = $purchaseService->getDetailStock($distributorID, $productID)->get();
+        $sql = $purchaseService->getDetailStock($distributorID, $productID, $label);
+
+        if ($investorID != "no-investor") {
+            $sql->where('stock_product.InvestorID', $investorID);
+            $getInvestor = DB::table('ms_investor')->where('InvestorID', $investorID)->select('InvestorName')->first();
+            $investor = $getInvestor->InvestorName;
+        } else {
+            $sql->whereNull('stock_product.InvestorID');
+            $investor = "-";
+        }
+
+        $data = $sql->get();
 
         // Return Data Using DataTables with Ajax
         if ($request->ajax()) {
             return Datatables::of($data)
+                ->editColumn('PurchaseID', function ($data) {
+                    if ($data->RefPurchaseID != null) {
+                        $purchaseID = $data->PurchaseID . '<br> dari ' . $data->RefPurchaseID;
+                    } elseif ($data->ActionType == "OUTBOUND") {
+                        $purchaseID = $data->DeliveryOrderID . '<br> dari ' . $data->PurchaseID;
+                    } else {
+                        $purchaseID = $data->PurchaseID;
+                    }
+
+                    return $purchaseID;
+                })
                 ->editColumn('CreatedDate', function ($data) {
                     return date('d M Y H:i', strtotime($data->CreatedDate));
                 })
+                ->editColumn('PurchasePrice', function ($data) {
+                    return Helper::formatCurrency($data->PurchasePrice, "Rp ");
+                })
+                ->rawColumns(['PurchaseID'])
                 ->make(true);
         }
 
         return view('stock.list.detail', [
             'distributor' => DB::table('ms_distributor')->where('DistributorID', $distributorID)->select('DistributorName')->first(),
-            'product' => DB::table('ms_product')->where('ProductID', $productID)->select('ProductImage', 'ProductName')->first()
+            'investor' => $investor,
+            'product' => DB::table('ms_stock_product')
+                ->join('ms_product', 'ms_product.ProductID', 'ms_stock_product.ProductID')
+                ->where('ms_stock_product.ProductID', $productID)
+                ->where('ms_stock_product.ProductLabel', $label)
+                ->select('ms_stock_product.ProductLabel', 'ms_product.ProductImage', 'ms_product.ProductName')
+                ->first()
         ]);
     }
 }
