@@ -42,17 +42,21 @@
           </div>
           <div class="card-body mt-2">
             <div class="row">
-              <div class="col-12 col-md-4 mb-3">
+              <div class="col-12 col-md-3 mb-3">
                 <strong><i class="fas fa-map-marker-alt mr-1"></i> Distributor</strong>
                 <p>{{ $distributor->DistributorName }}</p>
               </div>
-              <div class="col-12 col-md-4 mb-3">
+              <div class="col-12 col-md-3 mb-3">
+                <strong><i class="fas fa-money-bill-wave-alt mr-1"></i> Investor</strong>
+                <p>{{ $investor }}</p>
+              </div>
+              <div class="col-12 col-md-3 mb-3">
                 <strong><i class="far fa-images mr-1"></i> Gambar Produk</strong><br>
                 <img src="{{ config('app.base_image_url') . '/product/'. $product->ProductImage }}" alt="Store Image" height="130">
               </div>
-              <div class="col-12 col-md-4 mb-3">
+              <div class="col-12 col-md-3 mb-3">
                 <strong><i class="fas fa-dice-d6 mr-1"></i> Nama Produk</strong>
-                <p>{{ $product->ProductName }}</p>
+                <p>{{ $product->ProductName }} ({{ $product->ProductLabel }})</p>
               </div>
               <div class="table-responsive" id="detail-stock">
                 <table class="table table-datatables table-bordered text-nowrap">

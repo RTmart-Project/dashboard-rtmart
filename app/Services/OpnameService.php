@@ -50,8 +50,9 @@ class OpnameService
   {
     $sql = DB::table('ms_stock_opname')
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_stock_opname.DistributorID')
+      ->leftJoin('ms_investor', 'ms_investor.InvestorID', 'ms_stock_opname.InvestorID')
       ->where('ms_stock_opname.StockOpnameID', $stockOpnameID)
-      ->select('ms_stock_opname.StockOpnameID', 'ms_stock_opname.OpnameDate', 'ms_stock_opname.Notes', 'ms_distributor.DistributorName')
+      ->select('ms_stock_opname.StockOpnameID', 'ms_stock_opname.OpnameDate', 'ms_stock_opname.Notes', 'ms_distributor.DistributorName', 'ms_investor.InvestorName')
       ->first();
 
     $sql->Officer = DB::table('ms_stock_opname_officer')
@@ -63,7 +64,7 @@ class OpnameService
     $sql->Detail = DB::table('ms_stock_opname_detail')
       ->join('ms_product', 'ms_product.ProductID', 'ms_stock_opname_detail.ProductID')
       ->where('ms_stock_opname_detail.StockOpnameID', $stockOpnameID)
-      ->select('ms_stock_opname_detail.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_stock_opname_detail.PurchasePrice', 'ms_stock_opname_detail.OldQty', 'ms_stock_opname_detail.NewQty', 'ms_stock_opname_detail.ConditionStock')
+      ->select('ms_stock_opname_detail.ProductID', 'ms_product.ProductName', 'ms_stock_opname_detail.ProductLabel', 'ms_product.ProductImage', 'ms_stock_opname_detail.PurchasePrice', 'ms_stock_opname_detail.OldQty', 'ms_stock_opname_detail.NewQty', 'ms_stock_opname_detail.ConditionStock')
       ->get()->toArray();
 
     return $sql;
@@ -82,22 +83,22 @@ class OpnameService
     return $dataOpnameOfficer;
   }
 
-  public function dataStockOpnameDetail($distributorID, $productID, $oldGoodStock, $newGoodStock, $oldBadStock, $newBadStock, $opnameID)
+  public function dataStockOpnameDetail($distributorID, $productID, $label, $oldGoodStock, $newGoodStock, $oldBadStock, $newBadStock, $opnameID)
   {
     $dataDetailGoodStock = array_map(function () {
       return func_get_args();
-    }, $productID, $oldGoodStock, $newGoodStock);
+    }, $productID, $label, $oldGoodStock, $newGoodStock);
     foreach ($dataDetailGoodStock as $key => &$value) {
-      $value = array_combine(['ProductID', 'OldQty', 'NewQty'], $value);
+      $value = array_combine(['ProductID', 'ProductLabel', 'OldQty', 'NewQty'], $value);
       $dataDetailGoodStock[$key]['StockOpnameID'] = $opnameID;
       $dataDetailGoodStock[$key]['ConditionStock'] = 'GOOD STOCK';
     }
 
     $dataDetailBadStock = array_map(function () {
       return func_get_args();
-    }, $productID, $oldBadStock, $newBadStock);
+    }, $productID, $label, $oldBadStock, $newBadStock);
     foreach ($dataDetailBadStock as $key => &$value) {
-      $value = array_combine(['ProductID', 'OldQty', 'NewQty'], $value);
+      $value = array_combine(['ProductID', 'ProductLabel', 'OldQty', 'NewQty'], $value);
       $dataDetailBadStock[$key]['StockOpnameID'] = $opnameID;
       $dataDetailBadStock[$key]['ConditionStock'] = 'BAD STOCK';
     }

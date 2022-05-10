@@ -109,7 +109,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/', [StockController::class, 'opname'])->name('stock.opname');
             Route::get('/get', [StockController::class, 'getOpname'])->name('stock.getOpname');
             Route::get('/create', [StockController::class, 'createOpname'])->name('stock.createOpname');
-            Route::get('sumOldProduct/{distributorID}/{productID}', [StockController::class, 'sumOldProduct'])->name('stock.sumOldProduct');
+            Route::get('/sumOldProduct/{distributorID}/{investorID}/{productID}/{label}', [StockController::class, 'sumOldProduct'])->name('stock.sumOldProduct');
             Route::post('/store', [StockController::class, 'storeOpname'])->name('stock.storeOpname');
             Route::get('/detail/{stockOpnameID}', [StockController::class, 'detailOpname'])->name('stock.detailOpname');
         });
@@ -128,7 +128,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::prefix('list')->group(function () {
             Route::get('/', [StockController::class, 'listStock'])->name('stock.listStock');
             Route::get('/get', [StockController::class, 'getListStock'])->name('stock.getListStock');
-            Route::get('/detail/{distributorID}/{productID}', [StockController::class, 'detailStock'])->name('stock.detailStock');
+            Route::get('/detail/{distributorID}/{investorID}/{productID}/{label}', [StockController::class, 'detailStock'])->name('stock.detailStock');
         });
     });
 

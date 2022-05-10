@@ -32,7 +32,7 @@ class PurchaseService
     $sqlDetail = DB::table('ms_stock_purchase_detail')
       ->join('ms_product', 'ms_product.ProductID', 'ms_stock_purchase_detail.ProductID')
       ->where('ms_stock_purchase_detail.PurchaseID', $purchaseID)
-      ->select('ms_stock_purchase_detail.ProductID', 'ms_product.ProductName', 'ms_stock_purchase_detail.Qty', 'ms_stock_purchase_detail.PurchasePrice')->get()->toArray();
+      ->select('ms_stock_purchase_detail.ProductID', 'ms_product.ProductName', 'ms_stock_purchase_detail.ProductLabel', 'ms_stock_purchase_detail.Qty', 'ms_stock_purchase_detail.PurchasePrice')->get()->toArray();
 
     $sql->Detail = $sqlDetail;
 
@@ -60,15 +60,15 @@ class PurchaseService
     return $newPurchaseID;
   }
 
-  public function dataPurchaseDetail($productID, $qty, $purchasePrice, $purchaseID)
+  public function dataPurchaseDetail($productID, $labeling, $qty, $purchasePrice, $purchaseID)
   {
     $dataPurchaseDetail = [];
     $purchaseDetail = array_map(function () {
       return func_get_args();
-    }, $productID, $qty, $purchasePrice);
+    }, $productID, $labeling, $qty, $purchasePrice);
 
     foreach ($purchaseDetail as $key => $value) {
-      $value = array_combine(['ProductID', 'Qty', 'PurchasePrice'], $value);
+      $value = array_combine(['ProductID', 'ProductLabel', 'Qty', 'PurchasePrice'], $value);
       $value += ['PurchaseID' => $purchaseID];
       $value += ['Type' => 'INBOUND'];
       array_push($dataPurchaseDetail, $value);
@@ -82,7 +82,7 @@ class PurchaseService
     $detail = DB::table('ms_stock_purchase_detail')
       ->join('ms_stock_purchase', 'ms_stock_purchase.PurchaseID', 'ms_stock_purchase_detail.PurchaseID')
       ->where('ms_stock_purchase_detail.PurchaseID', $purchaseID)
-      ->select('ms_stock_purchase_detail.PurchaseID', 'ms_stock_purchase_detail.ProductID', 'ms_stock_purchase_detail.Qty', 'ms_stock_purchase_detail.PurchasePrice', 'ms_stock_purchase.DistributorID')->get()
+      ->select('ms_stock_purchase_detail.PurchaseID', 'ms_stock_purchase_detail.ProductID', 'ms_stock_purchase_detail.ProductLabel', 'ms_stock_purchase_detail.Qty', 'ms_stock_purchase_detail.PurchasePrice', 'ms_stock_purchase.DistributorID', 'ms_stock_purchase.InvestorID')->get()
       ->map(function ($item, $key) {
         $item->CreatedDate  = date('Y-m-d H:i:s');
         $item->Type = 'INBOUND';
@@ -106,6 +106,7 @@ class PurchaseService
           $qtyBefore = DB::table('ms_stock_product')
             ->where('ms_stock_product.StockProductID', '!=', $stockProductID)
             ->where('ms_stock_product.ProductID', $value['ProductID'])
+            ->where('ms_stock_product.ProductLabel', $value['ProductLabel'])
             ->where('ms_stock_product.DistributorID', $value['DistributorID'])
             ->where('ms_stock_product.ConditionStock', 'GOOD STOCK')
             ->selectRaw("IFNULL(SUM(ms_stock_product.Qty), 0) AS QtyBefore")
@@ -183,21 +184,25 @@ class PurchaseService
     $sql = DB::table('ms_stock_product')
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_stock_product.DistributorID')
       ->join('ms_product', 'ms_product.ProductID', 'ms_stock_product.ProductID')
+      ->leftJoin('ms_investor', 'ms_investor.InvestorID', 'ms_stock_product.InvestorID')
       ->selectRaw("
         ANY_VALUE(ms_distributor.DistributorID) AS DistributorID,
         ANY_VALUE(ms_distributor.DistributorName) AS DistributorName,
         ANY_VALUE(ms_product.ProductName) AS ProductName,
-        ANY_VALUE(ms_product.ProductImage) AS ProductImage, 
-        ms_stock_product.ProductID, 
+        ANY_VALUE(ms_product.ProductImage) AS ProductImage,
+        ms_stock_product.InvestorID,
+        ms_investor.InvestorName,
+        ms_stock_product.ProductID,
+        ms_stock_product.ProductLabel,
         SUM(CASE WHEN ms_stock_product.ConditionStock = 'GOOD STOCK' THEN ms_stock_product.Qty ELSE 0 END) AS GoodStock,
         SUM(CASE WHEN ms_stock_product.ConditionStock = 'BAD STOCK' THEN ms_stock_product.Qty ELSE 0 END) AS BadStock
       ")
-      ->groupBy('ms_stock_product.DistributorID', 'ms_stock_product.ProductID');
+      ->groupBy('ms_stock_product.DistributorID', 'ms_stock_product.InvestorID', 'ms_stock_product.ProductID', 'ms_stock_product.ProductLabel');
 
     return $sql;
   }
 
-  public function getDetailStock($distributorID, $productID)
+  public function getDetailStock($distributorID, $productID, $label)
   {
     $sql = DB::table('ms_stock_product_log')
       ->join('ms_product', 'ms_product.ProductID', 'ms_stock_product_log.ProductID')
@@ -207,6 +212,7 @@ class PurchaseService
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'stock_product.DistributorID')
       ->where('stock_product.DistributorID', $distributorID)
       ->where('ms_stock_product_log.ProductID', $productID)
+      ->whereIn('stock_product.ProductLabel', [$label])
       ->select('stock_product.PurchaseID', 'stock_product.ConditionStock', 'ms_stock_product_log.PurchasePrice', 'ms_stock_product_log.ActionType', 'ms_stock_product_log.ActionBy', 'ms_stock_product_log.QtyBefore', 'ms_stock_product_log.QtyAction', 'ms_stock_product_log.QtyAfter', 'ms_stock_product_log.CreatedDate', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_distributor.DistributorName', 'reference_stock_product.PurchaseID AS RefPurchaseID', 'tx_merchant_delivery_order_detail.DeliveryOrderID');
 
     return $sql;

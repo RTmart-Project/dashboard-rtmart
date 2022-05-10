@@ -204,6 +204,8 @@ class DeliveryOrderService
         ANY_VALUE(ms_distributor.IsHaistar) AS IsHaistar,
         ANY_VALUE(tx_merchant_delivery_order_detail.ProductID) AS ProductID,
         IFNULL(SUM(ms_stock_product.Qty), 0) AS QtyStock,
+        SUM(IF(ms_stock_product.ProductLabel = 'PKP', ms_stock_product.Qty, 0)) AS QtyStockPKP,
+        SUM(IF(ms_stock_product.ProductLabel = 'NON-PKP', ms_stock_product.Qty, 0)) AS QtyStockNonPKP,
         ANY_VALUE(tx_merchant_delivery_order_detail.Qty) AS QtyDO,
         ANY_VALUE(tx_merchant_delivery_order_detail.Price) AS PriceDO,
         ANY_VALUE(ms_product.ProductName) AS ProductName,
@@ -546,6 +548,7 @@ class DeliveryOrderService
         'ms_stock_purchase.InvestorID',
         'ms_stock_purchase.SupplierID',
         'ms_stock_product_log.ProductID',
+        'ms_stock_product.ProductLabel',
         'ms_stock_product_log.PurchasePrice',
         'ms_stock_product_log.QtyAction',
         'ms_stock_product.Qty',
@@ -592,6 +595,7 @@ class DeliveryOrderService
         DB::table('ms_stock_purchase_detail')->insert([
           'PurchaseID' => $returID,
           'ProductID' => $value->ProductID,
+          'ProductLabel' => $value->ProductLabel,
           'ConditionStock' => $conditionStock,
           'Qty' => $qtyRetur,
           'PurchasePrice' => $value->PurchasePrice,
@@ -600,6 +604,7 @@ class DeliveryOrderService
         $stockProductID = DB::table('ms_stock_product')->insertGetId([
           'PurchaseID' => $returID,
           'ProductID' => $value->ProductID,
+          'ProductLabel' => $value->ProductLabel,
           'ConditionStock' => $conditionStock,
           'Qty' => $qtyRetur,
           'PurchasePrice' => $value->PurchasePrice,

@@ -26,6 +26,7 @@ $(document).ready(function () {
                 {
                     data: "CreatedDate",
                     name: "ms_stock_product_log.CreatedDate",
+                    type: "date",
                 },
                 {
                     data: "ConditionStock",

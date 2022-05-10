@@ -50,6 +50,10 @@
                     <p>{{ $opnameByID->DistributorName }}</p>
                   </div>
                   <div class="col-12 col-md-4 mb-3">
+                    <strong><i class="fas fa-map-marker-alt mr-1"></i> Investor</strong>
+                    <p>{{ $opnameByID->InvestorName }}</p>
+                  </div>
+                  <div class="col-12 col-md-4 mb-3">
                     <strong><i class="fas fa-calendar-day mr-1"></i> Tanggal Stock Opname</strong>
                     <p>{{ date('d F Y\, H:i', strtotime($opnameByID->OpnameDate)) }}</p>
                   </div>
@@ -82,6 +86,7 @@
                           <tr>
                             <th>Produk ID</th>
                             <th>Nama Produk</th>
+                            <th>Label Produk</th>
                             <th>Qty Lama</th>
                             <th>Qty Baru</th>
                             <th>Harga Beli</th>
@@ -93,6 +98,7 @@
                           <tr>
                             <td>{{ $detail->ProductID }}</td>
                             <td>{{ $detail->ProductName }}</td>
+                            <td>{{ $detail->ProductLabel }}</td>
                             <td>{{ $detail->OldQty }}</td>
                             <td>{{ $detail->NewQty }}</td>
                             <td>{{ Helper::formatCurrency($detail->PurchasePrice, 'Rp ') }}</td>

@@ -162,19 +162,35 @@
               @foreach ($purchaseByID->Detail as $detail)
               <div id="purchase-detail" class="row mb-3">
                 <div class="col-12">
+                  <a class="btn btn-sm float-right remove"><i class="far fa-times-circle fa-lg text-danger"></i></a>
+                </div>
+                <div class="col-md-6 col-12">
                   <div class="form-group">
                     <label for="product">Nama Produk</label>
-                    <a class="btn btn-sm float-right remove"><i class="far fa-times-circle fa-lg text-danger"></i></a>
                     <select title="Pilih Produk" name="product[]" data-live-search="true"
                       class="form-control selectpicker border select-product" required>
                       @foreach ($products as $product)
-                      <option value="{{ $product->ProductID }}" {{ $product->ProductID == $detail->ProductID ?
-                        'selected' : '' }}>
-                        {{ $product->ProductName.' -- Isi: '. $product->ProductUOMDesc . ' ' .
-                        $product->ProductUOMName
-                        }}
+                      <option value="{{ $product->ProductID }}" 
+                        {{ $product->ProductID == $detail->ProductID ? 'selected' : '' }}>
+                        {{ $product->ProductName.' -- Isi: '. $product->ProductUOMDesc . ' ' . $product->ProductUOMName }}
                       </option>
                       @endforeach
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6 col-12">
+                  <div class="form-group">
+                    <label for="labeling">Label Produk</label>
+                    <select title="Pilih Labeling Produk" name="labeling[]" id="labeling"
+                      class="form-control selectpicker border" required>
+                      <option value="PKP"
+                        {{ $detail->ProductLabel == 'PKP' ? 'selected' : '' }}>
+                        PKP
+                      </option>
+                      <option value="NON-PKP"
+                        {{ $detail->ProductLabel == 'NON PKP' ? 'selected' : '' }}>
+                        NON PKP
+                      </option>
                     </select>
                   </div>
                 </div>

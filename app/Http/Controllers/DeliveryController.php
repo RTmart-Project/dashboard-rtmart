@@ -487,19 +487,21 @@ class DeliveryController extends Controller
 
         if ($status == "finish") {
             $qtyDiterima = $request->input('receipt_qty');
+            $qtyBadStock = $request->input('badstock_qty');
             $imageName = date('YmdHis') . '_' . $expeditionDetailID . '.' . $request->file('receipt_image')->extension();
             $request->file('receipt_image')->move($this->saveImageUrl . 'receipt_image_expedition/', $imageName);
             $statusExpedition = "S031";
             $message = "Produk berhasil diselesaikan";
         } else {
             $qtyDiterima = 0;
+            $qtyBadStock = 0;
             $imageName = "";
             $statusExpedition = "S037";
             $message = "Produk berhasil dibatalkan";
         }
 
         try {
-            DB::transaction(function () use ($deliveryOrderDetailID, $statusExpedition, $expeditionDetailID, $status, $deliveryOrderService, $qtyDiterima, $imageName) {
+            DB::transaction(function () use ($deliveryOrderDetailID, $statusExpedition, $expeditionDetailID, $status, $deliveryOrderService, $qtyDiterima, $qtyBadStock, $imageName) {
                 $deliveryOrderDetail = DB::table('tx_merchant_delivery_order_detail')
                     ->where('DeliveryOrderDetailID', $deliveryOrderDetailID->DeliveryOrderDetailID);
                 $expeditionDetail = DB::table('tx_merchant_expedition_detail')
@@ -517,9 +519,12 @@ class DeliveryController extends Controller
                         'ReceiptImage' => $imageName
                     ]);
 
-                    $qtyTdkDiterima = $DOdetail->Qty - $qtyDiterima;
+                    $qtyTdkDiterima = $DOdetail->Qty - $qtyDiterima - $qtyBadStock;
                     if ($qtyTdkDiterima > 0) {
-                        $deliveryOrderService->cancelProductExpedition($expeditionDetailID, $qtyTdkDiterima, "BAD STOCK");
+                        $deliveryOrderService->cancelProductExpedition($expeditionDetailID, $qtyTdkDiterima, "GOOD STOCK");
+                    }
+                    if ($qtyBadStock > 0) {
+                        $deliveryOrderService->cancelProductExpedition($expeditionDetailID, $qtyBadStock, "BAD STOCK");
                     }
                 }
 
