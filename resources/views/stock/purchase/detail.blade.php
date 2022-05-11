@@ -109,6 +109,7 @@
                           <th>Label Produk</th>
                           <th>Qty</th>
                           <th>Harga Beli</th>
+                          <th>Total Harga</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -119,6 +120,7 @@
                           <td>{{ $detail->ProductLabel }}</td>
                           <td>{{ $detail->Qty }}</td>
                           <td>{{ Helper::formatCurrency($detail->PurchasePrice, 'Rp ') }}</td>
+                          <td>{{ Helper::formatCurrency($detail->Qty * $detail->PurchasePrice, 'Rp ') }}</td>
                         </tr>
                         @endforeach
                       </tbody>

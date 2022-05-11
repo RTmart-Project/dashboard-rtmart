@@ -43,11 +43,11 @@
         @foreach ($item->DetailProduct as $product)
         @if ($product->IsHaistarProduct == 1)
         @if ($firstInLoopHaistar == true)
-        <div class="d-flex">
+        {{-- <div class="d-flex">
           <input type="checkbox" class="align-self-center mr-2 check_haistar_request" required
             id="haistar{{ $item->DeliveryOrderID }}{{ $loop->iteration }}">
           <label for="haistar{{ $item->DeliveryOrderID }}{{ $loop->iteration }}" class="m-0">Produk Haistar</label>
-        </div>
+        </div> --}}
         @endif
         <div class="row text-center border-bottom m-0 request-do">
           <div class="col-3 align-self-center">
@@ -63,11 +63,11 @@
             <p>
               <input type="hidden" name="max_qty_request_do_haistar[]"
                 value="{{ $product->OrderQty - $product->QtyDOSelesai - $product->QtyDODlmPengiriman }}">
-              <input type="number" class="form-control qty-request-do text-sm text-center p-0 d-inline"
+              {{-- <input type="number" class="form-control qty-request-do text-sm text-center p-0 d-inline"
                 value="{{ $product->Qty }}" id="qty-request-do" name="qty_request_do_haistar[]"
                 style="width: 40px; height: 30px;"
-                max="{{ $product->OrderQty - $product->QtyDOSelesai - $product->QtyDODlmPengiriman }}" min="0" required>
-              <span class="price-do">{{ Helper::formatCurrency($product->Price, 'x @Rp ') }}</span><br>
+                max="{{ $product->OrderQty - $product->QtyDOSelesai - $product->QtyDODlmPengiriman }}" min="0" required> --}}
+              <span class="price-do">{{ Helper::formatCurrency($product->Price, $product->Qty .' x @Rp ') }}</span><br>
               <small>Max Qty dapat dikirm : {{ $product->OrderQty - $product->QtyDOSelesai -
                 $product->QtyDODlmPengiriman }}</small>
               <input type="hidden" name="price_haistar[]" value="{{ $product->Price }}">
@@ -88,11 +88,11 @@
         @foreach ($item->DetailProduct as $product)
         @if ($product->IsHaistarProduct == 0)
         @if ($firstInLoopRTmart == true)
-        <div class="d-flex">
+        {{-- <div class="d-flex">
           <input type="checkbox" class="align-self-center mr-2 check_rtmart_request" required
             id="rtmart{{ $item->DeliveryOrderID }}{{ $loop->iteration }}">
           <label for="rtmart{{ $item->DeliveryOrderID }}{{ $loop->iteration }}" class="m-0">Produk RTmart</label>
-        </div>
+        </div> --}}
         @endif
         <div class="row text-center border-bottom m-0 request-do">
           <div class="col-3 align-self-center">
@@ -108,11 +108,11 @@
             <p>
               <input type="hidden" name="max_qty_request_do_rtmart[]"
                 value="{{ $product->OrderQty - $product->QtyDOSelesai - $product->QtyDODlmPengiriman }}">
-              <input type="number" class="form-control qty-request-do text-sm text-center p-0 d-inline"
+              {{-- <input type="number" class="form-control qty-request-do text-sm text-center p-0 d-inline"
                 value="{{ $product->Qty }}" id="qty-request-do" name="qty_request_do_rtmart[]"
                 style="width: 40px; height: 30px;"
-                max="{{ $product->OrderQty - $product->QtyDOSelesai - $product->QtyDODlmPengiriman }}" min="0" required>
-              <span class="price-do">{{ Helper::formatCurrency($product->Price, 'x @Rp ') }}</span><br>
+                max="{{ $product->OrderQty - $product->QtyDOSelesai - $product->QtyDODlmPengiriman }}" min="0" required> --}}
+              <span class="price-do">{{ Helper::formatCurrency($product->Price, $product->Qty . ' x @Rp ') }}</span><br>
               <small>Max Qty dapat dikirm : {{ $product->OrderQty - $product->QtyDOSelesai -
                 $product->QtyDODlmPengiriman }}</small>
               <input type="hidden" name="price_rtmart[]" value="{{ $product->Price }}">
@@ -130,8 +130,8 @@
 
         @endforeach
 
-        <div class="row m-0 border-bottom">
-          <div class="col-6 col-md-8 pt-2">
+        <div class="row m-0 border-bottom justify-content-end">
+          {{-- <div class="col-6 col-md-8 pt-2">
             <div class="row m-0">
               <div class="col-md-6 col-12 pl-0">
                 <div class="form-group m-0">
@@ -181,7 +181,7 @@
                 </div>
               </div>
             </div>
-          </div>
+          </div> --}}
           <div class="col-6 col-md-4 d-flex justify-content-between flex-column">
             <p class="text-center mt-3">
               <b>SubTotal : </b>
@@ -189,8 +189,8 @@
             </p>
           </div>
         </div>
-        <div class="row m-0 pt-2 text-center konfirmasi-request">
-          <div class="col-6 align-self-center">
+        <div class="row m-0 pt-2 text-center konfirmasi-request justify-content-center">
+          {{-- <div class="col-6 align-self-center">
             <div class="d-flex flex-column flex-wrap">
               <b class="mb-2">{{ $item->StatusOrder }}</b>
               <div class="d-flex justify-content-center" style="gap: 8px">
@@ -204,7 +204,7 @@
                 </a>
               </div>
             </div>
-          </div>
+          </div> --}}
           <div class="col-6 align-self-center">
             Rencana kirim {{ date('d F Y', strtotime($item->CreatedDate)) }}
             <input type="hidden" name="created_date" value="{{ $item->CreatedDate }}">

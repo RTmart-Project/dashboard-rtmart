@@ -53,13 +53,13 @@
             <p>
               <input type="hidden" name="max_edit_qty_do[]"
                 value="{{ $product->OrderQty - $product->QtyDOSelesai - $product->QtyDODlmPengiriman + $product->Qty }}">
-              <input type="number" class="form-control edit-qty-do text-sm text-center p-0 d-inline"
+              {{-- <input type="number" class="form-control edit-qty-do text-sm text-center p-0 d-inline"
                 value="{{ $product->Qty }}" name="edit_qty_do[]" style="width: 40px; height: 30px;"
                 max="{{ $product->OrderQty - $product->QtyDOSelesai - $product->QtyDODlmPengiriman + $product->Qty }}"
-                min="0" required>
-              <span class="price-do">{{ Helper::formatCurrency($product->Price, 'x @Rp ') }}</span><br>
-              <small>Max Qty dapat diubah : {{ $product->OrderQty - $product->QtyDOSelesai -
-                $product->QtyDODlmPengiriman + $product->Qty }}</small>
+                min="0" required> --}}
+              <span class="price-do">{{ Helper::formatCurrency($product->Price, $product->Qty . ' x @Rp ') }}</span><br>
+              {{-- <small>Max Qty dapat diubah : {{ $product->OrderQty - $product->QtyDOSelesai -
+                $product->QtyDODlmPengiriman + $product->Qty }}</small> --}}
             </p>
             @endif
           </div>
@@ -69,8 +69,8 @@
           </div>
         </div>
         @endforeach
-        <div class="row m-0 border-bottom">
-          <div class="col-6 col-md-8 pt-2">
+        <div class="row m-0 border-bottom d-flex justify-content-end">
+          {{-- <div class="col-6 col-md-8 pt-2">
             @if ($item->StatusOrder != "Dalam Pengiriman" || $item->Distributor == "HAISTAR")
             <p class="m-0"><b>Driver : </b>{{ $item->Name }}</p>
             <p class="m-0"><b>Helper : </b>{{ $item->HelperName }}</p>
@@ -129,16 +129,16 @@
               </div>
             </div>
             @endif
-          </div>
-          <div class="col-6 col-md-4 d-flex justify-content-between flex-column">
+          </div> --}}
+          <div class="col-4">
             <p class="text-center mt-3">
               <b>SubTotal : </b>
               <span class="price-subtotal">{{ Helper::formatCurrency($item->SubTotal, 'Rp ') }}</span>
             </p>
             @if ($item->StatusOrder == "Dalam Pengiriman" && $item->Distributor != "HAISTAR")
-            <div class="text-center">
+            {{-- <div class="text-center">
               <button type="submit" id="update_qty" class="btn btn-xs btn-primary text-white mb-2 w-50">Simpan</button>
-            </div>
+            </div> --}}
             @endif
           </div>
         </div>
@@ -146,13 +146,13 @@
       <div class="row m-0 pt-2">
         <div class="col-3 col-md-4 align-self-center">
           <b>{{ $item->StatusOrder }}</b> <br>
-          @if ($item->StatusOrder == "Dalam Pengiriman" && $item->Distributor != "HAISTAR")
+          {{-- @if ($item->StatusOrder == "Dalam Pengiriman" && $item->Distributor != "HAISTAR")
           <a href="#" class="btn btn-xs btn-success btn-finish-do mb-2"
             data-do-id="{{ $item->DeliveryOrderID }}">Selesaikan Order</a>
           @elseif ($item->StatusOrder == "Dalam Pengiriman" && $item->Distributor == "HAISTAR")
           <a href="#" class="btn btn-xs btn-danger btn-cancel-do-haistar mb-2"
             data-do-id="{{ $item->DeliveryOrderID }}">Batalkan Order Haistar</a>
-          @endif
+          @endif --}}
         </div>
         <div class="col-6 col-md-5 align-self-center">
           Dikirim {{ date('d M Y H:i', strtotime($item->DateKirim)) }}<br>

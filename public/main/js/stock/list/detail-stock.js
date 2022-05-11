@@ -46,7 +46,7 @@ $(document).ready(function () {
                     extend: "excelHtml5",
                     filename: function () {
                         return exportDatatableHelper.generateFilename(
-                            "ReadyStock"
+                            "DetailListStock"
                         );
                     },
                     text: "Export",
