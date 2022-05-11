@@ -263,22 +263,24 @@ class DeliveryOrderService
     return $sql;
   }
 
-  public function reduceStock($productID, $distributorID, $qtyReduce, $deliveryOrderDetailID, $merchantExpeditionDetailID)
+  public function reduceStock($productID, $distributorID, $qtyReduce, $deliveryOrderDetailID, $merchantExpeditionDetailID, $sourceProduct)
   {
     $sql = DB::table('ms_stock_product')
       ->where('ProductID', $productID)
       ->where('DistributorID', $distributorID)
       ->where('ConditionStock', 'GOOD STOCK')
       ->where('Qty', '>', 0)
+      ->orderByRaw("ProductLabel = ? desc", [$sourceProduct])
       ->orderBy('LevelType')
       ->orderBy('CreatedDate')
       ->orderBy('PurchaseID')
-      ->select('StockProductID', 'Qty', 'PurchasePrice')->first();
+      ->select('StockProductID', 'Qty', 'PurchasePrice', 'ProductLabel')->first();
 
     $stockBefore =  DB::table('ms_stock_product')
       ->where('ProductID', $productID)
       ->where('DistributorID', $distributorID)
       ->where('ConditionStock', 'GOOD STOCK')
+      ->where('ProductLabel', $sql->ProductLabel)
       ->sum('Qty');
 
     $sellingPrice = DB::table('tx_merchant_delivery_order_detail')
@@ -310,7 +312,7 @@ class DeliveryOrderService
           'ActionBy' => $user,
           'ActionType' => 'OUTBOUND'
         ]);
-      $this->reduceStock($productID, $distributorID, $qtyAfter * (-1), $deliveryOrderDetailID, $merchantExpeditionDetailID);
+      $this->reduceStock($productID, $distributorID, $qtyAfter * (-1), $deliveryOrderDetailID, $merchantExpeditionDetailID, $sourceProduct);
     } else {
       DB::table('ms_stock_product')
         ->where('StockProductID', $sql->StockProductID)
@@ -542,21 +544,10 @@ class DeliveryOrderService
       ->leftJoin('ms_stock_opname', 'ms_stock_opname.StockOpnameID', 'ms_stock_product.PurchaseID')
       ->leftJoin('ms_stock_purchase', 'ms_stock_purchase.PurchaseID', 'ms_stock_product.PurchaseID')
       ->where('ms_stock_product_log.MerchantExpeditionDetailID', $expeditionDetailID)
-      ->select(
-        'ms_stock_product.StockProductID',
-        'ms_stock_product.DistributorID',
-        'ms_stock_purchase.InvestorID',
-        'ms_stock_purchase.SupplierID',
-        'ms_stock_product_log.ProductID',
-        'ms_stock_product.ProductLabel',
-        'ms_stock_product_log.PurchasePrice',
-        'ms_stock_product_log.QtyAction',
-        'ms_stock_product.Qty',
-        'ms_stock_product_log.SellingPrice',
-        'ms_stock_product_log.DeliveryOrderDetailID',
-        'ms_stock_product_log.MerchantExpeditionDetailID'
-      )
+      ->where('ms_stock_product_log.ActionType', 'OUTBOUND')
+      ->select('ms_stock_product.StockProductID', 'ms_stock_product.DistributorID', 'ms_stock_purchase.InvestorID', 'ms_stock_purchase.SupplierID', 'ms_stock_product_log.ProductID', 'ms_stock_product.ProductLabel', 'ms_stock_product_log.PurchasePrice', 'ms_stock_product_log.QtyAction', 'ms_stock_product.Qty', 'ms_stock_product_log.SellingPrice', 'ms_stock_product_log.DeliveryOrderDetailID', 'ms_stock_product_log.MerchantExpeditionDetailID')
       ->orderByDesc('ms_stock_product.CreatedDate')
+      ->orderByDesc('ms_stock_product_log.StockProductLogID')
       ->get();
 
     $dateTime = date('Y-m-d H:i:s');
@@ -567,6 +558,7 @@ class DeliveryOrderService
         $stockBefore = DB::table('ms_stock_product')
           ->where('ProductID', $value->ProductID)
           ->where('DistributorID', $value->DistributorID)
+          ->where('ProductLabel', $value->ProductLabel)
           ->where('ConditionStock', 'GOOD STOCK')
           ->sum('Qty');
 
@@ -574,7 +566,7 @@ class DeliveryOrderService
           $selisihQtyRetur = $qtyRetur - $value->QtyAction;
           $qtyRetur = $value->QtyAction;
         } else {
-          $selisihQtyRetur = $qtyRetur;
+          $selisihQtyRetur = 0;
         }
 
         $returID = $this->generateReturID();
@@ -609,6 +601,7 @@ class DeliveryOrderService
           'Qty' => $qtyRetur,
           'PurchasePrice' => $value->PurchasePrice,
           'DistributorID' => $value->DistributorID,
+          'InvestorID' => $value->InvestorID,
           'CreatedDate' => $dateTime,
           'Type' => 'RETUR',
           'LevelType' => 1
@@ -631,6 +624,9 @@ class DeliveryOrderService
         ]);
 
         $qtyRetur = $selisihQtyRetur;
+        if ($qtyRetur == 0) {
+          break;
+        }
       }
     });
 

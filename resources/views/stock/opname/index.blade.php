@@ -43,11 +43,13 @@
     <div class="row">
       <div class="col-12">
         <div class="card">
+          @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI"))
           <div class="card-header">
             <a href="{{ route('stock.createOpname') }}" class="btn btn-sm btn-success">
               <i class="fas fa-plus"></i> Tambah Opname
             </a>
           </div>
+          @endif
           <div class="card-body mt-2">
             <div class="tab-content">
 
@@ -59,6 +61,7 @@
                         <tr>
                           <th>Stock Opname ID</th>
                           <th>Distributor</th>
+                          <th>Investor</th>
                           <th>Tanggal Opname</th>
                           <th>Petugas Opname</th>
                           <th>Catatan</th>

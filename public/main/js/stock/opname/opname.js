@@ -28,6 +28,10 @@ $(document).ready(function () {
                     name: "ms_distributor.DistributorName",
                 },
                 {
+                    data: "InvestorName",
+                    name: "ms_investor.InvestorName",
+                },
+                {
                     data: "OpnameDate",
                     name: "ms_stock_opname.OpnameDate",
                     type: "date",
@@ -67,7 +71,7 @@ $(document).ready(function () {
                     },
                 },
             ],
-            order: [2, "desc"],
+            order: [3, "desc"],
             lengthChange: false,
             responsive: true,
             autoWidth: false,

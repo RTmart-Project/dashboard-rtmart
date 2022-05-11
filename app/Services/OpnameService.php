@@ -34,11 +34,13 @@ class OpnameService
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_stock_opname.DistributorID')
       ->join('ms_stock_opname_officer', 'ms_stock_opname_officer.StockOpnameID', 'ms_stock_opname.StockOpnameID')
       ->join('ms_user', 'ms_user.UserID', 'ms_stock_opname_officer.UserID')
+      ->leftJoin('ms_investor', 'ms_investor.InvestorID', 'ms_stock_opname.InvestorID')
       ->selectRaw("
         ms_stock_opname.StockOpnameID,
         ms_stock_opname.OpnameDate,
         ms_stock_opname.Notes,
         ANY_VALUE(ms_distributor.DistributorName) AS DistributorName,
+        ANY_VALUE(ms_investor.InvestorName) AS InvestorName,
         GROUP_CONCAT(ms_user.Name SEPARATOR ', ') AS OfficerOpname
       ")
       ->groupBy('ms_stock_opname.StockOpnameID');

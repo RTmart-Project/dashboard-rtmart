@@ -266,7 +266,7 @@ class DeliveryController extends Controller
                             $detailDO = $deliveryOrderService->getDOfromDetailDO($value->deliveryOrderDetailID);
                             $deliveryOrderService->updateDetailDeliveryOrder($detailDO->DeliveryOrderID, $detailDO->ProductID, $value->qtyExpedition, "S030", "RT MART");
                             $merchantExpeditionDetailID = $deliveryOrderService->insertExpeditionDetail($newMerchantExpeditionID, $detailDO->DeliveryOrderID, $detailDO->ProductID, "S030");
-                            $deliveryOrderService->reduceStock($detailDO->ProductID, $detailDO->DistributorID, $value->qtyExpedition, $value->deliveryOrderDetailID, $merchantExpeditionDetailID);
+                            $deliveryOrderService->reduceStock($detailDO->ProductID, $detailDO->DistributorID, $value->qtyExpedition, $value->deliveryOrderDetailID, $merchantExpeditionDetailID, $value->sourceProduct);
                         }
                     }
                     $deliveryOrderService->insertTable("tx_merchant_expedition", $dataInsertExpedition);
@@ -641,6 +641,17 @@ class DeliveryController extends Controller
 
     public function history()
     {
+        $sql = DB::table('ms_stock_product_log')
+            ->join('ms_stock_product', 'ms_stock_product.StockProductID', 'ms_stock_product_log.StockProductID')
+            ->leftJoin('ms_stock_opname', 'ms_stock_opname.StockOpnameID', 'ms_stock_product.PurchaseID')
+            ->leftJoin('ms_stock_purchase', 'ms_stock_purchase.PurchaseID', 'ms_stock_product.PurchaseID')
+            ->where('ms_stock_product_log.MerchantExpeditionDetailID', 13)
+            ->where('ms_stock_product_log.ActionType', 'OUTBOUND')
+            ->select('ms_stock_product.StockProductID', 'ms_stock_product.DistributorID', 'ms_stock_purchase.InvestorID', 'ms_stock_purchase.SupplierID', 'ms_stock_product_log.ProductID', 'ms_stock_product.ProductLabel', 'ms_stock_product_log.PurchasePrice', 'ms_stock_product_log.QtyAction', 'ms_stock_product.Qty', 'ms_stock_product_log.SellingPrice', 'ms_stock_product_log.DeliveryOrderDetailID', 'ms_stock_product_log.MerchantExpeditionDetailID')
+            ->orderByDesc('ms_stock_product.CreatedDate')
+            ->orderByDesc('ms_stock_product_log.StockProductLogID')
+            ->get();
+        dd($sql);
         return view('delivery.history.index');
     }
 

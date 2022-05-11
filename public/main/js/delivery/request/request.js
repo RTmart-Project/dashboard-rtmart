@@ -297,15 +297,17 @@ $(document).ready(function () {
             .find("#exist-qty-non-pkp");
 
         if (sourceProduct == "PKP") {
+            $(this).find('option[value="PKP"]').attr("selected", "selected");
+            $(this).find('option[value="NON-PKP"]').removeAttr("selected");
             pkpClass.removeClass("d-none");
-            pkpClass.addClass("active-exist-qty");
             nonPkpClass.addClass("d-none");
-            nonPkpClass.removeClass("active-exist-qty");
         } else {
+            $(this)
+                .find('option[value="NON-PKP"]')
+                .attr("selected", "selected");
+            $(this).find('option[value="PKP"]').removeAttr("selected");
             pkpClass.addClass("d-none");
-            pkpClass.removeClass("active-exist-qty");
             nonPkpClass.removeClass("d-none");
-            nonPkpClass.addClass("active-exist-qty");
         }
     });
 
@@ -362,13 +364,7 @@ $(document).ready(function () {
                 let qtyVal = Number(qty.val());
                 let maxQty = Number(qty.next().next().next().children().text());
                 let existQty = Number(
-                    qty
-                        .next()
-                        .next()
-                        .next()
-                        .next()
-                        .find(".active-exist-qty")
-                        .text()
+                    qty.next().next().next().next().children().text()
                 );
 
                 if (distributor == "RT MART") {
@@ -406,12 +402,19 @@ $(document).ready(function () {
                 let newQtyElement = `<span id='qty-expedition'>${qty.val()}</span>`;
                 qty.replaceWith(newQtyElement);
 
-                $(this)
-                    .parent()
-                    .siblings()
-                    .siblings()
-                    .siblings()
-                    .addClass("col-3");
+                const sourceProduct = $(this)
+                    .closest(".request-do")
+                    .find(".source-product");
+                const sourceProductValue = sourceProduct.val();
+                const newSourceProductElemenet = `<span id='source-product' class='d-block'>${sourceProductValue}</span>`;
+                sourceProduct.replaceWith(newSourceProductElemenet);
+
+                // $(this)
+                //     .parent()
+                //     .siblings()
+                //     .siblings()
+                //     .siblings()
+                //     .addClass("col-3");
             }
         });
 
@@ -541,6 +544,7 @@ $(document).ready(function () {
             let distributorID = $(this).find("#distributor-id").val();
             let productID = $(this).find("#product-id").val();
             let qtyExpedition = $(this).find("#qty-expedition").text();
+            let sourceProduct = $(this).find("#source-product").text();
 
             dataDeliveryOrderDetail.push({
                 deliveryOrderDetailID: deliveryOrderDetailID,
@@ -548,6 +552,7 @@ $(document).ready(function () {
                 distributorID: distributorID,
                 productID: productID,
                 qtyExpedition: qtyExpedition,
+                sourceProduct: sourceProduct,
             });
         });
 
