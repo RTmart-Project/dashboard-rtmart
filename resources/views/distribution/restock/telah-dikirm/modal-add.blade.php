@@ -21,13 +21,13 @@
   <form action="" method="post" id="form-add-do">
     @csrf
     <div class="row m-0">
-      <div class="col-md-6 col-12">
+      <div class="col-12">
         <div class="form-group">
-          <label class="my-0" for="created_date_do">Waktu Pengiriman :</label>
+          <label class="my-0" for="created_date_do">Plan Waktu Pengiriman :</label>
           <input type="datetime-local" class="form-control" name="created_date_do" id="created_date_do" required>
         </div>
       </div>
-      <div class="col-md-6 col-12">
+      {{-- <div class="col-md-6 col-12">
         <div class="form-group">
           <label class="my-0" for="vehicle">Jenis Kendaraan</label>
           <select name="vehicle" id="vehicle"
@@ -41,9 +41,9 @@
           <span class="error invalid-feedback">{{ $errors->first('vehicle') }}</span>
           @endif
         </div>
-      </div>
+      </div> --}}
     </div>
-    <div class="row m-0">
+    {{-- <div class="row m-0">
       <div class="col-md-4 col-12">
         <div class="form-group">
           <label class="my-0" for="driver">Driver</label>
@@ -86,7 +86,7 @@
           @endif
         </div>
       </div>
-    </div>
+    </div> --}}
     <div class="callout callout-danger d-md-none py-2 mb-1">
       <p><strong>Direkomendasikan untuk buka di LAPTOP / PC</strong></p>
     </div>
@@ -189,7 +189,12 @@
     @endif
     @endforeach
     <p class="my-2 mr-md-4 text-right"><b>Subtotal : </b>Rp <span class="subtotal-do">0</span></p>
-    <button type="submit" id="btn-do" disabled="disabled" class="btn btn-primary float-right my-3">Buat DO</button>
+    <div class="d-flex justify-content-between">
+      <div class="callout callout-danger my-2 p-2">
+        <p>Setelah berhasil membuat DO, masuk ke menu Delivery Plan untuk melakukan pengiriman.</p>
+      </div>
+      <button type="submit" id="btn-do" disabled="disabled" class="btn btn-primary my-2 float-right">Buat DO</button>
+    </div>
   </form>
   @endif
 </div>

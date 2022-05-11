@@ -537,7 +537,7 @@ class DeliveryOrderService
     return $newReturID;
   }
 
-  public function cancelProductExpedition($expeditionDetailID, $qtyRetur, $conditionStock)
+  public function cancelProductExpedition($expeditionDetailID, $qtyRetur, $conditionStock, $qtyNext = 0)
   {
     $sql = DB::table('ms_stock_product_log')
       ->join('ms_stock_product', 'ms_stock_product.StockProductID', 'ms_stock_product_log.StockProductID')
@@ -553,7 +553,7 @@ class DeliveryOrderService
     $dateTime = date('Y-m-d H:i:s');
     $user = Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo;
 
-    $dbTransaction = DB::transaction(function () use ($sql, $dateTime, $user, $qtyRetur, $conditionStock) {
+    $dbTransaction = DB::transaction(function () use ($sql, $dateTime, $user, $qtyRetur, $qtyNext, $conditionStock) {
       foreach ($sql as $key => $value) {
         $stockBefore = DB::table('ms_stock_product')
           ->where('ProductID', $value->ProductID)
@@ -562,9 +562,21 @@ class DeliveryOrderService
           ->where('ConditionStock', 'GOOD STOCK')
           ->sum('Qty');
 
-        if ($qtyRetur > $value->QtyAction) {
-          $selisihQtyRetur = $qtyRetur - $value->QtyAction;
-          $qtyRetur = $value->QtyAction;
+        $valAction = $value->QtyAction;
+
+        if ($qtyNext > 0) {
+          $selisihQtyNext = $qtyNext - $valAction;
+          $qtyNext = $selisihQtyNext;
+
+          if ($qtyNext >= 0) {
+            continue;
+          }
+          $valAction = $qtyNext * -1;
+        }
+
+        if ($qtyRetur > $valAction) {
+          $selisihQtyRetur = $qtyRetur - $valAction;
+          $qtyRetur = $valAction;
         } else {
           $selisihQtyRetur = 0;
         }
