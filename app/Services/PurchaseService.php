@@ -108,6 +108,7 @@ class PurchaseService
             ->where('ms_stock_product.ProductID', $value['ProductID'])
             ->where('ms_stock_product.ProductLabel', $value['ProductLabel'])
             ->where('ms_stock_product.DistributorID', $value['DistributorID'])
+            ->where('ms_stock_product.InvestorID', $value['InvestorID'])
             ->where('ms_stock_product.ConditionStock', 'GOOD STOCK')
             ->selectRaw("IFNULL(SUM(ms_stock_product.Qty), 0) AS QtyBefore")
             ->first();
