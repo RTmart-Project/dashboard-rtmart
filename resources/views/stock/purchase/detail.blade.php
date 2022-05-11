@@ -109,6 +109,7 @@
                           <th>Label Produk</th>
                           <th>Qty</th>
                           <th>Harga Beli</th>
+                          <th>Total Harga</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -119,13 +120,14 @@
                           <td>{{ $detail->ProductLabel }}</td>
                           <td>{{ $detail->Qty }}</td>
                           <td>{{ Helper::formatCurrency($detail->PurchasePrice, 'Rp ') }}</td>
+                          <td>{{ Helper::formatCurrency($detail->Qty * $detail->PurchasePrice, 'Rp ') }}</td>
                         </tr>
                         @endforeach
                       </tbody>
                     </table>
                   </div>
                 </div>
-                @if ($purchaseByID->StatusBy == null)
+                @if ($purchaseByID->StatusBy == null && (Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI"))
                 <div class="text-center mt-4">
                   <strong>Konfirmasi</strong>
                   <div class="d-flex justify-content-center mt-2" style="gap:10px">

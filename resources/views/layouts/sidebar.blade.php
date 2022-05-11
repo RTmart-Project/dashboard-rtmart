@@ -232,7 +232,7 @@
             </li>
             @endif
 
-            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI"))
+            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "INVTR"))
             <li class="nav-item {{ Request::is('stock*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('stock*') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-cubes"></i>
@@ -242,6 +242,7 @@
                     </p>
                 </a>
                 <ul class="nav nav-treeview">
+                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "INVTR"))
                     <li class="nav-item">
                         <a href="{{ route('stock.opname') }}"
                             class="nav-link {{ Request::is('stock/opname*') ? 'active' : '' }}">
@@ -249,6 +250,8 @@
                             <p>Stock Opname</p>
                         </a>
                     </li>
+                    @endif
+                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "INVTR"))
                     <li class="nav-item">
                         <a href="{{ route('stock.purchase') }}"
                             class="nav-link {{ Request::is('stock/purchase*') ? 'active' : '' }}">
@@ -256,6 +259,8 @@
                             <p>Purchase Stock</p>
                         </a>
                     </li>
+                    @endif
+                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "INVTR"))
                     <li class="nav-item">
                         <a href="{{ route('stock.listStock') }}"
                             class="nav-link {{ Request::is('stock/list*') ? 'active' : '' }}">
@@ -263,6 +268,7 @@
                             <p>List Stock</p>
                         </a>
                     </li>
+                    @endif
                 </ul>
             </li>
             @endif

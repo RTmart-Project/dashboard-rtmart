@@ -266,7 +266,7 @@ class DeliveryController extends Controller
                             $detailDO = $deliveryOrderService->getDOfromDetailDO($value->deliveryOrderDetailID);
                             $deliveryOrderService->updateDetailDeliveryOrder($detailDO->DeliveryOrderID, $detailDO->ProductID, $value->qtyExpedition, "S030", "RT MART");
                             $merchantExpeditionDetailID = $deliveryOrderService->insertExpeditionDetail($newMerchantExpeditionID, $detailDO->DeliveryOrderID, $detailDO->ProductID, "S030");
-                            $deliveryOrderService->reduceStock($detailDO->ProductID, $detailDO->DistributorID, $value->qtyExpedition, $value->deliveryOrderDetailID, $merchantExpeditionDetailID);
+                            $deliveryOrderService->reduceStock($detailDO->ProductID, $detailDO->DistributorID, $value->qtyExpedition, $value->deliveryOrderDetailID, $merchantExpeditionDetailID, $value->sourceProduct);
                         }
                     }
                     $deliveryOrderService->insertTable("tx_merchant_expedition", $dataInsertExpedition);
@@ -524,7 +524,7 @@ class DeliveryController extends Controller
                         $deliveryOrderService->cancelProductExpedition($expeditionDetailID, $qtyTdkDiterima, "GOOD STOCK");
                     }
                     if ($qtyBadStock > 0) {
-                        $deliveryOrderService->cancelProductExpedition($expeditionDetailID, $qtyBadStock, "BAD STOCK");
+                        $deliveryOrderService->cancelProductExpedition($expeditionDetailID, $qtyBadStock, "BAD STOCK", $qtyTdkDiterima);
                     }
                 }
 

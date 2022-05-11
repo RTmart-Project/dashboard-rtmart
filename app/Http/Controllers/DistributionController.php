@@ -734,7 +734,7 @@ class DistributionController extends Controller
         }
 
         $createdDateDO = str_replace("T", " ", $request->input('created_date_do'));
-        $vehicleLicensePlate = str_replace(" ", "-", $request->input('license_plate'));
+        // $vehicleLicensePlate = str_replace(" ", "-", $request->input('license_plate'));
 
         $productId = $request->input('product_id');
         $qty = $request->input('qty_do');
@@ -745,10 +745,10 @@ class DistributionController extends Controller
 
         if ($depoChannel == "rtmart") {
             $request->validate([
-                'created_date_do' => 'required|date',
-                'driver' => 'required',
-                'vehicle' => 'required',
-                'license_plate' => 'required',
+                'created_date_do' => 'required',
+                // 'driver' => 'required',
+                // 'vehicle' => 'required',
+                // 'license_plate' => 'required',
                 'qty_do' => 'required',
                 'qty_do.*' => 'required|numeric|lte:max_qty_do.*|gte:1'
             ]);
@@ -756,11 +756,11 @@ class DistributionController extends Controller
             $dataDO = [
                 'DeliveryOrderID' => $newDeliveryOrderID,
                 'StockOrderID' => $stockOrderID,
-                'StatusDO' => 'S024',
-                'DriverID' => $request->input('driver'),
-                'HelperID' => $request->input('helper'),
-                'VehicleID' => $request->input('vehicle'),
-                'VehicleLicensePlate' => $vehicleLicensePlate,
+                'StatusDO' => 'S028',
+                // 'DriverID' => $request->input('driver'),
+                // 'HelperID' => $request->input('helper'),
+                // 'VehicleID' => $request->input('vehicle'),
+                // 'VehicleLicensePlate' => $vehicleLicensePlate,
                 'Distributor' => "RT MART",
                 'CreatedDate' => $createdDateDO
             ];
@@ -770,6 +770,7 @@ class DistributionController extends Controller
             foreach ($dataDetailDO as $key => $value) {
                 $value = array_combine(['ProductID', 'Qty'], $value);
                 $value += ['DeliveryOrderID' => $newDeliveryOrderID];
+                $value += ['Distributor' => 'RT MART'];
 
                 $validation = $deliveryOrderService->validateRemainingQty($stockOrderID, "", $value['ProductID'], $value['Qty'], "CreateDO");
                 $value += ['Price' => $validation['price']];
@@ -783,11 +784,11 @@ class DistributionController extends Controller
             $dataLogDO = [
                 'StockOrderID' => $stockOrderID,
                 'DeliveryOrderID' => $newDeliveryOrderID,
-                'StatusDO' => 'S024',
-                'DriverID' => $request->input('driver'),
-                'HelperID' => $request->input('helper'),
-                'VehicleID' => $request->input('vehicle'),
-                'VehicleLicensePlate' => $vehicleLicensePlate,
+                'StatusDO' => 'S028',
+                // 'DriverID' => $request->input('driver'),
+                // 'HelperID' => $request->input('helper'),
+                // 'VehicleID' => $request->input('vehicle'),
+                // 'VehicleLicensePlate' => $vehicleLicensePlate,
                 'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo . ' ' . Auth::user()->Name
             ];
 
@@ -802,34 +803,34 @@ class DistributionController extends Controller
                             ->insert($dataLogDO);
                     });
 
-                    $fields = array(
-                        'registration_ids' => array($msMerchant->MerchantFirebaseToken),
-                        'data' => array(
-                            "date" => date("Y-m-d H:i:s"),
-                            "merchantID" => $msMerchant->MerchantID,
-                            "title" => "Pesanan Restok Dikirim",
-                            "body" => "Pesanan Anda sedang dikirim menuju alamat Anda oleh " . $msMerchant->DistributorName . " dengan nomor delivery " . $newDeliveryOrderID . ".",
-                            'large_icon' => $baseImageUrl . 'push/merchant_icon.png'
-                        )
-                    );
+                    // $fields = array(
+                    //     'registration_ids' => array($msMerchant->MerchantFirebaseToken),
+                    //     'data' => array(
+                    //         "date" => date("Y-m-d H:i:s"),
+                    //         "merchantID" => $msMerchant->MerchantID,
+                    //         "title" => "Pesanan Restok Dikirim",
+                    //         "body" => "Pesanan Anda sedang dikirim menuju alamat Anda oleh " . $msMerchant->DistributorName . " dengan nomor delivery " . $newDeliveryOrderID . ".",
+                    //         'large_icon' => $baseImageUrl . 'push/merchant_icon.png'
+                    //     )
+                    // );
 
-                    $headers = array(
-                        'Authorization: key=' . config('app.firebase_auth_token'),
-                        'Content-Type: application/json'
-                    );
+                    // $headers = array(
+                    //     'Authorization: key=' . config('app.firebase_auth_token'),
+                    //     'Content-Type: application/json'
+                    // );
 
-                    $fields = json_encode($fields);
-                    $ch = curl_init();
-                    curl_setopt($ch, CURLOPT_URL, "https://fcm.googleapis.com/fcm/send");
-                    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-                    curl_setopt($ch, CURLOPT_HEADER, FALSE);
-                    curl_setopt($ch, CURLOPT_POST, TRUE);
-                    curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
-                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+                    // $fields = json_encode($fields);
+                    // $ch = curl_init();
+                    // curl_setopt($ch, CURLOPT_URL, "https://fcm.googleapis.com/fcm/send");
+                    // curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                    // curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+                    // curl_setopt($ch, CURLOPT_HEADER, FALSE);
+                    // curl_setopt($ch, CURLOPT_POST, TRUE);
+                    // curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+                    // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
 
-                    curl_exec($ch);
-                    curl_close($ch);
+                    // curl_exec($ch);
+                    // curl_close($ch);
 
                     return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('success', 'Delivery Order berhasil dibuat');
                 } catch (\Throwable $th) {
@@ -840,10 +841,10 @@ class DistributionController extends Controller
             }
         } elseif ($depoChannel == "haistar") {
             $request->validate([
-                'created_date_do' => 'required|date',
-                'driver' => 'required',
-                'vehicle' => 'required',
-                'license_plate' => 'required',
+                'created_date_do' => 'required',
+                // 'driver' => 'required',
+                // 'vehicle' => 'required',
+                // 'license_plate' => 'required',
                 'qty_do' => 'required',
                 'qty_do.*' => 'required|numeric|lte:max_qty_do.*|gte:1'
             ]);
@@ -855,18 +856,19 @@ class DistributionController extends Controller
                 $value = array_combine(['ProductID', 'Qty'], $value);
 
                 $value += ['DeliveryOrderID' => $newDeliveryOrderID];
+                $value += ['Distributor' => 'HAISTAR'];
 
                 $validation = $deliveryOrderService->validateRemainingQty($stockOrderID, "", $value['ProductID'], $value['Qty'], "CreateDO");
                 $value += ['Price' => $validation['price']];
 
-                $checkStock = $haistarService->haistarGetStock($value['ProductID']);
-                // $stockHaistar = 0;
-                $arrayExistStock = $checkStock->data->detail;
-                $existStock = array_sum(array_column($arrayExistStock, "exist_quantity"));
+                // $checkStock = $haistarService->haistarGetStock($value['ProductID']);
+                // // $stockHaistar = 0;
+                // $arrayExistStock = $checkStock->data->detail;
+                // $existStock = array_sum(array_column($arrayExistStock, "exist_quantity"));
 
-                if ($value['Qty'] > $existStock) {
-                    return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Gagal, Stock Haistar tidak mencukupi!');
-                }
+                // if ($value['Qty'] > $existStock) {
+                //     return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Gagal, Stock Haistar tidak mencukupi!');
+                // }
 
                 $totalPrice += $value['Qty'] * $value['Price'];
 
@@ -884,85 +886,85 @@ class DistributionController extends Controller
             }
 
             // Parameter Push Order Haistar
-            $objectParams = new stdClass;
-            $objectParams->code = $newDeliveryOrderID;
-            $objectParams->cod_price = $codPrice;
-            $objectParams->total_price = $totalPrice;
-            $objectParams->total_product_price = "$totalPrice";
-            $objectParams->items = $arrayItems;
+            // $objectParams = new stdClass;
+            // $objectParams->code = $newDeliveryOrderID;
+            // $objectParams->cod_price = $codPrice;
+            // $objectParams->total_price = $totalPrice;
+            // $objectParams->total_product_price = "$totalPrice";
+            // $objectParams->items = $arrayItems;
 
-            $haistarPushOrder = $haistarService->haistarPushOrder($stockOrderID, $objectParams);
+            // $haistarPushOrder = $haistarService->haistarPushOrder($stockOrderID, $objectParams);
 
-            if ($haistarPushOrder->status == 200) {
-                $dataDO = [
-                    'DeliveryOrderID' => $newDeliveryOrderID,
-                    'StockOrderID' => $stockOrderID,
-                    'StatusDO' => 'S024',
-                    'DriverID' => $request->input('driver'),
-                    'HelperID' => $request->input('helper'),
-                    'VehicleID' => $request->input('vehicle'),
-                    'VehicleLicensePlate' => $vehicleLicensePlate,
-                    'Distributor' => "HAISTAR",
-                    'CreatedDate' => $createdDateDO
-                ];
+            // if ($haistarPushOrder->status == 200) {
+            $dataDO = [
+                'DeliveryOrderID' => $newDeliveryOrderID,
+                'StockOrderID' => $stockOrderID,
+                'StatusDO' => 'S028',
+                // 'DriverID' => $request->input('driver'),
+                // 'HelperID' => $request->input('helper'),
+                // 'VehicleID' => $request->input('vehicle'),
+                // 'VehicleLicensePlate' => $vehicleLicensePlate,
+                'Distributor' => "HAISTAR",
+                'CreatedDate' => $createdDateDO
+            ];
 
-                $dataLogDO = [
-                    'StockOrderID' => $stockOrderID,
-                    'DeliveryOrderID' => $newDeliveryOrderID,
-                    'StatusDO' => 'S024',
-                    'DriverID' => $request->input('driver'),
-                    'HelperID' => $request->input('helper'),
-                    'VehicleID' => $request->input('vehicle'),
-                    'VehicleLicensePlate' => $vehicleLicensePlate,
-                    'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo . ' ' . Auth::user()->Name
-                ];
+            $dataLogDO = [
+                'StockOrderID' => $stockOrderID,
+                'DeliveryOrderID' => $newDeliveryOrderID,
+                'StatusDO' => 'S028',
+                // 'DriverID' => $request->input('driver'),
+                // 'HelperID' => $request->input('helper'),
+                // 'VehicleID' => $request->input('vehicle'),
+                // 'VehicleLicensePlate' => $vehicleLicensePlate,
+                'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo . ' ' . Auth::user()->Name
+            ];
 
-                try {
-                    DB::transaction(function () use ($dataDO, $dataDetailDO, $dataLogDO) {
-                        DB::table('tx_merchant_delivery_order')
-                            ->insert($dataDO);
-                        DB::table('tx_merchant_delivery_order_detail')
-                            ->insert($dataDetailDO);
-                        DB::table('tx_merchant_delivery_order_log')
-                            ->insert($dataLogDO);
-                    });
+            try {
+                DB::transaction(function () use ($dataDO, $dataDetailDO, $dataLogDO) {
+                    DB::table('tx_merchant_delivery_order')
+                        ->insert($dataDO);
+                    DB::table('tx_merchant_delivery_order_detail')
+                        ->insert($dataDetailDO);
+                    DB::table('tx_merchant_delivery_order_log')
+                        ->insert($dataLogDO);
+                });
 
-                    $fields = array(
-                        'registration_ids' => array($msMerchant->MerchantFirebaseToken),
-                        'data' => array(
-                            "date" => date("Y-m-d H:i:s"),
-                            "merchantID" => $msMerchant->MerchantID,
-                            "title" => "Pesanan Restok Dikirim",
-                            "body" => "Pesanan Anda sedang dikirim menuju alamat Anda oleh " . $msMerchant->DistributorName . " dengan nomor delivery " . $newDeliveryOrderID . ".",
-                            'large_icon' => $baseImageUrl . 'push/merchant_icon.png'
-                        )
-                    );
+                // $fields = array(
+                //     'registration_ids' => array($msMerchant->MerchantFirebaseToken),
+                //     'data' => array(
+                //         "date" => date("Y-m-d H:i:s"),
+                //         "merchantID" => $msMerchant->MerchantID,
+                //         "title" => "Pesanan Restok Dikirim",
+                //         "body" => "Pesanan Anda sedang dikirim menuju alamat Anda oleh " . $msMerchant->DistributorName . " dengan nomor delivery " . $newDeliveryOrderID . ".",
+                //         'large_icon' => $baseImageUrl . 'push/merchant_icon.png'
+                //     )
+                // );
 
-                    $headers = array(
-                        'Authorization: key=' . config('app.firebase_auth_token'),
-                        'Content-Type: application/json'
-                    );
+                // $headers = array(
+                //     'Authorization: key=' . config('app.firebase_auth_token'),
+                //     'Content-Type: application/json'
+                // );
 
-                    $fields = json_encode($fields);
-                    $ch = curl_init();
-                    curl_setopt($ch, CURLOPT_URL, "https://fcm.googleapis.com/fcm/send");
-                    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-                    curl_setopt($ch, CURLOPT_HEADER, FALSE);
-                    curl_setopt($ch, CURLOPT_POST, TRUE);
-                    curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
-                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+                // $fields = json_encode($fields);
+                // $ch = curl_init();
+                // curl_setopt($ch, CURLOPT_URL, "https://fcm.googleapis.com/fcm/send");
+                // curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                // curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+                // curl_setopt($ch, CURLOPT_HEADER, FALSE);
+                // curl_setopt($ch, CURLOPT_POST, TRUE);
+                // curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+                // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
 
-                    curl_exec($ch);
-                    curl_close($ch);
+                // curl_exec($ch);
+                // curl_close($ch);
 
-                    return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('success', 'Delivery Order berhasil dibuat');
-                } catch (\Throwable $th) {
-                    return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
-                }
-            } else {
-                return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', $haistarPushOrder->data);
+                return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('success', 'Delivery Order berhasil dibuat');
+            } catch (\Throwable $th) {
+                return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
             }
+            // } else {
+            //     return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', $haistarPushOrder->data);
+            // }
         } else {
             return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Gagal');
         }

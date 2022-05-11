@@ -45,6 +45,11 @@ class StockController extends Controller
             $sqlGetOpname->where('ms_distributor.Depo', '=', $depoUser);
         }
 
+        if (Auth::user()->InvestorID != null) {
+            $investorUser = Auth::user()->InvestorID;
+            $sqlGetOpname->where('ms_stock_opname.InvestorID', $investorUser);
+        }
+
         $data = $sqlGetOpname;
 
         if ($request->ajax()) {
@@ -215,6 +220,10 @@ class StockController extends Controller
             $depoUser = Auth::user()->Depo;
             $sqlGetPurchase->where('ms_distributor.Depo', '=', $depoUser);
         }
+        if (Auth::user()->InvestorID != null) {
+            $investorUser = Auth::user()->InvestorID;
+            $sqlGetPurchase->where('ms_stock_purchase.InvestorID', $investorUser);
+        }
 
         $data = $sqlGetPurchase;
 
@@ -239,7 +248,7 @@ class StockController extends Controller
                     return $invoice;
                 })
                 ->addColumn('Action', function ($data) {
-                    if ($data->StatusBy == null) {
+                    if ($data->StatusBy == null && ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI"))) {
                         $ubah = '<a class="btn btn-xs btn-warning" href="/stock/purchase/edit/' . $data->PurchaseID . '">Ubah</a>';
                     } else {
                         $ubah = '';
@@ -251,7 +260,7 @@ class StockController extends Controller
                     return $action;
                 })
                 ->addColumn('Confirmation', function ($data) {
-                    if ($data->StatusBy == null) {
+                    if ($data->StatusBy == null && ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI"))) {
                         $btn = '<div class="d-flex flex-wrap" style="gap:5px">
                                     <a class="btn btn-xs btn-success btn-approved" data-purchase-id="' . $data->PurchaseID . '">Setujui</a>
                                     <a class="btn btn-xs btn-danger btn-reject" data-purchase-id="' . $data->PurchaseID . '">Tolak</a>
@@ -496,6 +505,10 @@ class StockController extends Controller
         if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
             $sqlGetListStocks->where('ms_distributor.Depo', '=', $depoUser);
+        }
+        if (Auth::user()->InvestorID != null) {
+            $investorUser = Auth::user()->InvestorID;
+            $sqlGetListStocks->where('ms_stock_product.InvestorID', $investorUser);
         }
 
         // Get data response
