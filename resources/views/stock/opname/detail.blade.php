@@ -50,7 +50,7 @@
                     <p>{{ $opnameByID->DistributorName }}</p>
                   </div>
                   <div class="col-12 col-md-4 mb-3">
-                    <strong><i class="fas fa-map-marker-alt mr-1"></i> Investor</strong>
+                    <strong><i class="fas fa-money-bill-wave mr-1"></i> Investor</strong>
                     <p>{{ $opnameByID->InvestorName }}</p>
                   </div>
                   <div class="col-12 col-md-4 mb-3">

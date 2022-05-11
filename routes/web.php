@@ -104,7 +104,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/', [MonthlyReportController::class, 'index'])->name('monthlyReport.post');
     });
 
-    Route::group(['prefix' => 'stock', 'middleware' => ['checkRoleUser:IT,FI']], function () {
+    Route::group(['prefix' => 'stock', 'middleware' => ['checkRoleUser:IT,FI,AD,INVTR']], function () {
         Route::prefix('opname')->group(function () {
             Route::get('/', [StockController::class, 'opname'])->name('stock.opname');
             Route::get('/get', [StockController::class, 'getOpname'])->name('stock.getOpname');

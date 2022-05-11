@@ -129,7 +129,7 @@
                         class="form-control selectpicker border select-product" required>
                         @foreach ($products as $product)
                         <option value="{{ $product->ProductID }}" {{ collect(old('product'))->contains($product->ProductID) ? 'selected' : '' }}>
-                          {{ $product->ProductName.' -- Isi: '. $product->ProductUOMDesc . ' ' . $product->ProductUOMName }}
+                          {{ $product->ProductID.' - '. $product->ProductName.' -- Isi: '. $product->ProductUOMDesc . ' ' . $product->ProductUOMName }}
                         </option>
                         @endforeach
                       </select>

@@ -133,9 +133,7 @@
             Max Qty dapat dikirim : <span id="max-qty">{{ $product->PromisedQty - $product->QtyDONotBatal }}</span>
           </small>
           <small class="d-block">
-            Qty Stok Tersedia : 
-            <span id="exist-qty-pkp" class="active-exist-qty">{{ $product->QtyStockPKP }}</span>
-            <span id="exist-qty-non-pkp" class="d-none">{{ $product->QtyStockNonPKP }}</span>
+            Qty Stok Tersedia : <span id="exist-qty">{{ $product->QtyStock }}</span>
           </small>
         </div>
       </div>
@@ -149,6 +147,8 @@
           <option value="PKP" selected>PKP</option>
           <option value="NON-PKP">NON-PKP</option>
         </select>
+        <span id="exist-qty-pkp">Stok PKP : {{ $product->QtyStockPKP }}</span>
+        <span id="exist-qty-non-pkp" class="d-none">Stok Non PKP : {{ $product->QtyStockNonPKP }}</span>
       </div>
     </div>
     @php
