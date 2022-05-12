@@ -110,7 +110,7 @@ class ProductController extends Controller
             $newProductId = 'P-' . str_pad($newProductIdNumber, 6, '0', STR_PAD_LEFT);
         }
 
-        $imageName = time() . '_' . str_replace(' ', '', $request->input('product_name')) . '.' . $request->file('product_image')->extension();
+        $imageName = time() . '_' . $newProductId . '.' . $request->file('product_image')->extension();
 
         $request->file('product_image')->move($this->saveImageUrl . 'product/', $imageName);
 
@@ -181,7 +181,7 @@ class ProductController extends Controller
         ]);
 
         if ($request->hasFile('product_image')) {
-            $imageName = time() . '_' . str_replace(' ', '', $request->input('product_name')) . '.' . $request->file('product_image')->extension();
+            $imageName = time() . '_' . $product . '.' . $request->file('product_image')->extension();
             $request->file('product_image')->move($this->saveImageUrl . 'product/', $imageName);
             $data = [
                 'ProductName' => $request->input('product_name'),
