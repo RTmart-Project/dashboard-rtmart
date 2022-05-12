@@ -145,7 +145,7 @@ class DeliveryOrderService
         ANY_VALUE(tx_merchant_order.StockOrderID) AS StockOrderID,
         ANY_VALUE(tx_merchant_order.TotalPrice) AS TotalPrice,
         IFNULL(SUM(IF(tx_merchant_delivery_order_detail.StatusExpedition != 'S029' AND tx_merchant_delivery_order_detail.StatusExpedition != 'S037', tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price, 0)), 0) AS SumPriceCreatedDO,
-        COUNT(DISTINCT CASE WHEN tx_merchant_delivery_order.StatusDO IN ('S024', 'S026', 'S028') THEN tx_merchant_delivery_order.DeliveryOrderID END) AS CountCreatedDO
+        COUNT(DISTINCT CASE WHEN tx_merchant_delivery_order.StatusDO IN ('S024', 'S028') THEN tx_merchant_delivery_order.DeliveryOrderID END) AS CountCreatedDO
       ")
       ->groupBy('tx_merchant_order.StockOrderID')->toSql();
 
@@ -224,7 +224,7 @@ class DeliveryOrderService
     $sql = DB::table('tx_merchant_delivery_order AS tmdo')
       ->join('tx_merchant_delivery_order_detail', function ($join) {
         $join->on('tx_merchant_delivery_order_detail.DeliveryOrderID', 'tmdo.DeliveryOrderID');
-        $join->whereIn('tx_merchant_delivery_order_detail.StatusExpedition', ['S029', 'S037']);
+        $join->whereIn('tx_merchant_delivery_order_detail.StatusExpedition', ['S029']);
       })
       ->join('ms_product', 'ms_product.ProductID', 'tx_merchant_delivery_order_detail.ProductID')
       ->join('tx_merchant_order', 'tx_merchant_order.StockOrderID', 'tmdo.StockOrderID')
@@ -234,7 +234,7 @@ class DeliveryOrderService
       ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
       ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'ms_merchant_account.MerchantID')
       ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', 'ms_distributor_merchant_grade.GradeID')
-      ->whereIn('tmdo.StatusDO', ['S024', 'S026', 'S028'])
+      ->whereIn('tmdo.StatusDO', ['S024', 'S028'])
       ->selectRaw("
         (
           SELECT CONCAT('DO ke-', COUNT(*)) FROM tx_merchant_delivery_order
