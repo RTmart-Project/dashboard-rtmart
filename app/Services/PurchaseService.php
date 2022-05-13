@@ -16,15 +16,15 @@ class PurchaseService
       ->join('ms_status_stock', 'ms_status_stock.StatusID', 'ms_stock_purchase.StatusID')
       ->select('ms_stock_purchase.PurchaseID', 'ms_distributor.DistributorName', 'ms_stock_purchase.PurchaseDate', 'ms_stock_purchase.CreatedBy', 'ms_suppliers.SupplierName', 'ms_stock_purchase.StatusID', 'ms_status_stock.StatusName', 'ms_stock_purchase.StatusBy', 'ms_stock_purchase.InvoiceNumber', 'ms_stock_purchase.InvoiceFile', 'ms_investor.InvestorName')->get();
 
-    $grandTotal = 0;
     foreach ($sql as $key => $value) {
+      $grandTotal = 0;
       $detailPurchase = DB::table('ms_stock_purchase_detail')
         ->where('PurchaseID', $value->PurchaseID)
         ->select('Qty', 'PurchasePrice')
         ->get();
 
       foreach ($detailPurchase as $key => $detail) {
-        $grandTotal = $detail->Qty * $detail->PurchasePrice;
+        $grandTotal += $detail->Qty * $detail->PurchasePrice;
       }
       $value->GrandTotal = $grandTotal;
     }
