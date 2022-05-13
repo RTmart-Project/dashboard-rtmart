@@ -19,7 +19,7 @@ $(document).ready(function () {
     function dataTablesDeliveryRequest() {
         $("#delivery-request .table-datatables").DataTable({
             dom:
-                "<'row'<'col-sm-12 col-md-6'<'filter-delivery-request'>tl><'col-sm-12 col-md-1'l><'col-sm-12 col-md-5'f><''>>" +
+                "<'row'<'col-sm-12 col-md-6'<'filter-delivery-request'>tl><'col-sm-12 col-md-1'l><'col-sm-12 col-md-4'f><'col-md-1'B>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
@@ -99,6 +99,27 @@ $(document).ready(function () {
             lengthChange: false,
             responsive: true,
             autoWidth: false,
+            buttons: [
+                {
+                    extend: "excelHtml5",
+                    filename: function () {
+                        return exportDatatableHelper.generateFilename(
+                            "DeliveryPlan"
+                        );
+                    },
+                    action: exportDatatableHelper.newExportAction,
+                    text: "Export",
+                    titleAttr: "Excel",
+                    className: "btn-sm",
+                    exportOptions: {
+                        modifier: {
+                            page: "all",
+                        },
+                        columns: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+                        orthogonal: "export",
+                    },
+                },
+            ],
             rowCallback: function (row, data) {
                 if ($.inArray(data.DeliveryOrderID, selected) !== -1) {
                     $(row.childNodes[1].childNodes[0]).prop("checked", true);
