@@ -41,6 +41,10 @@ $(document).ready(function () {
                     type: "date",
                 },
                 {
+                    data: "GrandTotal",
+                    name: "GrandTotal",
+                },
+                {
                     data: "CreatedBy",
                     name: "ms_stock_purchase.CreatedBy",
                 },
@@ -88,8 +92,26 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                         orthogonal: "export",
+                    },
+                },
+            ],
+            aoColumnDefs: [
+                {
+                    aTargets: [5],
+                    mRender: function (data, type, full) {
+                        if (type === "export") {
+                            return data;
+                        } else {
+                            if (data == null || data == "") {
+                                return data;
+                            } else {
+                                const currencySeperatorFormat =
+                                    thousands_separators(data);
+                                return currencySeperatorFormat;
+                            }
+                        }
                     },
                 },
             ],

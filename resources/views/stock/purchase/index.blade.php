@@ -64,6 +64,7 @@
                           <th>Investor</th>
                           <th>Supplier</th>
                           <th>Tanggal Pembelian</th>
+                          <th>Grand Total</th>
                           <th>Dibuat Oleh</th>
                           <th>Status</th>
                           <th>Dikonfirmasi oleh</th>

@@ -242,12 +242,12 @@
                     </p>
                 </a>
                 <ul class="nav nav-treeview">
-                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "INVTR"))
+                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "INVTR"))
                     <li class="nav-item">
-                        <a href="{{ route('stock.opname') }}"
-                            class="nav-link {{ Request::is('stock/opname*') ? 'active' : '' }}">
+                        <a href="{{ route('stock.listStock') }}"
+                            class="nav-link {{ Request::is('stock/list*') ? 'active' : '' }}">
                             <i class="far fa-circle nav-icon"></i>
-                            <p>Stock Opname</p>
+                            <p>List Stock</p>
                         </a>
                     </li>
                     @endif
@@ -260,12 +260,12 @@
                         </a>
                     </li>
                     @endif
-                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "INVTR"))
+                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "INVTR"))
                     <li class="nav-item">
-                        <a href="{{ route('stock.listStock') }}"
-                            class="nav-link {{ Request::is('stock/list*') ? 'active' : '' }}">
+                        <a href="{{ route('stock.opname') }}"
+                            class="nav-link {{ Request::is('stock/opname*') ? 'active' : '' }}">
                             <i class="far fa-circle nav-icon"></i>
-                            <p>List Stock</p>
+                            <p>Stock Opname</p>
                         </a>
                     </li>
                     @endif
