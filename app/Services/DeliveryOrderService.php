@@ -274,13 +274,14 @@ class DeliveryOrderService
       ->orderBy('LevelType')
       ->orderBy('CreatedDate')
       ->orderBy('PurchaseID')
-      ->select('StockProductID', 'Qty', 'PurchasePrice', 'ProductLabel')->first();
+      ->select('StockProductID', 'Qty', 'PurchasePrice', 'ProductLabel', 'InvestorID')->first();
 
     $stockBefore =  DB::table('ms_stock_product')
       ->where('ProductID', $productID)
       ->where('DistributorID', $distributorID)
       ->where('ConditionStock', 'GOOD STOCK')
       ->where('ProductLabel', $sql->ProductLabel)
+      ->where('InvestorID', $sql->InvestorID)
       ->sum('Qty');
 
     $sellingPrice = DB::table('tx_merchant_delivery_order_detail')
