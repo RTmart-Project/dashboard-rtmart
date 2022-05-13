@@ -124,6 +124,13 @@
                         </tr>
                         @endforeach
                       </tbody>
+                      <tfoot>
+                        <tr>
+                          <td colspan="4"></td>
+                          <th class="text-center">GrandTotal</th>
+                          <th>{{ Helper::formatCurrency($purchaseByID->GrandTotal, 'Rp ') }}</th>
+                        </tr>
+                      </tfoot>
                     </table>
                   </div>
                 </div>
