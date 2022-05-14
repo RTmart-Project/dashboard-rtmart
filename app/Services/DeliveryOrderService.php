@@ -145,7 +145,7 @@ class DeliveryOrderService
         ANY_VALUE(tx_merchant_order.StockOrderID) AS StockOrderID,
         ANY_VALUE(tx_merchant_order.TotalPrice) AS TotalPrice,
         IFNULL(SUM(IF(tx_merchant_delivery_order_detail.StatusExpedition != 'S029' AND tx_merchant_delivery_order_detail.StatusExpedition != 'S037', tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price, 0)), 0) AS SumPriceCreatedDO,
-        COUNT(DISTINCT CASE WHEN tx_merchant_delivery_order.StatusDO IN ('S024', 'S028') THEN tx_merchant_delivery_order.DeliveryOrderID END) AS CountCreatedDO
+        COUNT(DISTINCT CASE WHEN tx_merchant_delivery_order.StatusDO IN ('S028') THEN tx_merchant_delivery_order.DeliveryOrderID END) AS CountCreatedDO
       ")
       ->groupBy('tx_merchant_order.StockOrderID')->toSql();
 

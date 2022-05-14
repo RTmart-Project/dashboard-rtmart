@@ -69,7 +69,7 @@ $(document).ready(function () {
                 },
                 {
                     data: "DiscountVoucher",
-                    name: "tx_merchant_order.DiscountVoucher",
+                    name: "RestockProduct.DiscountVoucher",
                 },
                 {
                     data: "ServiceChargeNett",
@@ -77,7 +77,7 @@ $(document).ready(function () {
                 },
                 {
                     data: "DeliveryFee",
-                    name: "tx_merchant_order.DeliveryFee",
+                    name: "RestockProduct.DeliveryFee",
                 },
                 {
                     data: "TotalAmount",

@@ -134,7 +134,7 @@
                     </table>
                   </div>
                 </div>
-                @if ($purchaseByID->StatusBy == null && (Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI"))
+                @if ($purchaseByID->StatusBy == null && (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI"))
                 <div class="text-center mt-4">
                   <strong>Konfirmasi</strong>
                   <div class="d-flex justify-content-center mt-2" style="gap:10px">
