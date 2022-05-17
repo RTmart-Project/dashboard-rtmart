@@ -281,6 +281,7 @@
                                                     <th>Tgl Transaksi</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
+                                                    <th>Grade</th>
                                                     <th>Partner</th>
                                                     <th>No. Telp</th>
                                                     <th>Nama Distributor</th>
@@ -314,6 +315,7 @@
                                                     <th>Tgl Transaksi</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
+                                                    <th>Grade</th>
                                                     <th>Partner</th>
                                                     <th>No. Telp</th>
                                                     <th>Nama Distributor</th>
