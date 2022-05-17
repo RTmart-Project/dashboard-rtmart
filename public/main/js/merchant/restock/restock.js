@@ -40,6 +40,10 @@ $(document).ready(function () {
                     name: "ms_merchant_account.StoreName",
                 },
                 {
+                    data: "Grade",
+                    name: "ms_distributor_grade.Grade",
+                },
+                {
                     data: "Partner",
                     name: "ms_merchant_account.Partner",
                 },
@@ -121,7 +125,7 @@ $(document).ready(function () {
                         },
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-                            15, 16,
+                            15, 16, 17,
                         ],
                         orthogonal: "export",
                     },
@@ -133,7 +137,7 @@ $(document).ready(function () {
             autoWidth: false,
             aoColumnDefs: [
                 {
-                    aTargets: [8, 9, 10, 11, 12, 13, 14],
+                    aTargets: [9, 10, 11, 12, 13, 14, 15],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;

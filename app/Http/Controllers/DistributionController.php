@@ -39,12 +39,14 @@ class DistributionController extends Controller
 
         $sqlGetRestock = DB::table('tx_merchant_order')
             ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
+            ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'tx_merchant_order.MerchantID')
+            ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', 'ms_distributor_merchant_grade.GradeID')
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tx_merchant_order.DistributorID')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
             ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'ms_merchant_account.ReferralCode')
             ->where('ms_merchant_account.IsTesting', 0)
             ->where('tx_merchant_order.StatusOrderID', '=', $statusOrder)
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'ms_distributor.DistributorName', 'tx_merchant_order.ShipmentDate', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CancelReasonNote', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesName');
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'ms_distributor.DistributorName', 'tx_merchant_order.ShipmentDate', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CancelReasonNote', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesName', 'ms_distributor_grade.Grade');
 
         if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
@@ -74,6 +76,14 @@ class DistributionController extends Controller
                 ->addIndexColumn()
                 ->editColumn('CreatedDate', function ($data) {
                     return date('d M Y H:i', strtotime($data->CreatedDate));
+                })
+                ->editColumn('Grade', function ($data) {
+                    if ($data->Grade != null) {
+                        $grade = $data->Grade;
+                    } else {
+                        $grade = 'Retail';
+                    }
+                    return $grade;
                 })
                 ->addColumn('Sales', function ($data) {
                     return $data->ReferralCode . ' ' . $data->SalesName;
@@ -129,6 +139,8 @@ class DistributionController extends Controller
         $toDate = $request->input('toDate');
 
         $sqlAllRestockAndDO = DB::table('tx_merchant_order')
+            ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'tx_merchant_order.MerchantID')
+            ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', 'ms_distributor_merchant_grade.GradeID')
             ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
             ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
             ->leftJoin('ms_status_order', 'ms_status_order.StatusOrderID', 'tx_merchant_order.StatusOrderID')
@@ -148,6 +160,7 @@ class DistributionController extends Controller
                 'ms_distributor.DistributorName',
                 'tx_merchant_order.MerchantID',
                 'ms_merchant_account.StoreName',
+                'ms_distributor_grade.Grade',
                 'ms_merchant_account.OwnerFullName',
                 'ms_merchant_account.PhoneNumber',
                 'ms_merchant_account.Partner',
@@ -193,6 +206,14 @@ class DistributionController extends Controller
                 ->addIndexColumn()
                 ->editColumn('CreatedDate', function ($data) {
                     return date('d M Y H:i', strtotime($data->CreatedDate));
+                })
+                ->editColumn('Grade', function ($data) {
+                    if ($data->Grade != null) {
+                        $grade = $data->Grade;
+                    } else {
+                        $grade = 'Retail';
+                    }
+                    return $grade;
                 })
                 ->addColumn('Sales', function ($data) {
                     return $data->ReferralCode . ' ' . $data->SalesName;

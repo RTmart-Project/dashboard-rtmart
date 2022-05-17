@@ -117,6 +117,7 @@
                                                     <th>Distributor</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
+                                                    <th>Grade</th>
                                                     <th>No. Telp</th>
                                                     <th>Partner</th>
                                                     <th>Metode Pembayaran</th>
@@ -158,6 +159,7 @@
                                                     <th>Distributor</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
+                                                    <th>Grade</th>
                                                     <th>Sales</th>
                                                     <th>Total Transaksi</th>
                                                     <th>No. Telp</th>
@@ -194,6 +196,7 @@
                                                     <th>Distributor</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
+                                                    <th>Grade</th>
                                                     <th>Sales</th>
                                                     <th>Partner</th>
                                                     <th>Total Transaksi</th>
@@ -222,6 +225,7 @@
                                                     <th>Distributor</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
+                                                    <th>Grade</th>
                                                     <th>Sales</th>
                                                     <th>Partner</th>
                                                     <th>Total Transaksi</th>
@@ -251,6 +255,7 @@
                                                     <th>Distributor</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
+                                                    <th>Grade</th>
                                                     <th>Sales</th>
                                                     <th>Partner</th>
                                                     <th>Total Transaksi</th>
@@ -281,6 +286,7 @@
                                                     <th>Distributor</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
+                                                    <th>Grade</th>
                                                     <th>Sales</th>
                                                     <th>Partner</th>
                                                     <th>Total Transaksi</th>
@@ -311,6 +317,7 @@
                                                     <th>Distributor</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
+                                                    <th>Grade</th>
                                                     <th>Sales</th>
                                                     <th>Partner</th>
                                                     <th>Total Transaksi</th>
@@ -340,6 +347,7 @@
                                                     <th>Distributor</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
+                                                    <th>Grade</th>
                                                     <th>Sales</th>
                                                     <th>Partner</th>
                                                     <th>Total Transaksi</th>
