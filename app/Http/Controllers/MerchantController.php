@@ -663,6 +663,14 @@ class MerchantController extends Controller
                 ->editColumn('CreatedDate', function ($data) {
                     return date('d-M-Y H:i', strtotime($data->CreatedDate));
                 })
+                ->editColumn('Grade', function ($data) {
+                    if ($data->Grade != null) {
+                        $grade = $data->Grade;
+                    } else {
+                        $grade = 'Retail';
+                    }
+                    return $grade;
+                })
                 ->editColumn('Partner', function ($data) {
                     if ($data->Partner != null) {
                         $partner = '<a class="badge badge-info">' . $data->Partner . '</a>';
@@ -757,6 +765,14 @@ class MerchantController extends Controller
             return Datatables::of($data)
                 ->editColumn('CreatedDate', function ($data) {
                     return date('d-M-Y H:i', strtotime($data->CreatedDate));
+                })
+                ->editColumn('Grade', function ($data) {
+                    if ($data->Grade != null) {
+                        $grade = $data->Grade;
+                    } else {
+                        $grade = 'Retail';
+                    }
+                    return $grade;
                 })
                 ->editColumn('Partner', function ($data) {
                     if ($data->Partner != null) {

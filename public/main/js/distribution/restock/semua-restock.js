@@ -41,6 +41,10 @@ $(document).ready(function () {
                     name: "ms_merchant_account.StoreName",
                 },
                 {
+                    data: "Grade",
+                    name: "ms_distributor_grade.Grade",
+                },
+                {
                     data: "Sales",
                     name: "Sales",
                 },
@@ -116,7 +120,7 @@ $(document).ready(function () {
                     className: "btn-sm mr-1 rounded",
                     excelStyles: [
                         {
-                            cells: "A2:J2",
+                            cells: "A2:K2",
                             style: {
                                 fill: {
                                     pattern: {
@@ -130,7 +134,7 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                         orthogonal: "export",
                     },
                 },
@@ -147,7 +151,7 @@ $(document).ready(function () {
                     className: "btn-sm ml-1 rounded",
                     excelStyles: [
                         {
-                            cells: "A2:J2",
+                            cells: "A2:K2",
                             style: {
                                 fill: {
                                     pattern: {
@@ -157,7 +161,7 @@ $(document).ready(function () {
                             },
                         },
                         {
-                            cells: "K2:T2",
+                            cells: "L2:U2",
                             style: {
                                 fill: {
                                     pattern: {
@@ -173,7 +177,7 @@ $(document).ready(function () {
                         },
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-                            15, 16, 17, 18, 19,
+                            15, 16, 17, 18, 19, 20,
                         ],
                         orthogonal: "export",
                     },
@@ -181,7 +185,7 @@ $(document).ready(function () {
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [6, 14, 15],
+                    aTargets: [7, 15, 16],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
@@ -198,9 +202,9 @@ $(document).ready(function () {
                 },
             ],
             order: [
-                [10, "desc"],
                 [11, "desc"],
-                [16, "desc"],
+                [12, "desc"],
+                [17, "desc"],
             ],
             lengthChange: false,
             responsive: true,
