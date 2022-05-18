@@ -126,6 +126,8 @@ class DeliveryController extends Controller
         $sumStockProduct = DB::table('ms_stock_product')
             ->where('ProductID', $productID)->where('DistributorID', $distributorID)
             ->where('InvestorID', $investorID)->where('ProductLabel', $label)
+            ->where('ConditionStock', 'GOODSTOCK')
+            ->where('Qty', '>', 0)
             ->sum('Qty');
 
         $investorName = DB::table('ms_investor')->where('InvestorID', $investorID)->select('InvestorName')->first();
