@@ -121,6 +121,18 @@ class DeliveryController extends Controller
         }
     }
 
+    public function sumStockProduct($productID, $distributorID, $investorID, $label)
+    {
+        $sumStockProduct = DB::table('ms_stock_product')
+            ->where('ProductID', $productID)->where('DistributorID', $distributorID)
+            ->where('InvestorID', $investorID)->where('ProductLabel', $label)
+            ->sum('Qty');
+
+        $investorName = DB::table('ms_investor')->where('InvestorID', $investorID)->select('InvestorName')->first();
+
+        return "Stok " . $investorName->InvestorName . " " . $label . " : " . $sumStockProduct;
+    }
+
     public function getDeliveryOrderByID(DeliveryOrderService $deliveryOrderService, HaistarService $haistarService, Request $request)
     {
         $arrayDeliveryOrderID = $request->arrayDeliveryOrderID;
@@ -144,7 +156,9 @@ class DeliveryController extends Controller
         }
 
         return view('delivery.request.product-detail', [
-            'detailProduct' => $data
+            'detailProduct' => $data,
+            'investors' => DB::table('ms_investor')->get(),
+            'firstInvestor' => DB::table('ms_investor')->where('InvestorID', 1)->first()
         ]);
     }
 
@@ -266,7 +280,7 @@ class DeliveryController extends Controller
                             $detailDO = $deliveryOrderService->getDOfromDetailDO($value->deliveryOrderDetailID);
                             $deliveryOrderService->updateDetailDeliveryOrder($detailDO->DeliveryOrderID, $detailDO->ProductID, $value->qtyExpedition, "S030", "RT MART");
                             $merchantExpeditionDetailID = $deliveryOrderService->insertExpeditionDetail($newMerchantExpeditionID, $detailDO->DeliveryOrderID, $detailDO->ProductID, "S030");
-                            $deliveryOrderService->reduceStock($detailDO->ProductID, $detailDO->DistributorID, $value->qtyExpedition, $value->deliveryOrderDetailID, $merchantExpeditionDetailID, $value->sourceProduct);
+                            $deliveryOrderService->reduceStock($detailDO->ProductID, $detailDO->DistributorID, $value->qtyExpedition, $value->deliveryOrderDetailID, $merchantExpeditionDetailID, $value->sourceProduct, $value->sourceProductInvestor);
                         }
                     }
                     $deliveryOrderService->insertTable("tx_merchant_expedition", $dataInsertExpedition);
