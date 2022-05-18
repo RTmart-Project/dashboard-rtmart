@@ -81,6 +81,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/get', [DeliveryController::class, 'getRequest'])->name('delivery.getRequest');
             Route::post('/getDeliveryOrderByID', [DeliveryController::class, 'getDeliveryOrderByID'])->name('delivery.getDeliveryOrderByID');
             Route::post('/createExpedition', [DeliveryController::class, 'createExpedition'])->name('delivery.createExpedition');
+            Route::get('/sumStockProduct/{productID}/{distributorID}/{investorID}/{label}', [DeliveryController::class, 'sumStockProduct'])->name('delivery.sumStockProduct');
         });
 
         Route::group(['prefix' => 'on-going'], function () {

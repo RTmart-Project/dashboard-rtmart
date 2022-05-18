@@ -143,12 +143,16 @@
       </div>
       <div class="col-2">
         <label class="d-block" for="label">Source Produk</label>
+        <select id="investor" class="form-control form-control-sm source-investor">
+          @foreach ($investors as $investor)
+              <option value="{{ $investor->InvestorID }}" {{ $investor->InvestorID == 1 ? 'selected' : ''}}>{{ $investor->InvestorName }}</option>
+          @endforeach
+        </select>
         <select id="label" class="form-control form-control-sm source-product">
           <option value="PKP" selected>PKP</option>
           <option value="NON-PKP">NON-PKP</option>
         </select>
-        <span id="exist-qty-pkp">Stok PKP : {{ $product->QtyStockPKP }}</span>
-        <span id="exist-qty-non-pkp" class="d-none">Stok Non PKP : {{ $product->QtyStockNonPKP }}</span>
+        <span id="exist-qty-perinvestor">Stok {{ $firstInvestor->InvestorName }} PKP : {{ $product->QtyStockPKP }}</span>
       </div>
     </div>
     @php

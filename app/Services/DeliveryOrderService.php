@@ -204,8 +204,8 @@ class DeliveryOrderService
         ANY_VALUE(ms_distributor.IsHaistar) AS IsHaistar,
         ANY_VALUE(tx_merchant_delivery_order_detail.ProductID) AS ProductID,
         IFNULL(SUM(ms_stock_product.Qty), 0) AS QtyStock,
-        SUM(IF(ms_stock_product.ProductLabel = 'PKP', ms_stock_product.Qty, 0)) AS QtyStockPKP,
-        SUM(IF(ms_stock_product.ProductLabel = 'NON-PKP', ms_stock_product.Qty, 0)) AS QtyStockNonPKP,
+        SUM(IF(ms_stock_product.ProductLabel = 'PKP' AND ms_stock_product.InvestorID = 1, ms_stock_product.Qty, 0)) AS QtyStockPKP,
+        SUM(IF(ms_stock_product.ProductLabel = 'NON-PKP' AND ms_stock_product.InvestorID = 1, ms_stock_product.Qty, 0)) AS QtyStockNonPKP,
         ANY_VALUE(tx_merchant_delivery_order_detail.Qty) AS QtyDO,
         ANY_VALUE(tx_merchant_delivery_order_detail.Price) AS PriceDO,
         ANY_VALUE(ms_product.ProductName) AS ProductName,
@@ -263,13 +263,14 @@ class DeliveryOrderService
     return $sql;
   }
 
-  public function reduceStock($productID, $distributorID, $qtyReduce, $deliveryOrderDetailID, $merchantExpeditionDetailID, $sourceProduct)
+  public function reduceStock($productID, $distributorID, $qtyReduce, $deliveryOrderDetailID, $merchantExpeditionDetailID, $sourceProduct, $sourceProductInvestor)
   {
     $sql = DB::table('ms_stock_product')
       ->where('ProductID', $productID)
       ->where('DistributorID', $distributorID)
       ->where('ConditionStock', 'GOOD STOCK')
       ->where('Qty', '>', 0)
+      ->orderByRaw("InvestorID = ? asc", [$sourceProductInvestor])
       ->orderByRaw("ProductLabel = ? desc", [$sourceProduct])
       ->orderBy('LevelType')
       ->orderBy('CreatedDate')
@@ -313,7 +314,7 @@ class DeliveryOrderService
           'ActionBy' => $user,
           'ActionType' => 'OUTBOUND'
         ]);
-      $this->reduceStock($productID, $distributorID, $qtyAfter * (-1), $deliveryOrderDetailID, $merchantExpeditionDetailID, $sourceProduct);
+      $this->reduceStock($productID, $distributorID, $qtyAfter * (-1), $deliveryOrderDetailID, $merchantExpeditionDetailID, $sourceProduct, $sourceProductInvestor);
     } else {
       DB::table('ms_stock_product')
         ->where('StockProductID', $sql->StockProductID)
