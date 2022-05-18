@@ -312,25 +312,45 @@ $(document).ready(function () {
 
     $("#delivery-order-result").on("change", ".source-product", function () {
         const sourceProduct = $(this).val();
-        const pkpClass = $(this).closest(".request-do").find("#exist-qty-pkp");
-        const nonPkpClass = $(this)
-            .closest(".request-do")
-            .find("#exist-qty-non-pkp");
 
         if (sourceProduct == "PKP") {
             $(this).find('option[value="PKP"]').attr("selected", "selected");
             $(this).find('option[value="NON-PKP"]').removeAttr("selected");
-            pkpClass.removeClass("d-none");
-            nonPkpClass.addClass("d-none");
         } else {
             $(this)
                 .find('option[value="NON-PKP"]')
                 .attr("selected", "selected");
             $(this).find('option[value="PKP"]').removeAttr("selected");
-            pkpClass.addClass("d-none");
-            nonPkpClass.removeClass("d-none");
         }
     });
+
+    $("#delivery-order-result").on("change", ".source-investor", function () {
+        const sourceProductInvestor = $(this).val();
+        $(this).find("option").removeAttr("selected");
+        $(this)
+            .find(`option[value="${sourceProductInvestor}"]`)
+            .attr("selected", "selected");
+    });
+
+    $("#delivery-order-result").on(
+        "change",
+        ".source-product, .source-investor",
+        function () {
+            const requestDO = $(this).closest(".request-do");
+            const productID = requestDO.find("#product-id").val();
+            const distributorID = requestDO.find("#distributor-id").val();
+            const productInvestor = requestDO.find(".source-investor").val();
+            const productLabel = requestDO.find(".source-product").val();
+
+            $.ajax({
+                type: "get",
+                url: `/delivery/request/sumStockProduct/${productID}/${distributorID}/${productInvestor}/${productLabel}`,
+                success: function (result) {
+                    requestDO.find("#exist-qty-perinvestor").html(result);
+                },
+            });
+        }
+    );
 
     let Toast = Swal.mixin({
         toast: true,
@@ -423,12 +443,26 @@ $(document).ready(function () {
                 let newQtyElement = `<span id='qty-expedition'>${qty.val()}</span>`;
                 qty.replaceWith(newQtyElement);
 
-                const sourceProduct = $(this)
+                const productLabel = $(this)
                     .closest(".request-do")
                     .find(".source-product");
-                const sourceProductValue = sourceProduct.val();
-                const newSourceProductElemenet = `<span id='source-product' class='d-block'>${sourceProductValue}</span>`;
-                sourceProduct.replaceWith(newSourceProductElemenet);
+                const productLabelValue = productLabel.val();
+                const newProductLabelElemenet = `<span id='source-product' class='d-block'>${productLabelValue}</span>`;
+                productLabel.replaceWith(newProductLabelElemenet);
+
+                const productInvestor = $(this)
+                    .closest(".request-do")
+                    .find(".source-investor");
+                const productInvestorValue = productInvestor.val();
+                const productInvestorText = $(this)
+                    .closest(".request-do")
+                    .find(
+                        `.source-investor option[value="${productInvestorValue}"]`
+                    )
+                    .text();
+                const newProductInvestorElemenet = `<span id='source-investor' class='d-none'>${productInvestorValue}</span>
+                <span class="d-block">${productInvestorText}</span>`;
+                productInvestor.replaceWith(newProductInvestorElemenet);
 
                 // $(this)
                 //     .parent()
@@ -566,6 +600,7 @@ $(document).ready(function () {
             let productID = $(this).find("#product-id").val();
             let qtyExpedition = $(this).find("#qty-expedition").text();
             let sourceProduct = $(this).find("#source-product").text();
+            let sourceProductInvestor = $(this).find("#source-investor").text();
 
             dataDeliveryOrderDetail.push({
                 deliveryOrderDetailID: deliveryOrderDetailID,
@@ -574,6 +609,7 @@ $(document).ready(function () {
                 productID: productID,
                 qtyExpedition: qtyExpedition,
                 sourceProduct: sourceProduct,
+                sourceProductInvestor: sourceProductInvestor,
             });
         });
 
