@@ -51,10 +51,8 @@
                       class="form-control selectpicker border @if($errors->has('distributor')) is-invalid @endif"
                       required>
                       @foreach ($distributors as $distributor)
-                      <option value="{{ $distributor->DistributorID }}" {{ old('distributor')==$distributor->
-                        DistributorID ?
-                        'selected'
-                        : '' }}>
+                      <option value="{{ $distributor->DistributorID }}" 
+                        {{ old('distributor') == $distributor->DistributorID ? 'selected' : '' }}>
                         {{ $distributor->DistributorName }}
                       </option>
                       @endforeach
@@ -68,7 +66,7 @@
                   <div class="form-group">
                     <label for="investor">Investor</label>
                     <select name="investor" id="investor" data-live-search="true" title="Pilih Investor"
-                      class="form-control selectpicker border @if($errors->has('investor')) is-invalid @endif">
+                      class="form-control selectpicker border @if($errors->has('investor')) is-invalid @endif" required>
                       @foreach ($investors as $investor)
                       <option value="{{ $investor->InvestorID }}" {{ old('investor')==$investor->InvestorID ? 'selected'
                         : '' }}>

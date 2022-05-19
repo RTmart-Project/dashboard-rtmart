@@ -68,8 +68,8 @@
                 style="width: 40px; height: 30px;"
                 max="{{ $product->OrderQty - $product->QtyDOSelesai - $product->QtyDODlmPengiriman }}" min="0" required> --}}
               <span class="price-do">{{ Helper::formatCurrency($product->Price, $product->Qty .' x @Rp ') }}</span><br>
-              <small>Max Qty dapat dikirm : {{ $product->OrderQty - $product->QtyDOSelesai -
-                $product->QtyDODlmPengiriman }}</small>
+              {{-- <small>Max Qty dapat dikirm : {{ $product->OrderQty - $product->QtyDOSelesai -
+                $product->QtyDODlmPengiriman }}</small> --}}
               <input type="hidden" name="price_haistar[]" value="{{ $product->Price }}">
             </p>
           </div>
@@ -113,8 +113,8 @@
                 style="width: 40px; height: 30px;"
                 max="{{ $product->OrderQty - $product->QtyDOSelesai - $product->QtyDODlmPengiriman }}" min="0" required> --}}
               <span class="price-do">{{ Helper::formatCurrency($product->Price, $product->Qty . ' x @Rp ') }}</span><br>
-              <small>Max Qty dapat dikirm : {{ $product->OrderQty - $product->QtyDOSelesai -
-                $product->QtyDODlmPengiriman }}</small>
+              {{-- <small>Max Qty dapat dikirm : {{ $product->OrderQty - $product->QtyDOSelesai -
+                $product->QtyDODlmPengiriman }}</small> --}}
               <input type="hidden" name="price_rtmart[]" value="{{ $product->Price }}">
             </p>
           </div>

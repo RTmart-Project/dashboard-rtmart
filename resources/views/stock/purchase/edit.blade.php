@@ -72,7 +72,7 @@
                   <div class="form-group">
                     <label for="investor">Investor</label>
                     <select name="investor" id="investor" data-live-search="true" title="Pilih Investor"
-                      class="form-control selectpicker border @if($errors->has('investor')) is-invalid @endif">
+                      class="form-control selectpicker border @if($errors->has('investor')) is-invalid @endif" required>
                       @foreach ($investors as $investor)
                       <option value="{{ $investor->InvestorID }}" {{ $investor->InvestorID == $purchaseByID->InvestorID ? 'selected' : '' }}>
                         {{ $investor->InvestorName }}

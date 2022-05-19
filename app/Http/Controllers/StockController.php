@@ -109,6 +109,7 @@ class StockController extends Controller
         $request->validate([
             'distributor' => 'required|exists:ms_distributor,DistributorID',
             'opname_date' => 'required',
+            'investor' => 'required',
             'opname_officer' => 'required',
             'opname_officer.*' => 'required|exists:ms_user,UserID',
             'product' => 'required',
@@ -294,6 +295,7 @@ class StockController extends Controller
     {
         $request->validate([
             'distributor' => 'required',
+            'investor' => 'required',
             'purchase_date' => 'required',
             'supplier' => 'required',
             'invoice_number' => 'required',
@@ -394,6 +396,7 @@ class StockController extends Controller
     {
         $request->validate([
             'distributor' => 'required',
+            'investor' => 'required',
             'purchase_date' => 'required',
             'supplier' => 'required',
             'invoice_number' => 'required',
