@@ -268,6 +268,7 @@
                                                     <th>Distributor</th>
                                                     <th>Action</th>
                                                     <th>Produk</th>
+                                                    <th>Assessment</th>
                                                 </tr>
                                             </thead>
                                             <tbody>

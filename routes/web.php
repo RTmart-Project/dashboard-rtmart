@@ -252,6 +252,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/merchant/account/product/delete/{merchantId}/{productId}', [MerchantController::class, 'deleteProduct'])->name('merchant.deleteProduct');
         Route::get('/merchant/account/operationalhour/edit/{merchantId}', [MerchantController::class, 'editOperationalHour'])->name('merchant.editOperationalHour');
         Route::post('/merchant/account/operationalhour/update/{merchantId}', [MerchantController::class, 'updateOperationalHour'])->name('merchant.updateOperationalHour');
+        Route::get('/merchant/account/assessment/{merchantId}', [MerchantController::class, 'merchantAssessment'])->name('merchant.assessment');
         Route::get('/merchant/restock', [MerchantController::class, 'restock'])->name('merchant.restock');
         Route::get('/merchant/restock/detail/{stockOrderId}', [MerchantController::class, 'restockDetails'])->name('merchant.restockDetails');
         Route::get('/merchant/invoice/{stockOrderId}', [MerchantController::class, 'invoice'])->name('merchant.invoice');

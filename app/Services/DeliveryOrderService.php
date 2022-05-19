@@ -50,6 +50,26 @@ class DeliveryOrderService
     return $sql;
   }
 
+  public function updateStatusStockOrder($deliveryOrderID)
+  {
+    $getStatusOrder = DB::table('tx_merchant_order')
+      ->whereRaw("StockOrderID = (SELECT StockOrderID FROM `tx_merchant_delivery_order` WHERE `DeliveryOrderID` = '$deliveryOrderID')")
+      ->select('StockOrderID', 'StatusOrderID')
+      ->first();
+
+    if ($getStatusOrder->StatusOrderID == "S023") { // Dalam Proses
+      $updateStatusStockOrder = DB::table('tx_merchant_order')
+        ->where('StockOrderID', $getStatusOrder->StockOrderID)
+        ->update([
+          'StatusOrderID' => "S012" // Telah Dikirim
+        ]);
+    } else {
+      $updateStatusStockOrder = "";
+    }
+
+    return $updateStatusStockOrder;
+  }
+
   public function updateDetailDeliveryOrder($deliveryOrderID, $productID, $qty, $statusExpedition, $distributor)
   {
     $sql = DB::table('tx_merchant_delivery_order_detail')

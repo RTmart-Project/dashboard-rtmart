@@ -642,7 +642,7 @@ $(document).ready(function () {
         $("body").append(`<div class="card m-0" style="z-index:99999;">
                             <div class="overlay position-fixed flex-column">
                                 <i class="fas fa-4x fa-spinner fa-spin"></i>
-                                <h4 class="mt-4">Harap tunggu</h4>
+                                <h4 class="mt-4">Please do not refresh the page</h4>
                             </div>
                         </div>`);
         $.ajax({

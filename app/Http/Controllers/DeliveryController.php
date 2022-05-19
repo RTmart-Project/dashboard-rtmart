@@ -290,6 +290,7 @@ class DeliveryController extends Controller
                     foreach ($dataExpedition->dataDeliveryOrderID as $key => $value) {
                         $deliveryOrderService->updateDeliveryOrder($value->deliveryOrderID, "S024", $dataExpedition->driverID, $dataExpedition->helperID, $dataExpedition->vehicleID, $vehicleLicensePlate);
                         $deliveryOrderService->insertDeliveryOrderLog($value->deliveryOrderID, "S024", $dataExpedition->driverID, $dataExpedition->helperID, $dataExpedition->vehicleID, $vehicleLicensePlate, $user);
+                        $deliveryOrderService->updateStatusStockOrder($value->deliveryOrderID);
                     }
                     if (!empty($dataExpedition->dataDeliveryOrderDetailNotChecked)) {
                         foreach ($dataExpedition->dataDeliveryOrderDetailNotChecked as $key => $value) {
@@ -472,6 +473,17 @@ class DeliveryController extends Controller
                             if ($item->StatusExpeditionDetail == "S030") {
                                 // Balikin stok
                                 $deliveryOrderService->cancelProductExpedition($item->MerchantExpeditionDetailID, $item->Qty, "GOOD STOCK");
+                                DB::table('tx_merchant_delivery_order')
+                                    ->whereRaw("DeliveryOrderID = (SELECT DeliveryOrderID FROM `tx_merchant_delivery_order_detail` 
+                                        WHERE `DeliveryOrderDetailID` = (SELECT DeliveryOrderDetailID 
+                                            FROM `tx_merchant_expedition_detail` 
+                                            WHERE `MerchantExpeditionDetailID` = $item->MerchantExpeditionDetailID
+                                            )
+                                        )
+                                    ")
+                                    ->update([
+                                        'StatusDO' => "S026"
+                                    ]);
                             }
                         }
                     }
@@ -552,6 +564,17 @@ class DeliveryController extends Controller
                         'StatusExpeditionDetail' => $statusExpedition
                     ]);
                     $deliveryOrderService->cancelProductExpedition($expeditionDetailID, $DOdetail->Qty, "GOOD STOCK");
+                    DB::table('tx_merchant_delivery_order')
+                        ->whereRaw("DeliveryOrderID = (SELECT DeliveryOrderID FROM `tx_merchant_delivery_order_detail` 
+                            WHERE `DeliveryOrderDetailID` = (SELECT DeliveryOrderDetailID 
+                                FROM `tx_merchant_expedition_detail` 
+                                WHERE `MerchantExpeditionDetailID` = $expeditionDetailID
+                                )
+                            )
+                        ")
+                        ->update([
+                            'StatusDO' => "S026"
+                        ]);
                 }
             });
             return redirect()->back()->with('success', $message);
