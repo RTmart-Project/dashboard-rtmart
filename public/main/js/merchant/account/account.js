@@ -75,6 +75,12 @@ $(document).ready(function () {
                     orderable: false,
                     searchable: false,
                 },
+                {
+                    data: "Assessment",
+                    name: "Assessment",
+                    orderable: false,
+                    searchable: false,
+                },
             ],
             buttons: [
                 {
