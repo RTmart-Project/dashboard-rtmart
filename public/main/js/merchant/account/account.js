@@ -5,7 +5,7 @@ $(document).ready(function () {
     function dataTablesMerchantAccount() {
         $("#merchant-account .table-datatables").DataTable({
             dom:
-                "<'row'<'col-sm-12 col-md-7'<'filter-merchant-account'>tl><'col-sm-12 col-md-1'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
+                "<'row'<'col-sm-12 col-md-8'<'filter-merchant-account'>tl><l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
@@ -17,7 +17,10 @@ $(document).ready(function () {
                     d.fromDate = $("#merchant-account #from_date").val();
                     d.toDate = $("#merchant-account #to_date").val();
                     d.distributorId = $(
-                        "#merchant-account .select-filter-custom select"
+                        "#merchant-account .filter-depo select"
+                    ).val();
+                    d.filterAssessment = $(
+                        "#merchant-account .filter-assessment select"
                     ).val();
                 },
             },
@@ -110,18 +113,32 @@ $(document).ready(function () {
     }
 
     // Create element for DateRange Filter
-    $("div.filter-merchant-account").html(`<div class="input-group">
-                            <input type="text" name="from_date" id="from_date" class="form-control form-control-sm"
-                                readonly>
-                            <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm"
-                                readonly>
-                            <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
-                            <button type="button" name="refresh" id="refresh"
-                                class="btn btn-sm btn-warning ml-2">Refresh</button>
-                            <div class="select-filter-custom ml-2">
-                                <select>
-                                    <option value="">All</option>
-                                </select>
+    $("div.filter-merchant-account").html(`
+                        <div class="row">
+                            <div class="col-12 col-md-8">
+                                <div class="input-group">
+                                    <input type="text" name="from_date" id="from_date" class="form-control form-control-sm"
+                                        readonly>
+                                    <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm"
+                                        readonly>
+                                    <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
+                                    <button type="button" name="refresh" id="refresh"
+                                    class="btn btn-sm btn-warning ml-2">Refresh</button>
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-4 d-flex justify-content-center" style="gap: 3px;">
+                                <div class="select-filter-custom filter-depo mr-2">
+                                    <select>
+                                        <option value="">All</option>
+                                    </select>
+                                </div>
+                                <div class="select-filter-custom filter-assessment ml-2">
+                                    <select>
+                                        <option value="">All</option>
+                                        <option value="already-assessed">Sudah Assessment</option>
+                                        <option value="not-assessed">Belum Assessment</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>`);
 
@@ -225,15 +242,18 @@ $(document).ready(function () {
             for (const item of dataDistributor) {
                 option += `<option value="${item.DistributorID}">${item.DistributorName}</option>`;
             }
-            $("#merchant-account .select-filter-custom select").append(option);
+            $("#merchant-account .filter-depo select").append(option);
             customDropdownFilter.createCustomDropdowns();
             // $('#merchant-account .select-filter-custom select').val("All").change();
         },
     });
 
     // Event listener saat tombol select option diklik
-    $("#merchant-account .select-filter-custom select").change(function () {
+    $("#merchant-account .filter-depo select").change(function () {
         $("#merchant-account .table-datatables").DataTable().ajax.reload();
-        // console.log($('#merchant-account .select-filter-custom select').val())
+    });
+
+    $("#merchant-account .filter-assessment select").change(function () {
+        $("#merchant-account .table-datatables").DataTable().ajax.reload();
     });
 });

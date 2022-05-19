@@ -80,6 +80,7 @@ class MerchantController extends Controller
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
         $distributorId = $request->input('distributorId');
+        $filterAssessment = $request->input('filterAssessment');
 
         // Get data account, jika tanggal filter kosong tampilkan semua data.
         $sqlAllAccount = DB::table('ms_merchant_account')
@@ -95,11 +96,14 @@ class MerchantController extends Controller
             $sqlAllAccount->whereDate('ms_merchant_account.CreatedDate', '>=', $fromDate)
                 ->whereDate('ms_merchant_account.CreatedDate', '<=', $toDate);
         }
-
         if ($distributorId != null) {
             $sqlAllAccount->where('ms_merchant_account.DistributorID', '=', $distributorId);
         }
-
+        if ($filterAssessment == "already-assessed") {
+            $sqlAllAccount->where('ms_merchant_assessment.MerchantAssessmentID', '!=', null);
+        } elseif ($filterAssessment == "not-assessed") {
+            $sqlAllAccount->where('ms_merchant_assessment.MerchantAssessmentID', '=', null);
+        }
         if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
             $sqlAllAccount->where('ms_distributor.Depo', '=', $depoUser);
@@ -447,6 +451,7 @@ class MerchantController extends Controller
         $assessment = DB::table('ms_merchant_account')
             ->join('ms_merchant_assessment', 'ms_merchant_assessment.MerchantID', 'ms_merchant_account.MerchantID')
             ->join('ms_merchant_assessment_transaction', 'ms_merchant_assessment_transaction.MerchantAssessmentID', 'ms_merchant_assessment.MerchantAssessmentID')
+            ->where('ms_merchant_account.MerchantID', $merchantId)
             ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_assessment.MerchantAssessmentID', 'ms_merchant_assessment.PhotoMerchantFront', 'ms_merchant_assessment.PhotoMerchantSide', 'ms_merchant_assessment.StruckDistribution', 'ms_merchant_assessment.TurnoverAverage', 'ms_merchant_assessment.PhotoStockProduct', 'ms_merchant_assessment.PhotoIDCard', 'ms_merchant_assessment.NumberIDCard')->first();
 
         $assessmentTransaction = DB::table('ms_merchant_assessment_transaction')
