@@ -89,21 +89,24 @@ class MerchantController extends Controller
             ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', '=', 'ms_distributor_merchant_grade.GradeID')
             ->leftJoin('ms_merchant_assessment', 'ms_merchant_assessment.MerchantID', 'ms_merchant_account.MerchantID')
             ->where('ms_merchant_account.IsTesting', 0)
-            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.CreatedDate', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_distributor.DistributorName', 'ms_distributor_grade.Grade', 'ms_merchant_assessment.MerchantAssessmentID');
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.CreatedDate', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_distributor.DistributorName', 'ms_distributor_grade.Grade', 'ms_merchant_assessment.MerchantAssessmentID', 'ms_merchant_assessment.IsActive');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
             $sqlAllAccount->whereDate('ms_merchant_account.CreatedDate', '>=', $fromDate)
                 ->whereDate('ms_merchant_account.CreatedDate', '<=', $toDate);
         }
+
         if ($distributorId != null) {
             $sqlAllAccount->where('ms_merchant_account.DistributorID', '=', $distributorId);
         }
+
         if ($filterAssessment == "already-assessed") {
-            $sqlAllAccount->where('ms_merchant_assessment.MerchantAssessmentID', '!=', null);
+            $sqlAllAccount->where('ms_merchant_assessment.IsActive', 1);
         } elseif ($filterAssessment == "not-assessed") {
-            $sqlAllAccount->where('ms_merchant_assessment.MerchantAssessmentID', '=', null);
+            $sqlAllAccount->whereRaw("(ms_merchant_assessment.MerchantAssessmentID IS NULL OR ms_merchant_assessment.IsActive = 0)");
         }
+
         if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
             $sqlAllAccount->where('ms_distributor.Depo', '=', $depoUser);
@@ -143,7 +146,7 @@ class MerchantController extends Controller
                     return $actionBtn;
                 })
                 ->addColumn('Assessment', function ($data) {
-                    if ($data->MerchantAssessmentID != null) {
+                    if ($data->IsActive == 1) {
                         $actionBtn = '<a href="/merchant/account/assessment/' . $data->MerchantID . '" class="btn-sm bg-lightblue detail-order">Lihat</a>';
                     } else {
                         $actionBtn = '';
@@ -448,10 +451,11 @@ class MerchantController extends Controller
 
     public function merchantAssessment($merchantId)
     {
-        $assessment = DB::table('ms_merchant_account')
-            ->join('ms_merchant_assessment', 'ms_merchant_assessment.MerchantID', 'ms_merchant_account.MerchantID')
+        $assessment = DB::table('ms_merchant_assessment')
+            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'ms_merchant_assessment.MerchantID')
             ->join('ms_merchant_assessment_transaction', 'ms_merchant_assessment_transaction.MerchantAssessmentID', 'ms_merchant_assessment.MerchantAssessmentID')
-            ->where('ms_merchant_account.MerchantID', $merchantId)
+            ->where('ms_merchant_assessment.MerchantID', $merchantId)
+            ->where('ms_merchant_assessment.IsActive', 1)
             ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_assessment.MerchantAssessmentID', 'ms_merchant_assessment.PhotoMerchantFront', 'ms_merchant_assessment.PhotoMerchantSide', 'ms_merchant_assessment.StruckDistribution', 'ms_merchant_assessment.TurnoverAverage', 'ms_merchant_assessment.PhotoStockProduct', 'ms_merchant_assessment.PhotoIDCard', 'ms_merchant_assessment.NumberIDCard')->first();
 
         $assessmentTransaction = DB::table('ms_merchant_assessment_transaction')
@@ -464,6 +468,21 @@ class MerchantController extends Controller
         return view('merchant.account.assessment', [
             'assessment' => $assessment
         ]);
+    }
+
+    public function resetMerchantAssessment($merchantAssessmentId)
+    {
+        $resetAssessment = DB::table('ms_merchant_assessment')
+            ->where('MerchantAssessmentID', $merchantAssessmentId)
+            ->update([
+                'IsActive' => 0
+            ]);
+
+        if ($resetAssessment) {
+            return redirect()->route('merchant.account')->with('success', 'Data Assessment Merchant berhasil dihapus');
+        } else {
+            return redirect()->route('merchant.account')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
+        }
     }
 
     public function powerMerchant()
