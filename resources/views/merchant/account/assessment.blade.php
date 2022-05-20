@@ -148,6 +148,14 @@
               </div>
             </div>
           </div>
+          @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "FI")
+          <div class="card-footer py-4 text-center">
+            <a data-assessment-id="{{ $assessment->MerchantAssessmentID }}" data-store-name="{{ $assessment->StoreName }}"
+              class="btn btn-sm btn-danger btn-reset-assessment">
+              Hapus Data Assessment
+            </a>
+          </div>
+          @endif
         </div>
       </div>
     </div>
@@ -157,4 +165,30 @@
 @endsection
 
 @section('js-pages')
+<script>
+  $('.btn-reset-assessment').on('click', function (e) {
+    e.preventDefault();
+    const assessmentID = $(this).data("assessment-id");
+    const storeName = $(this).data("store-name");
+    $.confirm({
+      title: 'Hapus Data Assessment!',
+      content: `Apakah yakin ingin menghapus data assessment dari <b>${storeName}</b>?`,
+      closeIcon: true,
+      type: 'red',
+      typeAnimated: true,
+      buttons: {
+        ya: {
+          btnClass: 'btn-danger',
+          draggable: true,
+          dragWindowGap: 0,
+          action: function () {
+            window.location = '/merchant/account/resetAssessment/' + assessmentID
+          }
+        },
+        tidak: function () {
+        }
+      }
+    });
+  });
+</script>
 @endsection
