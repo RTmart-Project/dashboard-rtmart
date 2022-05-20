@@ -892,7 +892,7 @@ class MerchantController extends Controller
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_order.StatusOrderID')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
             ->where('tx_merchant_order.StockOrderID', '=', $stockOrderId)
-            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_status_order.StatusOrder', 'ms_payment_method.PaymentMethodName')
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_status_order.StatusOrder', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order.DistributorID', 'tx_merchant_order.StatusOrderID')
             ->first();
 
         $merchantOrderHistory = DB::table('tx_merchant_order_log')
@@ -905,13 +905,35 @@ class MerchantController extends Controller
 
         $stockOrderById = DB::table('tx_merchant_order_detail')
             ->leftJoin('ms_product', 'ms_product.ProductID', '=', 'tx_merchant_order_detail.ProductID')
-            ->where('StockOrderID', '=', $stockOrderId)
+            ->where('tx_merchant_order_detail.StockOrderID', '=', $stockOrderId)
             ->select('tx_merchant_order_detail.*', 'ms_product.ProductName')->get();
 
         $subTotal = 0;
         foreach ($stockOrderById as $key => $value) {
             $subTotal += $value->Nett * $value->PromisedQuantity;
+
+            // if ($merchant->StatusOrderID == "S023") {
+            //     $sqlStockProduct = DB::table('ms_stock_product')
+            //         ->where('DistributorID', $merchant->DistributorID)
+            //         ->where('ProductID', $value->ProductID)
+            //         ->where('Qty', '>', 0)
+            //         ->where('ConditionStock', 'GOOD STOCK')
+            //         ->orderBy('LevelType')
+            //         ->orderByDesc('CreatedDate')
+            //         ->select('PurchasePrice')
+            //         ->first();
+
+            //     if ($sqlStockProduct == null) {
+            //         $purchasePrice = 0;
+            //     } else {
+            //         $purchasePrice = $sqlStockProduct->PurchasePrice;
+            //     }
+
+            //     $value->PurchasePrice = $purchasePrice;
+            // }
         }
+
+        // dd($stockOrderById);
 
         return view('merchant.restock.details', [
             'stockOrderId' => $stockOrderId,

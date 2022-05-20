@@ -249,13 +249,21 @@ class StockController extends Controller
                     return $invoice;
                 })
                 ->addColumn('Action', function ($data) {
+                    if (($data->InvoiceNumber == null || $data->InvoiceFile == null) && ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI"))) {
+                        $editInvoice = '<a href="/stock/purchase/edit/invoice/' . $data->PurchaseID . '" class="btn btn-xs btn-primary text-nowrap">Edit Invoice</a>';
+                    } else {
+                        $editInvoice = '';
+                    }
+
                     if ($data->StatusBy == null && ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI"))) {
                         $ubah = '<a class="btn btn-xs btn-warning" href="/stock/purchase/edit/' . $data->PurchaseID . '">Ubah</a>';
                     } else {
                         $ubah = '';
                     }
-                    $action = '<div class="d-flex flex-wrap" style="gap:5px">' . $ubah . '
+                    $action = '<div class="d-flex flex-wrap" style="gap:5px">
+                                ' . $ubah . '
                                 <a href="/stock/purchase/detail/' . $data->PurchaseID . '" class="btn btn-xs btn-info">Detail</a>
+                                ' . $editInvoice . '
                                </div>';
 
                     return $action;
@@ -271,7 +279,7 @@ class StockController extends Controller
                     }
                     return $btn;
                 })
-                ->rawColumns(['InvoiceFile', 'StatusName', 'Action', 'Confirmation'])
+                ->rawColumns(['InvoiceNumber', 'InvoiceFile', 'StatusName', 'Action', 'Confirmation'])
                 ->make(true);
         }
     }
@@ -298,7 +306,6 @@ class StockController extends Controller
             'investor' => 'required',
             'purchase_date' => 'required',
             'supplier' => 'required',
-            'invoice_number' => 'required',
             'product' => 'required',
             'product.*' => 'required',
             'labeling' => 'required',
@@ -399,7 +406,6 @@ class StockController extends Controller
             'investor' => 'required',
             'purchase_date' => 'required',
             'supplier' => 'required',
-            'invoice_number' => 'required',
             'product' => 'required',
             'product.*' => 'required',
             'labeling' => 'required',
@@ -487,6 +493,59 @@ class StockController extends Controller
             $purchaseService->confirmationPurchase($status, $purchaseID);
             return redirect()->route('stock.purchase')->with('success', 'Data Purchase Stock berhasil dikonfirmasi');
         } catch (\Throwable $th) {
+            return redirect()->route('stock.purchase')->with('failed', 'Terjadi kesalahan!');
+        }
+    }
+
+    public function editInvoice($purchaseID)
+    {
+        $sql = DB::table('ms_stock_purchase')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_stock_purchase.DistributorID')
+            ->join('ms_investor', 'ms_investor.InvestorID', 'ms_stock_purchase.InvestorID')
+            ->join('ms_suppliers', 'ms_suppliers.SupplierID', 'ms_stock_purchase.SupplierID')
+            ->select('ms_stock_purchase.PurchaseID', 'ms_stock_purchase.InvoiceNumber', 'ms_stock_purchase.InvoiceFile', 'ms_distributor.DistributorName', 'ms_investor.InvestorName', 'ms_suppliers.SupplierName')
+            ->where('ms_stock_purchase.PurchaseID', $purchaseID)
+            ->first();
+
+        return view('stock.purchase.editInvoice', [
+            'purchase' => $sql
+        ]);
+    }
+
+    public function updateInvoice($purchaseID, Request $request)
+    {
+        $sql = DB::table('ms_stock_purchase')
+            ->where('PurchaseID', $purchaseID)
+            ->select('ms_stock_purchase.InvoiceFile')->first();
+
+        if ($sql->InvoiceFile == null) {
+            $img = "required";
+        } else {
+            $img = "";
+        }
+
+        $request->validate([
+            'invoice_number' => 'required',
+            'invoice_image' => $img
+        ]);
+
+        if ($request->hasFile('invoice_image')) {
+            $invoiceFile = str_replace(' ', '', $purchaseID) . '_' . time() . '.' . $request->file('invoice_image')->extension();
+            $request->file('invoice_image')->move($this->saveImageUrl . 'stock_invoice/', $invoiceFile);
+        } else {
+            $invoiceFile = $sql->InvoiceFile;
+        }
+
+        $updateInvoice = DB::table('ms_stock_purchase')
+            ->where('PurchaseID', $purchaseID)
+            ->update([
+                'InvoiceNumber' => $request->input('invoice_number'),
+                'InvoiceFile' => $invoiceFile
+            ]);
+
+        if ($updateInvoice) {
+            return redirect()->route('stock.purchase')->with('success', 'Data Invoice Purchase Stock berhasil diubah');
+        } else {
             return redirect()->route('stock.purchase')->with('failed', 'Terjadi kesalahan!');
         }
     }

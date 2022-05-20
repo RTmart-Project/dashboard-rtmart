@@ -126,7 +126,7 @@
                   <div class="form-group">
                     <label for="invoice_number">No. Invoice</label>
                     <input type="text" name="invoice_number" id="invoice_number" placeholder="Masukkan Nomor Invoice"
-                      class="form-control @if($errors->has('invoice_number')) is-invalid @endif" value="{{ old('invoice_number') }}" required>
+                      class="form-control @if($errors->has('invoice_number')) is-invalid @endif" value="{{ old('invoice_number') }}">
                     @if($errors->has('invoice_number'))
                     <span class="error invalid-feedback">{{ $errors->first('invoice_number') }}</span>
                     @endif

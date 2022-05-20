@@ -124,6 +124,8 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/update/{purchaseID}', [StockController::class, 'updatePurchase'])->name('stock.updatePurchase');
             Route::get('/detail/{purchaseID}', [StockController::class, 'detailPurchase'])->name('stock.detailPurchase');
             Route::get('/confirmation/{status}/{purchaseID}', [StockController::class, 'confirmPurchase'])->name('stock.confirmPurchase');
+            Route::get('/edit/invoice/{purchaseID}', [StockController::class, 'editInvoice'])->name('stock.editInvoicePurchase');
+            Route::post('/update/invoice/{purchaseID}', [StockController::class, 'updateInvoice'])->name('stock.updateInvoicePurchase');
         });
 
         Route::prefix('list')->group(function () {
