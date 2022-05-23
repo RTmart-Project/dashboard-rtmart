@@ -128,6 +128,16 @@ $(document).ready(function () {
                     data: "SubTotalPrice",
                     name: "SubTotalPrice",
                 },
+                {
+                    data: "MarginEstimation",
+                    name: "MarginEstimation",
+                    searchable: false,
+                },
+                {
+                    data: "MarginReal",
+                    name: "MarginReal",
+                    searchable: false,
+                },
             ],
             buttons: [
                 {
@@ -146,7 +156,7 @@ $(document).ready(function () {
                         },
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-                            15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+                            15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
                         ],
                         orthogonal: "export",
                     },
@@ -158,7 +168,9 @@ $(document).ready(function () {
             autoWidth: false,
             aoColumnDefs: [
                 {
-                    aTargets: [10, 11, 12, 13, 14, 15, 20, 21, 22, 23, 24, 25],
+                    aTargets: [
+                        10, 11, 12, 13, 14, 15, 20, 21, 22, 23, 24, 25, 26, 27,
+                    ],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
