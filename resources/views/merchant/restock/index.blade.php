@@ -337,6 +337,8 @@
                                                     <th>Diskon</th>
                                                     <th>Harga stlh Diskon</th>
                                                     <th>Total Harga Produk</th>
+                                                    <th>Margin Estimasi</th>
+                                                    <th>Margin Real</th>
                                                 </tr>
                                             </thead>
                                             <tbody>

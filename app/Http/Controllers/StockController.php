@@ -249,7 +249,7 @@ class StockController extends Controller
                     return $invoice;
                 })
                 ->addColumn('Action', function ($data) {
-                    if (($data->InvoiceNumber == null || $data->InvoiceFile == null) && ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI"))) {
+                    if (($data->InvoiceNumber == null || $data->InvoiceFile == null) && ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI")) && str_contains($data->PurchaseID, "PRCH")) {
                         $editInvoice = '<a href="/stock/purchase/edit/invoice/' . $data->PurchaseID . '" class="btn btn-xs btn-primary text-nowrap">Edit Invoice</a>';
                     } else {
                         $editInvoice = '';
@@ -501,7 +501,7 @@ class StockController extends Controller
     {
         $sql = DB::table('ms_stock_purchase')
             ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_stock_purchase.DistributorID')
-            ->join('ms_investor', 'ms_investor.InvestorID', 'ms_stock_purchase.InvestorID')
+            ->leftJoin('ms_investor', 'ms_investor.InvestorID', 'ms_stock_purchase.InvestorID')
             ->join('ms_suppliers', 'ms_suppliers.SupplierID', 'ms_stock_purchase.SupplierID')
             ->select('ms_stock_purchase.PurchaseID', 'ms_stock_purchase.InvoiceNumber', 'ms_stock_purchase.InvoiceFile', 'ms_distributor.DistributorName', 'ms_investor.InvestorName', 'ms_suppliers.SupplierName')
             ->where('ms_stock_purchase.PurchaseID', $purchaseID)

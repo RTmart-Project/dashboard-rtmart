@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\MerchantService;
+use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -784,21 +785,56 @@ class MerchantController extends Controller
     {
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
+
+        $startDate = new DateTime($fromDate) ?? new DateTime();
+        $endDate = new DateTime($toDate) ?? new DateTime();
+        $startDateFormat = $startDate->format('Y-m-d');
+        $endDateFormat = $endDate->format('Y-m-d');
+
         $paymentMethodId = $request->input('paymentMethodId');
 
         $sqlMain = $merchantService->merchantRestockAllProduct()->toSql();
 
         $sqlAllAccount = DB::table(DB::raw("($sqlMain) AS RestockProduct"))
+            ->whereDate('RestockProduct.CreatedDate', '>=', $startDateFormat)
+            ->whereDate('RestockProduct.CreatedDate', '<=', $endDateFormat)
             ->selectRaw("
                 RestockProduct.*,
-                (SELECT SUM(tx_merchant_delivery_order_detail.Qty) FROM tx_merchant_delivery_order_detail WHERE tx_merchant_delivery_order_detail.DeliveryOrderID IN (SELECT DeliveryOrderID FROM tx_merchant_delivery_order WHERE tx_merchant_delivery_order.StockOrderID = RestockProduct.StockOrderID AND tx_merchant_delivery_order.StatusDO = 'S025') AND tx_merchant_delivery_order_detail.ProductID = RestockProduct.ProductID) AS DOSelesai
+                (SELECT IFNULL(SUM(tx_merchant_delivery_order_detail.Qty), 0) FROM tx_merchant_delivery_order_detail 
+                    WHERE tx_merchant_delivery_order_detail.DeliveryOrderID IN (
+                        SELECT DeliveryOrderID FROM tx_merchant_delivery_order WHERE tx_merchant_delivery_order.StockOrderID = RestockProduct.StockOrderID 
+                        AND tx_merchant_delivery_order.StatusDO = 'S025'
+                    ) AND tx_merchant_delivery_order_detail.ProductID = RestockProduct.ProductID
+                ) AS DOSelesai,
+
+                (SELECT IFNULL(SUM(Qty), 0) FROM tx_merchant_delivery_order_detail 
+                    WHERE DeliveryOrderID IN (
+                        SELECT DeliveryOrderID FROM tx_merchant_delivery_order WHERE StockOrderID = RestockProduct.StockOrderID 
+                        AND (StatusDO = 'S024' OR StatusDO = 'S025')
+                    ) AND ProductID = RestockProduct.ProductID
+                ) AS QtyDOkirim,
+
+                (SELECT ms_stock_product_log.PurchasePrice FROM ms_stock_product_log
+                    LEFT JOIN tx_merchant_expedition_detail ON tx_merchant_expedition_detail.MerchantExpeditionDetailID = ms_stock_product_log.MerchantExpeditionDetailID
+                    LEFT JOIN tx_merchant_delivery_order_detail ON tx_merchant_delivery_order_detail.DeliveryOrderDetailID = tx_merchant_expedition_detail.DeliveryOrderDetailID
+                    WHERE tx_merchant_delivery_order_detail.DeliveryOrderID IN (
+                        SELECT DeliveryOrderID FROM tx_merchant_delivery_order WHERE StockOrderID = RestockProduct.StockOrderID AND (StatusDO = 'S024' OR StatusDO = 'S025')
+                    ) AND tx_merchant_delivery_order_detail.ProductID = RestockProduct.ProductID
+                    ORDER BY ms_stock_product_log.CreatedDate LIMIT 1
+                ) AS PurchasePriceReal,
+
+                (SELECT IFNULL(PurchasePrice, 0) FROM ms_stock_product 
+                    WHERE ProductID = RestockProduct.ProductID AND DistributorID = RestockProduct.DistributorID 
+                    AND ConditionStock = 'GOOD STOCK' AND Qty > 0
+                    ORDER BY LevelType, CreatedDate LIMIT 1
+                ) AS PurchasePriceEstimation
             ");
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
-        if ($fromDate != '' && $toDate != '') {
-            $sqlAllAccount->whereDate('RestockProduct.CreatedDate', '>=', $fromDate)
-                ->whereDate('RestockProduct.CreatedDate', '<=', $toDate);
-        }
+        // if ($fromDate != '' && $toDate != '') {
+        //     $sqlAllAccount->whereDate('RestockProduct.CreatedDate', '>=', $fromDate)
+        //         ->whereDate('RestockProduct.CreatedDate', '<=', $toDate);
+        // }
 
         if ($paymentMethodId != null) {
             $sqlAllAccount->where('RestockProduct.PaymentMethodID', '=', $paymentMethodId);
@@ -867,6 +903,21 @@ class MerchantController extends Controller
 
                     return $statusOrder;
                 })
+                ->addColumn('MarginEstimation', function ($data) {
+                    if ($data->PurchasePriceEstimation == null) {
+                        $marginEstimation = "-";
+                    } else {
+                        $marginEstimation = ($data->Nett - $data->PurchasePriceEstimation) * ($data->PromisedQuantity - $data->QtyDOkirim);
+                    }
+                    return $marginEstimation;
+                })
+                ->addColumn('MarginReal', function ($data) {
+                    if ($data->PurchasePriceReal == null) {
+                        $data->PurchasePriceReal = 0;
+                    }
+                    $marginReal = ($data->Nett - $data->PurchasePriceReal) * $data->QtyDOkirim;
+                    return $marginReal;
+                })
                 ->filterColumn('RestockProduct.CreatedDate', function ($query, $keyword) {
                     $query->whereRaw("DATE_FORMAT(RestockProduct.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
                 })
@@ -911,29 +962,7 @@ class MerchantController extends Controller
         $subTotal = 0;
         foreach ($stockOrderById as $key => $value) {
             $subTotal += $value->Nett * $value->PromisedQuantity;
-
-            // if ($merchant->StatusOrderID == "S023") {
-            //     $sqlStockProduct = DB::table('ms_stock_product')
-            //         ->where('DistributorID', $merchant->DistributorID)
-            //         ->where('ProductID', $value->ProductID)
-            //         ->where('Qty', '>', 0)
-            //         ->where('ConditionStock', 'GOOD STOCK')
-            //         ->orderBy('LevelType')
-            //         ->orderByDesc('CreatedDate')
-            //         ->select('PurchasePrice')
-            //         ->first();
-
-            //     if ($sqlStockProduct == null) {
-            //         $purchasePrice = 0;
-            //     } else {
-            //         $purchasePrice = $sqlStockProduct->PurchasePrice;
-            //     }
-
-            //     $value->PurchasePrice = $purchasePrice;
-            // }
         }
-
-        // dd($stockOrderById);
 
         return view('merchant.restock.details', [
             'stockOrderId' => $stockOrderId,
