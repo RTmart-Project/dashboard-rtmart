@@ -10,7 +10,7 @@ class MerchantService
 
     public function merchantRestock()
     {
-        $sql = DB::table('tx_merchant_order')
+        $sqlMain = DB::table('tx_merchant_order')
             ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
             ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'tx_merchant_order.MerchantID')
             ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', 'ms_distributor_merchant_grade.GradeID')
@@ -18,8 +18,78 @@ class MerchantService
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_order.StatusOrderID')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
             ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'ms_merchant_account.ReferralCode')
-            ->where('ms_merchant_account.IsTesting', 0)
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.MerchantID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'tx_merchant_order.NettPrice', 'tx_merchant_order.StatusOrderID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesName', 'ms_payment_method.PaymentMethodName', 'ms_distributor_grade.Grade');
+            ->whereRaw('ms_merchant_account.IsTesting = 0')
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.MerchantID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'tx_merchant_order.NettPrice', 'tx_merchant_order.StatusOrderID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesName', 'ms_payment_method.PaymentMethodName', 'ms_distributor_grade.Grade', 'tx_merchant_order.DistributorID')
+            ->whereRaw("tx_merchant_order.StockOrderID = 'SO-20220324120725-007163'")
+            // ->limit(10)
+            // ->get()
+            ->toSql();
+
+        $sql = DB::table(DB::raw("($sqlMain) AS Restock"))
+            ->selectRaw("
+                Restock.*,
+                (
+                    SELECT SUM(tx_merchant_order_detail.Nett) FROM tx_merchant_order_detail
+                    LEFT JOIN ms_stock_product ON ms_stock_product.ProductID = tx_merchant_order_detail.ProductID
+                        AND ms_stock_product.Qty > 0 
+                        AND ms_stock_product.ConditionStock = 'GOOD STOCK'
+                        AND ms_stock_product.DistributorID = Restock.DistributorID
+                    WHERE tx_merchant_order_detail.StockOrderID = Restock.StockOrderID
+                    AND ms_stock_product.StockProductID IS NULL
+                ) AS sum 
+            ");
+
+        // foreach ($sql as $key => $value) {
+        //     $orderDetails = DB::table('tx_merchant_order_detail')
+        //         ->where('tx_merchant_order_detail.StockOrderID', $value->StockOrderID)
+        //         ->select('ProductID', 'PromisedQuantity', 'Nett')
+        //         ->get()->toArray();
+
+        //     foreach ($orderDetails as $key => $orderDetail) {
+        //         $deliveryOrderDetails = DB::table('tx_merchant_delivery_order_detail')
+        //             ->whereRaw("
+        //                 DeliveryOrderID IN (
+        //                     SELECT DeliveryOrderID FROM tx_merchant_delivery_order 
+        //                     WHERE StockOrderID IN ('$value->StockOrderID')
+        //                 )
+        //                 AND ProductID = '$orderDetail->ProductID'
+        //                 AND (StatusExpedition = 'S030' OR StatusExpedition = 'S031')
+        //                 ")
+        //             ->sum('Qty');
+
+        //         $sqlPurchasePriceReal = DB::table(DB::raw("(SELECT ms_stock_product_log.PurchasePrice FROM ms_stock_product_log
+        //             LEFT JOIN tx_merchant_expedition_detail ON tx_merchant_expedition_detail.MerchantExpeditionDetailID = ms_stock_product_log.MerchantExpeditionDetailID
+        //             LEFT JOIN tx_merchant_delivery_order_detail ON tx_merchant_delivery_order_detail.DeliveryOrderDetailID = tx_merchant_expedition_detail.DeliveryOrderDetailID
+        //             WHERE tx_merchant_delivery_order_detail.DeliveryOrderID IN (
+        //                 SELECT DeliveryOrderID FROM tx_merchant_delivery_order WHERE StockOrderID = '$value->StockOrderID'
+        //                 AND (StatusDO = 'S024' OR StatusDO = 'S025')
+        //             ) AND tx_merchant_delivery_order_detail.ProductID = '$orderDetail->ProductID'
+        //             AND (tx_merchant_delivery_order_detail.StatusExpedition = 'S030' OR tx_merchant_delivery_order_detail.StatusExpedition = 'S031')
+        //             ORDER BY ms_stock_product_log.CreatedDate LIMIT 1) AS PurchasePriceReal"))->select('PurchasePriceReal.*')->first();
+
+        //         $sqlPurchasePriceEstimation = DB::table(DB::raw("(SELECT PurchasePrice FROM ms_stock_product 
+        //             WHERE ProductID = '$orderDetail->ProductID' AND DistributorID = '$value->DistributorID'
+        //             AND ConditionStock = 'GOOD STOCK' AND Qty > 0
+        //             ORDER BY LevelType, CreatedDate LIMIT 1) AS PurchasePriceEstimation"))->select('PurchasePriceEstimation.*')->first();
+
+        //         if ($sqlPurchasePriceReal == null) {
+        //             $purchasePriceReal = 0;
+        //         } else {
+        //             $purchasePriceReal = $sqlPurchasePriceReal->PurchasePrice;
+        //         }
+        //         if ($sqlPurchasePriceEstimation == null) {
+        //             $purchasePriceEstimation = 0;
+        //         } else {
+        //             $purchasePriceEstimation = $sqlPurchasePriceEstimation->PurchasePrice;
+        //         }
+
+        //         $orderDetail->QtyDOkirim = $deliveryOrderDetails;
+        //         $orderDetail->PurchasePriceReal = $purchasePriceReal;
+        //         $orderDetail->PurchasePriceEstimation = $purchasePriceEstimation;
+        //     }
+
+        //     $value->OrderDetail = $orderDetails;
+        // }
 
         return $sql;
     }

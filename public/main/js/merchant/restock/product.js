@@ -108,6 +108,11 @@ $(document).ready(function () {
                     name: "RestockProduct.PromisedQuantity",
                 },
                 {
+                    data: "QtyDOkirim",
+                    name: "RestockProduct.QtyDOkirim",
+                    searchable: false,
+                },
+                {
                     data: "DOSelesai",
                     name: "RestockProduct.DOSelesai",
                     searchable: false,
@@ -129,13 +134,43 @@ $(document).ready(function () {
                     name: "SubTotalPrice",
                 },
                 {
+                    data: "PurchasePriceEstimation",
+                    name: "RestockProduct.PurchasePriceEstimation",
+                    searchable: false,
+                },
+                {
                     data: "MarginEstimation",
                     name: "MarginEstimation",
                     searchable: false,
                 },
                 {
+                    data: "MarginEstimationPercentage",
+                    name: "MarginEstimationPercentage",
+                    searchable: false,
+                },
+                {
+                    data: "PurchasePriceReal",
+                    name: "RestockProduct.PurchasePriceReal",
+                    searchable: false,
+                },
+                {
                     data: "MarginReal",
                     name: "MarginReal",
+                    searchable: false,
+                },
+                {
+                    data: "MarginRealPercentage",
+                    name: "MarginRealPercentage",
+                    searchable: false,
+                },
+                {
+                    data: "TotalMargin",
+                    name: "TotalMargin",
+                    searchable: false,
+                },
+                {
+                    data: "TotalMarginPercentage",
+                    name: "TotalMarginPercentage",
                     searchable: false,
                 },
             ],
@@ -157,6 +192,7 @@ $(document).ready(function () {
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
                             15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
+                            28, 29, 30, 31, 32, 33, 34,
                         ],
                         orthogonal: "export",
                     },
@@ -169,7 +205,8 @@ $(document).ready(function () {
             aoColumnDefs: [
                 {
                     aTargets: [
-                        10, 11, 12, 13, 14, 15, 20, 21, 22, 23, 24, 25, 26, 27,
+                        10, 11, 12, 13, 14, 15, 23, 24, 25, 26, 27, 28, 30, 31,
+                        33,
                     ],
                     mRender: function (data, type, full) {
                         if (type === "export") {

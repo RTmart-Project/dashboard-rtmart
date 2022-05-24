@@ -332,13 +332,20 @@
                                                     <th>Product ID</th>
                                                     <th>Deskripsi</th>
                                                     <th>Qty</th>
-                                                    <th>DO Selesai</th>
+                                                    <th>Qty dikirim</th>
+                                                    <th>Qty DO Selesai</th>
                                                     <th>Harga Satuan</th>
                                                     <th>Diskon</th>
                                                     <th>Harga stlh Diskon</th>
                                                     <th>Total Harga Produk</th>
-                                                    <th>Margin Estimasi</th>
-                                                    <th>Margin Real</th>
+                                                    <th>Harga Beli Estimasi</th>
+                                                    <th>Margin Estimasi (Rp)</th>
+                                                    <th>Margin Estimasi (%)</th>
+                                                    <th>Harga Beli Real</th>
+                                                    <th>Margin Real (Rp)</th>
+                                                    <th>Margin Real (%)</th>
+                                                    <th>Total Margin (Rp)</th>
+                                                    <th>Total Margin (%)</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
