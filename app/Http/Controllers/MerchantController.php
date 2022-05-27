@@ -945,7 +945,7 @@ class MerchantController extends Controller
                     if ($marginEstimation == "-") {
                         $marginEstimationPercentage = "-";
                     } else {
-                        $marginEstimationPercentage = number_format(($marginEstimation / ($data->PromisedQuantity * $data->Nett)) * 100, 2, ",");
+                        $marginEstimationPercentage = number_format(($marginEstimation / ($data->PromisedQuantity * $data->Nett)) * 100, 2, ",", "");
                     }
                     return $marginEstimationPercentage;
                 })
@@ -966,7 +966,7 @@ class MerchantController extends Controller
                     if ($marginReal == "-") {
                         $marginRealPercentage = "-";
                     } else {
-                        $marginRealPercentage = number_format(($marginReal / ($data->PromisedQuantity * $data->Nett)) * 100, 2, ",");
+                        $marginRealPercentage = number_format(($marginReal / ($data->PromisedQuantity * $data->Nett)) * 100, 2, ",", "");
                     }
                     return $marginRealPercentage;
                 })
@@ -995,7 +995,7 @@ class MerchantController extends Controller
                     } else {
                         $marginReal = ($data->Nett - $data->PurchasePriceReal) * $data->QtyDOkirim;
                     }
-                    $totalMarginPercentage = number_format((($marginEstimation + $marginReal) / ($data->PromisedQuantity * $data->Nett)) * 100, 2, ",");
+                    $totalMarginPercentage = number_format((($marginEstimation + $marginReal) / ($data->PromisedQuantity * $data->Nett)) * 100, 2, ",", "");
                     return $totalMarginPercentage;
                 })
                 ->filterColumn('RestockProduct.CreatedDate', function ($query, $keyword) {
