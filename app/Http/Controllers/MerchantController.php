@@ -692,7 +692,7 @@ class MerchantController extends Controller
         $paymentMethodId = $request->input('paymentMethodId');
 
         $sqlAllAccount = $merchantService->merchantRestock();
-        // dd($sqlAllAccount->toSql());
+
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
             $sqlAllAccount->whereDate('Restock.CreatedDate', '>=', $fromDate)
@@ -721,7 +721,7 @@ class MerchantController extends Controller
                         $data->MarginReal = 0;
                     }
 
-                    $marginReal = number_format(($data->MarginReal / $data->NettPrice) * 100, 2, ",");
+                    $marginReal = number_format(($data->MarginReal / $data->NettPrice) * 100, 2, ",", "");
                     return $marginReal;
                 })
                 ->addColumn('MarginEstimationPercentage', function ($data) {
@@ -732,7 +732,7 @@ class MerchantController extends Controller
                     if ($data->NettPrice - $data->TotalPriceNotInStock == 0) {
                         $marginEstimation = 0;
                     } else {
-                        $marginEstimation = number_format(($data->MarginEstimation / ($data->NettPrice - $data->TotalPriceNotInStock)) * 100, 2, ",");
+                        $marginEstimation = number_format((($data->MarginEstimation / ($data->NettPrice - $data->TotalPriceNotInStock)) * 100), 2, ",", "");
                     }
                     return $marginEstimation;
                 })
@@ -740,7 +740,7 @@ class MerchantController extends Controller
                     return $data->MarginReal + $data->MarginEstimation;
                 })
                 ->addColumn('TotalMarginPercentage', function ($data) {
-                    $totalMarginPercentage = number_format((($data->MarginReal + $data->MarginEstimation) / $data->NettPrice) * 100, 2, ",");
+                    $totalMarginPercentage = number_format((($data->MarginReal + $data->MarginEstimation) / $data->NettPrice) * 100, 2, ",", "");
                     return $totalMarginPercentage;
                 })
                 ->editColumn('Grade', function ($data) {
