@@ -192,6 +192,7 @@ $(document).ready(function () {
                     action: exportDatatableHelper.newExportAction,
                     text: "Export",
                     titleAttr: "Excel",
+                    className: "btn-sm",
                     exportOptions: {
                         modifier: {
                             page: "all",
@@ -212,8 +213,8 @@ $(document).ready(function () {
             aoColumnDefs: [
                 {
                     aTargets: [
-                        10, 11, 12, 13, 14, 15, 23, 24, 25, 26, 27, 28, 30, 31,
-                        33,
+                        10, 11, 12, 13, 14, 15, 23, 24, 25, 26, 27, 28, 29, 30,
+                        31, 32, 33, 34,
                     ],
                     mRender: function (data, type, full) {
                         if (type === "export") {
