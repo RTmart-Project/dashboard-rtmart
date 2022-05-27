@@ -692,20 +692,19 @@ class MerchantController extends Controller
         $paymentMethodId = $request->input('paymentMethodId');
 
         $sqlAllAccount = $merchantService->merchantRestock();
-
-        dd($sqlAllAccount->get());
+        // dd($sqlAllAccount->toSql());
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
-            $sqlAllAccount->whereDate('tx_merchant_order.CreatedDate', '>=', $fromDate)
-                ->whereDate('tx_merchant_order.CreatedDate', '<=', $toDate);
+            $sqlAllAccount->whereDate('Restock.CreatedDate', '>=', $fromDate)
+                ->whereDate('Restock.CreatedDate', '<=', $toDate);
         }
 
         if ($paymentMethodId != null) {
-            $sqlAllAccount->where('tx_merchant_order.PaymentMethodID', '=', $paymentMethodId);
+            $sqlAllAccount->where('Restock.PaymentMethodID', '=', $paymentMethodId);
         }
         if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
-            $sqlAllAccount->where('ms_distributor.Depo', '=', $depoUser);
+            $sqlAllAccount->where('Restock.Depo', '=', $depoUser);
         }
 
         // Get data response
@@ -716,6 +715,33 @@ class MerchantController extends Controller
             return Datatables::of($data)
                 ->editColumn('CreatedDate', function ($data) {
                     return date('d-M-Y H:i', strtotime($data->CreatedDate));
+                })
+                ->addColumn('MarginRealPercentage', function ($data) {
+                    if ($data->MarginReal == null) {
+                        $data->MarginReal = 0;
+                    }
+
+                    $marginReal = number_format(($data->MarginReal / $data->NettPrice) * 100, 2, ",");
+                    return $marginReal;
+                })
+                ->addColumn('MarginEstimationPercentage', function ($data) {
+                    if ($data->MarginEstimation == null) {
+                        $data->MarginEstimation = 0;
+                    }
+
+                    if ($data->NettPrice - $data->TotalPriceNotInStock == 0) {
+                        $marginEstimation = 0;
+                    } else {
+                        $marginEstimation = number_format(($data->MarginEstimation / ($data->NettPrice - $data->TotalPriceNotInStock)) * 100, 2, ",");
+                    }
+                    return $marginEstimation;
+                })
+                ->addColumn('TotalMargin', function ($data) {
+                    return $data->MarginReal + $data->MarginEstimation;
+                })
+                ->addColumn('TotalMarginPercentage', function ($data) {
+                    $totalMarginPercentage = number_format((($data->MarginReal + $data->MarginEstimation) / $data->NettPrice) * 100, 2, ",");
+                    return $totalMarginPercentage;
                 })
                 ->editColumn('Grade', function ($data) {
                     if ($data->Grade != null) {
@@ -820,7 +846,8 @@ class MerchantController extends Controller
                     LEFT JOIN tx_merchant_expedition_detail ON tx_merchant_expedition_detail.MerchantExpeditionDetailID = ms_stock_product_log.MerchantExpeditionDetailID
                     LEFT JOIN tx_merchant_delivery_order_detail ON tx_merchant_delivery_order_detail.DeliveryOrderDetailID = tx_merchant_expedition_detail.DeliveryOrderDetailID
                     WHERE tx_merchant_delivery_order_detail.DeliveryOrderID IN (
-                        SELECT DeliveryOrderID FROM tx_merchant_delivery_order WHERE StockOrderID = RestockProduct.StockOrderID 
+                        SELECT DeliveryOrderID FROM tx_merchant_delivery_order 
+                        WHERE StockOrderID = RestockProduct.StockOrderID 
                         AND (StatusDO = 'S024' OR StatusDO = 'S025')
                     ) AND tx_merchant_delivery_order_detail.ProductID = RestockProduct.ProductID
                     AND (tx_merchant_delivery_order_detail.StatusExpedition = 'S030' OR tx_merchant_delivery_order_detail.StatusExpedition = 'S031')

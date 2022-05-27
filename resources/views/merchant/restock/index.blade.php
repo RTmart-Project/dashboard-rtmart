@@ -293,6 +293,12 @@
                                                     <th>Biaya Layanan</th>
                                                     <th>Biaya Pengiriman</th>
                                                     <th>Total Harga Bersih</th>
+                                                    <th>Margin Estimasi (Rp)</th>
+                                                    <th>Margin Estimasi (%)</th>
+                                                    <th>Margin Real (Rp)</th>
+                                                    <th>Margin Real (%)</th>
+                                                    <th>Total Margin (Rp)</th>
+                                                    <th>Total Margin (%)</th>
                                                     <th>Referral</th>
                                                     <th>Nama Sales</th>
                                                     <th>Invoice</th>
