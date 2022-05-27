@@ -146,6 +146,7 @@ $(document).ready(function () {
                     action: exportDatatableHelper.newExportAction,
                     text: "Export",
                     titleAttr: "Excel",
+                    className: "btn-sm",
                     exportOptions: {
                         modifier: {
                             page: "all",

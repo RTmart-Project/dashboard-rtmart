@@ -721,7 +721,7 @@ class MerchantController extends Controller
                         $data->MarginReal = 0;
                     }
 
-                    $marginReal = number_format(($data->MarginReal / $data->NettPrice) * 100, 2, ",", "");
+                    $marginReal = round(($data->MarginReal / $data->NettPrice) * 100, 2);
                     return $marginReal;
                 })
                 ->addColumn('MarginEstimationPercentage', function ($data) {
@@ -732,7 +732,7 @@ class MerchantController extends Controller
                     if ($data->NettPrice - $data->TotalPriceNotInStock == 0) {
                         $marginEstimation = 0;
                     } else {
-                        $marginEstimation = number_format((($data->MarginEstimation / ($data->NettPrice - $data->TotalPriceNotInStock)) * 100), 2, ",", "");
+                        $marginEstimation = round((($data->MarginEstimation / ($data->NettPrice - $data->TotalPriceNotInStock)) * 100), 2);
                     }
                     return $marginEstimation;
                 })
@@ -740,7 +740,7 @@ class MerchantController extends Controller
                     return $data->MarginReal + $data->MarginEstimation;
                 })
                 ->addColumn('TotalMarginPercentage', function ($data) {
-                    $totalMarginPercentage = number_format((($data->MarginReal + $data->MarginEstimation) / $data->NettPrice) * 100, 2, ",", "");
+                    $totalMarginPercentage = round((($data->MarginReal + $data->MarginEstimation) / $data->NettPrice) * 100, 2);
                     return $totalMarginPercentage;
                 })
                 ->editColumn('Grade', function ($data) {
@@ -945,7 +945,7 @@ class MerchantController extends Controller
                     if ($marginEstimation == "-") {
                         $marginEstimationPercentage = "-";
                     } else {
-                        $marginEstimationPercentage = number_format(($marginEstimation / ($data->PromisedQuantity * $data->Nett)) * 100, 2, ",", "");
+                        $marginEstimationPercentage = round(($marginEstimation / ($data->PromisedQuantity * $data->Nett)) * 100, 2);
                     }
                     return $marginEstimationPercentage;
                 })
@@ -966,7 +966,7 @@ class MerchantController extends Controller
                     if ($marginReal == "-") {
                         $marginRealPercentage = "-";
                     } else {
-                        $marginRealPercentage = number_format(($marginReal / ($data->PromisedQuantity * $data->Nett)) * 100, 2, ",", "");
+                        $marginRealPercentage = round(($marginReal / ($data->PromisedQuantity * $data->Nett)) * 100, 2);
                     }
                     return $marginRealPercentage;
                 })
@@ -995,7 +995,7 @@ class MerchantController extends Controller
                     } else {
                         $marginReal = ($data->Nett - $data->PurchasePriceReal) * $data->QtyDOkirim;
                     }
-                    $totalMarginPercentage = number_format((($marginEstimation + $marginReal) / ($data->PromisedQuantity * $data->Nett)) * 100, 2, ",", "");
+                    $totalMarginPercentage = round((($marginEstimation + $marginReal) / ($data->PromisedQuantity * $data->Nett)) * 100, 2);
                     return $totalMarginPercentage;
                 })
                 ->filterColumn('RestockProduct.CreatedDate', function ($query, $keyword) {
