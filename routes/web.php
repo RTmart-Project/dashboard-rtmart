@@ -224,7 +224,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::group(['middleware' => ['checkRoleUser:IT,BM,FI,AH,HR,AD,DMO,RBTAD']], function () {
         Route::get('/merchant/restock/get', [MerchantController::class, 'getRestocks'])->name('merchant.getRestocks');
-        Route::get('/merchant/restock/product/get', [MerchantController::class, 'getRestockProduct'])->name('merchant.getRestockProduct');
+        Route::post('/merchant/restock/product/get', [MerchantController::class, 'getRestockProduct'])->name('merchant.getRestockProduct');
     });
 
     Route::group(['middleware' => ['checkRoleUser:IT,BM,FI,AH,HR,DMO,RBTAD']], function () {

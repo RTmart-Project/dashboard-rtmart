@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
 <!-- Main -->
 <link rel="stylesheet" href="{{url('/')}}/main/css/custom/select-filter.css">
+<meta name="csrf_token" content="{{ csrf_token() }}">
 @endsection
 
 @section('header-menu', 'Restock Merchant')

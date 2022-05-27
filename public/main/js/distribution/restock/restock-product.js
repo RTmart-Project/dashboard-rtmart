@@ -3,6 +3,12 @@ $(document).ready(function () {
     dataTablesRestockProduct();
 
     function dataTablesRestockProduct() {
+        $.ajaxSetup({
+            headers: {
+                "X-CSRF-TOKEN": $('meta[name="csrf_token"]').attr("content"),
+            },
+        });
+
         $("#restock-all-product .table-datatables").DataTable({
             dom:
                 "<'row'<'col-sm-12 col-md-5'<'filter-restock-all-product'>tl><'col-sm-12 col-md-3'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
@@ -13,6 +19,7 @@ $(document).ready(function () {
             stateServe: true,
             ajax: {
                 url: "/merchant/restock/product/get",
+                method: "POST",
                 data: function (d) {
                     d.fromDate = $("#restock-all-product #from_date").val();
                     d.toDate = $("#restock-all-product #to_date").val();
@@ -128,16 +135,16 @@ $(document).ready(function () {
                     data: "SubTotalPrice",
                     name: "SubTotalPrice",
                 },
-                {
-                    data: "MarginEstimation",
-                    name: "MarginEstimation",
-                    searchable: false,
-                },
-                {
-                    data: "MarginReal",
-                    name: "MarginReal",
-                    searchable: false,
-                },
+                // {
+                //     data: "MarginEstimation",
+                //     name: "MarginEstimation",
+                //     searchable: false,
+                // },
+                // {
+                //     data: "MarginReal",
+                //     name: "MarginReal",
+                //     searchable: false,
+                // },
             ],
             buttons: [
                 {
@@ -157,7 +164,7 @@ $(document).ready(function () {
                         },
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-                            15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
+                            15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
                         ],
                         orthogonal: "export",
                     },
@@ -169,9 +176,7 @@ $(document).ready(function () {
             autoWidth: false,
             aoColumnDefs: [
                 {
-                    aTargets: [
-                        11, 12, 13, 14, 15, 16, 21, 22, 23, 24, 25, 26, 27,
-                    ],
+                    aTargets: [11, 12, 13, 14, 15, 16, 21, 22, 23, 24, 25],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
