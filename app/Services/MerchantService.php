@@ -10,7 +10,7 @@ class MerchantService
 
     public function merchantRestock()
     {
-        $sql = DB::table('tx_merchant_order')
+        $sqlMain = DB::table('tx_merchant_order')
             ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
             ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'tx_merchant_order.MerchantID')
             ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', 'ms_distributor_merchant_grade.GradeID')
@@ -18,8 +18,74 @@ class MerchantService
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_order.StatusOrderID')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
             ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'ms_merchant_account.ReferralCode')
-            ->where('ms_merchant_account.IsTesting', 0)
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.MerchantID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'tx_merchant_order.NettPrice', 'tx_merchant_order.StatusOrderID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesName', 'ms_payment_method.PaymentMethodName', 'ms_distributor_grade.Grade');
+            ->whereRaw('ms_merchant_account.IsTesting = 0')
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.MerchantID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'tx_merchant_order.NettPrice', 'tx_merchant_order.StatusOrderID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesName', 'ms_payment_method.PaymentMethodName', 'ms_distributor_grade.Grade', 'tx_merchant_order.DistributorID', 'tx_merchant_order.PaymentMethodID', 'ms_distributor.Depo')
+            ->toSql();
+
+        $sql = DB::table(DB::raw("($sqlMain) AS Restock"))
+            ->selectRaw("
+                Restock.*,
+                (
+                    SELECT IFNULL(SUM(tx_merchant_order_detail.Nett * (tx_merchant_order_detail.PromisedQuantity - IFNULL(DOkirim.Qty, 0))), 0)
+                    FROM tx_merchant_order_detail
+                    JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_order_detail.StockOrderID
+                    LEFT JOIN ms_stock_product ON ms_stock_product.ProductID = tx_merchant_order_detail.ProductID
+                        AND ms_stock_product.Qty > 0
+                        AND ms_stock_product.ConditionStock = 'GOOD STOCK'
+                        AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
+                    LEFT JOIN (
+                        SELECT SUM(tx_merchant_delivery_order_detail.Qty) AS Qty, tx_merchant_delivery_order_detail.ProductID, 
+                        tx_merchant_delivery_order.StockOrderID
+                        FROM tx_merchant_delivery_order_detail
+                        JOIN tx_merchant_delivery_order ON tx_merchant_delivery_order.DeliveryOrderID = tx_merchant_delivery_order_detail.DeliveryOrderID
+                            AND (tx_merchant_delivery_order.StatusDO = 'S024' OR tx_merchant_delivery_order.StatusDO = 'S025')
+                        WHERE (tx_merchant_delivery_order_detail.StatusExpedition = 'S030' OR tx_merchant_delivery_order_detail.StatusExpedition = 'S031')
+                        GROUP BY tx_merchant_delivery_order.StockOrderID, tx_merchant_delivery_order_detail.ProductID
+                    ) AS DOkirim ON DOkirim.ProductID = tx_merchant_order_detail.ProductID AND DOkirim.StockOrderID = tx_merchant_order_detail.StockOrderID
+                    WHERE tx_merchant_order_detail.StockOrderID = Restock.StockOrderID
+                    AND ms_stock_product.StockProductID IS NULL
+                ) AS TotalPriceNotInStock,
+                (
+                    SELECT IFNULL(SUM((tx_merchant_order_detail.Nett - stock_log.PurchasePrice) * DOkirim.Qty), 0)
+                    FROM tx_merchant_order_detail
+                    LEFT JOIN (
+                        SELECT SUM(tx_merchant_delivery_order_detail.Qty) AS Qty, tx_merchant_delivery_order_detail.ProductID, 
+                        tx_merchant_delivery_order.StockOrderID, ANY_VALUE(tx_merchant_delivery_order_detail.DeliveryOrderDetailID) AS DeliveryOrderDetailID
+                        FROM tx_merchant_delivery_order_detail
+                        JOIN tx_merchant_delivery_order ON tx_merchant_delivery_order.DeliveryOrderID = tx_merchant_delivery_order_detail.DeliveryOrderID
+                            AND (tx_merchant_delivery_order.StatusDO = 'S024' OR tx_merchant_delivery_order.StatusDO = 'S025')
+                        WHERE (tx_merchant_delivery_order_detail.StatusExpedition = 'S030' OR tx_merchant_delivery_order_detail.StatusExpedition = 'S031')
+                        GROUP BY tx_merchant_delivery_order.StockOrderID, tx_merchant_delivery_order_detail.ProductID
+                    ) AS DOkirim ON DOkirim.ProductID = tx_merchant_order_detail.ProductID AND DOkirim.StockOrderID = tx_merchant_order_detail.StockOrderID
+                    JOIN (
+                        SELECT tx_merchant_expedition_detail.DeliveryOrderDetailID, ANY_VALUE(ms_stock_product_log.PurchasePrice) AS PurchasePrice
+                        FROM ms_stock_product_log
+                        JOIN tx_merchant_expedition_detail ON tx_merchant_expedition_detail.MerchantExpeditionDetailID = ms_stock_product_log.MerchantExpeditionDetailID
+                        GROUP BY ms_stock_product_log.MerchantExpeditionDetailID
+                        HAVING MIN(ms_stock_product_log.CreatedDate)
+                    ) AS stock_log ON stock_log.DeliveryOrderDetailID = DOkirim.DeliveryOrderDetailID
+                    WHERE tx_merchant_order_detail.StockOrderID = Restock.StockOrderID
+                ) AS MarginReal,
+                (
+                    SELECT IFNULL(SUM((tx_merchant_order_detail.Nett - ms_stock_product.PurchasePrice) * (tx_merchant_order_detail.PromisedQuantity - IFNULL(DOkirim.Qty, 0))), 0)
+                    FROM tx_merchant_order_detail
+                    JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_order_detail.StockOrderID
+                    LEFT JOIN ms_stock_product ON ms_stock_product.ProductID = tx_merchant_order_detail.ProductID
+                        AND ms_stock_product.Qty > 0
+                        AND ms_stock_product.ConditionStock = 'GOOD STOCK'
+                        AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
+                    LEFT JOIN (
+                        SELECT SUM(tx_merchant_delivery_order_detail.Qty) AS Qty, tx_merchant_delivery_order_detail.ProductID, 
+                        tx_merchant_delivery_order.StockOrderID
+                        FROM tx_merchant_delivery_order_detail
+                        JOIN tx_merchant_delivery_order ON tx_merchant_delivery_order.DeliveryOrderID = tx_merchant_delivery_order_detail.DeliveryOrderID
+                            AND (tx_merchant_delivery_order.StatusDO = 'S024' OR tx_merchant_delivery_order.StatusDO = 'S025')
+                        WHERE (tx_merchant_delivery_order_detail.StatusExpedition = 'S030' OR tx_merchant_delivery_order_detail.StatusExpedition = 'S031')
+                        GROUP BY tx_merchant_delivery_order.StockOrderID, tx_merchant_delivery_order_detail.ProductID
+                    ) AS DOkirim ON DOkirim.ProductID = tx_merchant_order_detail.ProductID AND DOkirim.StockOrderID = tx_merchant_order_detail.StockOrderID
+                    WHERE tx_merchant_order_detail.StockOrderID = Restock.StockOrderID
+                ) AS MarginEstimation
+            ");
 
         return $sql;
     }

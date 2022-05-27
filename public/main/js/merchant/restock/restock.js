@@ -24,76 +24,103 @@ $(document).ready(function () {
             columns: [
                 {
                     data: "StockOrderID",
-                    name: "tx_merchant_order.StockOrderID",
+                    name: "Restock.StockOrderID",
                 },
                 {
                     data: "CreatedDate",
-                    name: "tx_merchant_order.CreatedDate",
+                    name: "Restock.CreatedDate",
                     type: "date",
                 },
                 {
                     data: "MerchantID",
-                    name: "tx_merchant_order.MerchantID",
+                    name: "Restock.MerchantID",
                 },
                 {
                     data: "StoreName",
-                    name: "ms_merchant_account.StoreName",
+                    name: "Restock.StoreName",
                 },
                 {
                     data: "Grade",
-                    name: "ms_distributor_grade.Grade",
+                    name: "Restock.Grade",
                 },
                 {
                     data: "Partner",
-                    name: "ms_merchant_account.Partner",
+                    name: "Restock.Partner",
                 },
                 {
                     data: "PhoneNumber",
-                    name: "ms_merchant_account.PhoneNumber",
+                    name: "Restock.PhoneNumber",
                 },
                 {
                     data: "DistributorName",
-                    name: "ms_distributor.DistributorName",
+                    name: "Restock.DistributorName",
                 },
                 {
                     data: "PaymentMethodName",
-                    name: "ms_payment_method.PaymentMethodName",
+                    name: "Restock.PaymentMethodName",
                 },
                 {
                     data: "StatusOrder",
-                    name: "ms_status_order.StatusOrder",
+                    name: "Restock.StatusOrder",
                 },
                 {
                     data: "TotalPrice",
-                    name: "tx_merchant_order.TotalPrice",
+                    name: "Restock.TotalPrice",
                 },
                 {
                     data: "DiscountPrice",
-                    name: "tx_merchant_order.DiscountPrice",
+                    name: "Restock.DiscountPrice",
                 },
                 {
                     data: "DiscountVoucher",
-                    name: "tx_merchant_order.DiscountVoucher",
+                    name: "Restock.DiscountVoucher",
                 },
                 {
                     data: "ServiceChargeNett",
-                    name: "tx_merchant_order.ServiceChargeNett",
+                    name: "Restock.ServiceChargeNett",
                 },
                 {
                     data: "DeliveryFee",
-                    name: "tx_merchant_order.DeliveryFee",
+                    name: "Restock.DeliveryFee",
                 },
                 {
                     data: "TotalAmount",
                     name: "TotalAmount",
                 },
                 {
+                    data: "MarginEstimation",
+                    name: "MarginEstimation",
+                    searchable: false,
+                },
+                {
+                    data: "MarginEstimationPercentage",
+                    name: "MarginEstimationPercentage",
+                },
+                {
+                    data: "MarginReal",
+                    name: "MarginReal",
+                    searchable: false,
+                },
+                {
+                    data: "MarginRealPercentage",
+                    name: "MarginRealPercentage",
+                },
+                {
+                    data: "TotalMargin",
+                    name: "TotalMargin",
+                    searchable: false,
+                },
+                {
+                    data: "TotalMarginPercentage",
+                    name: "TotalMarginPercentage",
+                },
+                {
                     data: "ReferralCode",
-                    name: "ms_merchant_account.ReferralCode",
+                    name: "Restock.ReferralCode",
                 },
                 {
                     data: "SalesName",
-                    name: "ms_sales.SalesName",
+                    name: "Restock.SalesName",
                 },
                 {
                     data: "Invoice",
@@ -125,7 +152,7 @@ $(document).ready(function () {
                         },
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-                            15, 16, 17,
+                            15, 16, 17, 18, 19, 20, 21, 22, 23,
                         ],
                         orthogonal: "export",
                     },
@@ -137,7 +164,7 @@ $(document).ready(function () {
             autoWidth: false,
             aoColumnDefs: [
                 {
-                    aTargets: [9, 10, 11, 12, 13, 14, 15],
+                    aTargets: [9, 10, 11, 12, 13, 14, 15, 16, 18, 20],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;

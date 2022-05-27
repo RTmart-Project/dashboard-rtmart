@@ -692,19 +692,19 @@ class MerchantController extends Controller
         $paymentMethodId = $request->input('paymentMethodId');
 
         $sqlAllAccount = $merchantService->merchantRestock();
-
+        // dd($sqlAllAccount->toSql());
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
-            $sqlAllAccount->whereDate('tx_merchant_order.CreatedDate', '>=', $fromDate)
-                ->whereDate('tx_merchant_order.CreatedDate', '<=', $toDate);
+            $sqlAllAccount->whereDate('Restock.CreatedDate', '>=', $fromDate)
+                ->whereDate('Restock.CreatedDate', '<=', $toDate);
         }
 
         if ($paymentMethodId != null) {
-            $sqlAllAccount->where('tx_merchant_order.PaymentMethodID', '=', $paymentMethodId);
+            $sqlAllAccount->where('Restock.PaymentMethodID', '=', $paymentMethodId);
         }
         if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
-            $sqlAllAccount->where('ms_distributor.Depo', '=', $depoUser);
+            $sqlAllAccount->where('Restock.Depo', '=', $depoUser);
         }
 
         // Get data response
@@ -715,6 +715,33 @@ class MerchantController extends Controller
             return Datatables::of($data)
                 ->editColumn('CreatedDate', function ($data) {
                     return date('d-M-Y H:i', strtotime($data->CreatedDate));
+                })
+                ->addColumn('MarginRealPercentage', function ($data) {
+                    if ($data->MarginReal == null) {
+                        $data->MarginReal = 0;
+                    }
+
+                    $marginReal = number_format(($data->MarginReal / $data->NettPrice) * 100, 2, ",");
+                    return $marginReal;
+                })
+                ->addColumn('MarginEstimationPercentage', function ($data) {
+                    if ($data->MarginEstimation == null) {
+                        $data->MarginEstimation = 0;
+                    }
+
+                    if ($data->NettPrice - $data->TotalPriceNotInStock == 0) {
+                        $marginEstimation = 0;
+                    } else {
+                        $marginEstimation = number_format(($data->MarginEstimation / ($data->NettPrice - $data->TotalPriceNotInStock)) * 100, 2, ",");
+                    }
+                    return $marginEstimation;
+                })
+                ->addColumn('TotalMargin', function ($data) {
+                    return $data->MarginReal + $data->MarginEstimation;
+                })
+                ->addColumn('TotalMarginPercentage', function ($data) {
+                    $totalMarginPercentage = number_format((($data->MarginReal + $data->MarginEstimation) / $data->NettPrice) * 100, 2, ",");
+                    return $totalMarginPercentage;
                 })
                 ->editColumn('Grade', function ($data) {
                     if ($data->Grade != null) {
@@ -812,29 +839,27 @@ class MerchantController extends Controller
                         SELECT DeliveryOrderID FROM tx_merchant_delivery_order WHERE StockOrderID = RestockProduct.StockOrderID 
                         AND (StatusDO = 'S024' OR StatusDO = 'S025')
                     ) AND ProductID = RestockProduct.ProductID
+                    AND (StatusExpedition = 'S030' OR StatusExpedition = 'S031')
                 ) AS QtyDOkirim,
 
                 (SELECT ms_stock_product_log.PurchasePrice FROM ms_stock_product_log
                     LEFT JOIN tx_merchant_expedition_detail ON tx_merchant_expedition_detail.MerchantExpeditionDetailID = ms_stock_product_log.MerchantExpeditionDetailID
                     LEFT JOIN tx_merchant_delivery_order_detail ON tx_merchant_delivery_order_detail.DeliveryOrderDetailID = tx_merchant_expedition_detail.DeliveryOrderDetailID
                     WHERE tx_merchant_delivery_order_detail.DeliveryOrderID IN (
-                        SELECT DeliveryOrderID FROM tx_merchant_delivery_order WHERE StockOrderID = RestockProduct.StockOrderID AND (StatusDO = 'S024' OR StatusDO = 'S025')
+                        SELECT DeliveryOrderID FROM tx_merchant_delivery_order 
+                        WHERE StockOrderID = RestockProduct.StockOrderID 
+                        AND (StatusDO = 'S024' OR StatusDO = 'S025')
                     ) AND tx_merchant_delivery_order_detail.ProductID = RestockProduct.ProductID
+                    AND (tx_merchant_delivery_order_detail.StatusExpedition = 'S030' OR tx_merchant_delivery_order_detail.StatusExpedition = 'S031')
                     ORDER BY ms_stock_product_log.CreatedDate LIMIT 1
                 ) AS PurchasePriceReal,
 
-                (SELECT IFNULL(PurchasePrice, 0) FROM ms_stock_product 
+                (SELECT PurchasePrice FROM ms_stock_product 
                     WHERE ProductID = RestockProduct.ProductID AND DistributorID = RestockProduct.DistributorID 
                     AND ConditionStock = 'GOOD STOCK' AND Qty > 0
                     ORDER BY LevelType, CreatedDate LIMIT 1
                 ) AS PurchasePriceEstimation
             ");
-
-        // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
-        // if ($fromDate != '' && $toDate != '') {
-        //     $sqlAllAccount->whereDate('RestockProduct.CreatedDate', '>=', $fromDate)
-        //         ->whereDate('RestockProduct.CreatedDate', '<=', $toDate);
-        // }
 
         if ($paymentMethodId != null) {
             $sqlAllAccount->where('RestockProduct.PaymentMethodID', '=', $paymentMethodId);
@@ -911,19 +936,71 @@ class MerchantController extends Controller
                     }
                     return $marginEstimation;
                 })
+                ->addColumn('MarginEstimationPercentage', function ($data) {
+                    if ($data->PurchasePriceEstimation == null) {
+                        $marginEstimation = "-";
+                    } else {
+                        $marginEstimation = ($data->Nett - $data->PurchasePriceEstimation) * ($data->PromisedQuantity - $data->QtyDOkirim);
+                    }
+                    if ($marginEstimation == "-") {
+                        $marginEstimationPercentage = "-";
+                    } else {
+                        $marginEstimationPercentage = number_format(($marginEstimation / ($data->PromisedQuantity * $data->Nett)) * 100, 2, ",");
+                    }
+                    return $marginEstimationPercentage;
+                })
                 ->addColumn('MarginReal', function ($data) {
                     if ($data->PurchasePriceReal == null) {
-                        $data->PurchasePriceReal = 0;
+                        $marginReal = "-";
+                    } else {
+                        $marginReal = ($data->Nett - $data->PurchasePriceReal) * $data->QtyDOkirim;
                     }
-                    $marginReal = ($data->Nett - $data->PurchasePriceReal) * $data->QtyDOkirim;
                     return $marginReal;
+                })
+                ->addColumn('MarginRealPercentage', function ($data) {
+                    if ($data->PurchasePriceReal == null) {
+                        $marginReal = "-";
+                    } else {
+                        $marginReal = ($data->Nett - $data->PurchasePriceReal) * $data->QtyDOkirim;
+                    }
+                    if ($marginReal == "-") {
+                        $marginRealPercentage = "-";
+                    } else {
+                        $marginRealPercentage = number_format(($marginReal / ($data->PromisedQuantity * $data->Nett)) * 100, 2, ",");
+                    }
+                    return $marginRealPercentage;
+                })
+                ->addColumn('TotalMargin', function ($data) {
+                    if ($data->PurchasePriceEstimation == null) {
+                        $marginEstimation = 0;
+                    } else {
+                        $marginEstimation = ($data->Nett - $data->PurchasePriceEstimation) * ($data->PromisedQuantity - $data->QtyDOkirim);
+                    }
+                    if ($data->PurchasePriceReal == null) {
+                        $marginReal = 0;
+                    } else {
+                        $marginReal = ($data->Nett - $data->PurchasePriceReal) * $data->QtyDOkirim;
+                    }
+                    $totalMargin = $marginEstimation + $marginReal;
+                    return $totalMargin;
+                })
+                ->addColumn('TotalMarginPercentage', function ($data) {
+                    if ($data->PurchasePriceEstimation == null) {
+                        $marginEstimation = 0;
+                    } else {
+                        $marginEstimation = ($data->Nett - $data->PurchasePriceEstimation) * ($data->PromisedQuantity - $data->QtyDOkirim);
+                    }
+                    if ($data->PurchasePriceReal == null) {
+                        $marginReal = 0;
+                    } else {
+                        $marginReal = ($data->Nett - $data->PurchasePriceReal) * $data->QtyDOkirim;
+                    }
+                    $totalMarginPercentage = number_format((($marginEstimation + $marginReal) / ($data->PromisedQuantity * $data->Nett)) * 100, 2, ",");
+                    return $totalMarginPercentage;
                 })
                 ->filterColumn('RestockProduct.CreatedDate', function ($query, $keyword) {
                     $query->whereRaw("DATE_FORMAT(RestockProduct.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
                 })
-                // ->filterColumn('RestockProduct.DOSelesai', function ($query, $keyword) {
-                //     $query->whereRaw("RestockProduct.DOSelesai like ?", ["%$keyword%"]);
-                // })
                 ->addColumn('SubTotalPrice', function ($data) {
                     $subTotalPrice = $data->Nett * $data->PromisedQuantity;
                     return "$subTotalPrice";

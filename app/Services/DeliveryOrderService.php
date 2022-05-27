@@ -541,7 +541,7 @@ class DeliveryOrderService
   public function generateReturID()
   {
     $max = DB::table('ms_stock_purchase')
-      ->where('PurchaseID', 'like', '%RETUR%')
+      ->where('PurchaseID', 'like', '%RETURSALES%')
       ->selectRaw('MAX(PurchaseID) AS PurchaseID, MAX(CreatedDate) AS CreatedDate')
       ->first();
 
@@ -549,11 +549,11 @@ class DeliveryOrderService
     $now = date('m');
 
     if ($max->PurchaseID == null || (strcmp($maxMonth, $now) != 0)) {
-      $newReturID = "RETUR-" . date('YmdHis') . '-000001';
+      $newReturID = "RETURSALES-" . date('YmdHis') . '-000001';
     } else {
       $maxExpeditionID = substr($max->PurchaseID, -6);
       $newExpeditionID = $maxExpeditionID + 1;
-      $newReturID = "RETUR-" . date('YmdHis') . "-" . str_pad($newExpeditionID, 6, '0', STR_PAD_LEFT);
+      $newReturID = "RETURSALES-" . date('YmdHis') . "-" . str_pad($newExpeditionID, 6, '0', STR_PAD_LEFT);
     }
 
     return $newReturID;
