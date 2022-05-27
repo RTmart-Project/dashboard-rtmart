@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
 
 <link rel="stylesheet" href="{{url('/')}}/main/css/custom/select-filter.css">
+<meta name="csrf_token" content="{{ csrf_token() }}">
 @endsection
 
 @section('header-menu', 'Stock Order')
@@ -138,8 +139,8 @@
                                                     <th>Diskon</th>
                                                     <th>Harga stlh Diskon</th>
                                                     <th>Total Harga Produk</th>
-                                                    <th>Margin Estimasi</th>
-                                                    <th>Margin Real</th>
+                                                    {{-- <th>Margin Estimasi</th>
+                                                    <th>Margin Real</th> --}}
                                                 </tr>
                                             </thead>
                                             <tbody>
