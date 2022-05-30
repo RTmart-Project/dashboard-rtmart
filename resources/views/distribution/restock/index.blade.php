@@ -180,8 +180,11 @@
                                                     <th>Tanggal Kirim DO</th>
                                                     <th>Produk</th>
                                                     <th>Qty</th>
-                                                    <th>Harga Satuan</th>
+                                                    <th>Harga Jual</th>
                                                     <th>Harga Total</th>
+                                                    <th class="d-none">Harga Beli</th>
+                                                    <th class="d-none">Margin Real (Rp)</th>
+                                                    <th class="d-none">Margin Real (%)</th>
                                                     <th>Status DO</th>
                                                     <th>Driver</th>
                                                     <th>Kendaraan</th>

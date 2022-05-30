@@ -300,6 +300,7 @@
                                                     <th>Margin Real (%)</th>
                                                     <th>Total Margin (Rp)</th>
                                                     <th>Total Margin (%)</th>
+                                                    <th>Notes</th>
                                                     <th>Referral</th>
                                                     <th>Nama Sales</th>
                                                     <th>Invoice</th>
