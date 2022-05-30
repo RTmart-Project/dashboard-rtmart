@@ -155,6 +155,16 @@ class DistributionController extends Controller
                 // $join->where('tx_merchant_delivery_order.StatusDO', '!=', 'S028');
             })
             ->leftJoin('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID')
+            ->leftJoin('tx_merchant_expedition_detail', function ($join) {
+                $join->on('tx_merchant_expedition_detail.DeliveryOrderDetailID', 'tx_merchant_delivery_order_detail.DeliveryOrderDetailID');
+                $join->where('tx_merchant_expedition_detail.StatusExpeditionDetail', 'S030');
+                $join->orwhere('tx_merchant_expedition_detail.StatusExpeditionDetail', 'S031');
+            })
+            ->leftJoin('ms_stock_product_log', function ($join) {
+                $join->on('ms_stock_product_log.MerchantExpeditionDetailID', 'tx_merchant_expedition_detail.MerchantExpeditionDetailID');
+                $join->orderBy('ms_stock_product_log.CreatedDate');
+                $join->limit(1);
+            })
             ->leftJoin('ms_product', 'ms_product.ProductID', 'tx_merchant_delivery_order_detail.ProductID')
             ->leftJoin('ms_user', 'ms_user.UserID', 'tx_merchant_delivery_order.DriverID')
             ->leftJoin('ms_vehicle', 'ms_vehicle.VehicleID', 'tx_merchant_delivery_order.VehicleID')
@@ -187,6 +197,7 @@ class DistributionController extends Controller
                             WHEN tx_merchant_delivery_order.StatusDO = 'S027' THEN 'Permintaan Batal' 
                             WHEN tx_merchant_delivery_order.StatusDO = 'S028' THEN 'Menunggu Konfirmasi' 
                             ELSE '' END AS StatusDO"),
+                'ms_stock_product_log.PurchasePrice',
                 'ms_user.Name',
                 'ms_vehicle.VehicleName',
                 'tx_merchant_delivery_order.VehicleLicensePlate',
@@ -208,6 +219,24 @@ class DistributionController extends Controller
                 ->addIndexColumn()
                 ->editColumn('CreatedDate', function ($data) {
                     return date('d M Y H:i', strtotime($data->CreatedDate));
+                })
+                ->addColumn('MarginReal', function ($data) {
+                    if ($data->Qty == null) {
+                        $marginReal = "-";
+                    } else {
+                        $marginReal = ($data->Price - $data->PurchasePrice) * $data->Qty;
+                    }
+
+                    return $marginReal;
+                })
+                ->addColumn('MarginRealPercentage', function ($data) {
+                    $marginReal = ($data->Price - $data->PurchasePrice) * $data->Qty;
+                    if ($data->TotalPrice == 0) {
+                        $marginRealPercentage = "-";
+                    } else {
+                        $marginRealPercentage = round($marginReal / $data->TotalPrice * 100, 2);
+                    }
+                    return $marginRealPercentage;
                 })
                 ->editColumn('Grade', function ($data) {
                     if ($data->Grade != null) {

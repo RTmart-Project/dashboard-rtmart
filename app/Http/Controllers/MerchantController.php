@@ -741,8 +741,16 @@ class MerchantController extends Controller
                     return $data->MarginReal + $data->MarginEstimation;
                 })
                 ->addColumn('TotalMarginPercentage', function ($data) {
-                    $totalMarginPercentage = round((($data->MarginReal + $data->MarginEstimation) / $data->NettPrice) * 100, 2);
+                    $totalMarginPercentage = round((($data->MarginReal + $data->MarginEstimation) / ($data->NettPrice - $data->TotalPriceNotInStock)) * 100, 2);
                     return $totalMarginPercentage;
+                })
+                ->addColumn('Notes', function ($data) {
+                    if ($data->TotalPriceNotInStock > 0) {
+                        $notes = "Terdapat produk yg tidak tersedia di list stock.";
+                    } else {
+                        $notes = "";
+                    }
+                    return $notes;
                 })
                 ->editColumn('Grade', function ($data) {
                     if ($data->Grade != null) {

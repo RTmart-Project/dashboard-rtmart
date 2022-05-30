@@ -90,6 +90,18 @@ $(document).ready(function () {
                     name: "TotalPrice",
                 },
                 {
+                    data: "PurchasePrice",
+                    name: "PurchasePrice",
+                },
+                {
+                    data: "MarginReal",
+                    name: "MarginReal",
+                },
+                {
+                    data: "MarginRealPercentage",
+                    name: "MarginRealPercentage",
+                },
+                {
                     data: "StatusDO",
                     name: "StatusDO",
                 },
@@ -161,7 +173,7 @@ $(document).ready(function () {
                             },
                         },
                         {
-                            cells: "L2:U2",
+                            cells: "L2:X2",
                             style: {
                                 fill: {
                                     pattern: {
@@ -177,7 +189,7 @@ $(document).ready(function () {
                         },
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-                            15, 16, 17, 18, 19, 20,
+                            15, 16, 17, 18, 19, 20, 21, 22, 23,
                         ],
                         orthogonal: "export",
                     },
@@ -185,7 +197,7 @@ $(document).ready(function () {
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [7, 15, 16],
+                    aTargets: [7, 15, 16, 17, 18],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
@@ -199,6 +211,10 @@ $(document).ready(function () {
                             }
                         }
                     },
+                },
+                {
+                    aTargets: [17, 18, 19],
+                    visible: false,
                 },
             ],
             order: [
