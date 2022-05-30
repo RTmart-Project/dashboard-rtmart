@@ -150,11 +150,11 @@ class DistributionController extends Controller
             ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
             ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
             ->leftJoin('ms_status_order', 'ms_status_order.StatusOrderID', 'tx_merchant_order.StatusOrderID')
-            ->leftJoin('tx_merchant_delivery_order', function ($join) {
-                $join->on('tx_merchant_delivery_order.StockOrderID', 'tx_merchant_order.StockOrderID');
-                // $join->where('tx_merchant_delivery_order.StatusDO', '!=', 'S028');
+            ->leftJoin('tx_merchant_delivery_order as tmdo', function ($join) {
+                $join->on('tmdo.StockOrderID', 'tx_merchant_order.StockOrderID');
+                // $join->where('tmdo.StatusDO', '!=', 'S028');
             })
-            ->leftJoin('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID')
+            ->leftJoin('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tmdo.DeliveryOrderID')
             ->leftJoin('tx_merchant_expedition_detail', function ($join) {
                 $join->on('tx_merchant_expedition_detail.DeliveryOrderDetailID', 'tx_merchant_delivery_order_detail.DeliveryOrderDetailID');
                 $join->where('tx_merchant_expedition_detail.StatusExpeditionDetail', 'S030');
@@ -166,8 +166,8 @@ class DistributionController extends Controller
                 $join->limit(1);
             })
             ->leftJoin('ms_product', 'ms_product.ProductID', 'tx_merchant_delivery_order_detail.ProductID')
-            ->leftJoin('ms_user', 'ms_user.UserID', 'tx_merchant_delivery_order.DriverID')
-            ->leftJoin('ms_vehicle', 'ms_vehicle.VehicleID', 'tx_merchant_delivery_order.VehicleID')
+            ->leftJoin('ms_user', 'ms_user.UserID', 'tmdo.DriverID')
+            ->leftJoin('ms_vehicle', 'ms_vehicle.VehicleID', 'tmdo.VehicleID')
             ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'ms_merchant_account.ReferralCode')
             ->where('ms_merchant_account.IsTesting', 0)
             ->whereDate('tx_merchant_order.CreatedDate', '>=', $startDateFormat)
@@ -184,23 +184,30 @@ class DistributionController extends Controller
                 'ms_merchant_account.Partner',
                 'tx_merchant_order.StatusOrderID',
                 'ms_status_order.StatusOrder',
-                'tx_merchant_delivery_order.DeliveryOrderID',
+                'tmdo.DeliveryOrderID',
                 'ms_product.ProductName',
                 'tx_merchant_delivery_order_detail.Qty',
                 'tx_merchant_delivery_order_detail.Price',
                 DB::raw("tx_merchant_order.TotalPrice - tx_merchant_order.DiscountPrice - tx_merchant_order.DiscountVoucher + tx_merchant_order.ServiceChargeNett + tx_merchant_order.DeliveryFee AS TotalTrx"),
-                DB::raw("tx_merchant_delivery_order.CreatedDate as TanggalDO"),
+                DB::raw("tmdo.CreatedDate as TanggalDO"),
                 DB::raw("tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price AS TotalPrice"),
-                DB::raw("CASE WHEN tx_merchant_delivery_order.StatusDO = 'S024' THEN 'Dalam Pengiriman' 
-                            WHEN tx_merchant_delivery_order.StatusDO = 'S025' THEN 'Selesai' 
-                            WHEN tx_merchant_delivery_order.StatusDO = 'S026' THEN 'Dibatalkan' 
-                            WHEN tx_merchant_delivery_order.StatusDO = 'S027' THEN 'Permintaan Batal' 
-                            WHEN tx_merchant_delivery_order.StatusDO = 'S028' THEN 'Menunggu Konfirmasi' 
+                DB::raw("CASE WHEN tmdo.StatusDO = 'S024' THEN 'Dalam Pengiriman' 
+                            WHEN tmdo.StatusDO = 'S025' THEN 'Selesai' 
+                            WHEN tmdo.StatusDO = 'S026' THEN 'Dibatalkan' 
+                            WHEN tmdo.StatusDO = 'S027' THEN 'Permintaan Batal' 
+                            WHEN tmdo.StatusDO = 'S028' THEN 'Menunggu Konfirmasi' 
                             ELSE '' END AS StatusDO"),
+                DB::raw("
+                    (
+                        SELECT CONCAT('DO ke-', COUNT(*)) FROM tx_merchant_delivery_order
+                        WHERE tx_merchant_delivery_order.CreatedDate <= tmdo.CreatedDate
+                        AND tx_merchant_delivery_order.StockOrderID = tmdo.StockOrderID
+                    ) AS UrutanDO
+                "),
                 'ms_stock_product_log.PurchasePrice',
                 'ms_user.Name',
                 'ms_vehicle.VehicleName',
-                'tx_merchant_delivery_order.VehicleLicensePlate',
+                'tmdo.VehicleLicensePlate',
                 'ms_merchant_account.ReferralCode',
                 'ms_sales.SalesName'
             );
@@ -221,21 +228,29 @@ class DistributionController extends Controller
                     return date('d M Y H:i', strtotime($data->CreatedDate));
                 })
                 ->addColumn('MarginReal', function ($data) {
-                    if ($data->Qty == null) {
-                        $marginReal = "-";
+                    if ($data->PurchasePrice == null) {
+                        $marginReal = "";
                     } else {
-                        $marginReal = ($data->Price - $data->PurchasePrice) * $data->Qty;
+                        if ($data->Qty == null) {
+                            $marginReal = "";
+                        } else {
+                            $marginReal = ($data->Price - $data->PurchasePrice) * $data->Qty;
+                        }
                     }
-
                     return $marginReal;
                 })
                 ->addColumn('MarginRealPercentage', function ($data) {
                     $marginReal = ($data->Price - $data->PurchasePrice) * $data->Qty;
-                    if ($data->TotalPrice == 0) {
-                        $marginRealPercentage = "-";
+                    if ($data->PurchasePrice == null) {
+                        $marginRealPercentage = "";
                     } else {
-                        $marginRealPercentage = round($marginReal / $data->TotalPrice * 100, 2);
+                        if ($data->TotalPrice == 0) {
+                            $marginRealPercentage = "";
+                        } else {
+                            $marginRealPercentage = round($marginReal / $data->TotalPrice * 100, 2);
+                        }
                     }
+
                     return $marginRealPercentage;
                 })
                 ->editColumn('Grade', function ($data) {
