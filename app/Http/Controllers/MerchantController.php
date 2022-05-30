@@ -959,7 +959,7 @@ class MerchantController extends Controller
                         if ($marginEstimation == "-") {
                             $marginEstimationPercentage = "-";
                         } else {
-                            $marginEstimationPercentage = round(($marginEstimation / ($data->PromisedQuantity * $data->Nett)) * 100, 2);
+                            $marginEstimationPercentage = round(($marginEstimation / (($data->PromisedQuantity - $data->QtyDOkirim) * $data->Nett)) * 100, 2);
                         }
                     } else {
                         $marginEstimationPercentage = "";
@@ -997,7 +997,7 @@ class MerchantController extends Controller
                         if ($marginReal == "-") {
                             $marginRealPercentage = "-";
                         } else {
-                            $marginRealPercentage = round(($marginReal / ($data->PromisedQuantity * $data->Nett)) * 100, 2);
+                            $marginRealPercentage = round(($marginReal / ($data->QtyDOkirim * $data->Nett)) * 100, 2);
                         }
                     } else {
                         $marginRealPercentage = "";
