@@ -314,11 +314,16 @@ $(document).ready(function () {
         }
     );
 
+    const d = new Date();
+    const date = `${d.getFullYear()}-${("0" + (d.getMonth() + 1)).slice(-2)}-${(
+        "0" + d.getDate()
+    ).slice(-2)}`;
+
     // Menyisipkan Placeholder Date
     $("#product-restock #from_date").val("");
     $("#product-restock #to_date").val("");
-    $("#product-restock #from_date").attr("placeholder", "From Date");
-    $("#product-restock #to_date").attr("placeholder", "To Date");
+    $("#product-restock #from_date").attr("placeholder", date);
+    $("#product-restock #to_date").attr("placeholder", date);
 
     // Event Listener saat tombol refresh diklik
     $("#product-restock #refresh").click(function () {

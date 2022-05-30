@@ -7,6 +7,7 @@ use App\Services\DeliveryOrderService;
 use App\Services\HaistarService;
 use App\Services\MerchantService;
 use App\Services\TxLogService;
+use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -138,6 +139,11 @@ class DistributionController extends Controller
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
 
+        $startDate = new DateTime($fromDate) ?? new DateTime();
+        $endDate = new DateTime($toDate) ?? new DateTime();
+        $startDateFormat = $startDate->format('Y-m-d');
+        $endDateFormat = $endDate->format('Y-m-d');
+
         $sqlAllRestockAndDO = DB::table('tx_merchant_order')
             ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'tx_merchant_order.MerchantID')
             ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', 'ms_distributor_merchant_grade.GradeID')
@@ -154,6 +160,8 @@ class DistributionController extends Controller
             ->leftJoin('ms_vehicle', 'ms_vehicle.VehicleID', 'tx_merchant_delivery_order.VehicleID')
             ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'ms_merchant_account.ReferralCode')
             ->where('ms_merchant_account.IsTesting', 0)
+            ->whereDate('tx_merchant_order.CreatedDate', '>=', $startDateFormat)
+            ->whereDate('tx_merchant_order.CreatedDate', '<=', $endDateFormat)
             ->select(
                 'tx_merchant_order.StockOrderID',
                 'tx_merchant_order.CreatedDate',
@@ -189,12 +197,6 @@ class DistributionController extends Controller
         if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
             $sqlAllRestockAndDO->where('ms_distributor.Depo', '=', $depoUser);
-        }
-
-        // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
-        if ($fromDate != '' && $toDate != '') {
-            $sqlAllRestockAndDO->whereDate('tx_merchant_order.CreatedDate', '>=', $fromDate)
-                ->whereDate('tx_merchant_order.CreatedDate', '<=', $toDate);
         }
 
         // Get data response
