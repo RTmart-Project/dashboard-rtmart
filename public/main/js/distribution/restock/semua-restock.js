@@ -66,12 +66,16 @@ $(document).ready(function () {
                 },
                 {
                     data: "DeliveryOrderID",
-                    name: "tx_merchant_delivery_order.DeliveryOrderID",
+                    name: "tmdo.DeliveryOrderID",
                 },
                 {
                     data: "TanggalDO",
                     name: "TanggalDO",
                     type: "date",
+                },
+                {
+                    data: "UrutanDO",
+                    name: "UrutanDO",
                 },
                 {
                     data: "ProductName",
@@ -115,7 +119,7 @@ $(document).ready(function () {
                 },
                 {
                     data: "VehicleLicensePlate",
-                    name: "tx_merchant_delivery_order.VehicleLicensePlate",
+                    name: "tmdo.VehicleLicensePlate",
                 },
             ],
             buttons: [
@@ -173,7 +177,7 @@ $(document).ready(function () {
                             },
                         },
                         {
-                            cells: "L2:X2",
+                            cells: "L2:Y2",
                             style: {
                                 fill: {
                                     pattern: {
@@ -189,7 +193,7 @@ $(document).ready(function () {
                         },
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-                            15, 16, 17, 18, 19, 20, 21, 22, 23,
+                            15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
                         ],
                         orthogonal: "export",
                     },
@@ -197,7 +201,7 @@ $(document).ready(function () {
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [7, 15, 16, 17, 18],
+                    aTargets: [7, 16, 17, 18, 19],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
@@ -213,7 +217,7 @@ $(document).ready(function () {
                     },
                 },
                 {
-                    aTargets: [17, 18, 19],
+                    aTargets: [18, 19, 20],
                     visible: false,
                 },
             ],

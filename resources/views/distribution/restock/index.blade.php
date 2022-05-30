@@ -178,6 +178,7 @@
                                                     <th>Status Order</th>
                                                     <th>Delivery Order ID</th>
                                                     <th>Tanggal Kirim DO</th>
+                                                    <th>Urutan DO</th>
                                                     <th>Produk</th>
                                                     <th>Qty</th>
                                                     <th>Harga Jual</th>
