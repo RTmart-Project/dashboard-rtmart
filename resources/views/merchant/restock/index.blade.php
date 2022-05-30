@@ -345,6 +345,7 @@
                                                     <th>Diskon</th>
                                                     <th>Harga stlh Diskon</th>
                                                     <th>Total Harga Produk</th>
+                                                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM")
                                                     <th>Harga Beli Estimasi</th>
                                                     <th>Margin Estimasi (Rp)</th>
                                                     <th>Margin Estimasi (%)</th>
@@ -353,6 +354,7 @@
                                                     <th>Margin Real (%)</th>
                                                     <th>Total Margin (Rp)</th>
                                                     <th>Total Margin (%)</th>
+                                                    @endif
                                                 </tr>
                                             </thead>
                                             <tbody>

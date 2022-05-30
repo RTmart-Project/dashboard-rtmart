@@ -287,11 +287,16 @@ $(document).ready(function () {
         }
     );
 
+    const d = new Date();
+    const date = `${d.getFullYear()}-${("0" + (d.getMonth() + 1)).slice(-2)}-${(
+        "0" + d.getDate()
+    ).slice(-2)}`;
+
     // Menyisipkan Placeholder Date
     $("#semua-restock #from_date").val("");
     $("#semua-restock #to_date").val("");
-    $("#semua-restock #from_date").attr("placeholder", "From Date");
-    $("#semua-restock #to_date").attr("placeholder", "To Date");
+    $("#semua-restock #from_date").attr("placeholder", date);
+    $("#semua-restock #to_date").attr("placeholder", date);
 
     // Event Listener saat tombol refresh diklik
     $("#semua-restock #refresh").click(function () {
