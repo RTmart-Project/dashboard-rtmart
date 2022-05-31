@@ -361,14 +361,14 @@
                             <i class="far fa-circle nav-icon"></i>
                             <p>Summary Depo</p>
                         </a>
-                    </li>
+                    </li> --}}
                     <li class="nav-item">
                         <a href="{{ route('rtsales.saleslist') }}"
                             class="nav-link {{ Request::is('rtsales/saleslist*') ? 'active' : '' }}">
                             <i class="far fa-circle nav-icon"></i>
                             <p>Sales List</p>
                         </a>
-                    </li> --}}
+                    </li>
                 </ul>
             </li>
             @endif

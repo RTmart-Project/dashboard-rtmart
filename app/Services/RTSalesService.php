@@ -8,6 +8,29 @@ use Illuminate\Support\Facades\DB;
 
 class RTSalesService
 {
+  public function salesLists()
+  {
+    $sql = DB::table('ms_sales')
+      ->join('ms_team_name', 'ms_team_name.TeamCode', 'ms_sales.Team')
+      ->leftJoin('ms_sales_work_status', 'ms_sales_work_status.SalesWorkStatusID', 'ms_sales.SalesWorkStatus')
+      ->leftJoin('ms_sales_product_group', 'ms_sales_product_group.SalesCode', 'ms_sales.SalesCode')
+      ->leftJoin('ms_product_group', 'ms_product_group.ProductGroupID', 'ms_sales_product_group.ProductGroupID')
+      ->selectRaw("
+        ms_sales.SalesName,
+        ms_sales.SalesCode,
+        ms_sales.SalesLevel,
+        ms_sales.Email,
+        ms_sales.PhoneNumber,
+        ms_sales.Password,
+        ms_sales.IsActive,
+        ms_sales_work_status.SalesWorkStatusName,
+        GROUP_CONCAT(ms_product_group.ProductGroupName) AS ProductGroupName,
+        CONCAT(ms_sales.TeamBy, ' ', ANY_VALUE(ms_team_name.TeamName)) AS Team
+      ")
+      ->groupBy('ms_sales.SalesCode');
+
+    return $sql;
+  }
 
   public function callReportData($fromDate = null, $toDate = null)
   {
