@@ -88,7 +88,10 @@ class MerchantController extends Controller
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
             ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', '=', 'ms_merchant_account.MerchantID')
             ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', '=', 'ms_distributor_merchant_grade.GradeID')
-            ->leftJoin('ms_merchant_assessment', 'ms_merchant_assessment.MerchantID', 'ms_merchant_account.MerchantID')
+            ->leftJoin('ms_merchant_assessment', function ($join) {
+                $join->on('ms_merchant_assessment.MerchantID', 'ms_merchant_account.MerchantID');
+                $join->where('ms_merchant_assessment.IsActive', 1);
+            })
             ->where('ms_merchant_account.IsTesting', 0)
             ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.CreatedDate', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_distributor.DistributorName', 'ms_distributor_grade.Grade', 'ms_merchant_assessment.MerchantAssessmentID', 'ms_merchant_assessment.IsActive');
 
