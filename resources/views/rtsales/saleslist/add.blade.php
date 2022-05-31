@@ -47,8 +47,8 @@
                   <div class="form-group">
                     <label for="sales_name">Nama Sales</label>
                     <input type="text" name="sales_name" class="form-control 
-                    @if($errors->has('sales_name')) is-invalid @endif" id="sales_name"
-                        placeholder="Masukkan Nama Sales" value="{{ old('sales_name') }}" required>
+                      @if($errors->has('sales_name')) is-invalid @endif" id="sales_name" autocomplete="off"
+                      placeholder="Masukkan Nama Sales" value="{{ old('sales_name') }}" required>
                     @if($errors->has('sales_name'))
                     <span class="error invalid-feedback">{{ $errors->first('sales_name') }}</span>
                     @endif
@@ -59,9 +59,20 @@
                     <label for="sales_level">Sales Level</label>
                     <input type="number" name="sales_level" class="form-control 
                     @if($errors->has('sales_level')) is-invalid @endif" id="sales_level"
-                        placeholder="Masukkan Level Sales" value="{{ old('sales_level') }}">
+                        placeholder="Masukkan Level Sales" value="{{ old('sales_level') }}" required>
                     @if($errors->has('sales_level'))
                     <span class="error invalid-feedback">{{ $errors->first('sales_level') }}</span>
+                    @endif
+                  </div>
+                </div>
+                <div class="col-md-6 col-12">
+                  <div class="form-group">
+                    <label for="prefix_sales_code">Prefix Sales Code</label>
+                    <input type="text" name="prefix_sales_code" onkeyup="this.value = this.value.toUpperCase();" class="form-control 
+                      @if($errors->has('prefix_sales_code')) is-invalid @endif" id="prefix_sales_code" autocomplete="off"
+                      placeholder="Masukkan Prefix Kode Sales" value="{{ old('prefix_sales_code') }}">
+                    @if($errors->has('prefix_sales_code'))
+                    <span class="error invalid-feedback">{{ $errors->first('prefix_sales_code') }}</span>
                     @endif
                   </div>
                 </div>
@@ -71,10 +82,10 @@
                     <select class="form-control selectpicker border
                       @if($errors->has('team')) is-invalid @endif" 
                       id="team" name="team" title="Pilih Team">
-                      @foreach ($depoTeam as $value)
-                        <option value="{{ $value->Depo }}"
-                          {{ collect(old('team'))->contains($value->Depo) ? 'selected' : '' }}>
-                          {{ $value->Depo }}
+                      @foreach ($teams as $value)
+                        <option value="{{ $value->TeamCode }}"
+                          {{ collect(old('team'))->contains($value->TeamCode) ? 'selected' : '' }}>
+                          {{ $value->TeamCode }} ({{ $value->TeamName }})
                         </option>
                       @endforeach
                     </select>
@@ -85,12 +96,12 @@
                 </div>
                 <div class="col-md-6 col-12">
                   <div class="form-group">
-                    <label for="phone_number">Nomor Telepon</label>
-                    <input type="number" name="phone_number" class="form-control 
-                    @if($errors->has('phone_number')) is-invalid @endif" id="phone_number"
-                        placeholder="Masukkan Nomor Telepon" value="{{ old('phone_number') }}">
-                    @if($errors->has('phone_number'))
-                    <span class="error invalid-feedback">{{ $errors->first('phone_number') }}</span>
+                    <label for="team_by">Team By</label>
+                    <input type="text" name="team_by" class="form-control 
+                      @if($errors->has('team_by')) is-invalid @endif" id="team_by" required
+                      placeholder="Contoh : RTmart atau Permata atau Sklera" value="{{ old('team_by') }}">
+                    @if($errors->has('team_by'))
+                    <span class="error invalid-feedback">{{ $errors->first('team_by') }}</span>
                     @endif
                   </div>
                 </div>
@@ -107,10 +118,21 @@
                 </div>
                 <div class="col-md-6 col-12">
                   <div class="form-group">
+                    <label for="phone_number">Nomor Telepon</label>
+                    <input type="number" name="phone_number" class="form-control 
+                    @if($errors->has('phone_number')) is-invalid @endif" id="phone_number"
+                        placeholder="Masukkan Nomor Telepon" value="{{ old('phone_number') }}">
+                    @if($errors->has('phone_number'))
+                    <span class="error invalid-feedback">{{ $errors->first('phone_number') }}</span>
+                    @endif
+                  </div>
+                </div>
+                <div class="col-md-6 col-12">
+                  <div class="form-group">
                     <label for="password">Password</label>
                     <input type="text" name="password"
                         class="form-control @if($errors->has('password')) is-invalid @endif" id="password"
-                        placeholder="Masukkan Password" value="{{ old('password') }}">
+                        placeholder="Masukkan Password" value="{{ old('password') }}" autocomplete="off">
                     @if($errors->has('password'))
                     <span class="error invalid-feedback">{{ $errors->first('password') }}</span>
                     @endif
