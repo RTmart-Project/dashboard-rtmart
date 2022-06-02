@@ -259,6 +259,9 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/merchant/restock', [MerchantController::class, 'restock'])->name('merchant.restock');
         Route::get('/merchant/restock/detail/{stockOrderId}', [MerchantController::class, 'restockDetails'])->name('merchant.restockDetails');
         Route::get('/merchant/invoice/{stockOrderId}', [MerchantController::class, 'invoice'])->name('merchant.invoice');
+
+        Route::get('/merchant/assessment', [MerchantController::class, 'assessment'])->name('merchant.assessment');
+        Route::get('/merchant/assessment/get', [MerchantController::class, 'getAssessments'])->name('merchant.getAssessments');
     });
     Route::group(['middleware' => ['checkRoleUser:IT,BM,FI,AH,HR']], function () {
         Route::get('/merchant/powermerchant', [MerchantController::class, 'powerMerchant'])->name('merchant.powermerchant');

@@ -8,10 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
-use Prophecy\Doubler\Generator\Node\ReturnTypeNode;
-use stdClass;
-
-use function Symfony\Component\String\b;
 use Yajra\DataTables\Facades\DataTables;
 
 class MerchantController extends Controller
@@ -85,6 +81,7 @@ class MerchantController extends Controller
 
         // Get data account, jika tanggal filter kosong tampilkan semua data.
         $sqlAllAccount = DB::table('ms_merchant_account')
+            ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
             ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', '=', 'ms_merchant_account.MerchantID')
             ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', '=', 'ms_distributor_merchant_grade.GradeID')
@@ -93,7 +90,7 @@ class MerchantController extends Controller
                 $join->where('ms_merchant_assessment.IsActive', 1);
             })
             ->where('ms_merchant_account.IsTesting', 0)
-            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.CreatedDate', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_distributor.DistributorName', 'ms_distributor_grade.Grade', 'ms_merchant_assessment.MerchantAssessmentID', 'ms_merchant_assessment.IsActive');
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.CreatedDate', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_distributor.DistributorName', 'ms_distributor_grade.Grade', 'ms_merchant_assessment.MerchantAssessmentID', 'ms_merchant_assessment.IsActive', 'ms_sales.SalesName');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
@@ -486,6 +483,79 @@ class MerchantController extends Controller
             return redirect()->route('merchant.account')->with('success', 'Data Assessment Merchant berhasil dihapus');
         } else {
             return redirect()->route('merchant.account')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
+        }
+    }
+
+    public function assessment()
+    {
+        return view('merchant.assessment.index');
+    }
+
+    public function getAssessments(MerchantService $merchantService, Request $request)
+    {
+        $fromDate = $request->input('fromDate');
+        $toDate = $request->input('toDate');
+
+        $sqlAssessments = $merchantService->getDataAssessments();
+
+        // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
+        if ($fromDate != '' && $toDate != '') {
+            $sqlAssessments->whereDate('ms_merchant_assessment.CreatedAt', '>=', $fromDate)
+                ->whereDate('ms_merchant_assessment.CreatedAt', '<=', $toDate);
+        }
+
+        $data = $sqlAssessments;
+        // dd($data->get());
+        if ($request->ajax()) {
+            return Datatables::of($data)
+                ->editColumn('CreatedAt', function ($data) {
+                    return date('d-M-Y', strtotime($data->CreatedAt));
+                })
+                ->addColumn('MerchantPhoto', function ($data) {
+                    $img1 = '<div class="border text-center px-2">
+                                <img src="' . $this->baseImageUrl . '/rtsales/merchantassessment/' . $data->PhotoMerchantFront . '" width="90px" height="70px" style="object-fit:cover;" />
+                                <p>Tampak Depan</p>
+                            </div>';
+                    $img2 = '<div class="border text-center px-2">
+                                <img src="' . $this->baseImageUrl . '/rtsales/merchantassessment/' . $data->PhotoMerchantSide . '" width="90px" height="70px" style="object-fit:cover;" />
+                                <p>Tampak Samping</p>
+                            </div>';
+                    $fotoToko = '<div class="d-flex border">' . $img1 . $img2 . '</div>';
+
+                    return $fotoToko;
+                })
+                ->addColumn('StruckPhoto', function ($data) {
+                    $fotoStruk = '<div class="border text-center px-2">
+                                    <img src="' . $this->baseImageUrl . '/rtsales/merchantassessment/' . $data->StruckDistribution . '" width="90px" height="70px" style="object-fit:cover;" />
+                                </div>';
+                    return $fotoStruk;
+                })
+                ->addColumn('StockPhoto', function ($data) {
+                    $fotoStok = '<div class="border text-center px-2">
+                                    <img src="' . $this->baseImageUrl . '/rtsales/merchantassessment/' . $data->PhotoStockProduct . '" width="90px" height="70px" style="object-fit:cover;" />
+                                </div>';
+                    return $fotoStok;
+                })
+                ->addColumn('IdCardPhoto', function ($data) {
+                    $fotoKTP = '<div class="border text-center px-2">
+                                    <img src="' . $this->baseImageUrl . '/rtsales/merchantassessment/' . $data->PhotoIDCard . '" width="90px" height="70px" style="object-fit:cover;" />
+                                </div>';
+                    return $fotoKTP;
+                })
+                ->filterColumn('MerchantName', function ($query, $keyword) {
+                    $query->whereRaw("ANY_VALUE(ms_merchant_account.StoreName) like ?", ["%$keyword%"]);
+                })
+                ->filterColumn('MerchantNumber', function ($query, $keyword) {
+                    $query->whereRaw("ANY_VALUE(ms_merchant_account.PhoneNumber) like ?", ["%$keyword%"]);
+                })
+                ->filterColumn('ReferralCode', function ($query, $keyword) {
+                    $query->whereRaw("ANY_VALUE(ms_merchant_account.ReferralCode) like ?", ["%$keyword%"]);
+                })
+                ->filterColumn('SalesName', function ($query, $keyword) {
+                    $query->whereRaw("ANY_VALUE(ms_sales.SalesName) like ?", ["%$keyword%"]);
+                })
+                ->rawColumns(['MerchantPhoto', 'StruckPhoto', 'StockPhoto', 'IdCardPhoto'])
+                ->make(true);
         }
     }
 
