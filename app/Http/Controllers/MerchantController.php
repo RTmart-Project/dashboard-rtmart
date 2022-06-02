@@ -855,7 +855,11 @@ class MerchantController extends Controller
                     return $data->MarginReal + $data->MarginEstimation;
                 })
                 ->addColumn('TotalMarginPercentage', function ($data) {
-                    $totalMarginPercentage = round((($data->MarginReal + $data->MarginEstimation) / ($data->NettPrice - $data->TotalPriceNotInStock)) * 100, 2);
+                    if ($data->NettPrice - $data->TotalPriceNotInStock == 0) {
+                        $totalMarginPercentage = 0;
+                    } else {
+                        $totalMarginPercentage = round((($data->MarginReal + $data->MarginEstimation) / ($data->NettPrice - $data->TotalPriceNotInStock)) * 100, 2);
+                    }
                     return $totalMarginPercentage;
                 })
                 ->addColumn('Notes', function ($data) {
@@ -935,6 +939,7 @@ class MerchantController extends Controller
     {
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
+        $filterAssessment = $request->input('filterAssessment');
 
         $startDate = new DateTime($fromDate) ?? new DateTime();
         $endDate = new DateTime($toDate) ?? new DateTime();
@@ -991,6 +996,12 @@ class MerchantController extends Controller
         if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
             $sqlAllAccount->where('RestockProduct.Depo', '=', $depoUser);
+        }
+
+        if ($filterAssessment == "already-assessed") {
+            $sqlAllAccount->whereNotNull('RestockProduct.NumberIDCard');
+        } elseif ($filterAssessment == "not-assessed") {
+            $sqlAllAccount->whereNull('RestockProduct.NumberIDCard');
         }
 
         // Get data response
