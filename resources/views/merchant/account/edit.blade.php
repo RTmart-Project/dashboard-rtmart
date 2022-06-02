@@ -110,7 +110,7 @@
                                         @endif
                                     </div>
                                 </div>
-                                @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "BM"))
+                                @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "FI")
                                 <div class="col-md-4 col-12">
                                     <div class="form-group">
                                         <label for="referral_code">Kode Referral</label>

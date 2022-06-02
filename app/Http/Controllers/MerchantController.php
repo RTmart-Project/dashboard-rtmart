@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
+use PhpParser\Node\Stmt\If_;
 use Yajra\DataTables\Facades\DataTables;
 
 class MerchantController extends Controller
@@ -511,6 +512,46 @@ class MerchantController extends Controller
                 ->editColumn('CreatedAt', function ($data) {
                     return date('d-M-Y', strtotime($data->CreatedAt));
                 })
+                ->editColumn('MerchantID', function ($data) {
+                    if ($data->MerchantID == "null") {
+                        $merchantID = "N/A";
+                    } else {
+                        $merchantID = $data->MerchantID;
+                    }
+                    return $merchantID;
+                })
+                ->editColumn('MerchantName', function ($data) {
+                    if ($data->MerchantName == null) {
+                        $merchantName = "N/A";
+                    } else {
+                        $merchantName = $data->MerchantName;
+                    }
+                    return $merchantName;
+                })
+                ->editColumn('MerchantNumber', function ($data) {
+                    if ($data->MerchantNumber == null) {
+                        $merchantNumber = "N/A";
+                    } else {
+                        $merchantNumber = $data->MerchantNumber;
+                    }
+                    return $merchantNumber;
+                })
+                ->editColumn('ReferralCode', function ($data) {
+                    if ($data->ReferralCode == null) {
+                        $salesCode = $data->SalesCodeStore;
+                    } else {
+                        $salesCode = $data->ReferralCode;
+                    }
+                    return $salesCode;
+                })
+                ->editColumn('SalesName', function ($data) {
+                    if ($data->SalesName == null) {
+                        $salesName = $data->SalesNameStore;
+                    } else {
+                        $salesName = $data->SalesName;
+                    }
+                    return $salesName;
+                })
                 ->addColumn('MerchantPhoto', function ($data) {
                     $img1 = '<div class="border text-center px-2">
                                 <img src="' . $this->baseImageUrl . '/rtsales/merchantassessment/' . $data->PhotoMerchantFront . '" width="90px" height="70px" style="object-fit:cover;" />
@@ -552,7 +593,7 @@ class MerchantController extends Controller
                     $query->whereRaw("ANY_VALUE(ms_merchant_account.ReferralCode) like ?", ["%$keyword%"]);
                 })
                 ->filterColumn('SalesName', function ($query, $keyword) {
-                    $query->whereRaw("ANY_VALUE(ms_sales.SalesName) like ?", ["%$keyword%"]);
+                    $query->whereRaw("ANY_VALUE(sales_merchant.SalesName) like ?", ["%$keyword%"]);
                 })
                 ->rawColumns(['MerchantPhoto', 'StruckPhoto', 'StockPhoto', 'IdCardPhoto'])
                 ->make(true);
