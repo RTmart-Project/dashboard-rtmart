@@ -306,7 +306,7 @@ $(document).ready(function () {
                 option += `<option value="${item.PaymentMethodID}">${item.PaymentMethodName}</option>`;
             }
             $("#merchant-restock .select-filter-custom select").append(option);
-            $("#product-restock .select-filter-custom select").append(option);
+            $("#product-restock .filter-payment select").append(option);
             customDropdownFilter.createCustomDropdowns();
         },
     });

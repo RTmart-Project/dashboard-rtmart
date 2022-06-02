@@ -24,7 +24,10 @@ $(document).ready(function () {
                     d.fromDate = $("#product-restock #from_date").val();
                     d.toDate = $("#product-restock #to_date").val();
                     d.paymentMethodId = $(
-                        "#product-restock .select-filter-custom select"
+                        "#product-restock .filter-payment select"
+                    ).val();
+                    d.filterAssessment = $(
+                        "#product-restock .filter-assessment select"
                     ).val();
                 },
             },
@@ -45,6 +48,14 @@ $(document).ready(function () {
                 {
                     data: "StoreName",
                     name: "RestockProduct.StoreName",
+                },
+                {
+                    data: "NumberIDCard",
+                    name: "RestockProduct.NumberIDCard",
+                },
+                {
+                    data: "TurnoverAverage",
+                    name: "RestockProduct.TurnoverAverage",
                 },
                 {
                     data: "Grade",
@@ -200,7 +211,7 @@ $(document).ready(function () {
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
                             15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
-                            28, 29, 30, 31, 32, 33, 34,
+                            28, 29, 30, 31, 32, 33, 34, 35, 36,
                         ],
                         orthogonal: "export",
                     },
@@ -213,8 +224,8 @@ $(document).ready(function () {
             aoColumnDefs: [
                 {
                     aTargets: [
-                        10, 11, 12, 13, 14, 15, 23, 24, 25, 26, 27, 28, 29, 30,
-                        31, 32, 33, 34,
+                        5, 12, 13, 14, 15, 16, 17, 25, 26, 27, 28, 29, 30, 32,
+                        33, 35,
                     ],
                     mRender: function (data, type, full) {
                         if (type === "export") {
@@ -240,9 +251,16 @@ $(document).ready(function () {
                             <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
                             <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
                             <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-2">Refresh</button>
-                            <div class="select-filter-custom ml-2">
+                            <div class="select-filter-custom filter-payment ml-2">
                                 <select>
                                     <option value="">All</option>
+                                </select>
+                            </div>
+                            <div class="select-filter-custom filter-assessment ml-2">
+                                <select>
+                                    <option value="">All</option>
+                                    <option value="already-assessed">Sudah Assessment</option>
+                                    <option value="not-assessed">Belum Assessment</option>
                                 </select>
                             </div>
                         </div>`);
@@ -330,8 +348,6 @@ $(document).ready(function () {
         $("#product-restock #from_date").val("");
         $("#product-restock #to_date").val("");
         $("#product-restock .table-datatables").DataTable().search("");
-        // $('#product-restock .select-filter-custom select').val('').change();
-        // $('#product-restock .select-filter-custom select option[value=]');
         $("#product-restock .table-datatables")
             .DataTable()
             .ajax.reload(null, false);
@@ -343,7 +359,11 @@ $(document).ready(function () {
     });
 
     // Event listener saat tombol select option diklik
-    $("#product-restock .select-filter-custom select").change(function () {
+    $("#product-restock .filter-payment select").change(function () {
+        $("#product-restock .table-datatables").DataTable().ajax.reload();
+    });
+
+    $("#product-restock .filter-assessment select").change(function () {
         $("#product-restock .table-datatables").DataTable().ajax.reload();
     });
 });
