@@ -73,30 +73,30 @@
                 </div>
                 <div class="col-md-6 col-12">
                   <div class="form-group">
-                    <label for="team">Team</label>
-                    <select class="form-control selectpicker border
-                      @if($errors->has('team')) is-invalid @endif" 
-                      id="team" name="team" title="Pilih Team">
-                      @foreach ($depoTeam as $value)
-                        <option value="{{ $value->Depo }}"
-                          {{ ($sales->Team) == ($value->Depo) ? 'selected' : '' }}>
-                          {{ $value->Depo }}
-                        </option>
-                      @endforeach
-                    </select>
-                    @if($errors->has('team'))
-                      <span class="error invalid-feedback">{{ $errors->first('team') }}</span>
+                    <label for="team_by">Team By</label>
+                    <input type="text" name="team_by" class="form-control 
+                    @if($errors->has('team_by')) is-invalid @endif" id="team_by"
+                        placeholder="Masukkan Level Sales" value="{{ $sales->TeamBy }}">
+                    @if($errors->has('team_by'))
+                    <span class="error invalid-feedback">{{ $errors->first('team_by') }}</span>
                     @endif
                   </div>
                 </div>
                 <div class="col-md-6 col-12">
                   <div class="form-group">
-                    <label for="phone_number">Nomor Telepon</label>
-                    <input type="number" name="phone_number" class="form-control 
-                    @if($errors->has('phone_number')) is-invalid @endif" id="phone_number"
-                        placeholder="Masukkan Nomor Telepon" value="{{ $sales->PhoneNumber }}">
-                    @if($errors->has('phone_number'))
-                    <span class="error invalid-feedback">{{ $errors->first('phone_number') }}</span>
+                    <label for="team">Team</label>
+                    <select class="form-control selectpicker border
+                      @if($errors->has('team')) is-invalid @endif" 
+                      id="team" name="team" title="Pilih Team">
+                      @foreach ($teams as $value)
+                        <option value="{{ $value->TeamCode }}"
+                          {{ ($sales->Team) == ($value->TeamCode) ? 'selected' : '' }}>
+                          {{ $value->TeamCode }} ({{ $value->TeamName }})
+                        </option>
+                      @endforeach
+                    </select>
+                    @if($errors->has('team'))
+                      <span class="error invalid-feedback">{{ $errors->first('team') }}</span>
                     @endif
                   </div>
                 </div>
@@ -113,12 +113,30 @@
                 </div>
                 <div class="col-md-6 col-12">
                   <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="text" name="password"
-                        class="form-control @if($errors->has('password')) is-invalid @endif" id="password"
-                        placeholder="Masukkan Password" value="{{ $sales->Password }}">
-                    @if($errors->has('password'))
-                    <span class="error invalid-feedback">{{ $errors->first('password') }}</span>
+                    <label for="phone_number">Nomor Telepon</label>
+                    <input type="number" name="phone_number" class="form-control 
+                    @if($errors->has('phone_number')) is-invalid @endif" id="phone_number"
+                        placeholder="Masukkan Nomor Telepon" value="{{ $sales->PhoneNumber }}">
+                    @if($errors->has('phone_number'))
+                    <span class="error invalid-feedback">{{ $errors->first('phone_number') }}</span>
+                    @endif
+                  </div>
+                </div>
+                <div class="col-md-6 col-12">
+                  <div class="form-group">
+                    <label for="work_status">Work Status</label>
+                    <select class="form-control selectpicker border
+                      @if($errors->has('work_status')) is-invalid @endif"
+                      name="work_status" id="work_status" title="Pilih Work Status" required>
+                      @foreach ($workStatus as $value)
+                        <option value="{{ $value->SalesWorkStatusID }}"
+                          {{ ($sales->SalesWorkStatus) == ($value->SalesWorkStatusID) ? 'selected' : '' }}>
+                          {{ $value->SalesWorkStatusName }}
+                        </option>
+                      @endforeach
+                    </select>
+                    @if($errors->has('work_status'))
+                    <span class="error invalid-feedback">{{ $errors->first('work_status') }}</span>
                     @endif
                   </div>
                 </div>
@@ -144,19 +162,25 @@
                 </div>
                 <div class="col-md-6 col-12">
                   <div class="form-group">
-                    <label for="work_status">Work Status</label>
-                    <select class="form-control selectpicker border
-                      @if($errors->has('work_status')) is-invalid @endif"
-                      name="work_status" id="work_status" title="Pilih Work Status" required>
-                      @foreach ($workStatus as $value)
-                        <option value="{{ $value->SalesWorkStatusID }}"
-                          {{ ($sales->SalesWorkStatus) == ($value->SalesWorkStatusID) ? 'selected' : '' }}>
-                          {{ $value->SalesWorkStatusName }}
-                        </option>
-                      @endforeach
+                    <label for="password">Password</label>
+                    <input type="text" name="password"
+                        class="form-control @if($errors->has('password')) is-invalid @endif" id="password"
+                        placeholder="Masukkan Password" value="{{ $sales->Password }}">
+                    @if($errors->has('password'))
+                    <span class="error invalid-feedback">{{ $errors->first('password') }}</span>
+                    @endif
+                  </div>
+                </div>
+                <div class="col-md-6 col-12">
+                  <div class="form-group">
+                    <label for="is_active">Is Active</label>
+                    <select name="is_active" id="is_active" class="form-control selectpicker border
+                      @if($errors->has('product_group')) is-invalid @endif">
+                      <option value="1" {{ $sales->IsActive == 1 ? 'selected' : ''}}>Ya</option>
+                      <option value="0" {{ $sales->IsActive == 0 ? 'selected' : ''}}>Tidak</option>
                     </select>
-                    @if($errors->has('work_status'))
-                    <span class="error invalid-feedback">{{ $errors->first('work_status') }}</span>
+                    @if($errors->has('is_active'))
+                    <span class="error invalid-feedback">{{ $errors->first('is_active') }}</span>
                     @endif
                   </div>
                 </div>

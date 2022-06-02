@@ -299,7 +299,7 @@
                                             data-target="#add-do">
                                             Buat Delivery Order
                                         </button>
-                                        @if ($merchantOrder->StatusOrderID == "S012")
+                                        @if ($merchantOrder->StatusOrderID == "S012" && $merchantOrder->PaymentMethodID != 1)
                                         <div class="row d-md-flex justify-content-end">
                                             <div class="col-md-6 col-12 text-center">
                                                 <a href="#" class="btn btn-secondary btn-refund"
@@ -321,16 +321,18 @@
                                                 Batalkan Pesanan
                                             </a>
                                             @endif
-                                            <a href="#" class="btn btn-success btn-kirim mx-3"
+                                            {{-- <a href="#" class="btn btn-success btn-kirim mx-3"
                                                 data-order-id="{{ $stockOrderID }}"
                                                 data-store-name="{{ $merchantOrder->StoreName }}">
                                                 Kirim Pesanan
-                                            </a>
+                                            </a> --}}
+                                            @if ($merchantOrder->PaymentMethodID != 1)
                                             <a href="#" class="btn btn-secondary btn-refund"
                                                 data-order-id="{{ $stockOrderID }}"
                                                 data-store-name="{{ $merchantOrder->StoreName }}">
                                                 Refund
                                             </a>
+                                            @endif
                                         </div>
                                     </div>
                                     @endif

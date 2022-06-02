@@ -3,6 +3,12 @@ $(document).ready(function () {
     dataTablesRestockProduct();
 
     function dataTablesRestockProduct() {
+        $.ajaxSetup({
+            headers: {
+                "X-CSRF-TOKEN": $('meta[name="csrf_token"]').attr("content"),
+            },
+        });
+
         $("#restock-all-product .table-datatables").DataTable({
             dom:
                 "<'row'<'col-sm-12 col-md-5'<'filter-restock-all-product'>tl><'col-sm-12 col-md-3'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
@@ -13,6 +19,7 @@ $(document).ready(function () {
             stateServe: true,
             ajax: {
                 url: "/merchant/restock/product/get",
+                method: "POST",
                 data: function (d) {
                     d.fromDate = $("#restock-all-product #from_date").val();
                     d.toDate = $("#restock-all-product #to_date").val();
@@ -128,6 +135,46 @@ $(document).ready(function () {
                     data: "SubTotalPrice",
                     name: "SubTotalPrice",
                 },
+                {
+                    data: "PurchasePriceEstimation",
+                    name: "RestockProduct.PurchasePriceEstimation",
+                    searchable: false,
+                },
+                {
+                    data: "MarginEstimation",
+                    name: "MarginEstimation",
+                    searchable: false,
+                },
+                {
+                    data: "MarginEstimationPercentage",
+                    name: "MarginEstimationPercentage",
+                    searchable: false,
+                },
+                {
+                    data: "PurchasePriceReal",
+                    name: "RestockProduct.PurchasePriceReal",
+                    searchable: false,
+                },
+                {
+                    data: "MarginReal",
+                    name: "MarginReal",
+                    searchable: false,
+                },
+                {
+                    data: "MarginRealPercentage",
+                    name: "MarginRealPercentage",
+                    searchable: false,
+                },
+                {
+                    data: "TotalMargin",
+                    name: "TotalMargin",
+                    searchable: false,
+                },
+                {
+                    data: "TotalMarginPercentage",
+                    name: "TotalMarginPercentage",
+                    searchable: false,
+                },
             ],
             buttons: [
                 {
@@ -147,7 +194,8 @@ $(document).ready(function () {
                         },
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-                            15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+                            15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
+                            28, 29, 30, 31, 32, 33,
                         ],
                         orthogonal: "export",
                     },
@@ -159,7 +207,10 @@ $(document).ready(function () {
             autoWidth: false,
             aoColumnDefs: [
                 {
-                    aTargets: [11, 12, 13, 14, 15, 16, 21, 22, 23, 24, 25],
+                    aTargets: [
+                        11, 12, 13, 14, 15, 16, 21, 22, 23, 24, 25, 26, 27, 29,
+                        30, 32,
+                    ],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
@@ -253,11 +304,16 @@ $(document).ready(function () {
         }
     );
 
+    const d = new Date();
+    const date = `${d.getFullYear()}-${("0" + (d.getMonth() + 1)).slice(-2)}-${(
+        "0" + d.getDate()
+    ).slice(-2)}`;
+
     // Menyisipkan Placeholder Date
     $("#restock-all-product #from_date").val("");
     $("#restock-all-product #to_date").val("");
-    $("#restock-all-product #from_date").attr("placeholder", "From Date");
-    $("#restock-all-product #to_date").attr("placeholder", "To Date");
+    $("#restock-all-product #from_date").attr("placeholder", date);
+    $("#restock-all-product #to_date").attr("placeholder", date);
 
     // Event Listener saat tombol refresh diklik
     $("#restock-all-product #refresh").click(function () {

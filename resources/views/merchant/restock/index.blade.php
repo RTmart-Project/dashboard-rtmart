@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
 <!-- Main -->
 <link rel="stylesheet" href="{{url('/')}}/main/css/custom/select-filter.css">
+<meta name="csrf_token" content="{{ csrf_token() }}">
 @endsection
 
 @section('header-menu', 'Restock Merchant')
@@ -293,6 +294,13 @@
                                                     <th>Biaya Layanan</th>
                                                     <th>Biaya Pengiriman</th>
                                                     <th>Total Harga Bersih</th>
+                                                    <th>Margin Estimasi (Rp)</th>
+                                                    <th>Margin Estimasi (%)</th>
+                                                    <th>Margin Real (Rp)</th>
+                                                    <th>Margin Real (%)</th>
+                                                    <th>Total Margin (Rp)</th>
+                                                    <th>Total Margin (%)</th>
+                                                    <th>Notes</th>
                                                     <th>Referral</th>
                                                     <th>Nama Sales</th>
                                                     <th>Invoice</th>
@@ -332,11 +340,22 @@
                                                     <th>Product ID</th>
                                                     <th>Deskripsi</th>
                                                     <th>Qty</th>
-                                                    <th>DO Selesai</th>
+                                                    <th>Qty dikirim</th>
+                                                    <th>Qty DO Selesai</th>
                                                     <th>Harga Satuan</th>
                                                     <th>Diskon</th>
                                                     <th>Harga stlh Diskon</th>
                                                     <th>Total Harga Produk</th>
+                                                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM")
+                                                    <th>Harga Beli Estimasi</th>
+                                                    <th>Margin Estimasi (Rp)</th>
+                                                    <th>Margin Estimasi (%)</th>
+                                                    <th>Harga Beli Real</th>
+                                                    <th>Margin Real (Rp)</th>
+                                                    <th>Margin Real (%)</th>
+                                                    <th>Total Margin (Rp)</th>
+                                                    <th>Total Margin (%)</th>
+                                                    @endif
                                                 </tr>
                                             </thead>
                                             <tbody>

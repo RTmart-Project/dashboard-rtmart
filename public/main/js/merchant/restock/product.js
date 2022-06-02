@@ -3,6 +3,12 @@ $(document).ready(function () {
     dataTablesRestockProduct();
 
     function dataTablesRestockProduct() {
+        $.ajaxSetup({
+            headers: {
+                "X-CSRF-TOKEN": $('meta[name="csrf_token"]').attr("content"),
+            },
+        });
+
         $("#product-restock .table-datatables").DataTable({
             dom:
                 "<'row'<'col-sm-12 col-md-5'<'filter-product-restock'>tl><'col-sm-12 col-md-3'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
@@ -13,6 +19,7 @@ $(document).ready(function () {
             stateServe: true,
             ajax: {
                 url: "/merchant/restock/product/get",
+                method: "POST",
                 data: function (d) {
                     d.fromDate = $("#product-restock #from_date").val();
                     d.toDate = $("#product-restock #to_date").val();
@@ -108,6 +115,11 @@ $(document).ready(function () {
                     name: "RestockProduct.PromisedQuantity",
                 },
                 {
+                    data: "QtyDOkirim",
+                    name: "RestockProduct.QtyDOkirim",
+                    searchable: false,
+                },
+                {
                     data: "DOSelesai",
                     name: "RestockProduct.DOSelesai",
                     searchable: false,
@@ -128,6 +140,46 @@ $(document).ready(function () {
                     data: "SubTotalPrice",
                     name: "SubTotalPrice",
                 },
+                {
+                    data: "PurchasePriceEstimation",
+                    name: "RestockProduct.PurchasePriceEstimation",
+                    searchable: false,
+                },
+                {
+                    data: "MarginEstimation",
+                    name: "MarginEstimation",
+                    searchable: false,
+                },
+                {
+                    data: "MarginEstimationPercentage",
+                    name: "MarginEstimationPercentage",
+                    searchable: false,
+                },
+                {
+                    data: "PurchasePriceReal",
+                    name: "RestockProduct.PurchasePriceReal",
+                    searchable: false,
+                },
+                {
+                    data: "MarginReal",
+                    name: "MarginReal",
+                    searchable: false,
+                },
+                {
+                    data: "MarginRealPercentage",
+                    name: "MarginRealPercentage",
+                    searchable: false,
+                },
+                {
+                    data: "TotalMargin",
+                    name: "TotalMargin",
+                    searchable: false,
+                },
+                {
+                    data: "TotalMarginPercentage",
+                    name: "TotalMarginPercentage",
+                    searchable: false,
+                },
             ],
             buttons: [
                 {
@@ -140,13 +192,15 @@ $(document).ready(function () {
                     action: exportDatatableHelper.newExportAction,
                     text: "Export",
                     titleAttr: "Excel",
+                    className: "btn-sm",
                     exportOptions: {
                         modifier: {
                             page: "all",
                         },
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-                            15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+                            15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
+                            28, 29, 30, 31, 32, 33, 34,
                         ],
                         orthogonal: "export",
                     },
@@ -158,7 +212,10 @@ $(document).ready(function () {
             autoWidth: false,
             aoColumnDefs: [
                 {
-                    aTargets: [10, 11, 12, 13, 14, 15, 20, 21, 22, 23, 24, 25],
+                    aTargets: [
+                        10, 11, 12, 13, 14, 15, 23, 24, 25, 26, 27, 28, 29, 30,
+                        31, 32, 33, 34,
+                    ],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
@@ -257,11 +314,16 @@ $(document).ready(function () {
         }
     );
 
+    const d = new Date();
+    const date = `${d.getFullYear()}-${("0" + (d.getMonth() + 1)).slice(-2)}-${(
+        "0" + d.getDate()
+    ).slice(-2)}`;
+
     // Menyisipkan Placeholder Date
     $("#product-restock #from_date").val("");
     $("#product-restock #to_date").val("");
-    $("#product-restock #from_date").attr("placeholder", "From Date");
-    $("#product-restock #to_date").attr("placeholder", "To Date");
+    $("#product-restock #from_date").attr("placeholder", date);
+    $("#product-restock #to_date").attr("placeholder", date);
 
     // Event Listener saat tombol refresh diklik
     $("#product-restock #refresh").click(function () {

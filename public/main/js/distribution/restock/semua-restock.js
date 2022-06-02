@@ -66,12 +66,16 @@ $(document).ready(function () {
                 },
                 {
                     data: "DeliveryOrderID",
-                    name: "tx_merchant_delivery_order.DeliveryOrderID",
+                    name: "tmdo.DeliveryOrderID",
                 },
                 {
                     data: "TanggalDO",
                     name: "TanggalDO",
                     type: "date",
+                },
+                {
+                    data: "UrutanDO",
+                    name: "UrutanDO",
                 },
                 {
                     data: "ProductName",
@@ -90,6 +94,18 @@ $(document).ready(function () {
                     name: "TotalPrice",
                 },
                 {
+                    data: "PurchasePrice",
+                    name: "PurchasePrice",
+                },
+                {
+                    data: "MarginReal",
+                    name: "MarginReal",
+                },
+                {
+                    data: "MarginRealPercentage",
+                    name: "MarginRealPercentage",
+                },
+                {
                     data: "StatusDO",
                     name: "StatusDO",
                 },
@@ -103,7 +119,7 @@ $(document).ready(function () {
                 },
                 {
                     data: "VehicleLicensePlate",
-                    name: "tx_merchant_delivery_order.VehicleLicensePlate",
+                    name: "tmdo.VehicleLicensePlate",
                 },
             ],
             buttons: [
@@ -161,7 +177,7 @@ $(document).ready(function () {
                             },
                         },
                         {
-                            cells: "L2:U2",
+                            cells: "L2:Y2",
                             style: {
                                 fill: {
                                     pattern: {
@@ -177,7 +193,7 @@ $(document).ready(function () {
                         },
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-                            15, 16, 17, 18, 19, 20,
+                            15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
                         ],
                         orthogonal: "export",
                     },
@@ -185,7 +201,7 @@ $(document).ready(function () {
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [7, 15, 16],
+                    aTargets: [7, 16, 17, 18, 19],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
@@ -199,6 +215,10 @@ $(document).ready(function () {
                             }
                         }
                     },
+                },
+                {
+                    aTargets: [18, 19, 20],
+                    visible: false,
                 },
             ],
             order: [
@@ -287,11 +307,16 @@ $(document).ready(function () {
         }
     );
 
+    const d = new Date();
+    const date = `${d.getFullYear()}-${("0" + (d.getMonth() + 1)).slice(-2)}-${(
+        "0" + d.getDate()
+    ).slice(-2)}`;
+
     // Menyisipkan Placeholder Date
     $("#semua-restock #from_date").val("");
     $("#semua-restock #to_date").val("");
-    $("#semua-restock #from_date").attr("placeholder", "From Date");
-    $("#semua-restock #to_date").attr("placeholder", "To Date");
+    $("#semua-restock #from_date").attr("placeholder", date);
+    $("#semua-restock #to_date").attr("placeholder", date);
 
     // Event Listener saat tombol refresh diklik
     $("#semua-restock #refresh").click(function () {

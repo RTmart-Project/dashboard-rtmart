@@ -105,8 +105,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/', [MonthlyReportController::class, 'index'])->name('monthlyReport.post');
     });
 
-    Route::group(['prefix' => 'stock', 'middleware' => ['checkRoleUser:IT,FI,AD,INVTR']], function () {
-        Route::prefix('opname')->group(function () {
+    Route::prefix('stock')->group(function () {
+        Route::group(['prefix' => 'opname', 'middleware' => ['checkRoleUser:IT,FI,INVTR']], function () {
             Route::get('/', [StockController::class, 'opname'])->name('stock.opname');
             Route::get('/get', [StockController::class, 'getOpname'])->name('stock.getOpname');
             Route::get('/create', [StockController::class, 'createOpname'])->name('stock.createOpname');
@@ -115,7 +115,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/detail/{stockOpnameID}', [StockController::class, 'detailOpname'])->name('stock.detailOpname');
         });
 
-        Route::prefix('purchase')->group(function () {
+        Route::group(['prefix' => 'purchase', 'middleware' => ['checkRoleUser:IT,FI,INVTR']], function () {
             Route::get('/', [StockController::class, 'purchase'])->name('stock.purchase');
             Route::get('/get', [StockController::class, 'getPurchase'])->name('stock.getPurchase');
             Route::get('/create', [StockController::class, 'createPurchase'])->name('stock.createPurchase');
@@ -128,7 +128,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/update/invoice/{purchaseID}', [StockController::class, 'updateInvoice'])->name('stock.updateInvoicePurchase');
         });
 
-        Route::prefix('list')->group(function () {
+        Route::group(['prefix' => 'list', 'middleware' => ['checkRoleUser:IT,FI,AD,INVTR']], function () {
             Route::get('/', [StockController::class, 'listStock'])->name('stock.listStock');
             Route::get('/get', [StockController::class, 'getListStock'])->name('stock.getListStock');
             Route::get('/detail/{distributorID}/{investorID}/{productID}/{label}', [StockController::class, 'detailStock'])->name('stock.detailStock');
@@ -224,7 +224,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::group(['middleware' => ['checkRoleUser:IT,BM,FI,AH,HR,AD,DMO,RBTAD']], function () {
         Route::get('/merchant/restock/get', [MerchantController::class, 'getRestocks'])->name('merchant.getRestocks');
-        Route::get('/merchant/restock/product/get', [MerchantController::class, 'getRestockProduct'])->name('merchant.getRestockProduct');
+        Route::post('/merchant/restock/product/get', [MerchantController::class, 'getRestockProduct'])->name('merchant.getRestockProduct');
     });
 
     Route::group(['middleware' => ['checkRoleUser:IT,BM,FI,AH,HR,DMO,RBTAD']], function () {
@@ -259,6 +259,9 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/merchant/restock', [MerchantController::class, 'restock'])->name('merchant.restock');
         Route::get('/merchant/restock/detail/{stockOrderId}', [MerchantController::class, 'restockDetails'])->name('merchant.restockDetails');
         Route::get('/merchant/invoice/{stockOrderId}', [MerchantController::class, 'invoice'])->name('merchant.invoice');
+
+        Route::get('/merchant/assessment', [MerchantController::class, 'assessment'])->name('merchant.assessment');
+        Route::get('/merchant/assessment/get', [MerchantController::class, 'getAssessments'])->name('merchant.getAssessments');
     });
     Route::group(['middleware' => ['checkRoleUser:IT,BM,FI,AH,HR']], function () {
         Route::get('/merchant/powermerchant', [MerchantController::class, 'powerMerchant'])->name('merchant.powermerchant');

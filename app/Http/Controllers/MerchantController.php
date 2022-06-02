@@ -3,14 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Services\MerchantService;
+use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
-use Prophecy\Doubler\Generator\Node\ReturnTypeNode;
-use stdClass;
-
-use function Symfony\Component\String\b;
 use Yajra\DataTables\Facades\DataTables;
 
 class MerchantController extends Controller
@@ -84,12 +81,16 @@ class MerchantController extends Controller
 
         // Get data account, jika tanggal filter kosong tampilkan semua data.
         $sqlAllAccount = DB::table('ms_merchant_account')
+            ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
             ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', '=', 'ms_merchant_account.MerchantID')
             ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', '=', 'ms_distributor_merchant_grade.GradeID')
-            ->leftJoin('ms_merchant_assessment', 'ms_merchant_assessment.MerchantID', 'ms_merchant_account.MerchantID')
+            ->leftJoin('ms_merchant_assessment', function ($join) {
+                $join->on('ms_merchant_assessment.MerchantID', 'ms_merchant_account.MerchantID');
+                $join->where('ms_merchant_assessment.IsActive', 1);
+            })
             ->where('ms_merchant_account.IsTesting', 0)
-            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.CreatedDate', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_distributor.DistributorName', 'ms_distributor_grade.Grade', 'ms_merchant_assessment.MerchantAssessmentID', 'ms_merchant_assessment.IsActive');
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.CreatedDate', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_distributor.DistributorName', 'ms_distributor_grade.Grade', 'ms_merchant_assessment.MerchantAssessmentID', 'ms_merchant_assessment.IsActive', 'ms_sales.SalesName');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
@@ -485,6 +486,79 @@ class MerchantController extends Controller
         }
     }
 
+    public function assessment()
+    {
+        return view('merchant.assessment.index');
+    }
+
+    public function getAssessments(MerchantService $merchantService, Request $request)
+    {
+        $fromDate = $request->input('fromDate');
+        $toDate = $request->input('toDate');
+
+        $sqlAssessments = $merchantService->getDataAssessments();
+
+        // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
+        if ($fromDate != '' && $toDate != '') {
+            $sqlAssessments->whereDate('ms_merchant_assessment.CreatedAt', '>=', $fromDate)
+                ->whereDate('ms_merchant_assessment.CreatedAt', '<=', $toDate);
+        }
+
+        $data = $sqlAssessments;
+        // dd($data->get());
+        if ($request->ajax()) {
+            return Datatables::of($data)
+                ->editColumn('CreatedAt', function ($data) {
+                    return date('d-M-Y', strtotime($data->CreatedAt));
+                })
+                ->addColumn('MerchantPhoto', function ($data) {
+                    $img1 = '<div class="border text-center px-2">
+                                <img src="' . $this->baseImageUrl . '/rtsales/merchantassessment/' . $data->PhotoMerchantFront . '" width="90px" height="70px" style="object-fit:cover;" />
+                                <p>Tampak Depan</p>
+                            </div>';
+                    $img2 = '<div class="border text-center px-2">
+                                <img src="' . $this->baseImageUrl . '/rtsales/merchantassessment/' . $data->PhotoMerchantSide . '" width="90px" height="70px" style="object-fit:cover;" />
+                                <p>Tampak Samping</p>
+                            </div>';
+                    $fotoToko = '<div class="d-flex border">' . $img1 . $img2 . '</div>';
+
+                    return $fotoToko;
+                })
+                ->addColumn('StruckPhoto', function ($data) {
+                    $fotoStruk = '<div class="border text-center px-2">
+                                    <img src="' . $this->baseImageUrl . '/rtsales/merchantassessment/' . $data->StruckDistribution . '" width="90px" height="70px" style="object-fit:cover;" />
+                                </div>';
+                    return $fotoStruk;
+                })
+                ->addColumn('StockPhoto', function ($data) {
+                    $fotoStok = '<div class="border text-center px-2">
+                                    <img src="' . $this->baseImageUrl . '/rtsales/merchantassessment/' . $data->PhotoStockProduct . '" width="90px" height="70px" style="object-fit:cover;" />
+                                </div>';
+                    return $fotoStok;
+                })
+                ->addColumn('IdCardPhoto', function ($data) {
+                    $fotoKTP = '<div class="border text-center px-2">
+                                    <img src="' . $this->baseImageUrl . '/rtsales/merchantassessment/' . $data->PhotoIDCard . '" width="90px" height="70px" style="object-fit:cover;" />
+                                </div>';
+                    return $fotoKTP;
+                })
+                ->filterColumn('MerchantName', function ($query, $keyword) {
+                    $query->whereRaw("ANY_VALUE(ms_merchant_account.StoreName) like ?", ["%$keyword%"]);
+                })
+                ->filterColumn('MerchantNumber', function ($query, $keyword) {
+                    $query->whereRaw("ANY_VALUE(ms_merchant_account.PhoneNumber) like ?", ["%$keyword%"]);
+                })
+                ->filterColumn('ReferralCode', function ($query, $keyword) {
+                    $query->whereRaw("ANY_VALUE(ms_merchant_account.ReferralCode) like ?", ["%$keyword%"]);
+                })
+                ->filterColumn('SalesName', function ($query, $keyword) {
+                    $query->whereRaw("ANY_VALUE(ms_sales.SalesName) like ?", ["%$keyword%"]);
+                })
+                ->rawColumns(['MerchantPhoto', 'StruckPhoto', 'StockPhoto', 'IdCardPhoto'])
+                ->make(true);
+        }
+    }
+
     public function powerMerchant()
     {
         $sqlMerchant = DB::table('ms_merchant_account')
@@ -690,20 +764,21 @@ class MerchantController extends Controller
         $toDate = $request->input('toDate');
         $paymentMethodId = $request->input('paymentMethodId');
 
-        $sqlAllAccount = $merchantService->merchantRestock();
+        $startDate = new DateTime($fromDate) ?? new DateTime();
+        $endDate = new DateTime($toDate) ?? new DateTime();
+        $startDateFormat = $startDate->format('Y-m-d');
+        $endDateFormat = $endDate->format('Y-m-d');
 
-        // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
-        if ($fromDate != '' && $toDate != '') {
-            $sqlAllAccount->whereDate('tx_merchant_order.CreatedDate', '>=', $fromDate)
-                ->whereDate('tx_merchant_order.CreatedDate', '<=', $toDate);
-        }
+        $sqlAllAccount = $merchantService->merchantRestock()
+            ->whereDate('Restock.CreatedDate', '>=', $startDateFormat)
+            ->whereDate('Restock.CreatedDate', '<=', $endDateFormat);
 
         if ($paymentMethodId != null) {
-            $sqlAllAccount->where('tx_merchant_order.PaymentMethodID', '=', $paymentMethodId);
+            $sqlAllAccount->where('Restock.PaymentMethodID', '=', $paymentMethodId);
         }
         if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
-            $sqlAllAccount->where('ms_distributor.Depo', '=', $depoUser);
+            $sqlAllAccount->where('Restock.Depo', '=', $depoUser);
         }
 
         // Get data response
@@ -714,6 +789,41 @@ class MerchantController extends Controller
             return Datatables::of($data)
                 ->editColumn('CreatedDate', function ($data) {
                     return date('d-M-Y H:i', strtotime($data->CreatedDate));
+                })
+                ->addColumn('MarginRealPercentage', function ($data) {
+                    if ($data->MarginReal == null) {
+                        $data->MarginReal = 0;
+                    }
+
+                    $marginReal = round(($data->MarginReal / $data->NettPrice) * 100, 2);
+                    return $marginReal;
+                })
+                ->addColumn('MarginEstimationPercentage', function ($data) {
+                    if ($data->MarginEstimation == null) {
+                        $data->MarginEstimation = 0;
+                    }
+
+                    if ($data->NettPrice - $data->TotalPriceNotInStock == 0) {
+                        $marginEstimation = 0;
+                    } else {
+                        $marginEstimation = round((($data->MarginEstimation / ($data->NettPrice - $data->TotalPriceNotInStock)) * 100), 2);
+                    }
+                    return $marginEstimation;
+                })
+                ->addColumn('TotalMargin', function ($data) {
+                    return $data->MarginReal + $data->MarginEstimation;
+                })
+                ->addColumn('TotalMarginPercentage', function ($data) {
+                    $totalMarginPercentage = round((($data->MarginReal + $data->MarginEstimation) / ($data->NettPrice - $data->TotalPriceNotInStock)) * 100, 2);
+                    return $totalMarginPercentage;
+                })
+                ->addColumn('Notes', function ($data) {
+                    if ($data->TotalPriceNotInStock > 0) {
+                        $notes = "Terdapat produk yg tidak tersedia di list stock.";
+                    } else {
+                        $notes = "";
+                    }
+                    return $notes;
                 })
                 ->editColumn('Grade', function ($data) {
                     if ($data->Grade != null) {
@@ -784,21 +894,54 @@ class MerchantController extends Controller
     {
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
+
+        $startDate = new DateTime($fromDate) ?? new DateTime();
+        $endDate = new DateTime($toDate) ?? new DateTime();
+        $startDateFormat = $startDate->format('Y-m-d');
+        $endDateFormat = $endDate->format('Y-m-d');
+
         $paymentMethodId = $request->input('paymentMethodId');
 
         $sqlMain = $merchantService->merchantRestockAllProduct()->toSql();
 
         $sqlAllAccount = DB::table(DB::raw("($sqlMain) AS RestockProduct"))
+            ->whereDate('RestockProduct.CreatedDate', '>=', $startDateFormat)
+            ->whereDate('RestockProduct.CreatedDate', '<=', $endDateFormat)
             ->selectRaw("
                 RestockProduct.*,
-                (SELECT SUM(tx_merchant_delivery_order_detail.Qty) FROM tx_merchant_delivery_order_detail WHERE tx_merchant_delivery_order_detail.DeliveryOrderID IN (SELECT DeliveryOrderID FROM tx_merchant_delivery_order WHERE tx_merchant_delivery_order.StockOrderID = RestockProduct.StockOrderID AND tx_merchant_delivery_order.StatusDO = 'S025') AND tx_merchant_delivery_order_detail.ProductID = RestockProduct.ProductID) AS DOSelesai
-            ");
+                (SELECT IFNULL(SUM(tx_merchant_delivery_order_detail.Qty), 0) FROM tx_merchant_delivery_order_detail 
+                    WHERE tx_merchant_delivery_order_detail.DeliveryOrderID IN (
+                        SELECT DeliveryOrderID FROM tx_merchant_delivery_order WHERE tx_merchant_delivery_order.StockOrderID = RestockProduct.StockOrderID 
+                        AND tx_merchant_delivery_order.StatusDO = 'S025'
+                    ) AND tx_merchant_delivery_order_detail.ProductID = RestockProduct.ProductID
+                ) AS DOSelesai,
 
-        // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
-        if ($fromDate != '' && $toDate != '') {
-            $sqlAllAccount->whereDate('RestockProduct.CreatedDate', '>=', $fromDate)
-                ->whereDate('RestockProduct.CreatedDate', '<=', $toDate);
-        }
+                (SELECT IFNULL(SUM(Qty), 0) FROM tx_merchant_delivery_order_detail 
+                    WHERE DeliveryOrderID IN (
+                        SELECT DeliveryOrderID FROM tx_merchant_delivery_order WHERE StockOrderID = RestockProduct.StockOrderID 
+                        AND (StatusDO = 'S024' OR StatusDO = 'S025')
+                    ) AND ProductID = RestockProduct.ProductID
+                    AND (StatusExpedition = 'S030' OR StatusExpedition = 'S031')
+                ) AS QtyDOkirim,
+
+                (SELECT ms_stock_product_log.PurchasePrice FROM ms_stock_product_log
+                    LEFT JOIN tx_merchant_expedition_detail ON tx_merchant_expedition_detail.MerchantExpeditionDetailID = ms_stock_product_log.MerchantExpeditionDetailID
+                    LEFT JOIN tx_merchant_delivery_order_detail ON tx_merchant_delivery_order_detail.DeliveryOrderDetailID = tx_merchant_expedition_detail.DeliveryOrderDetailID
+                    WHERE tx_merchant_delivery_order_detail.DeliveryOrderID IN (
+                        SELECT DeliveryOrderID FROM tx_merchant_delivery_order 
+                        WHERE StockOrderID = RestockProduct.StockOrderID 
+                        AND (StatusDO = 'S024' OR StatusDO = 'S025')
+                    ) AND tx_merchant_delivery_order_detail.ProductID = RestockProduct.ProductID
+                    AND (tx_merchant_delivery_order_detail.StatusExpedition = 'S030' OR tx_merchant_delivery_order_detail.StatusExpedition = 'S031')
+                    ORDER BY ms_stock_product_log.CreatedDate LIMIT 1
+                ) AS PurchasePriceReal,
+
+                (SELECT PurchasePrice FROM ms_stock_product 
+                    WHERE ProductID = RestockProduct.ProductID AND DistributorID = RestockProduct.DistributorID 
+                    AND ConditionStock = 'GOOD STOCK' AND Qty > 0
+                    ORDER BY LevelType, CreatedDate LIMIT 1
+                ) AS PurchasePriceEstimation
+            ");
 
         if ($paymentMethodId != null) {
             $sqlAllAccount->where('RestockProduct.PaymentMethodID', '=', $paymentMethodId);
@@ -867,12 +1010,123 @@ class MerchantController extends Controller
 
                     return $statusOrder;
                 })
+                ->editColumn('PurchasePriceEstimation', function ($data) {
+                    if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM") {
+                        $purchasePriceEstimation = $data->PurchasePriceEstimation;
+                    } else {
+                        $purchasePriceEstimation = "";
+                    }
+                    return $purchasePriceEstimation;
+                })
+                ->addColumn('MarginEstimation', function ($data) {
+                    if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM") {
+                        if ($data->PurchasePriceEstimation == null) {
+                            $marginEstimation = "-";
+                        } else {
+                            $marginEstimation = ($data->Nett - $data->PurchasePriceEstimation) * ($data->PromisedQuantity - $data->QtyDOkirim);
+                        }
+                    } else {
+                        $marginEstimation = "";
+                    }
+                    return $marginEstimation;
+                })
+                ->addColumn('MarginEstimationPercentage', function ($data) {
+                    if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM") {
+                        if ($data->PurchasePriceEstimation == null) {
+                            $marginEstimation = "-";
+                        } else {
+                            $marginEstimation = ($data->Nett - $data->PurchasePriceEstimation) * ($data->PromisedQuantity - $data->QtyDOkirim);
+                        }
+                        if ($marginEstimation == "-") {
+                            $marginEstimationPercentage = "-";
+                        } else {
+                            $marginEstimationPercentage = round(($marginEstimation / (($data->PromisedQuantity - $data->QtyDOkirim) * $data->Nett)) * 100, 2);
+                        }
+                    } else {
+                        $marginEstimationPercentage = "";
+                    }
+
+                    return $marginEstimationPercentage;
+                })
+                ->editColumn('PurchasePriceReal', function ($data) {
+                    if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM") {
+                        $purchasePriceReal = $data->PurchasePriceReal;
+                    } else {
+                        $purchasePriceReal = "";
+                    }
+                    return $purchasePriceReal;
+                })
+                ->addColumn('MarginReal', function ($data) {
+                    if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM") {
+                        if ($data->PurchasePriceReal == null) {
+                            $marginReal = "-";
+                        } else {
+                            $marginReal = ($data->Nett - $data->PurchasePriceReal) * $data->QtyDOkirim;
+                        }
+                    } else {
+                        $marginReal = "";
+                    }
+                    return $marginReal;
+                })
+                ->addColumn('MarginRealPercentage', function ($data) {
+                    if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM") {
+                        if ($data->PurchasePriceReal == null) {
+                            $marginReal = "-";
+                        } else {
+                            $marginReal = ($data->Nett - $data->PurchasePriceReal) * $data->QtyDOkirim;
+                        }
+                        if ($marginReal == "-") {
+                            $marginRealPercentage = "-";
+                        } else {
+                            $marginRealPercentage = round(($marginReal / ($data->QtyDOkirim * $data->Nett)) * 100, 2);
+                        }
+                    } else {
+                        $marginRealPercentage = "";
+                    }
+
+                    return $marginRealPercentage;
+                })
+                ->addColumn('TotalMargin', function ($data) {
+                    if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM") {
+                        if ($data->PurchasePriceEstimation == null) {
+                            $marginEstimation = 0;
+                        } else {
+                            $marginEstimation = ($data->Nett - $data->PurchasePriceEstimation) * ($data->PromisedQuantity - $data->QtyDOkirim);
+                        }
+                        if ($data->PurchasePriceReal == null) {
+                            $marginReal = 0;
+                        } else {
+                            $marginReal = ($data->Nett - $data->PurchasePriceReal) * $data->QtyDOkirim;
+                        }
+                        $totalMargin = $marginEstimation + $marginReal;
+                    } else {
+                        $totalMargin = "";
+                    }
+
+                    return $totalMargin;
+                })
+                ->addColumn('TotalMarginPercentage', function ($data) {
+                    if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM") {
+                        if ($data->PurchasePriceEstimation == null) {
+                            $marginEstimation = 0;
+                        } else {
+                            $marginEstimation = ($data->Nett - $data->PurchasePriceEstimation) * ($data->PromisedQuantity - $data->QtyDOkirim);
+                        }
+                        if ($data->PurchasePriceReal == null) {
+                            $marginReal = 0;
+                        } else {
+                            $marginReal = ($data->Nett - $data->PurchasePriceReal) * $data->QtyDOkirim;
+                        }
+                        $totalMarginPercentage = round((($marginEstimation + $marginReal) / ($data->PromisedQuantity * $data->Nett)) * 100, 2);
+                    } else {
+                        $totalMarginPercentage = "";
+                    }
+
+                    return $totalMarginPercentage;
+                })
                 ->filterColumn('RestockProduct.CreatedDate', function ($query, $keyword) {
                     $query->whereRaw("DATE_FORMAT(RestockProduct.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
                 })
-                // ->filterColumn('RestockProduct.DOSelesai', function ($query, $keyword) {
-                //     $query->whereRaw("RestockProduct.DOSelesai like ?", ["%$keyword%"]);
-                // })
                 ->addColumn('SubTotalPrice', function ($data) {
                     $subTotalPrice = $data->Nett * $data->PromisedQuantity;
                     return "$subTotalPrice";
@@ -911,29 +1165,7 @@ class MerchantController extends Controller
         $subTotal = 0;
         foreach ($stockOrderById as $key => $value) {
             $subTotal += $value->Nett * $value->PromisedQuantity;
-
-            // if ($merchant->StatusOrderID == "S023") {
-            //     $sqlStockProduct = DB::table('ms_stock_product')
-            //         ->where('DistributorID', $merchant->DistributorID)
-            //         ->where('ProductID', $value->ProductID)
-            //         ->where('Qty', '>', 0)
-            //         ->where('ConditionStock', 'GOOD STOCK')
-            //         ->orderBy('LevelType')
-            //         ->orderByDesc('CreatedDate')
-            //         ->select('PurchasePrice')
-            //         ->first();
-
-            //     if ($sqlStockProduct == null) {
-            //         $purchasePrice = 0;
-            //     } else {
-            //         $purchasePrice = $sqlStockProduct->PurchasePrice;
-            //     }
-
-            //     $value->PurchasePrice = $purchasePrice;
-            // }
         }
-
-        // dd($stockOrderById);
 
         return view('merchant.restock.details', [
             'stockOrderId' => $stockOrderId,

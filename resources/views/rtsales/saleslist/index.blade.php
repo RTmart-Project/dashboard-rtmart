@@ -47,7 +47,7 @@
               <div class="tab-pane active" id="sales-list">
                 <div class="row">
                   <div class="col-12">
-                    <table class="table table-datatables table-bordered table-striped">
+                    <table class="table table-datatables">
                       <thead>
                         <tr>
                           <th>Sales Name</th>
@@ -56,6 +56,9 @@
                           <th>Team</th>
                           <th>Email</th>
                           <th>Phone</th>
+                          <th>Status</th>
+                          <th>Product Group</th>
+                          <th>Is Active</th>
                           <th>Action</th>
                         </tr>
                       </thead>

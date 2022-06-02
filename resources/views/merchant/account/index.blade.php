@@ -265,6 +265,7 @@
                                                     <th>Tgl Registrasi</th>
                                                     <th style="width: 35%">Alamat</th>
                                                     <th>Referral</th>
+                                                    <th>Nama Sales</th>
                                                     <th>Distributor</th>
                                                     <th>Action</th>
                                                     <th>Produk</th>

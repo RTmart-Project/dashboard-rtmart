@@ -17,15 +17,15 @@ $(document).ready(function () {
             columns: [
                 {
                     data: "SalesName",
-                    name: "SalesName",
+                    name: "ms_sales.SalesName",
                 },
                 {
                     data: "SalesCode",
-                    name: "SalesCode",
+                    name: "ms_sales.SalesCode",
                 },
                 {
                     data: "SalesLevel",
-                    name: "SalesLevel",
+                    name: "ms_sales.SalesLevel",
                 },
                 {
                     data: "Team",
@@ -33,11 +33,23 @@ $(document).ready(function () {
                 },
                 {
                     data: "Email",
-                    name: "Email",
+                    name: "ms_sales.Email",
                 },
                 {
                     data: "PhoneNumber",
-                    name: "PhoneNumber",
+                    name: "ms_sales.PhoneNumber",
+                },
+                {
+                    data: "SalesWorkStatusName",
+                    name: "ms_sales_work_status.SalesWorkStatusName",
+                },
+                {
+                    data: "ProductGroupName",
+                    name: "ms_product_group.ProductGroupName",
+                },
+                {
+                    data: "IsActive",
+                    name: "ms_sales.IsActive",
                 },
                 {
                     data: "Action",
@@ -54,6 +66,7 @@ $(document).ready(function () {
                             "SalesList"
                         );
                     },
+                    action: exportDatatableHelper.newExportAction,
                     text: "Export",
                     titleAttr: "Excel",
                     className: "btn-sm",
@@ -61,7 +74,7 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8],
                         orthogonal: "export",
                     },
                 },

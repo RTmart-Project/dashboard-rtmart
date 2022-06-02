@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
 
 <link rel="stylesheet" href="{{url('/')}}/main/css/custom/select-filter.css">
+<meta name="csrf_token" content="{{ csrf_token() }}">
 @endsection
 
 @section('header-menu', 'Stock Order')
@@ -138,6 +139,16 @@
                                                     <th>Diskon</th>
                                                     <th>Harga stlh Diskon</th>
                                                     <th>Total Harga Produk</th>
+                                                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM")
+                                                    <th>Harga Beli Estimasi</th>
+                                                    <th>Margin Estimasi (Rp)</th>
+                                                    <th>Margin Estimasi (%)</th>
+                                                    <th>Harga Beli Real</th>
+                                                    <th>Margin Real (Rp)</th>
+                                                    <th>Margin Real (%)</th>
+                                                    <th>Total Margin (Rp)</th>
+                                                    <th>Total Margin (%)</th>
+                                                    @endif
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -167,10 +178,14 @@
                                                     <th>Status Order</th>
                                                     <th>Delivery Order ID</th>
                                                     <th>Tanggal Kirim DO</th>
+                                                    <th>Urutan DO</th>
                                                     <th>Produk</th>
                                                     <th>Qty</th>
-                                                    <th>Harga Satuan</th>
+                                                    <th>Harga Jual</th>
                                                     <th>Harga Total</th>
+                                                    <th class="d-none">Harga Beli</th>
+                                                    <th class="d-none">Margin Real (Rp)</th>
+                                                    <th class="d-none">Margin Real (%)</th>
                                                     <th>Status DO</th>
                                                     <th>Driver</th>
                                                     <th>Kendaraan</th>
