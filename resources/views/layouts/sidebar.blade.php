@@ -297,6 +297,15 @@
                         </a>
                     </li>
                     @endif
+                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI"))
+                    <li class="nav-item">
+                        <a href="{{ route('merchant.assessment') }}"
+                            class="nav-link {{ Request::is('merchant/assessment*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Assessment</p>
+                        </a>
+                    </li>
+                    @endif
                     @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") ||
                     (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "HR") || (Auth::user()->RoleID == "AH"))
                     <li class="nav-item">

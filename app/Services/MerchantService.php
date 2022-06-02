@@ -336,4 +336,37 @@ class MerchantService
 
         return $sql;
     }
+
+    public function getDataAssessments()
+    {
+        $sql = DB::table('ms_merchant_assessment')
+            ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', 'ms_merchant_assessment.MerchantID')
+            ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
+            ->leftJoin('ms_store', 'ms_store.StoreID', 'ms_merchant_assessment.StoreID')
+            ->join('ms_merchant_assessment_transaction', 'ms_merchant_assessment_transaction.MerchantAssessmentID', 'ms_merchant_assessment.MerchantAssessmentID')
+            ->where('ms_merchant_assessment.IsActive', 1)
+            ->selectRaw("
+                ms_merchant_assessment.MerchantAssessmentID,
+                ms_merchant_assessment.PhotoMerchantFront,
+                ms_merchant_assessment.PhotoMerchantSide,
+                ms_merchant_assessment.StruckDistribution,
+                ms_merchant_assessment.TurnoverAverage,
+                ms_merchant_assessment.PhotoStockProduct,
+                ms_merchant_assessment.PhotoIDCard,
+                ms_merchant_assessment.NumberIDCard,
+                ms_merchant_assessment.StoreID,
+                ms_merchant_assessment.MerchantID,
+                ms_merchant_assessment.CreatedAt,
+                GROUP_CONCAT(ANY_VALUE(ms_merchant_assessment_transaction.TransactionName) SEPARATOR ', ') AS Transaction,
+                ms_store.StoreName,
+                ms_store.PhoneNumber,
+                ANY_VALUE(ms_merchant_account.StoreName) AS MerchantName,
+                ANY_VALUE(ms_merchant_account.PhoneNumber) AS MerchantNumber,
+                ANY_VALUE(ms_merchant_account.ReferralCode) AS ReferralCode,
+                ANY_VALUE(ms_sales.SalesName) AS SalesName
+            ")
+            ->groupBy('ms_merchant_assessment.MerchantAssessmentID');
+
+        return $sql;
+    }
 }

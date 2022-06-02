@@ -63,6 +63,10 @@ $(document).ready(function () {
                     name: "ms_merchant_account.ReferralCode",
                 },
                 {
+                    data: "SalesName",
+                    name: "ms_sales.SalesName",
+                },
+                {
                     data: "DistributorName",
                     name: "ms_distributor.DistributorName",
                 },
@@ -96,11 +100,12 @@ $(document).ready(function () {
                     action: exportDatatableHelper.newExportAction,
                     text: "Export",
                     titleAttr: "Excel",
+                    className: "btn-sm",
                     exportOptions: {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                         orthogonal: "export",
                     },
                 },
