@@ -341,8 +341,9 @@ class MerchantService
     {
         $sql = DB::table('ms_merchant_assessment')
             ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', 'ms_merchant_assessment.MerchantID')
-            ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
+            ->leftJoin('ms_sales as sales_merchant', 'sales_merchant.SalesCode', 'ms_merchant_account.ReferralCode')
             ->leftJoin('ms_store', 'ms_store.StoreID', 'ms_merchant_assessment.StoreID')
+            ->leftJoin('ms_sales as sales_store', 'sales_store.SalesCode', 'ms_store.SalesCode')
             ->join('ms_merchant_assessment_transaction', 'ms_merchant_assessment_transaction.MerchantAssessmentID', 'ms_merchant_assessment.MerchantAssessmentID')
             ->where('ms_merchant_assessment.IsActive', 1)
             ->selectRaw("
@@ -363,7 +364,9 @@ class MerchantService
                 ANY_VALUE(ms_merchant_account.StoreName) AS MerchantName,
                 ANY_VALUE(ms_merchant_account.PhoneNumber) AS MerchantNumber,
                 ANY_VALUE(ms_merchant_account.ReferralCode) AS ReferralCode,
-                ANY_VALUE(ms_sales.SalesName) AS SalesName
+                ANY_VALUE(sales_merchant.SalesName) AS SalesName,
+                ANY_VALUE(ms_store.SalesCode) AS SalesCodeStore,
+                ANY_VALUE(sales_store.SalesName) AS SalesNameStore
             ")
             ->groupBy('ms_merchant_assessment.MerchantAssessmentID');
 
