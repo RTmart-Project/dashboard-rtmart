@@ -125,16 +125,20 @@
 		<div class="invoice-box">
 
 			<div class="row m-1 mb-3">
-				<div class="col-6 text-left">
+				<div class="col-5 text-left">
 					<img src="{{ url('/') }}/dist/img/rtmart.png" alt="Company logo" style="width: 100%; max-width: 220px" />
 				</div>
-				<div class="col-6 text-right">
+				<div class="col-7 text-right">
 					<b>DELIVERY ORDER</b><br>
 					#{{ $merchant->StockOrderID }} <br>
 					#{{ $merchant->DeliveryOrderID }} <br>
-					Tgl Pengiriman: {{ date('d M Y H:i', strtotime($merchant->CreatedDate)) }}<br>
+					Tanggal Pengiriman: {{ date('d M Y H:i', strtotime($merchant->CreatedDate)) }}<br>
+					@if ($merchant->PaymentMethodID == 14)
+						<p class="m-0">{{ $merchant->FinishDate != null ? "Tanggal barang diterima ".date("d M Y", strtotime($merchant->FinishDate)) : "" }}</p> 
+						Jatuh Tempo Pembayaran : {{ $merchant->FinishDate == null ? "H+5 setelah barang diterima" : date( "d M Y", strtotime("$merchant->FinishDate +5 day")) }} <br />
+					@endif
 					@if ($merchant->StatusOrder == "Selesai")
-					Tgl Selesai: {{ date('d M Y H:i', strtotime($merchant->FinishDate)) }}<br>
+						Tgl Selesai: {{ date('d M Y H:i', strtotime($merchant->FinishDate)) }}<br>
 					@endif
 					{{ $merchant->StatusOrder }}
 				</div>
@@ -206,7 +210,8 @@
 						Metode Pembayaran : <strong>{{ $merchant->PaymentMethodName }}</strong>
 					</div>
 					<div class="col-7 mt-5">
-						<small>Invoice ini sah dan diproses oleh komputer</small>
+						<small>Invoice ini sah dan diproses oleh komputer</small> <br>
+						<small class="text-danger">Pembayaran tidak boleh diberikan kepada sales.</small>
 					</div>
 					<div class="col-5 mt-5 font-italic">
 						<small class="">Terakhir diupdate: {{ date('d F Y H:i', strtotime($processTime)) }} WIB</small>
