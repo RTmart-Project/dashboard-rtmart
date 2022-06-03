@@ -134,8 +134,8 @@
 					#{{ $merchant->DeliveryOrderID }} <br>
 					Tanggal Pengiriman: {{ date('d M Y H:i', strtotime($merchant->CreatedDate)) }}<br>
 					@if ($merchant->PaymentMethodID == 14)
-						<p class="m-0">{{ $merchant->FinishDate != null ? "Tanggal barang diterima ".date("d M Y", strtotime($merchant->FinishDate)) : "" }}</p> 
-						Jatuh Tempo Pembayaran : {{ $merchant->FinishDate == null ? "H+5 setelah barang diterima" : date( "d M Y", strtotime("$merchant->FinishDate +5 day")) }} <br />
+						<p class="m-0">{{ $merchant->FinishDate != null ? "Tanggal barang diterima: ".date("d M Y", strtotime($merchant->FinishDate)) : "" }}</p> 
+						Jatuh Tempo Pembayaran : {{ $merchant->FinishDate == null ? "H+5 setelah barang diterima": date( "d M Y", strtotime("$merchant->FinishDate +5 day")) }} <br />
 					@endif
 					@if ($merchant->StatusOrder == "Selesai")
 						Tgl Selesai: {{ date('d M Y H:i', strtotime($merchant->FinishDate)) }}<br>
