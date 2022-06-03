@@ -541,42 +541,51 @@ class DistributionController extends Controller
             ];
 
             try {
-                DB::transaction(function () use ($stockOrderID, $data, $dataLog) {
+                DB::transaction(function () use ($stockOrderID, $data, $dataLog, $txMerchantOrder, $baseImageUrl) {
                     DB::table('tx_merchant_order')
                         ->where('StockOrderID', '=', $stockOrderID)
                         ->update($data);
                     DB::table('tx_merchant_order_log')
                         ->insert($dataLog);
+
+                    $fields = array(
+                        'registration_ids' => array($txMerchantOrder->MerchantFirebaseToken),
+                        'data' => array(
+                            "date" => date("Y-m-d H:i:s"),
+                            "merchantID" => $txMerchantOrder->MerchantID,
+                            "title" => "Pesanan Anda dibatalkan oleh " . $txMerchantOrder->DistributorName,
+                            "body" => "Pesanan Restok Dibatalkan",
+                            'large_icon' => $baseImageUrl . 'push/merchant_icon.png'
+                        )
+                    );
+
+                    $headers = array(
+                        'Authorization: key=' . config('app.firebase_auth_token'),
+                        'Content-Type: application/json'
+                    );
+
+                    $fields = json_encode($fields);
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_URL, "https://fcm.googleapis.com/fcm/send");
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+                    curl_setopt($ch, CURLOPT_HEADER, FALSE);
+                    curl_setopt($ch, CURLOPT_POST, TRUE);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+
+                    $response = curl_exec($ch);
+                    curl_close($ch);
+
+                    DB::table('ms_notification_log')->insert([
+                        'Target' => $txMerchantOrder->MerchantID,
+                        'Message' => 'Pesanan Restok Dibatalkan',
+                        'JSONSend' => $fields,
+                        'JSONReceive' => $response,
+                        'CreatedAt' => date('Y-m-d H:i:s'),
+                        'Status' => 'SUCCESS'
+                    ]);
                 });
-
-                $fields = array(
-                    'registration_ids' => array($txMerchantOrder->MerchantFirebaseToken),
-                    'data' => array(
-                        "date" => date("Y-m-d H:i:s"),
-                        "merchantID" => $txMerchantOrder->MerchantID,
-                        "title" => "Pesanan Anda dibatalkan oleh " . $txMerchantOrder->DistributorName,
-                        "body" => "Pesanan Restok Dibatalkan",
-                        'large_icon' => $baseImageUrl . 'push/merchant_icon.png'
-                    )
-                );
-
-                $headers = array(
-                    'Authorization: key=' . config('app.firebase_auth_token'),
-                    'Content-Type: application/json'
-                );
-
-                $fields = json_encode($fields);
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, "https://fcm.googleapis.com/fcm/send");
-                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-                curl_setopt($ch, CURLOPT_HEADER, FALSE);
-                curl_setopt($ch, CURLOPT_POST, TRUE);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-
-                curl_exec($ch);
-                curl_close($ch);
 
                 return redirect()->route('distribution.restock')->with('success', 'Data pesanan berhasil dibatalkan');
             } catch (\Throwable $th) {
@@ -604,7 +613,7 @@ class DistributionController extends Controller
             ];
 
             try {
-                DB::transaction(function () use ($stockOrderID, $statusOrder, $dataLog) {
+                DB::transaction(function () use ($stockOrderID, $statusOrder, $dataLog, $txMerchantOrder, $titleNotif, $bodyNotif, $baseImageUrl) {
                     DB::table('tx_merchant_order')
                         ->where('StockOrderID', '=', $stockOrderID)
                         ->update([
@@ -612,36 +621,45 @@ class DistributionController extends Controller
                         ]);
                     DB::table('tx_merchant_order_log')
                         ->insert($dataLog);
+
+                    $fields = array(
+                        'registration_ids' => array($txMerchantOrder->MerchantFirebaseToken),
+                        'data' => array(
+                            "date" => date("Y-m-d H:i:s"),
+                            "merchantID" => $txMerchantOrder->MerchantID,
+                            "title" => $titleNotif,
+                            "body" => $bodyNotif,
+                            'large_icon' => $baseImageUrl . 'push/merchant_icon.png'
+                        )
+                    );
+
+                    $headers = array(
+                        'Authorization: key=' . config('app.firebase_auth_token'),
+                        'Content-Type: application/json'
+                    );
+
+                    $fields = json_encode($fields);
+                    $ch = curl_init();
+                    curl_setopt($ch, CURLOPT_URL, "https://fcm.googleapis.com/fcm/send");
+                    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+                    curl_setopt($ch, CURLOPT_HEADER, FALSE);
+                    curl_setopt($ch, CURLOPT_POST, TRUE);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+
+                    $response = curl_exec($ch);
+                    curl_close($ch);
+
+                    DB::table('ms_notification_log')->insert([
+                        'Target' => $txMerchantOrder->MerchantID,
+                        'Message' => $bodyNotif,
+                        'JSONSend' => $fields,
+                        'JSONReceive' => $response,
+                        'CreatedAt' => date('Y-m-d H:i:s'),
+                        'Status' => 'SUCCESS'
+                    ]);
                 });
-
-                $fields = array(
-                    'registration_ids' => array($txMerchantOrder->MerchantFirebaseToken),
-                    'data' => array(
-                        "date" => date("Y-m-d H:i:s"),
-                        "merchantID" => $txMerchantOrder->MerchantID,
-                        "title" => $titleNotif,
-                        "body" => $bodyNotif,
-                        'large_icon' => $baseImageUrl . 'push/merchant_icon.png'
-                    )
-                );
-
-                $headers = array(
-                    'Authorization: key=' . config('app.firebase_auth_token'),
-                    'Content-Type: application/json'
-                );
-
-                $fields = json_encode($fields);
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, "https://fcm.googleapis.com/fcm/send");
-                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-                curl_setopt($ch, CURLOPT_HEADER, FALSE);
-                curl_setopt($ch, CURLOPT_POST, TRUE);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-
-                curl_exec($ch);
-                curl_close($ch);
 
                 return redirect()->route('distribution.restock')->with('success', 'Data pesanan berhasil diproses');
             } catch (\Throwable $th) {
