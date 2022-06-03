@@ -73,8 +73,8 @@ class RTSalesController extends Controller
             'product_group.*' => 'exists:ms_product_group,ProductGroupID',
             'work_status' => 'required|exists:ms_sales_work_status,SalesWorkStatusID',
             'phone_number' => 'required|digits_between:10,13',
-            'email' => 'required|email:rfc',
-            'password' => 'required|string'
+            'email' => 'required|email:rfc'
+            // 'password' => 'required|string'
         ]);
 
         $prefixSalesCode = $request->input('prefix_sales_code');
@@ -108,7 +108,7 @@ class RTSalesController extends Controller
             'SalesWorkStatus' => $request->input('work_status'),
             'PhoneNumber' => $request->input('phone_number'),
             'Email' => $request->input('email'),
-            'Password' => $request->input('password')
+            'Password' => $newSalesCode . 'bisa'
         ];
         $productGroupId = $request->input('product_group');
         $productGroup = array_map(function () {

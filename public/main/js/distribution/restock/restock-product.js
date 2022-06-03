@@ -3,6 +3,8 @@ $(document).ready(function () {
     dataTablesRestockProduct();
 
     function dataTablesRestockProduct() {
+        let roleID = $('meta[name="role-id"]').attr("content");
+
         $.ajaxSetup({
             headers: {
                 "X-CSRF-TOKEN": $('meta[name="csrf_token"]').attr("content"),
@@ -224,6 +226,13 @@ $(document).ready(function () {
                             }
                         }
                     },
+                },
+                {
+                    aTargets: [26, 27, 28, 29, 30, 31, 32, 33],
+                    visible:
+                        roleID == "IT" || roleID == "BM" || roleID == "FI"
+                            ? true
+                            : false,
                 },
             ],
         });
