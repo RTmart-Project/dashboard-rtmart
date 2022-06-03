@@ -626,7 +626,12 @@ class StockController extends Controller
                     return date('d M Y H:i', strtotime($data->CreatedDate));
                 })
                 ->editColumn('PurchasePrice', function ($data) {
-                    return Helper::formatCurrency($data->PurchasePrice, "Rp ");
+                    if (Auth::user()->RoleID == "AD") {
+                        $purchasePrice = "";
+                    } else {
+                        $purchasePrice = Helper::formatCurrency($data->PurchasePrice, "Rp ");
+                    }
+                    return $purchasePrice;
                 })
                 ->rawColumns(['PurchaseID'])
                 ->make(true);

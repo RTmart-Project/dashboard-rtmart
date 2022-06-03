@@ -106,7 +106,7 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     Route::prefix('stock')->group(function () {
-        Route::group(['prefix' => 'opname', 'middleware' => ['checkRoleUser:IT,FI,INVTR']], function () {
+        Route::group(['prefix' => 'opname', 'middleware' => ['checkRoleUser:IT,FI,BM,INVTR']], function () {
             Route::get('/', [StockController::class, 'opname'])->name('stock.opname');
             Route::get('/get', [StockController::class, 'getOpname'])->name('stock.getOpname');
             Route::get('/create', [StockController::class, 'createOpname'])->name('stock.createOpname');
@@ -115,7 +115,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/detail/{stockOpnameID}', [StockController::class, 'detailOpname'])->name('stock.detailOpname');
         });
 
-        Route::group(['prefix' => 'purchase', 'middleware' => ['checkRoleUser:IT,FI,INVTR']], function () {
+        Route::group(['prefix' => 'purchase', 'middleware' => ['checkRoleUser:IT,FI,BM,INVTR']], function () {
             Route::get('/', [StockController::class, 'purchase'])->name('stock.purchase');
             Route::get('/get', [StockController::class, 'getPurchase'])->name('stock.getPurchase');
             Route::get('/create', [StockController::class, 'createPurchase'])->name('stock.createPurchase');
@@ -128,7 +128,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/update/invoice/{purchaseID}', [StockController::class, 'updateInvoice'])->name('stock.updateInvoicePurchase');
         });
 
-        Route::group(['prefix' => 'list', 'middleware' => ['checkRoleUser:IT,FI,AD,INVTR']], function () {
+        Route::group(['prefix' => 'list', 'middleware' => ['checkRoleUser:IT,FI,AD,BM,INVTR']], function () {
             Route::get('/', [StockController::class, 'listStock'])->name('stock.listStock');
             Route::get('/get', [StockController::class, 'getListStock'])->name('stock.getListStock');
             Route::get('/detail/{distributorID}/{investorID}/{productID}/{label}', [StockController::class, 'detailStock'])->name('stock.detailStock');

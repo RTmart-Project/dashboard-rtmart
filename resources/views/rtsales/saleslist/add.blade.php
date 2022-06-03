@@ -127,7 +127,7 @@
                     @endif
                   </div>
                 </div>
-                <div class="col-md-6 col-12">
+                {{-- <div class="col-md-6 col-12">
                   <div class="form-group">
                     <label for="password">Password</label>
                     <input type="text" name="password"
@@ -137,7 +137,7 @@
                     <span class="error invalid-feedback">{{ $errors->first('password') }}</span>
                     @endif
                   </div>
-                </div>
+                </div> --}}
                 <div class="col-md-6 col-12">
                   <div class="form-group">
                     <label for="product_group">Product Group</label>
