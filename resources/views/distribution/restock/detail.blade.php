@@ -299,7 +299,7 @@
                                             data-target="#add-do">
                                             Buat Delivery Order
                                         </button>
-                                        @if ($merchantOrder->StatusOrderID == "S012" && $merchantOrder->PaymentMethodID != 1)
+                                        @if ($merchantOrder->StatusOrderID == "S012" && $merchantOrder->PaymentMethodID == 11)
                                         <div class="row d-md-flex justify-content-end">
                                             <div class="col-md-6 col-12 text-center">
                                                 <a href="#" class="btn btn-secondary btn-refund"
@@ -326,7 +326,7 @@
                                                 data-store-name="{{ $merchantOrder->StoreName }}">
                                                 Kirim Pesanan
                                             </a> --}}
-                                            @if ($merchantOrder->PaymentMethodID != 1)
+                                            @if ($merchantOrder->PaymentMethodID == 11)
                                             <a href="#" class="btn btn-secondary btn-refund"
                                                 data-order-id="{{ $stockOrderID }}"
                                                 data-store-name="{{ $merchantOrder->StoreName }}">
