@@ -59,6 +59,7 @@
                     <table class="table table-datatables">
                       <thead>
                         <tr>
+                          <th>Tipe</th>
                           <th>Purchase ID</th>
                           <th>Distributor</th>
                           <th>Investor</th>

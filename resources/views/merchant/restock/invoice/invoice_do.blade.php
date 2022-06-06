@@ -143,8 +143,10 @@
 	<body>
 		<div class="invoice-box position-relative">
 
+			@if ($merchant->PaymentMethodID == 14)
 			{{-- <div class="watermark lunas"></div> --}}
 			<div class="watermark belum-lunas"></div>
+			@endif
 
 			<div class="row m-1 mb-3">
 				<div class="col-5 text-left">
@@ -242,7 +244,7 @@
 			</div>
 		</div>
 		<script>
-			// window.addEventListener("load", window.print());
+			window.addEventListener("load", window.print());
 		</script>
 	</body>
 </html>

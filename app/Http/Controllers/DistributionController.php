@@ -6,7 +6,9 @@ use App\Helpers\Helper;
 use App\Services\DeliveryOrderService;
 use App\Services\HaistarService;
 use App\Services\MerchantService;
+use App\Services\PayLaterService;
 use App\Services\TxLogService;
+use Illuminate\Support\Str;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -1373,6 +1375,115 @@ class DistributionController extends Controller
             }
         } else {
             return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Quantity yang dikirim tidak mencukupi');
+        }
+    }
+
+    public function billPayLater()
+    {
+        return view('distribution.bill.index');
+    }
+
+    public function getBillPayLater(PayLaterService $payLaterService, Request $request)
+    {
+        $fromDate = $request->input('fromDate');
+        $toDate = $request->input('toDate');
+        $filterIsPaid = $request->input('filterIsPaid');
+
+        $sqlbillPayLater = $payLaterService->billPayLaterGet();
+
+        if (Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $sqlbillPayLater->where('ms_distributor.Depo', '=', $depoUser);
+        }
+        if ($fromDate != '' && $toDate != '') {
+            $sqlbillPayLater->whereDate('tx_merchant_delivery_order.CreatedDate', '>=', $fromDate)
+                ->whereDate('tx_merchant_delivery_order.CreatedDate', '<=', $toDate);
+        }
+        if ($filterIsPaid == "paid") {
+            $sqlbillPayLater->where('tx_merchant_delivery_order.IsPaid', 1);
+        } elseif ($filterIsPaid == "unpaid") {
+            $sqlbillPayLater->where('tx_merchant_delivery_order.IsPaid', 0);
+        }
+
+        $data = $sqlbillPayLater;
+
+        if ($request->ajax()) {
+            return DataTables::of($data)
+                ->editColumn('StockOrderID', function ($data) {
+                    $link = '<a href="/distribution/restock/detail/' . $data->StockOrderID . '" target="_blank">' . $data->StockOrderID . '</a>';
+                    return $link;
+                })
+                ->editColumn('FinishDate', function ($data) {
+                    if ($data->FinishDate == null) {
+                        $finishDate = "-";
+                    } else {
+                        $finishDate = date('d-M-Y H:i', strtotime($data->FinishDate));
+                    }
+                    return $finishDate;
+                })
+                ->editColumn('CreatedDate', function ($data) {
+                    $date = date('d-M-Y H:i', strtotime($data->CreatedDate));
+                    return $date;
+                })
+                ->editColumn('PaymentDate', function ($data) {
+                    if ($data->PaymentDate == null) {
+                        $paymentDate = "-";
+                    } else {
+                        $paymentDate = date('d-M-Y', strtotime($data->PaymentDate));
+                    }
+                    return $paymentDate;
+                })
+                ->addColumn('DueDate', function ($data) {
+                    if ($data->FinishDate == null) {
+                        $dueDate = "H+5 setelah barang diterima";
+                    } else {
+                        $dueDate = date("d-M-Y", strtotime("$data->FinishDate +5 day"));
+                    }
+                    return $dueDate;
+                })
+                ->addColumn('RemainingDay', function ($data) {
+                    $dueDate = strtotime("$data->FinishDate +5 day");
+                    $timeDiff = time() - $dueDate;
+                    $dateDiff = round($timeDiff / (60 * 60 * 24));
+
+                    if ($dateDiff == 0) {
+                        $remainingDay = "<a class='badge badge-danger'>H " . $dateDiff . " (Hari H)</a>";
+                    } elseif (Str::contains($dateDiff, '-')) {
+                        if ($dateDiff == -1 || $dateDiff == -2) {
+                            $remainingDay = "<a class='badge badge-warning'>H" . $dateDiff . "</a>";
+                        } else {
+                            $remainingDay = "H" . $dateDiff;
+                        }
+                    } else {
+                        $remainingDay = "<a class='badge badge-danger'>H+" . $dateDiff . "</a>";
+                    }
+
+                    if ($data->FinishDate != null && $data->IsPaid == 0) {
+                        $remainingDay = $remainingDay;
+                    } else {
+                        $remainingDay = "-";
+                    }
+
+                    return $remainingDay;
+                })
+                ->editColumn('IsPaid', function ($data) {
+                    if ($data->IsPaid == 1) {
+                        $isPaid = '<span class="badge badge-success">Sudah Lunas</span>';
+                    } else {
+                        $isPaid = '<span class="badge badge-danger">Belum Lunas</span>';
+                    }
+                    return $isPaid;
+                })
+                ->addColumn('Action', function ($data) {
+                    if ($data->FinishDate != null && $data->IsPaid == 0) {
+                        $action = '<a class="btn btn-xs btn-warning">Update Pelunasan</a>';
+                    } else {
+                        $action = '';
+                    }
+                    return $action;
+                })
+                ->rawColumns(['StockOrderID', 'IsPaid', 'RemainingDay', 'Action'])
+                ->make(true);
         }
     }
 
