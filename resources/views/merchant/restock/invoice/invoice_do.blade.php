@@ -118,11 +118,33 @@
 				padding-top: 7px;
 				padding-right: 5px;
 			}
+
+			.watermark {
+				text-align: center;
+				position: absolute;
+				width: calc(100% - 80px);
+				height: calc(100% - 60px);
+				background-size: 82%;
+				background-repeat: no-repeat;
+				background-position: center;
+				transform: rotate(-25deg);
+			}
+			.lunas {	
+				background-image: url({{ asset('dist/img/lunas.png') }});
+				opacity: 0.25;
+			}
+			.belum-lunas{
+				background-image: url({{ asset('dist/img/belumlunas.png') }});
+				opacity: 0.15;
+			}
 		</style>
 	</head>
 
 	<body>
-		<div class="invoice-box">
+		<div class="invoice-box position-relative">
+
+			{{-- <div class="watermark lunas"></div> --}}
+			<div class="watermark belum-lunas"></div>
 
 			<div class="row m-1 mb-3">
 				<div class="col-5 text-left">
@@ -135,7 +157,7 @@
 					Tanggal Pengiriman: {{ date('d M Y H:i', strtotime($merchant->CreatedDate)) }}<br>
 					@if ($merchant->PaymentMethodID == 14)
 						<p class="m-0">{{ $merchant->FinishDate != null ? "Tanggal barang diterima: ".date("d M Y", strtotime($merchant->FinishDate)) : "" }}</p> 
-						Jatuh Tempo Pembayaran : {{ $merchant->FinishDate == null ? "H+5 setelah barang diterima": date( "d M Y", strtotime("$merchant->FinishDate +5 day")) }} <br />
+						Jatuh Tempo Pembayaran: {{ $merchant->FinishDate == null ? "H+5 setelah barang diterima" : date( "d M Y", strtotime("$merchant->FinishDate +5 day")) }} <br />
 					@endif
 					@if ($merchant->StatusOrder == "Selesai")
 						Tgl Selesai: {{ date('d M Y H:i', strtotime($merchant->FinishDate)) }}<br>
@@ -185,7 +207,7 @@
 					<td class="text-center">{{ $item->Qty }}</td>
 					<td class="text-right">{{ Helper::formatCurrency($item->Price, 'Rp ') }}</td>
 					<td class="text-right">{{ Helper::formatCurrency($item->Qty * $item->Price, 'Rp ') }}</td>
-				</tr>		
+				</tr>
 				@endforeach
 
 				<tr>
@@ -220,7 +242,7 @@
 			</div>
 		</div>
 		<script>
-			window.addEventListener("load", window.print());
+			// window.addEventListener("load", window.print());
 		</script>
 	</body>
 </html>
