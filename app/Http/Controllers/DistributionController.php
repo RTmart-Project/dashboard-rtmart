@@ -1518,7 +1518,7 @@ class DistributionController extends Controller
         ];
 
         $imageName = date('YmdHis') . '_' . $deliveryOrderID . '.' . $request->file('payment_slip')->extension();
-        $request->file('receipt_image')->move($this->saveImageUrl . 'paylater_slip_payment/', $imageName);
+        $request->file('payment_slip')->move($this->saveImageUrl . 'paylater_slip_payment/', $imageName);
 
         $update = DB::table('tx_merchant_delivery_order')
             ->where('DeliveryOrderID', $deliveryOrderID)
