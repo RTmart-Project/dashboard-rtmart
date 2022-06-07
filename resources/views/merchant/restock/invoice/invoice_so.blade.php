@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8" />
 
-		<title>Restock Invoice</title>
+		<title>Invoice #{{ $stockOrderId }}</title>
 
 		<!-- Favicon -->
 		<link rel="shortcut icon" href="{{ url('/') }}/dist/img/rtmart_logo.png" type="image/x-icon">
