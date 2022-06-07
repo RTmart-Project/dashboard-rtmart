@@ -1510,15 +1510,16 @@ class DistributionController extends Controller
             'payment_slip' => 'required'
         ]);
 
+
+        $imageName = date('YmdHis') . '_' . $deliveryOrderID . '.' . $request->file('payment_slip')->extension();
+        $request->file('payment_slip')->move($this->saveImageUrl . 'paylater_slip_payment/', $imageName);
+
         $data = [
             'IsPaid' => 1,
             'PaymentDate' => $request->input('payment_date'),
             'PaymentNominal' => $request->input('nominal'),
-            'PaymentSlip' => $request->input('payment_slip')
+            'PaymentSlip' => $imageName
         ];
-
-        $imageName = date('YmdHis') . '_' . $deliveryOrderID . '.' . $request->file('payment_slip')->extension();
-        $request->file('payment_slip')->move($this->saveImageUrl . 'paylater_slip_payment/', $imageName);
 
         $update = DB::table('tx_merchant_delivery_order')
             ->where('DeliveryOrderID', $deliveryOrderID)
