@@ -236,4 +236,87 @@ $(document).ready(function () {
     $("#bill-paylater .filter-isPaid select").change(function () {
         $("#bill-paylater .table-datatables").DataTable().ajax.reload();
     });
+
+    new AutoNumeric(".autonumeric", {
+        allowDecimalPadding: false,
+        decimalCharacter: ",",
+        digitGroupSeparator: ".",
+        unformatOnSubmit: true,
+    });
+
+    $("#bill-paylater").on("click", ".btn-payment", function () {
+        const deliveryOrderID = $(this).data("do-id");
+        const storeName = $(this).data("store-name");
+
+        $("#form-pelunasan").attr(
+            "action",
+            `/distribution/bill/update/${deliveryOrderID}`
+        );
+
+        $("#modal-payment")
+            .modal("show")
+            .on("shown.bs.modal", function () {
+                $("#info").html(
+                    `Update Pelunasan <b>${deliveryOrderID}</b> dari <b>${storeName}</b>`
+                );
+            });
+    });
+
+    $("#payment_slip").change(function () {
+        $("#img_output").removeClass("d-none");
+    });
+
+    let Toast = Swal.mixin({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 4000,
+    });
+
+    $(".btn-pelunasan").click(function () {
+        const form = $(this).parent().prev();
+        const paymentDate = form.find("#payment_date").val();
+        const nominal = form.find("#nominal").val();
+        const paymentSlip = form.find("#payment_slip").val();
+
+        let next = true;
+
+        if (!paymentDate) {
+            Toast.fire({
+                icon: "error",
+                title: "Harap isi Tanggal Pelunasan!",
+            });
+            return (next = false);
+        }
+        if (!nominal) {
+            Toast.fire({
+                icon: "error",
+                title: "Harap isi Nominal Bayar!",
+            });
+            return (next = false);
+        }
+        if (!paymentSlip) {
+            Toast.fire({
+                icon: "error",
+                title: "Harap isi Bukti Bayar!",
+            });
+            return (next = false);
+        }
+
+        if (next == true) {
+            $("#modal-payment").modal("hide");
+            $("#modalKonfirmasi").modal("show");
+        }
+    });
+
+    $("#bill-paylater table").on("click", ".lihat-bukti", function (e) {
+        e.preventDefault();
+        const urlImg = $(this).attr("href");
+        const storeName = $(this).data("store-name");
+        const deliveryOrderID = $(this).data("do-id");
+        $.dialog({
+            title: `${deliveryOrderID} - ${storeName}`,
+            content: `<img  style="object-fit: contain; height: 350px; width: 100%;" src="${urlImg}">`,
+        });
+    });
 });

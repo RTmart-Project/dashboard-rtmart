@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8" />
 
-		<title>Restock Invoice</title>
+		<title>Invoice #{{ $merchant->DeliveryOrderID }}</title>
 
 		<!-- Favicon -->
 		<link rel="shortcut icon" href="{{ url('/') }}/dist/img/rtmart_logo.png" type="image/x-icon">
@@ -144,8 +144,11 @@
 		<div class="invoice-box position-relative">
 
 			@if ($merchant->PaymentMethodID == 14)
-			{{-- <div class="watermark lunas"></div> --}}
-			<div class="watermark belum-lunas"></div>
+				@if ($merchant->IsPaid == 1)
+				<div class="watermark lunas"></div>
+				@else
+				<div class="watermark belum-lunas"></div>
+				@endif
 			@endif
 
 			<div class="row m-1 mb-3">

@@ -20,10 +20,12 @@ use Yajra\DataTables\Facades\DataTables;
 
 class DistributionController extends Controller
 {
+    protected $saveImageUrl;
     protected $baseImageUrl;
 
     public function __construct()
     {
+        $this->saveImageUrl = config('app.save_image_url');
         $this->baseImageUrl = config('app.base_image_url');
     }
 
@@ -1474,16 +1476,58 @@ class DistributionController extends Controller
                     }
                     return $isPaid;
                 })
+                ->editColumn('PaymentSlip', function ($data) {
+                    $baseImageUrl = config('app.base_image_url');
+                    if ($data->PaymentSlip != null) {
+                        $paymentSlip = '<a data-store-name="' . $data->StoreName . '" data-do-id="' . $data->DeliveryOrderID . '" class="lihat-bukti" target="_blank" 
+                                        href="' . $baseImageUrl . 'paylater_slip_payment/' . $data->PaymentSlip . '">
+                                        Lihat Bukti
+                                    </a>';
+                    } else {
+                        $paymentSlip = "-";
+                    }
+
+                    return $paymentSlip;
+                })
                 ->addColumn('Action', function ($data) {
                     if ($data->FinishDate != null && $data->IsPaid == 0) {
-                        $action = '<a class="btn btn-xs btn-warning">Update Pelunasan</a>';
+                        $action = '<a class="btn btn-xs btn-warning btn-payment" data-do-id="' . $data->DeliveryOrderID . '" data-store-name="' . $data->StoreName . '">Update Pelunasan</a>';
                     } else {
                         $action = '';
                     }
                     return $action;
                 })
-                ->rawColumns(['StockOrderID', 'IsPaid', 'RemainingDay', 'Action'])
+                ->rawColumns(['StockOrderID', 'IsPaid', 'RemainingDay', 'PaymentSlip', 'Action'])
                 ->make(true);
+        }
+    }
+
+    public function updateBillPayLater($deliveryOrderID, Request $request)
+    {
+        $request->validate([
+            'payment_date' => 'required',
+            'nominal' => 'required',
+            'payment_slip' => 'required'
+        ]);
+
+        $data = [
+            'IsPaid' => 1,
+            'PaymentDate' => $request->input('payment_date'),
+            'PaymentNominal' => $request->input('nominal'),
+            'PaymentSlip' => $request->input('payment_slip')
+        ];
+
+        $imageName = date('YmdHis') . '_' . $deliveryOrderID . '.' . $request->file('payment_slip')->extension();
+        $request->file('receipt_image')->move($this->saveImageUrl . 'paylater_slip_payment/', $imageName);
+
+        $update = DB::table('tx_merchant_delivery_order')
+            ->where('DeliveryOrderID', $deliveryOrderID)
+            ->update($data);
+
+        if ($update) {
+            return redirect()->route('distribution.billPayLater')->with('success', 'Data pelunasan PayLater berhasil disimpan');
+        } else {
+            return redirect()->route('distribution.billPayLater')->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
         }
     }
 
