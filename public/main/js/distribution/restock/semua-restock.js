@@ -76,6 +76,7 @@ $(document).ready(function () {
                 {
                     data: "UrutanDO",
                     name: "UrutanDO",
+                    searchable: false,
                 },
                 {
                     data: "ProductName",
@@ -95,7 +96,7 @@ $(document).ready(function () {
                 },
                 {
                     data: "PurchasePrice",
-                    name: "PurchasePrice",
+                    name: "ms_stock_product_log.PurchasePrice",
                 },
                 {
                     data: "MarginReal",

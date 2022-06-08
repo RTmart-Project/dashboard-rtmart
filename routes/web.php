@@ -50,6 +50,11 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/reject/request/{deliveryOrderId}', [DistributionController::class, 'rejectRequestDO'])->name('distribution.rejectRequestDO');
             Route::post('/confirm/request/{deliveryOrderId}/{depoChannel}', [DistributionController::class, 'confirmRequestDO'])->name('distribution.confirmRequestDO');
         });
+        Route::group(['prefix' => 'bill'], function () {
+            Route::get('/', [DistributionController::class, 'billPayLater'])->name('distribution.billPayLater');
+            Route::get('/get', [DistributionController::class, 'getBillPayLater'])->name('distribution.getBillPayLater');
+            Route::post('/update/{deliveryOrderID}', [DistributionController::class, 'updateBillPayLater'])->name('distribution.updateBillPayLater');
+        });
         Route::group(['prefix' => 'product'], function () {
             Route::get('/', [DistributionController::class, 'product'])->name('distribution.product');
             Route::get('/get', [DistributionController::class, 'getProduct'])->name('distribution.getProduct');
@@ -254,7 +259,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/merchant/account/product/delete/{merchantId}/{productId}', [MerchantController::class, 'deleteProduct'])->name('merchant.deleteProduct');
         Route::get('/merchant/account/operationalhour/edit/{merchantId}', [MerchantController::class, 'editOperationalHour'])->name('merchant.editOperationalHour');
         Route::post('/merchant/account/operationalhour/update/{merchantId}', [MerchantController::class, 'updateOperationalHour'])->name('merchant.updateOperationalHour');
-        Route::get('/merchant/account/assessment/{merchantId}', [MerchantController::class, 'merchantAssessment'])->name('merchant.assessment');
+        Route::get('/merchant/account/assessment/{merchantId}', [MerchantController::class, 'merchantAssessment'])->name('merchant.account.assessment');
         Route::get('/merchant/account/resetAssessment/{merchantAssessmentId}', [MerchantController::class, 'resetMerchantAssessment'])->name('merchant.resetAssessment');
         Route::get('/merchant/restock', [MerchantController::class, 'restock'])->name('merchant.restock');
         Route::get('/merchant/restock/detail/{stockOrderId}', [MerchantController::class, 'restockDetails'])->name('merchant.restockDetails');
@@ -262,6 +267,8 @@ Route::group(['middleware' => ['auth']], function () {
 
         Route::get('/merchant/assessment', [MerchantController::class, 'assessment'])->name('merchant.assessment');
         Route::get('/merchant/assessment/get', [MerchantController::class, 'getAssessments'])->name('merchant.getAssessments');
+        Route::get('/merchant/assessment/create', [MerchantController::class, 'createAssessment'])->name('merchant.createAssessment');
+        Route::post('/merchant/assessment/store', [MerchantController::class, 'storeAssessment'])->name('merchant.storeAssessment');
     });
     Route::group(['middleware' => ['checkRoleUser:IT,BM,FI,AH,HR']], function () {
         Route::get('/merchant/powermerchant', [MerchantController::class, 'powerMerchant'])->name('merchant.powermerchant');

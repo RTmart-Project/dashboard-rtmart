@@ -209,22 +209,9 @@ class StockController extends Controller
     {
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
+        $filterTipe = $request->input('filterTipe');
 
-        $sqlGetPurchase = $purchaseService->getStockPurchase();
-
-        if ($fromDate != '' && $toDate != '') {
-            $sqlGetPurchase->whereDate('ms_stock_purchase.PurchaseDate', '>=', $fromDate)
-                ->whereDate('ms_stock_purchase.PurchaseDate', '<=', $toDate);
-        }
-
-        if (Auth::user()->Depo != "ALL") {
-            $depoUser = Auth::user()->Depo;
-            $sqlGetPurchase->where('ms_distributor.Depo', '=', $depoUser);
-        }
-        if (Auth::user()->InvestorID != null) {
-            $investorUser = Auth::user()->InvestorID;
-            $sqlGetPurchase->where('ms_stock_purchase.InvestorID', $investorUser);
-        }
+        $sqlGetPurchase = $purchaseService->getStockPurchase($fromDate, $toDate, $filterTipe);
 
         $data = $sqlGetPurchase;
 

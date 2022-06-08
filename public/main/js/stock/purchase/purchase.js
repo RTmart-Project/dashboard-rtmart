@@ -16,9 +16,16 @@ $(document).ready(function () {
                 data: function (d) {
                     d.fromDate = $("#purchase-stock #from_date").val();
                     d.toDate = $("#purchase-stock #to_date").val();
+                    d.filterTipe = $(
+                        "#purchase-stock .filter-tipe select"
+                    ).val();
                 },
             },
             columns: [
+                {
+                    data: "Type",
+                    name: "ms_stock_purchase.Type",
+                },
                 {
                     data: "PurchaseID",
                     name: "ms_stock_purchase.PurchaseID",
@@ -92,14 +99,14 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                         orthogonal: "export",
                     },
                 },
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [5],
+                    aTargets: [6],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
@@ -115,7 +122,7 @@ $(document).ready(function () {
                     },
                 },
             ],
-            order: [4, "desc"],
+            order: [5, "desc"],
             lengthChange: false,
             responsive: true,
             autoWidth: false,
@@ -124,13 +131,18 @@ $(document).ready(function () {
 
     // Create element for DateRange Filter
     $("div.filter-purchase-stock").html(`<div class="input-group">
-                          <input type="text" name="from_date" id="from_date" class="form-control form-control-sm"
-                              readonly>
-                          <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm"
-                              readonly>
-                          <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
-                          <button type="button" name="refresh" id="refresh"
-                              class="btn btn-sm btn-warning ml-2">Refresh</button>
+                        <input type="text" name="from_date" id="from_date" class="form-control form-control-sm" readonly>
+                        <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
+                        <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
+                        <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-2">Refresh</button>
+                        <div class="filter-tipe ml-2">
+                            <select class="form-control form-control-sm">
+                                <option selected disabled hidden>Filter Tipe</option>
+                                <option value="">Semua</option>
+                                <option value="inbound">Inbound</option>
+                                <option value="retur">Retur</option>
+                            </select>
+                        </div>
                       </div>`);
 
     // Setting Awal Daterangepicker
@@ -218,6 +230,10 @@ $(document).ready(function () {
 
     // Event listener saat tombol filter diklik
     $("#purchase-stock #filter").click(function () {
+        $("#purchase-stock .table-datatables").DataTable().ajax.reload();
+    });
+
+    $("#purchase-stock .filter-tipe select").change(function () {
         $("#purchase-stock .table-datatables").DataTable().ajax.reload();
     });
 });
