@@ -13,10 +13,12 @@ use Yajra\DataTables\Facades\DataTables;
 
 class MerchantController extends Controller
 {
+    protected $saveImageUrl;
     protected $baseImageUrl;
 
     public function __construct()
     {
+        $this->saveImageUrl = config('app.save_image_url');
         $this->baseImageUrl = config('app.base_image_url');
     }
 
@@ -597,6 +599,107 @@ class MerchantController extends Controller
                 })
                 ->rawColumns(['MerchantPhoto', 'StruckPhoto', 'StockPhoto', 'IdCardPhoto'])
                 ->make(true);
+        }
+    }
+
+    public function createAssessment()
+    {
+        $stores = DB::table('ms_store')
+            ->leftJoin('ms_merchant_assessment', function ($join) {
+                $join->on('ms_merchant_assessment.StoreID', 'ms_store.StoreID');
+                $join->where('ms_merchant_assessment.IsActive', 1);
+            })
+            ->whereNull('ms_merchant_assessment.MerchantAssessmentID')
+            ->select('ms_store.StoreID', 'ms_store.StoreName')
+            ->orderBy('ms_store.StoreID')
+            ->get();
+
+        $merchants = DB::table('ms_merchant_account')
+            ->leftJoin('ms_merchant_assessment', function ($join) {
+                $join->on('ms_merchant_assessment.MerchantID', 'ms_merchant_account.MerchantID');
+                $join->where('ms_merchant_assessment.IsActive', 1);
+            })
+            ->whereNull('ms_merchant_assessment.MerchantAssessmentID')
+            ->where('ms_merchant_account.IsTesting', 0)
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName')
+            ->orderBy('ms_merchant_account.MerchantID')
+            ->get();
+
+        return view('merchant.assessment.create', [
+            'stores' => $stores,
+            'merchants' => $merchants
+        ]);
+    }
+
+    public function storeAssessment(Request $request)
+    {
+        $request->validate([
+            'merchant_front_photo' => 'required|image',
+            'merchant_side_photo' => 'required|image',
+            'struck_photo' => 'required|image',
+            'stock_photo' => 'required|image',
+            'id_card_photo' => 'required|image',
+            'id_card_number' => 'required|numeric|digits:16',
+            'average_omzet' => 'required|numeric',
+            'transaction' => 'required',
+            'store' => 'required',
+            'merchant' => 'required'
+        ]);
+
+        $frontPhotoName = $request->input('store') . 'photoMerchantFront' . time() . '.' . $request->file('merchant_front_photo')->extension();
+        $sidePhotoName = $request->input('store') . 'photoMerchantSide' . time() . '.' . $request->file('merchant_side_photo')->extension();
+        $struckPhotoName = $request->input('store') . 'struckDistribution' . time() . '.' . $request->file('struck_photo')->extension();
+        $stockPhotoName = $request->input('store') . 'photoStockProduct' . time() . '.' . $request->file('stock_photo')->extension();
+        $idCardPhotoName = $request->input('store') . 'photoIDCard' . time() . '.' . $request->file('id_card_photo')->extension();
+
+        $request->file('merchant_front_photo')->move($this->saveImageUrl . 'rtsales/merchantassessment/', $frontPhotoName);
+        $request->file('merchant_side_photo')->move($this->saveImageUrl . 'rtsales/merchantassessment/', $sidePhotoName);
+        $request->file('struck_photo')->move($this->saveImageUrl . 'rtsales/merchantassessment/', $struckPhotoName);
+        $request->file('stock_photo')->move($this->saveImageUrl . 'rtsales/merchantassessment/', $stockPhotoName);
+        $request->file('id_card_photo')->move($this->saveImageUrl . 'rtsales/merchantassessment/', $idCardPhotoName);
+
+        $dataAssessment = [
+            'PhotoMerchantFront' => $frontPhotoName,
+            'PhotoMerchantSide' => $sidePhotoName,
+            'StruckDistribution' => $struckPhotoName,
+            'PhotoStockProduct' => $stockPhotoName,
+            'PhotoIDCard' => $idCardPhotoName,
+            'TurnoverAverage' => $request->input('average_omzet'),
+            'NumberIDCard' => $request->input('id_card_number'),
+            'StoreID' => $request->input('store'),
+            'MerchantID' => $request->input('merchant'),
+            'IsActive' => 1,
+            'CreatedAt' => date('Y-m-d H:i:s'),
+            'CreatedFrom' => 'DASHBOARD'
+        ];
+
+        try {
+            DB::transaction(function () use ($dataAssessment, $request) {
+                $assessmentID = DB::table('ms_merchant_assessment')->insertGetId($dataAssessment, 'MerchantAssessmentID');
+
+                $dataAssessmentTransaction = [];
+                $assessmentTransaction = array_map(function () {
+                    return func_get_args();
+                }, $request->input('transaction'));
+
+                foreach ($assessmentTransaction as $key => $value) {
+                    $value = array_combine(['TransactionCode'], $value);
+                    $value += ['MerchantAssessmentID' => $assessmentID];
+                    if ($value['TransactionCode'] == "TN") {
+                        $value += ['TransactionName' => "Tunai"];
+                    } elseif ($value['TransactionCode'] == "UM") {
+                        $value += ['TransactionName' => "Uangme"];
+                    } else {
+                        $value += ['TransactionName' => "Kredit"];
+                    }
+                    array_push($dataAssessmentTransaction, $value);
+                }
+
+                DB::table('ms_merchant_assessment_transaction')->insert($dataAssessmentTransaction);
+            });
+            return redirect()->route('merchant.assessment')->with('success', 'Data Assessment Merchant berhasil ditambahkan');
+        } catch (\Throwable $th) {
+            return redirect()->route('merchant.assessment')->with('failed', 'Terjadi kesalahan!');
         }
     }
 

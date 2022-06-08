@@ -161,8 +161,7 @@ class DistributionController extends Controller
             ->leftJoin('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tmdo.DeliveryOrderID')
             ->leftJoin('tx_merchant_expedition_detail', function ($join) {
                 $join->on('tx_merchant_expedition_detail.DeliveryOrderDetailID', 'tx_merchant_delivery_order_detail.DeliveryOrderDetailID');
-                $join->where('tx_merchant_expedition_detail.StatusExpeditionDetail', 'S030');
-                $join->orwhere('tx_merchant_expedition_detail.StatusExpeditionDetail', 'S031');
+                $join->whereRaw("(tx_merchant_expedition_detail.StatusExpeditionDetail = 'S030' OR tx_merchant_expedition_detail.StatusExpeditionDetail = 'S031')");
             })
             ->leftJoin('ms_stock_product_log', function ($join) {
                 $join->on('ms_stock_product_log.MerchantExpeditionDetailID', 'tx_merchant_expedition_detail.MerchantExpeditionDetailID');
@@ -329,7 +328,7 @@ class DistributionController extends Controller
                     $query->whereRaw("tx_merchant_order.TotalPrice - tx_merchant_order.DiscountPrice - tx_merchant_order.DiscountVoucher + tx_merchant_order.ServiceChargeNett + tx_merchant_order.DeliveryFee like ?", ["%$keyword%"]);
                 })
                 ->filterColumn('TanggalDO', function ($query, $keyword) {
-                    $query->whereRaw("DATE_FORMAT(tx_merchant_delivery_order.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
+                    $query->whereRaw("DATE_FORMAT(tmdo.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
                 })
                 ->filterColumn('StatusDO', function ($query, $keyword) {
                     $query->whereRaw("ms_status_order.StatusOrder like ?", ["%$keyword%"]);
@@ -1398,13 +1397,13 @@ class DistributionController extends Controller
             $sqlbillPayLater->where('ms_distributor.Depo', '=', $depoUser);
         }
         if ($fromDate != '' && $toDate != '') {
-            $sqlbillPayLater->whereDate('tx_merchant_delivery_order.CreatedDate', '>=', $fromDate)
-                ->whereDate('tx_merchant_delivery_order.CreatedDate', '<=', $toDate);
+            $sqlbillPayLater->whereDate('tmdo.CreatedDate', '>=', $fromDate)
+                ->whereDate('tmdo.CreatedDate', '<=', $toDate);
         }
         if ($filterIsPaid == "paid") {
-            $sqlbillPayLater->where('tx_merchant_delivery_order.IsPaid', 1);
+            $sqlbillPayLater->where('tmdo.IsPaid', 1);
         } elseif ($filterIsPaid == "unpaid") {
-            $sqlbillPayLater->where('tx_merchant_delivery_order.IsPaid', 0);
+            $sqlbillPayLater->where('tmdo.IsPaid', 0);
         }
 
         $data = $sqlbillPayLater;
@@ -1479,10 +1478,7 @@ class DistributionController extends Controller
                 ->editColumn('PaymentSlip', function ($data) {
                     $baseImageUrl = config('app.base_image_url');
                     if ($data->PaymentSlip != null) {
-                        $paymentSlip = '<a data-store-name="' . $data->StoreName . '" data-do-id="' . $data->DeliveryOrderID . '" class="lihat-bukti" target="_blank" 
-                                        href="' . $baseImageUrl . 'paylater_slip_payment/' . $data->PaymentSlip . '">
-                                        Lihat Bukti
-                                    </a>';
+                        $paymentSlip = '<a data-store-name="' . $data->StoreName . '" data-do-id="' . $data->DeliveryOrderID . '" class="lihat-bukti" target="_blank" href="' . $baseImageUrl . 'paylater_slip_payment/' . $data->PaymentSlip . '">Lihat Bukti</a>';
                     } else {
                         $paymentSlip = "-";
                     }
@@ -1491,11 +1487,13 @@ class DistributionController extends Controller
                 })
                 ->addColumn('Action', function ($data) {
                     if ($data->FinishDate != null && $data->IsPaid == 0) {
-                        $action = '<a class="btn btn-xs btn-warning btn-payment" data-do-id="' . $data->DeliveryOrderID . '" data-store-name="' . $data->StoreName . '">Update Pelunasan</a>';
+                        $action = '<a class="btn btn-xs btn-warning btn-payment my-1" data-do-id="' . $data->DeliveryOrderID . '" data-store-name="' . $data->StoreName . '">Update Pelunasan</a>';
                     } else {
                         $action = '';
                     }
-                    return $action;
+                    $invoice = '<a class="btn btn-xs btn-info my-1 mr-1" target="_blank" href="/restock/deliveryOrder/invoice/' . $data->DeliveryOrderID . '">Delivery Invoice</a>';
+
+                    return $invoice . $action;
                 })
                 ->rawColumns(['StockOrderID', 'IsPaid', 'RemainingDay', 'PaymentSlip', 'Action'])
                 ->make(true);
@@ -1861,11 +1859,17 @@ class DistributionController extends Controller
                     return $grade;
                 })
                 ->addColumn('Action', function ($data) {
-                    $actionBtn = '<a href="#" data-distributor-id="' . $data->DistributorID . '" data-merchant-id="' . $data->MerchantID . '" 
-                        data-store-name="' . $data->StoreName . '" data-owner-name="' . $data->OwnerFullName . '" data-grade-id="' . $data->GradeID . '" 
-                        class="btn btn-xs btn-warning edit-grade mb-1">Ubah Grade</a>
-                        <a href="/distribution/merchant/specialprice/' . $data->MerchantID . '" class="btn btn-xs btn-secondary mb-1">Special Price</a>';
-                    return $actionBtn;
+                    if (Auth::user()->RoleID != "AD") {
+                        $ubahGrade = '<a href="#" data-distributor-id="' . $data->DistributorID . '" data-merchant-id="' . $data->MerchantID . '" 
+                            data-store-name="' . $data->StoreName . '" data-owner-name="' . $data->OwnerFullName . '" data-grade-id="' . $data->GradeID . '" 
+                            class="btn btn-xs btn-warning edit-grade mb-1">Ubah Grade</a>';
+                    } else {
+                        $ubahGrade = '';
+                    }
+
+                    $actionBtn = '<a href="/distribution/merchant/specialprice/' . $data->MerchantID . '" class="btn btn-xs btn-secondary mb-1">Special Price</a>';
+
+                    return $ubahGrade . $actionBtn;
                 })
                 ->addColumn('SpecialPrice', function ($data) {
                     $specialPriceBtn = '<a href="/distribution/merchant/specialprice/' . $data->MerchantID . '" class="btn btn-sm btn-secondary">Special Price</a>';

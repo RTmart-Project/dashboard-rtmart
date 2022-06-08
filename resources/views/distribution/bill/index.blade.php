@@ -34,6 +34,7 @@
                       <thead>
                         <tr>
                           <th>Delivery Order ID</th>
+                          <th>Urutan DO</th>
                           <th>Stock Order ID</th>
                           <th>Nama Toko</th>
                           <th>No. Telepon</th>

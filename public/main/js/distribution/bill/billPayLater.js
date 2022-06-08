@@ -24,11 +24,16 @@ $(document).ready(function () {
             columns: [
                 {
                     data: "DeliveryOrderID",
-                    name: "tx_merchant_delivery_order.DeliveryOrderID",
+                    name: "tmdo.DeliveryOrderID",
+                },
+                {
+                    data: "UrutanDO",
+                    name: "UrutanDO",
+                    searchable: false,
                 },
                 {
                     data: "StockOrderID",
-                    name: "tx_merchant_delivery_order.StockOrderID",
+                    name: "tmdo.StockOrderID",
                 },
                 {
                     data: "StoreName",
@@ -40,11 +45,11 @@ $(document).ready(function () {
                 },
                 {
                     data: "CreatedDate",
-                    name: "tx_merchant_delivery_order.CreatedDate",
+                    name: "tmdo.CreatedDate",
                 },
                 {
                     data: "FinishDate",
-                    name: "tx_merchant_delivery_order.FinishDate",
+                    name: "tmdo.FinishDate",
                 },
                 {
                     data: "DueDate",
@@ -60,19 +65,19 @@ $(document).ready(function () {
                 },
                 {
                     data: "IsPaid",
-                    name: "tx_merchant_delivery_order.IsPaid",
+                    name: "tmdo.IsPaid",
                 },
                 {
                     data: "PaymentDate",
-                    name: "tx_merchant_delivery_order.PaymentDate",
+                    name: "tmdo.PaymentDate",
                 },
                 {
                     data: "PaymentNominal",
-                    name: "tx_merchant_delivery_order.PaymentNominal",
+                    name: "tmdo.PaymentNominal",
                 },
                 {
                     data: "PaymentSlip",
-                    name: "tx_merchant_delivery_order.PaymentSlip",
+                    name: "tmdo.PaymentSlip",
                 },
                 {
                     data: "Action",
@@ -97,18 +102,18 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                         orthogonal: "export",
                     },
                 },
             ],
-            order: [4, "desc"],
+            order: [5, "desc"],
             lengthChange: false,
             responsive: true,
             autoWidth: false,
             aoColumnDefs: [
                 {
-                    aTargets: [11],
+                    aTargets: [12],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;

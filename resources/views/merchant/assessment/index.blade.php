@@ -17,68 +17,73 @@
 @section('content')
 <!-- Content Header (Page header) -->
 <div class="content-header">
-    <div class="container-fluid">
-        <div class="row mb-2">
-            <!-- left -->
-            <div class="col-sm-6">
-                <h1 class="m-0"></h1>
-            </div>
-            <!-- Right -->
-            <div class="col-sm-6">
-                <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"></li>
-                </ol>
-            </div>
-        </div>
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <!-- left -->
+      <div class="col-sm-6">
+        <h1 class="m-0"></h1>
+      </div>
+      <!-- Right -->
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"></li>
+        </ol>
+      </div>
     </div>
+  </div>
 </div>
 <!-- /.content-header -->
 
 <!-- Main content -->
 <div class="content">
-    <div class="container-fluid">
-        <!-- Table -->
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body mt-2">
-                        <div class="tab-content">
-                            <div class="tab-pane active" id="merchant-assessment">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <table class="table table-datatables">
-                                            <thead>
-                                                <tr>
-                                                    <th>Tanggal</th>
-                                                    <th>Store ID</th>
-                                                    <th>Nama Store</th>
-                                                    <th>No. HP Store</th>
-                                                    <th>Merchant ID</th>
-                                                    <th>Nama Merchant</th>
-                                                    <th>No. HP Merchant</th>
-                                                    <th>No. KTP</th>
-                                                    <th>Omset Rata-Rata /bulan</th>
-                                                    <th>Transaksi</th>
-                                                    <th>Kode Sales</th>
-                                                    <th>Nama Sales</th>
-                                                    <th>Foto Toko</th>
-                                                    <th>Bukti Bon</th>
-                                                    <th>Foto Stok Toko</th>
-                                                    <th>Foto KTP</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+  <div class="container-fluid">
+    <!-- Table -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI")
+          <div class="card-header">
+            <a href="{{ route('merchant.createAssessment') }}" class="btn btn-sm btn-success"><i class="fas fa-plus"></i> Tambah Assessment</a>
+          </div>
+          @endif
+          <div class="card-body mt-2">
+            <div class="tab-content">
+              <div class="tab-pane active" id="merchant-assessment">
+                <div class="row">
+                  <div class="col-12">
+                    <table class="table table-datatables">
+                      <thead>
+                        <tr>
+                          <th>Tanggal</th>
+                          <th>Store ID</th>
+                          <th>Nama Store</th>
+                          <th>No. HP Store</th>
+                          <th>Merchant ID</th>
+                          <th>Nama Merchant</th>
+                          <th>No. HP Merchant</th>
+                          <th>No. KTP</th>
+                          <th>Omset Rata-Rata /bulan</th>
+                          <th>Transaksi</th>
+                          <th>Kode Sales</th>
+                          <th>Nama Sales</th>
+                          <th>Foto Toko</th>
+                          <th>Bukti Bon</th>
+                          <th>Foto Stok Toko</th>
+                          <th>Foto KTP</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
+              </div>
             </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </div>
 @endsection
 

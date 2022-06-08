@@ -9,15 +9,34 @@ class PayLaterService
 {
   public function billPayLaterGet()
   {
-    $sql = DB::table('tx_merchant_delivery_order')
+    $sql = DB::table('tx_merchant_delivery_order as tmdo')
       ->join('tx_merchant_order', function ($join) {
-        $join->on('tx_merchant_order.StockOrderID', 'tx_merchant_delivery_order.StockOrderID');
+        $join->on('tx_merchant_order.StockOrderID', 'tmdo.StockOrderID');
         $join->where('tx_merchant_order.PaymentMethodID', 14);
       })
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
       ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
-      ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tx_merchant_delivery_order.StatusDO')
-      ->select('tx_merchant_delivery_order.DeliveryOrderID', 'tx_merchant_delivery_order.StockOrderID', 'ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber', 'tx_merchant_delivery_order.CreatedDate', 'tx_merchant_delivery_order.FinishDate', 'tx_merchant_delivery_order.IsPaid', 'tx_merchant_delivery_order.PaymentDate', 'tx_merchant_delivery_order.PaymentSlip', 'tx_merchant_delivery_order.PaymentNominal', 'ms_status_order.StatusOrder');
+      ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tmdo.StatusDO')
+      ->select(
+        'tmdo.DeliveryOrderID',
+        'tmdo.StockOrderID',
+        'ms_merchant_account.StoreName',
+        'ms_merchant_account.PhoneNumber',
+        'tmdo.CreatedDate',
+        'tmdo.FinishDate',
+        'tmdo.IsPaid',
+        'tmdo.PaymentDate',
+        'tmdo.PaymentSlip',
+        'tmdo.PaymentNominal',
+        'ms_status_order.StatusOrder',
+        DB::raw("
+          (
+            SELECT CONCAT('DO ke-', COUNT(*)) FROM tx_merchant_delivery_order
+            WHERE tx_merchant_delivery_order.CreatedDate <= tmdo.CreatedDate
+            AND tx_merchant_delivery_order.StockOrderID = tmdo.StockOrderID
+          ) AS UrutanDO
+        ")
+      );
 
     return $sql;
   }
