@@ -1861,11 +1861,17 @@ class DistributionController extends Controller
                     return $grade;
                 })
                 ->addColumn('Action', function ($data) {
-                    $actionBtn = '<a href="#" data-distributor-id="' . $data->DistributorID . '" data-merchant-id="' . $data->MerchantID . '" 
-                        data-store-name="' . $data->StoreName . '" data-owner-name="' . $data->OwnerFullName . '" data-grade-id="' . $data->GradeID . '" 
-                        class="btn btn-xs btn-warning edit-grade mb-1">Ubah Grade</a>
-                        <a href="/distribution/merchant/specialprice/' . $data->MerchantID . '" class="btn btn-xs btn-secondary mb-1">Special Price</a>';
-                    return $actionBtn;
+                    if (Auth::user()->RoleID != "AD") {
+                        $ubahGrade = '<a href="#" data-distributor-id="' . $data->DistributorID . '" data-merchant-id="' . $data->MerchantID . '" 
+                            data-store-name="' . $data->StoreName . '" data-owner-name="' . $data->OwnerFullName . '" data-grade-id="' . $data->GradeID . '" 
+                            class="btn btn-xs btn-warning edit-grade mb-1">Ubah Grade</a>';
+                    } else {
+                        $ubahGrade = '';
+                    }
+
+                    $actionBtn = '<a href="/distribution/merchant/specialprice/' . $data->MerchantID . '" class="btn btn-xs btn-secondary mb-1">Special Price</a>';
+
+                    return $ubahGrade . $actionBtn;
                 })
                 ->addColumn('SpecialPrice', function ($data) {
                     $specialPriceBtn = '<a href="/distribution/merchant/specialprice/' . $data->MerchantID . '" class="btn btn-sm btn-secondary">Special Price</a>';
