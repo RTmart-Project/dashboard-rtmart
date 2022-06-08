@@ -666,4 +666,107 @@ class DeliveryOrderService
 
     return $dbTransaction;
   }
+
+  public function generateDeliveryOrderID()
+  {
+    $max = DB::table('tx_merchant_delivery_order')
+      ->selectRaw('DeliveryOrderID, ProcessTime')
+      ->whereRaw("ProcessTime = (SELECT MAX(ProcessTime) FROM tx_merchant_delivery_order)")
+      ->orderByDesc('DeliveryOrderID')
+      ->first();
+
+    $maxMonth = date('m', strtotime($max->ProcessTime));
+    $now = date('m');
+
+    if ($max->DeliveryOrderID == null || (strcmp($maxMonth, $now) != 0)) {
+      $newDeliveryOrderID = "DO-" . date('YmdHis') . '-000001';
+    } else {
+      $maxDONumber = substr($max->DeliveryOrderID, -6);
+      $newDONumber = $maxDONumber + 1;
+      $newDeliveryOrderID = "DO-" . date('YmdHis') . "-" . str_pad($newDONumber, 6, '0', STR_PAD_LEFT);
+    }
+
+    return $newDeliveryOrderID;
+  }
+
+  public function splitDeliveryOrder($stockOrderId, $splitNumber)
+  {
+    $sqlGetDetailOrder = DB::table('tx_merchant_order_detail')
+      ->where('StockOrderID', $stockOrderId)
+      ->select('ProductID', 'Quantity', 'Nett')
+      ->get();
+
+    $totalQtyOrder = DB::table('tx_merchant_order_detail')
+      ->where('StockOrderID', $stockOrderId)
+      ->sum('Quantity');
+
+    if ($totalQtyOrder < $splitNumber) {
+      $splitNumber = $totalQtyOrder;
+    }
+
+    if (count($sqlGetDetailOrder) > 0) {
+      DB::transaction(function () use ($stockOrderId, $splitNumber, $sqlGetDetailOrder) {
+        $arrayDeliveryOrderDetail = [];
+        $arrayDeliveryOrderLog = [];
+        for ($i = 0; $i < $splitNumber; $i++) {
+          if ($i == 0) {
+            $shipmentDate = date('Y-m-d H:i:s', strtotime("+3 day"));
+          } else if ($i == 1) {
+            $shipmentDate = date('Y-m-d H:i:s', strtotime("+10 day"));
+          } else {
+            $shipmentDate = date('Y-m-d H:i:s', strtotime("+17 day"));
+          }
+
+          $deliveryOrderID = $this->generateDeliveryOrderID();
+
+          DB::table('tx_merchant_delivery_order')
+            ->insert([
+              'DeliveryOrderID' => $deliveryOrderID,
+              'StockOrderID' => $stockOrderId,
+              'StatusDO' => 'S028',
+              'CreatedDate' => $shipmentDate
+            ]);
+
+          foreach ($sqlGetDetailOrder as $key => $value) {
+            $productID = $value->ProductID;
+            $qty = $value->Quantity;
+            $price = $value->Nett;
+
+            if ($qty % $splitNumber == 0) {
+              $qtySplit = ($qty / $splitNumber);
+            } else {
+              $zp = $splitNumber - ($qty % $splitNumber);
+              $pp = $qty / $splitNumber;
+              if ($i >= $zp) {
+                $qtySplit = (int)$pp + 1;
+              } else {
+                $qtySplit = (int)$pp;
+              }
+            }
+
+            if ($qtySplit > 0) {
+              $dataDetailDeliveryOrder = [
+                'DeliveryOrderID' => $deliveryOrderID,
+                'ProductID' => $productID,
+                'Qty' => $qtySplit,
+                'Price' => $price,
+                'StatusExpedition' => 'S029'
+              ];
+              array_push($arrayDeliveryOrderDetail, $dataDetailDeliveryOrder);
+            }
+          }
+          $dataLogDeliveryOrder = [
+            'StockOrderID' => $stockOrderId,
+            'DeliveryOrderID' => $deliveryOrderID,
+            'StatusDO' => 'S028',
+            'ActionBy' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo
+          ];
+          array_push($arrayDeliveryOrderLog, $dataLogDeliveryOrder);
+        }
+        DB::table('tx_merchant_delivery_order_detail')->insert($arrayDeliveryOrderDetail);
+        DB::table('tx_merchant_delivery_order_log')->insert($arrayDeliveryOrderLog);
+      });
+    }
+    return;
+  }
 }
