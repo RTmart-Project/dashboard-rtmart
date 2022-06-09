@@ -748,7 +748,7 @@ class DeliveryOrderService
                 $zp = $splitNumber - ($qty % $splitNumber);
               }
               $pp = $qty / $splitNumber;
-              if ($i <= $zp) {
+              if ($i >= $zp) {
                 $qtySplit = (int)$pp + 1;
               } else {
                 $qtySplit = (int)$pp;
