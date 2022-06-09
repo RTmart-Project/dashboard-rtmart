@@ -190,21 +190,21 @@
           </div>
         </div>
         <div class="row m-0 pt-2 text-center konfirmasi-request justify-content-center">
-          {{-- <div class="col-6 align-self-center">
+          <div class="col-6 align-self-center">
             <div class="d-flex flex-column flex-wrap">
-              <b class="mb-2">{{ $item->StatusOrder }}</b>
+              {{-- <b class="mb-2">{{ $item->StatusOrder }}</b> --}}
               <div class="d-flex justify-content-center" style="gap: 8px">
-                <button href="#" class="btn btn-xs btn-success btn-confirm-request-do mb-1"
+                {{-- <button href="#" class="btn btn-xs btn-success btn-confirm-request-do mb-1"
                   data-do-id="{{ $item->DeliveryOrderID }}">
                   Konfirmasi Pesanan
-                </button>
+                </button> --}}
                 <a href="#" class="btn btn-xs btn-danger btn-cancel-request-do mb-1"
                   data-do-id="{{ $item->DeliveryOrderID }}" data-stockorder-id="{{ $stockOrderID }}">
-                  Batalkan Pesanan
+                  Batalkan Delivery Order
                 </a>
               </div>
             </div>
-          </div> --}}
+          </div>
           <div class="col-6 align-self-center">
             Rencana kirim {{ date('d F Y', strtotime($item->CreatedDate)) }}
             <input type="hidden" name="created_date" value="{{ $item->CreatedDate }}">

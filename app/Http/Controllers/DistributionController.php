@@ -617,7 +617,9 @@ class DistributionController extends Controller
 
             try {
                 DB::transaction(function () use ($stockOrderID, $statusOrder, $dataLog, $txMerchantOrder, $titleNotif, $bodyNotif, $baseImageUrl, $deliveryOrderService) {
-                    $deliveryOrderService->splitDeliveryOrder($stockOrderID, 3);
+                    if ($txMerchantOrder->PaymentMethodID == 14) {
+                        $deliveryOrderService->splitDeliveryOrder($stockOrderID, 3);
+                    }
 
                     DB::table('tx_merchant_order')
                         ->where('StockOrderID', '=', $stockOrderID)
@@ -1182,7 +1184,7 @@ class DistributionController extends Controller
 
         try {
             $deliveryOrderService->rejectRequestDeliveryOrder($deliveryOrderId, $cancelReason, $stockOrderId);
-            return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderId])->with('success', 'Permintaan Delivery Order berhasil dibatalkan');
+            return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderId])->with('success', 'Delivery Order berhasil dibatalkan');
         } catch (\Throwable $th) {
             return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderId])->with('failed', 'Gagal, terjadi kesalahan');
         }
