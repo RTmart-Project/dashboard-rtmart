@@ -260,7 +260,7 @@
                                             <div class="col-6">
                                                 <p class="font-weight-bold text-success mb-0" id="grand_total">
                                                     {{ Helper::formatCurrency($merchantOrder->NettPrice +
-                                                    $merchantOrder->ServiceChargeNett, 'Rp ') }}
+                                                    $merchantOrder->ServiceChargeNett + $merchantOrder->DeliveryFee, 'Rp ') }}
                                                 </p>
                                             </div>
                                         </div>

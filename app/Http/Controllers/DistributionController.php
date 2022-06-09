@@ -498,7 +498,7 @@ class DistributionController extends Controller
         ]);
     }
 
-    public function updateStatusRestock(Request $request, $stockOrderID, $status)
+    public function updateStatusRestock(Request $request, $stockOrderID, $status, DeliveryOrderService $deliveryOrderService)
     {
         $txMerchantOrder = DB::table('tx_merchant_order')
             ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
@@ -616,7 +616,11 @@ class DistributionController extends Controller
             ];
 
             try {
-                DB::transaction(function () use ($stockOrderID, $statusOrder, $dataLog, $txMerchantOrder, $titleNotif, $bodyNotif, $baseImageUrl) {
+                DB::transaction(function () use ($stockOrderID, $statusOrder, $dataLog, $txMerchantOrder, $titleNotif, $bodyNotif, $baseImageUrl, $deliveryOrderService) {
+                    if ($txMerchantOrder->PaymentMethodID == 14) {
+                        $deliveryOrderService->splitDeliveryOrder($stockOrderID, 3);
+                    }
+
                     DB::table('tx_merchant_order')
                         ->where('StockOrderID', '=', $stockOrderID)
                         ->update([
@@ -806,20 +810,7 @@ class DistributionController extends Controller
             ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.Email', 'ms_merchant_account.MerchantFirebaseToken', 'ms_distributor.DistributorName', 'tx_merchant_order.OrderAddress', 'tx_merchant_order.PaymentMethodID', 'ms_area.PostalCode', 'ms_area.Province', 'ms_area.City', 'ms_area.Subdistrict', 'tx_merchant_order.DistributorNote', 'tx_merchant_order.MerchantNote')
             ->first();
 
-        $max = DB::table('tx_merchant_delivery_order')
-            ->selectRaw('MAX(DeliveryOrderID) AS DeliveryOrderID, MAX(ProcessTime) AS ProcessTime')
-            ->first();
-
-        $maxMonth = date('m', strtotime($max->ProcessTime));
-        $now = date('m');
-
-        if ($max->DeliveryOrderID == null || (strcmp($maxMonth, $now) != 0)) {
-            $newDeliveryOrderID = "DO-" . date('YmdHis') . '-000001';
-        } else {
-            $maxDONumber = substr($max->DeliveryOrderID, 18);
-            $newDONumber = $maxDONumber + 1;
-            $newDeliveryOrderID = "DO-" . date('YmdHis') . "-" . str_pad($newDONumber, 6, '0', STR_PAD_LEFT);
-        }
+        $newDeliveryOrderID = $deliveryOrderService->generateDeliveryOrderID();
 
         $createdDateDO = str_replace("T", " ", $request->input('created_date_do'));
         // $vehicleLicensePlate = str_replace(" ", "-", $request->input('license_plate'));
@@ -1193,7 +1184,7 @@ class DistributionController extends Controller
 
         try {
             $deliveryOrderService->rejectRequestDeliveryOrder($deliveryOrderId, $cancelReason, $stockOrderId);
-            return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderId])->with('success', 'Permintaan Delivery Order berhasil dibatalkan');
+            return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderId])->with('success', 'Delivery Order berhasil dibatalkan');
         } catch (\Throwable $th) {
             return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderId])->with('failed', 'Gagal, terjadi kesalahan');
         }
@@ -1207,20 +1198,7 @@ class DistributionController extends Controller
             'license_plate' => 'required'
         ]);
 
-        $max = DB::table('tx_merchant_delivery_order')
-            ->selectRaw('MAX(DeliveryOrderID) AS DeliveryOrderID, MAX(ProcessTime) AS ProcessTime')
-            ->first();
-
-        $maxMonth = date('m', strtotime($max->ProcessTime));
-        $now = date('m');
-
-        if ($max->DeliveryOrderID == null || (strcmp($maxMonth, $now) != 0)) {
-            $newDeliveryOrderID = "DO-" . date('YmdHis') . '-000001';
-        } else {
-            $maxDONumber = substr($max->DeliveryOrderID, 18);
-            $newDONumber = $maxDONumber + 1;
-            $newDeliveryOrderID = "DO-" . date('YmdHis') . "-" . str_pad($newDONumber, 6, '0', STR_PAD_LEFT);
-        }
+        $newDeliveryOrderID = $deliveryOrderService->generateDeliveryOrderID();
 
         $stockOrderID = $request->input('stock_order_id');
         $arrProductRTmart = $request->input('product_id_rtmart');
