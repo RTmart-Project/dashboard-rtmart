@@ -426,12 +426,19 @@ class DeliveryOrderService
           'StatusDO' => 'S026',
           'CancelReason' => $cancelReason
         ]);
+
+      DB::table('tx_merchant_delivery_order_detail')
+        ->where('tx_merchant_delivery_order_detail.DeliveryOrderID', $deliveryOrderID)
+        ->update([
+          'StatusExpedition' => 'S037'
+        ]);
+
       DB::table('tx_merchant_delivery_order_log')
         ->insert([
           'StockOrderID' => $stockOrderId,
           'DeliveryOrderID' => $deliveryOrderID,
           'StatusDO' => 'S026',
-          'ActionBy' => 'DISTRIBUTOR'
+          'ActionBy' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo
         ]);
     });
 
@@ -696,12 +703,12 @@ class DeliveryOrderService
       ->select('ProductID', 'Quantity', 'Nett')
       ->get();
 
-    $totalQtyOrder = DB::table('tx_merchant_order_detail')
+    $maxQtyOrder = DB::table('tx_merchant_order_detail')
       ->where('StockOrderID', $stockOrderId)
-      ->sum('Quantity');
+      ->max('Quantity');
 
-    if ($totalQtyOrder < $splitNumber) {
-      $splitNumber = $totalQtyOrder;
+    if ($maxQtyOrder < $splitNumber) {
+      $splitNumber = $maxQtyOrder;
     }
 
     if (count($sqlGetDetailOrder) > 0) {
@@ -735,9 +742,13 @@ class DeliveryOrderService
             if ($qty % $splitNumber == 0) {
               $qtySplit = ($qty / $splitNumber);
             } else {
-              $zp = $splitNumber - ($qty % $splitNumber);
+              if ($qty < $splitNumber) {
+                $zp = $qty - 1;
+              } else {
+                $zp = $splitNumber - ($qty % $splitNumber);
+              }
               $pp = $qty / $splitNumber;
-              if ($i >= $zp) {
+              if ($i <= $zp) {
                 $qtySplit = (int)$pp + 1;
               } else {
                 $qtySplit = (int)$pp;
