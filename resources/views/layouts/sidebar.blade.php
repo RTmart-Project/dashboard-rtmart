@@ -51,7 +51,7 @@
                         <a href="{{ route('distribution.billPayLater') }}"
                             class="nav-link {{ Request::is('distribution/bill*') ? 'active' : '' }}">
                             <i class="far fa-circle nav-icon"></i>
-                            <p>Tagihan PayLater</p>
+                            <p>Tagihan RTpaylater</p>
                         </a>
                     </li>
                     @endif
