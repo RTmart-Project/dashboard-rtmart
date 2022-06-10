@@ -42,6 +42,7 @@
                           <th>Tgl Selesai</th>
                           <th>Tgl Jatuh Tempo</th>
                           <th>Tenggat Waktu</th>
+                          <th>Tagihan</th>
                           <th>Status DO</th>
                           <th>Status Pelunasan</th>
                           <th>Tgl Pelunasan</th>

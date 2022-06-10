@@ -1445,6 +1445,14 @@ class DistributionController extends Controller
 
                     return $remainingDay;
                 })
+                ->addColumn('BillNominal', function ($data) {
+                    if ($data->StatusDO == "S024" || $data->StatusDO == "S025") {
+                        $bill = $data->SubTotal + $data->ServiceCharge + $data->DeliveryFee - $data->Discount;
+                    } else {
+                        $bill = "-";
+                    }
+                    return $bill;
+                })
                 ->editColumn('IsPaid', function ($data) {
                     if ($data->IsPaid == 1) {
                         $isPaid = '<span class="badge badge-success">Sudah Lunas</span>';
