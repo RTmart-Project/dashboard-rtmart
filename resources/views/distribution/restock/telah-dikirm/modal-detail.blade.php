@@ -131,10 +131,39 @@
             @endif
           </div> --}}
           <div class="col-4">
-            <p class="text-center mt-3">
+            <div class="justify-content-between my-1 d-flex">
               <b>SubTotal : </b>
               <span class="price-subtotal">{{ Helper::formatCurrency($item->SubTotal, 'Rp ') }}</span>
-            </p>
+            </div>
+            
+            @if ($item->StatusDO == "S024" || $item->StatusDO == "S025")
+            @if ($item->Discount != null && $item->Discount != 0)
+            <div class="justify-content-between mb-1 d-flex">
+              <b>Diskon : </b>
+              <span class="price-subtotal">{{ Helper::formatCurrency($item->Discount, 'Rp ') }}</span>
+            </div>
+            @endif
+            
+            @if ($item->ServiceCharge != null && $item->ServiceCharge != 0)
+            <div class="justify-content-between mb-1 d-flex">
+              <b>Biaya Layanan : </b>
+              <span class="price-subtotal">{{ Helper::formatCurrency($item->ServiceCharge, 'Rp ') }}</span>
+            </div>
+            @endif
+            
+            @if ($item->DeliveryFee != null && $item->DeliveryFee != 0)
+            <div class="justify-content-between mb-1 d-flex">
+              <b>Biaya Pengiriman : </b>
+              <span class="price-subtotal">{{ Helper::formatCurrency($item->DeliveryFee, 'Rp ') }}</span>
+            </div>
+            @endif
+
+            <div class="justify-content-between mb-1 d-flex">
+              <b>Grand Total : </b>
+              <span class="price-subtotal">{{ Helper::formatCurrency($item->SubTotal - $item->Discount + $item->ServiceCharge + $item->DeliveryFee, 'Rp ') }}</span>
+            </div>
+            @endif
+
             @if ($item->StatusOrder == "Dalam Pengiriman" && $item->Distributor != "HAISTAR")
             {{-- <div class="text-center">
               <button type="submit" id="update_qty" class="btn btn-xs btn-primary text-white mb-2 w-50">Simpan</button>

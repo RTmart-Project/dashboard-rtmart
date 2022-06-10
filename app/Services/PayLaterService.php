@@ -20,6 +20,10 @@ class PayLaterService
       ->select(
         'tmdo.DeliveryOrderID',
         'tmdo.StockOrderID',
+        'tmdo.StatusDO',
+        'tmdo.Discount',
+        'tmdo.ServiceCharge',
+        'tmdo.DeliveryFee',
         'ms_merchant_account.StoreName',
         'ms_merchant_account.PhoneNumber',
         'tmdo.CreatedDate',
@@ -35,6 +39,12 @@ class PayLaterService
             WHERE tx_merchant_delivery_order.CreatedDate <= tmdo.CreatedDate
             AND tx_merchant_delivery_order.StockOrderID = tmdo.StockOrderID
           ) AS UrutanDO
+        "),
+        DB::raw("
+          (
+            SELECT SUM(Qty * Price) FROM tx_merchant_delivery_order_detail
+            WHERE tx_merchant_delivery_order_detail.DeliveryOrderID = tmdo.DeliveryOrderID
+          ) AS SubTotal
         ")
       );
 
