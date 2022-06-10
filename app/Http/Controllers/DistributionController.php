@@ -1464,7 +1464,7 @@ class DistributionController extends Controller
                     return $paymentSlip;
                 })
                 ->addColumn('Action', function ($data) {
-                    if ($data->FinishDate != null && $data->IsPaid == 0) {
+                    if ($data->FinishDate != null && $data->IsPaid == 0 && Auth::user()->RoleID != "AD") {
                         $action = '<a class="btn btn-xs btn-warning btn-payment my-1" data-do-id="' . $data->DeliveryOrderID . '" data-store-name="' . $data->StoreName . '">Update Pelunasan</a>';
                     } else {
                         $action = '';
