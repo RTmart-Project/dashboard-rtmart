@@ -241,6 +241,16 @@ $(document).ready(function () {
                         }
                     },
                 },
+                {
+                    aTargets: [4],
+                    mRender: function (data, type, full) {
+                        if (type === "export") {
+                            return "'" + data;
+                        } else {
+                            return data;
+                        }
+                    },
+                },
             ],
         });
     }

@@ -17,6 +17,7 @@ class PayLaterService
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
       ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
       ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tmdo.StatusDO')
+      ->where('tmdo.StatusDO', 'S025')
       ->select(
         'tmdo.DeliveryOrderID',
         'tmdo.StockOrderID',

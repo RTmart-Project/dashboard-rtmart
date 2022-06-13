@@ -67,7 +67,7 @@ class MerchantService
                     WHERE tx_merchant_order_detail.StockOrderID = Restock.StockOrderID
                 ) AS MarginReal,
                 (
-                    SELECT IFNULL(SUM((tx_merchant_order_detail.Nett - ms_stock_product.PurchasePrice) * (tx_merchant_order_detail.PromisedQuantity - IFNULL(DOkirim.Qty, 0))), 0)
+                    SELECT IFNULL(SUM((tx_merchant_order_detail.Nett - IF(ms_stock_product.PurchasePrice = 0, tx_merchant_order_detail.Nett, ms_stock_product.PurchasePrice)) * (tx_merchant_order_detail.PromisedQuantity - IFNULL(DOkirim.Qty, 0))), 0)
                     FROM tx_merchant_order_detail
                     JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_order_detail.StockOrderID
                     LEFT JOIN ms_stock_product ON ms_stock_product.ProductID = tx_merchant_order_detail.ProductID
