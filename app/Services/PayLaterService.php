@@ -34,6 +34,7 @@ class PayLaterService
         'tmdo.PaymentSlip',
         'tmdo.PaymentNominal',
         'ms_status_order.StatusOrder',
+        'ms_distributor.DistributorName',
         DB::raw("
           (
             SELECT CONCAT('DO ke-', COUNT(*)) FROM tx_merchant_delivery_order
