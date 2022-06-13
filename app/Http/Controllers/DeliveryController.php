@@ -243,9 +243,42 @@ class DeliveryController extends Controller
         }
         array_push($dataForHaistar, $arrayDataDO);
 
+        // Ngebagi discount kalo ada, dan delivery fee sama service charge
+        $arrayUpdateSeparateDiscount = [];
+        foreach ($dataExpedition->dataDeliveryOrderID as $key => $value) {
+            $merchantOrder = DB::table('tx_merchant_order')
+                ->join('tx_merchant_delivery_order', function ($join) use ($value) {
+                    $join->on('tx_merchant_delivery_order.StockOrderID', 'tx_merchant_order.StockOrderID');
+                    $join->where('tx_merchant_delivery_order.DeliveryOrderID', $value->deliveryOrderID);
+                })
+                ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.DeliveryFee', 'tx_merchant_order.ServiceChargeNett')
+                ->first();
+
+            $deliveryOrder = DB::table('tx_merchant_delivery_order')
+                ->where('StockOrderID', $merchantOrder->StockOrderID)
+                ->whereIn('StatusDO', ['S024', 'S025'])
+                ->selectRaw("IFNULL(SUM(Discount), 0) AS SumDiscountDO, IFNULL(SUM(ServiceCharge), 0) AS SumServiceChargeDO, IFNULL(SUM(DeliveryFee), 0) AS SumDeliveryFeeDO")
+                ->first();
+
+            $countDeliveryOrder = DB::table('tx_merchant_delivery_order')
+                ->where('StockOrderID', $merchantOrder->StockOrderID)
+                ->where('StatusDO', 'S028')
+                ->count('DeliveryOrderID');
+
+            $objectDO = new stdClass;
+            $objectDO->StockOrderID = $merchantOrder->StockOrderID;
+            $objectDO->DeliveryOrderID = $value->deliveryOrderID;
+            $objectDO->Discount = ceil(($merchantOrder->DiscountPrice + $merchantOrder->DiscountVoucher - $deliveryOrder->SumDiscountDO) / $countDeliveryOrder);
+            $objectDO->ServiceCharge = $merchantOrder->ServiceChargeNett - $deliveryOrder->SumServiceChargeDO;
+            $objectDO->DeliveryFee = $merchantOrder->DeliveryFee - $deliveryOrder->SumDeliveryFeeDO;
+
+
+            array_push($arrayUpdateSeparateDiscount, clone $objectDO);
+        }
+
         if ($stockHaistarResponse == 200) {
             try {
-                DB::transaction(function () use ($dataInsertExpedition, $dataInsertExpeditionLog, $deliveryOrderService, $dataExpedition, $vehicleLicensePlate, $user, $newMerchantExpeditionID, $dataForHaistar, $haistarService, $dataForRTmart) {
+                DB::transaction(function () use ($dataInsertExpedition, $dataInsertExpeditionLog, $deliveryOrderService, $dataExpedition, $vehicleLicensePlate, $user, $newMerchantExpeditionID, $dataForHaistar, $haistarService, $dataForRTmart, $arrayUpdateSeparateDiscount) {
                     foreach ($dataForHaistar as $key => $value) {
                         if ($value['DeliveryOrderID'] != "") {
                             if ($value['PaymentMethodID'] == 1) {
@@ -287,6 +320,15 @@ class DeliveryController extends Controller
                     }
                     $deliveryOrderService->insertTable("tx_merchant_expedition", $dataInsertExpedition);
                     $deliveryOrderService->insertTable("tx_merchant_expedition_log", $dataInsertExpeditionLog);
+                    foreach ($arrayUpdateSeparateDiscount as $key => $value) {
+                        DB::table('tx_merchant_delivery_order')
+                            ->where('DeliveryOrderID', $value->DeliveryOrderID)
+                            ->update([
+                                'Discount' => $value->Discount,
+                                'ServiceCharge' => $value->ServiceCharge,
+                                'DeliveryFee' => $value->DeliveryFee
+                            ]);
+                    }
                     foreach ($dataExpedition->dataDeliveryOrderID as $key => $value) {
                         $deliveryOrderService->updateDeliveryOrder($value->deliveryOrderID, "S024", $dataExpedition->driverID, $dataExpedition->helperID, $dataExpedition->vehicleID, $vehicleLicensePlate);
                         $deliveryOrderService->insertDeliveryOrderLog($value->deliveryOrderID, "S024", $dataExpedition->driverID, $dataExpedition->helperID, $dataExpedition->vehicleID, $vehicleLicensePlate, $user);

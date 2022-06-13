@@ -49,8 +49,16 @@ $(document).ready(function () {
                     name: "GoodStock",
                 },
                 {
+                    data: "NominalGoodStock",
+                    name: "NominalGoodStock",
+                },
+                {
                     data: "BadStock",
                     name: "BadStock",
+                },
+                {
+                    data: "NominalBadStock",
+                    name: "NominalBadStock",
                 },
                 {
                     data: "Detail",
@@ -74,8 +82,26 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 4, 5, 6, 7],
+                        columns: [0, 1, 2, 4, 5, 6, 7, 8, 9],
                         orthogonal: "export",
+                    },
+                },
+            ],
+            aoColumnDefs: [
+                {
+                    aTargets: [7, 9],
+                    mRender: function (data, type, full) {
+                        if (type === "export") {
+                            return data;
+                        } else {
+                            if (data == null || data == "") {
+                                return data;
+                            } else {
+                                const currencySeperatorFormat =
+                                    thousands_separators(data);
+                                return currencySeperatorFormat;
+                            }
+                        }
                     },
                 },
             ],

@@ -223,6 +223,35 @@
 					<th colspan="3" class="text-right">SubTotal</th>
 					<th colspan="1" class="text-right pt">{{ Helper::formatCurrency($subTotal, 'Rp ') }}</th>
 				</tr>
+
+				@if ($merchant->StatusDO == "S024" || $merchant->StatusDO == "S025")
+				@if ($merchant->Discount != null && $merchant->Discount != 0)
+				<tr class="total">
+					<th colspan="3" class="text-right">Diskon</th>
+					<th colspan="1" class="text-right pt">{{ Helper::formatCurrency($merchant->Discount, 'Rp ') }}</th>
+				</tr>
+				@endif
+
+				@if ($merchant->ServiceCharge != null && $merchant->ServiceCharge != 0)
+				<tr class="total">
+					<th colspan="3" class="text-right">Biaya Layanan</th>
+					<th colspan="1" class="text-right pt">{{ Helper::formatCurrency($merchant->ServiceCharge, 'Rp ') }}</th>
+				</tr>
+				@endif
+
+				@if ($merchant->DeliveryFee != null && $merchant->DeliveryFee != 0)
+				<tr class="total">
+					<th colspan="3" class="text-right">Biaya Pengiriman</th>
+					<th colspan="1" class="text-right pt">{{ Helper::formatCurrency($merchant->DeliveryFee, 'Rp ') }}</th>
+				</tr>
+				@endif
+
+				<tr class="total">
+					<th colspan="3" class="text-right">Grand Total</th>
+					<th colspan="1" class="text-right pt">{{ Helper::formatCurrency($subTotal - $merchant->Discount + $merchant->ServiceCharge + $merchant->DeliveryFee, 'Rp ') }}</th>
+				</tr>
+				@endif
+
 			</table>
 			<div class="border-top">
 				<div class="row mt-4 text-left">

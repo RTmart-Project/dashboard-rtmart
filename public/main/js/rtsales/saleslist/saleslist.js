@@ -46,6 +46,7 @@ $(document).ready(function () {
                 {
                     data: "ProductGroupName",
                     name: "ms_product_group.ProductGroupName",
+                    orderable: false,
                 },
                 {
                     data: "IsActive",
