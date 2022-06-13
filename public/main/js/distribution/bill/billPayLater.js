@@ -112,7 +112,7 @@ $(document).ready(function () {
                     },
                 },
             ],
-            order: [5, "desc"],
+            order: [6, "asc"],
             lengthChange: false,
             responsive: true,
             autoWidth: false,

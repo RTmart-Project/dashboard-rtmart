@@ -111,6 +111,18 @@ $(document).ready(function () {
                     name: "StatusDO",
                 },
                 {
+                    data: "DeliveryFee",
+                    name: "tmdo.DeliveryFee",
+                },
+                {
+                    data: "ServiceCharge",
+                    name: "tmdo.ServiceCharge",
+                },
+                {
+                    data: "Discount",
+                    name: "tmdo.Discount",
+                },
+                {
                     data: "Name",
                     name: "ms_user.Name",
                 },
@@ -178,7 +190,7 @@ $(document).ready(function () {
                             },
                         },
                         {
-                            cells: "L2:Y2",
+                            cells: "L2:AB2",
                             style: {
                                 fill: {
                                     pattern: {
@@ -194,7 +206,7 @@ $(document).ready(function () {
                         },
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-                            15, 16, 17, 18, 19, 20, 21, 22, 23, 24,
+                            15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
                         ],
                         orthogonal: "export",
                     },
@@ -202,7 +214,7 @@ $(document).ready(function () {
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [7, 16, 17, 18, 19],
+                    aTargets: [7, 16, 17, 18, 19, 22, 23, 24],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
