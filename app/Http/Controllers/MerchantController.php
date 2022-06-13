@@ -1189,13 +1189,15 @@ class MerchantController extends Controller
                     if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM") {
                         if ($data->PurchasePriceEstimation == null) {
                             $marginEstimation = "-";
-                        } else {
-                            $marginEstimation = ($data->Nett - $data->PurchasePriceEstimation) * ($data->PromisedQuantity - $data->QtyDOkirim);
-                        }
-                        if ($marginEstimation == "-") {
                             $marginEstimationPercentage = "-";
                         } else {
-                            $marginEstimationPercentage = round(($marginEstimation / (($data->PromisedQuantity - $data->QtyDOkirim) * $data->Nett)) * 100, 2);
+                            $marginEstimation = ($data->Nett - $data->PurchasePriceEstimation) * ($data->PromisedQuantity - $data->QtyDOkirim);
+                            $divided = ($data->PromisedQuantity - $data->QtyDOkirim) * $data->Nett;
+                            if ($divided == 0) {
+                                $marginEstimationPercentage = 0;
+                            } else {
+                                $marginEstimationPercentage = round(($marginEstimation / $divided) * 100, 2);
+                            }
                         }
                     } else {
                         $marginEstimationPercentage = "";
