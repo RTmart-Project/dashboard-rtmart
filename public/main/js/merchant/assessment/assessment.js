@@ -132,6 +132,16 @@ $(document).ready(function () {
                         }
                     },
                 },
+                {
+                    aTargets: [7],
+                    mRender: function (data, type, full) {
+                        if (type === "export") {
+                            return "'" + data;
+                        } else {
+                            return data;
+                        }
+                    },
+                },
             ],
             order: [0, "desc"],
             lengthChange: false,

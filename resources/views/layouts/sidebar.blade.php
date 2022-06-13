@@ -318,7 +318,7 @@
                         </a>
                     </li>
                     @endif
-                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI"))
+                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH"))
                     <li class="nav-item">
                         <a href="{{ route('merchant.assessment') }}"
                             class="nav-link {{ Request::is('merchant/assessment*') ? 'active' : '' }}">

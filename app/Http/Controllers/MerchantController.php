@@ -639,7 +639,7 @@ class MerchantController extends Controller
             'struck_photo' => 'required|image',
             'stock_photo' => 'required|image',
             'id_card_photo' => 'required|image',
-            'id_card_number' => 'required|numeric|digits:16',
+            'id_card_number' => 'required|numeric|digits:16|unique:ms_merchant_assessment,NumberIDCard',
             'average_omzet' => 'required|numeric',
             'transaction' => 'required',
             'store' => 'required',

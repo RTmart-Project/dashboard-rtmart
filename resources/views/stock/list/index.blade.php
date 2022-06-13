@@ -55,7 +55,9 @@
                                                     <th>Nama Produk</th>
                                                     <th>Label Produk</th>
                                                     <th>Good Stock</th>
+                                                    <th>Nominal Good Stock</th>
                                                     <th>Bad Stock</th>
+                                                    <th>Nominal Bad Stock</th>
                                                     <th>Detail</th>
                                                 </tr>
                                             </thead>

@@ -236,7 +236,9 @@ class PurchaseService
         ms_stock_product.ProductID,
         ms_stock_product.ProductLabel,
         SUM(CASE WHEN ms_stock_product.ConditionStock = 'GOOD STOCK' THEN ms_stock_product.Qty ELSE 0 END) AS GoodStock,
-        SUM(CASE WHEN ms_stock_product.ConditionStock = 'BAD STOCK' THEN ms_stock_product.Qty ELSE 0 END) AS BadStock
+        SUM(CASE WHEN ms_stock_product.ConditionStock = 'BAD STOCK' THEN ms_stock_product.Qty ELSE 0 END) AS BadStock,
+        SUM(CASE WHEN ms_stock_product.ConditionStock = 'GOOD STOCK' THEN ms_stock_product.Qty * ms_stock_product.PurchasePrice ELSE 0 END) AS NominalGoodStock,
+        SUM(CASE WHEN ms_stock_product.ConditionStock = 'BAD STOCK' THEN ms_stock_product.Qty * ms_stock_product.PurchasePrice ELSE 0 END) AS NominalBadStock
       ")
       ->groupBy('ms_stock_product.DistributorID', 'ms_stock_product.InvestorID', 'ms_stock_product.ProductID', 'ms_stock_product.ProductLabel');
 
