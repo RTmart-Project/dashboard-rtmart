@@ -173,21 +173,24 @@
                                                     <th>Nama Toko</th>
                                                     <th>Grade</th>
                                                     <th>Sales</th>
-                                                    <th>Total Transaksi</th>
+                                                    <th>Total Transaksi PO</th>
                                                     <th>No. Telp</th>
                                                     <th>Partner</th>
-                                                    <th>Status Order</th>
+                                                    <th>Status Order PO</th>
                                                     <th>Delivery Order ID</th>
                                                     <th>Tanggal Kirim DO</th>
                                                     <th>Urutan DO</th>
                                                     <th>Produk</th>
                                                     <th>Qty</th>
-                                                    <th>Harga Jual</th>
-                                                    <th>Harga Total</th>
+                                                    <th>Harga Jual per Produk</th>
+                                                    <th>Harga Total per Produk & Qty</th>
                                                     <th class="d-none">Harga Beli</th>
                                                     <th class="d-none">Margin Real (Rp)</th>
                                                     <th class="d-none">Margin Real (%)</th>
                                                     <th>Status DO</th>
+                                                    <th>Biaya Pengiriman DO</th>
+                                                    <th>Biaya Layanan DO</th>
+                                                    <th>Disc. Voucher DO</th>
                                                     <th>Driver</th>
                                                     <th>Kendaraan</th>
                                                     <th>Nopol</th>
