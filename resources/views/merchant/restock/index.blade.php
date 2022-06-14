@@ -282,6 +282,7 @@
                                                     <th>Tgl Transaksi</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
+                                                    <th>Nama Pemilik</th>
                                                     <th>Grade</th>
                                                     <th>Partner</th>
                                                     <th>No. Telp</th>
@@ -323,6 +324,7 @@
                                                     <th>Tgl Transaksi</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
+                                                    <th>Nama Pemilik</th>
                                                     <th>No. KTP</th>
                                                     <th>Omset Rata-Rata</th>
                                                     <th>Grade</th>

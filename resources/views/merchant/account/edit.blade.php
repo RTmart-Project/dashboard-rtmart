@@ -114,9 +114,15 @@
                                 <div class="col-md-4 col-12">
                                     <div class="form-group">
                                         <label for="referral_code">Kode Referral</label>
-                                        <input type="text" name="referral_code"
+                                        <select name="referral_code" id="referral_code" data-live-search="true" title="Pilih Sales" 
+                                            class="form-control selectpicker border @if($errors->has('referral_code')) is-invalid @endif">
+                                            @foreach ($sales as $value)
+                                                <option value="{{ $value->SalesCode }}" {{ ($merchantById->ReferralCode) == ($value->SalesCode) ? 'selected' : '' }}>{{ $value->SalesCode }} - {{ $value->SalesName }}</option>
+                                            @endforeach
+                                        </select>
+                                        {{-- <input type="text" name="referral_code"
                                             class="form-control @if($errors->has('referral_code')) is-invalid @endif" id="referral_code"
-                                            placeholder="Masukkan Kode Referral" value="{{ $merchantById->ReferralCode }}" autocomplete="off" onkeyup="this.value = this.value.toUpperCase();">
+                                            placeholder="Masukkan Kode Referral" value="{{ $merchantById->ReferralCode }}" autocomplete="off" onkeyup="this.value = this.value.toUpperCase();"> --}}
                                         @if($errors->has('referral_code'))
                                         <span class="error invalid-feedback">{{ $errors->first('referral_code') }}</span>
                                         @endif
