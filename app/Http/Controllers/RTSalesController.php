@@ -314,4 +314,185 @@ class RTSalesController extends Controller
                 ->make(true);
         }
     }
+
+    public function storeList()
+    {
+        return view('rtsales.storeList.index');
+    }
+
+    public function getStoreList(Request $request, RTSalesService $rTSalesService)
+    {
+        $fromDate = $request->input('fromDate');
+        $toDate = $request->input('toDate');
+
+        $sqlStoreList = $rTSalesService->storeLists();
+
+        if ($fromDate != '' && $toDate != '') {
+            $sqlStoreList->whereDate('ms_store.CreatedDate', '>=', $fromDate)
+                ->whereDate('ms_store.CreatedDate', '<=', $toDate);
+        }
+
+        $data = $sqlStoreList;
+
+        if ($request->ajax()) {
+            return Datatables::of($data)
+                ->editColumn('CreatedDate', function ($data) {
+                    $date = date('d-M-Y H:i', strtotime($data->CreatedDate));
+                    return $date;
+                })
+                ->addColumn('Action', function ($data) {
+                    $edit = '<a class="btn btn-xs btn-warning mb-1" href="/rtsales/store/edit/' . $data->StoreID . '">Ubah</a>';
+                    $delete = '<a class="btn btn-xs btn-danger btn-delete mb-1" data-store-id="' . $data->StoreID . '" data-store-name="' . $data->StoreName . '">Hapus</a>';
+                    return $edit . $delete;
+                })
+                ->rawColumns(['Action'])
+                ->make(true);
+        }
+    }
+
+    public function createStore()
+    {
+        $merchants = DB::table('ms_merchant_account')
+            ->leftJoin('ms_store', function ($join) {
+                $join->on('ms_store.MerchantID', 'ms_merchant_account.MerchantID');
+                $join->where('ms_store.IsActive', 1);
+            })
+            ->where('ms_merchant_account.IsTesting', 0)
+            ->whereNull('ms_store.StoreID')
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName')
+            ->get();
+
+        $sales = DB::table('ms_sales')
+            ->where('IsActive', 1)
+            ->select('SalesCode', 'SalesName')->get();
+
+        return view('rtsales.storeList.create', [
+            'merchants' => $merchants,
+            'sales' => $sales
+        ]);
+    }
+
+    public function storeStore(Request $request, RTSalesService $rTSalesService)
+    {
+        $request->validate([
+            'store_name' => 'required',
+            'owner_name' => 'required',
+            'phone_number' => 'required',
+            'address' => 'required',
+            'latitude' => 'required',
+            'longitude' => 'required',
+            'merchant' => 'required|exists:ms_merchant_account,MerchantID',
+            'sales' => 'required|exists:ms_sales,SalesCode',
+            'grade' => 'required|in:RETAIL,SO,WS',
+            'store_type' => 'required|in:NEW,EXISTING',
+        ]);
+
+        $newStoreID = $rTSalesService->generateStoreID();
+
+        $data = [
+            'StoreID' => $newStoreID,
+            'SalesCode' => $request->input('sales'),
+            'StoreName' => $request->input('store_name'),
+            'OwnerName' => $request->input('owner_name'),
+            'PhoneNumber' => $request->input('phone_number'),
+            'StoreAddress' => $request->input('address'),
+            'Latitude' => $request->input('latitude'),
+            'Longitude' => $request->input('longitude'),
+            'Grade' => $request->input('grade'),
+            'MerchantID' => $request->input('merchant'),
+            'StoreType' => $request->input('store_type'),
+            'CreatedDate' => date('Y-m-d H:i:s')
+        ];
+
+        $insert = DB::table('ms_store')->insert($data);
+        if ($insert) {
+            return redirect()->route('rtsales.storeList')->with('success', 'Data Store berhasil ditambahkan');
+        } else {
+            return redirect()->route('rtsales.storeList')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
+        }
+    }
+
+    public function editStore($storeID)
+    {
+        $store = DB::table('ms_store')
+            ->where('StoreID', $storeID)
+            ->select('ms_store.StoreName', 'ms_store.OwnerName', 'ms_store.PhoneNumber', 'ms_store.StoreAddress', 'ms_store.Grade', 'ms_store.MerchantID', 'ms_store.CreatedDate', 'ms_store.StoreType', 'ms_store.SalesCode', 'ms_store.Latitude', 'ms_store.Longitude', 'ms_store.Grade', 'ms_store.StoreType')
+            ->first();
+
+        $merchants = DB::table('ms_merchant_account')
+            ->leftJoin('ms_store', function ($join) {
+                $join->on('ms_store.MerchantID', 'ms_merchant_account.MerchantID');
+                $join->where('ms_store.IsActive', 1);
+            })
+            ->where('ms_merchant_account.IsTesting', 0)
+            ->whereNull('ms_store.StoreID')
+            ->orWhere('ms_store.StoreID', $storeID)
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName')
+            ->get();
+
+        $sales = DB::table('ms_sales')
+            ->where('IsActive', 1)
+            ->select('SalesCode', 'SalesName')->get();
+
+        return view('rtsales.storeList.edit', [
+            'storeID' => $storeID,
+            'store' => $store,
+            'merchants' => $merchants,
+            'sales' => $sales
+        ]);
+    }
+
+    public function updateStore($storeID, Request $request)
+    {
+        $request->validate([
+            'store_name' => 'required',
+            'owner_name' => 'required',
+            'phone_number' => 'required',
+            'address' => 'required',
+            'latitude' => 'required',
+            'longitude' => 'required',
+            'merchant' => 'required|exists:ms_merchant_account,MerchantID',
+            'sales' => 'required|exists:ms_sales,SalesCode',
+            'grade' => 'required|in:RETAIL,SO,WS',
+            'store_type' => 'required|in:NEW,EXISTING',
+        ]);
+
+        $data = [
+            'SalesCode' => $request->input('sales'),
+            'StoreName' => $request->input('store_name'),
+            'OwnerName' => $request->input('owner_name'),
+            'PhoneNumber' => $request->input('phone_number'),
+            'StoreAddress' => $request->input('address'),
+            'Latitude' => $request->input('latitude'),
+            'Longitude' => $request->input('longitude'),
+            'Grade' => $request->input('grade'),
+            'MerchantID' => $request->input('merchant'),
+            'StoreType' => $request->input('store_type'),
+            'CreatedDate' => date('Y-m-d H:i:s')
+        ];
+
+        $update = DB::table('ms_store')
+            ->where('StoreID', $storeID)
+            ->update($data);
+
+        if ($update) {
+            return redirect()->route('rtsales.storeList')->with('success', 'Data Store berhasil diubah');
+        } else {
+            return redirect()->route('rtsales.storeList')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
+        }
+    }
+
+    public function deleteStore($storeID)
+    {
+        $delete = DB::table('ms_store')
+            ->where('StoreID', $storeID)
+            ->update([
+                'IsActive' => 0
+            ]);
+        if ($delete) {
+            return redirect()->route('rtsales.storeList')->with('success', 'Data Store berhasil dihapus');
+        } else {
+            return redirect()->route('rtsales.storeList')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
+        }
+    }
 }
