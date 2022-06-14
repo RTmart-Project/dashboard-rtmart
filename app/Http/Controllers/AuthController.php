@@ -32,6 +32,17 @@ class AuthController extends Controller
         );
 
         if (Auth::attempt($credentials)) {
+            $data = [
+                'UserID' => Auth::user()->UserID,
+                'URL' => $request->path(),
+                'RouteName' => $request->route()->getName(),
+                'IPAddress' => $request->ip(),
+                'Browser' => $request->header('user-agent'),
+                'CreatedDate' => date('Y-m-d H:i:s')
+            ];
+
+            DB::table('ms_user_activity_log')
+                ->insert($data);
             return redirect('/home')->with('success', 'Berhasil. Selamat datang!');
         }
 
