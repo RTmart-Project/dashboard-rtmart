@@ -50,6 +50,10 @@ $(document).ready(function () {
                     name: "RestockProduct.StoreName",
                 },
                 {
+                    data: "OwnerFullName",
+                    name: "RestockProduct.OwnerFullName",
+                },
+                {
                     data: "NumberIDCard",
                     name: "RestockProduct.NumberIDCard",
                 },
@@ -211,7 +215,7 @@ $(document).ready(function () {
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
                             15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
-                            28, 29, 30, 31, 32, 33, 34, 35, 36,
+                            28, 29, 30, 31, 32, 33, 34, 35, 36, 37,
                         ],
                         orthogonal: "export",
                     },
@@ -224,8 +228,8 @@ $(document).ready(function () {
             aoColumnDefs: [
                 {
                     aTargets: [
-                        5, 12, 13, 14, 15, 16, 17, 25, 26, 27, 28, 29, 30, 32,
-                        33, 35,
+                        6, 13, 14, 15, 16, 17, 18, 26, 27, 28, 29, 30, 31, 33,
+                        34, 36,
                     ],
                     mRender: function (data, type, full) {
                         if (type === "export") {
@@ -242,7 +246,7 @@ $(document).ready(function () {
                     },
                 },
                 {
-                    aTargets: [4],
+                    aTargets: [5],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return "'" + data;

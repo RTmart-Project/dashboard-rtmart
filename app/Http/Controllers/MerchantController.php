@@ -179,12 +179,16 @@ class MerchantController extends Controller
         $merchantById = DB::table('ms_merchant_account')
             ->leftJoin('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
             ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'ms_merchant_account.MerchantID')
-            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'ms_distributor.DistributorID', 'ms_distributor.DistributorName', 'ms_distributor_merchant_grade.GradeID', 'ms_merchant_account.ReferralCode', 'ms_merchant_account.Latitude', 'ms_merchant_account.Longitude')
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'ms_distributor.DistributorID', 'ms_distributor.DistributorName', 'ms_distributor_merchant_grade.GradeID', 'ms_merchant_account.ReferralCode', 'ms_merchant_account.Latitude', 'ms_merchant_account.Longitude', 'ms_merchant_account.ReferralCode')
             ->where('ms_merchant_account.MerchantID', '=', $merchantId)
             ->first();
 
         $distributorSql = DB::table('ms_distributor')
             ->select('DistributorID', 'DistributorName');
+
+        $sales = DB::table('ms_sales')
+            ->where('IsActive', 1)
+            ->select('SalesCode', 'SalesName')->get();
 
         if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
@@ -202,7 +206,8 @@ class MerchantController extends Controller
         return view('merchant.account.edit', [
             'merchantById' => $merchantById,
             'distributor' => $distributor,
-            'grade' => $grade
+            'grade' => $grade,
+            'sales' => $sales
         ]);
     }
 
@@ -639,7 +644,13 @@ class MerchantController extends Controller
             'struck_photo' => 'required|image',
             'stock_photo' => 'required|image',
             'id_card_photo' => 'required|image',
-            'id_card_number' => 'required|numeric|digits:16|unique:ms_merchant_assessment,NumberIDCard',
+            'id_card_number' => [
+                'required', 'numeric', 'digits:16',
+                Rule::unique('ms_merchant_assessment', 'NumberIDCard')
+                    ->where(function ($query) {
+                        return $query->where('IsActive', 1);
+                    })
+            ],
             'average_omzet' => 'required|numeric',
             'transaction' => 'required',
             'store' => 'required',
