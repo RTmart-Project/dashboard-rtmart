@@ -385,6 +385,13 @@
                             <p>Call Report</p>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="{{ route('rtsales.storeList') }}"
+                            class="nav-link {{ Request::is('rtsales/store*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Store List</p>
+                        </a>
+                    </li>
                     {{-- <li class="nav-item">
                         <a href="{{ route('rtsales.summary') }}"
                             class="nav-link {{ Request::is('rtsales/summary*') ? 'active' : '' }}">

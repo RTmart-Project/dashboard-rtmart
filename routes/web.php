@@ -162,6 +162,16 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/update/{salesCode}', [RTSalesController::class, 'updateSales'])->name('rtsales.updateSales');
             Route::get('/delete/{salesCode}', [RTSalesController::class, 'deleteSales'])->name('rtsales.deleteSales');
         });
+
+        Route::group(['prefix' => 'store'], function () {
+            Route::get('/', [RTSalesController::class, 'storeList'])->name('rtsales.storeList');
+            Route::get('/get', [RTSalesController::class, 'getStoreList'])->name('rtsales.getStoreList');
+            Route::get('/create', [RTSalesController::class, 'createStore'])->name('rtsales.createStore');
+            Route::post('/store', [RTSalesController::class, 'storeStore'])->name('rtsales.storeStore');
+            Route::get('/edit/{storeID}', [RTSalesController::class, 'editStore'])->name('rtsales.editStore');
+            Route::post('/update/{storeID}', [RTSalesController::class, 'updateStore'])->name('rtsales.updateStore');
+            Route::get('/delete/{storeID}', [RTSalesController::class, 'deleteStore'])->name('rtsales.deleteStore');
+        });
     });
 
     Route::group(['prefix' => 'master/product/list', 'middleware' => ['checkRoleUser:IT,BM,FI,AH,DMO,RBTAD']], function () {
