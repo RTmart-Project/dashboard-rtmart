@@ -321,4 +321,23 @@ $(document).ready(function () {
             }
         }
     );
+
+    $(".btn-download-ktp").click(function () {
+        $.ajax({
+            url: `/merchant/assessment/downloadKTP`,
+            dataType: "binary",
+            xhrFields: {
+                responseType: "blob",
+            },
+            success: function (result) {
+                const link = document.createElement("a");
+                const fileName = "Assessment_KTP_Merchant.zip";
+
+                link.href = URL.createObjectURL(result);
+                link.download = fileName;
+                link.click();
+            },
+        });
+        return false;
+    });
 });

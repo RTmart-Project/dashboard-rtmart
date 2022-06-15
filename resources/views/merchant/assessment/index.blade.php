@@ -44,7 +44,9 @@
         <div class="card">
           @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI")
           <div class="card-header">
-            <a href="{{ route('merchant.createAssessment') }}" class="btn btn-sm btn-success"><i class="fas fa-plus"></i> Tambah Assessment</a>
+            <a href="{{ route('merchant.createAssessment') }}" class="btn btn-sm btn-success mb-1"><i class="fas fa-plus"></i> Tambah Assessment</a><br>
+            <a class="btn btn-sm btn-info btn-download-ktp">Download</a><br>
+            <small>*Anda akan mendownload file FOTO KTP yang datanya ter-ceklis</small>
           </div>
           @endif
           <div class="card-body mt-2">
