@@ -112,11 +112,11 @@
                 <div class="col-md-6 col-12">
                   <div class="form-group">
                     <label for="merchant">Merchant</label>
-                    <select name="merchant" id="merchant" required data-live-search="true" title="Pilih Merchant"
+                    <select name="merchant" id="merchant" data-live-search="true" title="Pilih Merchant"
                       class="form-control selectpicker border @if ($errors->has('merchant')) is-invalid @endif">
                       @foreach ($merchants as $merchant)
                       <option value="{{ $merchant->MerchantID }}" {{ ($store->MerchantID) == ($merchant->MerchantID) ? 'selected' : '' }}>
-                        {{ $merchant->MerchantID }} - {{ $merchant->StoreName }}
+                        {{ $merchant->MerchantID }} - {{ $merchant->StoreName }} - {{ $merchant->PhoneNumber }}
                       </option>
                       @endforeach
                     </select>

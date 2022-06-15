@@ -359,7 +359,7 @@ class RTSalesController extends Controller
             })
             ->where('ms_merchant_account.IsTesting', 0)
             ->whereNull('ms_store.StoreID')
-            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName')
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber')
             ->get();
 
         $sales = DB::table('ms_sales')
@@ -427,7 +427,7 @@ class RTSalesController extends Controller
             ->where('ms_merchant_account.IsTesting', 0)
             ->whereNull('ms_store.StoreID')
             ->orWhere('ms_store.StoreID', $storeID)
-            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName')
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber')
             ->get();
 
         $sales = DB::table('ms_sales')
@@ -451,7 +451,7 @@ class RTSalesController extends Controller
             'address' => 'required',
             'latitude' => 'required',
             'longitude' => 'required',
-            'merchant' => 'required|exists:ms_merchant_account,MerchantID',
+            'merchant' => 'nullable|exists:ms_merchant_account,MerchantID',
             'sales' => 'required|exists:ms_sales,SalesCode',
             'grade' => 'required|in:RETAIL,SO,WS',
             'store_type' => 'required|in:NEW,EXISTING',

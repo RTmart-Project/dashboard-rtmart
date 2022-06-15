@@ -74,6 +74,14 @@ class MerchantService
                         AND ms_stock_product.Qty > 0
                         AND ms_stock_product.ConditionStock = 'GOOD STOCK'
                         AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
+                        AND ms_stock_product.CreatedDate = (
+                                SELECT MAX(CreatedDate) 
+                                FROM ms_stock_product 
+                                WHERE ProductID = tx_merchant_order_detail.ProductID
+                                AND ms_stock_product.Qty > 0
+                                AND ms_stock_product.ConditionStock = 'GOOD STOCK'
+                                AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
+                            )
                     LEFT JOIN (
                         SELECT SUM(tx_merchant_delivery_order_detail.Qty) AS Qty, tx_merchant_delivery_order_detail.ProductID, 
                         tx_merchant_delivery_order.StockOrderID

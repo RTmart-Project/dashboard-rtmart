@@ -1100,7 +1100,8 @@ class MerchantController extends Controller
                 (SELECT PurchasePrice FROM ms_stock_product 
                     WHERE ProductID = RestockProduct.ProductID AND DistributorID = RestockProduct.DistributorID 
                     AND ConditionStock = 'GOOD STOCK' AND Qty > 0
-                    ORDER BY LevelType, CreatedDate LIMIT 1
+                    -- ORDER BY LevelType, CreatedDate LIMIT 1
+                    ORDER BY CreatedDate DESC LIMIT 1
                 ) AS PurchasePriceEstimation
             ");
 
