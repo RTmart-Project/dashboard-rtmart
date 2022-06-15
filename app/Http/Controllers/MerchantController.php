@@ -615,6 +615,7 @@ class MerchantController extends Controller
                 $join->where('ms_merchant_assessment.IsActive', 1);
             })
             ->whereNull('ms_merchant_assessment.MerchantAssessmentID')
+            ->where('ms_store.IsActive', 1)
             ->select('ms_store.StoreID', 'ms_store.StoreName')
             ->orderBy('ms_store.StoreID')
             ->get();

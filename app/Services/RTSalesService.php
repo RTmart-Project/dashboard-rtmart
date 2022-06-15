@@ -32,6 +32,16 @@ class RTSalesService
     return $sql;
   }
 
+  public function storeLists()
+  {
+    $sql = DB::table('ms_store')
+      ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_store.SalesCode')
+      ->where('ms_store.IsActive', 1)
+      ->select('ms_store.StoreID', 'ms_store.StoreName', 'ms_store.OwnerName', 'ms_store.PhoneNumber', 'ms_store.StoreAddress', 'ms_store.Grade', 'ms_store.MerchantID', 'ms_store.CreatedDate', 'ms_store.StoreType', 'ms_store.SalesCode', 'ms_sales.SalesName');
+
+    return $sql;
+  }
+
   public function callReportData($fromDate = null, $toDate = null)
   {
     $startDate = new DateTime($fromDate) ?? new DateTime();
@@ -126,5 +136,21 @@ class RTSalesService
     }
 
     return $sql;
+  }
+
+  public function generateStoreID()
+  {
+    $max = DB::table('ms_store')
+      ->max('StoreID');
+
+    if ($max == null) {
+      $newStoreID = "STR-000001";
+    } else {
+      $maxStoreID = substr($max, -6);
+      $newNumberStoreID = $maxStoreID + 1;
+      $newStoreID = "STR-" . str_pad($newNumberStoreID, 6, '0', STR_PAD_LEFT);
+    }
+
+    return $newStoreID;
   }
 }
