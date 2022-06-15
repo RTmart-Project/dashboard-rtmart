@@ -10,8 +10,8 @@ use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
-use PhpParser\Node\Stmt\If_;
 use Yajra\DataTables\Facades\DataTables;
+use ZipArchive;
 
 class MerchantController extends Controller
 {
@@ -799,6 +799,23 @@ class MerchantController extends Controller
             'status' => $status,
             'message' => $message
         ]);
+    }
+
+    public function downloadKTP()
+    {
+        $zip = new ZipArchive;
+        $fileName = 'Assessment_KTP_Merchant_' . date('Y-m-d_His') . '.zip';
+
+        if ($zip->open($this->saveImageUrl . $fileName, ZipArchive::CREATE) == TRUE) {
+            $files = Storage::disk("base_path")->files("rtsales/merchantassessmentdownload/");
+            foreach ($files as $key => $value) {
+                $relativeName = basename($value);
+                $zip->addFile($this->saveImageUrl . $value, $relativeName);
+            }
+            $zip->close();
+        }
+
+        return response()->download($this->saveImageUrl . $fileName)->deleteFileAfterSend(true);
     }
 
     public function powerMerchant()
