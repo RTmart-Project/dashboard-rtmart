@@ -736,6 +736,13 @@ class MerchantController extends Controller
             ->select('MerchantID', 'PhotoIDCard')
             ->first();
 
+        if ($getData->MerchantID == "null") {
+            return response()->json([
+                'status' => "failed",
+                'message' => "Terjadi kesalahan"
+            ]);
+        }
+
         try {
             $oldPath = $this->saveImageUrl . "rtsales/merchantassessment/" . $getData->PhotoIDCard;
 
