@@ -35,10 +35,15 @@ return [
             'root' => storage_path('app'),
         ],
 
+        'base_path' => [
+            'driver' => 'local',
+            'root' => env('SAVE_IMAGE_URL', '/home/rtmartindonesia/mobile/images/'),
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            'url' => env('APP_URL') . '/storage',
             'visibility' => 'public',
         ],
 
