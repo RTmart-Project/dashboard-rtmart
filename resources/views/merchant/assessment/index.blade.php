@@ -2,6 +2,7 @@
 @section('title', 'Dashboard - Merchant Assessment')
 
 @section('css-pages')
+<meta name="csrf_token" content="{{ csrf_token() }}">
 <meta name="depo" content="{{ Auth::user()->Depo }}">
 <link rel="stylesheet" href="{{url('/')}}/plugins/daterangepicker/daterangepicker.css">
 <!-- Datatables -->
@@ -54,6 +55,8 @@
                     <table class="table table-datatables">
                       <thead>
                         <tr>
+                          <th></th>
+                          <th></th>
                           <th>Tanggal</th>
                           <th>Store ID</th>
                           <th>Nama Store</th>

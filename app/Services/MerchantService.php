@@ -370,6 +370,7 @@ class MerchantService
                 ms_merchant_assessment.StoreID,
                 ms_merchant_assessment.MerchantID,
                 ms_merchant_assessment.CreatedAt,
+                ms_merchant_assessment.IsDownload,
                 GROUP_CONCAT(ANY_VALUE(ms_merchant_assessment_transaction.TransactionName) SEPARATOR ', ') AS Transaction,
                 ms_store.StoreName,
                 ms_store.PhoneNumber,
