@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use PhpParser\Node\Stmt\If_;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -516,6 +518,18 @@ class MerchantController extends Controller
         // dd($data->get());
         if ($request->ajax()) {
             return Datatables::of($data)
+                ->addColumn('Empty', function ($data) {
+                    return "";
+                })
+                ->addColumn('Checkbox', function ($data) {
+                    if ($data->IsDownload == 1) {
+                        $checked = 'checked';
+                    } else {
+                        $checked = '';
+                    }
+                    $checkbox = "<input type='checkbox' " . $checked . " class='check-assessment larger' name='check_assessment[]' value='" . $data->MerchantAssessmentID . "' />";
+                    return $checkbox;
+                })
                 ->editColumn('CreatedAt', function ($data) {
                     return date('d-M-Y', strtotime($data->CreatedAt));
                 })
@@ -602,7 +616,7 @@ class MerchantController extends Controller
                 ->filterColumn('SalesName', function ($query, $keyword) {
                     $query->whereRaw("ANY_VALUE(sales_merchant.SalesName) like ?", ["%$keyword%"]);
                 })
-                ->rawColumns(['MerchantPhoto', 'StruckPhoto', 'StockPhoto', 'IdCardPhoto'])
+                ->rawColumns(['Checkbox', 'MerchantPhoto', 'StruckPhoto', 'StockPhoto', 'IdCardPhoto'])
                 ->make(true);
         }
     }
@@ -713,6 +727,78 @@ class MerchantController extends Controller
         } catch (\Throwable $th) {
             return redirect()->route('merchant.assessment')->with('failed', 'Terjadi kesalahan!');
         }
+    }
+
+    public function checkedAssessment($assessmentID)
+    {
+        $getData = DB::table('ms_merchant_assessment')
+            ->where('MerchantAssessmentID', $assessmentID)
+            ->select('MerchantID', 'PhotoIDCard')
+            ->first();
+
+        try {
+            $oldPath = $this->saveImageUrl . "rtsales/merchantassessment/" . $getData->PhotoIDCard;
+
+            $contents = file_get_contents($oldPath);
+
+            $fileExtension = File::extension($oldPath);
+            $newImageName = $getData->MerchantID . "." . $fileExtension;
+            $newPath = $this->saveImageUrl . "rtsales/merchantassessmentdownload/" . $newImageName;
+            file_put_contents($newPath, $contents);
+
+            DB::table('ms_merchant_assessment')
+                ->where('MerchantAssessmentID', $assessmentID)
+                ->update([
+                    'IsDownload' => 1
+                ]);
+
+            $status = "success";
+            $message = "Data berhasil diceklis";
+        } catch (\Throwable $th) {
+            $status = "failed";
+            $message = "Terjadi kesalahan";
+        }
+
+        return response()->json([
+            'status' => $status,
+            'message' => $message
+        ]);
+    }
+
+    public function uncheckedAssessment($assessmentID)
+    {
+        $getData = DB::table('ms_merchant_assessment')
+            ->where('MerchantAssessmentID', $assessmentID)
+            ->select('MerchantID', 'PhotoIDCard')
+            ->first();
+
+        try {
+            $oldPath = $this->saveImageUrl . "rtsales/merchantassessmentdownload/" . $getData->PhotoIDCard;
+            $fileExtension = File::extension($oldPath);
+
+            $imagePath = $this->saveImageUrl . "rtsales/merchantassessmentdownload/" . $getData->MerchantID . "." . $fileExtension;
+
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+            }
+
+            DB::table('ms_merchant_assessment')
+                ->where('MerchantAssessmentID', $assessmentID)
+                ->update([
+                    'IsDownload' => 0
+                ]);
+
+            $status = "success";
+            $message = "Data berhasil di un-ceklis";
+        } catch (\Throwable $th) {
+            $status = "failed";
+            $message = "Terjadi kesalahan";
+        }
+
+        return response()->json([
+            'status' => $status,
+            'message' => $message
+        ]);
     }
 
     public function powerMerchant()
