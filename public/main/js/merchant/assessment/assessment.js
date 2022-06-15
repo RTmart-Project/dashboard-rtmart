@@ -1,4 +1,6 @@
 $(document).ready(function () {
+    let csrf = $('meta[name="csrf_token"]').attr("content");
+
     // DataTables
     dataTablesMerchantAssessment();
 
@@ -19,6 +21,16 @@ $(document).ready(function () {
                 },
             },
             columns: [
+                {
+                    data: "Empty",
+                    orderable: false,
+                    searchable: false,
+                },
+                {
+                    data: "Checkbox",
+                    orderable: false,
+                    searchable: false,
+                },
                 {
                     data: "CreatedAt",
                     name: "ms_merchant_assessment.CreatedAt",
@@ -110,14 +122,14 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+                        columns: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
                         orthogonal: "export",
                     },
                 },
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [8],
+                    aTargets: [10],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
@@ -133,7 +145,7 @@ $(document).ready(function () {
                     },
                 },
                 {
-                    aTargets: [7],
+                    aTargets: [9],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return "'" + data;
@@ -143,7 +155,7 @@ $(document).ready(function () {
                     },
                 },
             ],
-            order: [0, "desc"],
+            order: [2, "desc"],
             lengthChange: false,
             responsive: true,
             autoWidth: false,
@@ -255,4 +267,58 @@ $(document).ready(function () {
     $("#merchant-assessment #filter").click(function () {
         $("#merchant-assessment .table-datatables").DataTable().ajax.reload();
     });
+
+    $("#merchant-assessment table").on(
+        "change",
+        ".check-assessment",
+        function () {
+            const assessmentID = $(this).val();
+            const checked = $(this).prop("checked");
+            const checkbox = $(this);
+
+            if (checked == true) {
+                $.ajax({
+                    url: `/merchant/assessment/checked/${assessmentID}`,
+                    success: function (result) {
+                        if (result.status == "success") {
+                            iziToast.success({
+                                title: "Berhasil",
+                                message: result.message,
+                                position: "topRight",
+                            });
+                        }
+                        if (result.status == "failed") {
+                            checkbox.prop("checked", false);
+                            iziToast.error({
+                                title: "Gagal",
+                                message: result.message,
+                                position: "topRight",
+                            });
+                        }
+                    },
+                });
+            } else if (checked == false) {
+                $.ajax({
+                    url: `/merchant/assessment/unchecked/${assessmentID}`,
+                    success: function (result) {
+                        if (result.status == "success") {
+                            iziToast.success({
+                                title: "Berhasil",
+                                message: result.message,
+                                position: "topRight",
+                            });
+                        }
+                        if (result.status == "failed") {
+                            checkbox.prop("checked", true);
+                            iziToast.error({
+                                title: "Gagal",
+                                message: result.message,
+                                position: "topRight",
+                            });
+                        }
+                    },
+                });
+            }
+        }
+    );
 });
