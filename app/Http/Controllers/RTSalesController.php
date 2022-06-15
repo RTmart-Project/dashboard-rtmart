@@ -467,17 +467,23 @@ class RTSalesController extends Controller
             'Longitude' => $request->input('longitude'),
             'Grade' => $request->input('grade'),
             'MerchantID' => $request->input('merchant'),
-            'StoreType' => $request->input('store_type'),
-            'CreatedDate' => date('Y-m-d H:i:s')
+            'StoreType' => $request->input('store_type')
         ];
 
-        $update = DB::table('ms_store')
-            ->where('StoreID', $storeID)
-            ->update($data);
-
-        if ($update) {
+        try {
+            DB::transaction(function () use ($storeID, $data, $request) {
+                DB::table('ms_store')
+                    ->where('StoreID', $storeID)
+                    ->update($data);
+                DB::table('ms_merchant_assessment')
+                    ->where('StoreID', $storeID)
+                    ->where('IsActive', 1)
+                    ->update([
+                        'MerchantID' => $request->input('merchant')
+                    ]);
+            });
             return redirect()->route('rtsales.storeList')->with('success', 'Data Store berhasil diubah');
-        } else {
+        } catch (\Throwable $th) {
             return redirect()->route('rtsales.storeList')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
         }
     }
