@@ -42,13 +42,19 @@
     <div class="row">
       <div class="col-12">
         <div class="card">
-          @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI")
-          <div class="card-header">
-            <a href="{{ route('merchant.createAssessment') }}" class="btn btn-sm btn-success mb-1"><i class="fas fa-plus"></i> Tambah Assessment</a><br>
-            <a class="btn btn-sm btn-info btn-download-ktp">Download</a><br>
+          <div class="card-header d-flex flex-wrap">
+            @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI")
+            <div class="mr-auto">
+              <a href="{{ route('merchant.createAssessment') }}" class="btn btn-sm btn-success mb-1"><i class="fas fa-plus"></i> Tambah Assessment</a><br>
+            </div>
+            @endif
+            @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM")
+            <div>
+              <a class="btn btn-sm btn-info btn-download-ktp">Download</a><br>
             <small>*Anda akan mendownload file FOTO KTP yang datanya ter-ceklis</small>
+            </div>
+            @endif
           </div>
-          @endif
           <div class="card-body mt-2">
             <div class="tab-content">
               <div class="tab-pane active" id="merchant-assessment">
@@ -58,7 +64,7 @@
                       <thead>
                         <tr>
                           <th></th>
-                          <th></th>
+                          <th>Valid</th>
                           <th>Tanggal</th>
                           <th>Store ID</th>
                           <th>Nama Store</th>
@@ -66,8 +72,10 @@
                           <th>Merchant ID</th>
                           <th>Nama Merchant</th>
                           <th>No. HP Merchant</th>
+                          <th>Jml PO (25Mei'22 - skrg)</th>
                           <th>No. KTP</th>
-                          <th>Omset Rata-Rata /bulan</th>
+                          <th>Keterangan</th>
+                          <th>Omset /bulan</th>
                           <th>Transaksi</th>
                           <th>Kode Sales</th>
                           <th>Nama Sales</th>

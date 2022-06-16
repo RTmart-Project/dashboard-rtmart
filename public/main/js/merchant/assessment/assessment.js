@@ -18,6 +18,9 @@ $(document).ready(function () {
                 data: function (d) {
                     d.fromDate = $("#merchant-assessment #from_date").val();
                     d.toDate = $("#merchant-assessment #to_date").val();
+                    d.filterValid = $(
+                        "#merchant-assessment .filter-valid select"
+                    ).val();
                 },
             },
             columns: [
@@ -60,8 +63,19 @@ $(document).ready(function () {
                     name: "MerchantNumber",
                 },
                 {
+                    data: "CountPO",
+                    name: "CountPO",
+                    searchable: false,
+                },
+                {
                     data: "NumberIDCard",
                     name: "ms_merchant_assessment.NumberIDCard",
+                },
+                {
+                    data: "Note",
+                    name: "Note",
+                    orderable: false,
+                    searchable: false,
                 },
                 {
                     data: "TurnoverAverage",
@@ -122,14 +136,16 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+                        columns: [
+                            2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                        ],
                         orthogonal: "export",
                     },
                 },
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [10],
+                    aTargets: [12],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
@@ -145,7 +161,7 @@ $(document).ready(function () {
                     },
                 },
                 {
-                    aTargets: [9],
+                    aTargets: [10],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return "'" + data;
@@ -165,7 +181,7 @@ $(document).ready(function () {
     // Create element for DateRange Filter
     $("div.filter-merchant-assessment").html(`
                       <div class="row">
-                          <div class="col-12 col-md-8">
+                          <div class="col-12 col-md-10">
                               <div class="input-group">
                                   <input type="text" name="from_date" id="from_date" class="form-control form-control-sm"
                                       readonly>
@@ -174,6 +190,14 @@ $(document).ready(function () {
                                   <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
                                   <button type="button" name="refresh" id="refresh"
                                   class="btn btn-sm btn-warning ml-2">Refresh</button>
+                                  <div class="filter-valid ml-2">
+                                    <select class="form-control form-control-sm">
+                                        <option selected disabled hidden>Filter Checked</option>
+                                        <option value="">All</option>
+                                        <option value="valid">Valid Checked</option>
+                                        <option value="invalid">Valid Unchecked</option>
+                                    </select>
+                                </div>
                               </div>
                           </div>
                       </div>`);
@@ -268,6 +292,10 @@ $(document).ready(function () {
         $("#merchant-assessment .table-datatables").DataTable().ajax.reload();
     });
 
+    $("#merchant-assessment .filter-valid select").change(function () {
+        $("#merchant-assessment .table-datatables").DataTable().ajax.reload();
+    });
+
     $("#merchant-assessment table").on(
         "change",
         ".check-assessment",
@@ -297,6 +325,9 @@ $(document).ready(function () {
                         }
                     },
                 });
+                $("#merchant-assessment .table-datatables")
+                    .DataTable()
+                    .ajax.reload();
             } else if (checked == false) {
                 $.ajax({
                     url: `/merchant/assessment/unchecked/${assessmentID}`,
@@ -318,6 +349,9 @@ $(document).ready(function () {
                         }
                     },
                 });
+                $("#merchant-assessment .table-datatables")
+                    .DataTable()
+                    .ajax.reload();
             }
         }
     );

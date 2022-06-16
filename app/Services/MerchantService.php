@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use DateTime;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -351,6 +352,9 @@ class MerchantService
 
     public function getDataAssessments()
     {
+        $endDate = new DateTime();
+        $endDateFormat = $endDate->format('Y-m-d');
+
         $sql = DB::table('ms_merchant_assessment')
             ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', 'ms_merchant_assessment.MerchantID')
             ->leftJoin('ms_sales as sales_merchant', 'sales_merchant.SalesCode', 'ms_merchant_account.ReferralCode')
@@ -379,7 +383,16 @@ class MerchantService
                 ANY_VALUE(ms_merchant_account.ReferralCode) AS ReferralCode,
                 ANY_VALUE(sales_merchant.SalesName) AS SalesName,
                 ANY_VALUE(ms_store.SalesCode) AS SalesCodeStore,
-                ANY_VALUE(sales_store.SalesName) AS SalesNameStore
+                ANY_VALUE(sales_store.SalesName) AS SalesNameStore,
+                (
+                    SELECT COUNT(tx_merchant_order.StockOrderID)
+                    FROM tx_merchant_order
+                    WHERE tx_merchant_order.MerchantID = ms_merchant_assessment.MerchantID
+                    AND tx_merchant_order.PaymentMethodID = 14
+                    AND tx_merchant_order.StatusOrderID != 'S011'
+                    AND tx_merchant_order.CreatedDate >= '2022-05-25'
+                    AND tx_merchant_order.CreatedDate <= '$endDateFormat'
+                ) AS CountPO
             ")
             ->groupBy('ms_merchant_assessment.MerchantAssessmentID');
 
