@@ -505,6 +505,7 @@ class MerchantController extends Controller
     {
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
+        $filterValid = $request->input('filterValid');
 
         $sqlAssessments = $merchantService->getDataAssessments();
 
@@ -512,6 +513,12 @@ class MerchantController extends Controller
         if ($fromDate != '' && $toDate != '') {
             $sqlAssessments->whereDate('ms_merchant_assessment.CreatedAt', '>=', $fromDate)
                 ->whereDate('ms_merchant_assessment.CreatedAt', '<=', $toDate);
+        }
+
+        if ($filterValid == "valid") {
+            $sqlAssessments->where('ms_merchant_assessment.IsDownload', 1);
+        } elseif ($filterValid == "invalid") {
+            $sqlAssessments->where('ms_merchant_assessment.IsDownload', 0);
         }
 
         $data = $sqlAssessments;
@@ -573,6 +580,14 @@ class MerchantController extends Controller
                     }
                     return $salesName;
                 })
+                ->addColumn('Note', function ($data) {
+                    if ($data->IsDownload == 1) {
+                        $ket = "Foto KTP Valid";
+                    } else {
+                        $ket = "Foto KTP Tidak Valid";
+                    }
+                    return $ket;
+                })
                 ->addColumn('MerchantPhoto', function ($data) {
                     $img1 = '<div class="border text-center px-2">
                                 <img src="' . $this->baseImageUrl . '/rtsales/merchantassessment/' . $data->PhotoMerchantFront . '" width="90px" height="70px" style="object-fit:cover;" />
@@ -604,6 +619,7 @@ class MerchantController extends Controller
                                 </div>';
                     return $fotoKTP;
                 })
+                ->orderColumn('CountPO', '-CountPO $1')
                 ->filterColumn('MerchantName', function ($query, $keyword) {
                     $query->whereRaw("ANY_VALUE(ms_merchant_account.StoreName) like ?", ["%$keyword%"]);
                 })
