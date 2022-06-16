@@ -5,7 +5,7 @@ $(document).ready(function () {
     function dataTablesRestock() {
         $("#merchant-restock .table-datatables").DataTable({
             dom:
-                "<'row'<'col-sm-12 col-md-5'<'filter-merchant-restock'>tl><'col-sm-12 col-md-3'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
+                "<'row'<'col-sm-12 col-md-9'<'filter-merchant-restock'>tl><'col-sm-12 col-md-2'f><'col-sm-12 col-md-1'B>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
@@ -17,7 +17,13 @@ $(document).ready(function () {
                     d.fromDate = $("#merchant-restock #from_date").val();
                     d.toDate = $("#merchant-restock #to_date").val();
                     d.paymentMethodId = $(
-                        "#merchant-restock .select-filter-custom select"
+                        "#merchant-restock .filter-payment select"
+                    ).val();
+                    d.filterAssessment = $(
+                        "#merchant-restock .filter-assessment select"
+                    ).val();
+                    d.filterValid = $(
+                        "#merchant-restock .filter-valid select"
                     ).val();
                 },
             },
@@ -42,6 +48,20 @@ $(document).ready(function () {
                 {
                     data: "OwnerFullName",
                     name: "Restock.OwnerFullName",
+                },
+                {
+                    data: "NumberIDCard",
+                    name: "Restock.NumberIDCard",
+                },
+                {
+                    data: "Ket",
+                    name: "Ket",
+                    searchable: false,
+                    orderable: false,
+                },
+                {
+                    data: "TurnoverAverage",
+                    name: "Restock.TurnoverAverage",
                 },
                 {
                     data: "Grade",
@@ -161,7 +181,8 @@ $(document).ready(function () {
                         },
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-                            15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+                            15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
+                            28,
                         ],
                         orthogonal: "export",
                     },
@@ -173,7 +194,7 @@ $(document).ready(function () {
             autoWidth: false,
             aoColumnDefs: [
                 {
-                    aTargets: [10, 11, 12, 13, 14, 15, 16, 17, 19, 21],
+                    aTargets: [7, 14, 15, 16, 17, 18, 19, 20, 22, 24],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
@@ -188,6 +209,16 @@ $(document).ready(function () {
                         }
                     },
                 },
+                {
+                    aTargets: [5],
+                    mRender: function (data, type, full) {
+                        if (type === "export") {
+                            return "'" + data;
+                        } else {
+                            return data;
+                        }
+                    },
+                },
             ],
         });
     }
@@ -198,9 +229,26 @@ $(document).ready(function () {
                             <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
                             <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
                             <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-2">Refresh</button>
-                            <div class="select-filter-custom ml-2">
-                                <select>
+                            <div class="filter-payment ml-2">
+                                <select class="form-control form-control-sm">
+                                    <option selected disabled hidden>Filter Pembayaran</option>
                                     <option value="">All</option>
+                                </select>
+                            </div>
+                            <div class="filter-assessment ml-2">
+                                <select class="form-control form-control-sm">
+                                    <option selected disabled hidden>Filter Assessment</option>
+                                    <option value="">All</option>
+                                    <option value="already-assessed">Sudah Assessment</option>
+                                    <option value="not-assessed">Belum Assessment</option>
+                                </select>
+                            </div>
+                            <div class="filter-valid ml-2">
+                                <select class="form-control form-control-sm">
+                                    <option selected disabled hidden>Filter Valid</option>
+                                    <option value="">All</option>
+                                    <option value="valid">Valid Checked</option>
+                                    <option value="invalid">Valid Unchecked</option>
                                 </select>
                             </div>
                         </div>`);
@@ -309,14 +357,22 @@ $(document).ready(function () {
             for (const item of data) {
                 option += `<option value="${item.PaymentMethodID}">${item.PaymentMethodName}</option>`;
             }
-            $("#merchant-restock .select-filter-custom select").append(option);
+            $("#merchant-restock .filter-payment select").append(option);
             $("#product-restock .filter-payment select").append(option);
             customDropdownFilter.createCustomDropdowns();
         },
     });
 
     // Event listener saat tombol select option diklik
-    $("#merchant-restock .select-filter-custom select").change(function () {
+    $("#merchant-restock .filter-payment select").change(function () {
+        $("#merchant-restock .table-datatables").DataTable().ajax.reload();
+    });
+
+    $("#merchant-restock .filter-assessment select").change(function () {
+        $("#merchant-restock .table-datatables").DataTable().ajax.reload();
+    });
+
+    $("#merchant-restock .filter-valid select").change(function () {
         $("#merchant-restock .table-datatables").DataTable().ajax.reload();
     });
 });

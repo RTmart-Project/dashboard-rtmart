@@ -11,7 +11,7 @@ $(document).ready(function () {
 
         $("#product-restock .table-datatables").DataTable({
             dom:
-                "<'row'<'col-sm-12 col-md-5'<'filter-product-restock'>tl><'col-sm-12 col-md-3'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
+                "<'row'<'col-sm-12 col-md-9'<'filter-product-restock'>tl><'col-sm-12 col-md-2'f><'col-sm-12 col-md-1'B>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
@@ -28,6 +28,9 @@ $(document).ready(function () {
                     ).val();
                     d.filterAssessment = $(
                         "#product-restock .filter-assessment select"
+                    ).val();
+                    d.filterValid = $(
+                        "#product-restock .filter-valid select"
                     ).val();
                 },
             },
@@ -56,6 +59,12 @@ $(document).ready(function () {
                 {
                     data: "NumberIDCard",
                     name: "RestockProduct.NumberIDCard",
+                },
+                {
+                    data: "Ket",
+                    name: "Ket",
+                    searchable: false,
+                    orderable: false,
                 },
                 {
                     data: "TurnoverAverage",
@@ -215,7 +224,7 @@ $(document).ready(function () {
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
                             15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
-                            28, 29, 30, 31, 32, 33, 34, 35, 36, 37,
+                            28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38,
                         ],
                         orthogonal: "export",
                     },
@@ -228,8 +237,8 @@ $(document).ready(function () {
             aoColumnDefs: [
                 {
                     aTargets: [
-                        6, 13, 14, 15, 16, 17, 18, 26, 27, 28, 29, 30, 31, 33,
-                        34, 36,
+                        7, 14, 15, 16, 17, 18, 19, 27, 28, 29, 30, 31, 32, 34,
+                        35, 37,
                     ],
                     mRender: function (data, type, full) {
                         if (type === "export") {
@@ -265,16 +274,26 @@ $(document).ready(function () {
                             <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
                             <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
                             <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-2">Refresh</button>
-                            <div class="select-filter-custom filter-payment ml-2">
-                                <select>
+                            <div class="filter-payment ml-2">
+                                <select class="form-control form-control-sm">
+                                    <option selected disabled hidden>Filter Pembayaran</option>
                                     <option value="">All</option>
                                 </select>
                             </div>
-                            <div class="select-filter-custom filter-assessment ml-2">
-                                <select>
+                            <div class="filter-assessment ml-2">
+                                <select class="form-control form-control-sm">
+                                    <option selected disabled hidden>Filter Assessment</option>
                                     <option value="">All</option>
                                     <option value="already-assessed">Sudah Assessment</option>
                                     <option value="not-assessed">Belum Assessment</option>
+                                </select>
+                            </div>
+                            <div class="filter-valid ml-2">
+                                <select class="form-control form-control-sm">
+                                    <option selected disabled hidden>Filter Valid</option>
+                                    <option value="">All</option>
+                                    <option value="valid">Valid Checked</option>
+                                    <option value="invalid">Valid Unchecked</option>
                                 </select>
                             </div>
                         </div>`);
@@ -378,6 +397,10 @@ $(document).ready(function () {
     });
 
     $("#product-restock .filter-assessment select").change(function () {
+        $("#product-restock .table-datatables").DataTable().ajax.reload();
+    });
+
+    $("#product-restock .filter-valid select").change(function () {
         $("#product-restock .table-datatables").DataTable().ajax.reload();
     });
 });

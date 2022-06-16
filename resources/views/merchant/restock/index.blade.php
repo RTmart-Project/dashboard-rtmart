@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
 <!-- Main -->
-<link rel="stylesheet" href="{{url('/')}}/main/css/custom/select-filter.css">
+{{-- <link rel="stylesheet" href="{{url('/')}}/main/css/custom/select-filter.css"> --}}
 <meta name="csrf_token" content="{{ csrf_token() }}">
 @endsection
 
@@ -283,6 +283,9 @@
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
                                                     <th>Nama Pemilik</th>
+                                                    <th>No. KTP</th>
+                                                    <th>Keterangan</th>
+                                                    <th>Omset Rata-Rata</th>
                                                     <th>Grade</th>
                                                     <th>Partner</th>
                                                     <th>No. Telp</th>
@@ -326,6 +329,7 @@
                                                     <th>Nama Toko</th>
                                                     <th>Nama Pemilik</th>
                                                     <th>No. KTP</th>
+                                                    <th>Keterangan</th>
                                                     <th>Omset Rata-Rata</th>
                                                     <th>Grade</th>
                                                     <th>Partner</th>
@@ -397,7 +401,7 @@
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!-- Main JS -->
-<script src="{{url('/')}}/main/js/custom/select-filter.js"></script>
+{{-- <script src="{{url('/')}}/main/js/custom/select-filter.js"></script> --}}
 <script src="{{url('/')}}/main/js/merchant/restock/restock.js"></script>
 <script src="{{url('/')}}/main/js/merchant/restock/product.js"></script>
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
