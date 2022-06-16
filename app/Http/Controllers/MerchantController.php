@@ -483,11 +483,25 @@ class MerchantController extends Controller
 
     public function resetMerchantAssessment($merchantAssessmentId)
     {
+        $getData = DB::table('ms_merchant_assessment')
+            ->where('MerchantAssessmentID', $merchantAssessmentId)
+            ->select('MerchantID', 'PhotoIDCard')
+            ->first();
+
         $resetAssessment = DB::table('ms_merchant_assessment')
             ->where('MerchantAssessmentID', $merchantAssessmentId)
             ->update([
                 'IsActive' => 0
             ]);
+
+        $oldPath = $this->saveImageUrl . "rtsales/merchantassessmentdownload/" . $getData->PhotoIDCard;
+        $fileExtension = File::extension($oldPath);
+
+        $imagePath = $this->saveImageUrl . "rtsales/merchantassessmentdownload/" . $getData->MerchantID . "." . $fileExtension;
+
+        if (file_exists($imagePath)) {
+            unlink($imagePath);
+        }
 
         if ($resetAssessment) {
             return redirect()->route('merchant.account')->with('success', 'Data Assessment Merchant berhasil dihapus');
@@ -1045,6 +1059,8 @@ class MerchantController extends Controller
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
         $paymentMethodId = $request->input('paymentMethodId');
+        $filterAssessment = $request->input('filterAssessment');
+        $filterValid = $request->input('filterValid');
 
         $startDate = new DateTime($fromDate) ?? new DateTime();
         $endDate = new DateTime($toDate) ?? new DateTime();
@@ -1061,6 +1077,16 @@ class MerchantController extends Controller
         if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
             $sqlAllAccount->where('Restock.Depo', '=', $depoUser);
+        }
+        if ($filterAssessment == "already-assessed") {
+            $sqlAllAccount->whereNotNull('Restock.NumberIDCard');
+        } elseif ($filterAssessment == "not-assessed") {
+            $sqlAllAccount->whereNull('Restock.NumberIDCard');
+        }
+        if ($filterValid == "valid") {
+            $sqlAllAccount->where('Restock.IsDownload', 1);
+        } elseif ($filterValid == "invalid") {
+            $sqlAllAccount->where('Restock.IsDownload', 0);
         }
 
         // Get data response
@@ -1102,6 +1128,19 @@ class MerchantController extends Controller
                         $totalMarginPercentage = round((($data->MarginReal + $data->MarginEstimation) / ($data->NettPrice - $data->TotalPriceNotInStock)) * 100, 2);
                     }
                     return $totalMarginPercentage;
+                })
+                ->editColumn('Ket', function ($data) {
+                    if ($data->NumberIDCard != null) {
+                        if ($data->IsDownload == 1) {
+                            $ket = "Foto KTP Valid";
+                        } else {
+                            $ket = "Foto KTP Tidak Valid";
+                        }
+                    } else {
+                        $ket = "-";
+                    }
+
+                    return $ket;
                 })
                 ->addColumn('Notes', function ($data) {
                     if ($data->TotalPriceNotInStock > 0) {
@@ -1181,6 +1220,7 @@ class MerchantController extends Controller
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
         $filterAssessment = $request->input('filterAssessment');
+        $filterValid = $request->input('filterValid');
 
         $startDate = new DateTime($fromDate) ?? new DateTime();
         $endDate = new DateTime($toDate) ?? new DateTime();
@@ -1246,6 +1286,12 @@ class MerchantController extends Controller
             $sqlAllAccount->whereNull('RestockProduct.NumberIDCard');
         }
 
+        if ($filterValid == "valid") {
+            $sqlAllAccount->where('RestockProduct.IsDownload', 1);
+        } elseif ($filterValid == "invalid") {
+            $sqlAllAccount->where('RestockProduct.IsDownload', 0);
+        }
+
         // Get data response
         $data = $sqlAllAccount;
 
@@ -1270,6 +1316,19 @@ class MerchantController extends Controller
                         $partner = '';
                     }
                     return $partner;
+                })
+                ->editColumn('Ket', function ($data) {
+                    if ($data->NumberIDCard != null) {
+                        if ($data->IsDownload == 1) {
+                            $ket = "Foto KTP Valid";
+                        } else {
+                            $ket = "Foto KTP Tidak Valid";
+                        }
+                    } else {
+                        $ket = "-";
+                    }
+
+                    return $ket;
                 })
                 ->addColumn('Action', function ($data) {
                     $actionBtn = '<a href="/merchant/restock/detail/' . $data->StockOrderID . '" class="btn-sm btn-info detail-order">Detail</a>';

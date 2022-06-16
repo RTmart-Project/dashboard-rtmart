@@ -192,7 +192,7 @@ $(document).ready(function () {
                                   class="btn btn-sm btn-warning ml-2">Refresh</button>
                                   <div class="filter-valid ml-2">
                                     <select class="form-control form-control-sm">
-                                        <option selected disabled hidden>Filter Checked</option>
+                                        <option selected disabled hidden>Filter Valid</option>
                                         <option value="">All</option>
                                         <option value="valid">Valid Checked</option>
                                         <option value="invalid">Valid Unchecked</option>

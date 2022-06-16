@@ -18,9 +18,13 @@ class MerchantService
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tx_merchant_order.DistributorID')
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_order.StatusOrderID')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
+            ->leftJoin('ms_merchant_assessment', function ($join) {
+                $join->on('ms_merchant_assessment.MerchantID', 'tx_merchant_order.MerchantID');
+                $join->whereRaw("ms_merchant_assessment.IsActive = 1");
+            })
             ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'ms_merchant_account.ReferralCode')
             ->whereRaw('ms_merchant_account.IsTesting = 0')
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.MerchantID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'tx_merchant_order.NettPrice', 'tx_merchant_order.StatusOrderID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesName', 'ms_payment_method.PaymentMethodName', 'ms_distributor_grade.Grade', 'tx_merchant_order.DistributorID', 'tx_merchant_order.PaymentMethodID', 'ms_distributor.Depo', 'ms_merchant_account.OwnerFullName')
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.MerchantID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'tx_merchant_order.NettPrice', 'tx_merchant_order.StatusOrderID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesName', 'ms_payment_method.PaymentMethodName', 'ms_distributor_grade.Grade', 'tx_merchant_order.DistributorID', 'tx_merchant_order.PaymentMethodID', 'ms_distributor.Depo', 'ms_merchant_account.OwnerFullName', 'ms_merchant_assessment.NumberIDCard', 'ms_merchant_assessment.IsDownload', 'ms_merchant_assessment.TurnoverAverage')
             ->toSql();
 
         $sql = DB::table(DB::raw("($sqlMain) AS Restock"))
@@ -116,7 +120,7 @@ class MerchantService
                 $join->whereRaw("ms_merchant_assessment.IsActive = 1");
             })
             ->whereRaw('ms_merchant_account.IsTesting = 0')
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.DistributorID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.MerchantID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.NettPrice', 'tx_merchant_order.DeliveryFee', 'tx_merchant_order.StatusOrderID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesName', 'tx_merchant_order.PaymentMethodID', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order_detail.ProductID', 'ms_product.ProductName', 'tx_merchant_order_detail.PromisedQuantity', 'tx_merchant_order_detail.Price', 'ms_merchant_account.StoreAddress', 'tx_merchant_order_detail.Discount', 'tx_merchant_order_detail.Nett', 'ms_distributor.Depo', 'ms_distributor_grade.Grade', 'ms_merchant_assessment.NumberIDCard', 'ms_merchant_assessment.TurnoverAverage', 'ms_merchant_account.OwnerFullName');
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.DistributorID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.MerchantID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.NettPrice', 'tx_merchant_order.DeliveryFee', 'tx_merchant_order.StatusOrderID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesName', 'tx_merchant_order.PaymentMethodID', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order_detail.ProductID', 'ms_product.ProductName', 'tx_merchant_order_detail.PromisedQuantity', 'tx_merchant_order_detail.Price', 'ms_merchant_account.StoreAddress', 'tx_merchant_order_detail.Discount', 'tx_merchant_order_detail.Nett', 'ms_distributor.Depo', 'ms_distributor_grade.Grade', 'ms_merchant_assessment.NumberIDCard', 'ms_merchant_assessment.TurnoverAverage', 'ms_merchant_account.OwnerFullName', 'ms_merchant_assessment.IsDownload');
 
         return $sql;
     }
@@ -356,9 +360,15 @@ class MerchantService
         $endDateFormat = $endDate->format('Y-m-d');
 
         $sql = DB::table('ms_merchant_assessment')
-            ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', 'ms_merchant_assessment.MerchantID')
+            ->leftJoin('ms_merchant_account', function ($join) {
+                $join->on('ms_merchant_account.MerchantID', 'ms_merchant_assessment.MerchantID');
+                $join->where('ms_merchant_account.IsTesting', 0);
+            })
             ->leftJoin('ms_sales as sales_merchant', 'sales_merchant.SalesCode', 'ms_merchant_account.ReferralCode')
-            ->leftJoin('ms_store', 'ms_store.StoreID', 'ms_merchant_assessment.StoreID')
+            ->leftJoin('ms_store', function ($join) {
+                $join->on('ms_store.StoreID', 'ms_merchant_assessment.StoreID');
+                $join->where('ms_store.IsActive', 1);
+            })
             ->leftJoin('ms_sales as sales_store', 'sales_store.SalesCode', 'ms_store.SalesCode')
             ->join('ms_merchant_assessment_transaction', 'ms_merchant_assessment_transaction.MerchantAssessmentID', 'ms_merchant_assessment.MerchantAssessmentID')
             ->where('ms_merchant_assessment.IsActive', 1)
@@ -390,8 +400,8 @@ class MerchantService
                     WHERE tx_merchant_order.MerchantID = ms_merchant_assessment.MerchantID
                     AND tx_merchant_order.PaymentMethodID = 14
                     AND tx_merchant_order.StatusOrderID != 'S011'
-                    AND tx_merchant_order.CreatedDate >= '2022-05-25'
-                    AND tx_merchant_order.CreatedDate <= '$endDateFormat'
+                    AND DATE(tx_merchant_order.CreatedDate) >= '2022-05-25'
+                    AND DATE(tx_merchant_order.CreatedDate) <= '$endDateFormat'
                 ) AS CountPO
             ")
             ->groupBy('ms_merchant_assessment.MerchantAssessmentID');
