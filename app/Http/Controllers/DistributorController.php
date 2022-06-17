@@ -55,7 +55,12 @@ class DistributorController extends Controller
                     return $productBtn;
                 })
                 ->addColumn('Action', function ($data) {
+                    // if (Auth::user()->RoleID != "HL") {
                     $actionBtn = '<a href="/distributor/account/edit/' . $data->DistributorID . '" class="btn-sm btn-warning">Edit</a>';
+                    // } else {
+                    //     $actionBtn = '';
+                    // }
+
                     return $actionBtn;
                 })
                 ->rawColumns(['CreatedDate', 'Product', 'Action'])

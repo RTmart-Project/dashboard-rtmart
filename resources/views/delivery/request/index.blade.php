@@ -4,6 +4,7 @@
 @section('css-pages')
 <meta name="csrf_token" content="{{ csrf_token() }}">
 <meta name="depo" content="{{ Auth::user()->Depo }}">
+<meta name="role-id" content="{{ Auth::user()->RoleID }}">
 <link rel="stylesheet" href="{{url('/')}}/plugins/bootstrap-select/bootstrap-select.min.css">
 <link rel="stylesheet" href="{{url('/')}}/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
 <!-- daterange picker -->
@@ -39,31 +40,38 @@
                 <!-- your steps here -->
                 <div class="step" data-target="#do-part">
                   <button type="button" class="step-trigger p-2" role="tab" aria-controls="do-part"
-                    id="do-part-trigger">
+                  id="do-part-trigger">
+                    @if (Auth::user()->RoleID != "HL")
                     <span class="bs-stepper-circle">1</span>
                     <span class="bs-stepper-label">Pilih Area & Kiriman</span>
+                    @endif
                   </button>
                 </div>
                 <div class="line"></div>
                 <div class="step" data-target="#product-part">
                   <button type="button" class="step-trigger p-2" role="tab" aria-controls="product-part"
                     id="product-part-trigger">
+                    @if (Auth::user()->RoleID != "HL")
                     <span class="bs-stepper-circle">2</span>
                     <span class="bs-stepper-label">Pilih Detail Kiriman</span>
+                    @endif
                   </button>
                 </div>
                 <div class="line"></div>
                 <div class="step" data-target="#preview-part">
                   <button type="button" class="step-trigger p-2" role="tab" aria-controls="preview-part"
                     id="preview-part-trigger">
+                    @if (Auth::user()->RoleID != "HL")
                     <span class="bs-stepper-circle">3</span>
                     <span class="bs-stepper-label">Preview Kiriman</span>
+                    @endif
                   </button>
                 </div>
               </div>
               <div class="bs-stepper-content">
                 <!-- your steps content here -->
                 <div id="do-part" class="content" role="tabpanel" aria-labelledby="do-part-trigger">
+                  @if (Auth::user()->RoleID != "HL")
                   <div class="callout callout-info p-2 mb-2">
                     <p class="font-weight-bold mb-1">Delivery Order yang dipilih : </p>
                     <span id="do-selected"></span>
@@ -71,6 +79,7 @@
                   <div class="card-footer d-flex justify-content-end">
                     <button class="btn btn-sm btn-primary" id="first-next-step">Selanjutnya</button>
                   </div>
+                  @endif
                   <div class="card-body p-0 pt-2">
                     <div class="row">
                       <div class="col-5 col-sm-4 col-md-3 col-xl-2">

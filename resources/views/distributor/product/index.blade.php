@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
 <!-- Main -->
 <link rel="stylesheet" href="{{url('/')}}/main/css/custom/select-filter.css">
+<meta name="role-id" content="{{ Auth::user()->RoleID }}">
 @endsection
 
 @section('header-menu', 'Detail Product ' . $distributor->DistributorName)

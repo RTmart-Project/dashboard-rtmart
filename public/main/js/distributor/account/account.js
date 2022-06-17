@@ -3,74 +3,87 @@ $(document).ready(function () {
     dataTablesDistributorAccount();
 
     function dataTablesDistributorAccount() {
-        $('#distributor-account .table-datatables').DataTable({
-            dom: "<'row'<'col-sm-12 col-md-5'<'filter-distributor-account'>tl><'col-sm-12 col-md-3'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
+        let roleID = $('meta[name="role-id"]').attr("content");
+
+        $("#distributor-account .table-datatables").DataTable({
+            dom:
+                "<'row'<'col-sm-12 col-md-5'<'filter-distributor-account'>tl><'col-sm-12 col-md-3'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
             serverSide: false,
             stateServe: true,
-            "ajax": {
+            ajax: {
                 url: "/distributor/account/get",
                 data: function (d) {
-                    d.fromDate = $('#distributor-account #from_date').val();
-                    d.toDate = $('#distributor-account #to_date').val();
-                }
+                    d.fromDate = $("#distributor-account #from_date").val();
+                    d.toDate = $("#distributor-account #to_date").val();
+                },
             },
             columns: [
                 {
-                    data: 'DistributorID',
-                    name: 'DistributorID'
+                    data: "DistributorID",
+                    name: "DistributorID",
                 },
                 {
-                    data: 'DistributorName',
-                    name: 'DistributorName'
+                    data: "DistributorName",
+                    name: "DistributorName",
                 },
                 {
-                    data: 'Email',
-                    name: 'Email'
+                    data: "Email",
+                    name: "Email",
                 },
                 {
-                    data: 'Address',
-                    name: 'Address'
+                    data: "Address",
+                    name: "Address",
                 },
                 {
-                    data: 'CreatedDate',
-                    name: 'CreatedDate',
-                    type: 'date'
+                    data: "CreatedDate",
+                    name: "CreatedDate",
+                    type: "date",
                 },
                 {
-                    data: 'Action',
-                    name: 'Action'
+                    data: "Action",
+                    name: "Action",
+                    orderable: false,
+                    searchable: false,
                 },
                 {
-                    data: 'Product',
-                    name: 'Product'
-                }
+                    data: "Product",
+                    name: "Product",
+                    orderable: false,
+                    searchable: false,
+                },
             ],
-            buttons: [{
-                extend: 'excelHtml5',
-                filename: function () {
-                    return exportDatatableHelper.generateFilename('DistributorAccounts');
-                },
-                text: 'Export',
-                titleAttr: 'Excel',
-                exportOptions: {
-                    modifier: {
-                        page: 'all'
+            buttons: [
+                {
+                    extend: "excelHtml5",
+                    filename: function () {
+                        return exportDatatableHelper.generateFilename(
+                            "DistributorAccounts"
+                        );
                     },
-                    columns: [0, 1, 2, 3, 4],
-                    orthogonal: 'export'
+                    text: "Export",
+                    titleAttr: "Excel",
+                    exportOptions: {
+                        modifier: {
+                            page: "all",
+                        },
+                        columns: [0, 1, 2, 3, 4],
+                        orthogonal: "export",
+                    },
                 },
-            }],
-            "order": [4, 'desc'],
-            "lengthChange": false,
-            "responsive": true,
-            "autoWidth": false,
-            "columnDefs": [{
-                "targets": [5, 6],
-                "orderable": false
-            }]
+            ],
+            aoColumnDefs: [
+                {
+                    aTargets: [5],
+                    visible: roleID != "HL" ? true : false,
+                },
+            ],
+            order: [4, "desc"],
+            lengthChange: false,
+            responsive: true,
+            autoWidth: false,
         });
     }
 
@@ -86,85 +99,90 @@ $(document).ready(function () {
                         </div>`);
 
     // Setting Awal Daterangepicker
-    $('#distributor-account #from_date').daterangepicker({
+    $("#distributor-account #from_date").daterangepicker({
         singleDatePicker: true,
         showDropdowns: true,
         locale: {
-            format: 'YYYY-MM-DD'
-        }
+            format: "YYYY-MM-DD",
+        },
     });
 
     // Setting Awal Daterangepicker
-    $('#distributor-account #to_date').daterangepicker({
+    $("#distributor-account #to_date").daterangepicker({
         singleDatePicker: true,
         showDropdowns: true,
         locale: {
-            format: 'YYYY-MM-DD'
-        }
+            format: "YYYY-MM-DD",
+        },
     });
 
     var bCodeChange = false;
 
     function dateStartChange() {
-        if (bCodeChange == true)
-            return;
-        else
-            bCodeChange = true;
+        if (bCodeChange == true) return;
+        else bCodeChange = true;
 
-        $('#distributor-account #to_date').daterangepicker({
+        $("#distributor-account #to_date").daterangepicker({
             minDate: $("#distributor-account #from_date").val(),
             singleDatePicker: true,
             showDropdowns: true,
             locale: {
-                format: 'YYYY-MM-DD'
-            }
-        })
+                format: "YYYY-MM-DD",
+            },
+        });
         bCodeChange = false;
     }
 
     function dateEndChange() {
-        if (bCodeChange == true)
-            return;
-        else
-            bCodeChange = true;
+        if (bCodeChange == true) return;
+        else bCodeChange = true;
 
-        $('#distributor-account #from_date').daterangepicker({
+        $("#distributor-account #from_date").daterangepicker({
             maxDate: $("#distributor-account #to_date").val(),
             singleDatePicker: true,
             showDropdowns: true,
             locale: {
-                format: 'YYYY-MM-DD'
-            }
-        })
+                format: "YYYY-MM-DD",
+            },
+        });
         bCodeChange = false;
     }
 
     // Disabled input to date ketika from date berubah
-    $('#distributor-account .filter-distributor-account').on('change', '#from_date', function () {
-        dateStartChange();
-    });
+    $("#distributor-account .filter-distributor-account").on(
+        "change",
+        "#from_date",
+        function () {
+            dateStartChange();
+        }
+    );
     // Disabled input from date ketika to date berubah
-    $('#distributor-account .filter-distributor-account').on('change', '#to_date', function () {
-        dateEndChange();
-    });
+    $("#distributor-account .filter-distributor-account").on(
+        "change",
+        "#to_date",
+        function () {
+            dateEndChange();
+        }
+    );
 
     // Menyisipkan Placeholder Date
-    $('#distributor-account #from_date').val('');
-    $('#distributor-account #to_date').val('');
-    $('#distributor-account #from_date').attr("placeholder", "From Date");
-    $('#distributor-account #to_date').attr("placeholder", "To Date");
+    $("#distributor-account #from_date").val("");
+    $("#distributor-account #to_date").val("");
+    $("#distributor-account #from_date").attr("placeholder", "From Date");
+    $("#distributor-account #to_date").attr("placeholder", "To Date");
 
     // Event Listener saat tombol refresh diklik
     $("#distributor-account #refresh").click(function () {
-        $('#distributor-account #from_date').val('');
-        $('#distributor-account #to_date').val('');
-        $('#distributor-account .table-datatables').DataTable().search('');
-        $('#distributor-account .table-datatables').DataTable().ajax.reload(null, false);
+        $("#distributor-account #from_date").val("");
+        $("#distributor-account #to_date").val("");
+        $("#distributor-account .table-datatables").DataTable().search("");
+        $("#distributor-account .table-datatables")
+            .DataTable()
+            .ajax.reload(null, false);
     });
 
     // Event listener saat tombol filter diklik
     $("#distributor-account #filter").click(function () {
-        $('#distributor-account .table-datatables').DataTable().ajax.reload();
+        $("#distributor-account .table-datatables").DataTable().ajax.reload();
     });
-
 });

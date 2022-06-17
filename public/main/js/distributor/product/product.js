@@ -3,6 +3,8 @@ $(document).ready(function () {
     dataTablesDistributorProductDetails();
 
     function dataTablesDistributorProductDetails() {
+        let roleID = $('meta[name="role-id"]').attr("content");
+
         const urlDistributorProductDetails = window.location.pathname; // return segment1/segment2/segment3/segment4
         const segmentUrl = urlDistributorProductDetails.split("/");
         const distributorId = segmentUrl.pop();
@@ -104,6 +106,10 @@ $(document).ready(function () {
                             }
                         }
                     },
+                },
+                {
+                    aTargets: [10],
+                    visible: roleID != "HL" ? true : false,
                 },
             ],
         });
