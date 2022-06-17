@@ -41,14 +41,14 @@
     </div>
     @endif
     <div class="row text-center border-bottom m-0 request-do">
-      <div class="col-3 col-md-2 align-self-center">
+      <div class="col-2 align-self-center">
         <select class="form-control form-control-sm mb-2 send-by" name="send_by" id="send_by">
           <option value="HAISTAR">Kirim Haistar</option>
           <option value="RT MART">Kirim RT Mart</option>
         </select>
         <input type="checkbox" class="check_haistar larger" value="{{ $product->DeliveryOrderDetailID }}">
       </div>
-      <div class="col-2 col-md-3 align-self-center">
+      <div class="col-2 align-self-center">
         <img src="{{ config('app.base_image_url') . '/product/'. $product->ProductImage }}" alt="" width="80">
         <p id="product-name">{{ $product->ProductName }}</p>
         <input type="hidden" name="product_id_haistar[]" id="product-id" value="{{ $product->ProductID }}"
@@ -56,7 +56,7 @@
         <input type="hidden" name="distributor[]" id="distributor" value="HAISTAR">
         <input type="hidden" name="distributor_id[]" id="distributor-id" value="{{ $product->DistributorID }}">
       </div>
-      <div class="col-2 align-self-center">
+      <div class="col-1 align-self-center">
         <label class="d-block">Qty DO</label>
         <p>{{ $product->QtyDO }}</p>
       </div>
@@ -82,6 +82,19 @@
       <div class="col-2 align-self-center">
         <label>Total Harga</label>
         <p class="price-total">Rp 0</p>
+      </div>
+      <div class="col-2 d-none select-source">
+        <label class="d-block" for="label">Source Produk</label>
+        <select id="investor" class="form-control form-control-sm source-investor">
+          @foreach ($investors as $investor)
+              <option value="{{ $investor->InvestorID }}" {{ $investor->InvestorID == 1 ? 'selected' : ''}}>{{ $investor->InvestorName }}</option>
+          @endforeach
+        </select>
+        <select id="label" class="form-control form-control-sm source-product">
+          <option value="PKP" selected>PKP</option>
+          <option value="NON-PKP">NON-PKP</option>
+        </select>
+        <span id="exist-qty-perinvestor">Stok {{ $firstInvestor->InvestorName }} PKP : {{ $product->QtyStockPKP }}</span>
       </div>
     </div>
     @php

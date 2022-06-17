@@ -539,7 +539,15 @@ class DeliveryOrderService
               WHEN tx_merchant_expedition_detail.StatusExpeditionDetail = 'S031'
               THEN tx_merchant_expedition_detail.DeliveryOrderDetailID 
               END)
-        AS Selesai
+        AS Selesai,
+        (
+          SELECT COUNT(tx_merchant_delivery_order_detail.DeliveryOrderDetailID)
+          FROM tx_merchant_expedition_detail
+          JOIN tx_merchant_delivery_order_detail ON tx_merchant_delivery_order_detail.DeliveryOrderDetailID = tx_merchant_expedition_detail.DeliveryOrderDetailID
+          WHERE tx_merchant_expedition_detail.MerchantExpeditionID IN ('$merchantExpeditionID')
+          AND tx_merchant_delivery_order_detail.Distributor = 'HAISTAR'
+          AND tx_merchant_expedition_detail.StatusExpeditionDetail != 'S037'
+        ) AS CountHaistar
       ");
 
     return $sql;
