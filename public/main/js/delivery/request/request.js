@@ -1,6 +1,7 @@
 $(document).ready(function () {
     let checkboxFilter = [];
     let csrf = $('meta[name="csrf_token"]').attr("content");
+    let roleID = $('meta[name="role-id"]').attr("content");
 
     $(".check-subdistrict").change(function () {
         let checked = $(this).val();
@@ -118,6 +119,12 @@ $(document).ready(function () {
                         columns: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
                         orthogonal: "export",
                     },
+                },
+            ],
+            aoColumnDefs: [
+                {
+                    aTargets: [0, 1],
+                    visible: roleID != "HL" ? true : false,
                 },
             ],
             rowCallback: function (row, data) {

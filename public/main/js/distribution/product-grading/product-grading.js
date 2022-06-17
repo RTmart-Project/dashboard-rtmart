@@ -3,6 +3,8 @@ $(document).ready(function () {
     dataTablesProductGrading();
 
     function dataTablesProductGrading() {
+        let roleID = $('meta[name="role-id"]').attr("content");
+
         $("#product-grading .table-datatables").DataTable({
             dom:
                 "<'row'<'col-sm-12 col-md-5'<'filter-product-grading'>tl><'col-sm-12 col-md-3'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
@@ -110,6 +112,10 @@ $(document).ready(function () {
                             }
                         }
                     },
+                },
+                {
+                    aTargets: [11],
+                    visible: roleID != "HL" ? true : false,
                 },
             ],
         });

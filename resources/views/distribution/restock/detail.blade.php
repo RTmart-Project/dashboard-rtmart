@@ -269,7 +269,7 @@
                             </div>
                             <div class="row konfirmasi m-0">
                                 <div class="col-12 ">
-                                    @if ($merchantOrder->StatusOrderID == "S009") {{-- Pesanan Baru --}}
+                                    @if ($merchantOrder->StatusOrderID == "S009" && Auth::user()->RoleID != "HL") {{-- Pesanan Baru --}}
                                     <div class="row d-md-flex justify-content-end">
                                         <div class="col-md-6 col-12 text-center">
                                             <a href="#" class="btn btn-danger btn-batal mr-3"
@@ -284,8 +284,8 @@
                                             </a>
                                         </div>
                                     </div>
-                                    @elseif ($merchantOrder->StatusOrderID == "S012" ||
-                                    $merchantOrder->StatusOrderID == "S023") {{-- Dalam Proses atau Telah Dikirim --}}
+                                    @elseif (($merchantOrder->StatusOrderID == "S012" || $merchantOrder->StatusOrderID == "S023") 
+                                        && Auth::user()->RoleID != "HL") {{-- Dalam Proses atau Telah Dikirim --}}
                                     <div class="text-center text-md-right">
                                         <button type="button" class="btn btn-warning ml-md-3 mb-2" data-toggle="modal"
                                             data-target="#request-do">
