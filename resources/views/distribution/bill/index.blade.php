@@ -2,6 +2,7 @@
 @section('title', 'Dashboard - Delivery Order')
 
 @section('css-pages')
+<meta name="role-id" content="{{ Auth::user()->RoleID }}">
 <!-- daterange picker -->
 <link rel="stylesheet" href="{{url('/')}}/plugins/daterangepicker/daterangepicker.css">
 <!-- Datatables -->

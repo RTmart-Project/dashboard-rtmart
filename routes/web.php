@@ -50,7 +50,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/reject/request/{deliveryOrderId}', [DistributionController::class, 'rejectRequestDO'])->name('distribution.rejectRequestDO');
             Route::post('/confirm/request/{deliveryOrderId}/{depoChannel}', [DistributionController::class, 'confirmRequestDO'])->name('distribution.confirmRequestDO');
         });
-        Route::group(['prefix' => 'bill', 'middleware' => ['checkRoleUser:IT,AD,RBTAD,BM,FI,AH,DMO']], function () {
+        Route::group(['prefix' => 'bill', 'middleware' => ['checkRoleUser:IT,AD,RBTAD,BM,FI,AH,HL,DMO']], function () {
             Route::get('/', [DistributionController::class, 'billPayLater'])->name('distribution.billPayLater');
             Route::get('/get', [DistributionController::class, 'getBillPayLater'])->name('distribution.getBillPayLater');
             Route::post('/update/{deliveryOrderID}', [DistributionController::class, 'updateBillPayLater'])->name('distribution.updateBillPayLater');
