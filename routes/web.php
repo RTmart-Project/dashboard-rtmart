@@ -120,7 +120,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/detail/{stockOpnameID}', [StockController::class, 'detailOpname'])->name('stock.detailOpname');
         });
 
-        Route::group(['prefix' => 'purchase', 'middleware' => ['checkRoleUser:IT,FI,BM,INVTR']], function () {
+        Route::group(['prefix' => 'purchase', 'middleware' => ['checkRoleUser:IT,FI,BM,HL,INVTR']], function () {
             Route::get('/', [StockController::class, 'purchase'])->name('stock.purchase');
             Route::get('/get', [StockController::class, 'getPurchase'])->name('stock.getPurchase');
             Route::get('/create', [StockController::class, 'createPurchase'])->name('stock.createPurchase');
