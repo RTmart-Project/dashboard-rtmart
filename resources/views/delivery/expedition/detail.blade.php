@@ -31,7 +31,8 @@
                 </button>
                 @if ($countStatus->Selesai == 0)
                 <button class="btn btn-sm btn-danger btn-cancel-expedition mb-1"
-                  data-expedition="{{ $expd[0]->MerchantExpeditionID }}">
+                  data-expedition="{{ $expd[0]->MerchantExpeditionID }}"
+                  {{ $countStatus->CountHaistar > 0 ? 'disabled' : '' }}>
                   <i class="fas fa-times"></i> Batalkan Ekspedisi
                 </button>
                 @endif

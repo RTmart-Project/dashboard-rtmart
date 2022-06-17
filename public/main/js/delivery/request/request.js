@@ -308,12 +308,15 @@ $(document).ready(function () {
     $("#delivery-order-result").on("change", ".send-by", function () {
         let value = $(this).val();
         let existStock = $(this).parent().parent().find("#exist-stock");
+        let source = $(this).parent().parent().find(".select-source");
         if (value == "RT MART") {
             existStock.removeClass("d-none");
             existStock.addClass("d-block");
+            source.removeClass("d-none");
         } else {
             existStock.removeClass("d-block");
             existStock.addClass("d-none");
+            source.addClass("d-none");
         }
     });
 
