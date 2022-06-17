@@ -22,7 +22,7 @@
             <a href="{{ route('delivery.expedition') }}" class="btn btn-sm btn-light mb-2">
               <i class="fas fa-arrow-left"></i> Kembali
             </a><br>
-            @if ($expd[0]->StatusExpd == "S032")
+            @if ($expd[0]->StatusExpd == "S032" && Auth::user()->RoleID != "HL")
             <div class="d-flex flex-column align-items-center">
               <div>
                 <button class="btn btn-sm btn-success btn-finish-expedition mb-1"
@@ -125,7 +125,7 @@
                 @else
                 <span class="badge badge-info mb-2">{{ $item->StatusProduct }}</span>
                 @endif<br>
-                @if ($item->Distributor == "RT MART" && $item->StatusExpeditionDetail == "S030")
+                @if ($item->Distributor == "RT MART" && $item->StatusExpeditionDetail == "S030" && Auth::user()->RoleID != "HL")
                 <a class="btn btn-sm btn-success btn-finish-product" data-product="{{ $item->ProductName }}" data-qty="{{ $item->Qty }}"
                   data-store="{{ $order[0]->StoreName }}" data-expedition-detail="{{ $item->MerchantExpeditionDetailID }}">
                   Selesaikan

@@ -4,6 +4,7 @@
 @section('css-pages')
 <meta name="csrf_token" content="{{ csrf_token() }}">
 <meta name="depo" content="{{ Auth::user()->Depo }}">
+<meta name="role-id" content="{{ Auth::user()->RoleID }}">
 <!-- Datatables -->
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
