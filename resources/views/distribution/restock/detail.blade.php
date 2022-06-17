@@ -284,8 +284,7 @@
                                             </a>
                                         </div>
                                     </div>
-                                    @elseif (($merchantOrder->StatusOrderID == "S012" || $merchantOrder->StatusOrderID == "S023") 
-                                        && Auth::user()->RoleID != "HL") {{-- Dalam Proses atau Telah Dikirim --}}
+                                    @elseif ($merchantOrder->StatusOrderID == "S012" || $merchantOrder->StatusOrderID == "S023") {{-- Dalam Proses atau Telah Dikirim --}}
                                     <div class="text-center text-md-right">
                                         <button type="button" class="btn btn-warning ml-md-3 mb-2" data-toggle="modal"
                                             data-target="#request-do">
@@ -295,10 +294,12 @@
                                             data-target="#detail-do">
                                             Detail Delivery Order
                                         </button>
+                                        @if (Auth::user()->RoleID != "HL")
                                         <button type="button" class="btn btn-primary ml-md-3 mb-2" data-toggle="modal"
                                             data-target="#add-do">
                                             Buat Delivery Order
                                         </button>
+                                        @endif
                                         @if ($merchantOrder->StatusOrderID == "S012" && $merchantOrder->PaymentMethodID == 11)
                                         <div class="row d-md-flex justify-content-end">
                                             <div class="col-md-6 col-12 text-center">

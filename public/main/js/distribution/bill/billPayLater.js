@@ -3,6 +3,8 @@ $(document).ready(function () {
     dataTablesBillPayLater();
 
     function dataTablesBillPayLater() {
+        let roleID = $('meta[name="role-id"]').attr("content");
+
         $("#bill-paylater .table-datatables").DataTable({
             dom:
                 "<'row'<'col-sm-12 col-md-5'<'filter-bill-paylater'>tl><'col-sm-12 col-md-3'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
@@ -138,6 +140,10 @@ $(document).ready(function () {
                             }
                         }
                     },
+                },
+                {
+                    aTargets: [16],
+                    visible: roleID != "HL" ? true : false,
                 },
             ],
         });
