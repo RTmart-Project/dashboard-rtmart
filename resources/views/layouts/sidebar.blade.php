@@ -46,7 +46,7 @@
                         </a>
                     </li>
                     @endif
-                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "AD")
+                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "AD" || Auth::user()->RoleID == "HL")
                     <li class="nav-item">
                         <a href="{{ route('distribution.billPayLater') }}"
                             class="nav-link {{ Request::is('distribution/bill*') ? 'active' : '' }}">
