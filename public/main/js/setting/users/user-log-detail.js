@@ -5,7 +5,7 @@ $(document).ready(function () {
     function dataTablesSettingUsers() {
         $("#user-log-detail .table-datatables").DataTable({
             dom:
-                "<'row'<'col-sm-12 col-md-5'<'filter-user-log-detail'>tl><'col-sm-12 col-md-3'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'>>" +
+                "<'row'<'col-sm-12 col-md-5'<'filter-user-log-detail'>tl><'col-sm-12 col-md-3'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
@@ -20,8 +20,12 @@ $(document).ready(function () {
             },
             columns: [
                 {
-                    data: "CreatedDate",
-                    name: "ms_user_activity_log.CreatedDate",
+                    data: "UserID",
+                    name: "ms_user_activity_log.UserID",
+                },
+                {
+                    data: "Name",
+                    name: "ms_user.Name",
                 },
                 {
                     data: "URL",
@@ -36,6 +40,10 @@ $(document).ready(function () {
                     name: "ms_user_activity_log.IPAddress",
                 },
                 {
+                    data: "CreatedDate",
+                    name: "ms_user_activity_log.CreatedDate",
+                },
+                {
                     data: "Browser",
                     name: "ms_user_activity_log.Browser",
                 },
@@ -48,18 +56,19 @@ $(document).ready(function () {
                             "UserLog"
                         );
                     },
+                    className: "btn-sm",
                     text: "Export",
                     titleAttr: "Excel",
                     exportOptions: {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4],
+                        columns: [0, 1, 2, 3, 4, 5, 6],
                         orthogonal: "export",
                     },
                 },
             ],
-            order: [0, "desc"],
+            order: [5, "desc"],
             lengthChange: false,
             responsive: true,
             autoWidth: false,

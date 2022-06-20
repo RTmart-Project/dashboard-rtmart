@@ -3,78 +3,97 @@ $(document).ready(function () {
     dataTablesSettingUsers();
 
     function dataTablesSettingUsers() {
-        $('#setting-users .table-datatables').DataTable({
-            dom: "<'row'<'col-sm-12 col-md-5'<'filter-setting-users'>tl><'col-sm-12 col-md-3'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
+        $("#setting-users .table-datatables").DataTable({
+            dom:
+                "<'row'<'col-sm-12 col-md-5'<'filter-setting-users'>tl><'col-sm-12 col-md-3'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
             serverSide: false,
             stateServe: true,
-            "ajax": {
+            ajax: {
                 url: "/setting/users/get",
                 data: function (d) {
-                    d.fromDate = $('#setting-users #from_date').val();
-                    d.toDate = $('#setting-users #to_date').val();
-                }
+                    d.fromDate = $("#setting-users #from_date").val();
+                    d.toDate = $("#setting-users #to_date").val();
+                },
             },
             columns: [
                 {
-                    data: 'UserID',
-                    name: 'UserID'
+                    data: "UserID",
+                    name: "UserID",
                 },
                 {
-                    data: 'Email',
-                    name: 'Email'
+                    data: "Email",
+                    name: "Email",
                 },
                 {
-                    data: 'Name',
-                    name: 'Name'
+                    data: "Name",
+                    name: "Name",
                 },
                 {
-                    data: 'PhoneNumber',
-                    name: 'PhoneNumber'
+                    data: "URL",
+                    name: "URL",
                 },
                 {
-                    data: 'RoleName',
-                    name: 'RoleName'
+                    data: "LastActivityDate",
+                    name: "LastActivityDate",
+                    type: "date",
                 },
                 {
-                    data: 'Depo',
-                    name: 'Depo'
+                    data: "PhoneNumber",
+                    name: "PhoneNumber",
                 },
                 {
-                    data: 'CreatedDate',
-                    name: 'CreatedDate',
-                    type: 'date'
+                    data: "RoleName",
+                    name: "RoleName",
                 },
                 {
-                    data: 'Action',
-                    name: 'Action'
-                }
+                    data: "Depo",
+                    name: "Depo",
+                },
+                {
+                    data: "CreatedDate",
+                    name: "CreatedDate",
+                    type: "date",
+                },
+                {
+                    data: "Detail",
+                    name: "Detail",
+                    orderable: false,
+                    searchable: false,
+                },
+                {
+                    data: "Action",
+                    name: "Action",
+                    orderable: false,
+                    searchable: false,
+                },
             ],
-            buttons: [{
-                extend: 'excelHtml5',
-                filename: function () {
-                    return exportDatatableHelper.generateFilename('SettingUsers');
-                },
-                text: 'Export',
-                titleAttr: 'Excel',
-                exportOptions: {
-                    modifier: {
-                        page: 'all'
+            buttons: [
+                {
+                    extend: "excelHtml5",
+                    filename: function () {
+                        return exportDatatableHelper.generateFilename(
+                            "SettingUsers"
+                        );
                     },
-                    columns: [0, 1, 2, 3, 4, 5, 6],
-                    orthogonal: 'export'
+                    className: "btn-sm",
+                    text: "Export",
+                    titleAttr: "Excel",
+                    exportOptions: {
+                        modifier: {
+                            page: "all",
+                        },
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+                        orthogonal: "export",
+                    },
                 },
-            }],
-            "order": [6, 'desc'],
-            "lengthChange": false,
-            "responsive": true,
-            "autoWidth": false,
-            "columnDefs": [{
-                "targets": [7],
-                "orderable": false
-            }]
+            ],
+            order: [8, "desc"],
+            lengthChange: false,
+            responsive: true,
+            autoWidth: false,
         });
     }
 
@@ -90,107 +109,113 @@ $(document).ready(function () {
                         </div>`);
 
     // Setting Awal Daterangepicker
-    $('#setting-users #from_date').daterangepicker({
+    $("#setting-users #from_date").daterangepicker({
         singleDatePicker: true,
         showDropdowns: true,
         locale: {
-            format: 'YYYY-MM-DD'
-        }
+            format: "YYYY-MM-DD",
+        },
     });
 
     // Setting Awal Daterangepicker
-    $('#setting-users #to_date').daterangepicker({
+    $("#setting-users #to_date").daterangepicker({
         singleDatePicker: true,
         showDropdowns: true,
         locale: {
-            format: 'YYYY-MM-DD'
-        }
+            format: "YYYY-MM-DD",
+        },
     });
 
     var bCodeChange = false;
 
     function dateStartChange() {
-        if (bCodeChange == true)
-            return;
-        else
-            bCodeChange = true;
+        if (bCodeChange == true) return;
+        else bCodeChange = true;
 
-        $('#setting-users #to_date').daterangepicker({
+        $("#setting-users #to_date").daterangepicker({
             minDate: $("#setting-users #from_date").val(),
             singleDatePicker: true,
             showDropdowns: true,
             locale: {
-                format: 'YYYY-MM-DD'
-            }
-        })
+                format: "YYYY-MM-DD",
+            },
+        });
         bCodeChange = false;
     }
 
     function dateEndChange() {
-        if (bCodeChange == true)
-            return;
-        else
-            bCodeChange = true;
+        if (bCodeChange == true) return;
+        else bCodeChange = true;
 
-        $('#setting-users #from_date').daterangepicker({
+        $("#setting-users #from_date").daterangepicker({
             maxDate: $("#setting-users #to_date").val(),
             singleDatePicker: true,
             showDropdowns: true,
             locale: {
-                format: 'YYYY-MM-DD'
-            }
-        })
+                format: "YYYY-MM-DD",
+            },
+        });
         bCodeChange = false;
     }
 
     // Disabled input to date ketika from date berubah
-    $('#setting-users .filter-setting-users').on('change', '#from_date', function () {
-        dateStartChange();
-    });
+    $("#setting-users .filter-setting-users").on(
+        "change",
+        "#from_date",
+        function () {
+            dateStartChange();
+        }
+    );
     // Disabled input from date ketika to date berubah
-    $('#setting-users .filter-setting-users').on('change', '#to_date', function () {
-        dateEndChange();
-    });
+    $("#setting-users .filter-setting-users").on(
+        "change",
+        "#to_date",
+        function () {
+            dateEndChange();
+        }
+    );
 
     // Menyisipkan Placeholder Date
-    $('#setting-users #from_date').val('');
-    $('#setting-users #to_date').val('');
-    $('#setting-users #from_date').attr("placeholder", "From Date");
-    $('#setting-users #to_date').attr("placeholder", "To Date");
+    $("#setting-users #from_date").val("");
+    $("#setting-users #to_date").val("");
+    $("#setting-users #from_date").attr("placeholder", "From Date");
+    $("#setting-users #to_date").attr("placeholder", "To Date");
 
     // Event Listener saat tombol refresh diklik
     $("#setting-users #refresh").click(function () {
-        $('#setting-users #from_date').val('');
-        $('#setting-users #to_date').val('');
-        $('#setting-users .table-datatables').DataTable().search('');
-        $('#setting-users .table-datatables').DataTable().ajax.reload(null, false);
+        $("#setting-users #from_date").val("");
+        $("#setting-users #to_date").val("");
+        $("#setting-users .table-datatables").DataTable().search("");
+        $("#setting-users .table-datatables")
+            .DataTable()
+            .ajax.reload(null, false);
     });
 
     // Event listener saat tombol filter diklik
     $("#setting-users #filter").click(function () {
-        $('#setting-users .table-datatables').DataTable().ajax.reload();
+        $("#setting-users .table-datatables").DataTable().ajax.reload();
     });
 
-    $("#setting-users table").on('click', '.reset-password', function (e) {
+    $("#setting-users table").on("click", ".reset-password", function (e) {
         e.preventDefault();
         const name = $(this).data("user-name");
         const userId = $(this).data("user-id");
         $.confirm({
-            title: 'Reset Password!',
+            title: "Reset Password!",
             content: `Yakin ingin reset password <b>${name}</b> ?`,
             closeIcon: true,
             buttons: {
                 Yakin: {
-                    btnClass: 'btn-red',
+                    btnClass: "btn-red",
                     draggable: true,
                     dragWindowGap: 0,
                     action: function () {
-                        window.location = '/setting/users/reset-password/' + userId
-                    }
+                        window.location =
+                            "/setting/users/reset-password/" + userId;
+                    },
                 },
-                tidak: function () {
-                }
-            }
+                tidak: function () {},
+            },
         });
     });
 });
