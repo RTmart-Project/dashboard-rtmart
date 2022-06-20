@@ -256,7 +256,7 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     // Merchant
-    Route::group(['middleware' => ['checkRoleUser:IT,BM,FI,AH,HR,DMO,RBTAD']], function () {
+    Route::group(['middleware' => ['checkRoleUser:IT,BM,FI,AH,HR,DMO,HL,RBTAD']], function () {
         Route::get('/merchant/account', [MerchantController::class, 'account'])->name('merchant.account');
         Route::get('/merchant/account/get', [MerchantController::class, 'getAccounts'])->name('merchant.getAccounts');
         Route::get('/merchant/account/grade/get/{distributorId}', [MerchantController::class, 'getGrade'])->withoutMiddleware('checkRoleUser:IT,BM,FI,AH,HR,DMO,RBTAD')->name('merchant.getGrade');

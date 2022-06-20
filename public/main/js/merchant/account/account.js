@@ -3,6 +3,8 @@ $(document).ready(function () {
     dataTablesMerchantAccount();
 
     function dataTablesMerchantAccount() {
+        let roleID = $('meta[name="role-id"]').attr("content");
+
         $("#merchant-account .table-datatables").DataTable({
             dom:
                 "<'row'<'col-sm-12 col-md-8'<'filter-merchant-account'>tl><l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
@@ -114,6 +116,12 @@ $(document).ready(function () {
             lengthChange: false,
             responsive: true,
             autoWidth: false,
+            aoColumnDefs: [
+                {
+                    aTargets: [11],
+                    visible: roleID != "HL" ? true : false,
+                },
+            ],
         });
     }
 
