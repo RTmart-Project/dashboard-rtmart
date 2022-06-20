@@ -678,6 +678,16 @@ class DeliveryController extends Controller
                             ->update([
                                 'StatusExpedition' => 'S030'
                             ]);
+                        DB::table('tx_merchant_expedition_detail')
+                            ->whereRaw("DeliveryOrderDetailID = (
+                                SELECT tx_merchant_delivery_order_detail.DeliveryOrderDetailID
+                                FROM tx_merchant_delivery_order_detail
+                                WHERE tx_merchant_delivery_order_detail.DeliveryOrderID = '$deliveryOrderID'
+                                AND tx_merchant_delivery_order_detail.ProductID = '$value->item_code'
+                            )")
+                            ->update([
+                                'StatusExpeditionDetail' => 'S030'
+                            ]);
                     }
                 });
                 return redirect()->back()->with('success', 'Order Haistar berhasil di-resend');
