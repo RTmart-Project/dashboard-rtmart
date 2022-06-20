@@ -296,8 +296,8 @@
             @endif
 
             @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID == "BM")
-            || (Auth::user()->RoleID == "FI") ||
-            (Auth::user()->RoleID == "HR") || (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO"))
+            || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "HR") || (Auth::user()->RoleID == "AH") 
+            || (Auth::user()->RoleID == "DMO") || Auth::user()->RoleID == "HL")
             <li class="nav-item {{ Request::is('merchant*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('merchant*') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-store"></i>
@@ -307,10 +307,9 @@
                     </p>
                 </a>
                 <ul class="nav nav-treeview">
-                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID ==
-                    "BM") ||
+                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID == "BM") ||
                     (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "HR") ||
-                    (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO"))
+                    (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO") || Auth::user()->RoleID == "HL")
                     <li class="nav-item">
                         <a href="{{ route('merchant.account') }}"
                             class="nav-link {{ Request::is('merchant/account*') ? 'active' : '' }}">
@@ -502,6 +501,13 @@
                     </p>
                 </a>
                 <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="{{ route('setting.userLog') }}"
+                            class="nav-link {{ Request::is('setting/user-log*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Log Pengguna</p>
+                        </a>
+                    </li>
                     <li class="nav-item">
                         <a href="{{ route('setting.monthlyReport') }}"
                             class="nav-link {{ Request::is('setting/monthly-report*') ? 'active' : '' }}">
