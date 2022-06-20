@@ -41,7 +41,7 @@
       <div class="col-12">
         <div class="card">
           <div class="card-header">
-            <a href="{{ route('setting.userLog') }}" class="btn btn-sm btn-light mb-3"><i class="fas fa-arrow-left"></i>
+            <a href="{{ route('setting.users') }}" class="btn btn-sm btn-light mb-3"><i class="fas fa-arrow-left"></i>
               Kembali</a>
             <div class="row">
               <div class="col-12 col-md-6">
@@ -63,10 +63,12 @@
                     <table class="table table-datatables">
                       <thead>
                         <tr>
-                          <th>Tanggal</th>
+                          <th>User ID</th>
+                          <th>Nama</th>
                           <th>URL</th>
                           <th>Route Name</th>
                           <th>IP Address</th>
+                          <th>Tanggal</th>
                           <th>Browser</th>
                         </tr>
                       </thead>
@@ -106,7 +108,7 @@
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!-- Main JS -->
-<script src="{{url('/')}}/main/js/setting/user-log/user-log-detail.js"></script>
+<script src="{{url('/')}}/main/js/setting/users/user-log-detail.js"></script>
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
 <script>
 </script>

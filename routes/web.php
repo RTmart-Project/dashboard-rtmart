@@ -321,13 +321,6 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     Route::group(['middleware' => ['checkRoleUser:IT']], function () {
-        // Log Pengguna
-        Route::group(['prefix' => 'setting/user-log'], function () {
-            Route::get('/', [AuthController::class, 'userLog'])->name('setting.userLog');
-            Route::get('/get', [AuthController::class, 'getUserLog'])->name('setting.getUserLog');
-            Route::get('/{userID}', [AuthController::class, 'userLogDetail'])->name('setting.userLogDetail');
-        });
-
         // Monthly Report
         Route::group(['prefix' => 'setting/monthly-report'], function () {
             Route::get('/', [MonthlyReportController::class, 'setting'])->name('setting.monthlyReport');
@@ -340,6 +333,7 @@ Route::group(['middleware' => ['auth']], function () {
         // User
         Route::get('/setting/users', [AuthController::class, 'users'])->name('setting.users');
         Route::get('/setting/users/get', [AuthController::class, 'getUsers'])->name('setting.getUsers');
+        Route::get('/setting/users/log/{userID}', [AuthController::class, 'userLogDetail'])->name('setting.userLogDetail');
         Route::get('/setting/users/new', [AuthController::class, 'newUser'])->name('setting.newUser');
         Route::post('/setting/users/create', [AuthController::class, 'createNewUser'])->name('setting.createNewUser');
         Route::get('/setting/users/edit/{user}', [AuthController::class, 'editUser'])->name('setting.editUser');
