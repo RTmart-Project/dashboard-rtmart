@@ -503,6 +503,13 @@
                 </a>
                 <ul class="nav nav-treeview">
                     <li class="nav-item">
+                        <a href="{{ route('setting.userLog') }}"
+                            class="nav-link {{ Request::is('setting/user-log*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Log Pengguna</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="{{ route('setting.monthlyReport') }}"
                             class="nav-link {{ Request::is('setting/monthly-report*') ? 'active' : '' }}">
                             <i class="far fa-circle nav-icon"></i>
