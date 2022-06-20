@@ -99,8 +99,14 @@ class AuthController extends Controller
         // Get data, jika tanggal filter kosong tampilkan semua data.
         $sqlUsers = DB::table('ms_user')
             ->join('ms_role', 'ms_role.RoleID', '=', 'ms_user.RoleID')
+            ->leftJoin('ms_user_activity_log', function ($join) {
+                $join->on('ms_user_activity_log.UserID', 'ms_user.UserID');
+                $join->whereRaw("ms_user_activity_log.UserActivityLogID = (
+                    SELECT MAX(UserActivityLogID) FROM ms_user_activity_log WHERE ms_user_activity_log.UserID = ms_user.UserID
+                )");
+            })
             ->where('ms_user.IsTesting', '=', 0)
-            ->select('ms_user.*', 'ms_role.RoleName')
+            ->select('ms_user.*', 'ms_role.RoleName', 'ms_user_activity_log.URL', 'ms_user_activity_log.CreatedDate as LastActivityDate')
             ->orderByDesc('ms_user.CreatedDate');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
@@ -115,10 +121,22 @@ class AuthController extends Controller
         // Return Data Using DataTables with Ajax
         if ($request->ajax()) {
             return Datatables::of($data)
-                ->addColumn('Action', function ($data) {
-                    $actionBtn = '<a href="/setting/users/edit/' . $data->UserID . '" class="btn btn-sm btn-warning">Edit</a>
-                    <a data-user-name="' . $data->Name . '" data-user-id="' . $data->UserID . '" href="#" class="btn btn-sm btn-danger reset-password">Reset Password</a>';
-                    return $actionBtn;
+                ->editColumn('URL', function ($data) {
+                    if ($data->URL != null) {
+                        $url = $data->URL;
+                    } else {
+                        $url = "-";
+                    }
+                    return $url;
+                })
+                ->editColumn('LastActivityDate', function ($data) {
+                    if ($data->LastActivityDate != null) {
+                        $lastActivityDate = date('d M Y H:i', strtotime($data->LastActivityDate));
+                    } else {
+                        $lastActivityDate = "-";
+                    }
+
+                    return $lastActivityDate;
                 })
                 ->editColumn('CreatedDate', function ($data) {
                     if ($data->CreatedDate != null) {
@@ -129,9 +147,56 @@ class AuthController extends Controller
 
                     return $createdDate;
                 })
-                ->rawColumns(['Action'])
+                ->addColumn('Action', function ($data) {
+                    $actionBtn = '<a href="/setting/users/edit/' . $data->UserID . '" class="btn btn-sm btn-warning">Edit</a>
+                    <a data-user-name="' . $data->Name . '" data-user-id="' . $data->UserID . '" href="#" class="btn btn-sm btn-danger reset-password">Reset Password</a>';
+                    return $actionBtn;
+                })
+                ->addColumn('Detail', function ($data) {
+                    $detailBtn = '<a href="/setting/users/log/' . $data->UserID . '" class="btn-sm btn-info">Detail</a>';
+                    return $detailBtn;
+                })
+                ->rawColumns(['Detail', 'Action'])
                 ->make(true);
         }
+    }
+
+    public function userLogDetail($userID, Request $request)
+    {
+        $fromDate = $request->input('fromDate');
+        $toDate = $request->input('toDate');
+
+        $startDate = new DateTime($fromDate) ?? new DateTime();
+        $endDate = new DateTime($toDate) ?? new DateTime();
+        $startDateFormat = $startDate->format('Y-m-d');
+        $endDateFormat = $endDate->format('Y-m-d');
+
+        $sqlGetUserLog = DB::table('ms_user')
+            ->join('ms_role', 'ms_role.RoleID', 'ms_user.RoleID')
+            ->where('ms_user.UserID', $userID)
+            ->select('ms_user.UserID', 'ms_user.Email', 'ms_user.Name', 'ms_user.PhoneNumber', 'ms_user.Depo', 'ms_role.RoleName')
+            ->first();
+
+        $sqlGetUserLogDetail = DB::table('ms_user')
+            ->leftJoin('ms_user_activity_log', 'ms_user_activity_log.UserID', 'ms_user.UserID')
+            ->where('ms_user.UserID', $userID)
+            ->whereDate('ms_user_activity_log.CreatedDate', '>=', $startDateFormat)
+            ->whereDate('ms_user_activity_log.CreatedDate', '<=', $endDateFormat)
+            ->select('ms_user_activity_log.*', 'ms_user.Name');
+
+        $data = $sqlGetUserLogDetail;
+
+        if ($request->ajax()) {
+            return Datatables::of($data)
+                ->editColumn('CreatedDate', function ($data) {
+                    return date('d-M-Y H:i', strtotime($data->CreatedDate));
+                })
+                ->make(true);
+        }
+
+        return view('setting.user.detail', [
+            'user' => $sqlGetUserLog
+        ]);
     }
 
     public function newUser()
@@ -372,69 +437,5 @@ class AuthController extends Controller
         } else {
             return redirect()->route('setting.role')->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
         }
-    }
-
-    public function userLog()
-    {
-        return view('setting.user-log.index');
-    }
-
-    public function getUserLog(Request $request)
-    {
-        $sqlGetUserLog = DB::table('ms_user_activity_log')
-            ->join('ms_user', 'ms_user.UserID', 'ms_user_activity_log.UserID')
-            ->join('ms_role', 'ms_role.RoleID', 'ms_user.RoleID')
-            ->distinct('ms_user_activity_log.UserID')
-            ->select('ms_user_activity_log.UserID', 'ms_user.Email', 'ms_user.Name', 'ms_user.PhoneNumber', 'ms_user.Depo', 'ms_role.RoleName');
-
-        $data = $sqlGetUserLog;
-
-        if ($request->ajax()) {
-            return Datatables::of($data)
-                ->addColumn('Detail', function ($data) {
-                    $detailBtn = '<a href="/setting/user-log/' . $data->UserID . '" class="btn-sm btn-warning">Detail</a>';
-                    return $detailBtn;
-                })
-                ->rawColumns(['Detail'])
-                ->make(true);
-        }
-    }
-
-    public function userLogDetail($userID, Request $request)
-    {
-        $fromDate = $request->input('fromDate');
-        $toDate = $request->input('toDate');
-
-        $startDate = new DateTime($fromDate) ?? new DateTime();
-        $endDate = new DateTime($toDate) ?? new DateTime();
-        $startDateFormat = $startDate->format('Y-m-d');
-        $endDateFormat = $endDate->format('Y-m-d');
-
-        $sqlGetUserLog = DB::table('ms_user_activity_log')
-            ->join('ms_user', 'ms_user.UserID', 'ms_user_activity_log.UserID')
-            ->join('ms_role', 'ms_role.RoleID', 'ms_user.RoleID')
-            ->where('ms_user_activity_log.UserID', $userID)
-            ->select('ms_user_activity_log.UserID', 'ms_user.Email', 'ms_user.Name', 'ms_user.PhoneNumber', 'ms_user.Depo', 'ms_role.RoleName')
-            ->first();
-
-        $sqlGetUserLogDetail = DB::table('ms_user_activity_log')
-            ->where('UserID', $userID)
-            ->whereDate('CreatedDate', '>=', $startDateFormat)
-            ->whereDate('CreatedDate', '<=', $endDateFormat)
-            ->select('*');
-
-        $data = $sqlGetUserLogDetail;
-
-        if ($request->ajax()) {
-            return Datatables::of($data)
-                ->editColumn('CreatedDate', function ($data) {
-                    return date('d-M-Y H:i', strtotime($data->CreatedDate));
-                })
-                ->make(true);
-        }
-
-        return view('setting.user-log.detail', [
-            'user' => $sqlGetUserLog
-        ]);
     }
 }
