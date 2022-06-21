@@ -488,16 +488,16 @@ class DeliveryController extends Controller
 
                     if ($status == "finish") {
                         $statusDO = "S025";
-                        $countSelesai = $getDOdetail->where('tx_merchant_expedition_detail.StatusExpeditionDetail', '!=', 'S031')->count();
-                        if ($countSelesai == 0) {
-                            DB::table('tx_merchant_delivery_order')
-                                ->where('DeliveryOrderID', $value->DeliveryOrderID)
-                                ->where('StockOrderID', $value->StockOrderID)
-                                ->update([
-                                    'StatusDO' => $statusDO,
-                                    'FinishDate' => date('Y-m-d H:i:s')
-                                ]);
-                        }
+                        // $countSelesai = $getDOdetail->where('tx_merchant_expedition_detail.StatusExpeditionDetail', '!=', 'S031')->count();
+                        // if ($countSelesai == 0) {
+                        DB::table('tx_merchant_delivery_order')
+                            ->where('DeliveryOrderID', $value->DeliveryOrderID)
+                            ->where('StockOrderID', $value->StockOrderID)
+                            ->update([
+                                'StatusDO' => $statusDO,
+                                'FinishDate' => date('Y-m-d H:i:s')
+                            ]);
+                        // }
                     } else {
                         $statusDO = $value->StatusDO;
                         DB::table('tx_merchant_delivery_order_detail')
@@ -606,17 +606,17 @@ class DeliveryController extends Controller
                         'StatusExpeditionDetail' => $statusExpedition
                     ]);
                     $deliveryOrderService->cancelProductExpedition($expeditionDetailID, $DOdetail->Qty, "GOOD STOCK");
-                    DB::table('tx_merchant_delivery_order')
-                        ->whereRaw("DeliveryOrderID = (SELECT DeliveryOrderID FROM `tx_merchant_delivery_order_detail` 
-                            WHERE `DeliveryOrderDetailID` = (SELECT DeliveryOrderDetailID 
-                                FROM `tx_merchant_expedition_detail` 
-                                WHERE `MerchantExpeditionDetailID` = $expeditionDetailID
-                                )
-                            )
-                        ")
-                        ->update([
-                            'StatusDO' => "S026"
-                        ]);
+                    // DB::table('tx_merchant_delivery_order')
+                    //     ->whereRaw("DeliveryOrderID = (SELECT DeliveryOrderID FROM `tx_merchant_delivery_order_detail` 
+                    //         WHERE `DeliveryOrderDetailID` = (SELECT DeliveryOrderDetailID 
+                    //             FROM `tx_merchant_expedition_detail` 
+                    //             WHERE `MerchantExpeditionDetailID` = $expeditionDetailID
+                    //             )
+                    //         )
+                    //     ")
+                    //     ->update([
+                    //         'StatusDO' => "S026"
+                    //     ]);
                 }
             });
             return redirect()->back()->with('success', $message);

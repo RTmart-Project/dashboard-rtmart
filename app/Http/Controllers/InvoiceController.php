@@ -50,6 +50,7 @@ class InvoiceController extends Controller
         $detailDeliveryOrder = DB::table('tx_merchant_delivery_order_detail')
             ->join('ms_product', 'ms_product.ProductID', '=', 'tx_merchant_delivery_order_detail.ProductID')
             ->where('tx_merchant_delivery_order_detail.DeliveryOrderID', '=', $deliveryOrderId)
+            ->where('tx_merchant_delivery_order_detail.StatusExpedition', '!=', 'S037')
             ->select('tx_merchant_delivery_order_detail.Qty', 'tx_merchant_delivery_order_detail.Price', 'ms_product.ProductName')
             ->get();
 

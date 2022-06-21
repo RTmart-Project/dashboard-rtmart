@@ -16,6 +16,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RTSalesController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\SummaryController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\VoucherController;
 use Illuminate\Support\Facades\Auth;
@@ -34,6 +35,8 @@ use Illuminate\Support\Facades\Auth;
 Route::group(['middleware' => ['auth']], function () {
     // Home
     Route::get('/home', [HomeController::class, 'home'])->name('home');
+
+    Route::get('/summary', [SummaryController::class, 'getSummary'])->name('summary.getSummary');
 
     Route::group(['prefix' => 'distribution'], function () {
         // Distribution

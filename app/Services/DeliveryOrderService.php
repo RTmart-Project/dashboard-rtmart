@@ -180,7 +180,8 @@ class DeliveryOrderService
         ANY_VALUE(tx_merchant_delivery_order.StockOrderID) AS StockOrderID,
         ANY_VALUE(tx_merchant_delivery_order.DeliveryOrderID) AS DeliveryOrderID,
         ANY_VALUE(tx_merchant_delivery_order_detail.ProductID) AS ProductID,
-        IFNULL(SUM(IF(tx_merchant_delivery_order.StatusDO != 'S026' AND tx_merchant_delivery_order.StatusDO != 'S028' AND tx_merchant_delivery_order_detail.StatusExpedition != 'S029', tx_merchant_delivery_order_detail.Qty, 0)), 0) AS QtyDONotBatal
+        -- IFNULL(SUM(IF(tx_merchant_delivery_order.StatusDO != 'S026' AND tx_merchant_delivery_order.StatusDO != 'S028' AND tx_merchant_delivery_order_detail.StatusExpedition != 'S029', tx_merchant_delivery_order_detail.Qty, 0)), 0) AS QtyDONotBatal
+        IFNULL(SUM(IF(tx_merchant_delivery_order_detail.StatusExpedition != 'S037' AND tx_merchant_delivery_order_detail.StatusExpedition != 'S029', tx_merchant_delivery_order_detail.Qty, 0)), 0) AS QtyDONotBatal
       ")
       ->groupBy('tx_merchant_delivery_order.StockOrderID', 'tx_merchant_delivery_order_detail.ProductID')->toSql();
 
