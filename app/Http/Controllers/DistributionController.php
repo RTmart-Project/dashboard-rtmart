@@ -1486,6 +1486,9 @@ class DistributionController extends Controller
 
                     return $invoice . $action;
                 })
+                ->filterColumn('Sales', function ($query, $keyword) {
+                    $query->whereRaw("CONCAT(ms_merchant_account.ReferralCode, ' ', ms_sales.SalesName) like ?", ["%$keyword%"]);
+                })
                 ->rawColumns(['StockOrderID', 'IsPaid', 'RemainingDay', 'PaymentSlip', 'Action'])
                 ->make(true);
         }

@@ -50,6 +50,10 @@ $(document).ready(function () {
                     name: "ms_merchant_account.PhoneNumber",
                 },
                 {
+                    data: "Sales",
+                    name: "Sales",
+                },
+                {
                     data: "CreatedDate",
                     name: "tmdo.CreatedDate",
                 },
@@ -115,18 +119,19 @@ $(document).ready(function () {
                         },
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+                            15,
                         ],
                         orthogonal: "export",
                     },
                 },
             ],
-            order: [7, "asc"],
+            order: [8, "asc"],
             lengthChange: false,
             responsive: true,
             autoWidth: false,
             aoColumnDefs: [
                 {
-                    aTargets: [10, 14],
+                    aTargets: [11, 15],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
@@ -142,7 +147,7 @@ $(document).ready(function () {
                     },
                 },
                 {
-                    aTargets: [16],
+                    aTargets: [17],
                     visible: roleID != "HL" ? true : false,
                 },
             ],
