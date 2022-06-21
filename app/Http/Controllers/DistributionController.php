@@ -382,10 +382,11 @@ class DistributionController extends Controller
             $value->DateKirim = $dateDlmPengiriman->DateKirim;
 
             $deliveryOrderDetail = DB::table('tx_merchant_delivery_order_detail')
+                ->leftJoin('ms_status_order', 'ms_status_order.StatusOrderID', 'tx_merchant_delivery_order_detail.StatusExpedition')
                 ->join('ms_product', 'ms_product.ProductID', '=', 'tx_merchant_delivery_order_detail.ProductID')
                 ->join('tx_merchant_delivery_order', 'tx_merchant_delivery_order.DeliveryOrderID', '=', 'tx_merchant_delivery_order_detail.DeliveryOrderID')
                 ->where('tx_merchant_delivery_order_detail.DeliveryOrderID', '=', $value->DeliveryOrderID)
-                ->select('tx_merchant_delivery_order_detail.ProductID', 'tx_merchant_delivery_order_detail.Qty', 'tx_merchant_delivery_order_detail.Price', 'ms_product.ProductName', 'ms_product.ProductImage')
+                ->select('tx_merchant_delivery_order_detail.ProductID', 'tx_merchant_delivery_order_detail.Qty', 'tx_merchant_delivery_order_detail.Price', 'ms_product.ProductName', 'ms_product.ProductImage', 'tx_merchant_delivery_order_detail.Distributor', 'ms_status_order.StatusOrder')
                 ->get()->toArray();
             $value->DetailProduct = $deliveryOrderDetail;
 
@@ -442,7 +443,8 @@ class DistributionController extends Controller
                 ->join('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderID', '=', 'tx_merchant_delivery_order.DeliveryOrderID')
                 ->where('tx_merchant_delivery_order.StockOrderID', '=', $stockOrderID)
                 ->where('tx_merchant_delivery_order_detail.ProductID', '=', $value->ProductID)
-                ->where('tx_merchant_delivery_order.StatusDO', '!=', 'S026')
+                // ->where('tx_merchant_delivery_order.StatusDO', '!=', 'S026')
+                ->where('tx_merchant_delivery_order_detail.StatusExpedition', '!=', 'S037')
                 ->selectRaw('IFNULL(SUM(tx_merchant_delivery_order_detail.Qty), 0) as Qty')
                 ->first();
             $value->QtyDO = $productQtyDO->Qty;

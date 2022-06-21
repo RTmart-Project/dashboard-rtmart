@@ -39,11 +39,20 @@
         <div class="row text-center border-bottom m-0 edit-do">
           <div class="col-3 align-self-center">
             <img src="{{ config('app.base_image_url') . '/product/'. $product->ProductImage }}" alt="" width="80">
+            <br>
+            <span class="badge badge-info">{{ $product->Distributor == "HAISTAR" ? "HAISTAR" : "" }}</span>
           </div>
           <div class="col-3 align-self-center">
             <label>Produk</label>
-            <p>{{ $product->ProductName }}</p>
+            <p class="mb-1">{{ $product->ProductName }}</p>
             <input type="hidden" name="product_id[]" value="{{ $product->ProductID }}">
+            @if ($product->StatusOrder == "Selesai")
+                <span class="badge badge-success">{{ $product->StatusOrder }}</span>
+            @elseif ($product->StatusOrder == "Dibatalkan")
+                <span class="badge badge-danger">{{ $product->StatusOrder }}</span>
+            @else
+                <span class="badge badge-warning">{{ $product->StatusOrder }}</span>
+            @endif
           </div>
           <div class="col-3 align-self-center">
             <label class="d-block">Qty</label>
