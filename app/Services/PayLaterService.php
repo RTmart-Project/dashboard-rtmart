@@ -16,6 +16,7 @@ class PayLaterService
       })
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
       ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
+      ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
       ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tmdo.StatusDO')
       ->where('tmdo.StatusDO', 'S025')
       ->select(
@@ -35,6 +36,9 @@ class PayLaterService
         'tmdo.PaymentNominal',
         'ms_status_order.StatusOrder',
         'ms_distributor.DistributorName',
+        DB::raw("
+          CONCAT(ms_merchant_account.ReferralCode, ' ', ms_sales.SalesName) AS Sales
+        "),
         DB::raw("
           (
             SELECT CONCAT('DO ke-', COUNT(*)) FROM tx_merchant_delivery_order
