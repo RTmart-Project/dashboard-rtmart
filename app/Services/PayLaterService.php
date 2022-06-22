@@ -50,6 +50,7 @@ class PayLaterService
           (
             SELECT SUM(Qty * Price) FROM tx_merchant_delivery_order_detail
             WHERE tx_merchant_delivery_order_detail.DeliveryOrderID = tmdo.DeliveryOrderID
+            AND tx_merchant_delivery_order_detail.StatusExpedition = 'S031'
           ) AS SubTotal
         ")
       );
