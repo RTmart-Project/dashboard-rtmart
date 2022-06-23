@@ -278,7 +278,7 @@ class DeliveryController extends Controller
 
         if ($stockHaistarResponse == 200) {
             try {
-                DB::transaction(function () use ($dataInsertExpedition, $dataInsertExpeditionLog, $deliveryOrderService, $dataExpedition, $vehicleLicensePlate, $user, $newMerchantExpeditionID, $dataForHaistar, $haistarService, $dataForRTmart, $arrayUpdateSeparateDiscount) {
+                DB::transaction(function () use ($dataInsertExpedition, $dataInsertExpeditionLog, $deliveryOrderService, $dataExpedition, $vehicleLicensePlate, $user, $newMerchantExpeditionID, $dataForHaistar, $haistarService, $dataForRTmart, $arrayUpdateSeparateDiscount, $createdDate) {
                     foreach ($dataForHaistar as $key => $value) {
                         if ($value['DeliveryOrderID'] != "") {
                             if ($value['PaymentMethodID'] == 1) {
@@ -331,7 +331,7 @@ class DeliveryController extends Controller
                     }
                     foreach ($dataExpedition->dataDeliveryOrderID as $key => $value) {
                         $deliveryOrderService->updateDeliveryOrder($value->deliveryOrderID, "S024", $dataExpedition->driverID, $dataExpedition->helperID, $dataExpedition->vehicleID, $vehicleLicensePlate);
-                        $deliveryOrderService->insertDeliveryOrderLog($value->deliveryOrderID, "S024", $dataExpedition->driverID, $dataExpedition->helperID, $dataExpedition->vehicleID, $vehicleLicensePlate, $user);
+                        $deliveryOrderService->insertDeliveryOrderLog($value->deliveryOrderID, "S024", $dataExpedition->driverID, $dataExpedition->helperID, $dataExpedition->vehicleID, $vehicleLicensePlate, $user, $createdDate);
                         $deliveryOrderService->updateStatusStockOrder($value->deliveryOrderID);
                     }
                     if (!empty($dataExpedition->dataDeliveryOrderDetailNotChecked)) {

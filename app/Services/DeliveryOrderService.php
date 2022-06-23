@@ -84,7 +84,7 @@ class DeliveryOrderService
     return $sql;
   }
 
-  public function insertDeliveryOrderLog($deliveryOrderID, $statusDO, $driverID, $helperID, $vehicleID, $vehicleLicensePlate, $actionBy)
+  public function insertDeliveryOrderLog($deliveryOrderID, $statusDO, $driverID, $helperID, $vehicleID, $vehicleLicensePlate, $actionBy, $createdDate)
   {
     $getSO = DB::table('tx_merchant_delivery_order')
       ->where('DeliveryOrderID', $deliveryOrderID)
@@ -100,6 +100,7 @@ class DeliveryOrderService
         'HelperID' => $helperID,
         'VehicleID' => $vehicleID,
         'VehicleLicensePlate' => $vehicleLicensePlate,
+        'ProcessTime' => $createdDate,
         'ActionBy' => $actionBy
       ]);
 
