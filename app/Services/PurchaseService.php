@@ -256,7 +256,8 @@ class PurchaseService
       ->where('stock_product.DistributorID', $distributorID)
       ->where('ms_stock_product_log.ProductID', $productID)
       ->where('stock_product.ProductLabel', $label)
-      ->select('stock_product.PurchaseID', 'stock_product.ConditionStock', 'ms_stock_product_log.PurchasePrice', 'ms_stock_product_log.ActionType', 'ms_stock_product_log.ActionBy', 'ms_stock_product_log.QtyBefore', 'ms_stock_product_log.QtyAction', 'ms_stock_product_log.QtyAfter', 'ms_stock_product_log.CreatedDate', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_distributor.DistributorName', 'reference_stock_product.PurchaseID AS RefPurchaseID', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'stock_product.ProductLabel');
+      ->select('stock_product.PurchaseID', 'stock_product.ConditionStock', 'ms_stock_product_log.PurchasePrice', 'ms_stock_product_log.ActionType', 'ms_stock_product_log.ActionBy', 'ms_stock_product_log.QtyBefore', 'ms_stock_product_log.QtyAction', 'ms_stock_product_log.QtyAfter', 'ms_stock_product_log.CreatedDate', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_distributor.DistributorName', 'reference_stock_product.PurchaseID AS RefPurchaseID', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'stock_product.ProductLabel')
+      ->orderByDesc('ms_stock_product_log.StockProductLogID');
 
     return $sql;
   }
