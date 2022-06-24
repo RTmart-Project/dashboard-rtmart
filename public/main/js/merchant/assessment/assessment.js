@@ -176,6 +176,10 @@ $(document).ready(function () {
                         }
                     },
                 },
+                {
+                    aTargets: [20],
+                    visible: false,
+                },
             ],
             order: [2, "desc"],
             lengthChange: false,

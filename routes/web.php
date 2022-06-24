@@ -324,7 +324,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/voucher/log/get', [VoucherController::class, 'getLog'])->name('voucher.getLog');
     });
 
-    Route::group(['middleware' => ['checkRoleUser:IT']], function () {
+    Route::group(['middleware' => ['checkRoleUser:IT,BM']], function () {
         // Monthly Report
         Route::group(['prefix' => 'setting/monthly-report'], function () {
             Route::get('/', [MonthlyReportController::class, 'setting'])->name('setting.monthlyReport');
