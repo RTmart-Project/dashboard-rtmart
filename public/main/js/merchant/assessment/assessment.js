@@ -119,6 +119,12 @@ $(document).ready(function () {
                     searhable: false,
                     orderable: false,
                 },
+                {
+                    data: "Action",
+                    name: "Action",
+                    searhable: false,
+                    orderable: false,
+                },
             ],
             buttons: [
                 {
@@ -169,6 +175,10 @@ $(document).ready(function () {
                             return data;
                         }
                     },
+                },
+                {
+                    aTargets: [20],
+                    visible: false,
                 },
             ],
             order: [2, "desc"],

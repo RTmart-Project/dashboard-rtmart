@@ -1380,8 +1380,8 @@ class DistributionController extends Controller
             $sqlbillPayLater->where('ms_distributor.Depo', '=', $depoUser);
         }
         if ($fromDate != '' && $toDate != '') {
-            $sqlbillPayLater->whereDate('tmdo.CreatedDate', '>=', $fromDate)
-                ->whereDate('tmdo.CreatedDate', '<=', $toDate);
+            $sqlbillPayLater->whereDate('tx_merchant_delivery_order_log.ProcessTime', '>=', $fromDate)
+                ->whereDate('tx_merchant_delivery_order_log.ProcessTime', '<=', $toDate);
         }
         if ($filterIsPaid == "paid") {
             $sqlbillPayLater->where('tmdo.IsPaid', 1);
@@ -1405,8 +1405,8 @@ class DistributionController extends Controller
                     }
                     return $finishDate;
                 })
-                ->editColumn('CreatedDate', function ($data) {
-                    $date = date('d-M-Y H:i', strtotime($data->CreatedDate));
+                ->editColumn('DeliveryDate', function ($data) {
+                    $date = date('d-M-Y H:i', strtotime($data->DeliveryDate));
                     return $date;
                 })
                 ->editColumn('PaymentDate', function ($data) {

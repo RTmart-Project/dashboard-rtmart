@@ -83,6 +83,7 @@
                           <th>Bukti Bon</th>
                           <th>Foto Stok Toko</th>
                           <th>Foto KTP</th>
+                          <th>Action</th>
                         </tr>
                       </thead>
                       <tbody>
