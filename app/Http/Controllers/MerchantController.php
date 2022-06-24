@@ -633,6 +633,10 @@ class MerchantController extends Controller
                                 </div>';
                     return $fotoKTP;
                 })
+                ->addColumn('Action', function ($data) {
+                    $edit = '<a class="btn btn-xs btn-warning" href="/merchant/assessment/edit/' . $data->MerchantAssessmentID . '">Edit</a>';
+                    return $edit;
+                })
                 ->orderColumn('CountPO', '-CountPO $1')
                 ->filterColumn('MerchantName', function ($query, $keyword) {
                     $query->whereRaw("ANY_VALUE(ms_merchant_account.StoreName) like ?", ["%$keyword%"]);
@@ -646,7 +650,7 @@ class MerchantController extends Controller
                 ->filterColumn('SalesName', function ($query, $keyword) {
                     $query->whereRaw("ANY_VALUE(sales_merchant.SalesName) like ?", ["%$keyword%"]);
                 })
-                ->rawColumns(['Checkbox', 'MerchantPhoto', 'StruckPhoto', 'StockPhoto', 'IdCardPhoto'])
+                ->rawColumns(['Checkbox', 'MerchantPhoto', 'StruckPhoto', 'StockPhoto', 'IdCardPhoto', 'Action'])
                 ->make(true);
         }
     }
@@ -757,6 +761,15 @@ class MerchantController extends Controller
         } catch (\Throwable $th) {
             return redirect()->route('merchant.assessment')->with('failed', 'Terjadi kesalahan!');
         }
+    }
+
+    public function editAssessment($assessmentID, Request $request, MerchantService $merchantService)
+    {
+        $assessment = $merchantService->getDataAssessmentByID($assessmentID);
+
+        return view('merchant.assessment.edit', [
+            'assessment' => $assessment->first()
+        ]);
     }
 
     public function checkedAssessment($assessmentID)

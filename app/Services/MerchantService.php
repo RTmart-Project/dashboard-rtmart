@@ -408,4 +408,20 @@ class MerchantService
 
         return $sql;
     }
+
+    public function getDataAssessmentByID($assessmentID)
+    {
+        $sql = DB::table('ms_merchant_assessment')
+            ->where('ms_merchant_assessment.MerchantAssessmentID', $assessmentID)
+            ->select(
+                'ms_merchant_assessment.PhotoMerchantFront',
+                'ms_merchant_assessment.PhotoMerchantSide',
+                'ms_merchant_assessment.StruckDistribution',
+                'ms_merchant_assessment.PhotoStockProduct',
+                'ms_merchant_assessment.PhotoIDCard',
+                'ms_merchant_assessment.NumberIDCard'
+            );
+
+        return $sql;
+    }
 }

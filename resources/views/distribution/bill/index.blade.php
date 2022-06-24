@@ -41,7 +41,7 @@
                           <th>Nama Toko</th>
                           <th>No. Telepon</th>
                           <th>Sales</th>
-                          <th>Tgl DO</th>
+                          <th>Tgl Kirim</th>
                           <th>Tgl Selesai</th>
                           <th>Tgl Jatuh Tempo</th>
                           <th>Tenggat Waktu</th>

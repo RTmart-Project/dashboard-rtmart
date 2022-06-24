@@ -17,30 +17,51 @@ $(document).ready(function () {
                 url: window.location.href,
             },
             columns: [
-                { data: "PurchaseID", name: "ms_stock_product.PurchaseID" },
-                { data: "QtyBefore", name: "ms_stock_product_log.QtyBefore" },
-                { data: "QtyAction", name: "ms_stock_product_log.QtyAction" },
-                { data: "QtyAfter", name: "ms_stock_product_log.QtyAfter" },
+                {
+                    data: "PurchaseID",
+                    name: "ms_stock_product.PurchaseID",
+                    orderable: false,
+                },
+                {
+                    data: "QtyBefore",
+                    name: "ms_stock_product_log.QtyBefore",
+                    orderable: false,
+                },
+                {
+                    data: "QtyAction",
+                    name: "ms_stock_product_log.QtyAction",
+                    orderable: false,
+                },
+                {
+                    data: "QtyAfter",
+                    name: "ms_stock_product_log.QtyAfter",
+                    orderable: false,
+                },
                 {
                     data: "PurchasePrice",
                     name: "ms_stock_product_log.PurchasePrice",
+                    orderable: false,
                 },
                 {
                     data: "CreatedDate",
                     name: "ms_stock_product_log.CreatedDate",
                     type: "date",
+                    orderable: false,
                 },
                 {
                     data: "ConditionStock",
                     name: "ms_stock_product.ConditionStock",
+                    orderable: false,
                 },
                 {
                     data: "ActionType",
                     name: "ms_stock_product_log.ActionType",
+                    orderable: false,
                 },
                 {
                     data: "ActionBy",
                     name: "ms_stock_product_log.ActionBy",
+                    orderable: false,
                 },
             ],
             buttons: [
@@ -69,10 +90,7 @@ $(document).ready(function () {
                     visible: roleID == "AD" ? false : true,
                 },
             ],
-            order: [
-                [5, "desc"],
-                [0, "desc"],
-            ],
+            ordering: false,
             lengthChange: false,
             responsive: true,
             autoWidth: false,

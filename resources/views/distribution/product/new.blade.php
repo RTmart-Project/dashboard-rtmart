@@ -169,7 +169,7 @@
                     if(res){
                         let option = '';
                         $.each(res, function(index, value){
-                            option += `<option value="${value.ProductID}">${value.ProductName} -- Isi ${value.ProductUOMDesc} ${value.ProductUOMName}</option>`;
+                            option += `<option value="${value.ProductID}">${value.ProductID} - ${value.ProductName} -- Isi ${value.ProductUOMDesc} ${value.ProductUOMName}</option>`;
                         });
                         $('#product').html(option);
                         $('#product').selectpicker('refresh');

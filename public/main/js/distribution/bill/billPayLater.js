@@ -54,8 +54,9 @@ $(document).ready(function () {
                     name: "Sales",
                 },
                 {
-                    data: "CreatedDate",
-                    name: "tmdo.CreatedDate",
+                    data: "DeliveryDate",
+                    name: "DeliveryDate",
+                    searchable: false,
                 },
                 {
                     data: "FinishDate",
@@ -64,6 +65,7 @@ $(document).ready(function () {
                 {
                     data: "DueDate",
                     name: "DueDate",
+                    type: "date",
                 },
                 {
                     data: "RemainingDay",

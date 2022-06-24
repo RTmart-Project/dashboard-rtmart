@@ -491,7 +491,7 @@
             </li>
             @endif
 
-            @if (Auth::user()->RoleID == "IT")
+            @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM")
             <li class="nav-item {{ Request::is('setting*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('setting*') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-tools"></i>
@@ -501,6 +501,7 @@
                     </p>
                 </a>
                 <ul class="nav nav-treeview">
+                    @if (Auth::user()->RoleID == "IT")
                     <li class="nav-item">
                         <a href="{{ route('setting.monthlyReport') }}"
                             class="nav-link {{ Request::is('setting/monthly-report*') ? 'active' : '' }}">
@@ -508,6 +509,8 @@
                             <p>Monthly Report</p>
                         </a>
                     </li>
+                    @endif
+                    @if (Auth::user()->RoleID == "IT")
                     <li class="nav-item">
                         <a href="{{ route('setting.users') }}"
                             class="nav-link {{ Request::is('setting/users*') ? 'active' : '' }}">
@@ -515,6 +518,8 @@
                             <p>Pengguna</p>
                         </a>
                     </li>
+                    @endif
+                    @if (Auth::user()->RoleID == "IT")
                     <li class="nav-item">
                         <a href="{{ route('setting.role') }}"
                             class="nav-link {{ Request::is('setting/role*') ? 'active' : '' }}">
@@ -522,6 +527,8 @@
                             <p>Role</p>
                         </a>
                     </li>
+                    @endif
+                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM")
                     <li class="nav-item {{ Request::is('setting/module*') ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link {{ Request::is('setting/module*') ? 'active' : '' }}">
                             <i class="far fa-circle nav-icon"></i>
@@ -530,6 +537,7 @@
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
+                            @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM")
                             <li class="nav-item">
                                 <a href="{{ route('setting.fairbanc') }}"
                                     class="nav-link {{ Request::is('*module/fairbanc*') ? 'active' : '' }}">
@@ -537,6 +545,8 @@
                                     <p>Fairbanc</p>
                                 </a>
                             </li>
+                            @endif
+                            @if (Auth::user()->RoleID == "IT")
                             <li class="nav-item">
                                 <a href="{{ route('setting.haistar') }}"
                                     class="nav-link {{ Request::is('*module/haistar*') ? 'active' : '' }}">
@@ -544,8 +554,10 @@
                                     <p>Haistar</p>
                                 </a>
                             </li>
+                            @endif
                         </ul>
                     </li>
+                    @endif
                 </ul>
             </li>
             @endif
