@@ -414,6 +414,9 @@ class MerchantService
         $sql = DB::table('ms_merchant_assessment')
             ->where('ms_merchant_assessment.MerchantAssessmentID', $assessmentID)
             ->select(
+                'ms_merchant_assessment.MerchantAssessmentID',
+                'ms_merchant_assessment.StoreID',
+                'ms_merchant_assessment.MerchantID',
                 'ms_merchant_assessment.PhotoMerchantFront',
                 'ms_merchant_assessment.PhotoMerchantSide',
                 'ms_merchant_assessment.StruckDistribution',

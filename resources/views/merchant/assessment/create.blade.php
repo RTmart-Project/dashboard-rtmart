@@ -94,7 +94,7 @@
                 </div>
                 <div class="col-md-6 col-12">
                   <div class="form-group">
-                    <label for="stock_photo">Foto KTP</label>
+                    <label for="id_card_photo">Foto KTP</label>
                     <input type="file" name="id_card_photo" id="id_card_photo"
                       onchange="loadFileMultiple(event, 'id_card_view')" required
                       class="form-control @if($errors->has('id_card_photo')) is-invalid @endif" accept="image/*">
