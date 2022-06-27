@@ -594,6 +594,9 @@ class MerchantController extends Controller
                     }
                     return $salesName;
                 })
+                ->editColumn('BirthDateIDCard', function ($data) {
+                    return date('d-M-Y', strtotime($data->BirthDateIDCard));
+                })
                 ->addColumn('Note', function ($data) {
                     if ($data->IsDownload == 1) {
                         $ket = "Foto KTP Valid";
@@ -844,7 +847,9 @@ class MerchantController extends Controller
             'StruckDistribution' => $struckPhotoName,
             'PhotoStockProduct' => $stockPhotoName,
             'PhotoIDCard' => $idCardPhotoName,
-            'NumberIDCard' => $request->input('id_card_number')
+            'NumberIDCard' => $request->input('id_card_number'),
+            'NameIDCard' => $request->input('full_name'),
+            'BirthDateIDCard' => $request->input('birth_date')
         ];
 
         $update = DB::table('ms_merchant_assessment')

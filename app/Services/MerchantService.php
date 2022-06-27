@@ -381,6 +381,8 @@ class MerchantService
                 ms_merchant_assessment.PhotoStockProduct,
                 ms_merchant_assessment.PhotoIDCard,
                 ms_merchant_assessment.NumberIDCard,
+                ms_merchant_assessment.NameIDCard,
+                ms_merchant_assessment.BirthDateIDCard,
                 ms_merchant_assessment.StoreID,
                 ms_merchant_assessment.MerchantID,
                 ms_merchant_assessment.CreatedAt,
@@ -428,7 +430,9 @@ class MerchantService
                 'ms_merchant_assessment.StruckDistribution',
                 'ms_merchant_assessment.PhotoStockProduct',
                 'ms_merchant_assessment.PhotoIDCard',
-                'ms_merchant_assessment.NumberIDCard'
+                'ms_merchant_assessment.NumberIDCard',
+                'ms_merchant_assessment.NameIDCard',
+                'ms_merchant_assessment.BirthDateIDCard'
             );
 
         return $sql;

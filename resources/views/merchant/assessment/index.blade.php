@@ -75,6 +75,8 @@
                           <th>No. HP Merchant</th>
                           <th>Jml PO (25Mei'22 - skrg)</th>
                           <th>No. KTP</th>
+                          <th>Nama Lengkap</th>
+                          <th>Tanggal Lahir</th>
                           <th>Keterangan</th>
                           <th>Omset /bulan</th>
                           <th>Transaksi</th>
