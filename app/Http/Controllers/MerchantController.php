@@ -794,7 +794,6 @@ class MerchantController extends Controller
 
         if ($request->hasFile('merchant_front_photo')) {
             $frontPhotoName = $assessment->StoreID . 'photoMerchantFront' . time() . '.' . $request->file('merchant_front_photo')->extension();
-            unlink($this->saveImageUrl . "rtsales/merchantassessment/" . $assessment->PhotoMerchantFront);
             $request->file('merchant_front_photo')->move($this->saveImageUrl . 'rtsales/merchantassessment/', $frontPhotoName);
         } else {
             $frontPhotoName = $assessment->PhotoMerchantFront;
@@ -802,7 +801,6 @@ class MerchantController extends Controller
 
         if ($request->hasFile('merchant_side_photo')) {
             $sidePhotoName = $assessment->StoreID . 'photoMerchantSide' . time() . '.' . $request->file('merchant_side_photo')->extension();
-            unlink($this->saveImageUrl . "rtsales/merchantassessment/" . $assessment->PhotoMerchantSide);
             $request->file('merchant_side_photo')->move($this->saveImageUrl . 'rtsales/merchantassessment/', $sidePhotoName);
         } else {
             $sidePhotoName = $assessment->PhotoMerchantSide;
@@ -810,7 +808,6 @@ class MerchantController extends Controller
 
         if ($request->hasFile('struck_photo')) {
             $struckPhotoName = $assessment->StoreID . 'struckDistribution' . time() . '.' . $request->file('struck_photo')->extension();
-            unlink($this->saveImageUrl . "rtsales/merchantassessment/" . $assessment->StruckDistribution);
             $request->file('struck_photo')->move($this->saveImageUrl . 'rtsales/merchantassessment/', $struckPhotoName);
         } else {
             $struckPhotoName = $assessment->StruckDistribution;
@@ -818,29 +815,29 @@ class MerchantController extends Controller
 
         if ($request->hasFile('stock_photo')) {
             $stockPhotoName = $assessment->StoreID . 'photoStockProduct' . time() . '.' . $request->file('stock_photo')->extension();
-            unlink($this->saveImageUrl . "rtsales/merchantassessment/" . $assessment->PhotoStockProduct);
             $request->file('stock_photo')->move($this->saveImageUrl . 'rtsales/merchantassessment/', $stockPhotoName);
         } else {
             $stockPhotoName = $assessment->PhotoStockProduct;
         }
 
         if ($request->hasFile('id_card_photo')) {
+            $idCardPhotoName = $assessment->StoreID . 'photoIDCard' . time() . '.' . $request->file('id_card_photo')->extension();
+            $requestFileExtension = $request->file('id_card_photo')->extension();
+            $request->file('id_card_photo')->move($this->saveImageUrl . 'rtsales/merchantassessment/', $idCardPhotoName);
+
             $oldIdCardImage = $this->saveImageUrl . "rtsales/merchantassessment/" . $assessment->PhotoIDCard;
             $fileExtension = File::extension($oldIdCardImage);
             $imagePath = $this->saveImageUrl . "rtsales/merchantassessmentdownload/" . $assessment->MerchantID . "." . $fileExtension;
+
             if (file_exists($imagePath)) {
                 unlink($imagePath);
-                $idCardMerchantName = $assessment->MerchantID . '.' . $request->file('id_card_photo')->extension();
-                $request->file('id_card_photo')->move($this->saveImageUrl . 'rtsales/merchantassessmentdownload/', $idCardMerchantName);
+                $idCardMerchantName = $assessment->MerchantID . '.' . $requestFileExtension;
+                copy($this->saveImageUrl . 'rtsales/merchantassessment/' . $idCardPhotoName, $this->saveImageUrl . 'rtsales/merchantassessmentdownload/' . $idCardMerchantName);
             }
-
-            $idCardPhotoName = $assessment->StoreID . 'photoIDCard' . time() . '.' . $request->file('id_card_photo')->extension();
-            unlink($this->saveImageUrl . "rtsales/merchantassessment/" . $assessment->PhotoIDCard);
-            $request->file('id_card_photo')->move($this->saveImageUrl . 'rtsales/merchantassessment/', $idCardPhotoName);
         } else {
             $idCardPhotoName = $assessment->PhotoIDCard;
         }
-
+        dd("ok");
         $data = [
             'PhotoMerchantFront' => $frontPhotoName,
             'PhotoMerchantSide' => $sidePhotoName,
