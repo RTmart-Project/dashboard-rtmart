@@ -74,6 +74,14 @@ $(document).ready(function () {
                     name: "ms_merchant_assessment.NumberIDCard",
                 },
                 {
+                    data: "NameIDCard",
+                    name: "ms_merchant_assessment.NameIDCard",
+                },
+                {
+                    data: "BirthDateIDCard",
+                    name: "ms_merchant_assessment.BirthDateIDCard",
+                },
+                {
                     data: "Note",
                     name: "Note",
                     orderable: false,
@@ -145,7 +153,8 @@ $(document).ready(function () {
                             page: "all",
                         },
                         columns: [
-                            2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                            2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+                            17,
                         ],
                         orthogonal: "export",
                     },
@@ -153,7 +162,7 @@ $(document).ready(function () {
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [12],
+                    aTargets: [14],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
@@ -179,7 +188,7 @@ $(document).ready(function () {
                     },
                 },
                 {
-                    aTargets: [20],
+                    aTargets: [22],
                     visible: roleID == "IT" || roleID == "FI" ? true : false,
                     // visible: false,
                 },

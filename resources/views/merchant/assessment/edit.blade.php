@@ -156,6 +156,28 @@
                     @endif
                   </div>
                 </div>
+                <div class="col-md-6 col-12">
+                  <div class="form-group">
+                    <label for="full_name">Nama lengkap</label>
+                    <input type="text" name="full_name" id="full_name" placeholder="Masukan Nama Lengkap"
+                      value="{{ old('full_name') ? old('full_name') : $assessment->NameIDCard }}" required autocomplete="off"
+                      class="form-control @if($errors->has('full_name')) is-invalid @endif" required>
+                    @if($errors->has('full_name'))
+                    <span class="error invalid-feedback">{{ $errors->first('full_name') }}</span>
+                    @endif
+                  </div>
+                </div>
+                <div class="col-md-6 col-12">
+                  <div class="form-group">
+                    <label for="birth_date">Tanggal Lahir</label>
+                    <input type="date" name="birth_date" id="birth_date" placeholder="Masukan Tanggal Lahir"
+                      value="{{ old('birth_date') ? old('birth_date') : $assessment->BirthDateIDCard }}" required autocomplete="off"
+                      class="form-control @if($errors->has('birth_date')) is-invalid @endif" required>
+                    @if($errors->has('birth_date'))
+                    <span class="error invalid-feedback">{{ $errors->first('birth_date') }}</span>
+                    @endif
+                  </div>
+                </div>
               </div>
               <div class="form-group float-right">
                 <button type="submit" class="btn btn-warning">Simpan</button>
