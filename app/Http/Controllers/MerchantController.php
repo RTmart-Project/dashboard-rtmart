@@ -837,7 +837,7 @@ class MerchantController extends Controller
         } else {
             $idCardPhotoName = $assessment->PhotoIDCard;
         }
-        dd("ok");
+
         $data = [
             'PhotoMerchantFront' => $frontPhotoName,
             'PhotoMerchantSide' => $sidePhotoName,
