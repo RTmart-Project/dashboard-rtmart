@@ -13,7 +13,7 @@
 		<!-- Invoice styling -->
 		<style>
 			body {
-				font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+				font-family: Arial, sans-serif;
 				text-align: center;
 				color: #777;
 			}
@@ -49,7 +49,7 @@
 				box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
 				font-size: 16px;
 				line-height: 24px;
-				font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+				font-family: Arial, sans-serif;
 				color: #555;
 			}
 
@@ -196,6 +196,11 @@
 				<div class="col-6 text-right">
 					{{ $merchant->StoreAddress }}
 				</div>
+				<div class="col-12 text-right">
+					<label class="mb-1">Metode Pembayaran</label>
+					<br>
+					{{ $merchant->PaymentMethodName }}
+				</div>
 			</div>
 
 			<table class="mb-3">
@@ -255,15 +260,28 @@
 			</table>
 			<div class="border-top">
 				<div class="row mt-4 text-left">
-					<div class="col-7">
+					<div class="col-4">
 						@if ($merchant->Distributor == "HAISTAR")
 							Pengirim : <strong>HAISTAR</strong>
 						@else
 							Pengirim : <strong>{{ $merchant->Name == "" ? '-' : $merchant->Name }}</strong>
 						@endif
 					</div>
-					<div class="col-5">
-						Metode Pembayaran : <strong>{{ $merchant->PaymentMethodName }}</strong>
+					<div class="text-center col-4">
+						Security
+						<br>
+						<br>
+						<br>
+						<br>
+						( ................................. )
+					</div>
+					<div class="col-4 text-center">
+						Penerima
+						<br>
+						<br>
+						<br>
+						<br>
+						( ................................. )
 					</div>
 					<div class="col-7 mt-5">
 						<small>Invoice ini sah dan diproses oleh komputer</small> <br>

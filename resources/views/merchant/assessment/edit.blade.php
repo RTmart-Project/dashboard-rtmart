@@ -40,7 +40,7 @@
               Kembali</a>
           </div>
           <div class="card-body">
-            <form id="create-assessment" method="post" action="{{ route('merchant.storeAssessment') }}"
+            <form id="edit-assessment" method="post" action="{{ route('merchant.updateAssessment', ['assessmentID' => $assessmentID]) }}"
               enctype="multipart/form-data">
               @csrf
               <div class="row">
@@ -48,7 +48,7 @@
                   <div class="form-group">
                     <label for="merchant_front_photo">Foto Toko (Tampak Depan)</label>
                     <input type="file" name="merchant_front_photo" id="merchant_front_photo"
-                      onchange="loadFileMultiple(event, 'front_view')" required
+                      onchange="loadFileMultiple(event, 'front_view')"
                       class="form-control @if($errors->has('merchant_front_photo')) is-invalid @endif" accept="image/*">
                     @if($errors->has('merchant_front_photo'))
                     <span class="error invalid-feedback">{{ $errors->first('merchant_front_photo') }}</span>
@@ -61,7 +61,7 @@
                   <div class="form-group">
                     <label for="merchant_side_photo">Foto Toko (Tampak Samping)</label>
                     <input type="file" name="merchant_side_photo" id="merchant_side_photo"
-                      onchange="loadFileMultiple(event, 'side_view')" required
+                      onchange="loadFileMultiple(event, 'side_view')"
                       class="form-control @if($errors->has('merchant_side_photo')) is-invalid @endif" accept="image/*">
                     @if($errors->has('merchant_side_photo'))
                     <span class="error invalid-feedback">{{ $errors->first('merchant_side_photo') }}</span>
@@ -74,7 +74,7 @@
                   <div class="form-group">
                     <label for="struck_photo">Bukti Bon</label>
                     <input type="file" name="struck_photo" id="struck_photo"
-                      onchange="loadFileMultiple(event, 'struck_view')" required
+                      onchange="loadFileMultiple(event, 'struck_view')"
                       class="form-control @if($errors->has('struck_photo')) is-invalid @endif" accept="image/*">
                     @if($errors->has('struck_photo'))
                     <span class="error invalid-feedback">{{ $errors->first('struck_photo') }}</span>
@@ -87,7 +87,7 @@
                   <div class="form-group">
                     <label for="stock_photo">Foto Stok Toko</label>
                     <input type="file" name="stock_photo" id="stock_photo"
-                      onchange="loadFileMultiple(event, 'stock_view')" required
+                      onchange="loadFileMultiple(event, 'stock_view')"
                       class="form-control @if($errors->has('stock_photo')) is-invalid @endif" accept="image/*">
                     @if($errors->has('stock_photo'))
                     <span class="error invalid-feedback">{{ $errors->first('stock_photo') }}</span>
@@ -98,9 +98,9 @@
                 </div>
                 <div class="col-md-6 col-12">
                   <div class="form-group">
-                    <label for="stock_photo">Foto KTP</label>
+                    <label for="id_card_photo">Foto KTP</label>
                     <input type="file" name="id_card_photo" id="id_card_photo"
-                      onchange="loadFileMultiple(event, 'id_card_view')" required
+                      onchange="loadFileMultiple(event, 'id_card_view')"
                       class="form-control @if($errors->has('id_card_photo')) is-invalid @endif" accept="image/*">
                     @if($errors->has('id_card_photo'))
                     <span class="error invalid-feedback">{{ $errors->first('id_card_photo') }}</span>
@@ -114,7 +114,7 @@
                     <label for="id_card_number">No. KTP</label>
                     <input type="number" name="id_card_number" id="id_card_number" placeholder="Masukan No. KTP"
                       value="{{ old('id_card_number') ? old('id_card_number') : $assessment->NumberIDCard }}" required autocomplete="off"
-                      class="form-control @if($errors->has('id_card_number')) is-invalid @endif">
+                      class="form-control @if($errors->has('id_card_number')) is-invalid @endif" required>
                     @if($errors->has('id_card_number'))
                     <span class="error invalid-feedback">{{ $errors->first('id_card_number') }}</span>
                     @endif

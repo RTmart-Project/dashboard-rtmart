@@ -283,6 +283,7 @@
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
                                                     <th>Nama Pemilik</th>
+                                                    <th>Alamat Toko</th>
                                                     <th>No. KTP</th>
                                                     <th>Keterangan</th>
                                                     <th>Omset Rata-Rata</th>
@@ -328,6 +329,7 @@
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
                                                     <th>Nama Pemilik</th>
+                                                    <th>Alamat Toko</th>
                                                     <th>No. KTP</th>
                                                     <th>Keterangan</th>
                                                     <th>Omset Rata-Rata</th>

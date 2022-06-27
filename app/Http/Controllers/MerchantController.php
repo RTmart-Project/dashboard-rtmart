@@ -604,11 +604,11 @@ class MerchantController extends Controller
                 })
                 ->addColumn('MerchantPhoto', function ($data) {
                     $img1 = '<div class="border text-center px-2">
-                                <img src="' . $this->baseImageUrl . '/rtsales/merchantassessment/' . $data->PhotoMerchantFront . '" width="90px" height="70px" style="object-fit:cover;" />
+                                <img src="' . $this->baseImageUrl . 'rtsales/merchantassessment/' . $data->PhotoMerchantFront . '" width="90px" height="70px" style="object-fit:cover;" />
                                 <p>Tampak Depan</p>
                             </div>';
                     $img2 = '<div class="border text-center px-2">
-                                <img src="' . $this->baseImageUrl . '/rtsales/merchantassessment/' . $data->PhotoMerchantSide . '" width="90px" height="70px" style="object-fit:cover;" />
+                                <img src="' . $this->baseImageUrl . 'rtsales/merchantassessment/' . $data->PhotoMerchantSide . '" width="90px" height="70px" style="object-fit:cover;" />
                                 <p>Tampak Samping</p>
                             </div>';
                     $fotoToko = '<div class="d-flex border">' . $img1 . $img2 . '</div>';
@@ -617,19 +617,19 @@ class MerchantController extends Controller
                 })
                 ->addColumn('StruckPhoto', function ($data) {
                     $fotoStruk = '<div class="border text-center px-2">
-                                    <img src="' . $this->baseImageUrl . '/rtsales/merchantassessment/' . $data->StruckDistribution . '" width="90px" height="70px" style="object-fit:cover;" />
+                                    <img src="' . $this->baseImageUrl . 'rtsales/merchantassessment/' . $data->StruckDistribution . '" width="90px" height="70px" style="object-fit:cover;" />
                                 </div>';
                     return $fotoStruk;
                 })
                 ->addColumn('StockPhoto', function ($data) {
                     $fotoStok = '<div class="border text-center px-2">
-                                    <img src="' . $this->baseImageUrl . '/rtsales/merchantassessment/' . $data->PhotoStockProduct . '" width="90px" height="70px" style="object-fit:cover;" />
+                                    <img src="' . $this->baseImageUrl . 'rtsales/merchantassessment/' . $data->PhotoStockProduct . '" width="90px" height="70px" style="object-fit:cover;" />
                                 </div>';
                     return $fotoStok;
                 })
                 ->addColumn('IdCardPhoto', function ($data) {
                     $fotoKTP = '<div class="border text-center px-2">
-                                    <img src="' . $this->baseImageUrl . '/rtsales/merchantassessment/' . $data->PhotoIDCard . '" width="90px" height="70px" style="object-fit:cover;" />
+                                    <img src="' . $this->baseImageUrl . 'rtsales/merchantassessment/' . $data->PhotoIDCard . '" width="90px" height="70px" style="object-fit:cover;" />
                                 </div>';
                     return $fotoKTP;
                 })
@@ -763,13 +763,102 @@ class MerchantController extends Controller
         }
     }
 
-    public function editAssessment($assessmentID, Request $request, MerchantService $merchantService)
+    public function editAssessment($assessmentID, MerchantService $merchantService)
     {
         $assessment = $merchantService->getDataAssessmentByID($assessmentID);
 
         return view('merchant.assessment.edit', [
+            'assessmentID' => $assessmentID,
             'assessment' => $assessment->first()
         ]);
+    }
+
+    public function updateAssessment($assessmentID, Request $request, MerchantService $merchantService)
+    {
+        $request->validate([
+            'merchant_front_photo' => 'image',
+            'merchant_side_photo' => 'image',
+            'struck_photo' => 'image',
+            'stock_photo' => 'image',
+            'id_card_photo' => 'image',
+            'id_card_number' => [
+                'required', 'numeric', 'digits:16',
+                Rule::unique('ms_merchant_assessment', 'NumberIDCard')
+                    ->ignore($assessmentID, 'MerchantAssessmentID')
+                    ->where(function ($query) {
+                        return $query->where('IsActive', 1);
+                    })
+            ]
+        ]);
+        $assessment = $merchantService->getDataAssessmentByID($assessmentID)->first();
+
+        if ($request->hasFile('merchant_front_photo')) {
+            $frontPhotoName = $assessment->StoreID . 'photoMerchantFront' . time() . '.' . $request->file('merchant_front_photo')->extension();
+            unlink($this->saveImageUrl . "rtsales/merchantassessment/" . $assessment->PhotoMerchantFront);
+            $request->file('merchant_front_photo')->move($this->saveImageUrl . 'rtsales/merchantassessment/', $frontPhotoName);
+        } else {
+            $frontPhotoName = $assessment->PhotoMerchantFront;
+        }
+
+        if ($request->hasFile('merchant_side_photo')) {
+            $sidePhotoName = $assessment->StoreID . 'photoMerchantSide' . time() . '.' . $request->file('merchant_side_photo')->extension();
+            unlink($this->saveImageUrl . "rtsales/merchantassessment/" . $assessment->PhotoMerchantSide);
+            $request->file('merchant_side_photo')->move($this->saveImageUrl . 'rtsales/merchantassessment/', $sidePhotoName);
+        } else {
+            $sidePhotoName = $assessment->PhotoMerchantSide;
+        }
+
+        if ($request->hasFile('struck_photo')) {
+            $struckPhotoName = $assessment->StoreID . 'struckDistribution' . time() . '.' . $request->file('struck_photo')->extension();
+            unlink($this->saveImageUrl . "rtsales/merchantassessment/" . $assessment->StruckDistribution);
+            $request->file('struck_photo')->move($this->saveImageUrl . 'rtsales/merchantassessment/', $struckPhotoName);
+        } else {
+            $struckPhotoName = $assessment->StruckDistribution;
+        }
+
+        if ($request->hasFile('stock_photo')) {
+            $stockPhotoName = $assessment->StoreID . 'photoStockProduct' . time() . '.' . $request->file('stock_photo')->extension();
+            unlink($this->saveImageUrl . "rtsales/merchantassessment/" . $assessment->PhotoStockProduct);
+            $request->file('stock_photo')->move($this->saveImageUrl . 'rtsales/merchantassessment/', $stockPhotoName);
+        } else {
+            $stockPhotoName = $assessment->PhotoStockProduct;
+        }
+
+        if ($request->hasFile('id_card_photo')) {
+            $oldIdCardImage = $this->saveImageUrl . "rtsales/merchantassessment/" . $assessment->PhotoIDCard;
+            $fileExtension = File::extension($oldIdCardImage);
+            $imagePath = $this->saveImageUrl . "rtsales/merchantassessmentdownload/" . $assessment->MerchantID . "." . $fileExtension;
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+                $idCardMerchantName = $assessment->MerchantID . '.' . $request->file('id_card_photo')->extension();
+                $request->file('id_card_photo')->move($this->saveImageUrl . 'rtsales/merchantassessmentdownload/', $idCardMerchantName);
+            }
+
+            $idCardPhotoName = $assessment->StoreID . 'photoIDCard' . time() . '.' . $request->file('id_card_photo')->extension();
+            unlink($this->saveImageUrl . "rtsales/merchantassessment/" . $assessment->PhotoIDCard);
+            $request->file('id_card_photo')->move($this->saveImageUrl . 'rtsales/merchantassessment/', $idCardPhotoName);
+        } else {
+            $idCardPhotoName = $assessment->PhotoIDCard;
+        }
+
+        $data = [
+            'PhotoMerchantFront' => $frontPhotoName,
+            'PhotoMerchantSide' => $sidePhotoName,
+            'StruckDistribution' => $struckPhotoName,
+            'PhotoStockProduct' => $stockPhotoName,
+            'PhotoIDCard' => $idCardPhotoName,
+            'NumberIDCard' => $request->input('id_card_number')
+        ];
+
+        $update = DB::table('ms_merchant_assessment')
+            ->where('ms_merchant_assessment.MerchantAssessmentID', $assessmentID)
+            ->update($data);
+
+        if ($update) {
+            return redirect()->route('merchant.assessment')->with('success', 'Data Assessment berhasil diubah');
+        } else {
+            return redirect()->route('merchant.assessment')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
+        }
     }
 
     public function checkedAssessment($assessmentID)

@@ -5,6 +5,8 @@ $(document).ready(function () {
     dataTablesMerchantAssessment();
 
     function dataTablesMerchantAssessment() {
+        let roleID = $('meta[name="role-id"]').attr("content");
+
         $("#merchant-assessment .table-datatables").DataTable({
             dom:
                 "<'row'<'col-sm-12 col-md-8'<'filter-merchant-assessment'>tl><l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
@@ -178,6 +180,7 @@ $(document).ready(function () {
                 },
                 {
                     aTargets: [20],
+                    // visible: roleID == "IT" || roleID == "FI" ? true : false,
                     visible: false,
                 },
             ],

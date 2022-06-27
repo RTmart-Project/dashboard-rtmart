@@ -11,7 +11,7 @@
 		<!-- Invoice styling -->
 		<style>
 			body {
-				font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+				font-family: Arial, sans-serif;
 				text-align: center;
 				color: #777;
 			}
@@ -47,7 +47,7 @@
 				box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
 				font-size: 16px;
 				line-height: 24px;
-				font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
+				font-family: Arial, sans-serif;
 				color: #555;
 			}
 
