@@ -604,11 +604,11 @@ class MerchantController extends Controller
                 })
                 ->addColumn('MerchantPhoto', function ($data) {
                     $img1 = '<div class="border text-center px-2">
-                                <img src="' . $this->baseImageUrl . '/rtsales/merchantassessment/' . $data->PhotoMerchantFront . '" width="90px" height="70px" style="object-fit:cover;" />
+                                <img src="' . $this->baseImageUrl . 'rtsales/merchantassessment/' . $data->PhotoMerchantFront . '" width="90px" height="70px" style="object-fit:cover;" />
                                 <p>Tampak Depan</p>
                             </div>';
                     $img2 = '<div class="border text-center px-2">
-                                <img src="' . $this->baseImageUrl . '/rtsales/merchantassessment/' . $data->PhotoMerchantSide . '" width="90px" height="70px" style="object-fit:cover;" />
+                                <img src="' . $this->baseImageUrl . 'rtsales/merchantassessment/' . $data->PhotoMerchantSide . '" width="90px" height="70px" style="object-fit:cover;" />
                                 <p>Tampak Samping</p>
                             </div>';
                     $fotoToko = '<div class="d-flex border">' . $img1 . $img2 . '</div>';
@@ -617,19 +617,19 @@ class MerchantController extends Controller
                 })
                 ->addColumn('StruckPhoto', function ($data) {
                     $fotoStruk = '<div class="border text-center px-2">
-                                    <img src="' . $this->baseImageUrl . '/rtsales/merchantassessment/' . $data->StruckDistribution . '" width="90px" height="70px" style="object-fit:cover;" />
+                                    <img src="' . $this->baseImageUrl . 'rtsales/merchantassessment/' . $data->StruckDistribution . '" width="90px" height="70px" style="object-fit:cover;" />
                                 </div>';
                     return $fotoStruk;
                 })
                 ->addColumn('StockPhoto', function ($data) {
                     $fotoStok = '<div class="border text-center px-2">
-                                    <img src="' . $this->baseImageUrl . '/rtsales/merchantassessment/' . $data->PhotoStockProduct . '" width="90px" height="70px" style="object-fit:cover;" />
+                                    <img src="' . $this->baseImageUrl . 'rtsales/merchantassessment/' . $data->PhotoStockProduct . '" width="90px" height="70px" style="object-fit:cover;" />
                                 </div>';
                     return $fotoStok;
                 })
                 ->addColumn('IdCardPhoto', function ($data) {
                     $fotoKTP = '<div class="border text-center px-2">
-                                    <img src="' . $this->baseImageUrl . '/rtsales/merchantassessment/' . $data->PhotoIDCard . '" width="90px" height="70px" style="object-fit:cover;" />
+                                    <img src="' . $this->baseImageUrl . 'rtsales/merchantassessment/' . $data->PhotoIDCard . '" width="90px" height="70px" style="object-fit:cover;" />
                                 </div>';
                     return $fotoKTP;
                 })
@@ -829,7 +829,7 @@ class MerchantController extends Controller
             unlink($this->saveImageUrl . "rtsales/merchantassessment/" . $assessment->PhotoIDCard);
             $request->file('id_card_photo')->move($this->saveImageUrl . 'rtsales/merchantassessment/', $idCardPhotoName);
 
-            $oldIdCardImage = $this->saveImageUrl . "rtsales/merchantassessmentdownload/" . $assessment->PhotoIDCard;
+            $oldIdCardImage = $this->saveImageUrl . "rtsales/merchantassessment/" . $assessment->PhotoIDCard;
             $fileExtension = File::extension($oldIdCardImage);
             $imagePath = $this->saveImageUrl . "rtsales/merchantassessmentdownload/" . $assessment->MerchantID . "." . $fileExtension;
             if (file_exists($imagePath)) {
@@ -840,6 +840,8 @@ class MerchantController extends Controller
         } else {
             $idCardPhotoName = $assessment->PhotoIDCard;
         }
+
+        dd($oldIdCardImage);
 
         $data = [
             'PhotoMerchantFront' => $frontPhotoName,
