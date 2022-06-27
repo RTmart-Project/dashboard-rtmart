@@ -47,8 +47,8 @@
 				padding: 30px;
 				border: 1px solid #eee;
 				box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
-				font-size: 16px;
-				line-height: 24px;
+				font-size: 14px;
+				line-height: 17px;
 				font-family: Arial, sans-serif;
 				color: #555;
 			}
@@ -171,7 +171,7 @@
 				</div>
 			</div>
 
-			<div class="row m-1 mb-4">
+			<div class="row m-1 mb-3">
 				<div class="col-6 text-left">
 					<label class="mb-1">Pembeli</label>
 				</div>
@@ -259,7 +259,7 @@
 
 			</table>
 			<div class="border-top">
-				<div class="row mt-4 text-left">
+				<div class="row mt-3 text-left">
 					<div class="col-4">
 						@if ($merchant->Distributor == "HAISTAR")
 							Pengirim : <strong>HAISTAR</strong>
@@ -283,11 +283,11 @@
 						<br>
 						( ................................. )
 					</div>
-					<div class="col-7 mt-5">
+					<div class="col-7 mt-4">
 						<small>Invoice ini sah dan diproses oleh komputer</small> <br>
 						<small class="text-danger">Pembayaran tidak boleh diberikan kepada sales.</small>
 					</div>
-					<div class="col-5 mt-5 font-italic">
+					<div class="col-5 mt-4 font-italic">
 						<small class="">Terakhir diupdate: {{ date('d F Y H:i', strtotime($processTime)) }} WIB</small>
 					</div>
 				</div>
