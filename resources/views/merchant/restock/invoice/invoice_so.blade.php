@@ -45,8 +45,8 @@
 				padding: 30px;
 				border: 1px solid #eee;
 				box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
-				font-size: 16px;
-				line-height: 24px;
+				font-size: 14px;
+				line-height: 18px;
 				font-family: Arial, sans-serif;
 				color: #555;
 			}
@@ -68,7 +68,7 @@
 			}
 
 			.invoice-box table tr.top table td {
-				padding-bottom: 20px;
+				/* padding-bottom: 20px; */
 			}
 
 			.invoice-box table tr.top table td.title {
@@ -78,7 +78,7 @@
 			}
 
 			.invoice-box table tr.information table td {
-				padding-bottom: 40px;
+				/* padding-bottom: 40px; */
 			}
 
 			.invoice-box table tr.heading td {
