@@ -170,7 +170,7 @@
                 <div class="col-md-6 col-12">
                   <div class="form-group">
                     <label for="birth_date">Tanggal Lahir</label>
-                    <input type="date" name="birth_date" id="birth_date" placeholder="Masukan Tanggal Lahir"
+                    <input type="text" name="birth_date" id="birth_date" placeholder="Masukan Tanggal Lahir"
                       value="{{ old('birth_date') ? old('birth_date') : $assessment->BirthDateIDCard }}" required autocomplete="off"
                       class="form-control @if($errors->has('birth_date')) is-invalid @endif" required>
                     @if($errors->has('birth_date'))

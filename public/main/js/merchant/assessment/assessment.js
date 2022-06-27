@@ -187,11 +187,6 @@ $(document).ready(function () {
                         }
                     },
                 },
-                {
-                    aTargets: [22],
-                    visible: roleID == "IT" || roleID == "FI" ? true : false,
-                    // visible: false,
-                },
             ],
             order: [2, "desc"],
             lengthChange: false,

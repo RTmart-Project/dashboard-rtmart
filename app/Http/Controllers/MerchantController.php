@@ -847,6 +847,8 @@ class MerchantController extends Controller
             $idCardPhotoName = $assessment->PhotoIDCard;
         }
 
+        $birthDate = date('Y-m-d', strtotime($request->input('birth_date')));
+
         $data = [
             'PhotoMerchantFront' => $frontPhotoName,
             'PhotoMerchantSide' => $sidePhotoName,
@@ -855,7 +857,7 @@ class MerchantController extends Controller
             'PhotoIDCard' => $idCardPhotoName,
             'NumberIDCard' => $request->input('id_card_number'),
             'NameIDCard' => $request->input('full_name'),
-            'BirthDateIDCard' => $request->input('birth_date')
+            'BirthDateIDCard' => $birthDate
         ];
 
         $update = DB::table('ms_merchant_assessment')
