@@ -826,10 +826,11 @@ class MerchantController extends Controller
 
         if ($request->hasFile('id_card_photo')) {
             $idCardPhotoName = $assessment->StoreID . 'photoIDCard' . time() . '.' . $request->file('id_card_photo')->extension();
+            $oldIdCardImage = $this->saveImageUrl . "rtsales/merchantassessment/" . $assessment->PhotoIDCard;
+
             unlink($this->saveImageUrl . "rtsales/merchantassessment/" . $assessment->PhotoIDCard);
             $request->file('id_card_photo')->move($this->saveImageUrl . 'rtsales/merchantassessment/', $idCardPhotoName);
 
-            $oldIdCardImage = $this->saveImageUrl . "rtsales/merchantassessment/" . $assessment->PhotoIDCard;
             $fileExtension = File::extension($oldIdCardImage);
             $imagePath = $this->saveImageUrl . "rtsales/merchantassessmentdownload/" . $assessment->MerchantID . "." . $fileExtension;
             if (file_exists($imagePath)) {
