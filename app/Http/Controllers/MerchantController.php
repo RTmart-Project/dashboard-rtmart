@@ -595,7 +595,13 @@ class MerchantController extends Controller
                     return $salesName;
                 })
                 ->editColumn('BirthDateIDCard', function ($data) {
-                    return date('d-M-Y', strtotime($data->BirthDateIDCard));
+                    if ($data->BirthDateIDCard == null) {
+                        $birthDate = "";
+                    } else {
+                        $birthDate = date('d-M-Y', strtotime($data->BirthDateIDCard));
+                    }
+
+                    return $birthDate;
                 })
                 ->addColumn('Note', function ($data) {
                     if ($data->IsDownload == 1) {
