@@ -180,7 +180,8 @@ $(document).ready(function () {
                 },
                 {
                     aTargets: [20],
-                    visible: roleID == "IT" || roleID == "FI" ? true : false,
+                    // visible: roleID == "IT" || roleID == "FI" ? true : false,
+                    visible: false,
                 },
             ],
             order: [2, "desc"],

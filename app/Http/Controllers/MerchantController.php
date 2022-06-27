@@ -825,12 +825,7 @@ class MerchantController extends Controller
         }
 
         if ($request->hasFile('id_card_photo')) {
-            $idCardPhotoName = $assessment->StoreID . 'photoIDCard' . time() . '.' . $request->file('id_card_photo')->extension();
             $oldIdCardImage = $this->saveImageUrl . "rtsales/merchantassessment/" . $assessment->PhotoIDCard;
-
-            unlink($this->saveImageUrl . "rtsales/merchantassessment/" . $assessment->PhotoIDCard);
-            $request->file('id_card_photo')->move($this->saveImageUrl . 'rtsales/merchantassessment/', $idCardPhotoName);
-
             $fileExtension = File::extension($oldIdCardImage);
             $imagePath = $this->saveImageUrl . "rtsales/merchantassessmentdownload/" . $assessment->MerchantID . "." . $fileExtension;
             if (file_exists($imagePath)) {
@@ -838,6 +833,10 @@ class MerchantController extends Controller
                 $idCardMerchantName = $assessment->MerchantID . '.' . $request->file('id_card_photo')->extension();
                 $request->file('id_card_photo')->move($this->saveImageUrl . 'rtsales/merchantassessmentdownload/', $idCardMerchantName);
             }
+
+            $idCardPhotoName = $assessment->StoreID . 'photoIDCard' . time() . '.' . $request->file('id_card_photo')->extension();
+            unlink($this->saveImageUrl . "rtsales/merchantassessment/" . $assessment->PhotoIDCard);
+            $request->file('id_card_photo')->move($this->saveImageUrl . 'rtsales/merchantassessment/', $idCardPhotoName);
         } else {
             $idCardPhotoName = $assessment->PhotoIDCard;
         }
