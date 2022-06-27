@@ -44,6 +44,42 @@
               enctype="multipart/form-data">
               @csrf
               <div class="row">
+                <div class="col-md-4 col-12">
+                  <div class="form-group">
+                    <label>Store ID</label>
+                    <input type="text" class="form-control" value="{{ $assessment->StoreID }}" readonly>
+                  </div>
+                </div>
+                <div class="col-md-4 col-12">
+                  <div class="form-group">
+                    <label>Nama Store</label>
+                    <input type="text" class="form-control" value="{{ $assessment->StoreName }}" readonly>
+                  </div>
+                </div>
+                <div class="col-md-4 col-12">
+                  <div class="form-group">
+                    <label>Np. HP Store</label>
+                    <input type="text" class="form-control" value="{{ $assessment->StorePhoneNumber }}" readonly>
+                  </div>
+                </div>
+                <div class="col-md-4 col-12">
+                  <div class="form-group">
+                    <label>Merchant ID</label>
+                    <input type="text" class="form-control" value="{{ $assessment->MerchantID }}" readonly>
+                  </div>
+                </div>
+                <div class="col-md-4 col-12">
+                  <div class="form-group">
+                    <label>Nama Merchant</label>
+                    <input type="text" class="form-control" value="{{ $assessment->MerchantName }}" readonly>
+                  </div>
+                </div>
+                <div class="col-md-4 col-12">
+                  <div class="form-group">
+                    <label>Np. HP Merchant</label>
+                    <input type="text" class="form-control" value="{{ $assessment->MerchantPhoneNumber }}" readonly>
+                  </div>
+                </div>
                 <div class="col-md-6 col-12">
                   <div class="form-group">
                     <label for="merchant_front_photo">Foto Toko (Tampak Depan)</label>

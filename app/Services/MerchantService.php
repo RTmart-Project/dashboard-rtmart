@@ -412,11 +412,17 @@ class MerchantService
     public function getDataAssessmentByID($assessmentID)
     {
         $sql = DB::table('ms_merchant_assessment')
+            ->join('ms_store', 'ms_store.StoreID', 'ms_merchant_assessment.StoreID')
+            ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', 'ms_merchant_assessment.MerchantID')
             ->where('ms_merchant_assessment.MerchantAssessmentID', $assessmentID)
             ->select(
                 'ms_merchant_assessment.MerchantAssessmentID',
                 'ms_merchant_assessment.StoreID',
+                'ms_store.StoreName',
+                'ms_store.PhoneNumber AS StorePhoneNumber',
                 'ms_merchant_assessment.MerchantID',
+                'ms_merchant_account.StoreName AS MerchantName',
+                'ms_merchant_account.PhoneNumber AS MerchantPhoneNumber',
                 'ms_merchant_assessment.PhotoMerchantFront',
                 'ms_merchant_assessment.PhotoMerchantSide',
                 'ms_merchant_assessment.StruckDistribution',
