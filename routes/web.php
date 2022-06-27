@@ -283,6 +283,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/merchant/assessment/create', [MerchantController::class, 'createAssessment'])->name('merchant.createAssessment');
         Route::post('/merchant/assessment/store', [MerchantController::class, 'storeAssessment'])->name('merchant.storeAssessment');
         Route::get('/merchant/assessment/edit/{assessmentID}', [MerchantController::class, 'editAssessment'])->name('merchant.editAssessment');
+        Route::post('/merchant/assessment/update/{assessmentID}', [MerchantController::class, 'updateAssessment'])->name('merchant.updateAssessment');
         Route::get('/merchant/assessment/checked/{assessmentID}', [MerchantController::class, 'checkedAssessment'])->name('merchant.checkedAssessment');
         Route::get('/merchant/assessment/unchecked/{assessmentID}', [MerchantController::class, 'uncheckedAssessment'])->name('merchant.uncheckedAssessment');
         Route::get('/merchant/assessment/downloadKTP', [MerchantController::class, 'downloadKTP'])->name('merchant.downloadKTP');
