@@ -37,7 +37,7 @@ class RTSalesService
     $sql = DB::table('ms_store')
       ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_store.SalesCode')
       ->where('ms_store.IsActive', 1)
-      ->select('ms_store.StoreID', 'ms_store.StoreName', 'ms_store.OwnerName', 'ms_store.PhoneNumber', 'ms_store.StoreAddress', 'ms_store.Grade', 'ms_store.MerchantID', 'ms_store.CreatedDate', 'ms_store.StoreType', 'ms_store.SalesCode', 'ms_sales.SalesName');
+      ->select('ms_store.StoreID', 'ms_store.StoreName', 'ms_store.OwnerName', 'ms_store.PhoneNumber', 'ms_store.StoreAddress', 'ms_store.Grade', 'ms_store.MerchantID', 'ms_store.CreatedDate', 'ms_store.StoreType', 'ms_store.SalesCode', 'ms_sales.SalesName', 'ms_store.Districts', 'ms_store.SubDistricts');
 
     return $sql;
   }
