@@ -109,6 +109,7 @@ class SummaryController extends Controller
                 (
                     SELECT DISTINCT ms_distributor.DistributorName, ms_distributor.DistributorID FROM tx_merchant_order
                     JOIN ms_distributor ON ms_distributor.DistributorID = tx_merchant_order.DistributorID
+                    WHERE tx_merchant_order.DistributorID IN ('D-2004-000001', 'D-2004-000005', 'D-2004-000006')
                 ) a
             CROSS JOIN 
                 (
