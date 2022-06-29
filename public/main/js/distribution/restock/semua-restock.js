@@ -83,6 +83,10 @@ $(document).ready(function () {
                     name: "ms_product.ProductName",
                 },
                 {
+                    data: "PromisedQuantity",
+                    name: "tx_merchant_order_detail.PromisedQuantity",
+                },
+                {
                     data: "Qty",
                     name: "tx_merchant_delivery_order_detail.Qty",
                 },
@@ -190,7 +194,7 @@ $(document).ready(function () {
                             },
                         },
                         {
-                            cells: "L2:AB2",
+                            cells: "L2:AC2",
                             style: {
                                 fill: {
                                     pattern: {
@@ -207,6 +211,7 @@ $(document).ready(function () {
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
                             15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
+                            28,
                         ],
                         orthogonal: "export",
                     },
@@ -214,7 +219,7 @@ $(document).ready(function () {
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [7, 16, 17, 18, 19, 22, 23, 24],
+                    aTargets: [7, 17, 18, 19, 20, 23, 24, 25],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
@@ -230,14 +235,14 @@ $(document).ready(function () {
                     },
                 },
                 {
-                    aTargets: [18, 19, 20],
+                    aTargets: [19, 20, 21],
                     visible: false,
                 },
             ],
             order: [
-                [11, "desc"],
                 [12, "desc"],
-                [17, "desc"],
+                [13, "desc"],
+                [18, "desc"],
             ],
             lengthChange: false,
             responsive: true,

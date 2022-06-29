@@ -172,6 +172,10 @@ class DistributionController extends Controller
             ->leftJoin('ms_user', 'ms_user.UserID', 'tmdo.DriverID')
             ->leftJoin('ms_vehicle', 'ms_vehicle.VehicleID', 'tmdo.VehicleID')
             ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'ms_merchant_account.ReferralCode')
+            ->leftJoin('tx_merchant_order_detail', function ($join) {
+                $join->on('tx_merchant_order_detail.StockOrderID', 'tmdo.StockOrderID');
+                $join->on('tx_merchant_order_detail.ProductID', 'tx_merchant_delivery_order_detail.ProductID');
+            })
             ->where('ms_merchant_account.IsTesting', 0)
             ->whereDate('tx_merchant_order.CreatedDate', '>=', $startDateFormat)
             ->whereDate('tx_merchant_order.CreatedDate', '<=', $endDateFormat)
@@ -193,6 +197,7 @@ class DistributionController extends Controller
                 'tmdo.DeliveryFee',
                 'ms_product.ProductName',
                 'tx_merchant_delivery_order_detail.Qty',
+                'tx_merchant_order_detail.PromisedQuantity',
                 'tx_merchant_delivery_order_detail.Price',
                 DB::raw("tx_merchant_order.TotalPrice - tx_merchant_order.DiscountPrice - tx_merchant_order.DiscountVoucher + tx_merchant_order.ServiceChargeNett + tx_merchant_order.DeliveryFee AS TotalTrx"),
                 DB::raw("tmdo.CreatedDate as TanggalDO"),
@@ -1814,11 +1819,12 @@ class DistributionController extends Controller
 
         // Get data account, jika tanggal filter kosong tampilkan semua data.
         $sqlAllAccount = DB::table('ms_merchant_account')
+            ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
             ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', '=', 'ms_merchant_account.MerchantID')
             ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', '=', 'ms_distributor_merchant_grade.GradeID')
             ->where('ms_merchant_account.IsTesting', 0)
-            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.DistributorID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.CreatedDate', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_distributor.DistributorName', 'ms_distributor_grade.Grade', 'ms_distributor_merchant_grade.GradeID');
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.DistributorID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.CreatedDate', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_distributor.DistributorName', 'ms_distributor_grade.Grade', 'ms_distributor_merchant_grade.GradeID', 'ms_merchant_account.Partner', 'ms_sales.SalesName');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {

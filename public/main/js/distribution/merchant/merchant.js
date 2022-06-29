@@ -27,8 +27,16 @@ $(document).ready(function () {
                     name: "ms_merchant_account.MerchantID",
                 },
                 {
+                    data: "DistributorName",
+                    name: "ms_distributor.DistributorName",
+                },
+                {
                     data: "StoreName",
                     name: "ms_merchant_account.StoreName",
+                },
+                {
+                    data: "Partner",
+                    name: "ms_merchant_account.Partner",
                 },
                 {
                     data: "OwnerFullName",
@@ -56,8 +64,8 @@ $(document).ready(function () {
                     name: "ms_merchant_account.ReferralCode",
                 },
                 {
-                    data: "DistributorName",
-                    name: "ms_distributor.DistributorName",
+                    data: "SalesName",
+                    name: "ms_sales.SalesName",
                 },
                 {
                     data: "Action",
@@ -81,12 +89,12 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                         orthogonal: "export",
                     },
                 },
             ],
-            order: [5, "desc"],
+            order: [7, "desc"],
             lengthChange: false,
             responsive: true,
             autoWidth: false,
