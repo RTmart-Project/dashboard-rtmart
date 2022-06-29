@@ -181,7 +181,8 @@
                                                     <th>Tanggal Kirim DO</th>
                                                     <th>Urutan DO</th>
                                                     <th>Produk</th>
-                                                    <th>Qty</th>
+                                                    <th>Qty PO</th>
+                                                    <th>Qty DO</th>
                                                     <th>Harga Jual per Produk</th>
                                                     <th>Harga Total per Produk & Qty</th>
                                                     <th class="d-none">Harga Beli</th>
