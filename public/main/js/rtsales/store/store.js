@@ -5,7 +5,7 @@ $(document).ready(function () {
     function dataTablesStoreList() {
         $("#store-list .table-datatables").DataTable({
             dom:
-                "<'row'<'col-sm-12 col-md-8'<'filter-store-list'>tl><l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
+                "<'row'<'col-sm-12 col-md-9'<'filter-store-list'>tl><l><'col-sm-12 col-md-2'f><'col-sm-12 col-md-1'B>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
@@ -16,6 +16,9 @@ $(document).ready(function () {
                 data: function (d) {
                     d.fromDate = $("#store-list #from_date").val();
                     d.toDate = $("#store-list #to_date").val();
+                    d.distributorID = $(
+                        "#store-list .filter-distributor select"
+                    ).val();
                 },
             },
             columns: [
@@ -54,6 +57,10 @@ $(document).ready(function () {
                 {
                     data: "MerchantID",
                     name: "ms_store.MerchantID",
+                },
+                {
+                    data: "DistributorName",
+                    name: "ms_distributor.DistributorName",
                 },
                 {
                     data: "Grade",
@@ -111,13 +118,16 @@ $(document).ready(function () {
                     <div class="row">
                         <div class="col-12 col-md-8">
                             <div class="input-group">
-                                <input type="text" name="from_date" id="from_date" class="form-control form-control-sm"
-                                    readonly>
-                                <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm"
-                                    readonly>
+                                <input type="text" name="from_date" id="from_date" class="form-control form-control-sm" readonly>
+                                <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
                                 <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
-                                <button type="button" name="refresh" id="refresh"
-                                class="btn btn-sm btn-warning ml-2">Refresh</button>
+                                <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-2">Refresh</button>
+                                <div class="filter-distributor ml-2">
+                                    <select class="form-control form-control-sm">
+                                    <option selected disabled hidden>Filter Distributor</option>
+                                    <option value="">Semua</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>`);
@@ -199,6 +209,25 @@ $(document).ready(function () {
 
     // Event listener saat tombol filter diklik
     $("#store-list #filter").click(function () {
+        $("#store-list .table-datatables").DataTable().ajax.reload();
+    });
+
+    // Load Distributor ID and Name for filter
+    $.ajax({
+        type: "get",
+        url: "/rtsales/store/getDistributor",
+        success: function (data) {
+            let option;
+            const dataDistributor = data;
+            for (const item of dataDistributor) {
+                option += `<option value="${item.DistributorID}">${item.DistributorName}</option>`;
+            }
+            $("#store-list .filter-distributor select").append(option);
+        },
+    });
+
+    // Event listener saat tombol select option diklik
+    $("#store-list .filter-distributor select").change(function () {
         $("#store-list .table-datatables").DataTable().ajax.reload();
     });
 

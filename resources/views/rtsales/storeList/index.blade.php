@@ -63,6 +63,7 @@
                           <th>Kecamatan</th>
                           <th>Kelurahan</th>
                           <th>Merchant ID</th>
+                          <th>Distributor</th>
                           <th>Grade</th>
                           <th>Store Type</th>
                           <th>Kode Sales</th>
