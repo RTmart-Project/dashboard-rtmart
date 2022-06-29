@@ -36,8 +36,24 @@ class RTSalesService
   {
     $sql = DB::table('ms_store')
       ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_store.SalesCode')
+      ->leftJoin('ms_team_name', 'ms_team_name.TeamCode', 'ms_sales.Team')
+      ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', 'ms_store.MerchantID')
+      ->leftJoin('ms_distributor', 'ms_distributor.DistributorID', 'ms_merchant_account.DistributorID')
       ->where('ms_store.IsActive', 1)
-      ->select('ms_store.StoreID', 'ms_store.StoreName', 'ms_store.OwnerName', 'ms_store.PhoneNumber', 'ms_store.StoreAddress', 'ms_store.Grade', 'ms_store.MerchantID', 'ms_store.CreatedDate', 'ms_store.StoreType', 'ms_store.SalesCode', 'ms_sales.SalesName', 'ms_store.Districts', 'ms_store.SubDistricts');
+      ->select('ms_store.StoreID', 'ms_store.StoreName', 'ms_store.OwnerName', 'ms_store.PhoneNumber', 'ms_store.StoreAddress', 'ms_store.Grade', 'ms_store.MerchantID', 'ms_store.CreatedDate', 'ms_store.StoreType', 'ms_store.SalesCode', 'ms_sales.SalesName', 'ms_store.Districts', 'ms_store.SubDistricts', 'ms_distributor.DistributorID', 'ms_distributor.DistributorName', 'ms_sales.TeamBy', 'ms_team_name.TeamName');
+
+    return $sql;
+  }
+
+  public function getDistributorFromStore()
+  {
+    $sql = DB::table('ms_store')
+      ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', 'ms_store.MerchantID')
+      ->leftJoin('ms_distributor', 'ms_distributor.DistributorID', 'ms_merchant_account.DistributorID')
+      ->whereNotNull('ms_store.MerchantID')
+      ->distinct()
+      ->select('ms_distributor.DistributorID', 'ms_distributor.DistributorName')
+      ->orderBy('ms_distributor.DistributorName');
 
     return $sql;
   }

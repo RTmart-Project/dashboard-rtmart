@@ -320,16 +320,30 @@ class RTSalesController extends Controller
         return view('rtsales.storeList.index');
     }
 
+    public function getDistributorFromStore(Request $request, RTSalesService $rTSalesService)
+    {
+        $data = $rTSalesService->getDistributorFromStore()->get();
+
+        if ($request->ajax()) {
+            return response($data);
+        }
+    }
+
     public function getStoreList(Request $request, RTSalesService $rTSalesService)
     {
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
+        $distributorID = $request->input('distributorID');
 
         $sqlStoreList = $rTSalesService->storeLists();
 
         if ($fromDate != '' && $toDate != '') {
             $sqlStoreList->whereDate('ms_store.CreatedDate', '>=', $fromDate)
                 ->whereDate('ms_store.CreatedDate', '<=', $toDate);
+        }
+
+        if ($distributorID != '') {
+            $sqlStoreList->where('ms_distributor.DistributorID', $distributorID);
         }
 
         $data = $sqlStoreList;
@@ -339,6 +353,14 @@ class RTSalesController extends Controller
                 ->editColumn('CreatedDate', function ($data) {
                     $date = date('d-M-Y H:i', strtotime($data->CreatedDate));
                     return $date;
+                })
+                ->editColumn('DistributorName', function ($data) {
+                    if ($data->DistributorName != null) {
+                        $distributor = $data->DistributorName;
+                    } else {
+                        $distributor = $data->TeamBy . ' ' . $data->TeamName;
+                    }
+                    return $distributor;
                 })
                 ->addColumn('Action', function ($data) {
                     $edit = '<a class="btn btn-xs btn-warning mb-1" href="/rtsales/store/edit/' . $data->StoreID . '">Ubah</a>';
