@@ -462,8 +462,7 @@
             </li>
             @endif
 
-            @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID == "FI") ||
-            (Auth::user()->RoleID == "BM"))
+            @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "RBTAD"))
             <li class="nav-item {{ Request::is('voucher*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('voucher*') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-ticket-alt"></i>
