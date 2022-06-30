@@ -56,6 +56,9 @@
                 @else
                 <span class="badge badge-danger">{{ $expd[0]->StatusOrder }}</span>
                 @endif
+                <br>
+                <b>Validasi No. HP Aktif : </b>{{ $expd[0]->PhoneNumberValidation == 1 ? 'Valid' : '' }} <br>
+                <b>Validasi Alamat Sesuai : </b>{{ $expd[0]->AddressValidation == 1 ? 'Valid' : ''}}
               </div>
               <div class="col-12 col-md-6">
                 <b>Driver : </b>{{ $expd[0]->DriverName }} <br>

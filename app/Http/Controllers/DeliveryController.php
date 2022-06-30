@@ -181,7 +181,9 @@ class DeliveryController extends Controller
             'HelperID' => $dataExpedition->helperID,
             'VehicleID' => (int)$dataExpedition->vehicleID,
             'VehicleLicensePlate' => $vehicleLicensePlate,
-            'CreatedDate' => $createdDate
+            'CreatedDate' => $createdDate,
+            'PhoneNumberValidation' => 1,
+            'AddressValidation' => 1
         ];
 
         $dataInsertExpeditionLog = [
@@ -398,6 +400,22 @@ class DeliveryController extends Controller
                         $color = "info";
                     }
                     return '<span class="badge badge-' . $color . '">' . $data->StatusOrder . '</span>';
+                })
+                ->editColumn('PhoneNumberValidation', function ($data) {
+                    if ($data->PhoneNumberValidation == 1) {
+                        $phoneNumberValidation = "Valid";
+                    } else {
+                        $phoneNumberValidation = "";
+                    }
+                    return $phoneNumberValidation;
+                })
+                ->editColumn('AddressValidation', function ($data) {
+                    if ($data->AddressValidation == 1) {
+                        $addressValidation = "Valid";
+                    } else {
+                        $addressValidation = "";
+                    }
+                    return $addressValidation;
                 })
                 ->addColumn('Detail', function ($data) {
                     if ($data->StatusExpedition == "S032") {
