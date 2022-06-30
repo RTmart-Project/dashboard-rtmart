@@ -167,6 +167,37 @@
                     </button>
                   </div>
                   <!-- Modal -->
+                  <div class="modal fade" id="modalValidasi" data-backdrop="static" tabindex="-1" role="dialog"
+                    aria-labelledby="modalValidasiLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h6 class="modal-title" id="modalValidasiLabel"><i class="fas fa-check-square"></i> Validasi</h6>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <div class="custom-control custom-checkbox">
+                            <input class="custom-control-input" type="checkbox" id="phone_number_check">
+                            <label for="phone_number_check" class="custom-control-label h6">No HP Toko Aktif</label>
+                          </div>
+                          <div class="custom-control custom-checkbox">
+                            <input class="custom-control-input" type="checkbox" id="address_check">
+                            <label for="address_check" class="custom-control-label h6">Alamat Toko Sudah Sesuai</label>
+                          </div>
+                          <div class="callout callout-warning mt-3 mb-0 p-2">
+                            <p>Catatan : Admin bertanggung jawab atas validasi data tersebut</p>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-sm btn-outline-secondary"
+                            data-dismiss="modal">Kembali</button>
+                          <button type="button" class="btn btn-sm btn-success" id="btn-validasi">Selanjutnya</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   <div class="modal fade" id="modalKirimBarang" data-backdrop="static" tabindex="-1" role="dialog"
                     aria-labelledby="modalKirimBarangLabel" aria-hidden="true">
                     <div class="modal-dialog" role="document">
@@ -181,8 +212,8 @@
                           <h5>Apakah barang yang akan dikirim sudah benar?</h5>
                         </div>
                         <div class="modal-footer">
-                          <button type="button" class="btn btn-sm btn-outline-secondary"
-                            data-dismiss="modal">Kembali</button>
+                          <button type="button" class="btn btn-sm btn-outline-secondary" data-target="#modalValidasi"
+                          data-toggle="modal" data-dismiss="modal">Kembali</button>
                           <button type="button" class="btn btn-sm btn-success" data-target="#modalKirimBarang2"
                             data-toggle="modal" data-dismiss="modal">Benar</button>
                         </div>

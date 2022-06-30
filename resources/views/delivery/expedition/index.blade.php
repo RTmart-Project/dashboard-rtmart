@@ -37,6 +37,8 @@
                           <th>Distributor</th>
                           <th>Tanggal Kirim</th>
                           <th>Jumlah DO</th>
+                          <th>Validasi No. HP Aktif</th>
+                          <th>Validasi Alamat Sesuai</th>
                           <th>Driver</th>
                           <th>Helper</th>
                           <th>Kendaraan</th>
