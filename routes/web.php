@@ -141,6 +141,12 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/get', [StockController::class, 'getListStock'])->name('stock.getListStock');
             Route::get('/detail/{distributorID}/{investorID}/{productID}/{label}', [StockController::class, 'detailStock'])->name('stock.detailStock');
         });
+
+        Route::group(['prefix' => 'mutation', 'middleware' => ['checkRoleUser:IT,FI,AD,BM,INVTR,HL']], function () {
+            Route::get('/', [StockController::class, 'mutationStock'])->name('stock.mutation');
+            Route::get('/get', [StockController::class, 'getMutationStock'])->name('stock.getMutation');
+            Route::get('/detail/{mutationID}', [StockController::class, 'detailMutation'])->name('stock.detailMutation');
+        });
     });
 
     Route::group(['prefix' => 'rtsales', 'middleware' => ['checkRoleUser:IT,FI,BM,DMO']], function () {

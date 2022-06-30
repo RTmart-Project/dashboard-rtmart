@@ -635,4 +635,47 @@ class StockController extends Controller
                 ->first()
         ]);
     }
+
+    public function mutationStock()
+    {
+        return view('stock.mutation.index');
+    }
+
+    public function getMutationStock(Request $request, PurchaseService $purchaseService)
+    {
+        $fromDate = $request->input('fromDate');
+        $toDate = $request->input('toDate');
+
+        $sqlGetMutation = $purchaseService->getMutations();
+
+        if ($fromDate != '' && $toDate != '') {
+            $sqlGetMutation->whereDate('ms_stock_mutation.MutationDate', '>=', $fromDate)
+                ->whereDate('ms_stock_mutation.MutationDate', '<=', $toDate);
+        }
+
+        $data = $sqlGetMutation;
+
+        // Return Data Using DataTables with Ajax
+        if ($request->ajax()) {
+            return Datatables::of($data)
+                ->editColumn('MutationDate', function ($data) {
+                    return date('d M Y H:i', strtotime($data->MutationDate));
+                })
+                ->addColumn('Detail', function ($data) {
+                    $detail = '<a class="btn btn-xs btn-info" href="/stock/mutation/detail/' . $data->StockMutationID . '">Detail</a>';
+                    return $detail;
+                })
+                ->rawColumns(['Detail'])
+                ->make(true);
+        }
+    }
+
+    public function detailMutation($mutationID, PurchaseService $purchaseService)
+    {
+        $data = $purchaseService->getMutationByID($mutationID);
+
+        return view('stock.mutation.detail', [
+            'mutation' => $data
+        ]);
+    }
 }

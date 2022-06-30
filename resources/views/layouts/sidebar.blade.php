@@ -284,6 +284,15 @@
                     @endif
                     @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "INVTR") || (Auth::user()->RoleID == "BM")  || Auth::user()->RoleID == "HL")
                     <li class="nav-item">
+                        <a href="{{ route('stock.mutation') }}"
+                            class="nav-link {{ Request::is('stock/mutation*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Mutasi</p>
+                        </a>
+                    </li>
+                    @endif
+                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "INVTR") || (Auth::user()->RoleID == "BM")  || Auth::user()->RoleID == "HL")
+                    <li class="nav-item">
                         <a href="{{ route('stock.opname') }}"
                             class="nav-link {{ Request::is('stock/opname*') ? 'active' : '' }}">
                             <i class="far fa-circle nav-icon"></i>
