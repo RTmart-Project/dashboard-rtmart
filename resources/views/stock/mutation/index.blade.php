@@ -45,7 +45,7 @@
         <div class="card">
           @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI"))
           <div class="card-header">
-            <a href="" class="btn btn-sm btn-success">
+            <a href="{{ route('stock.createMutation') }}" class="btn btn-sm btn-success">
               <i class="fas fa-plus"></i> Tambah Mutasi
             </a>
           </div>

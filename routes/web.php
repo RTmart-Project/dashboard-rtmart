@@ -146,6 +146,9 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/', [StockController::class, 'mutationStock'])->name('stock.mutation');
             Route::get('/get', [StockController::class, 'getMutationStock'])->name('stock.getMutation');
             Route::get('/detail/{mutationID}', [StockController::class, 'detailMutation'])->name('stock.detailMutation');
+            Route::get('/create', [StockController::class, 'createMutation'])->name('stock.createMutation');
+            Route::get('/getExcludeDistributorID/{distributorID}', [StockController::class, 'getExcludeDistributorID'])->name('stock.getExcludeDistributorID');
+            Route::post('/store', [StockController::class, 'storeMutation'])->name('stock.storeMutation');
         });
     });
 

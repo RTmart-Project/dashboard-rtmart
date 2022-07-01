@@ -678,4 +678,46 @@ class StockController extends Controller
             'mutation' => $data
         ]);
     }
+
+    public function createMutation(PurchaseService $purchaseService)
+    {
+        $purchases = DB::table(DB::raw("
+            (
+                SELECT PurchaseID, Qty, DistributorID, InvestorID
+                FROM ms_stock_product
+                WHERE PurchaseID IN (
+                    SELECT PurchaseID FROM ms_stock_purchase WHERE Type LIKE 'INBOUND' AND StatusID = 2
+                ) AND Qty > 0
+            ) AS purchase"))
+            ->join('ms_distributor', 'ms_distributor.DistributorID', 'purchase.DistributorID')
+            ->join('ms_investor', 'ms_investor.InvestorID', 'purchase.InvestorID')
+            ->distinct()
+            ->select('purchase.PurchaseID', 'purchase.DistributorID', 'ms_distributor.DistributorName', 'ms_investor.InvestorName')
+            ->get();
+
+        $distributors = $purchaseService->getDistributors()->get();
+
+        return view('stock.mutation.create', [
+            'distributors' => $distributors,
+            'purchases' => $purchases
+        ]);
+    }
+
+    public function getExcludeDistributorID($distributorID)
+    {
+        $sql = DB::table('ms_distributor')
+            ->where('ms_distributor.IsActive', 1)
+            ->whereNotIn('ms_distributor.DistributorID', ['D-0000-000000', $distributorID])
+            ->select('ms_distributor.DistributorID', 'ms_distributor.DistributorName')
+            ->get();
+
+        return $sql;
+    }
+
+    public function storeMutation(Request $request)
+    {
+        $request->validate([
+            'notes' => 'required'
+        ]);
+    }
 }
