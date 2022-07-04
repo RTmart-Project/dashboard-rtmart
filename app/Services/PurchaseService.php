@@ -65,7 +65,8 @@ class PurchaseService
     $sqlDetail = DB::table('ms_stock_purchase_detail')
       ->join('ms_product', 'ms_product.ProductID', 'ms_stock_purchase_detail.ProductID')
       ->where('ms_stock_purchase_detail.PurchaseID', $purchaseID)
-      ->select('ms_stock_purchase_detail.ProductID', 'ms_product.ProductName', 'ms_stock_purchase_detail.ProductLabel', 'ms_stock_purchase_detail.Qty', 'ms_stock_purchase_detail.PurchasePrice')->get()->toArray();
+      ->select('ms_stock_purchase_detail.ProductID', 'ms_product.ProductName', 'ms_stock_purchase_detail.ProductLabel', 'ms_stock_purchase_detail.Qty', 'ms_stock_purchase_detail.PurchasePrice')
+      ->get()->toArray();
 
     $grandTotal = 0;
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Helper;
+use App\Services\MutationService;
 use App\Services\OpnameService;
 use App\Services\PurchaseService;
 use Illuminate\Http\Request;
@@ -466,9 +467,10 @@ class StockController extends Controller
         }
     }
 
-    public function detailPurchase(PurchaseService $purchaseService, $purchaseID)
+    public function detailPurchase(PurchaseService $purchaseService, $purchaseID, Request $request)
     {
         $purchaseByID = $purchaseService->getStockPurchaseByID($purchaseID);
+
         return view('stock.purchase.detail', [
             'purchaseByID' => $purchaseByID
         ]);
@@ -714,10 +716,48 @@ class StockController extends Controller
         return $sql;
     }
 
-    public function storeMutation(Request $request)
+    public function getProductByPurchaseID($purchaseID, MutationService $mutationService)
+    {
+        $data = $mutationService->getProductByPurchaseID($purchaseID);
+
+        return $data;
+    }
+
+    public function storeMutation(Request $request, MutationService $mutationService)
     {
         $request->validate([
-            'notes' => 'required'
+            'purchase' => 'required',
+            'distributor' => 'required',
+            'mutation_date' => 'required',
+            'qty_mutation' => 'required',
+            'qty_mutation.*' => 'required|numeric'
         ]);
+
+        $mutationID = $mutationService->generateMutationID();
+        $user = Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo;
+        $dateNow = date('Y-m-d H:i:s');
+        $purchaseID = $request->input('purchase');
+        $purchase = DB::table('ms_stock_purchase')->where('PurchaseID', $purchaseID)->select('DistributorID', 'InvestorID')->first();
+        $toDistributor = $request->input('distributor');
+
+        $dataMutation = [
+            'StockMutationID' => $mutationID,
+            'MutationDate' => str_replace("T", " ", $request->input('mutation_date')),
+            'CreatedBy' => $user,
+            'CreatedDate' => $dateNow,
+            'PurchaseID' => $purchaseID,
+            'FromDistributor' => $purchase->DistributorID,
+            'ToDistributor' => $toDistributor,
+            'Notes' => $request->input('notes')
+        ];
+
+        $productId = $request->input('product_id');
+        $qty = $request->input('qty_mutation');
+
+        $dataMutationDetail = $mutationService->dataMutationDetail($purchaseID, $productId, $qty, $mutationID);
+
+        $dataStockProduct = $mutationService->dataStockProduct($dataMutationDetail, $purchase, $toDistributor, $dateNow);
+
+        dd($dataStockProduct);
     }
 }
