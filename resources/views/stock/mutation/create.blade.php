@@ -3,6 +3,7 @@
 
 @section('css-pages')
 <link rel="stylesheet" href="{{ url('/') }}/plugins/bootstrap-select/bootstrap-select.min.css">
+<link rel="stylesheet" href="{{url('/')}}/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
 @endsection
 
 @section('header-menu', 'Tambah Mutasi Stok')
@@ -160,6 +161,7 @@
 @endsection
 
 @section('js-pages')
+<script src="{{url('/')}}/plugins/sweetalert2/sweetalert2.min.js"></script>
 <script src="{{url('/')}}/plugins/bootstrap-select/bootstrap-select.min.js"></script>
 <script src="{{url('/')}}/main/js/helper/clone-element.js"></script>
 <script>
@@ -184,6 +186,11 @@
       type: "get",
       url: "/stock/mutation/getProductByPurchaseID/" + purchaseID,
       success: function (data) {
+        let note = '';
+        if (data.length > 1) {
+          note = '<small class="form-text text-muted">Isi dengan 0 jika tidak ingin mutasi produk ini</small>';
+        }
+
         let div = '';
         $.each(data, function(index, value){
             div += `<div class="col-md-5 col-12">
@@ -209,6 +216,7 @@
                       <div class="form-group">
                         <label>Qty Mutasi</label>
                         <input type="number" class="form-control qty_mutation" name="qty_mutation[]" placeholder="Masukkan Qty yang ingin di-mutasi" required>
+                        ${note}
                       </div>
                     </div>`;
         });
@@ -219,14 +227,48 @@
     
   })
 
+  let Toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 4000,
+  });
+
   $(".btn-simpan").on("click", function () {
-    const purchaseID = $("#purchase").val();
-    const distributorID = $("#distributor").val();
-    const mutationDate = $("#mutation_date").val();
-    const qtyMutation = $("#product-detail").find(".qty_mutation").each(function(){
-      alert($(this).val());
+    let purchaseID = $("#purchase").val();
+    let distributorID = $("#distributor").val();
+    let mutationDate = $("#mutation_date").val();
+
+    let arrayQtyMutation = [];
+    $("#product-detail").find(".qty_mutation").each(function(){
+      arrayQtyMutation.push($(this).val());
     });
-    console.log(qtyMutation);
+    let qtyMutation = jQuery.inArray("", arrayQtyMutation)
+    
+    if (purchaseID == "") {
+      Toast.fire({
+        icon: "error",
+        title: " Harap isi Sumber Purchase!",
+      });
+    } else if (distributorID == "") {
+      Toast.fire({
+        icon: "error",
+        title: " Harap isi Distributor!",
+      });
+    } else if (mutationDate == "") {
+      Toast.fire({
+        icon: "error",
+        title: " Harap isi Tanggal Mutasi!",
+      });
+    } else if (qtyMutation != -1) {
+      Toast.fire({
+        icon: "error",
+        title: " Harap isi Qty Mutasi!",
+      });
+    } 
+    else {
+      $("#konfirmasi").modal("show");
+    }
   })
 </script>
 @endsection
