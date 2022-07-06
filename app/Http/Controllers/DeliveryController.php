@@ -500,7 +500,7 @@ class DeliveryController extends Controller
                     $countNotBatalorSelesai = (clone $getDOdetail)
                         ->where('tx_merchant_delivery_order_detail.Distributor', 'HAISTAR')
                         ->where('tx_merchant_expedition_detail.StatusExpeditionDetail', '!=', 'S037')
-                        ->orWhere('tx_merchant_expedition_detail.StatusExpeditionDetail', '!=', 'S031')
+                        ->where('tx_merchant_expedition_detail.StatusExpeditionDetail', '!=', 'S031')
                         ->count();
 
                     if ($countNotBatalorSelesai > 0) {
