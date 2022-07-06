@@ -106,29 +106,11 @@ class SummaryController extends Controller
                     AND DATE(delivery_order_value.DueDate) BETWEEN '$startDate' AND b.DateSummary
                 ) AS BillTarget,
                 (
-                    SELECT IFNULL(SUM(inventory_stock.QtyAfter * inventory_stock.PurchasePrice), 0)
-                    FROM (
-                        SELECT 
-                            product_log.MaxStockProductLogID, product_log.ProductID, 
-                            ms_stock_product_log.QtyAfter, ms_stock_product_log.PurchasePrice,
-                            product_log.MaxProductLogDate, product_log.DistributorID
-                        FROM (
-                            SELECT 
-                                MAX(ms_stock_product_log.StockProductLogID) AS MaxStockProductLogID, 
-                                ms_stock_product_log.ProductID,
-                                MAX(ms_stock_product_log.CreatedDate) AS MaxProductLogDate, 
-                                ms_stock_product.DistributorID, ms_stock_product.ConditionStock
-                            FROM ms_stock_product_log
-                            JOIN ms_stock_product ON ms_stock_product.StockProductID = ms_stock_product_log.StockProductID
-                            GROUP BY 
-                                ms_stock_product_log.ProductID, DATE(ms_stock_product_log.CreatedDate), 
-                                ms_stock_product.DistributorID, ms_stock_product.InvestorID, ms_stock_product.ConditionStock
-                        ) AS product_log
-                        JOIN ms_stock_product_log ON ms_stock_product_log.StockProductLogID = product_log.MaxStockProductLogID  
-                        WHERE ms_stock_product_log.QtyAfter > 0
-                    ) AS inventory_stock
-                    WHERE inventory_stock.DistributorID = a.DistributorID
-                    AND DATE(inventory_stock.MaxProductLogDate) = b.DateSummary
+                    SELECT SUM(ms_stock_product_log.QtyAction * ms_stock_product_log.PurchasePrice)
+                    FROM ms_stock_product_log
+                    JOIN ms_stock_product ON ms_stock_product.StockProductID = ms_stock_product_log.StockProductID
+                    WHERE ms_stock_product.DistributorID = a.DistributorID
+                    AND DATE(ms_stock_product_log.CreatedDate) BETWEEN '$startDate' AND b.DateSummary
                 ) AS EndingInventory
             FROM 
                 (

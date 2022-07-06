@@ -497,10 +497,14 @@ class DeliveryController extends Controller
                         ->where('tx_merchant_delivery_order.DeliveryOrderID', $value->DeliveryOrderID)
                         ->select('tx_merchant_delivery_order_detail.Distributor', 'tx_merchant_delivery_order.DeliveryOrderID', 'tx_merchant_delivery_order_detail.DeliveryOrderDetailID', 'tx_merchant_delivery_order_detail.Qty', 'tx_merchant_expedition_detail.DeliveryOrderDetailID', 'tx_merchant_expedition_detail.StatusExpeditionDetail', 'tx_merchant_expedition_detail.MerchantExpeditionDetailID');
 
-                    $countNotBatal = (clone $getDOdetail)->where('tx_merchant_delivery_order_detail.Distributor', 'HAISTAR')->where('tx_merchant_expedition_detail.StatusExpeditionDetail', '!=', 'S037')->count();
+                    $countNotBatalorSelesai = (clone $getDOdetail)
+                        ->where('tx_merchant_delivery_order_detail.Distributor', 'HAISTAR')
+                        ->where('tx_merchant_expedition_detail.StatusExpeditionDetail', '!=', 'S037')
+                        ->orWhere('tx_merchant_expedition_detail.StatusExpeditionDetail', '!=', 'S031')
+                        ->count();
 
-                    if ($countNotBatal > 0) {
-                        $messageError = "Terdapat Order Haistar yang tidak batal";
+                    if ($countNotBatalorSelesai > 0) {
+                        $messageError = "Terdapat Order Haistar yang belum dikonfirmasi";
                         throw new Exception($messageError);
                     }
 
