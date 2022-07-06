@@ -1,8 +1,7 @@
 @extends('layouts.master')
-@section('title', 'Dashboard - Ekspedisi')
+@section('title', 'Dashboard - Mutation Stock')
 
 @section('css-pages')
-<link rel="stylesheet" href="{{ url('/') }}/plugins/bootstrap-select/bootstrap-select.min.css">
 <!-- daterange picker -->
 <link rel="stylesheet" href="{{url('/')}}/plugins/daterangepicker/daterangepicker.css">
 <!-- Datatables -->
@@ -11,39 +10,62 @@
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
 <!-- Main -->
 <link rel="stylesheet" href="{{url('/')}}/main/css/custom/select-filter.css">
+
+<meta name="base-image" content="{{ config('app.base_image_url') }}">
 @endsection
 
-@section('header-menu', 'Data Ekspedisi')
+@section('header-menu', 'Stok Mutasi')
 
 @section('content')
+<!-- Content Header (Page header) -->
+<div class="content-header">
+  <div class="container-fluid">
+    <div class="row mb-2">
+      <!-- left -->
+      <div class="col-sm-6">
+        <h1 class="m-0"></h1>
+      </div>
+      <!-- Right -->
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /.content-header -->
+
 <!-- Main content -->
 <div class="content">
   <div class="container-fluid">
-
     <!-- Table -->
     <div class="row">
       <div class="col-12">
-        <div class="card mt-3">
+        <div class="card">
+          @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI"))
+          <div class="card-header">
+            <a href="{{ route('stock.createMutation') }}" class="btn btn-sm btn-success">
+              <i class="fas fa-plus"></i> Tambah Mutasi
+            </a>
+          </div>
+          @endif
           <div class="card-body mt-2">
             <div class="tab-content">
-              <!-- All -->
-              <div class="tab-pane active" id="expedition">
+
+              <div class="tab-pane active" id="mutation-stock">
                 <div class="row">
                   <div class="col-12">
                     <table class="table table-datatables">
                       <thead>
                         <tr>
-                          <th>Ekspedisi ID</th>
-                          <th>Distributor</th>
-                          <th>Tanggal Kirim</th>
-                          <th>Jumlah DO</th>
-                          <th>Validasi No. HP Aktif</th>
-                          <th>Validasi Alamat Sesuai</th>
-                          <th>Driver</th>
-                          <th>Helper</th>
-                          <th>Kendaraan</th>
-                          <th>Nopol Kendaraan</th>
-                          <th>Status</th>
+                          <th>Mutasi ID</th>
+                          <th>Tanggal Mutasi</th>
+                          <th>Sumber Purchase</th>
+                          <th>Dari Distributor</th>
+                          <th>Ke Distributor</th>
+                          <th>Action By</th>
+                          <th>Catatan</th>
                           <th>Detail</th>
                         </tr>
                       </thead>
@@ -53,6 +75,7 @@
                   </div>
                 </div>
               </div>
+
             </div>
           </div>
         </div>
@@ -82,9 +105,7 @@
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!-- Main JS -->
-<script src="{{url('/')}}/main/js/custom/select-filter.js"></script>
-<script src="{{ url('/') }}/plugins/bootstrap-select/bootstrap-select.min.js"></script>
-<script src="{{url('/')}}/main/js/delivery/expedition/expedition.js"></script>
+<script src="{{url('/')}}/main/js/stock/mutation/mutation.js"></script>
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
 <script>
 </script>

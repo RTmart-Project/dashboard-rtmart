@@ -587,7 +587,7 @@ $(document).ready(function () {
                 title: "Harap isi Plat Nomor Kendaraan!",
             });
         } else {
-            $("#modalKirimBarang").modal("show");
+            $("#modalValidasi").modal("show");
         }
 
         // Data per DO
@@ -646,6 +646,21 @@ $(document).ready(function () {
             dataDeliveryOrderDetailNotChecked:
                 dataDeliveryOrderDetailNotChecked,
         });
+    });
+
+    $("#btn-validasi").click(function (e) {
+        const checkPhoneNumber = $("#phone_number_check").prop("checked");
+        const checkAddress = $("#address_check").prop("checked");
+
+        if (checkPhoneNumber == true && checkAddress == true) {
+            $("#modalValidasi").modal("hide");
+            $("#modalKirimBarang").modal("show");
+        } else {
+            Toast.fire({
+                icon: "error",
+                title: "Harap checklist data validasi!",
+            });
+        }
     });
 
     $("#create-expedition-btn").click(function (e) {

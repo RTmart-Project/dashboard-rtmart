@@ -493,6 +493,8 @@ class DeliveryOrderService
         expd.MerchantExpeditionID,
         expd.StatusExpedition,
         expd.CreatedDate,
+        expd.PhoneNumberValidation,
+        expd.AddressValidation,
         ANY_VALUE(ms_status_order.StatusOrder) AS StatusOrder,
         ANY_VALUE(ms_distributor.DistributorName) AS DistributorName,
         ANY_VALUE(driver.Name) AS DriverName,
@@ -521,7 +523,7 @@ class DeliveryOrderService
       ->join('tx_merchant_order', 'tx_merchant_order.StockOrderID', 'tx_merchant_delivery_order.StockOrderID')
       ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
       ->where('tx_merchant_expedition_detail.MerchantExpeditionID', $expeditionID)
-      ->select('tx_merchant_expedition_detail.MerchantExpeditionID', 'tx_merchant_expedition_detail.StatusExpeditionDetail', 'tx_merchant_expedition_detail.MerchantExpeditionDetailID', 'tx_merchant_expedition_detail.ReceiptImage', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.StockOrderID', 'tx_merchant_expedition_detail.DeliveryOrderDetailID', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber', 'tx_merchant_delivery_order_detail.ProductID', 'StatusExpdProduct.StatusOrder AS StatusProduct', 'ms_product.ProductName', 'ms_product.ProductImage', 'tx_merchant_delivery_order_detail.Qty', 'tx_merchant_delivery_order_detail.Price', 'tx_merchant_delivery_order_detail.StatusExpedition', 'tx_merchant_delivery_order_detail.Distributor', 'expd.CreatedDate', 'expd.StatusExpedition AS StatusExpd', 'StatusExpd.StatusOrder', 'driver.Name AS DriverName', 'helper.Name AS HelperName', 'expd.VehicleLicensePlate', 'ms_vehicle.VehicleName')
+      ->select('tx_merchant_expedition_detail.MerchantExpeditionID', 'tx_merchant_expedition_detail.StatusExpeditionDetail', 'tx_merchant_expedition_detail.MerchantExpeditionDetailID', 'tx_merchant_expedition_detail.ReceiptImage', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.StockOrderID', 'tx_merchant_expedition_detail.DeliveryOrderDetailID', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber', 'tx_merchant_delivery_order_detail.ProductID', 'StatusExpdProduct.StatusOrder AS StatusProduct', 'ms_product.ProductName', 'ms_product.ProductImage', 'tx_merchant_delivery_order_detail.Qty', 'tx_merchant_delivery_order_detail.Price', 'tx_merchant_delivery_order_detail.StatusExpedition', 'tx_merchant_delivery_order_detail.Distributor', 'expd.CreatedDate', 'expd.StatusExpedition AS StatusExpd', 'StatusExpd.StatusOrder', 'driver.Name AS DriverName', 'helper.Name AS HelperName', 'expd.VehicleLicensePlate', 'ms_vehicle.VehicleName', 'expd.PhoneNumberValidation', 'expd.AddressValidation')
       ->orderBy('tx_merchant_delivery_order_detail.Distributor');
 
     return $sql;
