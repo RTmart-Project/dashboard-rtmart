@@ -145,8 +145,9 @@
                     <div class="modal-footer">
                       <button type="button" class="btn btn-sm btn-outline-secondary" data-toggle="modal"
                         data-dismiss="modal">Batal</button>
-                      <button type="submit" class="btn btn-sm btn-success"
-                        data-toggle="modal">Yakin</button>
+                      <button type="submit" class="btn btn-sm btn-success btn-create-mutation" data-toggle="modal">
+                        Yakin <i class="fas fa-circle-notch fa-spin d-none loader"></i>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -269,6 +270,12 @@
     else {
       $("#konfirmasi").modal("show");
     }
+  })
+
+  $(".btn-create-mutation").on("click", function (e) {
+    $(this).prop("disabled", true);
+    $(this).children().removeClass("d-none");
+    $("#add-mutation").submit();
   })
 </script>
 @endsection

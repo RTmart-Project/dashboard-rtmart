@@ -758,19 +758,16 @@ class StockController extends Controller
 
         $dataStockProduct = $mutationService->dataStockProduct($dataMutationDetail, $purchase, $toDistributor, $dateNow);
 
-        $updateQtyStockProduct = $mutationService->updateQtyStockProduct($dataMutationDetail, $purchaseID, $purchase);
-
-        $insertIntoStockProductAndLog = $mutationService->insertIntoStockProductAndLog($dataStockProduct, $purchaseID, $purchase, $dateNow, $user);
-
         try {
-            DB::transaction(function () use ($dataMutation, $dataMutationDetail, $updateQtyStockProduct, $insertIntoStockProductAndLog) {
+            DB::transaction(function () use ($dataMutation, $dataMutationDetail, $mutationService, $dataStockProduct, $purchaseID, $purchase, $dateNow, $user) {
                 DB::table('ms_stock_mutation')->insert($dataMutation);
                 DB::table('ms_stock_mutation_detail')->insert($dataMutationDetail);
-                $updateQtyStockProduct;
-                $insertIntoStockProductAndLog;
+                $mutationService->insertIntoStockProductAndLog($dataStockProduct, $purchaseID, $purchase, $dateNow, $user);
+                $mutationService->updateQtyStockProduct($dataMutationDetail, $purchaseID, $purchase);
             });
             return redirect()->route('stock.mutation')->with('success', 'Data Mutasi Stok berhasil ditambahkan');
         } catch (\Throwable $th) {
+            dd($th->getMessage());
             return redirect()->route('stock.mutation')->with('failed', 'Terjadi kesalahan!');
         }
     }

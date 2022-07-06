@@ -26,6 +26,7 @@ $(document).ready(function () {
                 {
                     data: "MutationDate",
                     name: "ms_stock_mutation.MutationDate",
+                    type: "date",
                 },
                 {
                     data: "PurchaseID",
