@@ -105,6 +105,10 @@ $(document).ready(function () {
                     },
                 },
             ],
+            order: [
+                [0, "asc"],
+                [2, "asc"],
+            ],
             lengthChange: false,
             responsive: true,
             autoWidth: false,

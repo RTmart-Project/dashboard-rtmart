@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Helper;
+use App\Services\MutationService;
 use App\Services\OpnameService;
 use App\Services\PurchaseService;
 use Illuminate\Http\Request;
@@ -466,9 +467,10 @@ class StockController extends Controller
         }
     }
 
-    public function detailPurchase(PurchaseService $purchaseService, $purchaseID)
+    public function detailPurchase(PurchaseService $purchaseService, $purchaseID, Request $request)
     {
         $purchaseByID = $purchaseService->getStockPurchaseByID($purchaseID);
+
         return view('stock.purchase.detail', [
             'purchaseByID' => $purchaseByID
         ]);
@@ -634,5 +636,139 @@ class StockController extends Controller
                 ->select('ms_stock_product.ProductLabel', 'ms_product.ProductImage', 'ms_product.ProductName')
                 ->first()
         ]);
+    }
+
+    public function mutationStock()
+    {
+        return view('stock.mutation.index');
+    }
+
+    public function getMutationStock(Request $request, PurchaseService $purchaseService)
+    {
+        $fromDate = $request->input('fromDate');
+        $toDate = $request->input('toDate');
+
+        $sqlGetMutation = $purchaseService->getMutations();
+
+        if ($fromDate != '' && $toDate != '') {
+            $sqlGetMutation->whereDate('ms_stock_mutation.MutationDate', '>=', $fromDate)
+                ->whereDate('ms_stock_mutation.MutationDate', '<=', $toDate);
+        }
+
+        $data = $sqlGetMutation;
+
+        // Return Data Using DataTables with Ajax
+        if ($request->ajax()) {
+            return Datatables::of($data)
+                ->editColumn('MutationDate', function ($data) {
+                    return date('d M Y H:i', strtotime($data->MutationDate));
+                })
+                ->addColumn('Detail', function ($data) {
+                    $detail = '<a class="btn btn-xs btn-info" href="/stock/mutation/detail/' . $data->StockMutationID . '">Detail</a>';
+                    return $detail;
+                })
+                ->rawColumns(['Detail'])
+                ->make(true);
+        }
+    }
+
+    public function detailMutation($mutationID, PurchaseService $purchaseService)
+    {
+        $data = $purchaseService->getMutationByID($mutationID);
+
+        return view('stock.mutation.detail', [
+            'mutation' => $data
+        ]);
+    }
+
+    public function createMutation(PurchaseService $purchaseService)
+    {
+        $purchases = DB::table(DB::raw("
+            (
+                SELECT PurchaseID, Qty, DistributorID, InvestorID
+                FROM ms_stock_product
+                WHERE PurchaseID IN (
+                    SELECT PurchaseID FROM ms_stock_purchase WHERE Type LIKE 'INBOUND' AND StatusID = 2
+                ) AND Qty > 0
+            ) AS purchase"))
+            ->join('ms_distributor', 'ms_distributor.DistributorID', 'purchase.DistributorID')
+            ->join('ms_investor', 'ms_investor.InvestorID', 'purchase.InvestorID')
+            ->distinct()
+            ->select('purchase.PurchaseID', 'purchase.DistributorID', 'ms_distributor.DistributorName', 'ms_investor.InvestorName')
+            ->get();
+
+        $distributors = $purchaseService->getDistributors()->get();
+
+        return view('stock.mutation.create', [
+            'distributors' => $distributors,
+            'purchases' => $purchases
+        ]);
+    }
+
+    public function getExcludeDistributorID($distributorID)
+    {
+        $sql = DB::table('ms_distributor')
+            ->where('ms_distributor.IsActive', 1)
+            ->whereNotIn('ms_distributor.DistributorID', ['D-0000-000000', $distributorID])
+            ->select('ms_distributor.DistributorID', 'ms_distributor.DistributorName')
+            ->get();
+
+        return $sql;
+    }
+
+    public function getProductByPurchaseID($purchaseID, MutationService $mutationService)
+    {
+        $data = $mutationService->getProductByPurchaseID($purchaseID);
+
+        return $data;
+    }
+
+    public function storeMutation(Request $request, MutationService $mutationService)
+    {
+        $request->validate([
+            'purchase' => 'required',
+            'distributor' => 'required',
+            'mutation_date' => 'required',
+            'qty_mutation' => 'required',
+            'qty_mutation.*' => 'required|numeric'
+        ]);
+
+        $mutationID = $mutationService->generateMutationID();
+        $user = Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo;
+        $dateNow = date('Y-m-d H:i:s');
+        $purchaseID = $request->input('purchase');
+        $purchase = DB::table('ms_stock_purchase')->where('PurchaseID', $purchaseID)->select('DistributorID', 'InvestorID')->first();
+        $toDistributor = $request->input('distributor');
+
+        $dataMutation = [
+            'StockMutationID' => $mutationID,
+            'MutationDate' => str_replace("T", " ", $request->input('mutation_date')),
+            'CreatedBy' => $user,
+            'CreatedDate' => $dateNow,
+            'PurchaseID' => $purchaseID,
+            'FromDistributor' => $purchase->DistributorID,
+            'ToDistributor' => $toDistributor,
+            'Notes' => $request->input('notes')
+        ];
+
+        $productId = $request->input('product_id');
+        $qty = $request->input('qty_mutation');
+
+        $dataMutationDetail = $mutationService->dataMutationDetail($purchaseID, $productId, $qty, $mutationID);
+
+        $dataStockProduct = $mutationService->dataStockProduct($dataMutationDetail, $purchase, $toDistributor, $dateNow);
+
+        try {
+            DB::transaction(function () use ($dataMutation, $dataMutationDetail, $mutationService, $dataStockProduct, $purchaseID, $purchase, $dateNow, $user) {
+                DB::table('ms_stock_mutation')->insert($dataMutation);
+                DB::table('ms_stock_mutation_detail')->insert($dataMutationDetail);
+                $mutationService->insertIntoStockProductAndLog($dataStockProduct, $purchaseID, $purchase, $dateNow, $user);
+                $mutationService->updateQtyStockProduct($dataMutationDetail, $purchaseID, $purchase);
+            });
+            return redirect()->route('stock.mutation')->with('success', 'Data Mutasi Stok berhasil ditambahkan');
+        } catch (\Throwable $th) {
+            dd($th->getMessage());
+            return redirect()->route('stock.mutation')->with('failed', 'Terjadi kesalahan!');
+        }
     }
 }
