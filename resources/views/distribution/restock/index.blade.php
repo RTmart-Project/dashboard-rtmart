@@ -181,11 +181,12 @@
                                                     <th>Tanggal Kirim DO</th>
                                                     <th>Urutan DO</th>
                                                     <th>Produk</th>
-                                                    <th>Qty PO</th>
-                                                    <th>Qty DO</th>
-                                                    <th>Harga Jual per Produk</th>
-                                                    <th>Harga Total per Produk & Qty</th>
                                                     <th class="d-none">Harga Beli</th>
+                                                    <th>Harga Jual</th>
+                                                    <th>Qty PO</th>
+                                                    <th>Total Value PO</th>
+                                                    <th>Qty DO</th>
+                                                    <th>Total Value DO</th>
                                                     <th class="d-none">Margin Real (Rp)</th>
                                                     <th class="d-none">Margin Real (%)</th>
                                                     <th>Status DO</th>

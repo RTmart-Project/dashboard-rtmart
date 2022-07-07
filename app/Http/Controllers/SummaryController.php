@@ -77,7 +77,7 @@ class SummaryController extends Controller
                     WHERE StockOrderID IN (
                         SELECT StockOrderID FROM tx_merchant_order WHERE PaymentMethodID = 14 AND DistributorID = a.DistributorID
                     ) AND StatusDO = 'S025'
-                    AND tx_merchant_delivery_order.PaymentDate BETWEEN '$startDate' AND b.DateSummary
+                    AND tx_merchant_delivery_order.PaymentDate <= b.DateSummary
                 ) AS BillReal,
                 (
                     SELECT IFNULL(
@@ -103,10 +103,10 @@ class SummaryController extends Controller
                         GROUP BY tx_merchant_delivery_order.DeliveryOrderID
                     ) AS delivery_order_value
                     WHERE delivery_order_value.DistributorID = a.DistributorID
-                    AND DATE(delivery_order_value.DueDate) BETWEEN '$startDate' AND b.DateSummary
+                    AND DATE(delivery_order_value.DueDate) <= b.DateSummary
                 ) AS BillTarget,
                 (
-                    SELECT SUM(ms_stock_product_log.QtyAction * ms_stock_product_log.PurchasePrice)
+                    SELECT IFNULL(SUM(ms_stock_product_log.QtyAction * ms_stock_product_log.PurchasePrice), 0)
                     FROM ms_stock_product_log
                     JOIN ms_stock_product ON ms_stock_product.StockProductID = ms_stock_product_log.StockProductID
                     WHERE ms_stock_product.DistributorID = a.DistributorID
