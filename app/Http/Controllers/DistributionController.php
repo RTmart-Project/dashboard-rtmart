@@ -201,7 +201,8 @@ class DistributionController extends Controller
                 'tx_merchant_delivery_order_detail.Price',
                 DB::raw("tx_merchant_order.TotalPrice - tx_merchant_order.DiscountPrice - tx_merchant_order.DiscountVoucher + tx_merchant_order.ServiceChargeNett + tx_merchant_order.DeliveryFee AS TotalTrx"),
                 DB::raw("tmdo.CreatedDate as TanggalDO"),
-                DB::raw("tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price AS TotalPrice"),
+                DB::raw("tx_merchant_order_detail.PromisedQuantity * tx_merchant_order_detail.Nett AS TotalPricePO"),
+                DB::raw("tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price AS TotalPriceDO"),
                 DB::raw("CASE WHEN tmdo.StatusDO = 'S024' THEN 'Dalam Pengiriman' 
                             WHEN tmdo.StatusDO = 'S025' THEN 'Selesai' 
                             WHEN tmdo.StatusDO = 'S026' THEN 'Dibatalkan' 
@@ -255,10 +256,10 @@ class DistributionController extends Controller
                     if ($data->PurchasePrice == null) {
                         $marginRealPercentage = "";
                     } else {
-                        if ($data->TotalPrice == 0) {
+                        if ($data->TotalPriceDO == 0) {
                             $marginRealPercentage = "";
                         } else {
-                            $marginRealPercentage = round($marginReal / $data->TotalPrice * 100, 2);
+                            $marginRealPercentage = round($marginReal / $data->TotalPriceDO * 100, 2);
                         }
                     }
 
@@ -341,9 +342,9 @@ class DistributionController extends Controller
                 ->filterColumn('StatusDO', function ($query, $keyword) {
                     $query->whereRaw("ms_status_order.StatusOrder like ?", ["%$keyword%"]);
                 })
-                ->filterColumn('TotalPrice', function ($query, $keyword) {
-                    $query->whereRaw("tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price like ?", ["%$keyword%"]);
-                })
+                // ->filterColumn('TotalPrice', function ($query, $keyword) {
+                //     $query->whereRaw("tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price like ?", ["%$keyword%"]);
+                // })
                 ->filterColumn('Sales', function ($query, $keyword) {
                     $sql = "CONCAT(ms_merchant_account.ReferralCode,' - ',ms_sales.SalesName)  like ?";
                     $query->whereRaw($sql, ["%{$keyword}%"]);
