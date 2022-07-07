@@ -26,6 +26,7 @@ $(document).ready(function () {
                 {
                     data: "DistributorName",
                     name: "ms_distributor.DistributorName",
+                    orderable: false,
                 },
                 {
                     data: "CreatedDate",
@@ -56,6 +57,7 @@ $(document).ready(function () {
                 {
                     data: "StatusOrder",
                     name: "ms_status_order.StatusOrder",
+                    orderable: false,
                 },
                 {
                     data: "Detail",

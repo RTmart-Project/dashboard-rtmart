@@ -99,7 +99,7 @@
                 </div>
               </div>
 
-              <div class="tab-pane active" id="purchase-stock-all-product">
+              <div class="tab-pane" id="purchase-stock-all-product">
                 <div class="row">
                   <div class="col-12">
                     <table class="table table-datatables">

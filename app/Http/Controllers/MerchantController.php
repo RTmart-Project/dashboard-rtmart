@@ -1211,11 +1211,11 @@ class MerchantController extends Controller
                     return date('d-M-Y H:i', strtotime($data->CreatedDate));
                 })
                 ->addColumn('MarginRealPercentage', function ($data) {
-                    if ($data->MarginReal == null) {
-                        $data->MarginReal = 0;
+                    if ($data->MarginReal == null || $data->MarginReal == 0) {
+                        $marginReal = "-";
+                    } else {
+                        $marginReal = round(($data->MarginReal / $data->NettPrice) * 100, 2);
                     }
-
-                    $marginReal = round(($data->MarginReal / $data->NettPrice) * 100, 2);
                     return $marginReal;
                 })
                 ->addColumn('MarginEstimationPercentage', function ($data) {
@@ -1542,7 +1542,7 @@ class MerchantController extends Controller
                         } else {
                             $marginReal = ($data->Nett - $data->PurchasePriceReal) * $data->QtyDOkirim;
                         }
-                        if ($marginReal == "-") {
+                        if ($marginReal == "-" || $marginReal == 0) {
                             $marginRealPercentage = "-";
                         } else {
                             $marginRealPercentage = round(($marginReal / ($data->QtyDOkirim * $data->Nett)) * 100, 2);
