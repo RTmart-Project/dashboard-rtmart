@@ -83,24 +83,32 @@ $(document).ready(function () {
                     name: "ms_product.ProductName",
                 },
                 {
-                    data: "PromisedQuantity",
-                    name: "tx_merchant_order_detail.PromisedQuantity",
-                },
-                {
-                    data: "Qty",
-                    name: "tx_merchant_delivery_order_detail.Qty",
+                    //15
+                    data: "PurchasePrice",
+                    name: "ms_stock_product_log.PurchasePrice",
                 },
                 {
                     data: "Price",
                     name: "tx_merchant_delivery_order_detail.Price",
                 },
                 {
-                    data: "TotalPrice",
-                    name: "TotalPrice",
+                    data: "PromisedQuantity",
+                    name: "tx_merchant_order_detail.PromisedQuantity",
                 },
                 {
-                    data: "PurchasePrice",
-                    name: "ms_stock_product_log.PurchasePrice",
+                    data: "TotalPricePO",
+                    name: "TotalPricePO",
+                    searchable: false,
+                },
+                {
+                    data: "Qty",
+                    name: "tx_merchant_delivery_order_detail.Qty",
+                },
+                {
+                    //20
+                    data: "TotalPriceDO",
+                    name: "TotalPriceDO",
+                    searchable: false,
                 },
                 {
                     data: "MarginReal",
@@ -115,6 +123,7 @@ $(document).ready(function () {
                     name: "StatusDO",
                 },
                 {
+                    //24
                     data: "DeliveryFee",
                     name: "tmdo.DeliveryFee",
                 },
@@ -153,7 +162,7 @@ $(document).ready(function () {
                     className: "btn-sm mr-1 rounded",
                     excelStyles: [
                         {
-                            cells: "A2:K2",
+                            cells: "A2:J2",
                             style: {
                                 fill: {
                                     pattern: {
@@ -167,7 +176,7 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 8, 9, 10],
                         orthogonal: "export",
                     },
                 },
@@ -184,7 +193,7 @@ $(document).ready(function () {
                     className: "btn-sm ml-1 rounded",
                     excelStyles: [
                         {
-                            cells: "A2:K2",
+                            cells: "A2:J2",
                             style: {
                                 fill: {
                                     pattern: {
@@ -194,7 +203,7 @@ $(document).ready(function () {
                             },
                         },
                         {
-                            cells: "L2:AC2",
+                            cells: "K2:AC2",
                             style: {
                                 fill: {
                                     pattern: {
@@ -209,9 +218,9 @@ $(document).ready(function () {
                             page: "all",
                         },
                         columns: [
-                            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-                            15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
-                            28,
+                            0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15,
+                            16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+                            29,
                         ],
                         orthogonal: "export",
                     },
@@ -219,7 +228,7 @@ $(document).ready(function () {
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [7, 17, 18, 19, 20, 23, 24, 25],
+                    aTargets: [7, 15, 16, 18, 20, 21, 24, 25, 26],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
@@ -235,14 +244,13 @@ $(document).ready(function () {
                     },
                 },
                 {
-                    aTargets: [19, 20, 21],
+                    aTargets: [15, 21, 22],
                     visible: false,
                 },
             ],
             order: [
+                [1, "desc"],
                 [12, "desc"],
-                [13, "desc"],
-                [18, "desc"],
             ],
             lengthChange: false,
             responsive: true,
