@@ -380,7 +380,7 @@ class DeliveryOrderService
         (SELECT Qty FROM tx_merchant_delivery_order_detail WHERE DeliveryOrderID = '$deliveryOrderID' AND ProductID = '$productID') AS QtyDO,
         IFNULL(SUM(IF(tx_merchant_delivery_order.StatusDO = 'S025', tx_merchant_delivery_order_detail.Qty, 0)), 0) AS QtyDOSelesai,
         IFNULL(SUM(IF(tx_merchant_delivery_order.StatusDO = 'S024', tx_merchant_delivery_order_detail.Qty, 0)), 0) AS QtyDODlmPengiriman,
-        IFNULL(SUM(IF(tx_merchant_delivery_order.StatusDO != 'S026', tx_merchant_delivery_order_detail.Qty, 0)), 0) AS QtyDONotBatal
+        IFNULL(SUM(IF(tx_merchant_delivery_order_detail.StatusExpedition != 'S037', tx_merchant_delivery_order_detail.Qty, 0)), 0) AS QtyDONotBatal
       ")
       ->groupBy('tx_merchant_order_detail.ProductID')
       ->first();
