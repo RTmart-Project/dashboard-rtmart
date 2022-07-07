@@ -50,7 +50,22 @@
             </a>
           </div>
           @endif
-          <div class="card-body mt-2">
+          {{-- <div class="card-header">
+            
+          </div> --}}
+          <div class="card-body pt-2">
+            <ul class="nav nav-pills pb-2" id="tab-topup">
+              <li class="nav-item">
+                <a class="nav-link active" href="#purchase-stock" data-toggle="tab">
+                  Purchase
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#purchase-stock-all-product" data-toggle="tab">
+                  Purchase All Product
+                </a>
+              </li>
+            </ul>
             <div class="tab-content">
 
               <div class="tab-pane active" id="purchase-stock">
@@ -75,6 +90,38 @@
                           @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI"))
                           <th>Konfirmasi</th>
                           @endif
+                        </tr>
+                      </thead>
+                      <tbody>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tab-pane" id="purchase-stock-all-product">
+                <div class="row">
+                  <div class="col-12">
+                    <table class="table table-datatables">
+                      <thead>
+                        <tr>
+                          <th>Tipe</th>
+                          <th>Purchase ID</th>
+                          <th>Distributor</th>
+                          <th>Investor</th>
+                          <th>Supplier</th>
+                          <th>Tanggal Pembelian</th>
+                          <th>Produk</th>
+                          <th>Label</th>
+                          <th>Qty</th>
+                          <th>Harga Beli</th>
+                          <th>Total Harga Produk</th>
+                          <th>Grand Total</th>
+                          <th>Dibuat Oleh</th>
+                          <th>Status</th>
+                          <th>Dikonfirmasi oleh</th>
+                          <th>Invoice Number</th>
+                          <th>Invoice File</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -114,7 +161,9 @@
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!-- Main JS -->
 <script src="{{url('/')}}/main/js/stock/purchase/purchase.js"></script>
+<script src="{{url('/')}}/main/js/stock/purchase/purchase-all-product.js"></script>
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
+<script src="{{url('/')}}/main/js/helper/keep-tab-refresh.js"></script>
 <script>
   // Event listener saat tombol setujui diklik
   $('table').on('click', '.btn-approved', function (e) {
@@ -161,6 +210,13 @@
         tidak: function () {
         }
       }
+    });
+  });
+
+  // Recall Responsive DataTables
+  $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+    $('.table-datatables:visible').each(function(e) {
+      $(this).DataTable().columns.adjust().responsive.recalc();
     });
   });
 </script>

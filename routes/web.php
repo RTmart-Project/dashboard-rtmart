@@ -126,6 +126,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::group(['prefix' => 'purchase', 'middleware' => ['checkRoleUser:IT,FI,BM,HL,INVTR']], function () {
             Route::get('/', [StockController::class, 'purchase'])->name('stock.purchase');
             Route::get('/get', [StockController::class, 'getPurchase'])->name('stock.getPurchase');
+            Route::get('/all-product/get', [StockController::class, 'getPurchaseAllProduct'])->name('stock.getPurchaseAllProduct');
             Route::get('/create', [StockController::class, 'createPurchase'])->name('stock.createPurchase');
             Route::post('/store', [StockController::class, 'storePurchase'])->name('stock.storePurchase');
             Route::get('/edit/{purchaseID}', [StockController::class, 'editPurchase'])->name('stock.editPurchase');

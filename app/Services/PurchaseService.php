@@ -52,6 +52,53 @@ class PurchaseService
     return $sql;
   }
 
+  public function getStockPurchaseAllProduct($fromDate, $toDate, $filterTipe)
+  {
+    $mainSql = DB::table('ms_stock_purchase')
+      ->join('ms_stock_purchase_detail', 'ms_stock_purchase_detail.PurchaseID', 'ms_stock_purchase.PurchaseID')
+      ->join('ms_product', 'ms_product.ProductID', 'ms_stock_purchase_detail.ProductID')
+      ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_stock_purchase.DistributorID')
+      ->leftJoin('ms_investor', 'ms_investor.InvestorID', 'ms_stock_purchase.InvestorID')
+      ->join('ms_suppliers', 'ms_suppliers.SupplierID', 'ms_stock_purchase.SupplierID')
+      ->join('ms_status_stock', 'ms_status_stock.StatusID', 'ms_stock_purchase.StatusID')
+      ->select('ms_stock_purchase.PurchaseID', 'ms_distributor.DistributorName', 'ms_stock_purchase.PurchaseDate', 'ms_stock_purchase.CreatedBy', 'ms_suppliers.SupplierName', 'ms_stock_purchase.StatusID', 'ms_status_stock.StatusName', 'ms_stock_purchase.StatusBy', 'ms_stock_purchase.InvoiceNumber', 'ms_stock_purchase.InvoiceFile', 'ms_investor.InvestorName', 'ms_stock_purchase.Type', 'ms_product.ProductName', 'ms_stock_purchase_detail.ProductLabel', 'ms_stock_purchase_detail.Qty', 'ms_stock_purchase_detail.PurchasePrice', DB::raw("ms_stock_purchase_detail.Qty * ms_stock_purchase_detail.PurchasePrice AS SubTotalPrice"));
+
+    if ($fromDate != '' && $toDate != '') {
+      $mainSql->whereDate('ms_stock_purchase.PurchaseDate', '>=', $fromDate)
+        ->whereDate('ms_stock_purchase.PurchaseDate', '<=', $toDate);
+    }
+    if ($filterTipe == "inbound") {
+      $mainSql->where('ms_stock_purchase.Type', 'INBOUND');
+    } elseif ($filterTipe == "retur") {
+      $mainSql->where('ms_stock_purchase.Type', 'RETUR');
+    }
+    if (Auth::user()->Depo != "ALL") {
+      $depoUser = Auth::user()->Depo;
+      $mainSql->where('ms_distributor.Depo', '=', $depoUser);
+    }
+    if (Auth::user()->InvestorID != null) {
+      $investorUser = Auth::user()->InvestorID;
+      $mainSql->where('ms_stock_purchase.InvestorID', $investorUser);
+    }
+
+    $sql = $mainSql->get();
+
+    foreach ($sql as $key => $value) {
+      $grandTotal = 0;
+      $detailPurchase = DB::table('ms_stock_purchase_detail')
+        ->where('PurchaseID', $value->PurchaseID)
+        ->select('Qty', 'PurchasePrice')
+        ->get();
+
+      foreach ($detailPurchase as $key => $detail) {
+        $grandTotal += $detail->Qty * $detail->PurchasePrice;
+      }
+      $value->GrandTotal = $grandTotal;
+    }
+
+    return $sql;
+  }
+
   public function getStockPurchaseByID($purchaseID)
   {
     $sql = DB::table('ms_stock_purchase')

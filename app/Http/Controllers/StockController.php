@@ -272,6 +272,41 @@ class StockController extends Controller
         }
     }
 
+    public function getPurchaseAllProduct(Request $request, PurchaseService $purchaseService)
+    {
+        $fromDate = $request->input('fromDate');
+        $toDate = $request->input('toDate');
+        $filterTipe = $request->input('filterTipe');
+
+        $sqlGetPurchaseAllProduct = $purchaseService->getStockPurchaseAllProduct($fromDate, $toDate, $filterTipe);
+
+        $data = $sqlGetPurchaseAllProduct;
+
+        if ($request->ajax()) {
+            return DataTables::of($data)
+                ->editColumn('PurchaseDate', function ($data) {
+                    return date('d M Y H:i', strtotime($data->PurchaseDate));
+                })
+                ->editColumn('StatusName', function ($data) {
+                    if ($data->StatusID == 1) {
+                        $color = 'warning';
+                    } elseif ($data->StatusID == 2) {
+                        $color = 'success';
+                    } else {
+                        $color = 'danger';
+                    }
+                    return '<span class="badge badge-' . $color . '">' . $data->StatusName . '</span>';
+                })
+                ->editColumn('InvoiceFile', function ($data) {
+                    $baseImageUrl = config('app.base_image_url');
+                    $invoice = '<a href="' . $baseImageUrl . 'stock_invoice/' . $data->InvoiceFile . '" target="_blank">' . $data->InvoiceFile . '</a>';
+                    return $invoice;
+                })
+                ->rawColumns(['InvoiceNumber', 'InvoiceFile', 'StatusName'])
+                ->make(true);
+        }
+    }
+
     public function createPurchase(PurchaseService $purchaseService)
     {
         $suppliers = DB::table('ms_suppliers')->get();

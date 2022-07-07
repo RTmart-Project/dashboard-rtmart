@@ -110,7 +110,7 @@ class SummaryController extends Controller
                     FROM ms_stock_product_log
                     JOIN ms_stock_product ON ms_stock_product.StockProductID = ms_stock_product_log.StockProductID
                     WHERE ms_stock_product.DistributorID = a.DistributorID
-                    AND DATE(ms_stock_product_log.CreatedDate) BETWEEN '$startDate' AND b.DateSummary
+                    AND DATE(ms_stock_product_log.CreatedDate) <= b.DateSummary
                 ) AS EndingInventory
             FROM 
                 (
