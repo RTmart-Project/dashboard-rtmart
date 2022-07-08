@@ -23,6 +23,17 @@
                 </a>
             </li>
 
+            @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM")
+            <li class="nav-item">
+                <a href="{{ route('summary.summary') }}" class="nav-link {{ Request::is('summary*') ? 'active' : '' }}">
+                    <i class="nav-icon fas fa-file-alt"></i>
+                    <p>
+                        Summary
+                    </p>
+                </a>
+            </li>
+            @endif
+
             @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "RBTAD") ||
             (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH") || 
             (Auth::user()->RoleID == "DMO") || Auth::user()->RoleID == "HL")
