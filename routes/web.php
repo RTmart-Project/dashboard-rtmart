@@ -38,6 +38,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::group(['prefix' => 'summary', 'middleware' => ['checkRoleUser:IT,FI,BM']], function () {
         Route::get('/', [SummaryController::class, 'summary'])->name('summary.summary');
+        Route::get('/get/{distributorID}', [SummaryController::class, 'getSummary'])->name('summary.getSummary');
     });
 
     Route::group(['prefix' => 'distribution'], function () {

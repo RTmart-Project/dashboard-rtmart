@@ -48,7 +48,7 @@ class InvoiceController extends Controller
             })
             ->leftJoin('ms_user', 'ms_user.UserID', 'tx_merchant_delivery_order.DriverID')
             ->where('tx_merchant_delivery_order.DeliveryOrderID', '=', $deliveryOrderId)
-            ->select('tx_merchant_order.StockOrderID', 'ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'ms_status_order.StatusOrder', 'ms_payment_method.PaymentMethodName', 'tx_merchant_delivery_order.DeliveryOrderID', 'tx_merchant_delivery_order.CreatedDate', 'tx_merchant_delivery_order.FinishDate', 'ms_user.Name', 'tx_merchant_delivery_order.Distributor', 'tx_merchant_order.PaymentMethodID', 'tx_merchant_delivery_order.IsPaid', 'tx_merchant_delivery_order.Discount', 'tx_merchant_delivery_order.ServiceCharge', 'tx_merchant_delivery_order.DeliveryFee', 'tx_merchant_delivery_order.StatusDO', 'tx_merchant_delivery_order_log.ProcessTime as DeliveryDate')
+            ->select('tx_merchant_order.StockOrderID', 'ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'ms_status_order.StatusOrder', 'ms_payment_method.PaymentMethodName', 'tx_merchant_delivery_order.DeliveryOrderID', 'tx_merchant_delivery_order.CreatedDate', 'tx_merchant_delivery_order.FinishDate', 'ms_user.Name', 'tx_merchant_delivery_order.Distributor', 'tx_merchant_order.PaymentMethodID', 'tx_merchant_delivery_order.IsPaid', 'tx_merchant_delivery_order.Discount', 'tx_merchant_delivery_order.ServiceCharge', 'tx_merchant_delivery_order.DeliveryFee', 'tx_merchant_delivery_order.StatusDO', 'tx_merchant_delivery_order_log.ProcessTime as DeliveryDate', 'tx_merchant_delivery_order.PaymentDate')
             ->first();
 
         $detailDeliveryOrder = DB::table('tx_merchant_delivery_order_detail')
@@ -67,10 +67,43 @@ class InvoiceController extends Controller
             ->where('DeliveryOrderID', $deliveryOrderId)
             ->max('ProcessTime');
 
+        // DENDA
+        $dueDate = strtotime("$merchant->FinishDate +5 day");
+        if ($merchant->IsPaid == 0) {
+            $timeDiff = time() - $dueDate;
+        } else {
+            $timeDiff = strtotime($merchant->PaymentDate) - $dueDate;
+        }
+        $lateDays = round($timeDiff / (60 * 60 * 24));
+
+        $grandTotal = $subTotal + $merchant->ServiceCharge + $merchant->DeliveryFee - $merchant->Discount;
+
+        if ($lateDays > 0) {
+            $sqlLateBillFee = DB::table('tx_merchant_delivery_order_bill')
+                ->where('PaymentMethodID', $merchant->PaymentMethodID)
+                ->whereRaw("$lateDays BETWEEN OverdueStartDay AND OverdueToDay")
+                ->select('TypeFee', 'NominalFee')
+                ->first();
+
+            if ($sqlLateBillFee->TypeFee == "PERCENT") {
+                $lateFee = $grandTotal * $sqlLateBillFee->NominalFee / 100;
+                $grandTotal += $lateFee;
+            }
+
+            if ($sqlLateBillFee->TypeFee == 'NOMINAL') {
+                $lateFee = $sqlLateBillFee->NominalFee;
+                $grandTotal += $lateFee;
+            }
+        } else {
+            $lateFee = 0;
+        }
+
         return view('merchant.restock.invoice.invoice_do', [
             'merchant' => $merchant,
             'detailDeliveryOrder' => $detailDeliveryOrder,
             'subTotal' => $subTotal,
+            'lateFee' => $lateFee,
+            'grandTotal' => $grandTotal,
             'processTime' => $processTime
         ]);
     }

@@ -167,9 +167,16 @@
             </div>
             @endif
 
+            @if ($item->LateFee != 0 && $merchantOrder->PaymentMethodID == 14)
+            <div class="justify-content-between mb-1 d-flex">
+              <b>Denda : </b>
+              <span class="price-subtotal">{{ Helper::formatCurrency($item->LateFee, 'Rp ') }}</span>
+            </div>
+            @endif
+
             <div class="justify-content-between mb-1 d-flex">
               <b>Grand Total : </b>
-              <span class="price-subtotal">{{ Helper::formatCurrency($item->SubTotal - $item->Discount + $item->ServiceCharge + $item->DeliveryFee, 'Rp ') }}</span>
+              <span class="price-subtotal">{{ Helper::formatCurrency($item->GrandTotal, 'Rp ') }}</span>
             </div>
             @endif
 

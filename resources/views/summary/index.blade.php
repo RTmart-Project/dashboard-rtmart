@@ -77,88 +77,166 @@
                         <thead class="bg-lightblue">
                           <tr class="text-center">
                             <th colspan="2">Area</th>
-                            @foreach ($data->groupBy('DateSummary') as $item)
-                            <th>{{ $item[0]->DateSummary }}</th>
+                            @foreach ($tanggal as $item)
+                            <th>{{ date('j M \'y', strtotime($item->DateSummary)) }}</th>
                             @endforeach
                           </tr>
                         </thead>
                         <tbody>
-                          @foreach ($data->groupBy('DistributorName') as $item)
-                          <tr style="background-color: {{ $item[0]->BGcolor }}">
-                            <th class="text-center align-middle" rowspan="8">{{ $item[0]->DistributorName }}</th>
-                          </tr>
-                          <tr style="background-color: {{ $item[0]->BGcolor }}">
-                            @foreach ($item as $value)
-                            @if ($loop->first)
-                            <th>Purchase Order</th>
-                            @endif
-                            <td class="text-right align-middle p-2">
-                              {{ $value->PurchaseOrder != "-" ? Helper::formatCurrency($value->PurchaseOrder, '') : $value->PurchaseOrder}}
-                            </td>
+                          <div>
+                            @foreach ($data->groupBy('DistributorName') as $item)
+                            <tr style="background-color: {{ $item[0]->BGcolor }}">
+                              <th class="text-center align-middle" rowspan="8">{{ $item[0]->DistributorName }}</th>
+                            </tr>
+                            <tr style="background-color: {{ $item[0]->BGcolor }}">
+                              @foreach ($item as $value)
+                              @if ($loop->first)
+                              <th>Purchase Order</th>
+                              @endif
+                              <td class="text-right align-middle p-2">
+                                {{ $value->PurchaseOrder != "-" ? Helper::formatCurrency($value->PurchaseOrder, '') : $value->PurchaseOrder}}
+                              </td>
+                              @endforeach
+                            </tr>
+                            <tr style="background-color: {{ $item[0]->BGcolor }}">
+                              @foreach ($item as $value)
+                              @if ($loop->first)
+                              <th>Purchasing</th>
+                              @endif
+                              <td class="text-right align-middle p-2">
+                                {{ $value->Purchasing != "-" ? Helper::formatCurrency($value->Purchasing, '') : $value->Purchasing}}
+                              </td>
+                              @endforeach
+                            </tr>
+                            <tr style="background-color: {{ $item[0]->BGcolor }}">
+                              @foreach ($item as $value)
+                              @if ($loop->first)
+                              <th>Voucher</th>
+                              @endif
+                              <td class="text-right align-middle p-2">
+                                {{ $value->Voucher != "-" ? Helper::formatCurrency($value->Voucher, '') : $value->Voucher}}
+                              </td>
+                              @endforeach
+                            </tr>
+                            <tr style="background-color: {{ $item[0]->BGcolor }}">
+                              @foreach ($item as $value)
+                              @if ($loop->first)
+                              <th>Delivery Order</th>
+                              @endif
+                              <td class="text-right align-middle p-2">
+                                {{ $value->DeliveryOrder != "-" ? Helper::formatCurrency($value->DeliveryOrder, '') : $value->DeliveryOrder }}
+                              </td>
+                              @endforeach
+                            </tr>
+                            <tr style="background-color: {{ $item[0]->BGcolor }}">
+                              @foreach ($item as $value)
+                              @if ($loop->first)
+                              <th>Bill Real</th>
+                              @endif
+                              <td class="text-right align-middle p-2">
+                                {{ $value->BillReal != "-" ? Helper::formatCurrency($value->BillReal, '') : $value->BillReal}}
+                              </td>
+                              @endforeach
+                            </tr>
+                            <tr style="background-color: {{ $item[0]->BGcolor }}">
+                              @foreach ($item as $value)
+                              @if ($loop->first)
+                              <th>Bill Target</th>
+                              @endif
+                              <td class="text-right align-middle p-2">
+                                {{ $value->BillTarget != "-" ? Helper::formatCurrency($value->BillTarget, '') : $value->BillTarget }}
+                              </td>
+                              @endforeach
+                            </tr>
+                            <tr style="background-color: {{ $item[0]->BGcolor }}">
+                              @foreach ($item as $value)
+                              @if ($loop->first)
+                              <th>Ending Inventory</th>
+                              @endif
+                              <td class="text-right align-middle p-2">
+                                {{ $value->EndingInventory != "-" ? Helper::formatCurrency($value->EndingInventory, '') : $value->EndingInventory }}
+                              </td>
+                              @endforeach
+                            </tr>
                             @endforeach
-                          </tr>
-                          <tr style="background-color: {{ $item[0]->BGcolor }}">
-                            @foreach ($item as $value)
-                            @if ($loop->first)
-                            <th>Purchasing</th>
-                            @endif
-                            <td class="text-right align-middle p-2">
-                              {{ $value->Purchasing != "-" ? Helper::formatCurrency($value->Purchasing, '') : $value->Purchasing}}
-                            </td>
+                          </div>
+                          <div>
+                            @foreach ($data2->groupBy('DistributorName') as $item)
+                            <tr style="background-color: {{ $item[0]->BGcolor }}">
+                              <th class="text-center align-middle" rowspan="8">{{ $item[0]->DistributorName }}</th>
+                            </tr>
+                            <tr style="background-color: {{ $item[0]->BGcolor }}">
+                              @foreach ($item as $value)
+                              @if ($loop->first)
+                              <th>Purchase Order</th>
+                              @endif
+                              <td class="text-right align-middle p-2">
+                                {{ $value->PurchaseOrder != "-" ? Helper::formatCurrency($value->PurchaseOrder, '') : $value->PurchaseOrder}}
+                              </td>
+                              @endforeach
+                            </tr>
+                            <tr style="background-color: {{ $item[0]->BGcolor }}">
+                              @foreach ($item as $value)
+                              @if ($loop->first)
+                              <th>Purchasing</th>
+                              @endif
+                              <td class="text-right align-middle p-2">
+                                {{ $value->Purchasing != "-" ? Helper::formatCurrency($value->Purchasing, '') : $value->Purchasing}}
+                              </td>
+                              @endforeach
+                            </tr>
+                            <tr style="background-color: {{ $item[0]->BGcolor }}">
+                              @foreach ($item as $value)
+                              @if ($loop->first)
+                              <th>Voucher</th>
+                              @endif
+                              <td class="text-right align-middle p-2">
+                                {{ $value->Voucher != "-" ? Helper::formatCurrency($value->Voucher, '') : $value->Voucher}}
+                              </td>
+                              @endforeach
+                            </tr>
+                            <tr style="background-color: {{ $item[0]->BGcolor }}">
+                              @foreach ($item as $value)
+                              @if ($loop->first)
+                              <th>Delivery Order</th>
+                              @endif
+                              <td class="text-right align-middle p-2">
+                                {{ $value->DeliveryOrder != "-" ? Helper::formatCurrency($value->DeliveryOrder, '') : $value->DeliveryOrder }}
+                              </td>
+                              @endforeach
+                            </tr>
+                            <tr style="background-color: {{ $item[0]->BGcolor }}">
+                              @foreach ($item as $value)
+                              @if ($loop->first)
+                              <th>Bill Real</th>
+                              @endif
+                              <td class="text-right align-middle p-2">
+                                {{ $value->BillReal != "-" ? Helper::formatCurrency($value->BillReal, '') : $value->BillReal}}
+                              </td>
+                              @endforeach
+                            </tr>
+                            <tr style="background-color: {{ $item[0]->BGcolor }}">
+                              @foreach ($item as $value)
+                              @if ($loop->first)
+                              <th>Bill Target</th>
+                              @endif
+                              <td class="text-right align-middle p-2">
+                                {{ $value->BillTarget != "-" ? Helper::formatCurrency($value->BillTarget, '') : $value->BillTarget }}
+                              </td>
+                              @endforeach
+                            </tr>
+                            <tr style="background-color: {{ $item[0]->BGcolor }}">
+                              @foreach ($item as $value)
+                              @if ($loop->first)
+                              <th>Ending Inventory</th>
+                              @endif
+                              <td class="text-right align-middle p-2">
+                                {{ $value->EndingInventory != "-" ? Helper::formatCurrency($value->EndingInventory, '') : $value->EndingInventory }}
+                              </td>
+                              @endforeach
+                            </tr>
                             @endforeach
-                          </tr>
-                          <tr style="background-color: {{ $item[0]->BGcolor }}">
-                            @foreach ($item as $value)
-                            @if ($loop->first)
-                            <th>Voucher</th>
-                            @endif
-                            <td class="text-right align-middle p-2">
-                              {{ $value->Voucher != "-" ? Helper::formatCurrency($value->Voucher, '') : $value->Voucher}}
-                            </td>
-                            @endforeach
-                          </tr>
-                          <tr style="background-color: {{ $item[0]->BGcolor }}">
-                            @foreach ($item as $value)
-                            @if ($loop->first)
-                            <th>Delivery Order</th>
-                            @endif
-                            <td class="text-right align-middle p-2">
-                              {{ $value->DeliveryOrder != "-" ? Helper::formatCurrency($value->DeliveryOrder, '') : $value->DeliveryOrder }}
-                            </td>
-                            @endforeach
-                          </tr>
-                          <tr style="background-color: {{ $item[0]->BGcolor }}">
-                            @foreach ($item as $value)
-                            @if ($loop->first)
-                            <th>Bill Real</th>
-                            @endif
-                            <td class="text-right align-middle p-2">
-                              {{ $value->BillReal != "-" ? Helper::formatCurrency($value->BillReal, '') : $value->BillReal}}
-                            </td>
-                            @endforeach
-                          </tr>
-                          <tr style="background-color: {{ $item[0]->BGcolor }}">
-                            @foreach ($item as $value)
-                            @if ($loop->first)
-                            <th>Bill Target</th>
-                            @endif
-                            <td class="text-right align-middle p-2">
-                              {{ $value->BillTarget != "-" ? Helper::formatCurrency($value->BillTarget, '') : $value->BillTarget }}
-                            </td>
-                            @endforeach
-                          </tr>
-                          <tr style="background-color: {{ $item[0]->BGcolor }}">
-                            @foreach ($item as $value)
-                            @if ($loop->first)
-                            <th>Ending Inventory</th>
-                            @endif
-                            <td class="text-right align-middle p-2">
-                              {{ $value->EndingInventory != "-" ? Helper::formatCurrency($value->EndingInventory, '') : $value->EndingInventory }}
-                            </td>
-                            @endforeach
-                          </tr>
-                          @endforeach
-
+                          </div>
                         </tbody>
                       </table>
                     </div>
