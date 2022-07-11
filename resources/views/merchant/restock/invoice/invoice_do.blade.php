@@ -251,9 +251,16 @@
 				</tr>
 				@endif
 
+				@if ($lateFee != 0 && $merchant->PaymentMethodID == 14)
+				<tr class="total">
+					<th colspan="3" class="text-right">Denda</th>
+					<th colspan="1" class="text-right pt">{{ Helper::formatCurrency($lateFee, 'Rp ') }}</th>
+				</tr>
+				@endif
+
 				<tr class="total">
 					<th colspan="3" class="text-right">Grand Total</th>
-					<th colspan="1" class="text-right pt">{{ Helper::formatCurrency($subTotal - $merchant->Discount + $merchant->ServiceCharge + $merchant->DeliveryFee, 'Rp ') }}</th>
+					<th colspan="1" class="text-right pt">{{ Helper::formatCurrency($grandTotal, 'Rp ') }}</th>
 				</tr>
 				@endif
 
@@ -294,7 +301,7 @@
 			</div>
 		</div>
 		<script>
-			window.addEventListener("load", window.print());
+			// window.addEventListener("load", window.print());
 		</script>
 	</body>
 </html>
