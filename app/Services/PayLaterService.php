@@ -38,6 +38,7 @@ class PayLaterService
         tmdo.PaymentDate,
         tmdo.PaymentSlip,
         tmdo.PaymentNominal,
+        ANY_VALUE(tx_merchant_order.PaymentMethodID) AS PaymentMethodID,
         ANY_VALUE(ms_status_order.StatusOrder) AS StatusOrder,
         ANY_VALUE(ms_distributor.DistributorName) AS DistributorName,
         MAX(tx_merchant_delivery_order_log.ProcessTime) AS DeliveryDate,

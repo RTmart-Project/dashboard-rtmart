@@ -392,6 +392,7 @@ class DistributionController extends Controller
                 ->join('ms_product', 'ms_product.ProductID', '=', 'tx_merchant_delivery_order_detail.ProductID')
                 ->join('tx_merchant_delivery_order', 'tx_merchant_delivery_order.DeliveryOrderID', '=', 'tx_merchant_delivery_order_detail.DeliveryOrderID')
                 ->where('tx_merchant_delivery_order_detail.DeliveryOrderID', '=', $value->DeliveryOrderID)
+                ->where('tx_merchant_delivery_order_detail.StatusExpedition', '!=', 'S037')
                 ->select('tx_merchant_delivery_order_detail.ProductID', 'tx_merchant_delivery_order_detail.Qty', 'tx_merchant_delivery_order_detail.Price', 'ms_product.ProductName', 'ms_product.ProductImage', 'tx_merchant_delivery_order_detail.Distributor', 'ms_status_order.StatusOrder')
                 ->get()->toArray();
             $value->DetailProduct = $deliveryOrderDetail;
@@ -431,7 +432,39 @@ class DistributionController extends Controller
                     }
                 }
             }
+            $dueDate = strtotime("$value->FinishDate +5 day");
+            if ($value->IsPaid == 0) {
+                $timeDiff = time() - $dueDate;
+            } else {
+                $timeDiff = strtotime($value->PaymentDate) - $dueDate;
+            }
+            $lateDays = round($timeDiff / (60 * 60 * 24));
+
+            $grandTotal = $subTotal + $value->ServiceCharge + $value->DeliveryFee - $value->Discount;
+
+            if ($lateDays > 0) {
+                $sqlLateBillFee = DB::table('tx_merchant_delivery_order_bill')
+                    ->where('PaymentMethodID', $merchantOrder->PaymentMethodID)
+                    ->whereRaw("$lateDays BETWEEN OverdueStartDay AND OverdueToDay")
+                    ->select('TypeFee', 'NominalFee')
+                    ->first();
+
+                if ($sqlLateBillFee->TypeFee == "PERCENT") {
+                    $lateFee = $grandTotal * $sqlLateBillFee->NominalFee / 100;
+                    $grandTotal += $lateFee;
+                }
+
+                if ($sqlLateBillFee->TypeFee == 'NOMINAL') {
+                    $lateFee = $sqlLateBillFee->NominalFee;
+                    $grandTotal += $lateFee;
+                }
+            } else {
+                $lateFee = 0;
+            }
+
             $value->SubTotal = $subTotal;
+            $value->LateFee = $lateFee;
+            $value->GrandTotal = $grandTotal;
         }
 
         $productAddDO = DB::table('tx_merchant_order_detail')
@@ -1457,8 +1490,39 @@ class DistributionController extends Controller
                     return $remainingDay;
                 })
                 ->addColumn('BillNominal', function ($data) {
+                    // DENDA
+                    $dueDate = strtotime("$data->FinishDate +5 day");
+                    if ($data->IsPaid == 0) {
+                        $timeDiff = time() - $dueDate;
+                    } else {
+                        $timeDiff = strtotime($data->PaymentDate) - $dueDate;
+                    }
+                    $lateDays = round($timeDiff / (60 * 60 * 24));
+
+                    $grandTotal = $data->SubTotal + $data->ServiceCharge + $data->DeliveryFee - $data->Discount;
+
+                    if ($lateDays > 0) {
+                        $sqlLateBillFee = DB::table('tx_merchant_delivery_order_bill')
+                            ->where('PaymentMethodID', $data->PaymentMethodID)
+                            ->whereRaw("$lateDays BETWEEN OverdueStartDay AND OverdueToDay")
+                            ->select('TypeFee', 'NominalFee')
+                            ->first();
+
+                        if ($sqlLateBillFee->TypeFee == "PERCENT") {
+                            $lateFee = $grandTotal * $sqlLateBillFee->NominalFee / 100;
+                            $grandTotal += round($lateFee);
+                        }
+
+                        if ($sqlLateBillFee->TypeFee == 'NOMINAL') {
+                            $lateFee = $sqlLateBillFee->NominalFee;
+                            $grandTotal += $lateFee;
+                        }
+                    } else {
+                        $lateFee = 0;
+                    }
+
                     if ($data->StatusDO == "S024" || $data->StatusDO == "S025") {
-                        $bill = $data->SubTotal + $data->ServiceCharge + $data->DeliveryFee - $data->Discount;
+                        $bill = $grandTotal;
                     } else {
                         $bill = "-";
                     }
