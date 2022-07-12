@@ -43,28 +43,143 @@
       <div class="col-12">
         <div class="card">
           <div class="card-header">
-            {{-- <form action="{{ route('summary.dataSummary') }}" method="POST"> --}}
-              <div class="row filter">
-                {{-- @csrf --}}
-                <div class="col-12 col-md-3">
-                  <input type="date" class="form-control form-control-sm start-date">
+            <div class="row filter">
+              <div class="col-12 col-md-3">
+                <input type="date" class="form-control form-control-sm start-date">
+              </div>
+              <div class="col-2 col-md-1 d-none d-md-flex align-items-center justify-content-center">
+                <span>sampai</span>
+              </div>
+              <div class="col-12 col-md-3 py-2 py-md-0">
+                <input type="date" class="form-control form-control-sm end-date">
+              </div>
+              <div class="col-6 col-md-2 text-md-center pt-md-0 w-100">
+                <button class="btn btn-primary btn-block btn-sm btn-filter">Filter</button>
+              </div>
+              <div class="col-6 col-md-2 text-md-center pt-md-0">
+                <button class="btn btn-warning btn-block btn-sm btn-refresh">Refresh</button>
+              </div>
+            </div>
+          </div>
+          <div class="card-body pt-2">
+
+            <div id="accordion">
+              <div class="row">
+                <div class="col-6 col-md-3">
+                  <div class="card">
+                    <div class="card-header p-2">
+                      <h4 class="card-title w-100">
+                        <a class="d-block w-100" data-toggle="collapse" href="#collapsePurchaseOrder">
+                          <i class="fas fa-info-circle"></i> Purchase Order
+                        </a>
+                      </h4>
+                    </div>
+                    <div id="collapsePurchaseOrder" class="collapse" data-parent="#accordion">
+                      <div class="card-body p-2">
+                        Purchase Order dengan status Dalam Proses
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div class="col-2 col-md-1 d-none d-md-flex align-items-center justify-content-center">
-                  <span>sampai</span>
+                <div class="col-6 col-md-3">
+                  <div class="card">
+                    <div class="card-header p-2">
+                      <h4 class="card-title w-100">
+                        <a class="d-block w-100" data-toggle="collapse" href="#collapsePurchasing">
+                          <i class="fas fa-info-circle"></i> Purchasing
+                        </a>
+                      </h4>
+                    </div>
+                    <div id="collapsePurchasing" class="collapse" data-parent="#accordion">
+                      <div class="card-body p-2">
+                        Pembelian stok yang telah disetujui
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div class="col-12 col-md-3 py-2 py-md-0">
-                  <input type="date" class="form-control form-control-sm end-date">
+                <div class="col-6 col-md-3">
+                  <div class="card">
+                    <div class="card-header p-2">
+                      <h4 class="card-title w-100">
+                        <a class="d-block w-100" data-toggle="collapse" href="#collapseVoucher">
+                          <i class="fas fa-info-circle"></i> Voucher
+                        </a>
+                      </h4>
+                    </div>
+                    <div id="collapseVoucher" class="collapse" data-parent="#accordion">
+                      <div class="card-body p-2">
+                        Penggunaan Voucher dengan status PO Dalam Proses
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div class="col-3 col-md-1 text-md-center pt-md-0 w-100">
-                  <button class="btn btn-primary btn-block btn-sm btn-filter">Filter</button>
+                <div class="col-6 col-md-3">
+                  <div class="card">
+                    <div class="card-header p-2">
+                      <h4 class="card-title w-100">
+                        <a class="d-block w-100" data-toggle="collapse" href="#collapseDeliveryOrder">
+                          <i class="fas fa-info-circle"></i> Delivery Order
+                        </a>
+                      </h4>
+                    </div>
+                    <div id="collapseDeliveryOrder" class="collapse" data-parent="#accordion">
+                      <div class="card-body p-2">
+                        Value Delivery Order dengan status telah selesai
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div class="col-3 col-md-1 text-md-center pt-md-0">
-                  <button class="btn btn-warning btn-block btn-sm btn-refresh">Refresh</button>
+                <div class="col-6 col-md-3">
+                  <div class="card">
+                    <div class="card-header p-2">
+                      <h4 class="card-title w-100">
+                        <a class="d-block w-100" data-toggle="collapse" href="#collapsePaidBill">
+                          <i class="fas fa-info-circle"></i> Paid Bill
+                        </a>
+                      </h4>
+                    </div>
+                    <div id="collapsePaidBill" class="collapse" data-parent="#accordion">
+                      <div class="card-body p-2">
+                        Tagihan yang telah dibayarkan (lunas)
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-6 col-md-3">
+                  <div class="card">
+                    <div class="card-header p-2">
+                      <h4 class="card-title w-100">
+                        <a class="d-block w-100" data-toggle="collapse" href="#collapseBillTarget">
+                          <i class="fas fa-info-circle"></i> Bill Target
+                        </a>
+                      </h4>
+                    </div>
+                    <div id="collapseBillTarget" class="collapse" data-parent="#accordion">
+                      <div class="card-body p-2">
+                        Target tagihan dengan status sudah lunas dan belum lunas
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-6 col-md-3">
+                  <div class="card">
+                    <div class="card-header p-2">
+                      <h4 class="card-title w-100">
+                        <a class="d-block w-100" data-toggle="collapse" href="#collapseEndingInventory">
+                          <i class="fas fa-info-circle"></i> Ending Inventory
+                        </a>
+                      </h4>
+                    </div>
+                    <div id="collapseEndingInventory" class="collapse" data-parent="#accordion">
+                      <div class="card-body p-2">
+                        Value Stok Barang (Good Stock & Bad Stock)
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            {{-- </form> --}}
-          </div>
-          <div class="card-body mt-2">
+            </div>
+
             <div class="tab-content">
 
               <div class="tab-pane active" id="summary">
@@ -96,7 +211,7 @@
                             <th>Delivery Order</th>
                           </tr>
                           <tr id="bill-real-cakung" style="background-color: rgb(216,216,216);">
-                            <th>Bill Real</th>
+                            <th>Paid Bill</th>
                           </tr>
                           <tr id="bill-target-cakung" style="background-color: rgb(216,216,216);">
                             <th>Bill Target</th>
@@ -122,7 +237,7 @@
                             <th>Delivery Order</th>
                           </tr>
                           <tr id="bill-real-bandung" style="background-color: rgb(252,213,180);">
-                            <th>Bill Real</th>
+                            <th>Paid Bill</th>
                           </tr>
                           <tr id="bill-target-bandung" style="background-color: rgb(252,213,180);">
                             <th>Bill Target</th>
@@ -148,7 +263,7 @@
                             <th>Delivery Order</th>
                           </tr>
                           <tr id="bill-real-ciracas" style="background-color: rgb(219,238,243);">
-                            <th>Bill Real</th>
+                            <th>Paid Bill</th>
                           </tr>
                           <tr id="bill-target-ciracas" style="background-color: rgb(219,238,243);">
                             <th>Bill Target</th>
@@ -174,7 +289,7 @@
                             <th>Delivery Order</th>
                           </tr>
                           <tr id="bill-real-grand-total" style="background-color: rgb(255,255,0);">
-                            <th>Bill Real</th>
+                            <th>Paid Bill</th>
                           </tr>
                           <tr id="bill-target-grand-total" style="background-color: rgb(255,255,0);">
                             <th>Bill Target</th>
@@ -214,9 +329,15 @@
   getSummary();
 
   $(".btn-filter").on("click", function () {
-    $(".summary-table .data").remove();
     const startDate = $(this).closest(".filter").find(".start-date").val();
     const endDate = $(this).closest(".filter").find(".end-date").val();
+
+    const today = new Date().toJSON().slice(0, 10).replace(/-/g, '-');
+
+    const date1 = new Date(startDate);
+    const date2 = new Date(endDate);
+    const dateDiff = (date2.getTime() - date1.getTime()) / (1000 * 3600 * 24);
+
     if (startDate == "") {
       Toast.fire({
         icon: "error",
@@ -227,12 +348,23 @@
         icon: "error",
         title: " Harap isi End Date!",
       });
+    } else if (startDate > today || endDate > today) {
+      Toast.fire({
+        icon: "error",
+        title: " Filter tanggal tidak dapat melebihi hari ini!",
+      });
     } else if (startDate > endDate) {
       Toast.fire({
         icon: "error",
         title: " Start Date harus lebih kecil dari End Date!",
       });
+    } else if (dateDiff > 31) {
+      Toast.fire({
+        icon: "error",
+        title: " Rentang filter tanggal maksimal 31 hari!",
+      });
     } else {
+      $(".summary-table .data").remove();
       getSummary(startDate, endDate);
     }
   })
