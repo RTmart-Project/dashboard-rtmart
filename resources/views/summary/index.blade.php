@@ -370,9 +370,9 @@
   })
 
   $(".btn-refresh").on("click", function () {
-    $(".summary-table .data").remove();
     $(".start-date").val("");
     $(".end-date").val("");
+    $(".summary-table .data").remove();
     getSummary();
   })
 </script>
