@@ -12,7 +12,6 @@ class SummaryService
         SELECT DISTINCT
           'GrandTotal',
           b.DateSummary,
-          'rgb(255,255,0)' AS BGcolor,
           (
             SELECT IFNULL(SUM(TotalPrice), 0) FROM tx_merchant_order
             WHERE StatusOrderID = 'S023'
@@ -117,7 +116,7 @@ class SummaryService
             ) f
             where DateSummary between @minDate and @maxDate
           ) b
-        ORDER BY b.DateSummary, a.DistributorName DESC
+        ORDER BY b.DateSummary
       ");
 
     return $sql;
@@ -129,12 +128,6 @@ class SummaryService
         SELECT 
           a.DistributorName,
           b.DateSummary,
-          CASE 
-            WHEN a.DistributorName = 'RTmart Jakarta Ciracas' THEN 'rgb(219,238,243)'
-            WHEN a.DistributorName = 'RTmart Jakarta Cakung' THEN 'rgb(216,216,216)'
-            WHEN a.DistributorName = 'RTmart Bandung' THEN 'rgb(252,213,180)'
-            ELSE 'rgb(255,255,0)'
-          END AS BGcolor,
           (
             SELECT IFNULL(SUM(TotalPrice), 0) FROM tx_merchant_order
             WHERE DistributorID = a.DistributorID AND StatusOrderID = 'S023'
@@ -245,7 +238,7 @@ class SummaryService
             ) f
             where DateSummary between @minDate and @maxDate
           ) b
-      ORDER BY b.DateSummary, a.DistributorName DESC
+        ORDER BY b.DateSummary, a.DistributorName DESC
     ");
 
     return $sql;
