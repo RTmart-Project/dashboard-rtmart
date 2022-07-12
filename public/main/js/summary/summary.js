@@ -15,7 +15,7 @@ function getSummaryDate(startDate = null, endDate = null) {
             for (const item of data) {
                 tanggal += `<th class="data">${item.DateSummary}</th>`;
             }
-            $(".loader-tanggal").addClass("d-none");
+            $(".loader-tanggal").remove();
             $("#tanggal").append(tanggal);
 
             const loaderCakung = `<td class="w-50 text-center align-middle loader-cakung" colspan="${data.length}" rowspan="8">harap tunggu <i class="fas fa-spinner fa-spin"></i></td>`;
@@ -84,7 +84,7 @@ function getSummaryCakung(startDate = null, endDate = null) {
             $("#bill-real-cakung").append(billRealCakung);
             $("#bill-target-cakung").append(billTargetCakung);
             $("#ending-inventory-cakung").append(endingInventoryCakung);
-            $(".loader-cakung").addClass("d-none");
+            $(".loader-cakung").remove();
         },
     });
 }
@@ -140,7 +140,7 @@ function getSummaryBandung(startDate = null, endDate = null) {
             $("#bill-real-bandung").append(billRealBandung);
             $("#bill-target-bandung").append(billTargetBandung);
             $("#ending-inventory-bandung").append(endingInventoryBandung);
-            $(".loader-bandung").addClass("d-none");
+            $(".loader-bandung").remove();
         },
     });
 }
@@ -196,7 +196,7 @@ function getSummaryCiracas(startDate = null, endDate = null) {
             $("#bill-real-ciracas").append(billRealCiracas);
             $("#bill-target-ciracas").append(billTargetCiracas);
             $("#ending-inventory-ciracas").append(endingInventoryCiracas);
-            $(".loader-ciracas").addClass("d-none");
+            $(".loader-ciracas").remove();
         },
     });
 }
@@ -254,7 +254,7 @@ function getSummaryGrandTotal(startDate = null, endDate = null) {
             $("#ending-inventory-grand-total").append(
                 endingInventoryGrandTotal
             );
-            $(".loader-grand-total").addClass("d-none");
+            $(".loader-grand-total").remove();
         },
     });
 }
