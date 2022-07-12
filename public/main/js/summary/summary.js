@@ -1,38 +1,3 @@
-function getSummaryDate(startDate = null, endDate = null) {
-    $.ajax({
-        url: "/summary/get",
-        headers: {
-            "X-CSRF-TOKEN": csrf,
-        },
-        data: {
-            distributorID: "tanggal",
-            startDate,
-            endDate,
-        },
-        type: "post",
-        success: function (data) {
-            let tanggal = "";
-            for (const item of data) {
-                tanggal += `<th class="data">${item.DateSummary}</th>`;
-            }
-            $(".loader-tanggal").remove();
-            $("#tanggal").append(tanggal);
-
-            const loaderCakung = `<td class="w-50 text-center align-middle loader-cakung" colspan="${data.length}" rowspan="8">harap tunggu <i class="fas fa-spinner fa-spin"></i></td>`;
-            $("#purchase-order-cakung").append(loaderCakung);
-
-            const loaderBandung = `<td class="w-50 text-center align-middle loader-bandung" colspan="${data.length}" rowspan="8">harap tunggu <i class="fas fa-spinner fa-spin"></i></td>`;
-            $("#purchase-order-bandung").append(loaderBandung);
-
-            const loaderCiracas = `<td class="w-50 text-center align-middle loader-ciracas" colspan="${data.length}" rowspan="8">harap tunggu <i class="fas fa-spinner fa-spin"></i></td>`;
-            $("#purchase-order-ciracas").append(loaderCiracas);
-
-            const loaderGrandTotal = `<td class="w-50 text-center align-middle loader-grand-total" colspan="${data.length}" rowspan="8">harap tunggu <i class="fas fa-spinner fa-spin"></i></td>`;
-            $("#purchase-order-grand-total").append(loaderGrandTotal);
-        },
-    });
-}
-
 function getSummaryCakung(startDate = null, endDate = null) {
     // CAKUNG
     $.ajax({
@@ -260,9 +225,41 @@ function getSummaryGrandTotal(startDate = null, endDate = null) {
 }
 
 function getSummary(startDate = null, endDate = null) {
-    getSummaryDate(startDate, endDate);
-    getSummaryCakung(startDate, endDate);
-    getSummaryBandung(startDate, endDate);
-    getSummaryCiracas(startDate, endDate);
-    getSummaryGrandTotal(startDate, endDate);
+    $.ajax({
+        url: "/summary/get",
+        headers: {
+            "X-CSRF-TOKEN": csrf,
+        },
+        data: {
+            distributorID: "tanggal",
+            startDate,
+            endDate,
+        },
+        type: "post",
+        success: function (data) {
+            let tanggal = "";
+            for (const item of data) {
+                tanggal += `<th class="data">${item.DateSummary}</th>`;
+            }
+            $(".loader-tanggal").remove();
+            $("#tanggal").append(tanggal);
+
+            const loaderCakung = `<td class="w-50 text-center align-middle loader-cakung" colspan="${data.length}" rowspan="8">harap tunggu <i class="fas fa-spinner fa-spin"></i></td>`;
+            $("#purchase-order-cakung").append(loaderCakung);
+
+            const loaderBandung = `<td class="w-50 text-center align-middle loader-bandung" colspan="${data.length}" rowspan="8">harap tunggu <i class="fas fa-spinner fa-spin"></i></td>`;
+            $("#purchase-order-bandung").append(loaderBandung);
+
+            const loaderCiracas = `<td class="w-50 text-center align-middle loader-ciracas" colspan="${data.length}" rowspan="8">harap tunggu <i class="fas fa-spinner fa-spin"></i></td>`;
+            $("#purchase-order-ciracas").append(loaderCiracas);
+
+            const loaderGrandTotal = `<td class="w-50 text-center align-middle loader-grand-total" colspan="${data.length}" rowspan="8">harap tunggu <i class="fas fa-spinner fa-spin"></i></td>`;
+            $("#purchase-order-grand-total").append(loaderGrandTotal);
+
+            getSummaryCakung(startDate, endDate);
+            getSummaryBandung(startDate, endDate);
+            getSummaryCiracas(startDate, endDate);
+            getSummaryGrandTotal(startDate, endDate);
+        },
+    });
 }
