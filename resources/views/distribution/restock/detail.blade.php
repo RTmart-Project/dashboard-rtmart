@@ -417,12 +417,50 @@
                                                         <p class="m-0"><b>Kendaraan : </b>{{ $do->VehicleName }} {{
                                                             $do->VehicleLicensePlate }}</p>
                                                     </div>
-                                                    <div class="col-4 col-md-3 d-flex justify-content-center">
-                                                        <p class="text-center my-2">
+                                                    <div class="col-4 col-md-3 d-flex flex-column justify-content-center">
+                                                        <p class="text-center m-0">
                                                             <b>SubTotal : </b>
                                                             <span class="price-subtotal">{{
                                                                 Helper::formatCurrency($do->SubTotal, 'Rp ')
                                                                 }}</span>
+                                                        </p>
+                                                        @if ($do->Discount != 0)
+                                                        <p class="text-center m-0">
+                                                            <b>Diskon : </b>
+                                                            <span class="price-subtotal">{{
+                                                                Helper::formatCurrency($do->Discount, 'Rp ')
+                                                                }}</span>
+                                                        </p>
+                                                        @endif
+                                                        @if ($do->ServiceCharge != 0)
+                                                        <p class="text-center m-0">
+                                                            <b>Biaya Layanan : </b>
+                                                            <span class="price-subtotal">{{
+                                                                Helper::formatCurrency($do->ServiceCharge, 'Rp ')
+                                                                }}</span>
+                                                        </p>
+                                                        @endif
+                                                        @if ($do->DeliveryFee != 0)
+                                                        <p class="text-center m-0">
+                                                            <b>Biaya Pengiriman : </b>
+                                                            <span class="price-subtotal">{{
+                                                                Helper::formatCurrency($do->DeliveryFee, 'Rp ')
+                                                                }}</span>
+                                                        </p>
+                                                        @endif
+                                                        @if ($do->LateFee != 0 && $merchantOrder->PaymentMethodID == 14)
+                                                        <p class="text-center m-0">
+                                                            <b>Denda : </b>
+                                                            <span class="price-subtotal">{{
+                                                                Helper::formatCurrency($do->LateFee, 'Rp ')
+                                                                }}</span>
+                                                        </p>
+                                                        @endif
+                                                        <p class="text-center m-0">
+                                                            <b>GrandTotal : </b>
+                                                            <span class="price-subtotal">
+                                                                {{ Helper::formatCurrency($do->SubTotal + $do->ServiceCharge + $do->DeliveryFee - $do->Discount, 'Rp ')}}
+                                                            </span>
                                                         </p>
                                                     </div>
                                                 </div>
