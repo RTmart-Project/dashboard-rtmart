@@ -1584,7 +1584,13 @@ class MerchantController extends Controller
                         } else {
                             $marginReal = ($data->Nett - $data->PurchasePriceReal) * $data->QtyDOkirim;
                         }
-                        $totalMarginPercentage = round((($marginEstimation + $marginReal) / ($data->PromisedQuantity * $data->Nett)) * 100, 2);
+
+                        $totalPrice = $data->PromisedQuantity * $data->Nett;
+                        if ($totalPrice == 0) {
+                            $totalMarginPercentage = 0;
+                        } else {
+                            $totalMarginPercentage = round((($marginEstimation + $marginReal) / $totalPrice) * 100, 2);
+                        }
                     } else {
                         $totalMarginPercentage = "";
                     }
