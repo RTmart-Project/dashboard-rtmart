@@ -442,7 +442,7 @@ class DistributionController extends Controller
 
             $grandTotal = $subTotal + $value->ServiceCharge + $value->DeliveryFee - $value->Discount;
 
-            if ($lateDays > 0) {
+            if ($lateDays > 0 && $merchantOrder->PaymentMethodID == 14) {
                 $sqlLateBillFee = DB::table('tx_merchant_delivery_order_bill')
                     ->where('PaymentMethodID', $merchantOrder->PaymentMethodID)
                     ->whereRaw("$lateDays BETWEEN OverdueStartDay AND OverdueToDay")
