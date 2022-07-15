@@ -78,7 +78,7 @@ class InvoiceController extends Controller
 
         $grandTotal = $subTotal + $merchant->ServiceCharge + $merchant->DeliveryFee - $merchant->Discount;
 
-        if ($lateDays > 0) {
+        if ($lateDays > 0 && $merchant->PaymentMethodID == 14) {
             $sqlLateBillFee = DB::table('tx_merchant_delivery_order_bill')
                 ->where('PaymentMethodID', $merchant->PaymentMethodID)
                 ->whereRaw("$lateDays BETWEEN OverdueStartDay AND OverdueToDay")
