@@ -197,7 +197,7 @@
             div += `<div class="col-md-5 col-12">
                       <div class="form-group">
                         <label>Nama Produk</label>
-                        <input class="form-control" value="${value.ProductID} - ${value.ProductName}" readonly>
+                        <input class="form-control" value="${value.ProductID} - ${value.ProductName} - ${value.ProductLabel}" readonly>
                         <input type="hidden" name="product_id[]" value="${value.ProductID}">
                       </div>
                     </div>

@@ -36,25 +36,26 @@ class MutationService
               stock_product.PurchaseID, 
               stock_product.ProductID, 
               ms_product.ProductName,
+              stock_product.ProductLabel,
               stock_product.PurchasePrice,
-              (
-                SELECT SUM(
-                  IF(ActionType = 'INBOUND', QtyAction, 0) - IF(ActionType = 'OUTBOUND', QtyAction, 0) + 
-                  IF(ActionType = 'RETUR', QtyAction, 0) + IF(ActionType = 'MUTASI', QtyAction, 0)
-                )
-                FROM ms_stock_product_log
-                JOIN ms_stock_product ON ms_stock_product.StockProductID = ms_stock_product_log.StockProductID
-                WHERE (
-                  ms_stock_product_log.StockProductID IN (
-                    SELECT StockProductID FROM ms_stock_product_log 
-                    WHERE ReferenceStockProductID = stock_product.StockProductID OR StockProductID = stock_product.StockProductID
-                  ) OR 
-                  ms_stock_product_log.ReferenceStockProductID IN (
-                    SELECT StockProductID FROM ms_stock_product_log 
-                    WHERE ReferenceStockProductID = stock_product.StockProductID OR StockProductID = stock_product.StockProductID
-                  )
-                ) AND ms_stock_product.DistributorID = (SELECT DISTINCT DistributorID FROM ms_stock_product WHERE PurchaseID = '$purchaseID')
-              ) AS QtyReady
+              stock_product.Qty AS QtyReady
+              -- (
+              --  SELECT SUM(QtyAction)
+              --  FROM ms_stock_product_log
+              --  JOIN ms_stock_product ON ms_stock_product.StockProductID = ms_stock_product_log.StockProductID
+              --  WHERE (
+              --    ms_stock_product_log.StockProductID IN (
+              --      SELECT StockProductID FROM ms_stock_product_log 
+              --      WHERE StockProductID = stock_product.StockProductID
+                    -- OR ReferenceStockProductID = stock_product.StockProductID
+              --    ) 
+                  -- OR 
+                  -- ms_stock_product_log.ReferenceStockProductID IN (
+                  --  SELECT StockProductID FROM ms_stock_product_log 
+                  --  WHERE ReferenceStockProductID = stock_product.StockProductID OR StockProductID = stock_product.StockProductID
+                  -- )
+              --  ) AND ms_stock_product.DistributorID = (SELECT DISTINCT DistributorID FROM ms_stock_product WHERE PurchaseID = '$purchaseID')
+              -- ) AS QtyReady
             ")
       ->get();
 
