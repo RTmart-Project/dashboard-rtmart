@@ -132,6 +132,46 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-md-12 col-12 mt-1">
+                            <div class="card card-warning card-outline collapsed-card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Log Perubahan Sales</h3>
+                                    <div class="card-tools">
+                                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Sales Sebelumnya</th>
+                                                <th>Sales Setelahnya</th>
+                                                <th>Tanggal Perubahan</th>
+                                                <th>Diubah Oleh</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if ($logSales->count() > 0)
+                                                @foreach ($logSales as $value)
+                                                <tr>
+                                                    <td>{{ $value->SalesCodeBefore }} - {{ $value->SalesNameBefore }}</td>
+                                                    <td>{{ $value->SalesCodeAfter }} - {{ $value->SalesNameAfter }}</td>
+                                                    <td>{{ date('d M Y, H:i:s', strtotime($value->CreatedDate)) }}</td>
+                                                    <td>{{ $value->ActionBy }}</td>
+                                                </tr>
+                                                @endforeach
+                                            @else
+                                                <tr>
+                                                    <td colspan="4" class="text-center py-4">Belum ada log perubahan sales</td>
+                                                </tr>
+                                            @endif
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="card-body">
