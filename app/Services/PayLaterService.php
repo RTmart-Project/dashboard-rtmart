@@ -20,7 +20,7 @@ class PayLaterService
       })
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
       ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
-      ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
+      ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tx_merchant_order.SalesCode')
       ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tmdo.StatusDO')
       ->where('tmdo.StatusDO', 'S025')
       ->selectRaw("
@@ -42,7 +42,7 @@ class PayLaterService
         ANY_VALUE(ms_status_order.StatusOrder) AS StatusOrder,
         ANY_VALUE(ms_distributor.DistributorName) AS DistributorName,
         MAX(tx_merchant_delivery_order_log.ProcessTime) AS DeliveryDate,
-        CONCAT(ANY_VALUE(ms_merchant_account.ReferralCode), ' ', ANY_VALUE(ms_sales.SalesName)) AS Sales,
+        CONCAT(ANY_VALUE(tx_merchant_order.SalesCode), ' ', ANY_VALUE(ms_sales.SalesName)) AS Sales,
         (
           SELECT CONCAT('DO ke-', COUNT(*)) FROM tx_merchant_delivery_order
           WHERE tx_merchant_delivery_order.CreatedDate <= tmdo.CreatedDate
