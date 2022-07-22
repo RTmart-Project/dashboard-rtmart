@@ -269,7 +269,7 @@
                                                     <th>Nama Sales</th>
                                                     <th>Distributor</th>
                                                     <th>Action</th>
-                                                    <th>Produk</th>
+                                                    <th>Detail</th>
                                                     <th>Assessment</th>
                                                 </tr>
                                             </thead>

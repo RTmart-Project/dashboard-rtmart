@@ -219,6 +219,10 @@ class MerchantController extends Controller
             ->where('MerchantID', '=', $merchantId)
             ->select('MerchantID')->first();
 
+        $merchant = DB::table('ms_merchant_account')
+            ->where('MerchantID', '=', $merchantId)
+            ->select('ReferralCode')->first();
+
         $request->validate([
             'store_name' => 'required|string',
             'owner_name' => 'required|string',
@@ -235,6 +239,9 @@ class MerchantController extends Controller
             'longitude' => 'required'
         ]);
 
+        $user = Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo;
+        $referralCode = $request->input('referral_code');
+
         $data = [
             'StoreName' => $request->input('store_name'),
             'OwnerFullName' => $request->input('owner_name'),
@@ -244,7 +251,7 @@ class MerchantController extends Controller
             'DistributorID' => $request->input('distributor'),
             'RealDistributorID' => $request->input('distributor'),
             'StoreAddress' => $request->input('address'),
-            'ReferralCode' => $request->input('referral_code'),
+            'ReferralCode' => $referralCode,
             'Latitude' => $request->input('latitude'),
             'Longitude' => $request->input('longitude')
         ];
@@ -256,7 +263,7 @@ class MerchantController extends Controller
         ];
 
         try {
-            DB::transaction(function () use ($merchantId, $merchantGrade, $data, $dataGrade) {
+            DB::transaction(function () use ($merchantId, $merchantGrade, $data, $dataGrade, $merchant, $referralCode, $user) {
                 DB::table('ms_merchant_account')
                     ->where('MerchantID', '=', $merchantId)
                     ->update($data);
@@ -267,6 +274,16 @@ class MerchantController extends Controller
                 } else {
                     DB::table('ms_distributor_merchant_grade')
                         ->insert($dataGrade);
+                }
+                if ($merchant->ReferralCode != $referralCode) {
+                    DB::table('ms_sales_merchant_relation_log')
+                        ->insert([
+                            'MerchantID' => $merchantId,
+                            'SalesCodeBefore' => $merchant->ReferralCode,
+                            'SalesCodeAfter' => $referralCode,
+                            'CreatedDate' => date('Y-m-d H:i:s'),
+                            'ActionBy' => $user
+                        ]);
                 }
             });
 
@@ -288,10 +305,19 @@ class MerchantController extends Controller
             ->select('DayOfWeek', 'OpeningHour', 'ClosingHour')
             ->get();
 
+        $logSales = DB::table('ms_sales_merchant_relation_log')
+            ->where('ms_sales_merchant_relation_log.MerchantID', $merchantId)
+            ->leftJoin('ms_sales as salesBefore', 'salesBefore.SalesCode', 'ms_sales_merchant_relation_log.SalesCodeBefore')
+            ->join('ms_sales as salesAfter', 'salesAfter.SalesCode', 'ms_sales_merchant_relation_log.SalesCodeAfter')
+            ->select('ms_sales_merchant_relation_log.SalesCodeBefore', 'salesBefore.SalesName as SalesNameBefore', 'ms_sales_merchant_relation_log.SalesCodeAfter', 'salesAfter.SalesName as SalesNameAfter', 'ms_sales_merchant_relation_log.CreatedDate', 'ms_sales_merchant_relation_log.ActionBy')
+            ->orderByDesc('ms_sales_merchant_relation_log.CreatedDate')
+            ->get();
+
         return view('merchant.product.index', [
             'merchantId' => $merchantId,
             'merchant' => $merchant,
-            'operationalHour' => $operationalHour
+            'operationalHour' => $operationalHour,
+            'logSales' => $logSales
         ]);
     }
 
