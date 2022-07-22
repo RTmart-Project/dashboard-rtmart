@@ -253,7 +253,7 @@ class DeliveryOrderService
       ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
       ->leftJoin('ms_area', 'ms_area.AreaID', 'ms_merchant_account.AreaID')
-      ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
+      ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tx_merchant_order.SalesCode')
       ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'ms_merchant_account.MerchantID')
       ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', 'ms_distributor_merchant_grade.GradeID')
       ->whereIn('tmdo.StatusDO', ['S024', 'S028'])
@@ -273,7 +273,7 @@ class DeliveryOrderService
         GROUP_CONCAT(CONCAT(ms_product.ProductName, ' (', tx_merchant_delivery_order_detail.Qty, 'pcs)') SEPARATOR ',<br> ') AS Products,
         ANY_VALUE(ms_merchant_account.PhoneNumber) AS PhoneNumber,
         ANY_VALUE(ms_merchant_account.StoreAddress) AS StoreAddress,
-        ANY_VALUE(CONCAT(ms_sales.SalesCode, ' - ', ms_sales.SalesName)) AS Sales,
+        ANY_VALUE(CONCAT(tx_merchant_order.SalesCode, ' - ', ms_sales.SalesName)) AS Sales,
         ANY_VALUE(ms_merchant_account.Partner) AS Partner,
         ANY_VALUE(IFNULL(ms_distributor_grade.Grade, 'Retail')) AS Grade,
         ANY_VALUE(tx_merchant_order.OrderLatitude) AS OrderLatitude,
