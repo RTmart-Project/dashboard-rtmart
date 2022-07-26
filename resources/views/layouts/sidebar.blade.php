@@ -430,10 +430,8 @@
             </li>
             @endif
 
-            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID == "BM")
-            ||
-            (Auth::user()->RoleID == "FI") ||
-            (Auth::user()->RoleID == "HR") || (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO"))
+            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID == "BM") ||
+            (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "HR") || (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO"))
             <li class="nav-item {{ Request::is('customer*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('customer*') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-users"></i>
@@ -481,6 +479,32 @@
                 </ul>
             </li>
             @endif
+
+            <li class="nav-item {{ Request::is('rtcourier*') ? 'menu-open' : '' }}">
+                <a href="#" class="nav-link {{ Request::is('rtcourier*') ? 'active' : '' }}">
+                    <i class="nav-icon fas fa-paper-plane"></i>
+                    <p>
+                        RT Kurir
+                        <i class="right fas fa-angle-left"></i>
+                    </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="{{ route('courier.courierList') }}"
+                            class="nav-link {{ Request::is('rtcourier/courier*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Kurir List</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('courier.order') }}"
+                            class="nav-link {{ Request::is('rtcourier/order*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Order</p>
+                        </a>
+                    </li>
+                </ul>
+            </li>
 
             @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "RBTAD"))
             <li class="nav-item {{ Request::is('voucher*') ? 'menu-open' : '' }}">

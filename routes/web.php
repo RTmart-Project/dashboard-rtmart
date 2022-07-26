@@ -7,6 +7,7 @@ use App\Http\Controllers\MerchantController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DistributorController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CourierController;
 use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\DistributionController;
 use App\Http\Controllers\InvoiceController;
@@ -326,6 +327,19 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['middleware' => ['checkRoleUser:IT,BM,FI,AH,HR']], function () {
         Route::get('/customer/otp', [CustomerController::class, 'otp'])->name('customer.otp');
         Route::get('/customer/otp/get', [CustomerController::class, 'getOtps'])->name('customer.getOtps');
+    });
+
+    // RT Courier
+    Route::group(['middleware' => ['checkRoleUser:IT'], 'prefix' => 'rtcourier'], function () {
+        Route::prefix('courier')->group(function () {
+            Route::get('/', [CourierController::class, 'courierList'])->name('courier.courierList');
+            Route::get('/get', [CourierController::class, 'getCourierList'])->name('courier.getCourierList');
+            Route::get('/nonactive/{courierCode}', [CourierController::class, 'nonactiveCourier'])->name('courier.nonactiveCourier');
+        });
+        Route::prefix('order')->group(function () {
+            Route::get('/', [CourierController::class, 'courierOrder'])->name('courier.order');
+            Route::get('/get/{courierStatus}', [CourierController::class, 'getCourierOrderByStatus'])->name('courier.getCourierOrderByStatus');
+        });
     });
 
     Route::group(['middleware' => ['checkRoleUser:IT,RBTAD']], function () {

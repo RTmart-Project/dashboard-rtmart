@@ -163,11 +163,6 @@ class DistributionController extends Controller
                 $join->on('tx_merchant_expedition_detail.DeliveryOrderDetailID', 'tx_merchant_delivery_order_detail.DeliveryOrderDetailID');
                 $join->whereRaw("(tx_merchant_expedition_detail.StatusExpeditionDetail = 'S030' OR tx_merchant_expedition_detail.StatusExpeditionDetail = 'S031')");
             })
-            ->leftJoin('ms_stock_product_log', function ($join) {
-                $join->on('ms_stock_product_log.MerchantExpeditionDetailID', 'tx_merchant_expedition_detail.MerchantExpeditionDetailID');
-                $join->orderBy('ms_stock_product_log.CreatedDate');
-                $join->limit(1);
-            })
             ->leftJoin('ms_product', 'ms_product.ProductID', 'tx_merchant_delivery_order_detail.ProductID')
             ->leftJoin('ms_user', 'ms_user.UserID', 'tmdo.DriverID')
             ->leftJoin('ms_vehicle', 'ms_vehicle.VehicleID', 'tmdo.VehicleID')
@@ -204,19 +199,24 @@ class DistributionController extends Controller
                 DB::raw("tx_merchant_order_detail.PromisedQuantity * tx_merchant_order_detail.Nett AS TotalPricePO"),
                 DB::raw("tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price AS TotalPriceDO"),
                 DB::raw("CASE WHEN tmdo.StatusDO = 'S024' THEN 'Dalam Pengiriman' 
-                            WHEN tmdo.StatusDO = 'S025' THEN 'Selesai' 
-                            WHEN tmdo.StatusDO = 'S026' THEN 'Dibatalkan' 
-                            WHEN tmdo.StatusDO = 'S027' THEN 'Permintaan Batal' 
-                            WHEN tmdo.StatusDO = 'S028' THEN 'Menunggu Konfirmasi' 
-                            ELSE '' END AS StatusDO"),
+                        WHEN tmdo.StatusDO = 'S025' THEN 'Selesai' 
+                        WHEN tmdo.StatusDO = 'S026' THEN 'Dibatalkan' 
+                        WHEN tmdo.StatusDO = 'S027' THEN 'Permintaan Batal' 
+                        WHEN tmdo.StatusDO = 'S028' THEN 'Menunggu Konfirmasi' 
+                        ELSE '' END AS StatusDO"),
                 DB::raw("
-                    (
-                        SELECT CONCAT('DO ke-', COUNT(*)) FROM tx_merchant_delivery_order
-                        WHERE tx_merchant_delivery_order.CreatedDate <= tmdo.CreatedDate
-                        AND tx_merchant_delivery_order.StockOrderID = tmdo.StockOrderID
-                    ) AS UrutanDO
+                (
+                    SELECT CONCAT('DO ke-', COUNT(*)) FROM tx_merchant_delivery_order
+                    WHERE tx_merchant_delivery_order.CreatedDate <= tmdo.CreatedDate
+                    AND tx_merchant_delivery_order.StockOrderID = tmdo.StockOrderID
+                ) AS UrutanDO
                 "),
-                'ms_stock_product_log.PurchasePrice',
+                DB::raw("(
+                    SELECT ms_stock_product_log.PurchasePrice 
+                    FROM ms_stock_product_log 
+                    WHERE MerchantExpeditionDetailID = tx_merchant_expedition_detail.MerchantExpeditionDetailID 
+                    LIMIT 1) AS PurchasePrice
+                "),
                 'ms_user.Name',
                 'ms_vehicle.VehicleName',
                 'tmdo.VehicleLicensePlate',

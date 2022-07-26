@@ -85,7 +85,8 @@ $(document).ready(function () {
                 {
                     //15
                     data: "PurchasePrice",
-                    name: "ms_stock_product_log.PurchasePrice",
+                    name: "PurchasePrice",
+                    searchable: false,
                 },
                 {
                     data: "Price",
