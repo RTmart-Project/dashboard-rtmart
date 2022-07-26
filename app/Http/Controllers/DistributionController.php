@@ -194,6 +194,7 @@ class DistributionController extends Controller
                 'tx_merchant_delivery_order_detail.Qty',
                 'tx_merchant_order_detail.PromisedQuantity',
                 'tx_merchant_delivery_order_detail.Price',
+                'tx_merchant_expedition_detail.ReceiptImage',
                 DB::raw("tx_merchant_order.TotalPrice - tx_merchant_order.DiscountPrice - tx_merchant_order.DiscountVoucher + tx_merchant_order.ServiceChargeNett + tx_merchant_order.DeliveryFee AS TotalTrx"),
                 DB::raw("tmdo.CreatedDate as TanggalDO"),
                 DB::raw("tx_merchant_order_detail.PromisedQuantity * tx_merchant_order_detail.Nett AS TotalPricePO"),
@@ -330,6 +331,14 @@ class DistributionController extends Controller
 
                     return $statusOrder;
                 })
+                ->editColumn('ReceiptImage', function ($data) {
+                    if ($data->ReceiptImage == null) {
+                        $receiptImage = "";
+                    } else {
+                        $receiptImage = '<a target="_blank" href="' . $this->baseImageUrl . 'receipt_image_expedition/' . $data->ReceiptImage . '">Lihat Bukti</a>';
+                    }
+                    return $receiptImage;
+                })
                 ->filterColumn('tx_merchant_order.CreatedDate', function ($query, $keyword) {
                     $query->whereRaw("DATE_FORMAT(tx_merchant_order.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
                 })
@@ -349,7 +358,7 @@ class DistributionController extends Controller
                     $sql = "CONCAT(ms_merchant_account.ReferralCode,' - ',ms_sales.SalesName)  like ?";
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 })
-                ->rawColumns(['Partner', 'StatusOrder', 'StatusDO'])
+                ->rawColumns(['Partner', 'StatusOrder', 'StatusDO', 'ReceiptImage'])
                 ->make(true);
         }
     }

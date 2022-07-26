@@ -190,6 +190,7 @@
                                                     <th class="d-none">Margin Real (Rp)</th>
                                                     <th class="d-none">Margin Real (%)</th>
                                                     <th>Status DO</th>
+                                                    <th>Bukti Pengiriman</th>
                                                     <th>Biaya Pengiriman DO</th>
                                                     <th>Biaya Layanan DO</th>
                                                     <th>Disc. Voucher DO</th>

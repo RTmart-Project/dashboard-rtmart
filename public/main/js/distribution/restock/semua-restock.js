@@ -124,7 +124,13 @@ $(document).ready(function () {
                     name: "StatusDO",
                 },
                 {
-                    //24
+                    data: "ReceiptImage",
+                    name: "ReceiptImage",
+                    searchable: false,
+                    orderable: false,
+                },
+                {
+                    //25
                     data: "DeliveryFee",
                     name: "tmdo.DeliveryFee",
                 },
@@ -229,7 +235,7 @@ $(document).ready(function () {
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [7, 15, 16, 18, 20, 21, 24, 25, 26],
+                    aTargets: [7, 15, 16, 18, 20, 21, 25, 26, 27],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
