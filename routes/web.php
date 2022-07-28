@@ -124,6 +124,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/get', [StockController::class, 'getOpname'])->name('stock.getOpname');
             Route::get('/create', [StockController::class, 'createOpname'])->name('stock.createOpname');
             Route::get('/sumOldProduct/{distributorID}/{investorID}/{productID}/{label}', [StockController::class, 'sumOldProduct'])->name('stock.sumOldProduct');
+            Route::get('/getDetailFromInbound/{inboundID}', [StockController::class, 'getDetailFromInbound'])->name('stock.getDetailFromInbound');
             Route::post('/store', [StockController::class, 'storeOpname'])->name('stock.storeOpname');
             Route::get('/detail/{stockOpnameID}', [StockController::class, 'detailOpname'])->name('stock.detailOpname');
         });

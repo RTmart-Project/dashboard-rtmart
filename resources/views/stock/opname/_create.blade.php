@@ -45,28 +45,14 @@
               <div class="row">
                 <div class="col-md-6 col-12">
                   <div class="form-group">
-                    <label for="inbound">Sumber Inbound</label>
-                    <select name="inbound" id="inbound" data-live-search="true" title="Pilih Sumber Inbound"
-                      class="form-control selectpicker border @if($errors->has('inbound')) is-invalid @endif" required>
-                      @foreach ($inbounds as $inbound)
-                      <option value="{{ $inbound->PurchaseID }}" {{ old('inbound') == $inbound->PurchaseID ? 'selected' : '' }}>
-                        {{ $inbound->PurchaseID }}
+                    <label for="distributor">Distributor</label>
+                    <select name="distributor" id="distributor" data-live-search="true" title="Pilih Distributor"
+                      class="form-control selectpicker border @if($errors->has('distributor')) is-invalid @endif" required>
+                      @foreach ($distributors as $distributor)
+                      <option value="{{ $distributor->DistributorID }}" {{ old('distributor')==$distributor->DistributorID ? 'selected' : '' }}>
+                        {{ $distributor->DistributorName }}
                       </option>
                       @endforeach
-                      <option value="Lainnya" {{ old('inbound') == "Lainnya" }}>Lainnya</option>
-                    </select>
-                    @if($errors->has('inbound'))
-                    <span class="error invalid-feedback">{{ $errors->first('inbound') }}</span>
-                    @endif
-                  </div>
-                </div>
-                <div class="col-md-6 col-12">
-                  <div class="form-group">
-                    <label for="distributor">Distributor</label>
-                    <input id="distributor-input" class="form-control" placeholder="Distributor" readonly>
-                    <select name="distributor" id="distributor"
-                      class="form-control d-none @if($errors->has('distributor')) is-invalid @endif">
-                      <option value="" selected hidden disabled>Pilih Distributor</option>
                     </select>
                     @if($errors->has('distributor'))
                     <span class="error invalid-feedback">{{ $errors->first('distributor') }}</span>
@@ -76,10 +62,13 @@
                 <div class="col-md-6 col-12">
                   <div class="form-group">
                     <label for="investor">Investor</label>
-                    <input id="investor-input" class="form-control" placeholder="Investor" readonly>
-                    <select name="investor" id="investor"
-                      class="form-control d-none @if($errors->has('investor')) is-invalid @endif">
-                      <option value="" selected hidden disabled>Pilih Investor</option>
+                    <select name="investor" id="investor" data-live-search="true" title="Pilih Investor"
+                      class="form-control selectpicker border @if($errors->has('investor')) is-invalid @endif" required>
+                      @foreach ($investors as $investor)
+                      <option value="{{ $investor->InvestorID }}" {{ old('investor') == $investor->InvestorID ? 'selected' : '' }}>
+                        {{ $investor->InvestorName }}
+                      </option>
+                      @endforeach
                     </select>
                     @if($errors->has('investor'))
                     <span class="error invalid-feedback">{{ $errors->first('investor') }}</span>
@@ -128,10 +117,7 @@
               </div>
               <hr>
               <h4>Detail Produk</h4>
-              <div id="wrapper-opname-detail-from-inbound">
-                
-              </div>
-              <div id="wrapper-opname-detail" class="d-none">
+              <div id="wrapper-opname-detail">
                 <div id="opname-detail" class="row mb-3">
                   <div class="col-12">
                     <a class="btn btn-sm float-right remove"><i class="far fa-times-circle fa-lg text-danger"></i></a>
@@ -140,7 +126,7 @@
                     <div class="form-group">
                       <label for="product">Nama Produk</label>
                       <select title="Pilih Produk" name="product[]" id="product" data-live-search="true"
-                        class="form-control selectpicker border select-product">
+                        class="form-control selectpicker border select-product" required>
                         @foreach ($products as $product)
                         <option value="{{ $product->ProductID }}" {{ collect(old('product'))->contains($product->ProductID) ? 'selected' : '' }}>
                           {{ $product->ProductID.' - '. $product->ProductName.' -- Isi: '. $product->ProductUOMDesc . ' ' . $product->ProductUOMName }}
@@ -154,63 +140,51 @@
                     <div class="form-group">
                       <label for="labeling">Label Produk</label>
                       <select title="Pilih Labeling Produk" name="labeling[]" id="labeling"
-                        class="form-control selectpicker border label-product">
-                        <option value="PKP" {{ collect(old('labeling'))->contains('PKP') ? 'selected' : '' }}>
+                        class="form-control selectpicker border label-product" required>
+                        <option value="PKP"
+                          {{ collect(old('labeling'))->contains('PKP') ? 'selected' : '' }}>
                           PKP
                         </option>
-                        <option value="NON-PKP" {{ collect(old('labeling'))->contains('NON PKP') ? 'selected' : '' }}>
+                        <option value="NON-PKP"
+                          {{ collect(old('labeling'))->contains('NON PKP') ? 'selected' : '' }}>
                           NON PKP
                         </option>
                       </select>
                     </div>
                   </div>
-                  <div class="col-md-4 col-12">
+                  <div class="col-md-6 col-12">
                     <div class="form-group">
                       <label for="old_good_stock">Kuantiti Lama (Good Stock)</label>
                       <input type="number" id="old_good_stock" name="old_good_stock[]" class="form-control oldGS" autocomplete="off"
-                        value="{{ collect(old('old_good_stock')) }}" placeholder="Jumlah Kuantiti Lama (Good Stock)" readonly>
+                        value="{{ collect(old('old_good_stock')) }}" placeholder="Jumlah Kuantiti Lama (Good Stock)" required readonly>
                     </div>
                   </div>
-                  <div class="col-md-4 col-12">
+                  <div class="col-md-6 col-12">
                     <div class="form-group">
                       <label for="new_good_stock">Kuantiti Baru (Good Stock)</label>
                       <input type="text" id="new_good_stock" name="new_good_stock[]" class="form-control autonumeric newGS" autocomplete="off"
-                        value="{{ collect(old('new_good_stock')) }}" placeholder="Masukkan Jumlah Kuantiti Baru (Good Stock)">
+                        value="{{ collect(old('new_good_stock')) }}" placeholder="Masukkan Jumlah Kuantiti Baru (Good Stock)" required>
                     </div>
                   </div>
-                  <div class="col-md-4 col-12">
-                    <div class="form-group">
-                      <label for="purchase_price_good_stock">Harga Beli (Good Stock)</label>
-                      <input type="text" id="purchase_price_good_stock" name="purchase_price_good_stock[]" class="form-control autonumeric newGS" autocomplete="off"
-                        value="{{ collect(old('purchase_price_good_stock')) }}" placeholder="Masukkan Harga Beli (Good Stock)">
-                    </div>
-                  </div>
-                  <div class="col-md-4 col-12">
+                  <div class="col-md-6 col-12">
                     <div class="form-group">
                       <label for="old_bad_stock">Kuantiti Lama (Bad Stock)</label>
                       <input type="number" id="old_bad_stock" name="old_bad_stock[]" class="form-control oldBS" autocomplete="off"
-                        value="{{ collect(old('old_bad_stock')) }}" placeholder="Jumlah Kuantiti Lama (Bad Stock)" readonly>
+                        value="{{ collect(old('old_bad_stock')) }}" placeholder="Jumlah Kuantiti Lama (Bad Stock)" required readonly>
                     </div>
                   </div>
-                  <div class="col-md-4 col-12">
+                  <div class="col-md-6 col-12">
                     <div class="form-group">
                       <label for="new_bad_stock">Kuantiti Baru (Bad Stock)</label>
                       <input type="text" id="new_bad_stock" name="new_bad_stock[]" class="form-control autonumeric newBS" autocomplete="off"
-                        value="{{ collect(old('new_bad_stock')) }}" placeholder="Masukkan Jumlah Kuantiti Baru (Bad Stock)">
-                    </div>
-                  </div>
-                  <div class="col-md-4 col-12">
-                    <div class="form-group">
-                      <label for="purchase_price_bad_stock">Harga Beli (Bad Stock)</label>
-                      <input type="text" id="purchase_price_bad_stock" name="purchase_price_bad_stock[]" class="form-control autonumeric newGS" autocomplete="off"
-                        value="{{ collect(old('purchase_price_bad_stock')) }}" placeholder="Masukkan Harga Beli (Bad Stock)">
+                        value="{{ collect(old('new_bad_stock')) }}" placeholder="Masukkan Jumlah Kuantiti Baru (Bad Stock)" required>
                     </div>
                   </div>
                 </div>
                 <div id="opname-detail-append"></div>
-                <div class="clearfix">
-                  <a class="btn btn-sm add float-right"><i class="fas fa-plus-circle fa-lg"></i></a>
-                </div>
+              </div>
+              <div class="clearfix">
+                <a class="btn btn-sm add float-right"><i class="fas fa-plus-circle fa-lg"></i></a>
               </div>
 
               <div class="form-group float-right mt-4">
@@ -284,80 +258,6 @@
       digitGroupSeparator: '.',
       unformatOnSubmit: true,
       minimumValue: 0
-  });
-
-  $("#inbound").change(function () {
-    const inbound = $(this).val();
-    $.ajax({
-      type: "get",
-      url: `/stock/opname/getDetailFromInbound/${inbound}`,
-      success: function (response) {
-        console.log(response);
-        if (inbound == "Lainnya") {
-          let optionDistributor = "";
-          $("#distributor-input").addClass("d-none");
-          $('#distributor').removeClass("d-none");
-          $.each(response.distributors, function (index, value) {
-            optionDistributor += `<option value="${value.DistributorID}">${value.DistributorName}</option>`;
-          })
-          $('#distributor').append(optionDistributor);
-
-          let optionInvestor = "";
-          $("#investor-input").addClass("d-none");
-          $('#investor').removeClass("d-none");
-          $.each(response.investors, function (index, value) {
-            optionInvestor += `<option value="${value.InvestorID}">${value.InvestorName}</option>`;
-          });
-          $('#investor').append(optionInvestor);
-
-          $("#wrapper-opname-detail-from-inbound").addClass("d-none");
-          $("#wrapper-opname-detail").removeClass("d-none");
-        } else {
-          $('#distributor').addClass("d-none");
-          $("#distributor-input").removeClass("d-none");
-          $("#distributor-input").val(response.DistributorName);
-
-          $('#investor').addClass("d-none");
-          $("#investor-input").removeClass("d-none");
-          $("#investor-input").val(response.InvestorName);
-
-          $("#wrapper-opname-detail").addClass("d-none");
-          $("#wrapper-opname-detail-from-inbound").removeClass("d-none");
-          $("#wrapper-opname-detail-from-inbound").empty();
-          let detailProduk = "";
-          $.each(response.DetailProduk, function (index, value) {
-            detailProduk += `<div class="row mb-3">
-                              <div class="col-12">
-                                <h5 class="m-0">Produk ${index + 1}</h5>
-                              </div>
-                              <div class="col-12 col-md-6 mb-2">
-                                <label>Produk</label>
-                                <input type="text" class="form-control" value="${value.ProductName} - (${value.ProductLabel})" readonly>
-                              </div>
-                              <div class="col-4 col-md-2">
-                                <label>Condition Stock</label>
-                                <input type="text" class="form-control" value="${value.ConditionStock}" readonly>
-                              </div>
-                              <div class="col-4 col-md-2">
-                                <label>Harga Beli</label>
-                                <input type="text" class="form-control" value="${thousands_separators(value.PurchasePrice)}" readonly>
-                              </div>
-                              <div class="col-2 col-md-1">
-                                <label>Qty Lama</label>
-                                <input type="text" class="form-control" value="${value.Qty}" readonly>
-                              </div>
-                              <div class="col-2 col-md-1">
-                                <label>Qty Baru</label>
-                                <input type="hidden" name="product_id[]" value="${value.ProductID}">
-                                <input type="number" name="new_qty[]" class="form-control" required>
-                              </div>
-                            </div>`;
-          });
-          $("#wrapper-opname-detail-from-inbound").append(detailProduk);
-        }
-        
-      }
-    });
   });
 
   $("#distributor").change(function () {

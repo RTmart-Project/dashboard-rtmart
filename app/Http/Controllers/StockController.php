@@ -91,13 +91,15 @@ class StockController extends Controller
         return $response;
     }
 
-    public function createOpname(PurchaseService $purchaseService)
+    public function createOpname(PurchaseService $purchaseService, OpnameService $opnameService)
     {
+        $inbounds = $opnameService->getInbound()->get();
         $distributors = $purchaseService->getDistributors()->get();
+        $investors = DB::table('ms_investor')->get();
         $users = $purchaseService->getUsers()->get();
         $products = $purchaseService->getProducts()->get();
-        $investors = DB::table('ms_investor')->get();
         return view('stock.opname.create', [
+            'inbounds' => $inbounds,
             'distributors' => $distributors,
             'products' => $products,
             'users' => $users,
@@ -105,92 +107,128 @@ class StockController extends Controller
         ]);
     }
 
+    public function getDetailFromInbound($inboundID, OpnameService $opnameService)
+    {
+        $data = $opnameService->getDetailInbound($inboundID);
+
+        return $data;
+    }
+
     public function storeOpname(Request $request, OpnameService $opnameService)
     {
-        $request->validate([
-            'distributor' => 'required|exists:ms_distributor,DistributorID',
-            'opname_date' => 'required',
-            'investor' => 'required',
-            'opname_officer' => 'required',
-            'opname_officer.*' => 'required|exists:ms_user,UserID',
-            'product' => 'required',
-            'product.*' => 'required',
-            'labeling' => 'required',
-            'labeling.*' => 'required',
-            'new_good_stock' => 'required',
-            'new_good_stock.*' => 'required|numeric|gte:0',
-            'new_bad_stock' => 'required',
-            'new_bad_stock.*' => 'required|numeric|gte:0'
-        ]);
-
+        $inbound = $request->input('inbound');
         $opnameID = $opnameService->generateOpnameID();
         $purchaseDate = str_replace("T", " ", $request->input('opname_date'));
         $user = Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo;
-        $distributor = $request->input('distributor');
-        $investor = $request->input('investor');
+        $notes = $request->input('notes');
+        $dateNow = date('Y-m-d H:i:s');
+
+        if ($inbound == "Lainnya") {
+            $distributor = $request->input('distributor');
+            $investor = $request->input('investor');
+
+            $dataStockOpname = [
+                'StockOpnameID' => $opnameID,
+                'OpnameDate' => $purchaseDate,
+                'CreatedBy' => $user,
+                'CreatedDate' => $dateNow,
+                'DistributorID' => $distributor,
+                'InvestorID' => $investor,
+                'Notes' => $notes
+            ];
+        } else {
+            $inboundInfo = DB::table('ms_stock_product')
+                ->where('PurchaseID', $inbound)
+                ->where('Qty', '>', 0)
+                ->select('InvestorID', 'DistributorID')
+                ->first();
+
+            $dataStockOpname = [
+                'StockOpnameID' => $opnameID,
+                'OpnameDate' => $purchaseDate,
+                'CreatedBy' => $user,
+                'CreatedDate' => $dateNow,
+                'DistributorID' => $inboundInfo->DistributorID,
+                'InvestorID' => $inboundInfo->InvestorID,
+                'Notes' => $notes
+            ];
+        }
+
+        dd($dataStockOpname);
+
+        // $request->validate([
+        //     'distributor' => 'required|exists:ms_distributor,DistributorID',
+        //     'opname_date' => 'required',
+        //     'investor' => 'required',
+        //     'opname_officer' => 'required',
+        //     'opname_officer.*' => 'required|exists:ms_user,UserID',
+        // 'product' => 'required',
+        // 'product.*' => 'required',
+        // 'labeling' => 'required',
+        // 'labeling.*' => 'required',
+        // 'new_good_stock' => 'required',
+        // 'new_good_stock.*' => 'required|numeric|gte:0',
+        // 'new_bad_stock' => 'required',
+        // 'new_bad_stock.*' => 'required|numeric|gte:0'
+        // ]);
+
+
+
 
         // insert data ms_stock_opname
-        $dataStockOpname = [
-            'StockOpnameID' => $opnameID,
-            'OpnameDate' => $purchaseDate,
-            'CreatedBy' => $user,
-            'CreatedDate' => date('Y-m-d H:i:s'),
-            'DistributorID' => $distributor,
-            'InvestorID' => $investor,
-            'Notes' => $request->input('notes')
-        ];
 
-        $opnameOfficer = $request->input('opname_officer');
-        // insert data ms_stock_opname_officer
-        $dataOpnameOfficer = $opnameService->dataOfficer($opnameOfficer, $opnameID);
 
-        $productID = $request->input('product');
-        $label = $request->input('labeling');
-        $oldGoodStock = $request->input('old_good_stock');
-        $newGoodStock = $request->input('new_good_stock');
-        $oldBadStock = $request->input('old_bad_stock');
-        $newBadStock = $request->input('new_bad_stock');
-        // insert data ms_stock_opname_detail
-        $dataStockOpnameDetail = $opnameService->dataStockOpnameDetail($distributor, $productID, $label, $oldGoodStock, $newGoodStock, $oldBadStock, $newBadStock, $opnameID);
+        // $opnameOfficer = $request->input('opname_officer');
+        // // insert data ms_stock_opname_officer
+        // $dataOpnameOfficer = $opnameService->dataOfficer($opnameOfficer, $opnameID);
 
-        try {
-            DB::transaction(function () use ($dataStockOpname, $dataStockOpnameDetail, $dataOpnameOfficer, $distributor, $investor, $user) {
-                DB::table('ms_stock_opname')->insert($dataStockOpname);
-                DB::table('ms_stock_opname_detail')->insert($dataStockOpnameDetail);
-                DB::table('ms_stock_opname_officer')->insert($dataOpnameOfficer);
-                foreach ($dataStockOpnameDetail as $key => $value) {
-                    $stockProductID = DB::table('ms_stock_product')->insertGetId([
-                        'PurchaseID' => $value['StockOpnameID'],
-                        'ProductID' => $value['ProductID'],
-                        'ProductLabel' => $value['ProductLabel'],
-                        'ConditionStock' => $value['ConditionStock'],
-                        'Qty' => $value['NewQty'] - $value['OldQty'],
-                        'PurchasePrice' => $value['PurchasePrice'],
-                        'DistributorID' => $distributor,
-                        'InvestorID' => $investor,
-                        'CreatedDate' => date('Y-m-d H:i:s'),
-                        'Type' => 'OPNAME',
-                        'LevelType' => 2
-                    ], 'StockProductID');
+        // $productID = $request->input('product');
+        // $label = $request->input('labeling');
+        // $oldGoodStock = $request->input('old_good_stock');
+        // $newGoodStock = $request->input('new_good_stock');
+        // $oldBadStock = $request->input('old_bad_stock');
+        // $newBadStock = $request->input('new_bad_stock');
+        // // insert data ms_stock_opname_detail
+        // $dataStockOpnameDetail = $opnameService->dataStockOpnameDetail($distributor, $productID, $label, $oldGoodStock, $newGoodStock, $oldBadStock, $newBadStock, $opnameID);
 
-                    DB::table('ms_stock_product_log')->insert([
-                        'StockProductID' => $stockProductID,
-                        'ProductID' => $value['ProductID'],
-                        'QtyBefore' => $value['OldQty'],
-                        'QtyAction' => $value['NewQty'] - $value['OldQty'],
-                        'QtyAfter' => $value['NewQty'],
-                        'PurchasePrice' => $value['PurchasePrice'],
-                        'SellingPrice' => 0,
-                        'CreatedDate' => date('Y-m-d H:i:s'),
-                        'ActionBy' => $user,
-                        'ActionType' => 'OPNAME'
-                    ]);
-                }
-            });
-            return redirect()->route('stock.opname')->with('success', 'Data Stock Opname berhasil ditambahkan');
-        } catch (\Throwable $th) {
-            return redirect()->route('stock.opname')->with('failed', 'Terjadi kesalahan!');
-        }
+        // try {
+        //     DB::transaction(function () use ($dataStockOpname, $dataStockOpnameDetail, $dataOpnameOfficer, $distributor, $investor, $user) {
+        //         DB::table('ms_stock_opname')->insert($dataStockOpname);
+        //         DB::table('ms_stock_opname_detail')->insert($dataStockOpnameDetail);
+        //         DB::table('ms_stock_opname_officer')->insert($dataOpnameOfficer);
+        //         foreach ($dataStockOpnameDetail as $key => $value) {
+        //             $stockProductID = DB::table('ms_stock_product')->insertGetId([
+        //                 'PurchaseID' => $value['StockOpnameID'],
+        //                 'ProductID' => $value['ProductID'],
+        //                 'ProductLabel' => $value['ProductLabel'],
+        //                 'ConditionStock' => $value['ConditionStock'],
+        //                 'Qty' => $value['NewQty'] - $value['OldQty'],
+        //                 'PurchasePrice' => $value['PurchasePrice'],
+        //                 'DistributorID' => $distributor,
+        //                 'InvestorID' => $investor,
+        //                 'CreatedDate' => date('Y-m-d H:i:s'),
+        //                 'Type' => 'OPNAME',
+        //                 'LevelType' => 2
+        //             ], 'StockProductID');
+
+        //             DB::table('ms_stock_product_log')->insert([
+        //                 'StockProductID' => $stockProductID,
+        //                 'ProductID' => $value['ProductID'],
+        //                 'QtyBefore' => $value['OldQty'],
+        //                 'QtyAction' => $value['NewQty'] - $value['OldQty'],
+        //                 'QtyAfter' => $value['NewQty'],
+        //                 'PurchasePrice' => $value['PurchasePrice'],
+        //                 'SellingPrice' => 0,
+        //                 'CreatedDate' => date('Y-m-d H:i:s'),
+        //                 'ActionBy' => $user,
+        //                 'ActionType' => 'OPNAME'
+        //             ]);
+        //         }
+        //     });
+        //     return redirect()->route('stock.opname')->with('success', 'Data Stock Opname berhasil ditambahkan');
+        // } catch (\Throwable $th) {
+        //     return redirect()->route('stock.opname')->with('failed', 'Terjadi kesalahan!');
+        // }
     }
 
     public function detailOpname($stockOpnameID, OpnameService $opnameService)
@@ -802,7 +840,6 @@ class StockController extends Controller
             });
             return redirect()->route('stock.mutation')->with('success', 'Data Mutasi Stok berhasil ditambahkan');
         } catch (\Throwable $th) {
-            dd($th->getMessage());
             return redirect()->route('stock.mutation')->with('failed', 'Terjadi kesalahan!');
         }
     }

@@ -8,6 +8,12 @@ use Illuminate\Support\Facades\DB;
 
 class OpnameService
 {
+  private $purchaseService;
+  public function __construct(PurchaseService $purchaseService)
+  {
+    $this->purchaseService = $purchaseService;
+  }
+
   public function generateOpnameID()
   {
     $max = DB::table('ms_stock_opname')
@@ -26,6 +32,46 @@ class OpnameService
     }
 
     return $newStockOpnameID;
+  }
+
+  public function getInbound()
+  {
+    $sql = DB::table('ms_stock_product')
+      ->where('Qty', '>', 0)
+      ->selectRaw("PurchaseID, ANY_VALUE(CreatedDate) AS CreatedDate")
+      ->groupBy('PurchaseID')
+      ->orderBy('CreatedDate');
+
+    return $sql;
+  }
+
+  public function getDetailInbound($inbound)
+  {
+    if ($inbound != "Lainnya") {
+      $sql = DB::table('ms_stock_product')
+        ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_stock_product.DistributorID')
+        ->join('ms_investor', 'ms_investor.InvestorID', 'ms_stock_product.InvestorID')
+        ->where('ms_stock_product.PurchaseID', $inbound)
+        ->select('ms_stock_product.PurchaseID', 'ms_distributor.DistributorName', 'ms_investor.InvestorName')
+        ->first();
+
+      $sql->DetailProduk = DB::table('ms_stock_product')
+        ->join('ms_product', 'ms_product.ProductID', 'ms_stock_product.ProductID')
+        ->where('ms_stock_product.PurchaseID', $inbound)
+        ->where('ms_stock_product.Qty', '>', 0)
+        ->select('ms_stock_product.ProductID', 'ms_product.ProductName', 'ms_stock_product.PurchasePrice', 'ms_stock_product.ProductLabel', 'ms_stock_product.ConditionStock', 'ms_stock_product.Qty')
+        ->get()->toArray();
+    } else {
+      $distributors = $this->purchaseService->getDistributors()->get()->toArray();
+      $investors = DB::table('ms_investor')->get()->toArray();
+
+      $sql = [
+        'distributors' => $distributors,
+        'investors' => $investors
+      ];
+    }
+
+    return $sql;
   }
 
   public function getStockOpname()
