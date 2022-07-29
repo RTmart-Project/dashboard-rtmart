@@ -246,13 +246,13 @@ class PurchaseService
     return $distributors;
   }
 
-  public function getProducts()
+  public function getProducts($distributorID)
   {
     $products = DB::table('ms_product')
       ->join('ms_product_uom', 'ms_product_uom.ProductUOMID', 'ms_product.ProductUOMID')
       ->select('ms_product.ProductID', 'ms_product.ProductName', 'ms_product.ProductUOMDesc', 'ms_product_uom.ProductUOMName')
       ->where('ms_product.IsActive', 1)
-      ->whereRaw("ProductID NOT IN (SELECT DISTINCT ProductID FROM ms_stock_product WHERE Qty > 0)")
+      ->whereRaw("ProductID NOT IN (SELECT DISTINCT ProductID FROM ms_stock_product WHERE Qty > 0 AND DistributorID = '$distributorID')")
       ->orderBy('ms_product.ProductID');
 
     return $products;

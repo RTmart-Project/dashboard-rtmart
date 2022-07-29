@@ -131,46 +131,26 @@ class OpnameService
     return $dataOpnameOfficer;
   }
 
-  public function dataStockOpnameDetail($distributorID, $productID, $label, $oldGoodStock, $newGoodStock, $oldBadStock, $newBadStock, $opnameID)
+  public function dataStockOpnameDetail($productID, $label, $oldGoodStock, $newGoodStock, $oldBadStock, $newBadStock, $purchasePriceGoodStock, $purchasePriceBadStock, $opnameID)
   {
     $dataDetailGoodStock = array_map(function () {
       return func_get_args();
-    }, $productID, $label, $oldGoodStock, $newGoodStock);
+    }, $productID, $label, $oldGoodStock, $newGoodStock, $purchasePriceGoodStock);
     foreach ($dataDetailGoodStock as $key => &$value) {
-      $value = array_combine(['ProductID', 'ProductLabel', 'OldQty', 'NewQty'], $value);
+      $value = array_combine(['ProductID', 'ProductLabel', 'OldQty', 'NewQty', 'PurchasePrice'], $value);
       $dataDetailGoodStock[$key]['StockOpnameID'] = $opnameID;
       $dataDetailGoodStock[$key]['ConditionStock'] = 'GOOD STOCK';
     }
 
     $dataDetailBadStock = array_map(function () {
       return func_get_args();
-    }, $productID, $label, $oldBadStock, $newBadStock);
+    }, $productID, $label, $oldBadStock, $newBadStock, $purchasePriceBadStock);
     foreach ($dataDetailBadStock as $key => &$value) {
-      $value = array_combine(['ProductID', 'ProductLabel', 'OldQty', 'NewQty'], $value);
+      $value = array_combine(['ProductID', 'ProductLabel', 'OldQty', 'NewQty', 'PurchasePrice'], $value);
       $dataDetailBadStock[$key]['StockOpnameID'] = $opnameID;
       $dataDetailBadStock[$key]['ConditionStock'] = 'BAD STOCK';
     }
     $dataStockOpnameDetail = array_merge($dataDetailGoodStock, $dataDetailBadStock);
-
-    foreach ($dataStockOpnameDetail as $key => &$value) {
-      $sql = DB::table('ms_stock_product')
-        ->where('ProductID', $value['ProductID'])
-        ->where('DistributorID', $distributorID)
-        ->where('Qty', '>', 0)
-        ->where('ConditionStock', 'GOOD STOCK')
-        ->orderBy('CreatedDate')
-        ->orderBy('PurchaseID')
-        ->select('PurchasePrice')
-        ->first();
-
-      if ($sql == null) {
-        $purchasePrice = 0;
-      } else {
-        $purchasePrice = $sql->PurchasePrice;
-      }
-
-      $dataStockOpnameDetail[$key]['PurchasePrice'] = $purchasePrice;
-    }
 
     $sortDataStockOpnameDetail = array_values(Arr::sort($dataStockOpnameDetail, function ($value) {
       return $value['ProductID'];

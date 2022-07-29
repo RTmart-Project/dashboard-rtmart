@@ -97,14 +97,18 @@ class StockController extends Controller
         $distributors = $purchaseService->getDistributors()->get();
         $investors = DB::table('ms_investor')->get();
         $users = $purchaseService->getUsers()->get();
-        $products = $purchaseService->getProducts()->get();
         return view('stock.opname.create', [
             'inbounds' => $inbounds,
             'distributors' => $distributors,
-            'products' => $products,
             'users' => $users,
             'investors' => $investors
         ]);
+    }
+
+    public function getProductExcluded($distributorID, PurchaseService $purchaseService)
+    {
+        $products = $purchaseService->getProducts($distributorID)->get()->toArray();
+        return $products;
     }
 
     public function getDetailFromInbound($inboundID, OpnameService $opnameService)
@@ -123,112 +127,136 @@ class StockController extends Controller
         $notes = $request->input('notes');
         $dateNow = date('Y-m-d H:i:s');
 
+        $opnameOfficer = $request->input('opname_officer');
+
         if ($inbound == "Lainnya") {
             $distributor = $request->input('distributor');
             $investor = $request->input('investor');
 
-            $dataStockOpname = [
-                'StockOpnameID' => $opnameID,
-                'OpnameDate' => $purchaseDate,
-                'CreatedBy' => $user,
-                'CreatedDate' => $dateNow,
-                'DistributorID' => $distributor,
-                'InvestorID' => $investor,
-                'Notes' => $notes
-            ];
-        } else {
-            $inboundInfo = DB::table('ms_stock_product')
-                ->where('PurchaseID', $inbound)
-                ->where('Qty', '>', 0)
-                ->select('InvestorID', 'DistributorID')
-                ->first();
+            $productID = $request->input('product');
+            $label = $request->input('labeling');
+            $oldGoodStock = $request->input('old_good_stock');
+            $newGoodStock = $request->input('new_good_stock');
+            $oldBadStock = $request->input('old_bad_stock');
+            $newBadStock = $request->input('new_bad_stock');
+            $purchasePriceGoodStock = $request->input('purchase_price_good_stock');
+            $purchasePriceBadStock = $request->input('purchase_price_bad_stock');
 
-            $dataStockOpname = [
-                'StockOpnameID' => $opnameID,
-                'OpnameDate' => $purchaseDate,
-                'CreatedBy' => $user,
-                'CreatedDate' => $dateNow,
-                'DistributorID' => $inboundInfo->DistributorID,
-                'InvestorID' => $inboundInfo->InvestorID,
-                'Notes' => $notes
-            ];
+            // data ms_stock_opname_detail
+            $dataStockOpnameDetail = $opnameService->dataStockOpnameDetail($productID, $label, $oldGoodStock, $newGoodStock, $oldBadStock, $newBadStock, $purchasePriceGoodStock, $purchasePriceBadStock, $opnameID);
+        } else {
+            $stockProduct = DB::table('ms_stock_product')
+                ->where('PurchaseID', $inbound)
+                ->where('Qty', '>', 0);
+            $inboundInfo = (clone $stockProduct)->select('InvestorID', 'DistributorID')->first();
+
+            $distributor = $inboundInfo->DistributorID;
+            $investor = $inboundInfo->InvestorID;
+            $product = $request->input('product_id');
+            $newQty = $request->input('new_qty');
+
+            $arrayNewQty = array_combine($product, $newQty);
+
+            $detailProduct = (clone $stockProduct)->select('ProductID', 'ProductLabel', 'ConditionStock', 'Qty', 'PurchasePrice')->get()->toArray();
+
+            // data ms_stock_opname_detail
+            $dataStockOpnameDetail = [];
+            foreach ($detailProduct as $key => $value) {
+                $data = [
+                    'StockOpnameID' => $opnameID,
+                    'ProductID' => $value->ProductID,
+                    'ProductLabel' => $value->ProductLabel,
+                    'ConditionStock' => $value->ConditionStock,
+                    'PurchasePrice' => $value->PurchasePrice,
+                    'OldQty' => $value->Qty,
+                    'NewQty' => $arrayNewQty[$value->ProductID]
+                ];
+                array_push($dataStockOpnameDetail, $data);
+            }
         }
 
-        dd($dataStockOpname);
+        // data ms_stock_opname
+        $dataStockOpname = [
+            'StockOpnameID' => $opnameID,
+            'OpnameDate' => $purchaseDate,
+            'CreatedBy' => $user,
+            'CreatedDate' => $dateNow,
+            'DistributorID' => $distributor,
+            'InvestorID' => $investor,
+            'Notes' => $notes
+        ];
 
-        // $request->validate([
-        //     'distributor' => 'required|exists:ms_distributor,DistributorID',
-        //     'opname_date' => 'required',
-        //     'investor' => 'required',
-        //     'opname_officer' => 'required',
-        //     'opname_officer.*' => 'required|exists:ms_user,UserID',
-        // 'product' => 'required',
-        // 'product.*' => 'required',
-        // 'labeling' => 'required',
-        // 'labeling.*' => 'required',
-        // 'new_good_stock' => 'required',
-        // 'new_good_stock.*' => 'required|numeric|gte:0',
-        // 'new_bad_stock' => 'required',
-        // 'new_bad_stock.*' => 'required|numeric|gte:0'
-        // ]);
+        // data ms_stock_opname_officer
+        $dataOpnameOfficer = $opnameService->dataOfficer($opnameOfficer, $opnameID);
 
+        try {
+            DB::transaction(function () use ($dataStockOpname, $dataStockOpnameDetail, $dataOpnameOfficer, $distributor, $investor, $user, $inbound) {
+                DB::table('ms_stock_opname')->insert($dataStockOpname);
+                DB::table('ms_stock_opname_detail')->insert($dataStockOpnameDetail);
+                DB::table('ms_stock_opname_officer')->insert($dataOpnameOfficer);
+                foreach ($dataStockOpnameDetail as $key => $value) {
+                    $differentQty = $value['NewQty'] - $value['OldQty'];
 
+                    if ($differentQty < 0) {
+                        $differentQty = 0;
+                    }
 
+                    $stockProduct = DB::table('ms_stock_product')
+                        ->where('ProductID', $value['ProductID'])
+                        ->where('InvestorID', $investor)->where('ProductLabel', $value['ProductLabel'])
+                        ->where('ConditionStock', $value['ConditionStock'])->where('DistributorID', $distributor);
 
-        // insert data ms_stock_opname
+                    $qtyBefore = (clone $stockProduct)
+                        ->sum('Qty');
 
+                    if ($inbound != "Lainnya") {
+                        $stockProductID = (clone $stockProduct)->select('StockProductID')->first();
+                        $referenceStockProductID = $stockProductID->StockProductID;
+                    } else {
+                        $referenceStockProductID = NULL;
+                    }
 
-        // $opnameOfficer = $request->input('opname_officer');
-        // // insert data ms_stock_opname_officer
-        // $dataOpnameOfficer = $opnameService->dataOfficer($opnameOfficer, $opnameID);
+                    $stockProductID = DB::table('ms_stock_product')->insertGetId([
+                        'PurchaseID' => $value['StockOpnameID'],
+                        'ProductID' => $value['ProductID'],
+                        'ProductLabel' => $value['ProductLabel'],
+                        'ConditionStock' => $value['ConditionStock'],
+                        'Qty' => $differentQty,
+                        'PurchasePrice' => $value['PurchasePrice'],
+                        'DistributorID' => $distributor,
+                        'InvestorID' => $investor,
+                        'CreatedDate' => date('Y-m-d H:i:s'),
+                        'Type' => 'OPNAME',
+                        'LevelType' => 2
+                    ], 'StockProductID');
 
-        // $productID = $request->input('product');
-        // $label = $request->input('labeling');
-        // $oldGoodStock = $request->input('old_good_stock');
-        // $newGoodStock = $request->input('new_good_stock');
-        // $oldBadStock = $request->input('old_bad_stock');
-        // $newBadStock = $request->input('new_bad_stock');
-        // // insert data ms_stock_opname_detail
-        // $dataStockOpnameDetail = $opnameService->dataStockOpnameDetail($distributor, $productID, $label, $oldGoodStock, $newGoodStock, $oldBadStock, $newBadStock, $opnameID);
+                    DB::table('ms_stock_product_log')->insert([
+                        'StockProductID' => $stockProductID,
+                        'ReferenceStockProductID' => $referenceStockProductID,
+                        'ProductID' => $value['ProductID'],
+                        'QtyBefore' => $qtyBefore,
+                        'QtyAction' => $value['NewQty'] - $value['OldQty'],
+                        'QtyAfter' => $qtyBefore + ($value['NewQty'] - $value['OldQty']),
+                        'PurchasePrice' => $value['PurchasePrice'],
+                        'SellingPrice' => 0,
+                        'CreatedDate' => date('Y-m-d H:i:s'),
+                        'ActionBy' => $user,
+                        'ActionType' => 'OPNAME'
+                    ]);
 
-        // try {
-        //     DB::transaction(function () use ($dataStockOpname, $dataStockOpnameDetail, $dataOpnameOfficer, $distributor, $investor, $user) {
-        //         DB::table('ms_stock_opname')->insert($dataStockOpname);
-        //         DB::table('ms_stock_opname_detail')->insert($dataStockOpnameDetail);
-        //         DB::table('ms_stock_opname_officer')->insert($dataOpnameOfficer);
-        //         foreach ($dataStockOpnameDetail as $key => $value) {
-        //             $stockProductID = DB::table('ms_stock_product')->insertGetId([
-        //                 'PurchaseID' => $value['StockOpnameID'],
-        //                 'ProductID' => $value['ProductID'],
-        //                 'ProductLabel' => $value['ProductLabel'],
-        //                 'ConditionStock' => $value['ConditionStock'],
-        //                 'Qty' => $value['NewQty'] - $value['OldQty'],
-        //                 'PurchasePrice' => $value['PurchasePrice'],
-        //                 'DistributorID' => $distributor,
-        //                 'InvestorID' => $investor,
-        //                 'CreatedDate' => date('Y-m-d H:i:s'),
-        //                 'Type' => 'OPNAME',
-        //                 'LevelType' => 2
-        //             ], 'StockProductID');
-
-        //             DB::table('ms_stock_product_log')->insert([
-        //                 'StockProductID' => $stockProductID,
-        //                 'ProductID' => $value['ProductID'],
-        //                 'QtyBefore' => $value['OldQty'],
-        //                 'QtyAction' => $value['NewQty'] - $value['OldQty'],
-        //                 'QtyAfter' => $value['NewQty'],
-        //                 'PurchasePrice' => $value['PurchasePrice'],
-        //                 'SellingPrice' => 0,
-        //                 'CreatedDate' => date('Y-m-d H:i:s'),
-        //                 'ActionBy' => $user,
-        //                 'ActionType' => 'OPNAME'
-        //             ]);
-        //         }
-        //     });
-        //     return redirect()->route('stock.opname')->with('success', 'Data Stock Opname berhasil ditambahkan');
-        // } catch (\Throwable $th) {
-        //     return redirect()->route('stock.opname')->with('failed', 'Terjadi kesalahan!');
-        // }
+                    if ($inbound != "Lainnya") {
+                        (clone $stockProduct)
+                            ->where('PurchaseID', $inbound)
+                            ->update([
+                                'Qty' => $value['NewQty']
+                            ]);
+                    }
+                }
+            });
+            return redirect()->route('stock.opname')->with('success', 'Data Stock Opname berhasil ditambahkan');
+        } catch (\Throwable $th) {
+            return redirect()->route('stock.opname')->with('failed', 'Terjadi kesalahan!');
+        }
     }
 
     public function detailOpname($stockOpnameID, OpnameService $opnameService)
@@ -349,7 +377,12 @@ class StockController extends Controller
     {
         $suppliers = DB::table('ms_suppliers')->get();
         $investors = DB::table('ms_investor')->get();
-        $products = $purchaseService->getProducts()->get();
+        $products = DB::table('ms_product')
+            ->join('ms_product_uom', 'ms_product_uom.ProductUOMID', 'ms_product.ProductUOMID')
+            ->select('ms_product.ProductID', 'ms_product.ProductName', 'ms_product.ProductUOMDesc', 'ms_product_uom.ProductUOMName')
+            ->where('ms_product.IsActive', 1)
+            ->orderBy('ms_product.ProductID')
+            ->get();
         $distributors = $purchaseService->getDistributors()->get();
 
         return view('stock.purchase.create', [
@@ -447,7 +480,12 @@ class StockController extends Controller
     {
         $suppliers = DB::table('ms_suppliers')->get();
         $investors = DB::table('ms_investor')->get();
-        $products = $purchaseService->getProducts()->get();
+        $products = DB::table('ms_product')
+            ->join('ms_product_uom', 'ms_product_uom.ProductUOMID', 'ms_product.ProductUOMID')
+            ->select('ms_product.ProductID', 'ms_product.ProductName', 'ms_product.ProductUOMDesc', 'ms_product_uom.ProductUOMName')
+            ->where('ms_product.IsActive', 1)
+            ->orderBy('ms_product.ProductID')
+            ->get();
         $distributors = $purchaseService->getDistributors()->get();
         $purchaseByID = $purchaseService->getStockPurchaseByID($purchaseID);
 

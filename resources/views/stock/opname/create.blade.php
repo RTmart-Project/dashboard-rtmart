@@ -141,11 +141,11 @@
                       <label for="product">Nama Produk</label>
                       <select title="Pilih Produk" name="product[]" id="product" data-live-search="true"
                         class="form-control selectpicker border select-product">
-                        @foreach ($products as $product)
+                        {{-- @foreach ($products as $product)
                         <option value="{{ $product->ProductID }}" {{ collect(old('product'))->contains($product->ProductID) ? 'selected' : '' }}>
                           {{ $product->ProductID.' - '. $product->ProductName.' -- Isi: '. $product->ProductUOMDesc . ' ' . $product->ProductUOMName }}
                         </option>
-                        @endforeach
+                        @endforeach --}}
                       </select>
                       <span id="no-distributor"></span>
                     </div>
@@ -292,7 +292,7 @@
       type: "get",
       url: `/stock/opname/getDetailFromInbound/${inbound}`,
       success: function (response) {
-        console.log(response);
+        
         if (inbound == "Lainnya") {
           let optionDistributor = "";
           $("#distributor-input").addClass("d-none");
@@ -369,6 +369,20 @@
     $(".newGS").val('');
     $(".oldBS").val('');
     $(".newBS").val('');
+
+    const distributorID = $(this).val();
+    $.ajax({
+      type: "get",
+      url: `/stock/opname/getProductExcluded/${distributorID}`,
+      success: function (response) {
+        let optionProduct = "";
+        $.each(response, function (index, value) {
+          optionProduct += `<option value="${value.ProductID}">${value.ProductID} - ${value.ProductName} -- Isi: ${value.ProductUOMDesc} ${value.ProductUOMName}</option>`;
+        });
+        $('#product').html(optionProduct);
+        $('#product').selectpicker('refresh');
+      }
+    });
   });
 
   $("#investor").change(function () {
