@@ -44,11 +44,11 @@
       <div class="col-12">
         <div class="card">
           @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI"))
-          {{-- <div class="card-header">
+          <div class="card-header">
             <a href="{{ route('stock.createOpname') }}" class="btn btn-sm btn-success">
               <i class="fas fa-plus"></i> Tambah Opname
             </a>
-          </div> --}}
+          </div>
           @endif
           <div class="card-body mt-2">
             <div class="tab-content">

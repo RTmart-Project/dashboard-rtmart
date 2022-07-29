@@ -54,6 +54,7 @@
                                                     <th>Product Owner</th>
                                                     <th>Product ID</th>
                                                     <th>Nama Produk</th>
+                                                    <th>Harga Default</th>
                                                     <th>Gambar</th>
                                                     <th>Kategori</th>
                                                     <th>Tipe</th>

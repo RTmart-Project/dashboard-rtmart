@@ -95,7 +95,8 @@ class ProductController extends Controller
             'product_brand' => 'required|integer|exists:ms_brand_type,BrandID',
             'product_uom' => 'required|integer|exists:ms_product_uom,ProductUOMID',
             'uom_desc' => 'required|numeric',
-            'product_image' => 'required|image'
+            'product_image' => 'required|image',
+            'price' => 'required'
         ]);
 
         $maxProductId = DB::table('ms_product')
@@ -132,7 +133,7 @@ class ProductController extends Controller
             'BrandTypeID' => $request->input('product_brand'),
             'ProductUOMID' => $request->input('product_uom'),
             'ProductUOMDesc' => $request->input('uom_desc'),
-            'Price' => 0,
+            'Price' => $request->input('price'),
             'IsCustom' => 0,
             'IsActive' => 1,
             'IsDefault' => 0,
@@ -177,7 +178,8 @@ class ProductController extends Controller
             'product_brand' => 'required|integer|exists:ms_brand_type,BrandID',
             'product_uom' => 'required|integer|exists:ms_product_uom,ProductUOMID',
             'uom_desc' => 'required|numeric',
-            'product_image' => 'image'
+            'product_image' => 'image',
+            'price' => 'required'
         ]);
 
         if ($request->hasFile('product_image')) {
@@ -191,7 +193,8 @@ class ProductController extends Controller
                 'ProductTypeID' => $request->input('product_type'),
                 'BrandTypeID' => $request->input('product_brand'),
                 'ProductUOMID' => $request->input('product_uom'),
-                'ProductUOMDesc' => $request->input('uom_desc')
+                'ProductUOMDesc' => $request->input('uom_desc'),
+                'Price' => $request->input('price')
             ];
         } else {
             $data = [
@@ -201,7 +204,8 @@ class ProductController extends Controller
                 'ProductTypeID' => $request->input('product_type'),
                 'BrandTypeID' => $request->input('product_brand'),
                 'ProductUOMID' => $request->input('product_uom'),
-                'ProductUOMDesc' => $request->input('uom_desc')
+                'ProductUOMDesc' => $request->input('uom_desc'),
+                'Price' => $request->input('price')
             ];
         }
 
