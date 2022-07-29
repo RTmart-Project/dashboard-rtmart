@@ -127,6 +127,16 @@
                             <div class="row">
                                 <div class="col-md-4 col-12">
                                     <div class="form-group">
+                                        <label for="price">Harga Default</label>
+                                        <input type="text" name="price" id="price" placeholder="Masukkan Harga Default" value="{{ $productById->Price }}"
+                                            class="form-control autonumeric @if($errors->has('price')) is-invalid @endif" required autocomplete="off">
+                                        @if($errors->has('price'))
+                                            <span class="error invalid-feedback">{{ $errors->first('price') }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <div class="form-group">
                                         <label for="product_image">Upload Foto Produk</label>
                                         <input type="file" name="product_image" id="product_image" accept="image/*" onchange="loadFile(event)" class="form-control 
                                             @if($errors->has('product_image')) is-invalid @endif">
@@ -153,6 +163,15 @@
 @endsection
 
 @section('js-pages')
-    <script src="{{url('/')}}/main/js/helper/input-image-view.js"></script>
-    <script src="{{ url('/') }}/plugins/bootstrap-select/bootstrap-select.min.js"></script>
+<script src="{{url('/')}}/main/js/helper/input-image-view.js"></script>
+<script src="{{ url('/') }}/plugins/bootstrap-select/bootstrap-select.min.js"></script>
+<script src="https://unpkg.com/autonumeric"></script>
+<script>
+    new AutoNumeric(".autonumeric", {
+        allowDecimalPadding: false,
+        decimalCharacter: ',',
+        digitGroupSeparator: '.',
+        unformatOnSubmit: true
+    });
+</script>
 @endsection
