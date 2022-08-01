@@ -854,7 +854,9 @@ class StockController extends Controller
         $user = Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo;
         $dateNow = date('Y-m-d H:i:s');
         $purchaseID = $request->input('purchase');
-        $purchase = DB::table('ms_stock_purchase')->where('PurchaseID', $purchaseID)->select('DistributorID', 'InvestorID')->first();
+        $purchase = DB::table('ms_stock_product')->where('PurchaseID', $purchaseID)
+            ->where('Qty', '>', 0)
+            ->select('DistributorID', 'InvestorID')->first();
         $toDistributor = $request->input('distributor');
 
         $dataMutation = [
@@ -872,7 +874,6 @@ class StockController extends Controller
         $qty = $request->input('qty_mutation');
 
         $dataMutationDetail = $mutationService->dataMutationDetail($purchaseID, $productId, $qty, $mutationID);
-
         $dataStockProduct = $mutationService->dataStockProduct($dataMutationDetail, $purchase, $toDistributor, $dateNow);
 
         try {

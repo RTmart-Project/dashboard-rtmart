@@ -66,13 +66,25 @@ class MutationService
   public function dataMutationDetail($purchaseID, $productId, $qty, $mutationID)
   {
     $detail = [];
-    foreach ($productId as $key => $value) {
-      $dataDetail = DB::table('ms_stock_purchase_detail')
-        ->where('PurchaseID', $purchaseID)
-        ->where('ProductID', $value)
-        ->select('ProductID', 'ProductLabel', 'PurchasePrice', 'ConditionStock')
-        ->get()->toArray();
-      array_push($detail, $dataDetail);
+
+    if (str_contains($purchaseID, 'PRCH')) {
+      foreach ($productId as $key => $value) {
+        $dataDetail = DB::table('ms_stock_purchase_detail')
+          ->where('PurchaseID', $purchaseID)
+          ->where('ProductID', $value)
+          ->select('ProductID', 'ProductLabel', 'PurchasePrice', 'ConditionStock')
+          ->get()->toArray();
+        array_push($detail, $dataDetail);
+      }
+    } else {
+      foreach ($productId as $key => $value) {
+        $dataDetail = DB::table('ms_stock_mutation_detail')
+          ->where('StockMutationID', $purchaseID)
+          ->where('ProductID', $value)
+          ->select('ProductID', 'ProductLabel', 'PurchasePrice', 'ConditionStock')
+          ->get()->toArray();
+        array_push($detail, $dataDetail);
+      }
     }
 
     $dataMutationDetail = array_map(function () {
@@ -95,7 +107,6 @@ class MutationService
         unset($dataMutationDetail[$key]);
       }
     }
-
     return $dataMutationDetail;
   }
 
