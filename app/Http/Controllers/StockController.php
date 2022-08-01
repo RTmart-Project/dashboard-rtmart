@@ -155,8 +155,6 @@ class StockController extends Controller
             $product = $request->input('product_id');
             $newQty = $request->input('new_qty');
 
-            $arrayNewQty = array_combine($product, $newQty);
-
             $detailProduct = (clone $stockProduct)->select('ProductID', 'ProductLabel', 'ConditionStock', 'Qty', 'PurchasePrice')->get()->toArray();
 
             // data ms_stock_opname_detail
@@ -169,7 +167,7 @@ class StockController extends Controller
                     'ConditionStock' => $value->ConditionStock,
                     'PurchasePrice' => $value->PurchasePrice,
                     'OldQty' => $value->Qty,
-                    'NewQty' => $arrayNewQty[$value->ProductID]
+                    'NewQty' => $newQty[$key]
                 ];
                 array_push($dataStockOpnameDetail, $data);
             }
@@ -245,10 +243,16 @@ class StockController extends Controller
                     ]);
 
                     if ($inbound != "Lainnya") {
+                        if ($differentQty <= 0) {
+                            $valQty = $value['NewQty'];
+                        } else {
+                            $valQty = $value['OldQty'];
+                        }
+
                         (clone $stockProduct)
                             ->where('PurchaseID', $inbound)
                             ->update([
-                                'Qty' => $value['NewQty']
+                                'Qty' => $valQty * 1
                             ]);
                     }
                 }
