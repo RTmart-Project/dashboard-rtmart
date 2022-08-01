@@ -155,8 +155,6 @@ class StockController extends Controller
             $product = $request->input('product_id');
             $newQty = $request->input('new_qty');
 
-            $arrayNewQty = array_combine($product, $newQty);
-
             $detailProduct = (clone $stockProduct)->select('ProductID', 'ProductLabel', 'ConditionStock', 'Qty', 'PurchasePrice')->get()->toArray();
 
             // data ms_stock_opname_detail
@@ -169,7 +167,7 @@ class StockController extends Controller
                     'ConditionStock' => $value->ConditionStock,
                     'PurchasePrice' => $value->PurchasePrice,
                     'OldQty' => $value->Qty,
-                    'NewQty' => $arrayNewQty[$value->ProductID]
+                    'NewQty' => $newQty[$key]
                 ];
                 array_push($dataStockOpnameDetail, $data);
             }
@@ -245,10 +243,16 @@ class StockController extends Controller
                     ]);
 
                     if ($inbound != "Lainnya") {
+                        if ($differentQty <= 0) {
+                            $valQty = $value['NewQty'];
+                        } else {
+                            $valQty = $value['OldQty'];
+                        }
+
                         (clone $stockProduct)
                             ->where('PurchaseID', $inbound)
                             ->update([
-                                'Qty' => $value['NewQty']
+                                'Qty' => $valQty * 1
                             ]);
                     }
                 }
@@ -798,9 +802,11 @@ class StockController extends Controller
             (
                 SELECT PurchaseID, Qty, DistributorID, InvestorID
                 FROM ms_stock_product
-                WHERE PurchaseID IN (
+                WHERE (PurchaseID IN (
                     SELECT PurchaseID FROM ms_stock_purchase WHERE Type LIKE 'INBOUND' AND StatusID = 2
-                ) AND Qty > 0
+                ) OR PurchaseID IN (
+                    SELECT StockMutationID FROM ms_stock_mutation
+                )) AND Qty > 0
             ) AS purchase"))
             ->join('ms_distributor', 'ms_distributor.DistributorID', 'purchase.DistributorID')
             ->join('ms_investor', 'ms_investor.InvestorID', 'purchase.InvestorID')
