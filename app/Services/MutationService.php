@@ -31,6 +31,7 @@ class MutationService
     $sql = DB::table('ms_stock_product as stock_product')
       ->join('ms_product', 'ms_product.ProductID', 'stock_product.ProductID')
       ->where('stock_product.PurchaseID', $purchaseID)
+      ->where('stock_product.Qty', '>', 0)
       ->selectRaw("
               stock_product.StockProductID, 
               stock_product.PurchaseID, 

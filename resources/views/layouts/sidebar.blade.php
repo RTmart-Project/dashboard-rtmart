@@ -480,7 +480,7 @@
             </li>
             @endif
 
-            <li class="nav-item {{ Request::is('rtcourier*') ? 'menu-open' : '' }}">
+            {{-- <li class="nav-item {{ Request::is('rtcourier*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('rtcourier*') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-paper-plane"></i>
                     <p>
@@ -504,7 +504,7 @@
                         </a>
                     </li>
                 </ul>
-            </li>
+            </li> --}}
 
             @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "RBTAD"))
             <li class="nav-item {{ Request::is('voucher*') ? 'menu-open' : '' }}">
