@@ -802,9 +802,11 @@ class StockController extends Controller
             (
                 SELECT PurchaseID, Qty, DistributorID, InvestorID
                 FROM ms_stock_product
-                WHERE PurchaseID IN (
+                WHERE (PurchaseID IN (
                     SELECT PurchaseID FROM ms_stock_purchase WHERE Type LIKE 'INBOUND' AND StatusID = 2
-                ) AND Qty > 0
+                ) OR PurchaseID IN (
+                    SELECT StockMutationID FROM ms_stock_mutation
+                )) AND Qty > 0
             ) AS purchase"))
             ->join('ms_distributor', 'ms_distributor.DistributorID', 'purchase.DistributorID')
             ->join('ms_investor', 'ms_investor.InvestorID', 'purchase.InvestorID')
