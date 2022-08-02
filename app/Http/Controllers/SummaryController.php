@@ -85,27 +85,23 @@ class SummaryController extends Controller
 
     public function summaryReportData(Request $request)
     {
-        $filterStartDate = $request->startDate;
-        $filterEndDate = $request->endDate;
+        $startDate = $request->startDate;
+        $endDate = $request->endDate;
         $distributorID = $request->distributorID;
         $salesCode = $request->salesCode;
 
-        $dateNow = date('Y-m-d');
+        $sql = DB::table('tx_merchant_order as tmo')
+            ->whereDate('tmo.CreatedDate', '>=', $startDate)
+            ->whereDate('tmo.CreatedDate', '<=', $endDate)
+            ->selectRaw("
+                tmo.StockOrderID
+            ")
+            ->get()->toArray();
 
-        if ($filterStartDate != null && $filterEndDate != null) {
-            $startDate = $filterStartDate;
-            $endDate = $filterEndDate;
-        } else {
-            $startDate = $dateNow;
-            $endDate = $dateNow;
-        }
-
-        //    $sql = DB::table('tx_merchant_order as tmo')
-        //    ->selectRaw("
-
-        //    ")
-        //    ;
-
-        // return $data;
+        $data = [
+            'a' => $startDate,
+            'b' => $endDate
+        ];
+        return $sql;
     }
 }

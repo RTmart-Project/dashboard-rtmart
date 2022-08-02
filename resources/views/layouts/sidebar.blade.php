@@ -41,7 +41,7 @@
                         </a>
                     </li>
                 </ul>
-                {{-- <ul class="nav nav-treeview">
+                <ul class="nav nav-treeview">
                     <li class="nav-item">
                         <a href="{{ route('summary.report') }}"
                             class="nav-link {{ Request::is('summary/report*') ? 'active' : '' }}">
@@ -49,7 +49,7 @@
                             <p>Summary Report</p>
                         </a>
                     </li>
-                </ul> --}}
+                </ul>
             </li>
             @endif
 

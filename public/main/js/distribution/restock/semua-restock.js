@@ -2,7 +2,7 @@ $(document).ready(function () {
     // DataTables
     dataTablesSemuaRestock();
 
-    function dataTablesSemuaRestock() {
+    function dataTablesSemuaRestock(fromDate = "", toDate = "", filterBy = "") {
         $("#semua-restock .table-datatables").DataTable({
             dom:
                 "<'row'<'col-sm-12 col-md-5'<'filter-semua-restock'>tl><'col-sm-12 col-md-4 justify-content-end'f><'col-sm-6 col-md-3 text-center'B>>" +
@@ -13,9 +13,10 @@ $(document).ready(function () {
             stateServe: true,
             ajax: {
                 url: "/distribution/restock/get/allRestockAndDO",
-                data: function (d) {
-                    d.fromDate = $("#semua-restock #from_date").val();
-                    d.toDate = $("#semua-restock #to_date").val();
+                data: {
+                    fromDate: fromDate,
+                    toDate: toDate,
+                    filterBy: filterBy,
                 },
             },
             columns: [
@@ -263,98 +264,111 @@ $(document).ready(function () {
             responsive: true,
             autoWidth: false,
         });
-    }
 
-    // Create element for DateRange Filter
-    $("div.filter-semua-restock").html(`<div class="input-group">
-                            <input type="text" name="from_date" id="from_date" class="form-control form-control-sm" readonly>
-                            <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
-                            <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
-                            <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-2">Refresh</button>
-                        </div>`);
+        // Create element for DateRange Filter
+        $("div.filter-semua-restock").html(`
+            <div class="input-group">
+                <input type="text" name="from_date" id="from_date" class="form-control form-control-sm" readonly>
+                <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
+                
+                <div class="dropdown">
+                    <button class="btn btn-primary btn-sm dropdown-toggle ml-2" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Filter
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" id="filter-tanggal-po">Tanggal PO</a>
+                        <a class="dropdown-item" id="filter-tanggal-do">Tanggal DO</a>
+                    </div>
+                </div>
+                <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-2">Refresh</button>
+            </div>`);
 
-    // Setting Awal Daterangepicker
-    $("#semua-restock #from_date").daterangepicker({
-        singleDatePicker: true,
-        showDropdowns: true,
-        locale: {
-            format: "YYYY-MM-DD",
-        },
-    });
-
-    // Setting Awal Daterangepicker
-    $("#semua-restock #to_date").daterangepicker({
-        singleDatePicker: true,
-        showDropdowns: true,
-        locale: {
-            format: "YYYY-MM-DD",
-        },
-    });
-
-    var bCodeChange = false;
-
-    function dateStartChange() {
-        if (bCodeChange == true) return;
-        else bCodeChange = true;
-
-        $("#semua-restock #to_date").daterangepicker({
-            minDate: $("#semua-restock #from_date").val(),
-            singleDatePicker: true,
-            showDropdowns: true,
-            locale: {
-                format: "YYYY-MM-DD",
-            },
-        });
-        bCodeChange = false;
-    }
-
-    function dateEndChange() {
-        if (bCodeChange == true) return;
-        else bCodeChange = true;
-
+        // Setting Awal Daterangepicker
         $("#semua-restock #from_date").daterangepicker({
-            maxDate: $("#semua-restock #to_date").val(),
             singleDatePicker: true,
             showDropdowns: true,
             locale: {
                 format: "YYYY-MM-DD",
             },
         });
-        bCodeChange = false;
+
+        // Setting Awal Daterangepicker
+        $("#semua-restock #to_date").daterangepicker({
+            singleDatePicker: true,
+            showDropdowns: true,
+            locale: {
+                format: "YYYY-MM-DD",
+            },
+        });
+
+        var bCodeChange = false;
+
+        function dateStartChange() {
+            if (bCodeChange == true) return;
+            else bCodeChange = true;
+
+            $("#semua-restock #to_date").daterangepicker({
+                minDate: $("#semua-restock #from_date").val(),
+                singleDatePicker: true,
+                showDropdowns: true,
+                locale: {
+                    format: "YYYY-MM-DD",
+                },
+            });
+            bCodeChange = false;
+        }
+
+        function dateEndChange() {
+            if (bCodeChange == true) return;
+            else bCodeChange = true;
+
+            $("#semua-restock #from_date").daterangepicker({
+                maxDate: $("#semua-restock #to_date").val(),
+                singleDatePicker: true,
+                showDropdowns: true,
+                locale: {
+                    format: "YYYY-MM-DD",
+                },
+            });
+            bCodeChange = false;
+        }
+
+        // Disabled input to date ketika from date berubah
+        $("#semua-restock .filter-semua-restock").on(
+            "change",
+            "#from_date",
+            function () {
+                dateStartChange();
+            }
+        );
+        // Disabled input from date ketika to date berubah
+        $("#semua-restock .filter-semua-restock").on(
+            "change",
+            "#to_date",
+            function () {
+                dateEndChange();
+            }
+        );
+
+        const d = new Date();
+        const date = d.toISOString().split("T")[0];
+
+        // Menyisipkan Placeholder Date
+        $("#semua-restock #from_date").val(fromDate);
+        $("#semua-restock #to_date").val(toDate);
+        $("#semua-restock #from_date").attr("placeholder", date);
+        $("#semua-restock #to_date").attr("placeholder", date);
     }
-
-    // Disabled input to date ketika from date berubah
-    $("#semua-restock .filter-semua-restock").on(
-        "change",
-        "#from_date",
-        function () {
-            dateStartChange();
-        }
-    );
-    // Disabled input from date ketika to date berubah
-    $("#semua-restock .filter-semua-restock").on(
-        "change",
-        "#to_date",
-        function () {
-            dateEndChange();
-        }
-    );
-
-    const d = new Date();
-    const date = `${d.getFullYear()}-${("0" + (d.getMonth() + 1)).slice(-2)}-${(
-        "0" + d.getDate()
-    ).slice(-2)}`;
-
-    // Menyisipkan Placeholder Date
-    $("#semua-restock #from_date").val("");
-    $("#semua-restock #to_date").val("");
-    $("#semua-restock #from_date").attr("placeholder", date);
-    $("#semua-restock #to_date").attr("placeholder", date);
 
     // Event Listener saat tombol refresh diklik
-    $("#semua-restock #refresh").click(function () {
+    $("#semua-restock").on("click", "#refresh", function () {
         $("#semua-restock #from_date").val("");
         $("#semua-restock #to_date").val("");
+        const filterBy = "";
+        const startDate = "";
+        const endDate = "";
+        $("#semua-restock .table-datatables").DataTable().destroy();
+        dataTablesSemuaRestock(startDate, endDate, filterBy);
         $("#semua-restock .table-datatables").DataTable().search("");
         $("#semua-restock .table-datatables")
             .DataTable()
@@ -362,7 +376,20 @@ $(document).ready(function () {
     });
 
     // Event listener saat tombol filter diklik
-    $("#semua-restock #filter").click(function () {
-        $("#semua-restock .table-datatables").DataTable().ajax.reload();
+    $("#semua-restock").on("click", "#filter-tanggal-po", function () {
+        const filterBy = "PO";
+        const startDate = $("#semua-restock #from_date").val();
+        const endDate = $("#semua-restock #to_date").val();
+        $("#semua-restock .table-datatables").DataTable().destroy();
+        dataTablesSemuaRestock(startDate, endDate, filterBy);
+    });
+
+    // Event listener saat tombol filter diklik
+    $("#semua-restock").on("click", "#filter-tanggal-do", function () {
+        const filterBy = "DO";
+        const startDate = $("#semua-restock #from_date").val();
+        const endDate = $("#semua-restock #to_date").val();
+        $("#semua-restock .table-datatables").DataTable().destroy();
+        dataTablesSemuaRestock(startDate, endDate, filterBy);
     });
 });
