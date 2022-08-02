@@ -77,7 +77,7 @@
                             </li>
                         </ul>
                     </div><!-- /.card-header -->
-                    <div class="card-body mt-2">
+                    <div class="card-body">
                         <div class="tab-content">
                             <!-- Restock -->
                             {{-- <div class="tab-pane active" id="restock">

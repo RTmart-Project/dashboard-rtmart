@@ -86,6 +86,12 @@ $(document).ready(function () {
         $("#distributor").selectpicker("refresh");
         $("#sales").val("");
         $("#sales").selectpicker("refresh");
+
+        const startDate = $("#from_date").val();
+        const endDate = $("#to_date").val();
+        const distributorID = $("#distributor").val();
+        const salesCode = $("#sales").val();
+        summaryReportData(startDate, endDate, distributorID, salesCode);
     });
 
     $("#filter").on("click", function () {
@@ -93,7 +99,7 @@ $(document).ready(function () {
         const endDate = $("#to_date").val();
         const distributorID = $("#distributor").val();
         const salesCode = $("#sales").val();
-        console.log(startDate, endDate, distributorID, salesCode);
+        // console.log(startDate, endDate, distributorID, salesCode);
         summaryReportData(startDate, endDate, distributorID, salesCode);
     });
 
