@@ -38,9 +38,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/home', [HomeController::class, 'home'])->name('home');
 
     Route::group(['prefix' => 'summary', 'middleware' => ['checkRoleUser:IT,FI,BM']], function () {
-        Route::get('/', [SummaryController::class, 'summary'])->name('summary.summary');
-        // Route::get('/get', [SummaryController::class, 'getSummary'])->name('summary.getSummary');
+        Route::get('/finance', [SummaryController::class, 'summary'])->name('summary.summary');
         Route::post('/get', [SummaryController::class, 'getSummary'])->name('summary.dataSummary');
+        Route::get('/report', [SummaryController::class, 'summaryReport'])->name('summary.report');
+        Route::post('/report/data', [SummaryController::class, 'summaryReportData'])->name('summary.reportData');
     });
 
     Route::group(['prefix' => 'distribution'], function () {

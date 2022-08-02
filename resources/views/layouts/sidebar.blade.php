@@ -24,13 +24,32 @@
             </li>
 
             @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM")
-            <li class="nav-item">
-                <a href="{{ route('summary.summary') }}" class="nav-link {{ Request::is('summary*') ? 'active' : '' }}">
+            <li class="nav-item {{ Request::is('summary*') ? 'menu-open' : '' }}">
+                <a href="#" class="nav-link {{ Request::is('summary*') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-file-alt"></i>
                     <p>
                         Summary
+                        <i class="right fas fa-angle-left"></i>
                     </p>
                 </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="{{ route('summary.summary') }}"
+                            class="nav-link {{ Request::is('summary/finance*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Summary Finance</p>
+                        </a>
+                    </li>
+                </ul>
+                {{-- <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="{{ route('summary.report') }}"
+                            class="nav-link {{ Request::is('summary/report*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Summary Report</p>
+                        </a>
+                    </li>
+                </ul> --}}
             </li>
             @endif
 

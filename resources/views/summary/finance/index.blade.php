@@ -315,7 +315,7 @@
 
 @section('js-pages')
 <script src="{{url('/')}}/plugins/sweetalert2/sweetalert2.min.js"></script>
-<script src="{{url('/')}}/main/js/summary/summary.js"></script>
+<script src="{{url('/')}}/main/js/summary/finance/summary.js"></script>
 <script>
   let Toast = Swal.mixin({
     toast: true,
