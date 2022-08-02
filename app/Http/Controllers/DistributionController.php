@@ -142,6 +142,7 @@ class DistributionController extends Controller
     {
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
+        $filterBy = $request->input('filterBy');
 
         $startDate = new DateTime($fromDate) ?? new DateTime();
         $endDate = new DateTime($toDate) ?? new DateTime();
@@ -172,8 +173,6 @@ class DistributionController extends Controller
                 $join->on('tx_merchant_order_detail.ProductID', 'tx_merchant_delivery_order_detail.ProductID');
             })
             ->where('ms_merchant_account.IsTesting', 0)
-            ->whereDate('tx_merchant_order.CreatedDate', '>=', $startDateFormat)
-            ->whereDate('tx_merchant_order.CreatedDate', '<=', $endDateFormat)
             ->select(
                 'tx_merchant_order.StockOrderID',
                 'tx_merchant_order.CreatedDate',
@@ -225,6 +224,15 @@ class DistributionController extends Controller
                 'ms_sales.SalesName'
             );
 
+        if ($filterBy == "PO" || $filterBy == "") {
+            $sqlAllRestockAndDO->whereDate('tx_merchant_order.CreatedDate', '>=', $startDateFormat)
+                ->whereDate('tx_merchant_order.CreatedDate', '<=', $endDateFormat);
+        } elseif ($filterBy == "DO") {
+            $sqlAllRestockAndDO->whereDate('tmdo.CreatedDate', '>=', $startDateFormat)
+                ->whereDate('tmdo.CreatedDate', '<=', $endDateFormat);
+        }
+
+
         if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
             $sqlAllRestockAndDO->where('ms_distributor.Depo', '=', $depoUser);
@@ -247,13 +255,13 @@ class DistributionController extends Controller
                         if ($data->Qty == null) {
                             $marginReal = "";
                         } else {
-                            $marginReal = ($data->Price - $data->PurchasePrice) * $data->Qty;
+                            $marginReal = (($data->Price - $data->PurchasePrice) * $data->Qty) - $data->Discount;
                         }
                     }
                     return $marginReal;
                 })
                 ->addColumn('MarginRealPercentage', function ($data) {
-                    $marginReal = ($data->Price - $data->PurchasePrice) * $data->Qty;
+                    $marginReal = (($data->Price - $data->PurchasePrice) * $data->Qty) - $data->Discount;
                     if ($data->PurchasePrice == null) {
                         $marginRealPercentage = "";
                     } else {
