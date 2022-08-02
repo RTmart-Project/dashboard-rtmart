@@ -10,7 +10,7 @@ class SummaryController extends Controller
 {
     public function summary()
     {
-        return view('summary.index');
+        return view('summary.finance.index');
     }
 
     public function getSummary(SummaryService $summaryService, Request $request)
@@ -62,6 +62,50 @@ class SummaryController extends Controller
             return $output;
         }
 
-        return view('summary.index');
+        return view('summary.finance.index');
+    }
+
+    public function summaryReport()
+    {
+        $distributors = DB::table('ms_distributor')
+            ->where('IsActive', '=', 1)
+            ->whereNotNull('Email')
+            ->select('DistributorID', 'DistributorName')
+            ->get();
+
+        $sales = DB::table('ms_sales')
+            ->where('IsActive', 1)
+            ->select('SalesCode', 'SalesName')->get();
+
+        return view('summary.report.index', [
+            'distributors' => $distributors,
+            'sales' => $sales
+        ]);
+    }
+
+    public function summaryReportData(Request $request)
+    {
+        $filterStartDate = $request->startDate;
+        $filterEndDate = $request->endDate;
+        $distributorID = $request->distributorID;
+        $salesCode = $request->salesCode;
+
+        $dateNow = date('Y-m-d');
+
+        if ($filterStartDate != null && $filterEndDate != null) {
+            $startDate = $filterStartDate;
+            $endDate = $filterEndDate;
+        } else {
+            $startDate = $dateNow;
+            $endDate = $dateNow;
+        }
+
+        //    $sql = DB::table('tx_merchant_order as tmo')
+        //    ->selectRaw("
+
+        //    ")
+        //    ;
+
+        // return $data;
     }
 }
