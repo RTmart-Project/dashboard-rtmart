@@ -8,6 +8,10 @@ $(document).ready(function () {
     d.setDate(d.getDate() - 92);
     const dateMin = d.toISOString().split("T")[0];
 
+    let distributorID = "";
+    let salesCode = "";
+    summaryReportData(dateNow, dateNow, distributorID, salesCode);
+
     // Setting Awal Daterangepicker
     $("#summary-report #from_date").daterangepicker({
         minDate: dateMin,
@@ -87,18 +91,18 @@ $(document).ready(function () {
         $("#sales").val("");
         $("#sales").selectpicker("refresh");
 
-        const startDate = $("#from_date").val();
-        const endDate = $("#to_date").val();
-        const distributorID = $("#distributor").val();
-        const salesCode = $("#sales").val();
+        let startDate = $("#from_date").val();
+        let endDate = $("#to_date").val();
+        let distributorID = $("#distributor").val();
+        let salesCode = $("#sales").val();
         summaryReportData(startDate, endDate, distributorID, salesCode);
     });
 
     $("#filter").on("click", function () {
-        const startDate = $("#from_date").val();
-        const endDate = $("#to_date").val();
-        const distributorID = $("#distributor").val();
-        const salesCode = $("#sales").val();
+        let startDate = $("#from_date").val();
+        let endDate = $("#to_date").val();
+        let distributorID = $("#distributor").val();
+        let salesCode = $("#sales").val();
         // console.log(startDate, endDate, distributorID, salesCode);
         summaryReportData(startDate, endDate, distributorID, salesCode);
     });

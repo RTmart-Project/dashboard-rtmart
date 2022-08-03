@@ -770,6 +770,11 @@ class StockController extends Controller
                 ->whereDate('ms_stock_mutation.MutationDate', '<=', $toDate);
         }
 
+        if (Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $sqlGetMutation->whereRaw("from_distributor.Depo = '$depoUser' OR to_distributor.Depo = '$depoUser'");
+        }
+
         $data = $sqlGetMutation;
 
         // Return Data Using DataTables with Ajax
