@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
+use stdClass;
 
 class SummaryService
 {
@@ -242,5 +243,151 @@ class SummaryService
     ");
 
     return $sql;
+  }
+
+  public function summaryReport($startDate, $endDate, $distributorID, $salesCode)
+  {
+    // Summary Purchase Order
+    $sqlMainPO = DB::table('tx_merchant_order as tmo')
+      ->select('tmo.StockOrderID', 'tmo.CreatedDate', 'tmo.MerchantID', 'tmo.NettPrice')
+      ->whereRaw("DATE(tmo.CreatedDate) >= '$startDate'")
+      ->whereRaw("DATE(tmo.CreatedDate) <= '$endDate'")
+      ->whereRaw("tmo.StatusOrderID IN ('S009', 'S010', 'S023')");
+
+    if ($distributorID != null) {
+      $distributorIn = "'" . implode("', '", $distributorID) . "'";
+      $sqlMainPO->whereRaw("tmo.DistributorID IN ($distributorIn)");
+    }
+
+    if ($salesCode != null) {
+      $salesCodeIn = "'" . implode("', '", $salesCode) . "'";
+      $sqlMainPO->whereRaw("tmo.SalesCode IN ($salesCodeIn)");
+    }
+
+    $sqlProductPO = (clone $sqlMainPO)
+      ->join('tx_merchant_order_detail as tmod', 'tmod.StockOrderID', 'tmo.StockOrderID')
+      ->join('ms_product', 'ms_product.ProductID', 'tmod.ProductID')
+      ->select(
+        'tmo.StockOrderID',
+        'tmo.DistributorID',
+        'tmod.ProductID',
+        'tmod.PromisedQuantity',
+        'tmod.Nett',
+        'ms_product.Price',
+        DB::raw("(
+            SELECT PurchasePrice
+            FROM ms_stock_product
+            WHERE DistributorID = tmo.DistributorID
+            AND ProductID = tmod.ProductID
+            AND Qty > 0
+            ORDER BY LevelType, CreatedDate
+            LIMIT 1
+        ) AS PurchasePrice")
+      );
+
+    $marginPO = $sqlProductPO->get()->toArray();
+
+    $valueMarginPO = 0;
+    foreach ($marginPO as $key => $value) {
+      if ($value->PurchasePrice != null) {
+        $valueMarginPO += ($value->Nett - $value->PurchasePrice) * $value->PromisedQuantity;
+      } else {
+        $valueMarginPO += ($value->Nett - $value->Price) * $value->PromisedQuantity;
+      }
+    }
+
+    $sqlMainPO = $sqlMainPO->toSql();
+
+    $sqlPO = DB::table(DB::raw("($sqlMainPO) as SummaryPO"))
+      ->selectRaw("
+        ( 
+            SELECT SUM(SummaryPO.NettPrice)
+        ) as TotalValuePO,
+        (
+            SELECT COUNT(SummaryPO.StockOrderID)
+        ) as CountTotalPO,
+        (
+            SELECT COUNT(DISTINCT SummaryPO.MerchantID)
+        ) as CountMerchantPO,
+        (
+            SELECT $valueMarginPO
+        ) as ValueMarginEstimasi,
+        (
+            SELECT ROUND($valueMarginPO / SUM(SummaryPO.NettPrice) * 100, 2)
+        ) as PercentMarginEstimasi
+    ");
+
+    $dataPO = $sqlPO->first();
+
+    // Summary Delivery Order
+    $sqlMainDO = DB::table('tx_merchant_delivery_order as tmdo')
+      ->join('tx_merchant_order as tmo', 'tmo.StockOrderID', 'tmdo.StockOrderID')
+      ->select('tmdo.DeliveryOrderID', 'tmo.MerchantID', 'tmdo.Discount')
+      ->whereRaw("DATE(tmdo.CreatedDate) >= '$startDate'")
+      ->whereRaw("DATE(tmdo.CreatedDate) <= '$endDate'")
+      ->whereRaw("tmdo.StatusDO IN ('S024', 'S025')");
+
+    if ($distributorID != null) {
+      $distributorIn = "'" . implode("', '", $distributorID) . "'";
+      $sqlMainDO->whereRaw("tmo.DistributorID IN ($distributorIn)");
+    }
+
+    if ($salesCode != null) {
+      $salesCodeIn = "'" . implode("', '", $salesCode) . "'";
+      $sqlMainDO->whereRaw("tmo.SalesCode IN ($salesCodeIn)");
+    }
+
+    $sqlProductDO = (clone $sqlMainDO)
+      ->join('tx_merchant_delivery_order_detail as tmdod', 'tmdod.DeliveryOrderID', 'tmdo.DeliveryOrderID')
+      ->select(
+        'tmdo.DeliveryOrderID',
+        'tmdod.ProductID',
+        'tmdod.Qty',
+        'tmdod.Price',
+        DB::raw("(
+            SELECT PurchasePrice
+            FROM ms_stock_product_log
+            WHERE DeliveryOrderDetailID = tmdod.DeliveryOrderDetailID
+            LIMIT 1
+        ) as PurchasePrice")
+      );
+
+    $productDO = $sqlProductDO->get()->toArray();
+
+    $valueDO = 0;
+    $valueMarginDO = 0;
+    foreach ($productDO as $key => $value) {
+      $valueDO += $value->Price * $value->Qty;
+      $valueMarginDO += ($value->Price - $value->PurchasePrice) * $value->Qty;
+    }
+
+    $sqlMainDO = $sqlMainDO->toSql();
+
+    $sqlDO = DB::table(DB::raw("($sqlMainDO) as SummaryDO"))
+      ->selectRaw("
+        (
+            SELECT $valueDO - SUM(SummaryDO.Discount)
+        ) as TotalValueDO,
+        (
+            SELECT COUNT(SummaryDO.DeliveryOrderID)
+        ) as CountTotalDO,
+        (
+            SELECT COUNT(DISTINCT SummaryDO.MerchantID)
+        ) as CountMerchantDO,
+        (
+            SELECT $valueMarginDO
+        ) as ValueMarginReal,
+        (
+            SELECT ROUND($valueMarginDO / ($valueDO - SUM(SummaryDO.Discount)) * 100, 2)
+        ) as PercentMarginReal
+    ");
+
+    $dataDO = $sqlDO->first();
+
+    $data = new stdClass;
+    $data->PO = $dataPO;
+    $data->DO = $dataDO;
+
+    return $data;
   }
 }
