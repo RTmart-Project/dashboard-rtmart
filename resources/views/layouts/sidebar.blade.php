@@ -40,15 +40,13 @@
                             <p>Summary Finance</p>
                         </a>
                     </li>
-                </ul>
-                <ul class="nav nav-treeview">
-                    <li class="nav-item">
+                    {{-- <li class="nav-item">
                         <a href="{{ route('summary.report') }}"
                             class="nav-link {{ Request::is('summary/report*') ? 'active' : '' }}">
                             <i class="far fa-circle nav-icon"></i>
                             <p>Summary Report</p>
                         </a>
-                    </li>
+                    </li> --}}
                 </ul>
             </li>
             @endif

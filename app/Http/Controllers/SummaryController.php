@@ -83,25 +83,19 @@ class SummaryController extends Controller
         ]);
     }
 
-    public function summaryReportData(Request $request)
+    public function summaryReportData(Request $request, SummaryService $summaryService)
     {
         $startDate = $request->startDate;
         $endDate = $request->endDate;
         $distributorID = $request->distributorID;
         $salesCode = $request->salesCode;
+        // $startDate = "2022-07-01";
+        // $endDate = "2022-08-04";
+        // $distributorID = null;
+        // $salesCode = null;
 
-        $sql = DB::table('tx_merchant_order as tmo')
-            ->whereDate('tmo.CreatedDate', '>=', $startDate)
-            ->whereDate('tmo.CreatedDate', '<=', $endDate)
-            ->selectRaw("
-                tmo.StockOrderID
-            ")
-            ->get()->toArray();
+        $data = $summaryService->summaryReport($startDate, $endDate, $distributorID, $salesCode);
 
-        $data = [
-            'a' => $startDate,
-            'b' => $endDate
-        ];
-        return $sql;
+        return $data;
     }
 }
