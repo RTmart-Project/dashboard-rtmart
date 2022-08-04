@@ -83,64 +83,19 @@ class SummaryController extends Controller
         ]);
     }
 
-    public function summaryReportData(Request $request)
+    public function summaryReportData(Request $request, SummaryService $summaryService)
     {
-        // $startDate = $request->startDate;
-        // $endDate = $request->endDate;
-        // $distributorID = $request->distributorID;
-        // $salesCode = $request->salesCode;
-        $startDate = "2022-07-01";
-        $endDate = "2022-08-03";
-        $distributorID = null;
-        $salesCode = null;
+        $startDate = $request->startDate;
+        $endDate = $request->endDate;
+        $distributorID = $request->distributorID;
+        $salesCode = $request->salesCode;
+        // $startDate = "2022-07-01";
+        // $endDate = "2022-08-04";
+        // $distributorID = null;
+        // $salesCode = null;
 
-        $sqlMainPO = DB::table('tx_merchant_order as tmo')
-            ->select('tmo.StockOrderID', 'tmo.CreatedDate', 'tmo.MerchantID', 'tmo.DistributorID', 'tmo.SalesCode', 'tmo.NettPrice', 'tmo.StatusOrderID')
-            ->whereRaw("DATE(tmo.CreatedDate) >= '$startDate'")
-            ->whereRaw("DATE(tmo.CreatedDate) <= '$endDate'")
-            ->whereRaw("tmo.StatusOrderID IN ('S009', 'S010', 'S023')");
+        $data = $summaryService->summaryReport($startDate, $endDate, $distributorID, $salesCode);
 
-        if ($distributorID != null) {
-            $distributorIn = "'" . implode("', '", $distributorID) . "'";
-            $sqlMainPO->whereRaw("tmo.DistributorID IN ($distributorIn)");
-        }
-
-        if ($salesCode != null) {
-            $salesCodeIn = "'" . implode("', '", $salesCode) . "'";
-            $sqlMainPO->whereRaw("tmo.SalesCode IN ($salesCodeIn)");
-        }
-
-        $sqlMarginPO = (clone $sqlMainPO)
-            ->join('tx_merchant_order_detail as tmod', 'tmod.StockOrderID', 'tmo.StockOrderID')
-            ->select('tmo.StockOrderID', 'tmo.DistributorID', 'tmod.ProductID', 'tmod.PromisedQuantity', 'tmod.Nett');
-
-        dd($sqlMarginPO->get());
-
-        $sqlMainPO = $sqlMainPO->toSql();
-
-        $sqlPO = DB::table(DB::raw("($sqlMainPO) as SummaryPO"))
-            ->selectRaw("
-                ( 
-                    SELECT SUM(SummaryPO.NettPrice)
-                ) as TotalValuePO,
-                (
-                    SELECT COUNT(SummaryPO.StockOrderID)
-                ) as CountTotalPO,
-                (
-                    SELECT COUNT(DISTINCT SummaryPO.MerchantID)
-                ) as CountMerchantPO
-            ");
-
-        $data = $sqlPO->first();
-
-        dd($data);
-
-        // $data = [
-        //     'a' => $startDate,
-        //     'b' => $endDate,
-        //     'c' => $distributorID,
-        //     'd' => $salesCode
-        // ];
         return $data;
     }
 }

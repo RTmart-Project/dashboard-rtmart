@@ -40,6 +40,7 @@ class DeliveryOrderService
     $sql = DB::table('tx_merchant_delivery_order')
       ->where('DeliveryOrderID', $deliveryOrderID)
       ->update([
+        'CreatedDate' => date('Y-m-d H:i:s'),
         'StatusDO' => $statusDO,
         'DriverID' => $driverID,
         'HelperID' => $helperID,

@@ -1,4 +1,11 @@
 $(document).ready(function () {
+    let Toast = Swal.mixin({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 4000,
+    });
+
     const csrf = $('meta[name="csrf_token"]').attr("content");
 
     const d = new Date();
@@ -103,7 +110,21 @@ $(document).ready(function () {
         let endDate = $("#to_date").val();
         let distributorID = $("#distributor").val();
         let salesCode = $("#sales").val();
-        // console.log(startDate, endDate, distributorID, salesCode);
+
+        const today = new Date().toJSON().slice(0, 10).replace(/-/g, "-");
+
+        const date1 = new Date(startDate);
+        const date2 = new Date(endDate);
+        const dateDiff =
+            (date2.getTime() - date1.getTime()) / (1000 * 3600 * 24);
+
+        if (dateDiff > 31) {
+            Toast.fire({
+                icon: "error",
+                title: " Rentang filter tanggal maksimal 31 hari!",
+            });
+        }
+
         summaryReportData(startDate, endDate, distributorID, salesCode);
     });
 
@@ -120,8 +141,56 @@ $(document).ready(function () {
                 salesCode,
             },
             type: "post",
-            success: function (result) {
-                console.log(result);
+            success: function (res) {
+                // PO Summary
+                $("#total-value-po").html(
+                    res.PO.TotalValuePO != null
+                        ? "Rp " + thousands_separators(res.PO.TotalValuePO)
+                        : 0
+                );
+                $("#count-total-po").html(
+                    res.PO.CountTotalPO != null ? res.PO.CountTotalPO : 0
+                );
+                $("#count-merchant-po").html(
+                    res.PO.CountMerchantPO != null ? res.PO.CountMerchantPO : 0
+                );
+                $("#margin-estimasi").html(
+                    `${
+                        res.PO.ValueMarginEstimasi != null &&
+                        res.PO.PercentMarginEstimasi != null
+                            ? "Rp " +
+                              thousands_separators(res.PO.ValueMarginEstimasi) +
+                              " (" +
+                              res.PO.PercentMarginEstimasi +
+                              "%)"
+                            : 0
+                    }`
+                );
+
+                // DO Summary
+                $("#total-value-do").html(
+                    res.DO.TotalValueDO != null
+                        ? "Rp " + thousands_separators(res.DO.TotalValueDO)
+                        : 0
+                );
+                $("#count-total-do").html(
+                    res.DO.CountTotalDO != null ? res.DO.CountTotalDO : 0
+                );
+                $("#count-merchant-do").html(
+                    res.DO.CountMerchantDO != null ? res.DO.CountMerchantDO : 0
+                );
+                $("#margin-real").html(
+                    `${
+                        res.DO.ValueMarginReal != null &&
+                        res.DO.PercentMarginReal != null
+                            ? "Rp " +
+                              thousands_separators(res.DO.ValueMarginReal) +
+                              " (" +
+                              res.DO.PercentMarginReal +
+                              "%)"
+                            : 0
+                    }`
+                );
             },
         });
     }

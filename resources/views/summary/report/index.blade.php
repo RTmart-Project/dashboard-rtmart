@@ -5,6 +5,7 @@
 <link rel="stylesheet" href="{{url('/')}}/plugins/daterangepicker/daterangepicker.css">
 <link rel="stylesheet" href="{{url('/')}}/plugins/bootstrap-select/bootstrap-select.min.css">
 <meta name="csrf_token" content="{{ csrf_token() }}">
+<link rel="stylesheet" href="{{url('/')}}/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
 @endsection
 
 @section('header-menu', 'Summary Report')
@@ -70,48 +71,39 @@
 
         <h5 class="mb-2">PO Summary</h5>
         <div class="row">
-          <div class="col-md-4 col-6">
+          <div class="col-md-3 col-6">
             <div class="info-box">
               <span class="info-box-icon bg-success elevation-1"><i class="fas fa-money-bill-wave-alt"></i></span>
               <div class="info-box-content">
                 <span class="info-box-text h6 mb-2">Total PO (Value)</span>
-                <span class="info-box-number h6 m-0">Rp 1.000.000</span>
+                <span class="info-box-number h6 m-0" id="total-value-po"></span>
               </div>
             </div>
           </div>
-          <div class="col-md-4 col-6">
+          <div class="col-md-3 col-6">
             <div class="info-box">
               <span class="info-box-icon bg-success elevation-1"><i class="fas fa-shopping-cart"></i></span>
               <div class="info-box-content">
                 <span class="info-box-text h6 mb-2">Jumlah PO</span>
-                <span class="info-box-number h6 m-0">12</span>
+                <span class="info-box-number h6 m-0" id="count-total-po"></span>
               </div>
             </div>
           </div>
-          <div class="col-md-4 col-6">
+          <div class="col-md-3 col-6">
             <div class="info-box">
               <span class="info-box-icon bg-success elevation-1"><i class="fas fa-store"></i></span>
               <div class="info-box-content">
                 <span class="info-box-text h6 mb-2">Jumlah Toko</span>
-                <span class="info-box-number h6 m-0">10</span>
+                <span class="info-box-number h6 m-0" id="count-merchant-po"></span>
               </div>
             </div>
           </div>
-          <div class="col-md-4 col-6">
+          <div class="col-md-3 col-6">
             <div class="info-box">
               <span class="info-box-icon bg-success elevation-1"><i class="fas fa-search-dollar"></i></span>
               <div class="info-box-content">
                 <span class="info-box-text h6 mb-2">Total Margin Estimasi</span>
-                <span class="info-box-number h6 m-0">Rp 300.000</span>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4 col-6">
-            <div class="info-box">
-              <span class="info-box-icon bg-success elevation-1"><i class="fas fa-coins"></i></span>
-              <div class="info-box-content">
-                <span class="info-box-text h6 mb-2">Total Margin</span>
-                <span class="info-box-number h6 m-0">Rp 350.000</span>
+                <span class="info-box-number h6 m-0" id="margin-estimasi"></span>
               </div>
             </div>
           </div>
@@ -119,39 +111,39 @@
 
         <h5 class="my-2">DO Summary</h5>
         <div class="row">
-          <div class="col-md-4 col-6">
+          <div class="col-md-3 col-6">
             <div class="info-box">
               <span class="info-box-icon bg-info elevation-1"><i class="fas fa-money-bill-wave-alt"></i></span>
               <div class="info-box-content">
                 <span class="info-box-text h6 mb-2">Total DO (Value)</span>
-                <span class="info-box-number h6 m-0">Rp 1.000.000</span>
+                <span class="info-box-number h6 m-0" id="total-value-do"></span>
               </div>
             </div>
           </div>
-          <div class="col-md-4 col-6">
+          <div class="col-md-3 col-6">
             <div class="info-box">
               <span class="info-box-icon bg-info elevation-1"><i class="fas fa-shopping-cart"></i></span>
               <div class="info-box-content">
                 <span class="info-box-text h6 mb-2">Jumlah DO</span>
-                <span class="info-box-number h6 m-0">12</span>
+                <span class="info-box-number h6 m-0" id="count-total-do"></span>
               </div>
             </div>
           </div>
-          <div class="col-md-4 col-6">
+          <div class="col-md-3 col-6">
             <div class="info-box">
               <span class="info-box-icon bg-info elevation-1"><i class="fas fa-store"></i></span>
               <div class="info-box-content">
                 <span class="info-box-text h6 mb-2">Jumlah Toko</span>
-                <span class="info-box-number h6 m-0">10</span>
+                <span class="info-box-number h6 m-0" id="count-merchant-do"></span>
               </div>
             </div>
           </div>
-          <div class="col-md-4 col-6">
+          <div class="col-md-3 col-6">
             <div class="info-box">
-              <span class="info-box-icon bg-info elevation-1"><i class="fas fa-coins"></i></span>
+              <span class="info-box-icon bg-info elevation-1"><i class="fas fa-search-dollar"></i></span>
               <div class="info-box-content">
-                <span class="info-box-text h6 mb-2">Total Margin</span>
-                <span class="info-box-number h6 m-0">Rp 350.000</span>
+                <span class="info-box-text h6 mb-2">Total Margin Real</span>
+                <span class="info-box-number h6 m-0" id="margin-real"></span>
               </div>
             </div>
           </div>
@@ -167,4 +159,5 @@
 <script src="{{url('/')}}/main/js/summary/report/report.js"></script>
 <script src="{{url('/')}}/plugins/daterangepicker/daterangepicker.js"></script>
 <script src="{{url('/')}}/plugins/bootstrap-select/bootstrap-select.min.js"></script>
+<script src="{{url('/')}}/plugins/sweetalert2/sweetalert2.min.js"></script>
 @endsection
