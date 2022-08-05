@@ -332,7 +332,7 @@ class DeliveryController extends Controller
                             ]);
                     }
                     foreach ($dataExpedition->dataDeliveryOrderID as $key => $value) {
-                        $deliveryOrderService->updateDeliveryOrder($value->deliveryOrderID, "S024", $dataExpedition->driverID, $dataExpedition->helperID, $dataExpedition->vehicleID, $vehicleLicensePlate);
+                        $deliveryOrderService->updateDeliveryOrder($value->deliveryOrderID, "S024", $dataExpedition->driverID, $dataExpedition->helperID, $dataExpedition->vehicleID, $vehicleLicensePlate, $createdDate);
                         $deliveryOrderService->insertDeliveryOrderLog($value->deliveryOrderID, "S024", $dataExpedition->driverID, $dataExpedition->helperID, $dataExpedition->vehicleID, $vehicleLicensePlate, $user, $createdDate);
                         $deliveryOrderService->updateStatusStockOrder($value->deliveryOrderID);
                     }
