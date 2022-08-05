@@ -128,6 +128,10 @@ $(document).ready(function () {
         summaryReportData(startDate, endDate, distributorID, salesCode);
     });
 
+    function createLink(type, startDate, endDate, distributorID, salesCode) {
+        return `/summary/reportDetail/${type}?startDate=${startDate}&endDate=${endDate}&distributorID=${distributorID}&salesCode=${salesCode}`;
+    }
+
     function summaryReportData(startDate, endDate, distributorID, salesCode) {
         $.ajax({
             url: "/summary/report/data",
@@ -142,6 +146,62 @@ $(document).ready(function () {
             },
             type: "post",
             success: function (res) {
+                // Link PO Summary
+                const linkTotalValuePO = createLink(
+                    "totalValuePO",
+                    startDate,
+                    endDate,
+                    distributorID,
+                    salesCode
+                );
+                $("#total-value-po-link").prop("href", linkTotalValuePO);
+
+                const linkCountPO = createLink(
+                    "countPO",
+                    startDate,
+                    endDate,
+                    distributorID,
+                    salesCode
+                );
+                $("#count-total-po-link").prop("href", linkCountPO);
+
+                const linkCountMerchantPO = createLink(
+                    "countMerchantPO",
+                    startDate,
+                    endDate,
+                    distributorID,
+                    salesCode
+                );
+                $("#count-merchant-po-link").prop("href", linkCountMerchantPO);
+
+                // Link DO Summary
+                const linkTotalValueDO = createLink(
+                    "totalValueDO",
+                    startDate,
+                    endDate,
+                    distributorID,
+                    salesCode
+                );
+                $("#total-value-do-link").prop("href", linkTotalValueDO);
+
+                const linkCountDO = createLink(
+                    "countDO",
+                    startDate,
+                    endDate,
+                    distributorID,
+                    salesCode
+                );
+                $("#count-total-do-link").prop("href", linkCountDO);
+
+                const linkCountMerchantDO = createLink(
+                    "countMerchantDO",
+                    startDate,
+                    endDate,
+                    distributorID,
+                    salesCode
+                );
+                $("#count-merchant-do-link").prop("href", linkCountMerchantDO);
+
                 // PO Summary
                 $("#total-value-po").html(
                     res.PO.TotalValuePO != null
