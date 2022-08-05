@@ -35,12 +35,12 @@ class DeliveryOrderService
     return $sql;
   }
 
-  public function updateDeliveryOrder($deliveryOrderID, $statusDO, $driverID, $helperID, $vehicleID, $vehicleLicensePlate)
+  public function updateDeliveryOrder($deliveryOrderID, $statusDO, $driverID, $helperID, $vehicleID, $vehicleLicensePlate, $createdDate)
   {
     $sql = DB::table('tx_merchant_delivery_order')
       ->where('DeliveryOrderID', $deliveryOrderID)
       ->update([
-        'CreatedDate' => date('Y-m-d H:i:s'),
+        'CreatedDate' => $createdDate,
         'StatusDO' => $statusDO,
         'DriverID' => $driverID,
         'HelperID' => $helperID,
