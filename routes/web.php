@@ -42,6 +42,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/get', [SummaryController::class, 'getSummary'])->name('summary.dataSummary');
         Route::get('/report', [SummaryController::class, 'summaryReport'])->name('summary.report');
         Route::post('/report/data', [SummaryController::class, 'summaryReportData'])->name('summary.reportData');
+        Route::get('/reportDetail/{type}', [SummaryController::class, 'reportDetail'])->name('summary.detail');
     });
 
     Route::group(['prefix' => 'distribution'], function () {
