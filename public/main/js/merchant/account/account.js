@@ -73,6 +73,14 @@ $(document).ready(function () {
                     name: "ms_distributor.DistributorName",
                 },
                 {
+                    data: "StatusBlock",
+                    name: "StatusBlock",
+                },
+                {
+                    data: "BlockedMessage",
+                    name: "ms_merchant_account.BlockedMessage",
+                },
+                {
                     data: "Action",
                     name: "Action",
                     orderable: false,
@@ -107,7 +115,7 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                         orthogonal: "export",
                     },
                 },

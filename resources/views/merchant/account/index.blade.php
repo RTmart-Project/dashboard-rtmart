@@ -268,6 +268,8 @@
                                                     <th>Referral</th>
                                                     <th>Nama Sales</th>
                                                     <th>Distributor</th>
+                                                    <th>Status Block</th>
+                                                    <th>Catatan Status Block</th>
                                                     <th>Action</th>
                                                     <th>Detail</th>
                                                     <th>Assessment</th>
