@@ -245,10 +245,12 @@ class MerchantController extends Controller
 
         $merchant = DB::table('ms_merchant_account')
             ->where('MerchantID', '=', $merchantId)
-            ->select('ReferralCode')->first();
+            ->select('ReferralCode', 'IsBlocked')->first();
 
         $user = Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo;
         $referralCode = $request->input('referral_code');
+        $isBlocked = $request->input('is_blocked');
+        $blockedMessage = $request->input('blocked_message');
 
         $data = [
             'StoreName' => $request->input('store_name'),
@@ -262,8 +264,8 @@ class MerchantController extends Controller
             'ReferralCode' => $referralCode,
             'Latitude' => $request->input('latitude'),
             'Longitude' => $request->input('longitude'),
-            'IsBlocked' => $request->input('is_blocked'),
-            'BlockedMessage' => $request->input('blocked_message')
+            'IsBlocked' => $isBlocked,
+            'BlockedMessage' => $blockedMessage
         ];
 
         $dataGrade = [
@@ -273,7 +275,7 @@ class MerchantController extends Controller
         ];
 
         try {
-            DB::transaction(function () use ($merchantId, $merchantGrade, $data, $dataGrade, $merchant, $referralCode, $user) {
+            DB::transaction(function () use ($merchantId, $merchantGrade, $data, $dataGrade, $merchant, $referralCode, $isBlocked, $blockedMessage, $user) {
                 DB::table('ms_merchant_account')
                     ->where('MerchantID', '=', $merchantId)
                     ->update($data);
@@ -291,6 +293,16 @@ class MerchantController extends Controller
                             'MerchantID' => $merchantId,
                             'SalesCodeBefore' => $merchant->ReferralCode,
                             'SalesCodeAfter' => $referralCode,
+                            'CreatedDate' => date('Y-m-d H:i:s'),
+                            'ActionBy' => $user
+                        ]);
+                }
+                if ($merchant->IsBlocked != $isBlocked) {
+                    DB::table('ms_merchant_account_block_log')
+                        ->insert([
+                            'MerchantID' => $merchantId,
+                            'IsBlocked' => $isBlocked,
+                            'BlockedMessage' => $blockedMessage,
                             'CreatedDate' => date('Y-m-d H:i:s'),
                             'ActionBy' => $user
                         ]);
@@ -323,11 +335,18 @@ class MerchantController extends Controller
             ->orderByDesc('ms_sales_merchant_relation_log.CreatedDate')
             ->get();
 
+        $logBlocked = DB::table('ms_merchant_account_block_log')
+            ->where('MerchantID', $merchantId)
+            ->select('IsBlocked', 'BlockedMessage', 'CreatedDate', 'ActionBy')
+            ->orderByDesc('CreatedDate')
+            ->get();
+
         return view('merchant.product.index', [
             'merchantId' => $merchantId,
             'merchant' => $merchant,
             'operationalHour' => $operationalHour,
-            'logSales' => $logSales
+            'logSales' => $logSales,
+            'logBlocked' => $logBlocked
         ]);
     }
 

@@ -7,6 +7,7 @@ use App\Services\DeliveryOrderService;
 use App\Services\HaistarService;
 use App\Services\MerchantService;
 use App\Services\PayLaterService;
+use App\Services\RestockService;
 use App\Services\TxLogService;
 use Illuminate\Support\Str;
 use DateTime;
@@ -27,6 +28,98 @@ class DistributionController extends Controller
     {
         $this->saveImageUrl = config('app.save_image_url');
         $this->baseImageUrl = config('app.base_image_url');
+    }
+
+    public function validationRestock()
+    {
+        return view('distribution.validation.index');
+    }
+
+    public function getValidationRestock(Request $request, RestockService $restockService)
+    {
+        $fromDate = $request->input('fromDate');
+        $toDate = $request->input('toDate');
+
+        $sqlGetValidation = $restockService->getRestokValidation();
+        if (Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $sqlGetValidation->where('ms_distributor.Depo', '=', $depoUser);
+        }
+
+        // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
+        if ($fromDate != '' && $toDate != '') {
+            $sqlGetValidation->whereDate('tmo.CreatedDate', '>=', $fromDate)
+                ->whereDate('tmo.CreatedDate', '<=', $toDate);
+        }
+
+        $data = $sqlGetValidation;
+
+        if ($request->ajax()) {
+            return Datatables::of($data)
+                ->editColumn('CreatedDate', function ($data) {
+                    return date('d M Y H:i', strtotime($data->CreatedDate));
+                })
+                ->editColumn('RegisterDate', function ($data) {
+                    return date('d M Y H:i', strtotime($data->RegisterDate));
+                })
+                ->editColumn('LastPing', function ($data) {
+                    return date('d M Y H:i', strtotime($data->LastPing));
+                })
+                ->filterColumn('Sales', function ($query, $keyword) {
+                    $sql = "CONCAT(tmo.SalesCode,' - ',ms_sales.SalesName)  like ?";
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                })
+                ->editColumn('Validation', function ($data) {
+                    if ($data->IsValid === 1) {
+                        $classBadge = 'success';
+                    } elseif ($data->IsValid === 0) {
+                        $classBadge = 'danger';
+                    } elseif ($data->IsValid === NULL) {
+                        $classBadge = 'info';
+                    }
+                    $validation = '<span class="badge badge-' . $classBadge . '">' . $data->Validation . '</span>';
+                    return $validation;
+                })
+                ->editColumn('ValidationNotes', function ($data) {
+                    if ($data->ValidationNotes == null) {
+                        $validationNotes = "-";
+                    } else {
+                        $validationNotes = $data->ValidationNotes;
+                    }
+                    return $validationNotes;
+                })
+                ->addColumn('Action', function ($data) {
+                    $btn = '<a class="btn btn-sm btn-warning update-validitas" 
+                                data-stock-order-id="' . $data->StockOrderID . '"
+                                data-is-valid="' . $data->IsValid . '"
+                                data-validation-notes="' . $data->ValidationNotes . '">
+                                Update Validitas
+                            </a>';
+                    return $btn;
+                })
+                ->filterColumn('Validation', function ($query, $keyword) {
+                    $sql = "CASE
+                                WHEN tmo.IsValid = 1 THEN 'Sudah Valid'
+                                WHEN tmo.IsValid = 0 THEN 'Tidak Valid'
+                                ELSE 'Belum Divalidasi'
+                            END like ?";
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                })
+                ->rawColumns(['Validation', 'Action'])
+                ->make(true);
+        }
+    }
+
+    public function updateValidationRestock(Request $request, $stockOrderID, RestockService $restockService)
+    {
+        $isValid = $request->input('is_valid');
+        $validationNotes = $request->input('validation_notes');
+        $update = $restockService->updateRestockValidation($stockOrderID, $isValid, $validationNotes);
+        if ($update) {
+            return redirect()->route('distribution.validationRestock')->with('success', 'Data PO berhasil divalidasi');
+        } else {
+            return redirect()->route('distribution.validationRestock')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
+        }
     }
 
     public function restock()

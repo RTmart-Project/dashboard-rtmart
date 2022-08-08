@@ -459,7 +459,7 @@
                                                         <p class="text-center m-0">
                                                             <b>GrandTotal : </b>
                                                             <span class="price-subtotal">
-                                                                {{ Helper::formatCurrency($do->SubTotal + $do->ServiceCharge + $do->DeliveryFee - $do->Discount, 'Rp ')}}
+                                                                {{ Helper::formatCurrency($do->SubTotal + $do->ServiceCharge + $do->DeliveryFee - $do->Discount + $do->LateFee, 'Rp ')}}
                                                             </span>
                                                         </p>
                                                     </div>
