@@ -534,7 +534,7 @@ class DeliveryController extends Controller
                                 ->update([
                                     'StatusExpeditionDetail' => 'S037'
                                 ]);
-                            if ($item->StatusExpeditionDetail == "S030") {
+                            if ($item->StatusExpeditionDetail == "S030" || $item->StatusExpeditionDetail == "S037") {
                                 // Balikin stok
                                 $deliveryOrderService->cancelProductExpedition($item->MerchantExpeditionDetailID, $item->Qty, "GOOD STOCK");
                                 DB::table('tx_merchant_delivery_order')

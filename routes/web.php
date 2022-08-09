@@ -50,6 +50,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::group(['prefix' => 'validation', 'middlewate' => ['checkRoleUser:IT,AH']], function () {
             Route::get('/', [DistributionController::class, 'validationRestock'])->name('distribution.validationRestock');
             Route::get('/get', [DistributionController::class, 'getValidationRestock'])->name('distribution.getValidationRestock');
+            Route::get('/detail/{stockOrderID}', [DistributionController::class, 'validationDetail'])->name('distribution.validationDetail');
             Route::post('/update/{stockOrderID}', [DistributionController::class, 'updateValidationRestock'])->name('distribution.updateValidationRestock');
         });
         Route::group(['prefix' => 'restock', 'middleware' => ['checkRoleUser:IT,AD,RBTAD,BM,FI,AH,DMO,HL']], function () {

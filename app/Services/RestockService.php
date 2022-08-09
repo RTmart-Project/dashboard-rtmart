@@ -28,20 +28,6 @@ class RestockService
         ms_merchant_account.OwnerFullName,
         ms_merchant_account.PhoneNumber,
         -- ms_merchant_account.StoreAddress,
-        ms_merchant_account.CreatedDate AS RegisterDate,
-        ms_merchant_account.LastPing,
-        (
-            SELECT CONCAT(IFNULL(COUNT(StockOrderID), 0), ' order - (Rp ', IFNULL(FORMAT(SUM(NettPrice), 0), 0), ')')
-            FROM tx_merchant_order
-            WHERE MerchantID = tmo.MerchantID
-            AND StatusOrderID = 'S018'
-        ) AS OrderSelesai,
-        (
-            SELECT CONCAT(IFNULL(COUNT(StockOrderID), 0), ' order - (Rp ', IFNULL(FORMAT(SUM(NettPrice), 0), 0), ')')
-            FROM tx_merchant_order
-            WHERE MerchantID = tmo.MerchantID
-            AND StatusOrderID = 'S011'
-        ) AS OrderBatal,
         CONCAT(tmo.SalesCode, ' - ', ms_sales.SalesName) AS Sales,
         tmo.IsValid,
         CASE

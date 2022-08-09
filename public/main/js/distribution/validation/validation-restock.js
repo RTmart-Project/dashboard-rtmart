@@ -49,28 +49,6 @@ $(document).ready(function () {
                     name: "ms_merchant_account.PhoneNumber",
                 },
                 {
-                    data: "RegisterDate",
-                    name: "RegisterDate",
-                    type: "date",
-                    searchable: false,
-                },
-                {
-                    data: "LastPing",
-                    name: "LastPing",
-                    type: "date",
-                    searchable: false,
-                },
-                {
-                    data: "OrderSelesai",
-                    name: "OrderSelesai",
-                    searchable: false,
-                },
-                {
-                    data: "OrderBatal",
-                    name: "OrderBatal",
-                    searchable: false,
-                },
-                {
                     data: "Sales",
                     name: "Sales",
                 },
@@ -80,7 +58,7 @@ $(document).ready(function () {
                 },
                 {
                     data: "ValidationNotes",
-                    name: "ValidationNotes",
+                    name: "tmo.ValidationNotes",
                 },
                 {
                     data: "Action",
@@ -105,7 +83,7 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                         orthogonal: "export",
                     },
                 },
@@ -211,47 +189,5 @@ $(document).ready(function () {
     // Event listener saat tombol filter diklik
     $("#validation-restock #filter").click(function () {
         $("#validation-restock .table-datatables").DataTable().ajax.reload();
-    });
-
-    let csrf = $('meta[name="csrf_token"]').attr("content");
-
-    $("table").on("click", ".update-validitas", function (e) {
-        e.preventDefault();
-        const stockOrderID = $(this).data("stock-order-id");
-        const isValid = $(this).data("is-valid");
-        const validationNotes = $(this).data("validation-notes");
-
-        $.confirm({
-            title: "Update Validitas",
-            content: `Apakah Order <b>${stockOrderID}</b> valid?<br>
-              <form action="/distribution/validation/update/${stockOrderID}" method="post">
-                <input type="hidden" name="_token" value="${csrf}">
-                <label class="mt-2 mb-0">Status Validitas:</label>
-                <select class="form-control" name="is_valid">
-                  <option value="" hidden disabled selected>-- Pilih Status Validitas --</option>
-                  <option value="1" ${
-                      isValid === 1 && "selected"
-                  }>Valid</option>
-                  <option value="0" ${
-                      isValid === 0 && "selected"
-                  }>Tidak Valid</option>
-                </select>
-                <label class="mt-2 mb-0">Catatan:</label>
-                <input type="text" class="form-control price" value="${validationNotes}"
-                  name="validation_notes" autocomplete="off" placeholder="Tambahkan Catatan (opsional)">
-              </form>`,
-            closeIcon: true,
-            buttons: {
-                simpan: {
-                    btnClass: "btn-success",
-                    draggable: true,
-                    dragWindowGap: 0,
-                    action: function () {
-                        this.$content.find("form").submit();
-                    },
-                },
-                batal: function () {},
-            },
-        });
     });
 });

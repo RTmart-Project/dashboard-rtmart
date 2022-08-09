@@ -11,7 +11,6 @@
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
 
 <link rel="stylesheet" href="{{url('/')}}/main/css/custom/select-filter.css">
-<meta name="csrf_token" content="{{ csrf_token() }}">
 @endsection
 
 @section('header-menu', 'Restock Validation')
@@ -57,10 +56,6 @@
                           <th>Nama Toko</th>
                           <th>Nama Pemilik</th>
                           <th>No. Telp</th>
-                          <th>Tgl Daftar</th>
-                          <th>Terakhir Aktif</th>
-                          <th>PO Selesai</th>
-                          <th>PO Batal</th>
                           <th>Sales</th>
                           <th>Status Validitas</th>
                           <th>Catatan Validitas</th>
@@ -106,14 +101,4 @@
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
 <script src="{{url('/')}}/main/js/custom/select-filter.js"></script>
 <script src="{{url('/')}}/main/js/distribution/validation/validation-restock.js"></script>
-<script src="{{url('/')}}/main/js/helper/keep-tab-refresh.js"></script>
-<script src="https://unpkg.com/autonumeric"></script>
-<script>
-  // Recall Responsive DataTables
-  $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-    $('.table-datatables:visible').each(function (e) {
-      $(this).DataTable().columns.adjust().responsive.recalc();
-    });
-  });
-</script>
 @endsection

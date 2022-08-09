@@ -85,8 +85,9 @@
                                             <h6 class="mt-3 mt-md-0">Peta Alamat Pemesanan</h6>
                                         </div>
                                         <div class="col-md-4 col-12 p-md-0">
-                                            <button type="button" class="btn btn-sm btn-success float-md-right"
-                                                id="open-maps">Buka di Maps</button>
+                                            <a class="btn btn-sm btn-success float-md-right" id="open-maps" target="_blank">
+                                                Buka di Maps
+                                            </a>
                                         </div>
                                     </div>
                                     <div id="google-maps" style="width: 100%; height: 200px; margin: 20px 0;"></div>
@@ -800,8 +801,10 @@
 		});
 	}
 
-    $('#open-maps').on("click", function(e) {
-        window.open('https://www.google.com/maps/search/'+latitude+','+longitude+'/@'+latitude+','+longitude+',17z','address','toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,copyhistory=yes,width=600,height=400');
-    })
+    $("#open-maps").prop("href", 'https://www.google.co.id/maps/place/'+latitude+','+longitude);
+
+    // $('#open-maps').on("click", function(e) {
+    //     window.open('https://www.google.com/maps/search/'+latitude+','+longitude+'/@'+latitude+','+longitude+',17z','address','toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,copyhistory=yes,width=600,height=400');
+    // })
 </script>
 @endsection

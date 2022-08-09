@@ -59,11 +59,8 @@ class DistributionController extends Controller
                 ->editColumn('CreatedDate', function ($data) {
                     return date('d M Y H:i', strtotime($data->CreatedDate));
                 })
-                ->editColumn('RegisterDate', function ($data) {
-                    return date('d M Y H:i', strtotime($data->RegisterDate));
-                })
-                ->editColumn('LastPing', function ($data) {
-                    return date('d M Y H:i', strtotime($data->LastPing));
+                ->editColumn('PhoneNumber', function ($data) {
+                    return '<a href="https://wa.me/' . $data->PhoneNumber . '" target="_blank">' . $data->PhoneNumber . '</a>';
                 })
                 ->filterColumn('Sales', function ($query, $keyword) {
                     $sql = "CONCAT(tmo.SalesCode,' - ',ms_sales.SalesName)  like ?";
@@ -89,12 +86,13 @@ class DistributionController extends Controller
                     return $validationNotes;
                 })
                 ->addColumn('Action', function ($data) {
-                    $btn = '<a class="btn btn-sm btn-warning update-validitas" 
-                                data-stock-order-id="' . $data->StockOrderID . '"
-                                data-is-valid="' . $data->IsValid . '"
-                                data-validation-notes="' . $data->ValidationNotes . '">
-                                Update Validitas
-                            </a>';
+                    // $btn = '<a class="btn btn-sm btn-warning update-validitas" 
+                    //             data-stock-order-id="' . $data->StockOrderID . '"
+                    //             data-is-valid="' . $data->IsValid . '"
+                    //             data-validation-notes="' . $data->ValidationNotes . '">
+                    //             Update Validitas
+                    //         </a>';
+                    $btn = '<a class="btn btn-xs btn-info" href="/distribution/validation/detail/' . $data->StockOrderID . '">Detail</a>';
                     return $btn;
                 })
                 ->filterColumn('Validation', function ($query, $keyword) {
@@ -105,9 +103,80 @@ class DistributionController extends Controller
                             END like ?";
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 })
-                ->rawColumns(['Validation', 'Action'])
+                ->rawColumns(['PhoneNumber', 'Validation', 'Action'])
                 ->make(true);
         }
+    }
+
+    public function validationDetail($stockOrderID)
+    {
+        $sql = DB::table('tx_merchant_order AS tmo')
+            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tmo.MerchantID')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', 'tmo.DistributorID')
+            ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', 'tmo.PaymentMethodID')
+            ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tmo.SalesCode')
+            ->where('tmo.StockOrderID', $stockOrderID)
+            ->selectRaw("
+                tmo.StockOrderID,
+                tmo.CreatedDate,
+                ms_payment_method.PaymentMethodName,
+                ms_distributor.DistributorName,
+                tmo.TotalPrice,
+                tmo.NettPrice,
+                tmo.DeliveryFee,
+                tmo.DiscountVoucher + tmo.DiscountPrice AS Discount,
+                tmo.ServiceChargeNett,
+                CONCAT(tmo.SalesCode, ' - ', ms_sales.SalesName) AS Sales,
+                tmo.IsValid,
+                CASE
+                    WHEN tmo.IsValid = 1 THEN 'Sudah Valid'
+                    WHEN tmo.IsValid = 0 THEN 'Tidak Valid'
+                    ELSE 'Belum Divalidasi'
+                END AS Validation,
+                tmo.ValidationNotes,
+                tmo.MerchantID,
+                ms_merchant_account.StoreName,
+                ms_merchant_account.OwnerFullName,
+                ms_merchant_account.PhoneNumber,
+                ms_merchant_account.Latitude,
+                ms_merchant_account.Longitude,
+                ms_merchant_account.StoreAddress,
+                ms_merchant_account.StoreImage,
+                ms_merchant_account.StoreAddressNote,
+                ms_merchant_account.CreatedDate AS RegisterDate,
+                ms_merchant_account.LastPing,
+                (
+                    SELECT CONCAT(IFNULL(COUNT(StockOrderID), 0), ' order - (Rp ', IFNULL(FORMAT(SUM(NettPrice), 0), 0), ')')
+                    FROM tx_merchant_order
+                    WHERE MerchantID = tmo.MerchantID
+                    AND StatusOrderID = 'S018'
+                ) AS OrderSelesai,
+                (
+                    SELECT CONCAT(IFNULL(COUNT(StockOrderID), 0), ' order - (Rp ', IFNULL(FORMAT(SUM(NettPrice), 0), 0), ')')
+                    FROM tx_merchant_order
+                    WHERE MerchantID = tmo.MerchantID
+                    AND StatusOrderID = 'S011'
+                ) AS OrderBatal,
+                (
+                    SELECT GROUP_CONCAT(DISTINCT ms_payment_method.PaymentMethodName SEPARATOR ', ')
+                    FROM tx_merchant_order
+                    JOIN ms_payment_method ON ms_payment_method.PaymentMethodID = tx_merchant_order.PaymentMethodID
+                    WHERE MerchantID = tmo.MerchantID
+                ) AS OrderPaymentMethod
+            ")
+            ->first();
+
+        $sql->OrderDetail = DB::table('tx_merchant_order_detail')
+            ->join('ms_product', 'ms_product.ProductID', 'tx_merchant_order_detail.ProductID')
+            ->where('tx_merchant_order_detail.StockOrderID', $stockOrderID)
+            ->select('ms_product.ProductName', 'ms_product.ProductImage', 'tx_merchant_order_detail.PromisedQuantity', 'tx_merchant_order_detail.Nett', DB::raw("tx_merchant_order_detail.PromisedQuantity * tx_merchant_order_detail.Nett AS TotalPriceProduct"))
+            ->get()->toArray();
+
+        // dd($sql);
+
+        return view('distribution.validation.detail', [
+            'data' => $sql
+        ]);
     }
 
     public function updateValidationRestock(Request $request, $stockOrderID, RestockService $restockService)
@@ -487,6 +556,7 @@ class DistributionController extends Controller
             ->leftJoin('ms_user AS helper', 'helper.UserID', 'do.HelperID')
             ->leftJoin('ms_vehicle', 'ms_vehicle.VehicleID', 'do.VehicleID')
             ->where('do.StockOrderID', '=', $stockOrderID)
+            ->where('do.StatusDO', '!=', 'S026')
             ->select('do.*', 'ms_status_order.StatusOrder', 'driver.Name', 'helper.Name AS HelperName', 'ms_vehicle.VehicleName')
             ->get();
 
