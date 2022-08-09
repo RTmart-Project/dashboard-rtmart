@@ -546,4 +546,27 @@ class SummaryService
 
     return $sql;
   }
+
+  public function dataFilter($startDate, $endDate, $distributorID, $salesCode)
+  {
+    $sqlFilterDepo = DB::table('ms_distributor')->whereIn('DistributorID', explode(",", $distributorID))->select('DistributorName')->get()->toArray();
+    $arrayDepo = array_map(function ($value) {
+      return $value->DistributorName;
+    }, $sqlFilterDepo);
+    $filterDepo = implode(" <b>|</b> ", $arrayDepo);
+
+    $sqlFilterSales = DB::table('ms_sales')->whereIn('SalesCode', explode(",", $salesCode))->select('SalesCode', 'SalesName')->get()->toArray();
+    $arraySales = array_map(function ($value) {
+      return $value->SalesCode . ' - ' . $value->SalesName;
+    }, $sqlFilterSales);
+    $filterSales = implode(" <b>|</b> ", $arraySales);
+
+    $dataFilter = new stdClass;
+    $dataFilter->startDate = $startDate;
+    $dataFilter->endDate = $endDate;
+    $dataFilter->distributor = $filterDepo;
+    $dataFilter->sales = $filterSales;
+
+    return $dataFilter;
+  }
 }

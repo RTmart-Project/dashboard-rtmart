@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\SummaryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use stdClass;
 use Yajra\DataTables\Facades\DataTables;
 
 class SummaryController extends Controller
@@ -90,10 +91,6 @@ class SummaryController extends Controller
         $endDate = $request->endDate;
         $distributorID = $request->distributorID;
         $salesCode = $request->salesCode;
-        // $startDate = "2022-07-01";
-        // $endDate = "2022-08-04";
-        // $distributorID = null;
-        // $salesCode = null;
 
         $data = $summaryService->summaryReport($startDate, $endDate, $distributorID, $salesCode);
 
@@ -114,6 +111,8 @@ class SummaryController extends Controller
         $dataTotalValueDO = $summaryService->totalValueDO($startDate, $endDate, $distributorID, $salesCode);
         $dataCountDO = $summaryService->countDO($startDate, $endDate, $distributorID, $salesCode);
         $dataCountMerchantDO = $summaryService->countMerchantDO($startDate, $endDate, $distributorID, $salesCode);
+
+        $dataFilter = $summaryService->dataFilter($startDate, $endDate, $distributorID, $salesCode);
 
         if ($request->ajax()) {
             if ($type == "totalValuePO") {
@@ -206,7 +205,10 @@ class SummaryController extends Controller
         }
 
         if ($type == "totalValuePO") {
-            return view('summary.report.detail.po.total-value');
+            return view('summary.report.detail.po.total-value', [
+                'data' => $dataTotalValuePO->get()->toArray(),
+                'dataFilter' => $dataFilter
+            ]);
         } elseif ($type == "countPO") {
             return view('summary.report.detail.po.count-po');
         } elseif ($type == "countMerchantPO") {
