@@ -143,9 +143,8 @@
           <div class="card-body">
             <div class="row">
               <div class="col-4 col-md-2">
-                <img src="{{ config('app.base_image_url') . '/merchant/' . $data->StoreImage }}" 
-                  alt="Store Image" class="rounded img-fluid pb-2 pb-md-0"
-                  style="object-fit: cover; width: 130px; height: 130px;">
+                <img src="{{ config('app.base_image_url') . '/merchant/' . $data->StoreImage }}" alt="Store Image"
+                  class="rounded img-fluid pb-2 pb-md-0" style="object-fit: cover; width: 130px; height: 130px;">
               </div>
               <div class="col-8 col-md-2">
                 <div class="row">
@@ -206,25 +205,54 @@
                 <p class="mb-2">{{ date('d F Y, H:i', strtotime($data->RegisterDate)) }}</p>
               </div>
               <div class="col-6 col-md-3">
+                <strong>Lama Bergabung :</strong>
+                <p class="mb-2">{{ $data->JoinedDuration }}</p>
+              </div>
+              <div class="col-6 col-md-3">
                 <strong>Terakhir Aktif :</strong>
                 <p class="mb-2">{{ date('d F Y, H:i', strtotime($data->LastPing)) }}</p>
               </div>
-              <div class="col-6 col-md-3">
-                <strong>PO Selesai :</strong>
-                <p class="mb-2">{{ $data->OrderSelesai }}</p>
-              </div>
-              <div class="col-6 col-md-3">
-                <strong>PO Batal :</strong>
-                <p class="mb-2">{{ $data->OrderBatal }}</p>
-              </div>
-              <div class="col-12 col-md-6">
+              <div class="col-12 col-md-3">
                 <strong>Pembayaran yang pernah digunakan :</strong>
                 <p class="mb-2">{{ $data->OrderPaymentMethod }}</p>
               </div>
+              <div class="col-12 col-md-6">
+                <strong>PO telah diproses</strong> (Selesai & Dikirim) <b>:</b>
+                <table class="table table-sm table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Jumlah PO</th>
+                      <th>Value PO</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="text-center">{{ $data->OrderProcessed->CountOrderProcessed }}</td>
+                      <td class="text-center">{{ $data->OrderProcessed->ValueOrderProcessed }}</td>
+                    </tr>
+                    <tr>
+                      <th colspan="2">Produk</th>
+                    </tr>
+                    @foreach ($data->OrderProcessed->DetailProduct as $item)
+                    <tr>
+                      <td class="text-center"><img src="{{ config('app.base_image_url') . '/product/'. $item->ProductImage }}"
+                        alt="{{ $item->ProductName }}" height="60"></td>
+                      <td>{{ $item->ProductID }} - {{ $item->ProductName }}</td>
+                    </tr>
+                    @endforeach
+                  </tbody>
+                </table>
+                {{-- <p class="mb-2">{{ $data->OrderSelesai }}</p> --}}
+              </div>
+              <div class="col-12 col-md-6">
+                <strong>PO Batal :</strong>
+                {{-- <p class="mb-2">{{ $data->OrderBatal }}</p> --}}
+              </div>
+
             </div>
 
             <div class="row mt-4 w-100 justify-content-center">
-              <a class="btn btn-warning update-validitas"  data-stock-order-id="{{ $data->StockOrderID }}"
+              <a class="btn btn-warning update-validitas" data-stock-order-id="{{ $data->StockOrderID }}"
                 data-is-valid="{{ $data->IsValid }}" data-validation-notes="{{ $data->ValidationNotes }}">
                 Update Validitas
               </a>
@@ -239,8 +267,8 @@
 
 @section('js-pages')
 <script defer type="text/javascript"
-    src="https://maps.googleapis.com/maps/api/js?callback=initMap&v=3&key=AIzaSyC9kPfmVtf71uGeDfHMMHDzHAl-FEBtOEw&libraries=places">
-</script>
+  src="https://maps.googleapis.com/maps/api/js?callback=initMap&v=3&key=AIzaSyC9kPfmVtf71uGeDfHMMHDzHAl-FEBtOEw&libraries=places">
+  </script>
 <script>
   const latitude = $("#latitude").text();
   const longitude = $("#longitude").text();
@@ -248,75 +276,73 @@
 
   function initMap() {
     map = new google.maps.Map(document.getElementById('google-maps'), {
-      center: {lat: parseFloat(latitude), lng: parseFloat(longitude)},
+      center: { lat: parseFloat(latitude), lng: parseFloat(longitude) },
       zoom: 17,
       mapTypeControl: false,
       streetViewControl: false
     });
     infoWindow = new google.maps.InfoWindow;
-    
+
     marker = new google.maps.Marker({
       map: map,
       draggable: false,
-      position: {lat: parseFloat(latitude), lng: parseFloat(longitude)},
-      url: 'https://www.google.co.id/maps/place/'+latitude+','+longitude
+      position: { lat: parseFloat(latitude), lng: parseFloat(longitude) },
+      url: 'https://www.google.co.id/maps/place/' + latitude + ',' + longitude
     });
-      google.maps.event.addListener(marker, 'mouseover', function(){
-        infoWindow.setContent(address);
-        infoWindow.open(map, marker);
-        });
+    google.maps.event.addListener(marker, 'mouseover', function () {
+      infoWindow.setContent(address);
+      infoWindow.open(map, marker);
+    });
 
-        google.maps.event.addListener(marker, 'mouseout', function(){
-            //
-        });
-    google.maps.event.addListener(marker, 'click', function() {
-      
+    google.maps.event.addListener(marker, 'mouseout', function () {
+      //
+    });
+    google.maps.event.addListener(marker, 'click', function () {
+
       window.open(this.url, '_blank');
     });
   }
 
-  $("#open-maps").prop("href", 'https://www.google.co.id/maps/place/'+latitude+','+longitude);
+  $("#open-maps").prop("href", 'https://www.google.co.id/maps/place/' + latitude + ',' + longitude);
 
   let csrf = $('meta[name="csrf_token"]').attr("content");
 
-    $(".update-validitas").on("click", function (e) {
-      e.preventDefault();
-      const stockOrderID = $(this).data("stock-order-id");
-      const isValid = $(this).data("is-valid");
-      const validationNotes = $(this).data("validation-notes");
+  $(".update-validitas").on("click", function (e) {
+    e.preventDefault();
+    const stockOrderID = $(this).data("stock-order-id");
+    const isValid = $(this).data("is-valid");
+    const validationNotes = $(this).data("validation-notes");
 
-      $.confirm({
-        title: "Update Validitas",
-        content: `Apakah Order <b>${stockOrderID}</b> valid?<br>
+    $.confirm({
+      title: "Update Validitas",
+      content: `Apakah Order <b>${stockOrderID}</b> valid?<br>
           <form action="/distribution/validation/update/${stockOrderID}" method="post">
             <input type="hidden" name="_token" value="${csrf}">
             <label class="mt-2 mb-0">Status Validitas:</label>
             <select class="form-control" name="is_valid">
               <option value="" hidden disabled selected>-- Pilih Status Validitas --</option>
-              <option value="1" ${
-                  isValid === 1 && "selected"
-              }>Valid</option>
-              <option value="0" ${
-                  isValid === 0 && "selected"
-              }>Tidak Valid</option>
+              <option value="1" ${isValid === 1 && "selected"
+        }>Valid</option>
+              <option value="0" ${isValid === 0 && "selected"
+        }>Tidak Valid</option>
             </select>
             <label class="mt-2 mb-0">Catatan:</label>
             <input type="text" class="form-control price" value="${validationNotes}"
               name="validation_notes" autocomplete="off" placeholder="Tambahkan Catatan (opsional)">
           </form>`,
-        closeIcon: true,
-        buttons: {
-          simpan: {
-            btnClass: "btn-success",
-            draggable: true,
-            dragWindowGap: 0,
-            action: function () {
-              this.$content.find("form").submit();
-            },
+      closeIcon: true,
+      buttons: {
+        simpan: {
+          btnClass: "btn-success",
+          draggable: true,
+          dragWindowGap: 0,
+          action: function () {
+            this.$content.find("form").submit();
           },
-          batal: function () {},
         },
-      });
+        batal: function () { },
+      },
     });
+  });
 </script>
 @endsection
