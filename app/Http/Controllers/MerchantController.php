@@ -83,6 +83,7 @@ class MerchantController extends Controller
         $toDate = $request->input('toDate');
         $distributorId = $request->input('distributorId');
         $filterAssessment = $request->input('filterAssessment');
+        $filterBlock = $request->input('filterBlock');
 
         // Get data account, jika tanggal filter kosong tampilkan semua data.
         $sqlAllAccount = DB::table('ms_merchant_account')
@@ -111,6 +112,12 @@ class MerchantController extends Controller
             $sqlAllAccount->where('ms_merchant_assessment.IsActive', 1);
         } elseif ($filterAssessment == "not-assessed") {
             $sqlAllAccount->whereRaw("(ms_merchant_assessment.MerchantAssessmentID IS NULL OR ms_merchant_assessment.IsActive = 0)");
+        }
+
+        if ($filterBlock == "blocked") {
+            $sqlAllAccount->where('ms_merchant_account.IsBlocked', 1);
+        } elseif ($filterBlock == "unblocked") {
+            $sqlAllAccount->where('ms_merchant_account.IsBlocked', 0);
         }
 
         if (Auth::user()->Depo != "ALL") {
@@ -1374,10 +1381,28 @@ class MerchantController extends Controller
 
                     return $statusOrder;
                 })
+                ->addColumn('Validation', function ($data) {
+                    if ($data->IsValid === 1) {
+                        $validation = '<span class="badge badge-success">Sudah Valid</span>';
+                    } elseif ($data->IsValid === 0) {
+                        $validation = '<span class="badge badge-danger">Tidak Valid</span>';
+                    } elseif ($data->IsValid === NULL) {
+                        $validation = '<span class="badge badge-info">Belum Divalidasi</span>';
+                    }
+                    return $validation;
+                })
                 ->filterColumn('tx_merchant_order.CreatedDate', function ($query, $keyword) {
                     $query->whereRaw("DATE_FORMAT(tx_merchant_order.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
                 })
-                ->rawColumns(['Partner', 'Action', 'Invoice', 'StatusOrder'])
+                ->filterColumn('Validation', function ($query, $keyword) {
+                    $sql = "CASE
+                                WHEN Restock.IsValid = 1 THEN 'Sudah Valid'
+                                WHEN Restock.IsValid = 0 THEN 'Tidak Valid'
+                                ELSE 'Belum Divalidasi'
+                            END like ?";
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                })
+                ->rawColumns(['Partner', 'Action', 'Invoice', 'StatusOrder', 'Validation'])
                 ->make(true);
         }
     }
@@ -1530,6 +1555,16 @@ class MerchantController extends Controller
 
                     return $statusOrder;
                 })
+                ->addColumn('Validation', function ($data) {
+                    if ($data->IsValid === 1) {
+                        $validation = '<span class="badge badge-success">Sudah Valid</span>';
+                    } elseif ($data->IsValid === 0) {
+                        $validation = '<span class="badge badge-danger">Tidak Valid</span>';
+                    } elseif ($data->IsValid === NULL) {
+                        $validation = '<span class="badge badge-info">Belum Divalidasi</span>';
+                    }
+                    return $validation;
+                })
                 ->editColumn('PurchasePriceEstimation', function ($data) {
                     if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM") {
                         $purchasePriceEstimation = $data->PurchasePriceEstimation;
@@ -1662,7 +1697,15 @@ class MerchantController extends Controller
                 ->editColumn('Price', function ($data) {
                     return "$data->Price";
                 })
-                ->rawColumns(['Partner', 'Action', 'StatusOrder'])
+                ->filterColumn('Validation', function ($query, $keyword) {
+                    $sql = "CASE
+                                WHEN RestockProduct.IsValid = 1 THEN 'Sudah Valid'
+                                WHEN RestockProduct.IsValid = 0 THEN 'Tidak Valid'
+                                ELSE 'Belum Divalidasi'
+                            END like ?";
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                })
+                ->rawColumns(['Partner', 'Action', 'StatusOrder', 'Validation'])
                 ->make(true);
         }
     }

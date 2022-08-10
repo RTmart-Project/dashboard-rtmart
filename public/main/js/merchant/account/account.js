@@ -7,7 +7,7 @@ $(document).ready(function () {
 
         $("#merchant-account .table-datatables").DataTable({
             dom:
-                "<'row'<'col-sm-12 col-md-8'<'filter-merchant-account'>tl><l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
+                "<'row'<'col-sm-12 col-md-9'<'filter-merchant-account'>tl><l><'col-sm-12 col-md-2'f><'col-sm-12 col-md-1 d-flex justify-content-end h-100'B>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
@@ -23,6 +23,9 @@ $(document).ready(function () {
                     ).val();
                     d.filterAssessment = $(
                         "#merchant-account .filter-assessment select"
+                    ).val();
+                    d.filterBlock = $(
+                        "#merchant-account .filter-block select"
                     ).val();
                 },
             },
@@ -136,7 +139,7 @@ $(document).ready(function () {
     // Create element for DateRange Filter
     $("div.filter-merchant-account").html(`
                         <div class="row">
-                            <div class="col-12 col-md-8">
+                            <div class="col-12 col-md-6">
                                 <div class="input-group">
                                     <input type="text" name="from_date" id="from_date" class="form-control form-control-sm"
                                         readonly>
@@ -147,17 +150,27 @@ $(document).ready(function () {
                                     class="btn btn-sm btn-warning ml-2">Refresh</button>
                                 </div>
                             </div>
-                            <div class="col-12 col-md-4 d-flex justify-content-center" style="gap: 3px;">
-                                <div class="select-filter-custom filter-depo mr-2">
-                                    <select>
+                            <div class="col-12 col-md-6 d-flex justify-content-center" style="gap: 3px;">
+                                <div class="filter-depo mr-1">
+                                    <select class="form-control form-control-sm">
+                                        <option value="" selected hidden disabled>Filter Depo</option>
                                         <option value="">All</option>
                                     </select>
                                 </div>
-                                <div class="select-filter-custom filter-assessment ml-2">
-                                    <select>
+                                <div class="filter-assessment ml-1">
+                                    <select class="form-control form-control-sm">
+                                        <option value="" selected hidden disabled>Filter Assessment</option>
                                         <option value="">All</option>
                                         <option value="already-assessed">Sudah Assessment</option>
                                         <option value="not-assessed">Belum Assessment</option>
+                                    </select>
+                                </div>
+                                <div class="filter-block ml-1">
+                                    <select class="form-control form-control-sm">
+                                        <option value="" selected hidden disabled>Filter Block</option>
+                                        <option value="">All</option>
+                                        <option value="blocked">Blocked</option>
+                                        <option value="unblocked">Not Blocked</option>
                                     </select>
                                 </div>
                             </div>
@@ -275,6 +288,10 @@ $(document).ready(function () {
     });
 
     $("#merchant-account .filter-assessment select").change(function () {
+        $("#merchant-account .table-datatables").DataTable().ajax.reload();
+    });
+
+    $("#merchant-account .filter-block select").change(function () {
         $("#merchant-account .table-datatables").DataTable().ajax.reload();
     });
 });

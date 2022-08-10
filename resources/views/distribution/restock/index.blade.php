@@ -124,6 +124,8 @@
                                                     <th>Partner</th>
                                                     <th>Metode Pembayaran</th>
                                                     <th>Status Order</th>
+                                                    <th>Validasi PO</th>
+                                                    <th>Catatan Validasi PO</th>
                                                     <th>Alamat</th>
                                                     <th>Total Transaksi</th>
                                                     <th>Diskon</th>
@@ -177,6 +179,8 @@
                                                     <th>No. Telp</th>
                                                     <th>Partner</th>
                                                     <th>Status Order PO</th>
+                                                    <th>Validasi PO</th>
+                                                    <th>Catatan Validasi PO</th>
                                                     <th>Delivery Order ID</th>
                                                     <th>Tanggal Kirim DO</th>
                                                     <th>Urutan DO</th>
@@ -216,6 +220,8 @@
                                                     <th>Stock Order ID</th>
                                                     <th>Tgl Transaksi</th>
                                                     <th>Distributor</th>
+                                                    <th>Validasi PO</th>
+                                                    <th>Catatan Validasi PO</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
                                                     <th>Grade</th>
@@ -245,6 +251,8 @@
                                                     <th>Stock Order ID</th>
                                                     <th>Tgl Transaksi</th>
                                                     <th>Distributor</th>
+                                                    <th>Validasi PO</th>
+                                                    <th>Catatan Validasi PO</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
                                                     <th>Grade</th>
@@ -275,6 +283,8 @@
                                                     <th>Stock Order ID</th>
                                                     <th>Tgl Transaksi</th>
                                                     <th>Distributor</th>
+                                                    <th>Validasi PO</th>
+                                                    <th>Catatan Validasi PO</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
                                                     <th>Grade</th>
@@ -304,8 +314,9 @@
                                                 <tr>
                                                     <th>Stock Order ID</th>
                                                     <th>Tgl Transaksi</th>
-                                                    <th>Tgl Kirim</th>
                                                     <th>Distributor</th>
+                                                    <th>Validasi PO</th>
+                                                    <th>Catatan Validasi PO</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
                                                     <th>Grade</th>
@@ -335,8 +346,9 @@
                                                 <tr>
                                                     <th>Stock Order ID</th>
                                                     <th>Tgl Transaksi</th>
-                                                    <th>Tgl Kirim</th>
                                                     <th>Distributor</th>
+                                                    <th>Validasi PO</th>
+                                                    <th>Catatan Validasi PO</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
                                                     <th>Grade</th>
@@ -367,6 +379,8 @@
                                                     <th>Stock Order ID</th>
                                                     <th>Tgl Pesanan</th>
                                                     <th>Distributor</th>
+                                                    <th>Validasi PO</th>
+                                                    <th>Catatan Validasi PO</th>
                                                     <th>Merchant ID</th>
                                                     <th>Nama Toko</th>
                                                     <th>Grade</th>

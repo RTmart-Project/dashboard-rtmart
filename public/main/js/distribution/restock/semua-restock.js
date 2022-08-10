@@ -66,6 +66,14 @@ $(document).ready(function () {
                     name: "ms_status_order.StatusOrder",
                 },
                 {
+                    data: "Validation",
+                    name: "Validation",
+                },
+                {
+                    data: "ValidationNotes",
+                    name: "tx_merchant_order.ValidationNotes",
+                },
+                {
                     data: "DeliveryOrderID",
                     name: "tmdo.DeliveryOrderID",
                 },
@@ -170,7 +178,7 @@ $(document).ready(function () {
                     className: "btn-sm mr-1 rounded",
                     excelStyles: [
                         {
-                            cells: "A2:J2",
+                            cells: "A2:L2",
                             style: {
                                 fill: {
                                     pattern: {
@@ -184,7 +192,7 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 8, 9, 10],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12],
                         orthogonal: "export",
                     },
                 },
@@ -201,7 +209,7 @@ $(document).ready(function () {
                     className: "btn-sm ml-1 rounded",
                     excelStyles: [
                         {
-                            cells: "A2:J2",
+                            cells: "A2:L2",
                             style: {
                                 fill: {
                                     pattern: {
@@ -211,7 +219,7 @@ $(document).ready(function () {
                             },
                         },
                         {
-                            cells: "K2:AC2",
+                            cells: "M2:AE2",
                             style: {
                                 fill: {
                                     pattern: {
@@ -228,7 +236,7 @@ $(document).ready(function () {
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15,
                             16, 17, 18, 19, 20, 21, 22, 23, 25, 26, 27, 28, 29,
-                            30,
+                            30, 31, 32,
                         ],
                         orthogonal: "export",
                     },
@@ -236,7 +244,7 @@ $(document).ready(function () {
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [7, 15, 16, 18, 20, 21, 25, 26, 27],
+                    aTargets: [7, 17, 18, 20, 22, 23, 27, 28, 29],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
@@ -252,13 +260,13 @@ $(document).ready(function () {
                     },
                 },
                 {
-                    aTargets: [15, 21, 22],
+                    aTargets: [17, 23, 24],
                     visible: false,
                 },
             ],
             order: [
                 [1, "desc"],
-                [12, "desc"],
+                [14, "desc"],
             ],
             lengthChange: false,
             responsive: true,
