@@ -39,6 +39,29 @@
     <div class="row">
       <div class="col-12">
         <div class="card">
+          <div class="card-header">
+            <div class="row align-items-center">
+              <div class="col-3">
+                <div class="info-box m-0">
+                  <span class="info-box-icon bg-success elevation-1"><i class="fas fa-store"></i></span>
+                  <div class="info-box-content">
+                    <span class="info-box-text h6 mb-2">Jumlah Toko</span>
+                    <span class="info-box-number h6 m-0">
+                      {{ $data }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-3">
+                <h6><strong>Start Date : </strong>{{ date('d F Y', strtotime($dataFilter->startDate)) }} </h6>
+                <h6><strong>End Date : </strong>{{ date('d F Y', strtotime($dataFilter->endDate)) }}</h6>
+              </div>
+              <div class="col-6">
+                <h6><strong>Distributor : </strong>{!! $dataFilter->distributor !!}</h6>
+                <h6><strong>Sales : </strong>{!! $dataFilter->sales !!}</h6>
+              </div>
+            </div>
+          </div>
           <div class="card-body">
             <div class="tab-content">
               <div class="tab-pane active" id="summary-count-merchant-po">

@@ -45,9 +45,9 @@
                 <div class="info-box m-0">
                   <span class="info-box-icon bg-success elevation-1"><i class="fas fas fa-shopping-cart"></i></span>
                   <div class="info-box-content">
-                    <span class="info-box-text h6 mb-2"><a id="total-value-po-link" target="_blank">Total PO (Value)</a></span>
-                    <span class="info-box-number h6 m-0" id="total-value-po">
-                      {{-- {{ Helper::formatCurrency(array_sum(array_column($data, 'SubTotalProduct')), 'Rp ') }} --}}
+                    <span class="info-box-text h6 mb-2">Total PO (Value)</span>
+                    <span class="info-box-number h6 m-0">
+                      {{ Helper::formatCurrency(array_sum(array_column($data, 'NettPrice')), 'Rp ') }}
                     </span>
                   </div>
                 </div>

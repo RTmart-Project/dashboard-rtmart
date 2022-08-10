@@ -206,19 +206,34 @@ class SummaryController extends Controller
 
         if ($type == "totalValuePO") {
             return view('summary.report.detail.po.total-value', [
-                'data' => $dataTotalValuePO->get()->toArray(),
+                'data' => (clone $dataTotalValuePO)->distinct('tmo.StockOrderID')->select('tmo.StockOrderID', 'tmo.NettPrice')->get()->toArray(),
                 'dataFilter' => $dataFilter
             ]);
         } elseif ($type == "countPO") {
-            return view('summary.report.detail.po.count-po');
+            return view('summary.report.detail.po.count-po', [
+                'data' => (clone $dataCountPO)->count(),
+                'dataFilter' => $dataFilter
+            ]);
         } elseif ($type == "countMerchantPO") {
-            return view('summary.report.detail.po.count-merchant');
+            return view('summary.report.detail.po.count-merchant', [
+                'data' => (clone $dataCountMerchantPO)->count(),
+                'dataFilter' => $dataFilter
+            ]);
         } elseif ($type == "totalValueDO") {
-            return view('summary.report.detail.do.total-value');
+            return view('summary.report.detail.do.total-value', [
+                'data' => (clone $dataTotalValueDO)->groupBy('tmdo.DeliveryOrderID')->get()->toArray(),
+                'dataFilter' => $dataFilter
+            ]);
         } elseif ($type == "countDO") {
-            return view('summary.report.detail.do.count-do');
+            return view('summary.report.detail.do.count-do', [
+                'data' => (clone $dataCountDO)->count(),
+                'dataFilter' => $dataFilter
+            ]);
         } elseif ($type == "countMerchantDO") {
-            return view('summary.report.detail.do.count-merchant');
+            return view('summary.report.detail.do.count-merchant', [
+                'data' => (clone $dataCountMerchantDO)->get()->count(),
+                'dataFilter' => $dataFilter
+            ]);
         }
     }
 }

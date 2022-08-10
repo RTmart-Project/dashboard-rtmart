@@ -375,10 +375,10 @@ class SummaryService
             SELECT COUNT(DISTINCT SummaryDO.MerchantID)
         ) as CountMerchantDO,
         (
-            SELECT $valueMarginDO
+            SELECT $valueMarginDO - SUM(SummaryDO.Discount)
         ) as ValueMarginReal,
         (
-            SELECT ROUND($valueMarginDO / ($valueDO - SUM(SummaryDO.Discount)) * 100, 2)
+            SELECT ROUND(($valueMarginDO - SUM(SummaryDO.Discount)) / ($valueDO - SUM(SummaryDO.Discount)) * 100, 2)
         ) as PercentMarginReal
     ");
 
@@ -418,7 +418,7 @@ class SummaryService
     $sql = $this->queryPO($startDate, $endDate, $distributorID, $salesCode)
       ->join('tx_merchant_order_detail as tmod', 'tmo.StockOrderID', 'tmod.StockOrderID')
       ->join('ms_product', 'ms_product.ProductID', 'tmod.ProductID')
-      ->select('tmo.StockOrderID', 'tmo.CreatedDate', 'tmo.MerchantID', 'mma.StoreName', 'mma.OwnerFullName', 'mma.PhoneNumber', 'mma.StoreAddress', 'mma.Partner', 'ms_distributor.DistributorName', 'ms_payment_method.PaymentMethodName', 'tmo.StatusOrderID', 'ms_status_order.StatusOrder', 'tmo.TotalPrice', 'tmo.DiscountPrice', 'tmo.DiscountVoucher', 'tmo.ServiceChargeNett', 'tmo.DeliveryFee', DB::raw("(tmo.NettPrice + tmo.ServiceChargeNett + tmo.DeliveryFee) as GrandTotal"), DB::raw("CONCAT(tmo.SalesCode, ' - ', ms_sales.SalesName) as Sales"), 'tmod.ProductID', 'ms_product.ProductName', 'tmod.PromisedQuantity', 'tmod.Nett', DB::raw("(tmod.PromisedQuantity * tmod.Nett) as SubTotalProduct"));
+      ->select('tmo.StockOrderID', 'tmo.CreatedDate', 'tmo.MerchantID', 'mma.StoreName', 'mma.OwnerFullName', 'mma.PhoneNumber', 'mma.StoreAddress', 'mma.Partner', 'ms_distributor.DistributorName', 'ms_payment_method.PaymentMethodName', 'tmo.StatusOrderID', 'ms_status_order.StatusOrder', 'tmo.TotalPrice', 'tmo.NettPrice', 'tmo.DiscountPrice', 'tmo.DiscountVoucher', 'tmo.ServiceChargeNett', 'tmo.DeliveryFee', DB::raw("(tmo.NettPrice + tmo.ServiceChargeNett + tmo.DeliveryFee) as GrandTotal"), DB::raw("CONCAT(tmo.SalesCode, ' - ', ms_sales.SalesName) as Sales"), 'tmod.ProductID', 'ms_product.ProductName', 'tmod.PromisedQuantity', 'tmod.Nett', DB::raw("(tmod.PromisedQuantity * tmod.Nett) as SubTotalProduct"));
 
     return $sql;
   }
@@ -472,20 +472,41 @@ class SummaryService
         $join->on('tmed.DeliveryOrderDetailID', 'tmdod.DeliveryOrderDetailID');
         $join->whereIn('tmed.StatusExpeditionDetail', ['S030', 'S031']);
       })
-      ->select('tmdo.DeliveryOrderID', 'tmdo.StatusDO', 'ms_status_order.StatusOrder', 'tmdo.StockOrderID', 'tmed.MerchantExpeditionID', 'tmdo.CreatedDate', 'mma.MerchantID', 'mma.StoreName', 'mma.OwnerFullName', 'mma.PhoneNumber', 'mma.StoreAddress', 'mma.Partner', 'ms_distributor.DistributorName', 'ms_payment_method.PaymentMethodName', 'tmdod.ProductID', 'ms_product.ProductName', 'tmdod.Qty', 'tmdod.Price', DB::raw("(tmdod.Qty * tmdod.Price) as ValueProduct"), 'tmdo.Discount', 'tmdo.ServiceCharge', 'tmdo.DeliveryFee', DB::raw("CONCAT(tmo.SalesCode, ' - ', ms_sales.SalesName) as Sales"))->get();
-
-    foreach ($sql as $key => $value) {
-      $subTotal = 0;
-      $detailDO = DB::table('tx_merchant_delivery_order_detail')
-        ->where('DeliveryOrderID', $value->DeliveryOrderID)
-        ->select('Qty', 'Price')
-        ->get();
-
-      foreach ($detailDO as $key => $detail) {
-        $subTotal += $detail->Qty * $detail->Price;
-      }
-      $value->SubTotal = $subTotal;
-    }
+      ->selectRaw("
+        tmdo.DeliveryOrderID,
+        tmdo.StatusDO,
+        ANY_VALUE(ms_status_order.StatusOrder) AS StatusOrder,
+        tmdo.StockOrderID,
+        ANY_VALUE(tmed.MerchantExpeditionID) AS MerchantExpeditionID,
+        tmdo.CreatedDate,
+        ANY_VALUE(mma.MerchantID) AS MerchantID,
+        ANY_VALUE(mma.StoreName) AS StoreName,
+        ANY_VALUE(mma.OwnerFullName) AS OwnerFullName,
+        ANY_VALUE(mma.PhoneNumber) AS PhoneNumber,
+        ANY_VALUE(mma.StoreAddress) AS StoreAddress,
+        ANY_VALUE(mma.Partner) AS Partner,
+        ANY_VALUE(ms_distributor.DistributorName) AS DistributorName,
+        ANY_VALUE(ms_payment_method.PaymentMethodName) AS PaymentMethodName,
+        ANY_VALUE(tmdod.ProductID) AS ProductID,
+        ANY_VALUE(ms_product.ProductName) AS ProductName,
+        ANY_VALUE(tmdod.Qty) AS Qty,
+        ANY_VALUE(tmdod.Price) AS Price,
+        ANY_VALUE(tmdod.Qty) * ANY_VALUE(tmdod.Price) as ValueProduct,
+        tmdo.Discount,
+        tmdo.ServiceCharge,
+        tmdo.DeliveryFee,
+        CONCAT(ANY_VALUE(tmo.SalesCode), ' - ', ANY_VALUE(ms_sales.SalesName)) as Sales,
+        (
+          SELECT SUM(Qty * Price)
+          FROM tx_merchant_delivery_order_detail
+          WHERE DeliveryOrderID = tmdo.DeliveryOrderID
+        ) AS SubTotal,
+        (
+          SELECT SUM(Qty * Price) - tmdo.Discount
+          FROM tx_merchant_delivery_order_detail
+          WHERE DeliveryOrderID = tmdo.DeliveryOrderID
+        ) AS SubTotalMinVoucher
+      ");
 
     return $sql;
   }
