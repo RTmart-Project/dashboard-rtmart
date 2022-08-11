@@ -90,6 +90,7 @@ class RestockService
         ms_merchant_account.StoreAddressNote,
         ms_merchant_account.CreatedDate AS RegisterDate,
         ms_merchant_account.LastPing,
+        ms_merchant_account.IsBlocked,
         (
           SELECT CONCAT(IFNULL(COUNT(StockOrderID), 0), ' order - (Rp ', IFNULL(FORMAT(SUM(NettPrice), 0), 0), ')')
           FROM tx_merchant_order
@@ -132,24 +133,45 @@ class RestockService
 
     $sql->JoinedDuration = $joinedDuration;
 
-    $orderProcessed = DB::table('tx_merchant_order')
+    $sqlOrder = DB::table('tx_merchant_order')
       ->where('tx_merchant_order.MerchantID', $sql->MerchantID)
-      ->whereIn('tx_merchant_order.StatusOrderID', ['S012', 'S018'])
       ->selectRaw("
-        COUNT(StockOrderID) AS CountOrderProcessed,
-        CONCAT('Rp ', IFNULL(FORMAT(SUM(NettPrice), 0, 'id_ID'), 0)) AS ValueOrderProcessed
-      ")
-      ->first();
+        COUNT(StockOrderID) AS CountOrder,
+        CONCAT('Rp ', IFNULL(FORMAT(SUM(NettPrice), 0, 'id_ID'), 0)) AS ValueOrder
+      ");
 
-    $orderProcessed->DetailProduct = DB::table('tx_merchant_order')
+    $sqlOrderDetail = DB::table('tx_merchant_order')
       ->join('tx_merchant_order_detail', 'tx_merchant_order_detail.StockOrderID', 'tx_merchant_order.StockOrderID')
       ->join('ms_product', 'ms_product.ProductID', 'tx_merchant_order_detail.ProductID')
       ->where('tx_merchant_order.MerchantID', $sql->MerchantID)
       ->select('tx_merchant_order_detail.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage')
-      ->groupBy('tx_merchant_order_detail.ProductID')
+      ->groupBy('tx_merchant_order_detail.ProductID');
+
+    $orderProcessed = (clone $sqlOrder)
+      ->whereIn('tx_merchant_order.StatusOrderID', ['S012', 'S018'])
+      ->first();
+
+    $orderProcessed->DetailProduct = (clone $sqlOrderDetail)
+      ->whereIn('tx_merchant_order.StatusOrderID', ['S012', 'S018'])
       ->get()->toArray();
 
     $sql->OrderProcessed = $orderProcessed;
+
+    $orderNotProcessed = (clone $sqlOrder)
+      ->whereNotIn('tx_merchant_order.StatusOrderID', ['S012', 'S018'])
+      ->first();
+
+    $orderNotProcessed->DetailProduct = (clone $sqlOrderDetail)
+      ->whereNotIn('tx_merchant_order.StatusOrderID', ['S012', 'S018'])
+      ->get()->toArray();
+
+    $sql->OrderNotProcessed = $orderNotProcessed;
+
+    $sql->LogBlocked = DB::table('ms_merchant_account_block_log')
+      ->where('MerchantID', $sql->MerchantID)
+      ->select('IsBlocked', 'BlockedMessage', 'CreatedDate', 'ActionBy')
+      ->orderByDesc('CreatedDate')
+      ->get()->toArray();
 
     return $sql;
   }

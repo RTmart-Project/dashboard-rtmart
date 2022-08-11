@@ -103,8 +103,6 @@ class DistributionController extends Controller
     {
         $data = $restockService->dataDetailValidation($stockOrderID);
 
-        // dd($data);
-
         return view('distribution.validation.detail', [
             'data' => $data
         ]);

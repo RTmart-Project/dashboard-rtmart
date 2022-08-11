@@ -227,26 +227,135 @@
                   </thead>
                   <tbody>
                     <tr>
-                      <td class="text-center">{{ $data->OrderProcessed->CountOrderProcessed }}</td>
-                      <td class="text-center">{{ $data->OrderProcessed->ValueOrderProcessed }}</td>
+                      <td class="text-center">{{ $data->OrderProcessed->CountOrder }}</td>
+                      <td class="text-center">{{ $data->OrderProcessed->ValueOrder }}</td>
                     </tr>
                     <tr>
-                      <th colspan="2">Produk</th>
+                      <td colspan="2">
+                        <div class="card card-info m-0 card-outline collapsed-card">
+                          <div class="card-header py-2 pl-2 pr-3">
+                            <h3 class="card-title">Detail Produk ({{ count($data->OrderProcessed->DetailProduct) }}
+                              produk)</h3>
+                            <div class="card-tools">
+                              <button type="button" class="btn btn-tool" data-card-widget="collapse"><i
+                                  class="fas fa-plus"></i>
+                              </button>
+                            </div>
+                          </div>
+                          <div class="card-body p-2">
+                            <table class="table table-sm">
+                              <tbody>
+                                @foreach ($data->OrderProcessed->DetailProduct as $item)
+                                <tr>
+                                  <td class="text-center align-middle">{{ $loop->iteration }}</td>
+                                  <td class="text-center">
+                                    <img src="{{ config('app.base_image_url') . '/product/'. $item->ProductImage }}"
+                                      alt="{{ $item->ProductName }}" height="60">
+                                  </td>
+                                  <td class="align-middle">{{ $item->ProductID }} - {{ $item->ProductName }}</td>
+                                </tr>
+                                @endforeach
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </td>
                     </tr>
-                    @foreach ($data->OrderProcessed->DetailProduct as $item)
-                    <tr>
-                      <td class="text-center"><img src="{{ config('app.base_image_url') . '/product/'. $item->ProductImage }}"
-                        alt="{{ $item->ProductName }}" height="60"></td>
-                      <td>{{ $item->ProductID }} - {{ $item->ProductName }}</td>
-                    </tr>
-                    @endforeach
                   </tbody>
                 </table>
-                {{-- <p class="mb-2">{{ $data->OrderSelesai }}</p> --}}
               </div>
               <div class="col-12 col-md-6">
-                <strong>PO Batal :</strong>
-                {{-- <p class="mb-2">{{ $data->OrderBatal }}</p> --}}
+                <strong>PO belum diproses</strong> (Pesanan Baru, Dikonfirmasi, Dalam Proses, & Dibatalkan) <b>:</b>
+                <table class="table table-sm table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Jumlah PO</th>
+                      <th>Value PO</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="text-center">{{ $data->OrderNotProcessed->CountOrder }}</td>
+                      <td class="text-center">{{ $data->OrderNotProcessed->ValueOrder }}</td>
+                    </tr>
+                    <tr>
+                      <td colspan="2">
+                        <div class="card card-info m-0 card-outline collapsed-card">
+                          <div class="card-header py-2 pl-2 pr-3">
+                            <h3 class="card-title">Detail Produk ({{ count($data->OrderNotProcessed->DetailProduct) }}
+                              produk)</h3>
+                            <div class="card-tools">
+                              <button type="button" class="btn btn-tool" data-card-widget="collapse"><i
+                                  class="fas fa-plus"></i>
+                              </button>
+                            </div>
+                          </div>
+                          <div class="card-body p-2">
+                            <table class="table table-sm">
+                              <tbody>
+                                @foreach ($data->OrderNotProcessed->DetailProduct as $item)
+                                <tr>
+                                  <td class="text-center align-middle">{{ $loop->iteration }}</td>
+                                  <td class="text-center">
+                                    <img src="{{ config('app.base_image_url') . '/product/'. $item->ProductImage }}"
+                                      alt="{{ $item->ProductName }}" height="60">
+                                  </td>
+                                  <td class="align-middle">{{ $item->ProductID }} - {{ $item->ProductName }}</td>
+                                </tr>
+                                @endforeach
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="col-12 col-md-6">
+                <strong>Status Toko Saat Ini : 
+                  {!! $data->IsBlocked === 1 ? 
+                    "<span class='badge badge-danger' style='font-size:12px'>Block</span>" : 
+                    "<span class='badge badge-success' style='font-size:12px'>Not Blocked</span>" !!}
+                </strong>
+                <div class="card card-info card-outline collapsed-card">
+                  <div class="card-header py-2 pl-2 pr-3">
+                    <h3 class="card-title">Log Perubahan Status Block</h3>
+                    <div class="card-tools">
+                      <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-plus"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="card-body p-2">
+                    <table class="table table-sm">
+                      <thead>
+                        <tr>
+                          <th>Status Block</th>
+                          <th>Catatan</th>
+                          <th>Tanggal Perubahan</th>
+                          <th>Diubah Oleh</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @if (count($data->LogBlocked) > 0)
+                          @foreach ($data->LogBlocked as $value)
+                          <tr>
+                            <td>{{ $value->IsBlocked == 1 ? 'Block' : 'Unblock' }}</td>
+                            <td>{{ $value->BlockedMessage }}</td>
+                            <td>{{ date('d M Y, H:i:s', strtotime($value->CreatedDate)) }}</td>
+                            <td>{{ $value->ActionBy }}</td>
+                          </tr>
+                          @endforeach
+                        @else
+                          <tr>
+                            <td colspan="4" class="text-center py-4">Belum ada log perubahan status block</td>
+                          </tr>
+                        @endif
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
 
             </div>
