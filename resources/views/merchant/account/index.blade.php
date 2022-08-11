@@ -264,6 +264,8 @@
                                                     <th>No. Telp</th>
                                                     <th>Grade</th>
                                                     <th>Tgl Registrasi</th>
+                                                    <th>Latitude</th>
+                                                    <th>Longitude</th>
                                                     <th style="width: 35%">Alamat</th>
                                                     <th>Referral</th>
                                                     <th>Nama Sales</th>
