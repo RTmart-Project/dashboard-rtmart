@@ -83,6 +83,7 @@ class MerchantController extends Controller
         $toDate = $request->input('toDate');
         $distributorId = $request->input('distributorId');
         $filterAssessment = $request->input('filterAssessment');
+        $filterBlock = $request->input('filterBlock');
 
         // Get data account, jika tanggal filter kosong tampilkan semua data.
         $sqlAllAccount = DB::table('ms_merchant_account')
@@ -95,7 +96,7 @@ class MerchantController extends Controller
                 $join->where('ms_merchant_assessment.IsActive', 1);
             })
             ->where('ms_merchant_account.IsTesting', 0)
-            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.CreatedDate', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_distributor.DistributorName', 'ms_distributor_grade.Grade', 'ms_merchant_assessment.MerchantAssessmentID', 'ms_merchant_assessment.IsActive', 'ms_sales.SalesName');
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.CreatedDate', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_distributor.DistributorName', 'ms_distributor_grade.Grade', 'ms_merchant_assessment.MerchantAssessmentID', 'ms_merchant_assessment.IsActive', 'ms_sales.SalesName', 'ms_merchant_account.IsBlocked', 'ms_merchant_account.BlockedMessage');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
@@ -111,6 +112,12 @@ class MerchantController extends Controller
             $sqlAllAccount->where('ms_merchant_assessment.IsActive', 1);
         } elseif ($filterAssessment == "not-assessed") {
             $sqlAllAccount->whereRaw("(ms_merchant_assessment.MerchantAssessmentID IS NULL OR ms_merchant_assessment.IsActive = 0)");
+        }
+
+        if ($filterBlock == "blocked") {
+            $sqlAllAccount->where('ms_merchant_account.IsBlocked', 1);
+        } elseif ($filterBlock == "unblocked") {
+            $sqlAllAccount->where('ms_merchant_account.IsBlocked', 0);
         }
 
         if (Auth::user()->Depo != "ALL") {
@@ -142,6 +149,14 @@ class MerchantController extends Controller
                         $grade = $data->Grade;
                     }
                     return $grade;
+                })
+                ->addColumn('StatusBlock', function ($data) {
+                    if ($data->IsBlocked == 1) {
+                        $statusBlock = "Blocked";
+                    } else {
+                        $statusBlock = "Not Blocked";
+                    }
+                    return $statusBlock;
                 })
                 ->addColumn('Product', function ($data) {
                     $productBtn = '<a href="/merchant/account/product/' . $data->MerchantID . '" class="btn-sm btn-info detail-order">Detail</a>';
@@ -181,7 +196,7 @@ class MerchantController extends Controller
         $merchantById = DB::table('ms_merchant_account')
             ->leftJoin('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
             ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'ms_merchant_account.MerchantID')
-            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'ms_distributor.DistributorID', 'ms_distributor.DistributorName', 'ms_distributor_merchant_grade.GradeID', 'ms_merchant_account.ReferralCode', 'ms_merchant_account.Latitude', 'ms_merchant_account.Longitude', 'ms_merchant_account.ReferralCode')
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'ms_distributor.DistributorID', 'ms_distributor.DistributorName', 'ms_distributor_merchant_grade.GradeID', 'ms_merchant_account.ReferralCode', 'ms_merchant_account.Latitude', 'ms_merchant_account.Longitude', 'ms_merchant_account.ReferralCode', 'ms_merchant_account.IsBlocked', 'ms_merchant_account.BlockedMessage')
             ->where('ms_merchant_account.MerchantID', '=', $merchantId)
             ->first();
 
@@ -215,14 +230,6 @@ class MerchantController extends Controller
 
     public function updateAccount(Request $request, $merchantId)
     {
-        $merchantGrade = DB::table('ms_distributor_merchant_grade')
-            ->where('MerchantID', '=', $merchantId)
-            ->select('MerchantID')->first();
-
-        $merchant = DB::table('ms_merchant_account')
-            ->where('MerchantID', '=', $merchantId)
-            ->select('ReferralCode')->first();
-
         $request->validate([
             'store_name' => 'required|string',
             'owner_name' => 'required|string',
@@ -239,8 +246,18 @@ class MerchantController extends Controller
             'longitude' => 'required'
         ]);
 
+        $merchantGrade = DB::table('ms_distributor_merchant_grade')
+            ->where('MerchantID', '=', $merchantId)
+            ->select('MerchantID')->first();
+
+        $merchant = DB::table('ms_merchant_account')
+            ->where('MerchantID', '=', $merchantId)
+            ->select('ReferralCode', 'IsBlocked')->first();
+
         $user = Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo;
         $referralCode = $request->input('referral_code');
+        $isBlocked = $request->input('is_blocked');
+        $blockedMessage = $request->input('blocked_message');
 
         $data = [
             'StoreName' => $request->input('store_name'),
@@ -253,7 +270,9 @@ class MerchantController extends Controller
             'StoreAddress' => $request->input('address'),
             'ReferralCode' => $referralCode,
             'Latitude' => $request->input('latitude'),
-            'Longitude' => $request->input('longitude')
+            'Longitude' => $request->input('longitude'),
+            'IsBlocked' => $isBlocked,
+            'BlockedMessage' => $blockedMessage
         ];
 
         $dataGrade = [
@@ -263,7 +282,7 @@ class MerchantController extends Controller
         ];
 
         try {
-            DB::transaction(function () use ($merchantId, $merchantGrade, $data, $dataGrade, $merchant, $referralCode, $user) {
+            DB::transaction(function () use ($merchantId, $merchantGrade, $data, $dataGrade, $merchant, $referralCode, $isBlocked, $blockedMessage, $user) {
                 DB::table('ms_merchant_account')
                     ->where('MerchantID', '=', $merchantId)
                     ->update($data);
@@ -281,6 +300,16 @@ class MerchantController extends Controller
                             'MerchantID' => $merchantId,
                             'SalesCodeBefore' => $merchant->ReferralCode,
                             'SalesCodeAfter' => $referralCode,
+                            'CreatedDate' => date('Y-m-d H:i:s'),
+                            'ActionBy' => $user
+                        ]);
+                }
+                if ($merchant->IsBlocked != $isBlocked) {
+                    DB::table('ms_merchant_account_block_log')
+                        ->insert([
+                            'MerchantID' => $merchantId,
+                            'IsBlocked' => $isBlocked,
+                            'BlockedMessage' => $blockedMessage,
                             'CreatedDate' => date('Y-m-d H:i:s'),
                             'ActionBy' => $user
                         ]);
@@ -313,11 +342,18 @@ class MerchantController extends Controller
             ->orderByDesc('ms_sales_merchant_relation_log.CreatedDate')
             ->get();
 
+        $logBlocked = DB::table('ms_merchant_account_block_log')
+            ->where('MerchantID', $merchantId)
+            ->select('IsBlocked', 'BlockedMessage', 'CreatedDate', 'ActionBy')
+            ->orderByDesc('CreatedDate')
+            ->get();
+
         return view('merchant.product.index', [
             'merchantId' => $merchantId,
             'merchant' => $merchant,
             'operationalHour' => $operationalHour,
-            'logSales' => $logSales
+            'logSales' => $logSales,
+            'logBlocked' => $logBlocked
         ]);
     }
 
@@ -1345,10 +1381,28 @@ class MerchantController extends Controller
 
                     return $statusOrder;
                 })
+                ->addColumn('Validation', function ($data) {
+                    if ($data->IsValid === 1) {
+                        $validation = '<span class="badge badge-success">Sudah Valid</span>';
+                    } elseif ($data->IsValid === 0) {
+                        $validation = '<span class="badge badge-danger">Tidak Valid</span>';
+                    } elseif ($data->IsValid === NULL) {
+                        $validation = '<span class="badge badge-info">Belum Divalidasi</span>';
+                    }
+                    return $validation;
+                })
                 ->filterColumn('tx_merchant_order.CreatedDate', function ($query, $keyword) {
                     $query->whereRaw("DATE_FORMAT(tx_merchant_order.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
                 })
-                ->rawColumns(['Partner', 'Action', 'Invoice', 'StatusOrder'])
+                ->filterColumn('Validation', function ($query, $keyword) {
+                    $sql = "CASE
+                                WHEN Restock.IsValid = 1 THEN 'Sudah Valid'
+                                WHEN Restock.IsValid = 0 THEN 'Tidak Valid'
+                                ELSE 'Belum Divalidasi'
+                            END like ?";
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                })
+                ->rawColumns(['Partner', 'Action', 'Invoice', 'StatusOrder', 'Validation'])
                 ->make(true);
         }
     }
@@ -1501,6 +1555,16 @@ class MerchantController extends Controller
 
                     return $statusOrder;
                 })
+                ->addColumn('Validation', function ($data) {
+                    if ($data->IsValid === 1) {
+                        $validation = '<span class="badge badge-success">Sudah Valid</span>';
+                    } elseif ($data->IsValid === 0) {
+                        $validation = '<span class="badge badge-danger">Tidak Valid</span>';
+                    } elseif ($data->IsValid === NULL) {
+                        $validation = '<span class="badge badge-info">Belum Divalidasi</span>';
+                    }
+                    return $validation;
+                })
                 ->editColumn('PurchasePriceEstimation', function ($data) {
                     if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM") {
                         $purchasePriceEstimation = $data->PurchasePriceEstimation;
@@ -1633,7 +1697,15 @@ class MerchantController extends Controller
                 ->editColumn('Price', function ($data) {
                     return "$data->Price";
                 })
-                ->rawColumns(['Partner', 'Action', 'StatusOrder'])
+                ->filterColumn('Validation', function ($query, $keyword) {
+                    $sql = "CASE
+                                WHEN RestockProduct.IsValid = 1 THEN 'Sudah Valid'
+                                WHEN RestockProduct.IsValid = 0 THEN 'Tidak Valid'
+                                ELSE 'Belum Divalidasi'
+                            END like ?";
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                })
+                ->rawColumns(['Partner', 'Action', 'StatusOrder', 'Validation'])
                 ->make(true);
         }
     }

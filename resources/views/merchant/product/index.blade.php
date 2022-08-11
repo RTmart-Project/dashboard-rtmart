@@ -85,90 +85,132 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-12 col-12 mt-1">
-                            <div class="card card-primary card-outline collapsed-card">
-                                <div class="card-header">
-                                    <h3 class="card-title">Operational Hour</h3>
-                                    <div class="card-tools">
-                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i
-                                                class="fas fa-plus"></i></button>
+                        <div class="row">
+                            <div class="col-md-6 col-12 mt-1">
+                                <div class="card card-primary card-outline collapsed-card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Operational Hour</h3>
+                                        <div class="card-tools">
+                                            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i
+                                                    class="fas fa-plus"></i></button>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="card-body p-0">
-                                                <div class="row">
-                                                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" ||
-                                                    Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "AH" ||
-                                                    Auth::user()->RoleID == "HR")
-                                                    <div class="ml-auto pr-2">
-                                                        <a href="{{ route('merchant.editOperationalHour', ['merchantId' => $merchantId]) }}"
-                                                            class="btn btn-warning btn-sm">Edit</a>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="card-body p-0">
+                                                    <div class="row">
+                                                        @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" ||
+                                                        Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "AH" ||
+                                                        Auth::user()->RoleID == "HR")
+                                                        <div class="ml-auto pr-2">
+                                                            <a href="{{ route('merchant.editOperationalHour', ['merchantId' => $merchantId]) }}"
+                                                                class="btn btn-warning btn-sm">Edit</a>
+                                                        </div>
+                                                        @endif
                                                     </div>
-                                                    @endif
+                                                    <table class="table table-sm">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Hari</th>
+                                                                <th>Jam Buka</th>
+                                                                <th>Jam Tutup</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach ($operationalHour as $value)
+                                                            <tr>
+                                                                <td>{{ $value->DayOfWeek }}</td>
+                                                                <td>{{ date('H:i', strtotime($value->OpeningHour)) }}</td>
+                                                                <td>{{ date('H:i', strtotime($value->ClosingHour)) }}</td>
+                                                            </tr>
+                                                            @endforeach
+                                                        </tbody>
+                                                    </table>
                                                 </div>
-                                                <table class="table table-sm">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Hari</th>
-                                                            <th>Jam Buka</th>
-                                                            <th>Jam Tutup</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        @foreach ($operationalHour as $value)
-                                                        <tr>
-                                                            <td>{{ $value->DayOfWeek }}</td>
-                                                            <td>{{ date('H:i', strtotime($value->OpeningHour)) }}</td>
-                                                            <td>{{ date('H:i', strtotime($value->ClosingHour)) }}</td>
-                                                        </tr>
-                                                        @endforeach
-                                                    </tbody>
-                                                </table>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-md-12 col-12 mt-1">
-                            <div class="card card-warning card-outline collapsed-card">
-                                <div class="card-header">
-                                    <h3 class="card-title">Log Perubahan Sales</h3>
-                                    <div class="card-tools">
-                                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                            <i class="fas fa-plus"></i>
-                                        </button>
+                            <div class="col-md-6 col-12 mt-1">
+                                <div class="card card-warning card-outline collapsed-card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Log Perubahan Sales</h3>
+                                        <div class="card-tools">
+                                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <table class="table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    <th>Sales Sebelumnya</th>
+                                                    <th>Sales Setelahnya</th>
+                                                    <th>Tanggal Perubahan</th>
+                                                    <th>Diubah Oleh</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @if ($logSales->count() > 0)
+                                                    @foreach ($logSales as $value)
+                                                    <tr>
+                                                        <td>{{ $value->SalesCodeBefore }} - {{ $value->SalesNameBefore }}</td>
+                                                        <td>{{ $value->SalesCodeAfter }} - {{ $value->SalesNameAfter }}</td>
+                                                        <td>{{ date('d M Y, H:i:s', strtotime($value->CreatedDate)) }}</td>
+                                                        <td>{{ $value->ActionBy }}</td>
+                                                    </tr>
+                                                    @endforeach
+                                                @else
+                                                    <tr>
+                                                        <td colspan="4" class="text-center py-4">Belum ada log perubahan sales</td>
+                                                    </tr>
+                                                @endif
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
-                                <div class="card-body">
-                                    <table class="table table-sm">
-                                        <thead>
-                                            <tr>
-                                                <th>Sales Sebelumnya</th>
-                                                <th>Sales Setelahnya</th>
-                                                <th>Tanggal Perubahan</th>
-                                                <th>Diubah Oleh</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @if ($logSales->count() > 0)
-                                                @foreach ($logSales as $value)
+                            </div>
+                            <div class="col-md-6 col-12 mt-1">
+                                <div class="card card-info card-outline collapsed-card">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Log Perubahan Status Block</h3>
+                                        <div class="card-tools">
+                                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                                <i class="fas fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <table class="table table-sm">
+                                            <thead>
                                                 <tr>
-                                                    <td>{{ $value->SalesCodeBefore }} - {{ $value->SalesNameBefore }}</td>
-                                                    <td>{{ $value->SalesCodeAfter }} - {{ $value->SalesNameAfter }}</td>
-                                                    <td>{{ date('d M Y, H:i:s', strtotime($value->CreatedDate)) }}</td>
-                                                    <td>{{ $value->ActionBy }}</td>
+                                                    <th>Status Block</th>
+                                                    <th>Catatan</th>
+                                                    <th>Tanggal Perubahan</th>
+                                                    <th>Diubah Oleh</th>
                                                 </tr>
-                                                @endforeach
-                                            @else
-                                                <tr>
-                                                    <td colspan="4" class="text-center py-4">Belum ada log perubahan sales</td>
-                                                </tr>
-                                            @endif
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody>
+                                                @if ($logBlocked->count() > 0)
+                                                    @foreach ($logBlocked as $value)
+                                                    <tr>
+                                                        <td>{{ $value->IsBlocked == 1 ? 'Block' : 'Unblock' }}</td>
+                                                        <td>{{ $value->BlockedMessage }}</td>
+                                                        <td>{{ date('d M Y, H:i:s', strtotime($value->CreatedDate)) }}</td>
+                                                        <td>{{ $value->ActionBy }}</td>
+                                                    </tr>
+                                                    @endforeach
+                                                @else
+                                                    <tr>
+                                                        <td colspan="4" class="text-center py-4">Belum ada log perubahan status block</td>
+                                                    </tr>
+                                                @endif
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </div>

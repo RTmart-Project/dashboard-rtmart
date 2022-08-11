@@ -7,14 +7,12 @@ use App\Services\DeliveryOrderService;
 use App\Services\HaistarService;
 use App\Services\MerchantService;
 use App\Services\PayLaterService;
-use App\Services\TxLogService;
+use App\Services\RestockService;
 use Illuminate\Support\Str;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redis;
-use PHPUnit\TextUI\Help;
 use stdClass;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -27,6 +25,99 @@ class DistributionController extends Controller
     {
         $this->saveImageUrl = config('app.save_image_url');
         $this->baseImageUrl = config('app.base_image_url');
+    }
+
+    public function validationRestock()
+    {
+        return view('distribution.validation.index');
+    }
+
+    public function getValidationRestock(Request $request, RestockService $restockService)
+    {
+        $fromDate = $request->input('fromDate');
+        $toDate = $request->input('toDate');
+
+        $sqlGetValidation = $restockService->getRestokValidation();
+        if (Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $sqlGetValidation->where('ms_distributor.Depo', '=', $depoUser);
+        }
+
+        // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
+        if ($fromDate != '' && $toDate != '') {
+            $sqlGetValidation->whereDate('tmo.CreatedDate', '>=', $fromDate)
+                ->whereDate('tmo.CreatedDate', '<=', $toDate);
+        }
+
+        $data = $sqlGetValidation;
+
+        if ($request->ajax()) {
+            return Datatables::of($data)
+                ->editColumn('CreatedDate', function ($data) {
+                    return date('d M Y H:i', strtotime($data->CreatedDate));
+                })
+                ->editColumn('PhoneNumber', function ($data) {
+                    return '<a href="https://wa.me/' . $data->PhoneNumber . '" target="_blank">' . $data->PhoneNumber . '</a>';
+                })
+                ->filterColumn('Sales', function ($query, $keyword) {
+                    $sql = "CONCAT(tmo.SalesCode,' - ',ms_sales.SalesName)  like ?";
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                })
+                ->editColumn('Validation', function ($data) {
+                    if ($data->IsValid === 1) {
+                        $classBadge = 'success';
+                    } elseif ($data->IsValid === 0) {
+                        $classBadge = 'danger';
+                    } elseif ($data->IsValid === NULL) {
+                        $classBadge = 'info';
+                    }
+                    $validation = '<span class="badge badge-' . $classBadge . '">' . $data->Validation . '</span>';
+                    return $validation;
+                })
+                ->editColumn('ValidationNotes', function ($data) {
+                    if ($data->ValidationNotes == null) {
+                        $validationNotes = "-";
+                    } else {
+                        $validationNotes = $data->ValidationNotes;
+                    }
+                    return $validationNotes;
+                })
+                ->addColumn('Action', function ($data) {
+                    $btn = '<a class="btn btn-xs btn-info" href="/distribution/validation/detail/' . $data->StockOrderID . '">Detail</a>';
+                    return $btn;
+                })
+                ->filterColumn('Validation', function ($query, $keyword) {
+                    $sql = "CASE
+                                WHEN tmo.IsValid = 1 THEN 'Sudah Valid'
+                                WHEN tmo.IsValid = 0 THEN 'Tidak Valid'
+                                ELSE 'Belum Divalidasi'
+                            END like ?";
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                })
+                ->rawColumns(['PhoneNumber', 'Validation', 'Action'])
+                ->make(true);
+        }
+    }
+
+    public function validationDetail($stockOrderID, RestockService $restockService)
+    {
+        $data = $restockService->dataDetailValidation($stockOrderID);
+
+        return view('distribution.validation.detail', [
+            'data' => $data
+        ]);
+    }
+
+    public function updateValidationRestock(Request $request, $stockOrderID, RestockService $restockService)
+    {
+        $isValid = $request->input('is_valid');
+        $validationNotes = $request->input('validation_notes');
+        $update = $restockService->updateRestockValidation($stockOrderID, $isValid, $validationNotes);
+        if ($update) {
+            return redirect()->route('distribution.validationRestock')->with('success', 'Data PO berhasil divalidasi');
+        } else {
+            return redirect()->route('distribution.validationRestock')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
+        }
     }
 
     public function restock()
@@ -51,7 +142,7 @@ class DistributionController extends Controller
             ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'tx_merchant_order.SalesCode')
             ->where('ms_merchant_account.IsTesting', 0)
             ->where('tx_merchant_order.StatusOrderID', '=', $statusOrder)
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'ms_distributor.DistributorName', 'tx_merchant_order.ShipmentDate', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CancelReasonNote', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order.SalesCode as ReferralCode', 'ms_sales.SalesName', 'ms_distributor_grade.Grade');
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'ms_distributor.DistributorName', 'tx_merchant_order.ShipmentDate', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CancelReasonNote', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order.SalesCode as ReferralCode', 'ms_sales.SalesName', 'ms_distributor_grade.Grade', 'tx_merchant_order.IsValid', 'tx_merchant_order.ValidationNotes');
 
         if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
@@ -116,6 +207,16 @@ class DistributionController extends Controller
                     $stockOrderId = '<a href="/restock/invoice/' . $data->StockOrderID . '" target="_blank" class="btn btn-sm btn-info">' . $textBtn . '</a>';
                     return $stockOrderId;
                 })
+                ->addColumn('Validation', function ($data) {
+                    if ($data->IsValid === 1) {
+                        $validation = '<span class="badge badge-success">Sudah Valid</span>';
+                    } elseif ($data->IsValid === 0) {
+                        $validation = '<span class="badge badge-danger">Tidak Valid</span>';
+                    } elseif ($data->IsValid === NULL) {
+                        $validation = '<span class="badge badge-info">Belum Divalidasi</span>';
+                    }
+                    return $validation;
+                })
                 ->addColumn('Action', function ($data) {
                     $actionBtn = '<a class="btn btn-sm btn-secondary" href="/distribution/restock/detail/' . $data->StockOrderID . '">Lihat</a>';
                     return $actionBtn;
@@ -133,7 +234,15 @@ class DistributionController extends Controller
                     $sql = "CONCAT(ms_merchant_account.ReferralCode,' - ',ms_sales.SalesName)  like ?";
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 })
-                ->rawColumns(['Invoice', 'Partner', 'Action'])
+                ->filterColumn('Validation', function ($query, $keyword) {
+                    $sql = "CASE
+                                WHEN tx_merchant_order.IsValid = 1 THEN 'Sudah Valid'
+                                WHEN tx_merchant_order.IsValid = 0 THEN 'Tidak Valid'
+                                ELSE 'Belum Divalidasi'
+                            END like ?";
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                })
+                ->rawColumns(['Invoice', 'Partner', 'Action', 'Validation'])
                 ->make(true);
         }
     }
@@ -177,6 +286,8 @@ class DistributionController extends Controller
                 'tx_merchant_order.StockOrderID',
                 'tx_merchant_order.CreatedDate',
                 'ms_distributor.DistributorName',
+                'tx_merchant_order.IsValid',
+                'tx_merchant_order.ValidationNotes',
                 'tx_merchant_order.MerchantID',
                 'ms_merchant_account.StoreName',
                 'ms_distributor_grade.Grade',
@@ -319,6 +430,16 @@ class DistributionController extends Controller
 
                     return $statusOrder;
                 })
+                ->addColumn('Validation', function ($data) {
+                    if ($data->IsValid === 1) {
+                        $validation = '<span class="badge badge-success">Sudah Valid</span>';
+                    } elseif ($data->IsValid === 0) {
+                        $validation = '<span class="badge badge-danger">Tidak Valid</span>';
+                    } elseif ($data->IsValid === NULL) {
+                        $validation = '<span class="badge badge-info">Belum Divalidasi</span>';
+                    }
+                    return $validation;
+                })
                 ->editColumn('TanggalDO', function ($data) {
                     if ($data->TanggalDO) {
                         $tanggalDO = date('d M Y H:i', strtotime($data->TanggalDO));
@@ -359,14 +480,19 @@ class DistributionController extends Controller
                 ->filterColumn('StatusDO', function ($query, $keyword) {
                     $query->whereRaw("ms_status_order.StatusOrder like ?", ["%$keyword%"]);
                 })
-                // ->filterColumn('TotalPrice', function ($query, $keyword) {
-                //     $query->whereRaw("tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price like ?", ["%$keyword%"]);
-                // })
+                ->filterColumn('Validation', function ($query, $keyword) {
+                    $sql = "CASE
+                                WHEN tx_merchant_order.IsValid = 1 THEN 'Sudah Valid'
+                                WHEN tx_merchant_order.IsValid = 0 THEN 'Tidak Valid'
+                                ELSE 'Belum Divalidasi'
+                            END like ?";
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                })
                 ->filterColumn('Sales', function ($query, $keyword) {
                     $sql = "CONCAT(ms_merchant_account.ReferralCode,' - ',ms_sales.SalesName)  like ?";
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 })
-                ->rawColumns(['Partner', 'StatusOrder', 'StatusDO', 'ReceiptImage'])
+                ->rawColumns(['Partner', 'StatusOrder', 'StatusDO', 'ReceiptImage', 'Validation'])
                 ->make(true);
         }
     }
@@ -379,7 +505,7 @@ class DistributionController extends Controller
             ->leftJoin('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
             ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
             ->where('tx_merchant_order.StockOrderID', '=', $stockOrderID)
-            ->select('ms_merchant_account.StoreImage', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'tx_merchant_order.MerchantID', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.StoreAddressNote', 'ms_merchant_account.Latitude', 'ms_merchant_account.Longitude', 'tx_merchant_order.StockOrderID', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.PaymentMethodID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.NettPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.ShipmentDate', 'tx_merchant_order.MerchantNote', 'tx_merchant_order.DistributorNote', 'tx_merchant_order.Rating', 'tx_merchant_order.Feedback', 'tx_merchant_order.CancelReasonNote', 'ms_status_order.StatusOrder', 'ms_payment_method.PaymentMethodName', 'ms_distributor.IsHaistar')
+            ->select('ms_merchant_account.StoreImage', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'tx_merchant_order.MerchantID', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.StoreAddressNote', 'ms_merchant_account.Latitude', 'ms_merchant_account.Longitude', 'tx_merchant_order.StockOrderID', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.PaymentMethodID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.NettPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.ShipmentDate', 'tx_merchant_order.MerchantNote', 'tx_merchant_order.DistributorNote', 'tx_merchant_order.Rating', 'tx_merchant_order.Feedback', 'tx_merchant_order.CancelReasonNote', 'ms_status_order.StatusOrder', 'ms_payment_method.PaymentMethodName', 'ms_distributor.IsHaistar', 'tx_merchant_order.IsValid', 'tx_merchant_order.ValidationNotes')
             ->first();
 
         $merchantOrderDetail = DB::table('tx_merchant_order_detail')
@@ -394,6 +520,7 @@ class DistributionController extends Controller
             ->leftJoin('ms_user AS helper', 'helper.UserID', 'do.HelperID')
             ->leftJoin('ms_vehicle', 'ms_vehicle.VehicleID', 'do.VehicleID')
             ->where('do.StockOrderID', '=', $stockOrderID)
+            ->where('do.StatusDO', '!=', 'S026')
             ->select('do.*', 'ms_status_order.StatusOrder', 'driver.Name', 'helper.Name AS HelperName', 'ms_vehicle.VehicleName')
             ->get();
 

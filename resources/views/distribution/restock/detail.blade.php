@@ -85,8 +85,9 @@
                                             <h6 class="mt-3 mt-md-0">Peta Alamat Pemesanan</h6>
                                         </div>
                                         <div class="col-md-4 col-12 p-md-0">
-                                            <button type="button" class="btn btn-sm btn-success float-md-right"
-                                                id="open-maps">Buka di Maps</button>
+                                            <a class="btn btn-sm btn-success float-md-right" id="open-maps" target="_blank">
+                                                Buka di Maps
+                                            </a>
                                         </div>
                                     </div>
                                     <div id="google-maps" style="width: 100%; height: 200px; margin: 20px 0;"></div>
@@ -96,7 +97,7 @@
                         <div class="post">
                             <h6 class="mb-3">Daftar Barang</h6>
                             <div class="row">
-                                <div class="col-md-4 col-12">
+                                <div class="col-md-3 col-12">
                                     <label class="mb-0">Stock Order ID</label>
                                     <p class="m-0">{{ $merchantOrder->StockOrderID }}</p>
                                     @if ($merchantOrder->StatusOrderID == "S012" || $merchantOrder->StatusOrderID ==
@@ -109,7 +110,7 @@
                                         target="_blank" class="btn btn-sm btn-info mb-2">Lihat Proforma Invoice</a>
                                     @endif
                                 </div>
-                                <div class="col-md-4 col-12">
+                                <div class="col-md-3 col-12">
                                     <label class="mb-0">Status Pesanan</label>
                                     <p>
                                         @if ($merchantOrder->StatusOrderID == "S009")
@@ -127,13 +128,17 @@
                                         @endif
                                     </p>
                                 </div>
-                                <div class="col-md-4 col-12">
+                                <div class="col-md-3 col-12">
                                     <label class="mb-0">Metode Pembayaran</label>
                                     <p>{{ $merchantOrder->PaymentMethodName }}</p>
                                 </div>
+                                <div class="col-md-3 col-12">
+                                    <label class="mb-0">Pesanan Dibuat</label>
+                                    <p>{{ date('d F Y H:i', strtotime($merchantOrder->CreatedDate)) }}</p>
+                                </div>
                             </div>
                             <div class="row">
-                                <div class="col-md-4 col-12">
+                                <div class="col-md-3 col-12">
                                     <label class="mb-0">Merchant Note</label>
                                     <p>@if ($merchantOrder->MerchantNote)
                                         {{ $merchantOrder->MerchantNote }}
@@ -141,7 +146,7 @@
                                         -
                                         @endif</p>
                                 </div>
-                                <div class="col-md-4 col-12">
+                                <div class="col-md-3 col-12">
                                     <label class="mb-0">Distributor Note</label>
                                     <p>@if ($merchantOrder->DistributorNote)
                                         {{ $merchantOrder->DistributorNote }}
@@ -149,9 +154,21 @@
                                         -
                                         @endif</p>
                                 </div>
-                                <div class="col-md-4 col-12">
-                                    <label class="mb-0">Pesanan Dibuat</label>
-                                    <p>{{ date('d F Y H:i', strtotime($merchantOrder->CreatedDate)) }}</p>
+                                <div class="col-md-3 col-12">
+                                    <label class="mb-0">Validasi PO</label>
+                                    <p>
+                                        @if ($merchantOrder->IsValid === 1)
+                                        <span class="badge badge-success">Sudah Valid</span>
+                                        @elseif ($merchantOrder->IsValid === 0)
+                                        <span class="badge badge-danger">Tidak Valid</span>
+                                        @else
+                                        <span class="badge badge-info">Belum Divalidasi</span>
+                                        @endif
+                                    </p>
+                                </div>
+                                <div class="col-md-3 col-12">
+                                    <label class="mb-0">Catatan Validasi</label>
+                                    <p>{{ $merchantOrder->ValidationNotes != null ? $merchantOrder->ValidationNotes : '-'}}</p>
                                 </div>
                             </div>
                             <div>
@@ -459,7 +476,7 @@
                                                         <p class="text-center m-0">
                                                             <b>GrandTotal : </b>
                                                             <span class="price-subtotal">
-                                                                {{ Helper::formatCurrency($do->SubTotal + $do->ServiceCharge + $do->DeliveryFee - $do->Discount, 'Rp ')}}
+                                                                {{ Helper::formatCurrency($do->SubTotal + $do->ServiceCharge + $do->DeliveryFee - $do->Discount + $do->LateFee, 'Rp ')}}
                                                             </span>
                                                         </p>
                                                     </div>
@@ -800,8 +817,10 @@
 		});
 	}
 
-    $('#open-maps').on("click", function(e) {
-        window.open('https://www.google.com/maps/search/'+latitude+','+longitude+'/@'+latitude+','+longitude+',17z','address','toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,copyhistory=yes,width=600,height=400');
-    })
+    $("#open-maps").prop("href", 'https://www.google.co.id/maps/place/'+latitude+','+longitude);
+
+    // $('#open-maps').on("click", function(e) {
+    //     window.open('https://www.google.com/maps/search/'+latitude+','+longitude+'/@'+latitude+','+longitude+',17z','address','toolbar=no,location=no,directories=no,status=no,menubar=no,scrollbars=yes,resizable=yes,copyhistory=yes,width=600,height=400');
+    // })
 </script>
 @endsection

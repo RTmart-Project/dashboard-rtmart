@@ -11,7 +11,7 @@ $(document).ready(function () {
 
         $("#product-restock .table-datatables").DataTable({
             dom:
-                "<'row'<'col-sm-12 col-md-9'<'filter-product-restock'>tl><'col-sm-12 col-md-2'f><'col-sm-12 col-md-1'B>>" +
+                "<'row'<'col-sm-12 col-md-9'<'filter-product-restock'>tl><'col-sm-12 col-md-2'f><'col-sm-12 col-md-1 d-flex justify-content-end h-100'B>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
@@ -97,6 +97,14 @@ $(document).ready(function () {
                 {
                     data: "StatusOrder",
                     name: "RestockProduct.StatusOrder",
+                },
+                {
+                    data: "Validation",
+                    name: "Validation",
+                },
+                {
+                    data: "ValidationNotes",
+                    name: "RestockProduct.ValidationNotes",
                 },
                 {
                     data: "TotalPrice",
@@ -228,7 +236,8 @@ $(document).ready(function () {
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
                             15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
-                            28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39,
+                            28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+                            41,
                         ],
                         orthogonal: "export",
                     },
@@ -241,8 +250,8 @@ $(document).ready(function () {
             aoColumnDefs: [
                 {
                     aTargets: [
-                        8, 15, 16, 17, 18, 19, 20, 28, 29, 30, 31, 32, 33, 35,
-                        36, 38,
+                        8, 17, 18, 19, 20, 21, 22, 30, 31, 32, 33, 34, 35, 37,
+                        38, 40,
                     ],
                     mRender: function (data, type, full) {
                         if (type === "export") {
@@ -294,7 +303,7 @@ $(document).ready(function () {
                             </div>
                             <div class="filter-valid ml-2">
                                 <select class="form-control form-control-sm">
-                                    <option selected disabled hidden>Filter Valid</option>
+                                    <option selected disabled hidden>Filter Valid KTP</option>
                                     <option value="">All</option>
                                     <option value="valid">Valid Checked</option>
                                     <option value="invalid">Valid Unchecked</option>

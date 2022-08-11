@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
 <!-- Main -->
-<link rel="stylesheet" href="{{url('/')}}/main/css/custom/select-filter.css">
+{{-- <link rel="stylesheet" href="{{url('/')}}/main/css/custom/select-filter.css"> --}}
 @endsection
 
 @section('header-menu', 'Data Akun Merchant')
@@ -268,6 +268,8 @@
                                                     <th>Referral</th>
                                                     <th>Nama Sales</th>
                                                     <th>Distributor</th>
+                                                    <th>Status Block</th>
+                                                    <th>Catatan Status Block</th>
                                                     <th>Action</th>
                                                     <th>Detail</th>
                                                     <th>Assessment</th>
@@ -309,7 +311,7 @@
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!-- Main JS -->
-<script src="{{url('/')}}/main/js/custom/select-filter.js"></script>
+{{-- <script src="{{url('/')}}/main/js/custom/select-filter.js"></script> --}}
 <script src="{{url('/')}}/main/js/merchant/account/account.js"></script>
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
 <script>
