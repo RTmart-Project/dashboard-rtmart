@@ -63,15 +63,16 @@ class DistributionController extends Controller
                     $sql = "CONCAT(tmo.SalesCode,' - ',ms_sales.SalesName)  like ?";
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 })
-                ->editColumn('Validation', function ($data) {
-                    if ($data->IsValid === 1) {
-                        $classBadge = 'success';
-                    } elseif ($data->IsValid === 0) {
-                        $classBadge = 'danger';
-                    } elseif ($data->IsValid === NULL) {
-                        $classBadge = 'info';
+                ->editColumn('IsValid', function ($data) {
+                    if ($data->IsValid == "VALID") {
+                        $validation = '<span class="badge badge-success">' . $data->IsValid . '</span>';
+                    } elseif ($data->IsValid == "NOT VALID") {
+                        $validation = '<span class="badge badge-danger">' . $data->IsValid . '</span>';
+                    } elseif ($data->IsValid == "UNKNOWN") {
+                        $validation = '<span class="badge badge-warning">' . $data->IsValid . '</span>';
+                    } else {
+                        $validation = '<span class="badge badge-info">Belum Divalidasi</span>';
                     }
-                    $validation = '<span class="badge badge-' . $classBadge . '">' . $data->Validation . '</span>';
                     return $validation;
                 })
                 ->editColumn('ValidationNotes', function ($data) {
@@ -86,15 +87,7 @@ class DistributionController extends Controller
                     $btn = '<a class="btn btn-xs btn-info" href="/distribution/validation/detail/' . $data->StockOrderID . '">Detail</a>';
                     return $btn;
                 })
-                ->filterColumn('Validation', function ($query, $keyword) {
-                    $sql = "CASE
-                                WHEN tmo.IsValid = 1 THEN 'Sudah Valid'
-                                WHEN tmo.IsValid = 0 THEN 'Tidak Valid'
-                                ELSE 'Belum Divalidasi'
-                            END like ?";
-                    $query->whereRaw($sql, ["%{$keyword}%"]);
-                })
-                ->rawColumns(['PhoneNumber', 'Validation', 'Action'])
+                ->rawColumns(['PhoneNumber', 'IsValid', 'Action'])
                 ->make(true);
         }
     }
@@ -207,12 +200,14 @@ class DistributionController extends Controller
                     $stockOrderId = '<a href="/restock/invoice/' . $data->StockOrderID . '" target="_blank" class="btn btn-sm btn-info">' . $textBtn . '</a>';
                     return $stockOrderId;
                 })
-                ->addColumn('Validation', function ($data) {
-                    if ($data->IsValid === 1) {
-                        $validation = '<span class="badge badge-success">Sudah Valid</span>';
-                    } elseif ($data->IsValid === 0) {
-                        $validation = '<span class="badge badge-danger">Tidak Valid</span>';
-                    } elseif ($data->IsValid === NULL) {
+                ->editColumn('IsValid', function ($data) {
+                    if ($data->IsValid == "VALID") {
+                        $validation = '<span class="badge badge-success">' . $data->IsValid . '</span>';
+                    } elseif ($data->IsValid == "NOT VALID") {
+                        $validation = '<span class="badge badge-danger">' . $data->IsValid . '</span>';
+                    } elseif ($data->IsValid == "UNKNOWN") {
+                        $validation = '<span class="badge badge-warning">' . $data->IsValid . '</span>';
+                    } else {
                         $validation = '<span class="badge badge-info">Belum Divalidasi</span>';
                     }
                     return $validation;
@@ -234,15 +229,7 @@ class DistributionController extends Controller
                     $sql = "CONCAT(ms_merchant_account.ReferralCode,' - ',ms_sales.SalesName)  like ?";
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 })
-                ->filterColumn('Validation', function ($query, $keyword) {
-                    $sql = "CASE
-                                WHEN tx_merchant_order.IsValid = 1 THEN 'Sudah Valid'
-                                WHEN tx_merchant_order.IsValid = 0 THEN 'Tidak Valid'
-                                ELSE 'Belum Divalidasi'
-                            END like ?";
-                    $query->whereRaw($sql, ["%{$keyword}%"]);
-                })
-                ->rawColumns(['Invoice', 'Partner', 'Action', 'Validation'])
+                ->rawColumns(['Invoice', 'Partner', 'Action', 'IsValid'])
                 ->make(true);
         }
     }
@@ -269,6 +256,7 @@ class DistributionController extends Controller
                 // $join->where('tmdo.StatusDO', '!=', 'S028');
             })
             ->leftJoin('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tmdo.DeliveryOrderID')
+            ->leftJoin('ms_status_order as status_do', 'status_do.StatusOrderID', 'tx_merchant_delivery_order_detail.StatusExpedition')
             ->leftJoin('tx_merchant_expedition_detail', function ($join) {
                 $join->on('tx_merchant_expedition_detail.DeliveryOrderDetailID', 'tx_merchant_delivery_order_detail.DeliveryOrderDetailID');
                 $join->whereRaw("(tx_merchant_expedition_detail.StatusExpeditionDetail = 'S030' OR tx_merchant_expedition_detail.StatusExpeditionDetail = 'S031')");
@@ -305,6 +293,7 @@ class DistributionController extends Controller
                 'tx_merchant_order_detail.PromisedQuantity',
                 'tx_merchant_delivery_order_detail.Price',
                 'tx_merchant_expedition_detail.ReceiptImage',
+                'status_do.StatusOrder as StatusDetailDO',
                 DB::raw("tx_merchant_order.TotalPrice - tx_merchant_order.DiscountPrice - tx_merchant_order.DiscountVoucher + tx_merchant_order.ServiceChargeNett + tx_merchant_order.DeliveryFee AS TotalTrx"),
                 DB::raw("tmdo.CreatedDate as TanggalDO"),
                 DB::raw("tx_merchant_order_detail.PromisedQuantity * tx_merchant_order_detail.Nett AS TotalPricePO"),
@@ -430,12 +419,14 @@ class DistributionController extends Controller
 
                     return $statusOrder;
                 })
-                ->addColumn('Validation', function ($data) {
-                    if ($data->IsValid === 1) {
-                        $validation = '<span class="badge badge-success">Sudah Valid</span>';
-                    } elseif ($data->IsValid === 0) {
-                        $validation = '<span class="badge badge-danger">Tidak Valid</span>';
-                    } elseif ($data->IsValid === NULL) {
+                ->editColumn('IsValid', function ($data) {
+                    if ($data->IsValid == "VALID") {
+                        $validation = '<span class="badge badge-success">' . $data->IsValid . '</span>';
+                    } elseif ($data->IsValid == "NOT VALID") {
+                        $validation = '<span class="badge badge-danger">' . $data->IsValid . '</span>';
+                    } elseif ($data->IsValid == "UNKNOWN") {
+                        $validation = '<span class="badge badge-warning">' . $data->IsValid . '</span>';
+                    } else {
                         $validation = '<span class="badge badge-info">Belum Divalidasi</span>';
                     }
                     return $validation;
@@ -449,13 +440,15 @@ class DistributionController extends Controller
 
                     return $tanggalDO;
                 })
-                ->editColumn('StatusDO', function ($data) {
-                    if ($data->StatusDO == "Dalam Pengiriman") {
-                        $statusOrder = '<span class="badge badge-warning">' . $data->StatusDO . '</span>';
-                    } elseif ($data->StatusDO == "Selesai") {
-                        $statusOrder = '<span class="badge badge-success">' . $data->StatusDO . '</span>';
+                ->editColumn('StatusDetailDO', function ($data) {
+                    if ($data->StatusDetailDO == "Dalam Perjalanan") {
+                        $statusOrder = '<span class="badge badge-warning">' . $data->StatusDetailDO . '</span>';
+                    } elseif ($data->StatusDetailDO == "Selesai") {
+                        $statusOrder = '<span class="badge badge-success">' . $data->StatusDetailDO . '</span>';
+                    } elseif ($data->StatusDetailDO == "Dibatalkan") {
+                        $statusOrder = '<span class="badge badge-danger">' . $data->StatusDetailDO . '</span>';
                     } else {
-                        $statusOrder = '<span class="badge badge-info">' . $data->StatusDO . '</span>';
+                        $statusOrder = '<span class="badge badge-info">' . $data->StatusDetailDO . '</span>';
                     }
 
                     return $statusOrder;
@@ -477,22 +470,14 @@ class DistributionController extends Controller
                 ->filterColumn('TanggalDO', function ($query, $keyword) {
                     $query->whereRaw("DATE_FORMAT(tmdo.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
                 })
-                ->filterColumn('StatusDO', function ($query, $keyword) {
+                ->filterColumn('StatusDetailDO', function ($query, $keyword) {
                     $query->whereRaw("ms_status_order.StatusOrder like ?", ["%$keyword%"]);
-                })
-                ->filterColumn('Validation', function ($query, $keyword) {
-                    $sql = "CASE
-                                WHEN tx_merchant_order.IsValid = 1 THEN 'Sudah Valid'
-                                WHEN tx_merchant_order.IsValid = 0 THEN 'Tidak Valid'
-                                ELSE 'Belum Divalidasi'
-                            END like ?";
-                    $query->whereRaw($sql, ["%{$keyword}%"]);
                 })
                 ->filterColumn('Sales', function ($query, $keyword) {
                     $sql = "CONCAT(ms_merchant_account.ReferralCode,' - ',ms_sales.SalesName)  like ?";
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 })
-                ->rawColumns(['Partner', 'StatusOrder', 'StatusDO', 'ReceiptImage', 'Validation'])
+                ->rawColumns(['Partner', 'StatusOrder', 'StatusDetailDO', 'ReceiptImage', 'IsValid'])
                 ->make(true);
         }
     }

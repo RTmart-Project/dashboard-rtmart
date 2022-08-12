@@ -72,10 +72,15 @@
                   <div class="col-6">
                     <strong>Status Validitas PO :</strong>
                     <p class="mb-2">
-                      <span
-                        class="badge @if ($data->IsValid === 1) badge-success @elseif ($data->IsValid === 0) badge-danger @else badge-info @endif">
-                        {{ $data->Validation }}
-                      </span>
+                      @if ($data->IsValid == "VALID")
+                        <span class="badge badge-success">{{ $data->IsValid }}</span>
+                      @elseif ($data->IsValid == "NOT VALID")
+                        <span class="badge badge-danger">{{ $data->IsValid }}</span>
+                      @elseif ($data->IsValid == "UNKNOWN")
+                        <span class="badge badge-warning">{{ $data->IsValid }}</span>
+                      @else
+                        <span class="badge badge-info">Belum Divalidasi</span>
+                      @endif
                     </p>
                   </div>
                   <div class="col-6">
@@ -430,10 +435,9 @@
             <label class="mt-2 mb-0">Status Validitas:</label>
             <select class="form-control" name="is_valid">
               <option value="" hidden disabled selected>-- Pilih Status Validitas --</option>
-              <option value="1" ${isValid === 1 && "selected"
-        }>Valid</option>
-              <option value="0" ${isValid === 0 && "selected"
-        }>Tidak Valid</option>
+              <option value="VALID" ${isValid == "VALID" && "selected"}>VALID</option>
+              <option value="NOT VALID" ${isValid == "NOT VALID" && "selected"}>NOT VALID</option>
+              <option value="UNKNOWN" ${isValid == "UNKNOWN" && "selected"}>UNKNOWN</option>
             </select>
             <label class="mt-2 mb-0">Catatan:</label>
             <input type="text" class="form-control price" value="${validationNotes}"

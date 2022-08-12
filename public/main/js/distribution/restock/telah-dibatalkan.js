@@ -36,8 +36,8 @@ $(document).ready(function () {
                     name: "ms_distributor.DistributorName",
                 },
                 {
-                    data: "Validation",
-                    name: "Validation",
+                    data: "IsValid",
+                    name: "tx_merchant_order.IsValid",
                 },
                 {
                     data: "ValidationNotes",

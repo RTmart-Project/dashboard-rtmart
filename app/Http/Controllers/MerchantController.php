@@ -152,9 +152,9 @@ class MerchantController extends Controller
                 })
                 ->addColumn('StatusBlock', function ($data) {
                     if ($data->IsBlocked == 1) {
-                        $statusBlock = "Blocked";
+                        $statusBlock = '<span class="badge badge-danger">Blocked</span>';
                     } else {
-                        $statusBlock = "Not Blocked";
+                        $statusBlock = '<span class="badge badge-success">Not Blocked</span>';
                     }
                     return $statusBlock;
                 })
@@ -163,7 +163,21 @@ class MerchantController extends Controller
                     return $productBtn;
                 })
                 ->addColumn('Action', function ($data) {
-                    $actionBtn = '<a href="/merchant/account/edit/' . $data->MerchantID . '" class="btn-sm btn-warning detail-order">Edit</a>';
+                    $edit = '<a href="/merchant/account/edit/' . $data->MerchantID . '" class="btn-sm btn-warning detail-order">Edit</a>';
+
+                    if ($data->IsBlocked == 1) {
+                        $textBlock = "Unblocked";
+                        $btn = "success";
+                    } else {
+                        $textBlock = "Blocked";
+                        $btn = "danger";
+                    }
+                    $updateBlock = '<a href="#" class="ml-1 btn-sm btn-' . $btn . ' btn-update-block" 
+                        data-merchant-id="' . $data->MerchantID . '"
+                        data-store-name="' . $data->StoreName . '"
+                        data-is-blocked="' . $data->IsBlocked . '">' . $textBlock . '</a>';
+
+                    $actionBtn = $edit . $updateBlock;
                     return $actionBtn;
                 })
                 ->addColumn('Assessment', function ($data) {
@@ -177,8 +191,50 @@ class MerchantController extends Controller
                 ->filterColumn('ms_merchant_account.CreatedDate', function ($query, $keyword) {
                     $query->whereRaw("DATE_FORMAT(ms_merchant_account.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
                 })
-                ->rawColumns(['Partner', 'Product', 'Action', 'Assessment'])
+                ->rawColumns(['Partner', 'Product', 'Action', 'Assessment', 'StatusBlock'])
                 ->make(true);
+        }
+    }
+
+    public function updateBlock($merchantID, Request $request)
+    {
+        $user = Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo;
+        $sqlMerchant = DB::table('ms_merchant_account')
+            ->where('MerchantID', $merchantID)
+            ->select('IsBlocked')->first();
+
+        if ($sqlMerchant->IsBlocked == 1) {
+            $isBlocked = 0;
+        } else {
+            $isBlocked = 1;
+        }
+
+        $blockNotes = $request->input('block_notes');
+
+        $dataUpdate = [
+            'IsBlocked' => $isBlocked,
+            'BlockedMessage' => $blockNotes
+        ];
+
+        $dataLogBlock = [
+            'MerchantID' => $merchantID,
+            'IsBlocked' => $isBlocked,
+            'BlockedMessage' => $blockNotes,
+            'CreatedDate' => date('Y-m-d H:i:s'),
+            'ActionBy' => $user
+        ];
+
+        try {
+            DB::transaction(function () use ($merchantID, $dataUpdate, $dataLogBlock) {
+                DB::table('ms_merchant_account')
+                    ->where('MerchantID', '=', $merchantID)
+                    ->update($dataUpdate);
+                DB::table('ms_merchant_account_block_log')
+                    ->insert($dataLogBlock);
+            });
+            return redirect()->route('merchant.account')->with('success', 'Data status block merchant berhasil diubah');
+        } catch (\Throwable $th) {
+            return redirect()->route('merchant.account')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
         }
     }
 
@@ -256,8 +312,6 @@ class MerchantController extends Controller
 
         $user = Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo;
         $referralCode = $request->input('referral_code');
-        $isBlocked = $request->input('is_blocked');
-        $blockedMessage = $request->input('blocked_message');
 
         $data = [
             'StoreName' => $request->input('store_name'),
@@ -270,9 +324,7 @@ class MerchantController extends Controller
             'StoreAddress' => $request->input('address'),
             'ReferralCode' => $referralCode,
             'Latitude' => $request->input('latitude'),
-            'Longitude' => $request->input('longitude'),
-            'IsBlocked' => $isBlocked,
-            'BlockedMessage' => $blockedMessage
+            'Longitude' => $request->input('longitude')
         ];
 
         $dataGrade = [
@@ -282,7 +334,7 @@ class MerchantController extends Controller
         ];
 
         try {
-            DB::transaction(function () use ($merchantId, $merchantGrade, $data, $dataGrade, $merchant, $referralCode, $isBlocked, $blockedMessage, $user) {
+            DB::transaction(function () use ($merchantId, $merchantGrade, $data, $dataGrade, $merchant, $referralCode, $user) {
                 DB::table('ms_merchant_account')
                     ->where('MerchantID', '=', $merchantId)
                     ->update($data);
@@ -300,16 +352,6 @@ class MerchantController extends Controller
                             'MerchantID' => $merchantId,
                             'SalesCodeBefore' => $merchant->ReferralCode,
                             'SalesCodeAfter' => $referralCode,
-                            'CreatedDate' => date('Y-m-d H:i:s'),
-                            'ActionBy' => $user
-                        ]);
-                }
-                if ($merchant->IsBlocked != $isBlocked) {
-                    DB::table('ms_merchant_account_block_log')
-                        ->insert([
-                            'MerchantID' => $merchantId,
-                            'IsBlocked' => $isBlocked,
-                            'BlockedMessage' => $blockedMessage,
                             'CreatedDate' => date('Y-m-d H:i:s'),
                             'ActionBy' => $user
                         ]);
@@ -1381,12 +1423,14 @@ class MerchantController extends Controller
 
                     return $statusOrder;
                 })
-                ->addColumn('Validation', function ($data) {
-                    if ($data->IsValid === 1) {
-                        $validation = '<span class="badge badge-success">Sudah Valid</span>';
-                    } elseif ($data->IsValid === 0) {
-                        $validation = '<span class="badge badge-danger">Tidak Valid</span>';
-                    } elseif ($data->IsValid === NULL) {
+                ->editColumn('IsValid', function ($data) {
+                    if ($data->IsValid == "VALID") {
+                        $validation = '<span class="badge badge-success">' . $data->IsValid . '</span>';
+                    } elseif ($data->IsValid == "NOT VALID") {
+                        $validation = '<span class="badge badge-danger">' . $data->IsValid . '</span>';
+                    } elseif ($data->IsValid == "UNKNOWN") {
+                        $validation = '<span class="badge badge-warning">' . $data->IsValid . '</span>';
+                    } else {
                         $validation = '<span class="badge badge-info">Belum Divalidasi</span>';
                     }
                     return $validation;
@@ -1394,15 +1438,7 @@ class MerchantController extends Controller
                 ->filterColumn('tx_merchant_order.CreatedDate', function ($query, $keyword) {
                     $query->whereRaw("DATE_FORMAT(tx_merchant_order.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
                 })
-                ->filterColumn('Validation', function ($query, $keyword) {
-                    $sql = "CASE
-                                WHEN Restock.IsValid = 1 THEN 'Sudah Valid'
-                                WHEN Restock.IsValid = 0 THEN 'Tidak Valid'
-                                ELSE 'Belum Divalidasi'
-                            END like ?";
-                    $query->whereRaw($sql, ["%{$keyword}%"]);
-                })
-                ->rawColumns(['Partner', 'Action', 'Invoice', 'StatusOrder', 'Validation'])
+                ->rawColumns(['Partner', 'Action', 'Invoice', 'StatusOrder', 'IsValid'])
                 ->make(true);
         }
     }
@@ -1555,12 +1591,14 @@ class MerchantController extends Controller
 
                     return $statusOrder;
                 })
-                ->addColumn('Validation', function ($data) {
-                    if ($data->IsValid === 1) {
-                        $validation = '<span class="badge badge-success">Sudah Valid</span>';
-                    } elseif ($data->IsValid === 0) {
-                        $validation = '<span class="badge badge-danger">Tidak Valid</span>';
-                    } elseif ($data->IsValid === NULL) {
+                ->editColumn('IsValid', function ($data) {
+                    if ($data->IsValid == "VALID") {
+                        $validation = '<span class="badge badge-success">' . $data->IsValid . '</span>';
+                    } elseif ($data->IsValid == "NOT VALID") {
+                        $validation = '<span class="badge badge-danger">' . $data->IsValid . '</span>';
+                    } elseif ($data->IsValid == "UNKNOWN") {
+                        $validation = '<span class="badge badge-warning">' . $data->IsValid . '</span>';
+                    } else {
                         $validation = '<span class="badge badge-info">Belum Divalidasi</span>';
                     }
                     return $validation;
@@ -1697,15 +1735,7 @@ class MerchantController extends Controller
                 ->editColumn('Price', function ($data) {
                     return "$data->Price";
                 })
-                ->filterColumn('Validation', function ($query, $keyword) {
-                    $sql = "CASE
-                                WHEN RestockProduct.IsValid = 1 THEN 'Sudah Valid'
-                                WHEN RestockProduct.IsValid = 0 THEN 'Tidak Valid'
-                                ELSE 'Belum Divalidasi'
-                            END like ?";
-                    $query->whereRaw($sql, ["%{$keyword}%"]);
-                })
-                ->rawColumns(['Partner', 'Action', 'StatusOrder', 'Validation'])
+                ->rawColumns(['Partner', 'Action', 'StatusOrder', 'IsValid'])
                 ->make(true);
         }
     }

@@ -66,8 +66,8 @@ $(document).ready(function () {
                     name: "ms_status_order.StatusOrder",
                 },
                 {
-                    data: "Validation",
-                    name: "Validation",
+                    data: "IsValid",
+                    name: "tx_merchant_order.IsValid",
                 },
                 {
                     data: "ValidationNotes",
@@ -129,8 +129,8 @@ $(document).ready(function () {
                     name: "MarginRealPercentage",
                 },
                 {
-                    data: "StatusDO",
-                    name: "StatusDO",
+                    data: "StatusDetailDO",
+                    name: "StatusDetailDO",
                 },
                 {
                     data: "ReceiptImage",

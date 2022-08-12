@@ -297,7 +297,7 @@ $(document).ready(function () {
                 option += `<option value="${item.DistributorID}">${item.DistributorName}</option>`;
             }
             $("#merchant-account .filter-depo select").append(option);
-            customDropdownFilter.createCustomDropdowns();
+            // customDropdownFilter.createCustomDropdowns();
             // $('#merchant-account .select-filter-custom select').val("All").change();
         },
     });
@@ -313,5 +313,44 @@ $(document).ready(function () {
 
     $("#merchant-account .filter-block select").change(function () {
         $("#merchant-account .table-datatables").DataTable().ajax.reload();
+    });
+
+    let csrf = $('meta[name="csrf_token"]').attr("content");
+
+    $("#merchant-account").on("click", ".btn-update-block", function (e) {
+        e.preventDefault();
+        const merchantID = $(this).data("merchant-id");
+        const storeName = $(this).data("store-name");
+        const isBlocked = $(this).data("is-blocked");
+
+        let text = "";
+        if (isBlocked == 1) {
+            text = "membuka block";
+        } else {
+            text = "mem-block";
+        }
+
+        $.confirm({
+            title: "Update Block",
+            content: `Apakah ingin <b>${text}</b> toko <b>${merchantID} - ${storeName}</b>?<br>
+              <form action="/merchant/account/update-block/${merchantID}" method="post">
+                <input type="hidden" name="_token" value="${csrf}">
+                <label class="mt-2 mb-0">Catatan:</label>
+                <input type="text" class="form-control price" autocomplete="off" 
+                  name="block_notes" placeholder="Tambahkan Catatan (opsional)">
+              </form>`,
+            closeIcon: true,
+            buttons: {
+                simpan: {
+                    btnClass: "btn-success",
+                    draggable: true,
+                    dragWindowGap: 0,
+                    action: function () {
+                        this.$content.find("form").submit();
+                    },
+                },
+                batal: function () {},
+            },
+        });
     });
 });
