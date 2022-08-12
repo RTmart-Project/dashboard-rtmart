@@ -55,7 +55,7 @@ Route::group(['middleware' => ['auth']], function () {
         });
         Route::group(['prefix' => 'restock', 'middleware' => ['checkRoleUser:IT,AD,RBTAD,BM,FI,AH,DMO,HL']], function () {
             Route::get('/', [DistributionController::class, 'restock'])->name('distribution.restock');
-            Route::get('/get/allRestockAndDO', [DistributionController::class, 'getAllRestockAndDO'])->name('distribution.getAllRestockAndDO');
+            Route::post('/get/allRestockAndDO', [DistributionController::class, 'getAllRestockAndDO'])->name('distribution.getAllRestockAndDO');
             Route::get('/get/{statusOrder}', [DistributionController::class, 'getRestockByStatus'])->name('distribution.getRestockByStatus');
             Route::get('/detail/{stockOrderID}', [DistributionController::class, 'restockDetail'])->name('distribution.restockDetail');
             Route::post('/update/{stockOrderID}/{status}', [DistributionController::class, 'updateStatusRestock'])->name('distribution.updateStatusRestock');
