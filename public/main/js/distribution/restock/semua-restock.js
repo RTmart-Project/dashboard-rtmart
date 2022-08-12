@@ -3,6 +3,12 @@ $(document).ready(function () {
     dataTablesSemuaRestock();
 
     function dataTablesSemuaRestock(fromDate = "", toDate = "", filterBy = "") {
+        $.ajaxSetup({
+            headers: {
+                "X-CSRF-TOKEN": $('meta[name="csrf_token"]').attr("content"),
+            },
+        });
+
         $("#semua-restock .table-datatables").DataTable({
             dom:
                 "<'row'<'col-sm-12 col-md-5'<'filter-semua-restock'>tl><'col-sm-12 col-md-4 justify-content-end'f><'col-sm-6 col-md-3 text-center'B>>" +
@@ -13,6 +19,7 @@ $(document).ready(function () {
             stateServe: true,
             ajax: {
                 url: "/distribution/restock/get/allRestockAndDO",
+                type: "POST",
                 data: {
                     fromDate: fromDate,
                     toDate: toDate,
