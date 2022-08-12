@@ -129,8 +129,8 @@ $(document).ready(function () {
                     name: "MarginRealPercentage",
                 },
                 {
-                    data: "StatusDO",
-                    name: "StatusDO",
+                    data: "StatusDetailDO",
+                    name: "StatusDetailDO",
                 },
                 {
                     data: "ReceiptImage",
