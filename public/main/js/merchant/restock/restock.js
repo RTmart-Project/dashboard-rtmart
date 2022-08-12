@@ -92,8 +92,8 @@ $(document).ready(function () {
                     name: "Restock.StatusOrder",
                 },
                 {
-                    data: "Validation",
-                    name: "Validation",
+                    data: "IsValid",
+                    name: "Restock.IsValid",
                 },
                 {
                     data: "ValidationNotes",

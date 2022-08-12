@@ -53,8 +53,8 @@ $(document).ready(function () {
                     name: "Sales",
                 },
                 {
-                    data: "Validation",
-                    name: "Validation",
+                    data: "IsValid",
+                    name: "tmo.IsValid",
                 },
                 {
                     data: "ValidationNotes",

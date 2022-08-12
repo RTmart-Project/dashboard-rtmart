@@ -133,17 +133,6 @@
                                         @endif
                                     </div>
                                 </div>
-                            
-                                <div class="col-md-4 col-12">
-                                    <div class="form-group">
-                                        <label for="address">Alamat</label>
-                                        <textarea name="address" id="address" rows="3" required
-                                            class="form-control @if($errors->has('address')) is-invalid @endif">{{ $merchantById->StoreAddress }}</textarea>
-                                        @if($errors->has('address'))
-                                            <span class="error invalid-feedback">{{ $errors->first('address') }}</span>
-                                        @endif
-                                    </div>
-                                </div>
 
                                 @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "FI")
                                 <div class="col-md-4 col-12">
@@ -165,7 +154,18 @@
                                 </div>
                                 @endif
 
-                                <div class="col-md-4 col-12">
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label for="address">Alamat</label>
+                                        <textarea name="address" id="address" rows="3" required
+                                            class="form-control @if($errors->has('address')) is-invalid @endif">{{ $merchantById->StoreAddress }}</textarea>
+                                        @if($errors->has('address'))
+                                            <span class="error invalid-feedback">{{ $errors->first('address') }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                {{-- <div class="col-md-4 col-12">
                                     <div class="form-group">
                                         <label for="is_blocked">Status Block</label>
                                         <select name="is_blocked" id="is_blocked" required 
@@ -188,7 +188,7 @@
                                             <span class="error invalid-feedback">{{ $errors->first('blocked_message') }}</span>
                                         @endif
                                     </div>
-                                </div>
+                                </div> --}}
 
                             </div>
 

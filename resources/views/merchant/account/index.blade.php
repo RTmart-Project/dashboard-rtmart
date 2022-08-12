@@ -3,6 +3,7 @@
 
 @section('css-pages')
 <meta name="role-id" content="{{ Auth::user()->RoleID }}">
+<meta name="csrf_token" content="{{ csrf_token() }}">
 <!-- daterange picker -->
 <link rel="stylesheet" href="{{url('/')}}/plugins/daterangepicker/daterangepicker.css">
 <!-- Datatables -->

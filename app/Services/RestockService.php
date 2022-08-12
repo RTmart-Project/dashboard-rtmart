@@ -30,11 +30,6 @@ class RestockService
         -- ms_merchant_account.StoreAddress,
         CONCAT(tmo.SalesCode, ' - ', ms_sales.SalesName) AS Sales,
         tmo.IsValid,
-        CASE
-          WHEN tmo.IsValid = 1 THEN 'Sudah Valid'
-          WHEN tmo.IsValid = 0 THEN 'Tidak Valid'
-          ELSE 'Belum Divalidasi'
-        END AS Validation,
         tmo.ValidationNotes
       ");
 
