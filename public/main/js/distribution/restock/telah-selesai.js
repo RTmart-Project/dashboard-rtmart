@@ -32,13 +32,16 @@ $(document).ready(function () {
                     type: "date",
                 },
                 {
-                    data: "ShipmentDate",
-                    name: "tx_merchant_order.ShipmentDate",
-                    type: "date",
-                },
-                {
                     data: "DistributorName",
                     name: "ms_distributor.DistributorName",
+                },
+                {
+                    data: "IsValid",
+                    name: "tx_merchant_order.IsValid",
+                },
+                {
+                    data: "ValidationNotes",
+                    name: "tx_merchant_order.ValidationNotes",
                 },
                 {
                     data: "MerchantID",
@@ -105,14 +108,14 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
                         orthogonal: "export",
                     },
                 },
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [9],
+                    aTargets: [10],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;

@@ -105,7 +105,7 @@
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!-- Main JS -->
 <script src="{{url('/')}}/main/js/custom/select-filter.js"></script>
-<script src="{{ url('/') }}/plugins/bootstrap-select/bootstrap-select.min.js"></script>
+<script src="{{url('/')}}/plugins/bootstrap-select/bootstrap-select.min.js"></script>
 <script src="{{url('/')}}/main/js/distribution/merchant/merchant.js"></script>
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
 <script>

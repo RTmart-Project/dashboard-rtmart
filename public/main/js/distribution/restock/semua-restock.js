@@ -3,6 +3,12 @@ $(document).ready(function () {
     dataTablesSemuaRestock();
 
     function dataTablesSemuaRestock(fromDate = "", toDate = "", filterBy = "") {
+        $.ajaxSetup({
+            headers: {
+                "X-CSRF-TOKEN": $('meta[name="csrf_token"]').attr("content"),
+            },
+        });
+
         $("#semua-restock .table-datatables").DataTable({
             dom:
                 "<'row'<'col-sm-12 col-md-5'<'filter-semua-restock'>tl><'col-sm-12 col-md-4 justify-content-end'f><'col-sm-6 col-md-3 text-center'B>>" +
@@ -13,6 +19,7 @@ $(document).ready(function () {
             stateServe: true,
             ajax: {
                 url: "/distribution/restock/get/allRestockAndDO",
+                type: "POST",
                 data: {
                     fromDate: fromDate,
                     toDate: toDate,
@@ -64,6 +71,14 @@ $(document).ready(function () {
                 {
                     data: "StatusOrder",
                     name: "ms_status_order.StatusOrder",
+                },
+                {
+                    data: "IsValid",
+                    name: "tx_merchant_order.IsValid",
+                },
+                {
+                    data: "ValidationNotes",
+                    name: "tx_merchant_order.ValidationNotes",
                 },
                 {
                     data: "DeliveryOrderID",
@@ -121,8 +136,8 @@ $(document).ready(function () {
                     name: "MarginRealPercentage",
                 },
                 {
-                    data: "StatusDO",
-                    name: "StatusDO",
+                    data: "StatusDetailDO",
+                    name: "StatusDetailDO",
                 },
                 {
                     data: "ReceiptImage",
@@ -170,7 +185,7 @@ $(document).ready(function () {
                     className: "btn-sm mr-1 rounded",
                     excelStyles: [
                         {
-                            cells: "A2:J2",
+                            cells: "A2:L2",
                             style: {
                                 fill: {
                                     pattern: {
@@ -184,7 +199,7 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 8, 9, 10],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12],
                         orthogonal: "export",
                     },
                 },
@@ -201,7 +216,7 @@ $(document).ready(function () {
                     className: "btn-sm ml-1 rounded",
                     excelStyles: [
                         {
-                            cells: "A2:J2",
+                            cells: "A2:L2",
                             style: {
                                 fill: {
                                     pattern: {
@@ -211,7 +226,7 @@ $(document).ready(function () {
                             },
                         },
                         {
-                            cells: "K2:AC2",
+                            cells: "M2:AE2",
                             style: {
                                 fill: {
                                     pattern: {
@@ -227,8 +242,8 @@ $(document).ready(function () {
                         },
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15,
-                            16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-                            29,
+                            16, 17, 18, 19, 20, 21, 22, 23, 25, 26, 27, 28, 29,
+                            30, 31, 32,
                         ],
                         orthogonal: "export",
                     },
@@ -236,7 +251,7 @@ $(document).ready(function () {
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [7, 15, 16, 18, 20, 21, 25, 26, 27],
+                    aTargets: [7, 17, 18, 20, 22, 23, 27, 28, 29],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
@@ -252,13 +267,13 @@ $(document).ready(function () {
                     },
                 },
                 {
-                    aTargets: [15, 21, 22],
+                    aTargets: [17, 23, 24],
                     visible: false,
                 },
             ],
             order: [
                 [1, "desc"],
-                [12, "desc"],
+                [14, "desc"],
             ],
             lengthChange: false,
             responsive: true,

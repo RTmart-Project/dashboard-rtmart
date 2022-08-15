@@ -7,7 +7,7 @@ $(document).ready(function () {
 
         $("#merchant-account .table-datatables").DataTable({
             dom:
-                "<'row'<'col-sm-12 col-md-8'<'filter-merchant-account'>tl><l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
+                "<'row'<'col-sm-12 col-md-9'<'filter-merchant-account'>tl><l><'col-sm-12 col-md-2'f><'col-sm-12 col-md-1 d-flex justify-content-end h-100'B>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
@@ -23,6 +23,9 @@ $(document).ready(function () {
                     ).val();
                     d.filterAssessment = $(
                         "#merchant-account .filter-assessment select"
+                    ).val();
+                    d.filterBlock = $(
+                        "#merchant-account .filter-block select"
                     ).val();
                 },
             },
@@ -57,6 +60,14 @@ $(document).ready(function () {
                     type: "date",
                 },
                 {
+                    data: "Latitude",
+                    name: "ms_merchant_account.Latitude",
+                },
+                {
+                    data: "Longitude",
+                    name: "ms_merchant_account.Longitude",
+                },
+                {
                     data: "StoreAddress",
                     name: "ms_merchant_account.StoreAddress",
                 },
@@ -71,6 +82,14 @@ $(document).ready(function () {
                 {
                     data: "DistributorName",
                     name: "ms_distributor.DistributorName",
+                },
+                {
+                    data: "StatusBlock",
+                    name: "StatusBlock",
+                },
+                {
+                    data: "BlockedMessage",
+                    name: "ms_merchant_account.BlockedMessage",
                 },
                 {
                     data: "Action",
@@ -107,7 +126,9 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                        columns: [
+                            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+                        ],
                         orthogonal: "export",
                     },
                 },
@@ -118,8 +139,18 @@ $(document).ready(function () {
             autoWidth: false,
             aoColumnDefs: [
                 {
-                    aTargets: [11],
+                    aTargets: [15],
                     visible: roleID != "HL" ? true : false,
+                },
+                {
+                    aTargets: [7, 8],
+                    mRender: function (data, type, full) {
+                        if (type === "export") {
+                            return "'" + data;
+                        } else {
+                            return data;
+                        }
+                    },
                 },
             ],
         });
@@ -128,7 +159,7 @@ $(document).ready(function () {
     // Create element for DateRange Filter
     $("div.filter-merchant-account").html(`
                         <div class="row">
-                            <div class="col-12 col-md-8">
+                            <div class="col-12 col-md-6">
                                 <div class="input-group">
                                     <input type="text" name="from_date" id="from_date" class="form-control form-control-sm"
                                         readonly>
@@ -139,17 +170,27 @@ $(document).ready(function () {
                                     class="btn btn-sm btn-warning ml-2">Refresh</button>
                                 </div>
                             </div>
-                            <div class="col-12 col-md-4 d-flex justify-content-center" style="gap: 3px;">
-                                <div class="select-filter-custom filter-depo mr-2">
-                                    <select>
+                            <div class="col-12 col-md-6 d-flex justify-content-center" style="gap: 3px;">
+                                <div class="filter-depo mr-1">
+                                    <select class="form-control form-control-sm">
+                                        <option value="" selected hidden disabled>Filter Depo</option>
                                         <option value="">All</option>
                                     </select>
                                 </div>
-                                <div class="select-filter-custom filter-assessment ml-2">
-                                    <select>
+                                <div class="filter-assessment ml-1">
+                                    <select class="form-control form-control-sm">
+                                        <option value="" selected hidden disabled>Filter Assessment</option>
                                         <option value="">All</option>
                                         <option value="already-assessed">Sudah Assessment</option>
                                         <option value="not-assessed">Belum Assessment</option>
+                                    </select>
+                                </div>
+                                <div class="filter-block ml-1">
+                                    <select class="form-control form-control-sm">
+                                        <option value="" selected hidden disabled>Filter Block</option>
+                                        <option value="">All</option>
+                                        <option value="blocked">Blocked</option>
+                                        <option value="unblocked">Not Blocked</option>
                                     </select>
                                 </div>
                             </div>
@@ -256,7 +297,7 @@ $(document).ready(function () {
                 option += `<option value="${item.DistributorID}">${item.DistributorName}</option>`;
             }
             $("#merchant-account .filter-depo select").append(option);
-            customDropdownFilter.createCustomDropdowns();
+            // customDropdownFilter.createCustomDropdowns();
             // $('#merchant-account .select-filter-custom select').val("All").change();
         },
     });
@@ -268,5 +309,48 @@ $(document).ready(function () {
 
     $("#merchant-account .filter-assessment select").change(function () {
         $("#merchant-account .table-datatables").DataTable().ajax.reload();
+    });
+
+    $("#merchant-account .filter-block select").change(function () {
+        $("#merchant-account .table-datatables").DataTable().ajax.reload();
+    });
+
+    let csrf = $('meta[name="csrf_token"]').attr("content");
+
+    $("#merchant-account").on("click", ".btn-update-block", function (e) {
+        e.preventDefault();
+        const merchantID = $(this).data("merchant-id");
+        const storeName = $(this).data("store-name");
+        const isBlocked = $(this).data("is-blocked");
+
+        let text = "";
+        if (isBlocked == 1) {
+            text = "membuka block";
+        } else {
+            text = "mem-block";
+        }
+
+        $.confirm({
+            title: "Update Block",
+            content: `Apakah ingin <b>${text}</b> toko <b>${merchantID} - ${storeName}</b>?<br>
+              <form action="/merchant/account/update-block/${merchantID}" method="post">
+                <input type="hidden" name="_token" value="${csrf}">
+                <label class="mt-2 mb-0">Catatan:</label>
+                <input type="text" class="form-control price" autocomplete="off" 
+                  name="block_notes" placeholder="Tambahkan Catatan (opsional)">
+              </form>`,
+            closeIcon: true,
+            buttons: {
+                simpan: {
+                    btnClass: "btn-success",
+                    draggable: true,
+                    dragWindowGap: 0,
+                    action: function () {
+                        this.$content.find("form").submit();
+                    },
+                },
+                batal: function () {},
+            },
+        });
     });
 });

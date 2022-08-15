@@ -375,10 +375,10 @@ class SummaryService
             SELECT COUNT(DISTINCT SummaryDO.MerchantID)
         ) as CountMerchantDO,
         (
-            SELECT $valueMarginDO
+            SELECT $valueMarginDO - SUM(SummaryDO.Discount)
         ) as ValueMarginReal,
         (
-            SELECT ROUND($valueMarginDO / ($valueDO - SUM(SummaryDO.Discount)) * 100, 2)
+            SELECT ROUND(($valueMarginDO - SUM(SummaryDO.Discount)) / ($valueDO - SUM(SummaryDO.Discount)) * 100, 2)
         ) as PercentMarginReal
     ");
 
@@ -389,5 +389,205 @@ class SummaryService
     $data->DO = $dataDO;
 
     return $data;
+  }
+
+  public function queryPO($startDate, $endDate, $distributorID, $salesCode)
+  {
+    $sql = DB::table('tx_merchant_order as tmo')
+      ->join('ms_merchant_account as mma', 'mma.MerchantID', 'tmo.MerchantID')
+      ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', 'tmo.PaymentMethodID')
+      ->join('ms_distributor', 'ms_distributor.DistributorID', 'tmo.DistributorID')
+      ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tmo.StatusOrderID')
+      ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tmo.SalesCode')
+      ->whereIn('tmo.StatusOrderID', ['S009', 'S010', 'S023'])
+      ->whereDate('tmo.CreatedDate', '>=', $startDate)
+      ->whereDate('tmo.CreatedDate', '<=', $endDate);
+
+    if ($distributorID != null) {
+      $sql->whereIn('tmo.DistributorID', explode(",", $distributorID));
+    }
+    if ($salesCode != null) {
+      $sql->whereIn('tmo.SalesCode', explode(",", $salesCode));
+    }
+
+    return $sql;
+  }
+
+  public function totalValuePO($startDate, $endDate, $distributorID, $salesCode)
+  {
+    $sql = $this->queryPO($startDate, $endDate, $distributorID, $salesCode)
+      ->join('tx_merchant_order_detail as tmod', 'tmo.StockOrderID', 'tmod.StockOrderID')
+      ->join('ms_product', 'ms_product.ProductID', 'tmod.ProductID')
+      ->select('tmo.StockOrderID', 'tmo.CreatedDate', 'tmo.MerchantID', 'mma.StoreName', 'mma.OwnerFullName', 'mma.PhoneNumber', 'mma.StoreAddress', 'mma.Partner', 'ms_distributor.DistributorName', 'ms_payment_method.PaymentMethodName', 'tmo.StatusOrderID', 'ms_status_order.StatusOrder', 'tmo.TotalPrice', 'tmo.NettPrice', 'tmo.DiscountPrice', 'tmo.DiscountVoucher', 'tmo.ServiceChargeNett', 'tmo.DeliveryFee', DB::raw("(tmo.NettPrice + tmo.ServiceChargeNett + tmo.DeliveryFee) as GrandTotal"), DB::raw("CONCAT(tmo.SalesCode, ' - ', ms_sales.SalesName) as Sales"), 'tmod.ProductID', 'ms_product.ProductName', 'tmod.PromisedQuantity', 'tmod.Nett', DB::raw("(tmod.PromisedQuantity * tmod.Nett) as SubTotalProduct"));
+
+    return $sql;
+  }
+
+  public function countPO($startDate, $endDate, $distributorID, $salesCode)
+  {
+    $sql = $this->queryPO($startDate, $endDate, $distributorID, $salesCode)
+      ->select('tmo.StockOrderID', 'tmo.CreatedDate', 'tmo.MerchantID', 'mma.StoreName', 'mma.OwnerFullName', 'mma.PhoneNumber', 'mma.StoreAddress', 'mma.Partner', 'ms_distributor.DistributorName', 'ms_payment_method.PaymentMethodName', 'tmo.StatusOrderID', 'ms_status_order.StatusOrder', 'tmo.TotalPrice', 'tmo.DiscountPrice', 'tmo.DiscountVoucher', 'tmo.ServiceChargeNett', 'tmo.DeliveryFee', DB::raw("(tmo.NettPrice + tmo.ServiceChargeNett + tmo.DeliveryFee) as GrandTotal"), DB::raw("CONCAT(tmo.SalesCode, ' - ', ms_sales.SalesName) as Sales"));
+
+    return $sql;
+  }
+
+  public function countMerchantPO($startDate, $endDate, $distributorID, $salesCode)
+  {
+    $sql = $this->queryPO($startDate, $endDate, $distributorID, $salesCode)
+      ->distinct('tmo.MerchantID')
+      ->select('tmo.MerchantID', 'mma.StoreName', 'mma.OwnerFullName', 'mma.PhoneNumber', 'mma.StoreAddress', 'mma.Partner', 'ms_distributor.DistributorName', DB::raw("CONCAT(tmo.SalesCode, ' - ', ms_sales.SalesName) as Sales"));
+
+    return $sql;
+  }
+
+  public function queryDO($startDate, $endDate, $distributorID, $salesCode)
+  {
+    $sql = DB::table('tx_merchant_delivery_order as tmdo')
+      ->join('tx_merchant_order as tmo', 'tmo.StockOrderID', 'tmdo.StockOrderID')
+      ->join('ms_merchant_account as mma', 'mma.MerchantID', 'tmo.MerchantID')
+      ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', 'tmo.PaymentMethodID')
+      ->join('ms_distributor', 'ms_distributor.DistributorID', 'tmo.DistributorID')
+      ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tmdo.StatusDO')
+      ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tmo.SalesCode')
+      ->whereRaw("DATE(tmdo.CreatedDate) >= '$startDate'")
+      ->whereRaw("DATE(tmdo.CreatedDate) <= '$endDate'")
+      ->whereRaw("tmdo.StatusDO IN ('S024', 'S025')");
+
+    if ($distributorID != null) {
+      $sql->whereIn('tmo.DistributorID', explode(",", $distributorID));
+    }
+    if ($salesCode != null) {
+      $sql->whereIn('tmo.SalesCode', explode(",", $salesCode));
+    }
+
+    return $sql;
+  }
+
+  public function totalValueDO($startDate, $endDate, $distributorID, $salesCode)
+  {
+    $sql = $this->queryDO($startDate, $endDate, $distributorID, $salesCode)
+      ->join('tx_merchant_delivery_order_detail as tmdod', 'tmdod.DeliveryOrderID', 'tmdo.DeliveryOrderID')
+      ->join('ms_product', 'ms_product.ProductID', 'tmdod.ProductID')
+      ->leftJoin('tx_merchant_expedition_detail as tmed', function ($join) {
+        $join->on('tmed.DeliveryOrderDetailID', 'tmdod.DeliveryOrderDetailID');
+        $join->whereIn('tmed.StatusExpeditionDetail', ['S030', 'S031']);
+      })
+      ->selectRaw("
+        tmdo.DeliveryOrderID,
+        tmdo.StatusDO,
+        ANY_VALUE(ms_status_order.StatusOrder) AS StatusOrder,
+        tmdo.StockOrderID,
+        ANY_VALUE(tmed.MerchantExpeditionID) AS MerchantExpeditionID,
+        tmdo.CreatedDate,
+        ANY_VALUE(mma.MerchantID) AS MerchantID,
+        ANY_VALUE(mma.StoreName) AS StoreName,
+        ANY_VALUE(mma.OwnerFullName) AS OwnerFullName,
+        ANY_VALUE(mma.PhoneNumber) AS PhoneNumber,
+        ANY_VALUE(mma.StoreAddress) AS StoreAddress,
+        ANY_VALUE(mma.Partner) AS Partner,
+        ANY_VALUE(ms_distributor.DistributorName) AS DistributorName,
+        ANY_VALUE(ms_payment_method.PaymentMethodName) AS PaymentMethodName,
+        ANY_VALUE(tmdod.ProductID) AS ProductID,
+        ANY_VALUE(ms_product.ProductName) AS ProductName,
+        ANY_VALUE(tmdod.Qty) AS Qty,
+        ANY_VALUE(tmdod.Price) AS Price,
+        ANY_VALUE(tmdod.Qty) * ANY_VALUE(tmdod.Price) as ValueProduct,
+        tmdo.Discount,
+        tmdo.ServiceCharge,
+        tmdo.DeliveryFee,
+        CONCAT(ANY_VALUE(tmo.SalesCode), ' - ', ANY_VALUE(ms_sales.SalesName)) as Sales,
+        (
+          SELECT SUM(Qty * Price)
+          FROM tx_merchant_delivery_order_detail
+          WHERE DeliveryOrderID = tmdo.DeliveryOrderID
+        ) AS SubTotal,
+        (
+          SELECT SUM(Qty * Price) - tmdo.Discount
+          FROM tx_merchant_delivery_order_detail
+          WHERE DeliveryOrderID = tmdo.DeliveryOrderID
+        ) AS SubTotalMinVoucher
+      ");
+
+    return $sql;
+  }
+
+  public function countDO($startDate, $endDate, $distributorID, $salesCode)
+  {
+    $sql = $this->queryDO($startDate, $endDate, $distributorID, $salesCode)
+      ->join('tx_merchant_delivery_order_detail as tmdod', 'tmdod.DeliveryOrderID', 'tmdo.DeliveryOrderID')
+      ->join('ms_product', 'ms_product.ProductID', 'tmdod.ProductID')
+      ->leftJoin('tx_merchant_expedition_detail as tmed', function ($join) {
+        $join->on('tmed.DeliveryOrderDetailID', 'tmdod.DeliveryOrderDetailID');
+        $join->whereIn('tmed.StatusExpeditionDetail', ['S030', 'S031']);
+      })
+      ->selectRaw("
+        tmdo.DeliveryOrderID,
+        tmdo.StatusDO, 
+        ANY_VALUE(ms_status_order.StatusOrder) AS StatusOrder,
+        tmdo.StockOrderID,
+        ANY_VALUE(tmed.MerchantExpeditionID) AS MerchantExpeditionID, 
+        tmdo.CreatedDate,
+        ANY_VALUE(mma.MerchantID) AS MerchantID,
+        ANY_VALUE(mma.StoreName) AS StoreName,
+        ANY_VALUE(mma.OwnerFullName) AS OwnerFullName,
+        ANY_VALUE(mma.PhoneNumber) AS PhoneNumber,
+        ANY_VALUE(mma.StoreAddress) AS StoreAddress,
+        ANY_VALUE(mma.Partner) AS Partner,
+        ANY_VALUE(ms_distributor.DistributorName) AS DistributorName,
+        ANY_VALUE(ms_payment_method.PaymentMethodName) AS PaymentMethodName,
+        tmdo.Discount,
+        tmdo.ServiceCharge,
+        tmdo.DeliveryFee, 
+        CONCAT(ANY_VALUE(tmo.SalesCode), ' - ', ANY_VALUE(ms_sales.SalesName)) as Sales
+      ")
+      ->groupBy('tmdo.DeliveryOrderID')
+      ->get();
+
+    foreach ($sql as $key => $value) {
+      $subTotal = 0;
+      $detailDO = DB::table('tx_merchant_delivery_order_detail')
+        ->where('DeliveryOrderID', $value->DeliveryOrderID)
+        ->select('Qty', 'Price')
+        ->get();
+
+      foreach ($detailDO as $key => $detail) {
+        $subTotal += $detail->Qty * $detail->Price;
+      }
+      $value->SubTotal = $subTotal;
+    }
+
+    return $sql;
+  }
+
+  public function countMerchantDO($startDate, $endDate, $distributorID, $salesCode)
+  {
+    $sql = $this->queryDO($startDate, $endDate, $distributorID, $salesCode)
+      ->select('tmo.MerchantID', 'mma.StoreName', 'mma.OwnerFullName', 'mma.PhoneNumber', 'mma.StoreAddress', 'mma.Partner', DB::raw("ANY_VALUE(ms_distributor.DistributorName) AS DistributorName"), DB::raw("CONCAT(ANY_VALUE(tmo.SalesCode), ' - ', ANY_VALUE(ms_sales.SalesName)) as Sales"))
+      ->groupBy('tmo.MerchantID');
+
+    return $sql;
+  }
+
+  public function dataFilter($startDate, $endDate, $distributorID, $salesCode)
+  {
+    $sqlFilterDepo = DB::table('ms_distributor')->whereIn('DistributorID', explode(",", $distributorID))->select('DistributorName')->get()->toArray();
+    $arrayDepo = array_map(function ($value) {
+      return $value->DistributorName;
+    }, $sqlFilterDepo);
+    $filterDepo = implode(" <b>|</b> ", $arrayDepo);
+
+    $sqlFilterSales = DB::table('ms_sales')->whereIn('SalesCode', explode(",", $salesCode))->select('SalesCode', 'SalesName')->get()->toArray();
+    $arraySales = array_map(function ($value) {
+      return $value->SalesCode . ' - ' . $value->SalesName;
+    }, $sqlFilterSales);
+    $filterSales = implode(" <b>|</b> ", $arraySales);
+
+    $dataFilter = new stdClass;
+    $dataFilter->startDate = $startDate;
+    $dataFilter->endDate = $endDate;
+    $dataFilter->distributor = $filterDepo;
+    $dataFilter->sales = $filterSales;
+
+    return $dataFilter;
   }
 }

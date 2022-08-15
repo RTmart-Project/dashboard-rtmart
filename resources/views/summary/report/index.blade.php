@@ -73,9 +73,9 @@
         <div class="row">
           <div class="col-md-3 col-6">
             <div class="info-box">
-              <span class="info-box-icon bg-success elevation-1"><i class="fas fa-money-bill-wave-alt"></i></span>
+              <span class="info-box-icon bg-success elevation-1"><i class="fas fas fa-shopping-cart"></i></span>
               <div class="info-box-content">
-                <span class="info-box-text h6 mb-2">Total PO (Value)</span>
+                <span class="info-box-text h6 mb-2"><a id="total-value-po-link" target="_blank">Total PO (Value)</a></span>
                 <span class="info-box-number h6 m-0" id="total-value-po"></span>
               </div>
             </div>
@@ -84,7 +84,7 @@
             <div class="info-box">
               <span class="info-box-icon bg-success elevation-1"><i class="fas fa-shopping-cart"></i></span>
               <div class="info-box-content">
-                <span class="info-box-text h6 mb-2">Jumlah PO</span>
+                <span class="info-box-text h6 mb-2"><a id="count-total-po-link" target="_blank">Jumlah PO</a></span>
                 <span class="info-box-number h6 m-0" id="count-total-po"></span>
               </div>
             </div>
@@ -93,7 +93,7 @@
             <div class="info-box">
               <span class="info-box-icon bg-success elevation-1"><i class="fas fa-store"></i></span>
               <div class="info-box-content">
-                <span class="info-box-text h6 mb-2">Jumlah Toko</span>
+                <span class="info-box-text h6 mb-2"><a id="count-merchant-po-link" target="_blank">Jumlah Toko</a></span>
                 <span class="info-box-number h6 m-0" id="count-merchant-po"></span>
               </div>
             </div>
@@ -113,18 +113,18 @@
         <div class="row">
           <div class="col-md-3 col-6">
             <div class="info-box">
-              <span class="info-box-icon bg-info elevation-1"><i class="fas fa-money-bill-wave-alt"></i></span>
+              <span class="info-box-icon bg-info elevation-1"><i class="fas fa-truck"></i></span>
               <div class="info-box-content">
-                <span class="info-box-text h6 mb-2">Total DO (Value)</span>
+                <span class="info-box-text h6 mb-2"><a id="total-value-do-link" target="_blank">Total DO (Value)</a></span>
                 <span class="info-box-number h6 m-0" id="total-value-do"></span>
               </div>
             </div>
           </div>
           <div class="col-md-3 col-6">
             <div class="info-box">
-              <span class="info-box-icon bg-info elevation-1"><i class="fas fa-shopping-cart"></i></span>
+              <span class="info-box-icon bg-info elevation-1"><i class="fas fa-truck"></i></span>
               <div class="info-box-content">
-                <span class="info-box-text h6 mb-2">Jumlah DO</span>
+                <span class="info-box-text h6 mb-2"><a id="count-total-do-link" target="_blank">Jumlah DO</a></span>
                 <span class="info-box-number h6 m-0" id="count-total-do"></span>
               </div>
             </div>
@@ -133,7 +133,7 @@
             <div class="info-box">
               <span class="info-box-icon bg-info elevation-1"><i class="fas fa-store"></i></span>
               <div class="info-box-content">
-                <span class="info-box-text h6 mb-2">Jumlah Toko</span>
+                <span class="info-box-text h6 mb-2"><a id="count-merchant-do-link" target="_blank">Jumlah Toko</a></span>
                 <span class="info-box-number h6 m-0" id="count-merchant-do"></span>
               </div>
             </div>

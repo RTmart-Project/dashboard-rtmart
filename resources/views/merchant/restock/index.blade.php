@@ -293,6 +293,8 @@
                                                     <th>Nama Distributor</th>
                                                     <th>Metode Pembayaran</th>
                                                     <th>Status Order</th>
+                                                    <th>Validasi PO</th>
+                                                    <th>Catatan Validasi PO</th>
                                                     <th>Total Harga</th>
                                                     <th>Diskon</th>
                                                     <th>Voucher</th>
@@ -339,6 +341,8 @@
                                                     <th>Nama Distributor</th>
                                                     <th>Metode Pembayaran</th>
                                                     <th>Status Order</th>
+                                                    <th>Validasi PO</th>
+                                                    <th>Catatan Validasi PO</th>
                                                     <th>Total Harga</th>
                                                     <th>Diskon</th>
                                                     <th>Voucher</th>

@@ -110,30 +110,12 @@
                                         @endif
                                     </div>
                                 </div>
-                                @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "FI")
-                                <div class="col-md-4 col-12">
-                                    <div class="form-group">
-                                        <label for="referral_code">Kode Referral</label>
-                                        <select name="referral_code" id="referral_code" data-live-search="true" title="Pilih Sales" 
-                                            class="form-control selectpicker border @if($errors->has('referral_code')) is-invalid @endif">
-                                            @foreach ($sales as $value)
-                                                <option value="{{ $value->SalesCode }}" {{ ($merchantById->ReferralCode) == ($value->SalesCode) ? 'selected' : '' }}>{{ $value->SalesCode }} - {{ $value->SalesName }}</option>
-                                            @endforeach
-                                        </select>
-                                        {{-- <input type="text" name="referral_code"
-                                            class="form-control @if($errors->has('referral_code')) is-invalid @endif" id="referral_code"
-                                            placeholder="Masukkan Kode Referral" value="{{ $merchantById->ReferralCode }}" autocomplete="off" onkeyup="this.value = this.value.toUpperCase();"> --}}
-                                        @if($errors->has('referral_code'))
-                                        <span class="error invalid-feedback">{{ $errors->first('referral_code') }}</span>
-                                        @endif
-                                    </div>
-                                </div>
-                                @endif
+                                
                                 <div class="col-md-4 col-12">
                                     <div class="form-group">
                                         <label for="latitude">Latitude</label>
                                         <input type="text" name="latitude"
-                                            class="form-control @if($errors->has('latitude')) is-invalid @endif" id="latitude"
+                                            class="form-control @if($errors->has('latitude')) is-invalid @endif" id="latitude" required
                                             placeholder="Masukkan Kode Referral" value="{{ $merchantById->Latitude }}" autocomplete="off">
                                         @if($errors->has('latitude'))
                                         <span class="error invalid-feedback">{{ $errors->first('latitude') }}</span>
@@ -144,26 +126,70 @@
                                     <div class="form-group">
                                         <label for="longitude">Longitude</label>
                                         <input type="text" name="longitude"
-                                            class="form-control @if($errors->has('longitude')) is-invalid @endif" id="longitude"
+                                            class="form-control @if($errors->has('longitude')) is-invalid @endif" id="longitude" required
                                             placeholder="Masukkan Kode Referral" value="{{ $merchantById->Longitude }}" autocomplete="off">
                                         @if($errors->has('longitude'))
                                         <span class="error invalid-feedback">{{ $errors->first('longitude') }}</span>
                                         @endif
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="row">
-                                <div class="col-md-12 col-12">
+                                @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "FI")
+                                <div class="col-md-4 col-12">
+                                    <div class="form-group">
+                                        <label for="referral_code">Kode Referral</label>
+                                        <select name="referral_code" id="referral_code" data-live-search="true" title="Pilih Sales" 
+                                            class="form-control selectpicker border @if($errors->has('referral_code')) is-invalid @endif">
+                                            @foreach ($sales as $value)
+                                                <option value="{{ $value->SalesCode }}" 
+                                                    {{ ($merchantById->ReferralCode) == ($value->SalesCode) ? 'selected' : '' }}>
+                                                    {{ $value->SalesCode }} - {{ $value->SalesName }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @if($errors->has('referral_code'))
+                                        <span class="error invalid-feedback">{{ $errors->first('referral_code') }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                @endif
+
+                                <div class="col-12">
                                     <div class="form-group">
                                         <label for="address">Alamat</label>
-                                        <textarea name="address" id="address" rows="5" class="form-control 
-                                            @if($errors->has('address')) is-invalid @endif">{{ $merchantById->StoreAddress }}</textarea>
+                                        <textarea name="address" id="address" rows="3" required
+                                            class="form-control @if($errors->has('address')) is-invalid @endif">{{ $merchantById->StoreAddress }}</textarea>
                                         @if($errors->has('address'))
                                             <span class="error invalid-feedback">{{ $errors->first('address') }}</span>
                                         @endif
                                     </div>
                                 </div>
+
+                                {{-- <div class="col-md-4 col-12">
+                                    <div class="form-group">
+                                        <label for="is_blocked">Status Block</label>
+                                        <select name="is_blocked" id="is_blocked" required 
+                                            class="form-control selectpicker border @if($errors->has('is_blocked')) is-invalid @endif">
+                                            <option value="1" {{ $merchantById->IsBlocked == 1 ? 'selected' : ''}}>Blocked</option>
+                                            <option value="0" {{ $merchantById->IsBlocked == 0 ? 'selected' : ''}}>Not Blocked</option>
+                                        </select>
+                                        @if($errors->has('is_blocked'))
+                                            <span class="error invalid-feedback">{{ $errors->first('is_blocked') }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4 col-12">
+                                    <div class="form-group">
+                                        <label for="blocked_message">Catatan Status Block</label>
+                                        <textarea name="blocked_message" id="blocked_message" rows="2"
+                                            class="form-control @if($errors->has('blocked_message')) is-invalid @endif">{{ $merchantById->BlockedMessage }}</textarea>
+                                        @if($errors->has('blocked_message'))
+                                            <span class="error invalid-feedback">{{ $errors->first('blocked_message') }}</span>
+                                        @endif
+                                    </div>
+                                </div> --}}
+
                             </div>
 
                             <div class="form-group float-right">

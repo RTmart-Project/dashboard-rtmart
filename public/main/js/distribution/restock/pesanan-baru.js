@@ -36,6 +36,14 @@ $(document).ready(function () {
                     name: "ms_distributor.DistributorName",
                 },
                 {
+                    data: "IsValid",
+                    name: "tx_merchant_order.IsValid",
+                },
+                {
+                    data: "ValidationNotes",
+                    name: "tx_merchant_order.ValidationNotes",
+                },
+                {
                     data: "MerchantID",
                     name: "tx_merchant_order.MerchantID",
                 },
@@ -94,14 +102,14 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
                         orthogonal: "export",
                     },
                 },
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [8],
+                    aTargets: [10],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;

@@ -40,13 +40,13 @@
                             <p>Summary Finance</p>
                         </a>
                     </li>
-                    {{-- <li class="nav-item">
+                    <li class="nav-item">
                         <a href="{{ route('summary.report') }}"
                             class="nav-link {{ Request::is('summary/report*') ? 'active' : '' }}">
                             <i class="far fa-circle nav-icon"></i>
                             <p>Summary Report</p>
                         </a>
-                    </li> --}}
+                    </li>
                 </ul>
             </li>
             @endif
@@ -63,6 +63,15 @@
                     </p>
                 </a>
                 <ul class="nav nav-treeview">
+                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "AH")
+                    <li class="nav-item">
+                        <a href="{{ route('distribution.validationRestock') }}"
+                            class="nav-link {{ Request::is('distribution/validation*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Validasi Restock</p>
+                        </a>
+                    </li>
+                    @endif
                     @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "RBTAD") ||
                     (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH") || 
                     (Auth::user()->RoleID == "DMO") || Auth::user()->RoleID == "HL")

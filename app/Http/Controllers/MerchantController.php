@@ -83,6 +83,7 @@ class MerchantController extends Controller
         $toDate = $request->input('toDate');
         $distributorId = $request->input('distributorId');
         $filterAssessment = $request->input('filterAssessment');
+        $filterBlock = $request->input('filterBlock');
 
         // Get data account, jika tanggal filter kosong tampilkan semua data.
         $sqlAllAccount = DB::table('ms_merchant_account')
@@ -95,7 +96,7 @@ class MerchantController extends Controller
                 $join->where('ms_merchant_assessment.IsActive', 1);
             })
             ->where('ms_merchant_account.IsTesting', 0)
-            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.CreatedDate', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_distributor.DistributorName', 'ms_distributor_grade.Grade', 'ms_merchant_assessment.MerchantAssessmentID', 'ms_merchant_assessment.IsActive', 'ms_sales.SalesName');
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.CreatedDate', 'ms_merchant_account.Latitude', 'ms_merchant_account.Longitude', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_distributor.DistributorName', 'ms_distributor_grade.Grade', 'ms_merchant_assessment.MerchantAssessmentID', 'ms_merchant_assessment.IsActive', 'ms_sales.SalesName', 'ms_merchant_account.IsBlocked', 'ms_merchant_account.BlockedMessage');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
@@ -111,6 +112,12 @@ class MerchantController extends Controller
             $sqlAllAccount->where('ms_merchant_assessment.IsActive', 1);
         } elseif ($filterAssessment == "not-assessed") {
             $sqlAllAccount->whereRaw("(ms_merchant_assessment.MerchantAssessmentID IS NULL OR ms_merchant_assessment.IsActive = 0)");
+        }
+
+        if ($filterBlock == "blocked") {
+            $sqlAllAccount->where('ms_merchant_account.IsBlocked', 1);
+        } elseif ($filterBlock == "unblocked") {
+            $sqlAllAccount->where('ms_merchant_account.IsBlocked', 0);
         }
 
         if (Auth::user()->Depo != "ALL") {
@@ -143,12 +150,34 @@ class MerchantController extends Controller
                     }
                     return $grade;
                 })
+                ->addColumn('StatusBlock', function ($data) {
+                    if ($data->IsBlocked == 1) {
+                        $statusBlock = '<span class="badge badge-danger">Blocked</span>';
+                    } else {
+                        $statusBlock = '<span class="badge badge-success">Not Blocked</span>';
+                    }
+                    return $statusBlock;
+                })
                 ->addColumn('Product', function ($data) {
                     $productBtn = '<a href="/merchant/account/product/' . $data->MerchantID . '" class="btn-sm btn-info detail-order">Detail</a>';
                     return $productBtn;
                 })
                 ->addColumn('Action', function ($data) {
-                    $actionBtn = '<a href="/merchant/account/edit/' . $data->MerchantID . '" class="btn-sm btn-warning detail-order">Edit</a>';
+                    $edit = '<a href="/merchant/account/edit/' . $data->MerchantID . '" class="btn-sm btn-warning detail-order">Edit</a>';
+
+                    if ($data->IsBlocked == 1) {
+                        $textBlock = "Unblocked";
+                        $btn = "success";
+                    } else {
+                        $textBlock = "Blocked";
+                        $btn = "danger";
+                    }
+                    $updateBlock = '<a href="#" class="ml-1 btn-sm btn-' . $btn . ' btn-update-block" 
+                        data-merchant-id="' . $data->MerchantID . '"
+                        data-store-name="' . $data->StoreName . '"
+                        data-is-blocked="' . $data->IsBlocked . '">' . $textBlock . '</a>';
+
+                    $actionBtn = $edit . $updateBlock;
                     return $actionBtn;
                 })
                 ->addColumn('Assessment', function ($data) {
@@ -162,8 +191,50 @@ class MerchantController extends Controller
                 ->filterColumn('ms_merchant_account.CreatedDate', function ($query, $keyword) {
                     $query->whereRaw("DATE_FORMAT(ms_merchant_account.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
                 })
-                ->rawColumns(['Partner', 'Product', 'Action', 'Assessment'])
+                ->rawColumns(['Partner', 'Product', 'Action', 'Assessment', 'StatusBlock'])
                 ->make(true);
+        }
+    }
+
+    public function updateBlock($merchantID, Request $request)
+    {
+        $user = Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo;
+        $sqlMerchant = DB::table('ms_merchant_account')
+            ->where('MerchantID', $merchantID)
+            ->select('IsBlocked')->first();
+
+        if ($sqlMerchant->IsBlocked == 1) {
+            $isBlocked = 0;
+        } else {
+            $isBlocked = 1;
+        }
+
+        $blockNotes = $request->input('block_notes');
+
+        $dataUpdate = [
+            'IsBlocked' => $isBlocked,
+            'BlockedMessage' => $blockNotes
+        ];
+
+        $dataLogBlock = [
+            'MerchantID' => $merchantID,
+            'IsBlocked' => $isBlocked,
+            'BlockedMessage' => $blockNotes,
+            'CreatedDate' => date('Y-m-d H:i:s'),
+            'ActionBy' => $user
+        ];
+
+        try {
+            DB::transaction(function () use ($merchantID, $dataUpdate, $dataLogBlock) {
+                DB::table('ms_merchant_account')
+                    ->where('MerchantID', '=', $merchantID)
+                    ->update($dataUpdate);
+                DB::table('ms_merchant_account_block_log')
+                    ->insert($dataLogBlock);
+            });
+            return redirect()->route('merchant.account')->with('success', 'Data status block merchant berhasil diubah');
+        } catch (\Throwable $th) {
+            return redirect()->route('merchant.account')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
         }
     }
 
@@ -181,7 +252,7 @@ class MerchantController extends Controller
         $merchantById = DB::table('ms_merchant_account')
             ->leftJoin('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
             ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'ms_merchant_account.MerchantID')
-            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'ms_distributor.DistributorID', 'ms_distributor.DistributorName', 'ms_distributor_merchant_grade.GradeID', 'ms_merchant_account.ReferralCode', 'ms_merchant_account.Latitude', 'ms_merchant_account.Longitude', 'ms_merchant_account.ReferralCode')
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'ms_distributor.DistributorID', 'ms_distributor.DistributorName', 'ms_distributor_merchant_grade.GradeID', 'ms_merchant_account.ReferralCode', 'ms_merchant_account.Latitude', 'ms_merchant_account.Longitude', 'ms_merchant_account.ReferralCode', 'ms_merchant_account.IsBlocked', 'ms_merchant_account.BlockedMessage')
             ->where('ms_merchant_account.MerchantID', '=', $merchantId)
             ->first();
 
@@ -215,14 +286,6 @@ class MerchantController extends Controller
 
     public function updateAccount(Request $request, $merchantId)
     {
-        $merchantGrade = DB::table('ms_distributor_merchant_grade')
-            ->where('MerchantID', '=', $merchantId)
-            ->select('MerchantID')->first();
-
-        $merchant = DB::table('ms_merchant_account')
-            ->where('MerchantID', '=', $merchantId)
-            ->select('ReferralCode')->first();
-
         $request->validate([
             'store_name' => 'required|string',
             'owner_name' => 'required|string',
@@ -238,6 +301,14 @@ class MerchantController extends Controller
             'latitude' => 'required',
             'longitude' => 'required'
         ]);
+
+        $merchantGrade = DB::table('ms_distributor_merchant_grade')
+            ->where('MerchantID', '=', $merchantId)
+            ->select('MerchantID')->first();
+
+        $merchant = DB::table('ms_merchant_account')
+            ->where('MerchantID', '=', $merchantId)
+            ->select('ReferralCode', 'IsBlocked')->first();
 
         $user = Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo;
         $referralCode = $request->input('referral_code');
@@ -313,11 +384,18 @@ class MerchantController extends Controller
             ->orderByDesc('ms_sales_merchant_relation_log.CreatedDate')
             ->get();
 
+        $logBlocked = DB::table('ms_merchant_account_block_log')
+            ->where('MerchantID', $merchantId)
+            ->select('IsBlocked', 'BlockedMessage', 'CreatedDate', 'ActionBy')
+            ->orderByDesc('CreatedDate')
+            ->get();
+
         return view('merchant.product.index', [
             'merchantId' => $merchantId,
             'merchant' => $merchant,
             'operationalHour' => $operationalHour,
-            'logSales' => $logSales
+            'logSales' => $logSales,
+            'logBlocked' => $logBlocked
         ]);
     }
 
@@ -1345,10 +1423,22 @@ class MerchantController extends Controller
 
                     return $statusOrder;
                 })
+                ->editColumn('IsValid', function ($data) {
+                    if ($data->IsValid == "VALID") {
+                        $validation = '<span class="badge badge-success">' . $data->IsValid . '</span>';
+                    } elseif ($data->IsValid == "NOT VALID") {
+                        $validation = '<span class="badge badge-danger">' . $data->IsValid . '</span>';
+                    } elseif ($data->IsValid == "UNKNOWN") {
+                        $validation = '<span class="badge badge-warning">' . $data->IsValid . '</span>';
+                    } else {
+                        $validation = '<span class="badge badge-info">Belum Divalidasi</span>';
+                    }
+                    return $validation;
+                })
                 ->filterColumn('tx_merchant_order.CreatedDate', function ($query, $keyword) {
                     $query->whereRaw("DATE_FORMAT(tx_merchant_order.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
                 })
-                ->rawColumns(['Partner', 'Action', 'Invoice', 'StatusOrder'])
+                ->rawColumns(['Partner', 'Action', 'Invoice', 'StatusOrder', 'IsValid'])
                 ->make(true);
         }
     }
@@ -1501,6 +1591,18 @@ class MerchantController extends Controller
 
                     return $statusOrder;
                 })
+                ->editColumn('IsValid', function ($data) {
+                    if ($data->IsValid == "VALID") {
+                        $validation = '<span class="badge badge-success">' . $data->IsValid . '</span>';
+                    } elseif ($data->IsValid == "NOT VALID") {
+                        $validation = '<span class="badge badge-danger">' . $data->IsValid . '</span>';
+                    } elseif ($data->IsValid == "UNKNOWN") {
+                        $validation = '<span class="badge badge-warning">' . $data->IsValid . '</span>';
+                    } else {
+                        $validation = '<span class="badge badge-info">Belum Divalidasi</span>';
+                    }
+                    return $validation;
+                })
                 ->editColumn('PurchasePriceEstimation', function ($data) {
                     if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM") {
                         $purchasePriceEstimation = $data->PurchasePriceEstimation;
@@ -1633,7 +1735,7 @@ class MerchantController extends Controller
                 ->editColumn('Price', function ($data) {
                     return "$data->Price";
                 })
-                ->rawColumns(['Partner', 'Action', 'StatusOrder'])
+                ->rawColumns(['Partner', 'Action', 'StatusOrder', 'IsValid'])
                 ->make(true);
         }
     }
