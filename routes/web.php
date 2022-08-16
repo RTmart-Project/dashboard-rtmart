@@ -38,7 +38,7 @@ Route::group(['middleware' => ['auth']], function () {
     // Home
     Route::get('/home', [HomeController::class, 'home'])->name('home');
 
-    Route::group(['prefix' => 'summary', 'middleware' => ['checkRoleUser:IT,FI,BM']], function () {
+    Route::group(['prefix' => 'summary', 'middleware' => ['checkRoleUser:IT,FI,BM,HL']], function () {
         Route::get('/finance', [SummaryController::class, 'summary'])->name('summary.summary');
         Route::post('/get', [SummaryController::class, 'getSummary'])->name('summary.dataSummary');
         Route::get('/report', [SummaryController::class, 'summaryReport'])->name('summary.report');
@@ -276,7 +276,7 @@ Route::group(['middleware' => ['auth']], function () {
 
 
     Route::group(['middleware' => ['checkRoleUser:IT,BM,FI,AH,HR,AD,HL,DMO,RBTAD']], function () {
-        Route::get('/merchant/restock/get', [MerchantController::class, 'getRestocks'])->name('merchant.getRestocks');
+        Route::post('/merchant/restock/get', [MerchantController::class, 'getRestocks'])->name('merchant.getRestocks');
         Route::post('/merchant/restock/product/get', [MerchantController::class, 'getRestockProduct'])->name('merchant.getRestockProduct');
     });
 

@@ -3,6 +3,12 @@ $(document).ready(function () {
     dataTablesRestock();
 
     function dataTablesRestock() {
+        $.ajaxSetup({
+            headers: {
+                "X-CSRF-TOKEN": $('meta[name="csrf_token"]').attr("content"),
+            },
+        });
+
         $("#merchant-restock .table-datatables").DataTable({
             dom:
                 "<'row'<'col-sm-12 col-md-9'<'filter-merchant-restock'>tl><'col-sm-12 col-md-2'f><'col-sm-12 col-md-1 d-flex justify-content-end h-100'B>>" +
@@ -13,6 +19,7 @@ $(document).ready(function () {
             stateServe: true,
             ajax: {
                 url: "/merchant/restock/get",
+                method: "POST",
                 data: function (d) {
                     d.fromDate = $("#merchant-restock #from_date").val();
                     d.toDate = $("#merchant-restock #to_date").val();
