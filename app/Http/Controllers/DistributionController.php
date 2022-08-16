@@ -56,6 +56,23 @@ class DistributionController extends Controller
                 ->editColumn('CreatedDate', function ($data) {
                     return date('d M Y H:i', strtotime($data->CreatedDate));
                 })
+                ->editColumn('StatusOrder', function ($data) {
+                    $pesananBaru = "S009";
+                    $dikonfirmasi = "S010";
+                    $dalamProses = "S023";
+
+                    if ($data->StatusOrderID == $pesananBaru) {
+                        $statusOrder = '<span class="badge badge-secondary">' . $data->StatusOrder . '</span>';
+                    } elseif ($data->StatusOrderID == $dikonfirmasi) {
+                        $statusOrder = '<span class="badge badge-primary">' . $data->StatusOrder . '</span>';
+                    } elseif ($data->StatusOrderID == $dalamProses) {
+                        $statusOrder = '<span class="badge badge-warning">' . $data->StatusOrder . '</span>';
+                    } else {
+                        $statusOrder = 'Status tidak ditemukan';
+                    }
+
+                    return $statusOrder;
+                })
                 ->editColumn('PhoneNumber', function ($data) {
                     return '<a href="https://wa.me/' . $data->PhoneNumber . '" target="_blank">' . $data->PhoneNumber . '</a>';
                 })
@@ -87,7 +104,7 @@ class DistributionController extends Controller
                     $btn = '<a class="btn btn-xs btn-info" href="/distribution/validation/detail/' . $data->StockOrderID . '">Detail</a>';
                     return $btn;
                 })
-                ->rawColumns(['PhoneNumber', 'IsValid', 'Action'])
+                ->rawColumns(['StatusOrder', 'PhoneNumber', 'IsValid', 'Action'])
                 ->make(true);
         }
     }
