@@ -70,6 +70,20 @@
                     <p class="mb-2">{{ $data->Sales }}</p>
                   </div>
                   <div class="col-6">
+                    <strong>Status PO :</strong>
+                    <p class="mb-2">
+                      @if ($data->StatusOrderID == "S009")
+                        <span class="badge badge-secondary">{{ $data->StatusOrder }}</span>
+                      @elseif ($data->StatusOrderID == "S010")
+                        <span class="badge badge-primary">{{ $data->StatusOrder }}</span>
+                      @elseif ($data->StatusOrderID == "S023")
+                        <span class="badge badge-warning">{{ $data->StatusOrder }}</span>
+                      @else
+                        ''
+                      @endif
+                    </p>
+                  </div>
+                  <div class="col-6">
                     <strong>Status Validitas PO :</strong>
                     <p class="mb-2">
                       @if ($data->IsValid == "VALID")

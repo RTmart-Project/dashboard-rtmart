@@ -51,6 +51,7 @@
                         <tr>
                           <th>Stock Order ID</th>
                           <th>Tgl Transaksi</th>
+                          <th>Status PO</th>
                           <th>Distributor</th>
                           <th>Merchant ID</th>
                           <th>Nama Toko</th>

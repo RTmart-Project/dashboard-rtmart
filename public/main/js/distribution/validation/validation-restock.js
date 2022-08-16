@@ -29,6 +29,10 @@ $(document).ready(function () {
                     type: "date",
                 },
                 {
+                    data: "StatusOrder",
+                    name: "ms_status_order.StatusOrder",
+                },
+                {
                     data: "DistributorName",
                     name: "ms_distributor.DistributorName",
                 },
@@ -83,7 +87,7 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
                         orthogonal: "export",
                     },
                 },
