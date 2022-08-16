@@ -120,6 +120,9 @@ class SummaryController extends Controller
                     ->editColumn('CreatedDate', function ($dataTotalValuePO) {
                         return date('d M Y H:i', strtotime($dataTotalValuePO->CreatedDate));
                     })
+                    ->editColumn('StockOrderID', function ($data) {
+                        return '<a href="/distribution/restock/detail/' . $data->StockOrderID . '" target="_blank">' . $data->StockOrderID . '</a>';
+                    })
                     ->editColumn('StatusOrder', function ($dataTotalValuePO) {
                         $pesananBaru = "S009";
                         $dikonfirmasi = "S010";
@@ -146,21 +149,35 @@ class SummaryController extends Controller
 
                         return $statusOrder;
                     })
-                    ->rawColumns(['StatusOrder'])
+                    ->rawColumns(['StatusOrder', 'StockOrderID'])
                     ->make(true);
             } elseif ($type == "countPO") {
                 return DataTables::of($dataCountPO)
                     ->editColumn('CreatedDate', function ($dataCountPO) {
                         return date('d M Y H:i', strtotime($dataCountPO->CreatedDate));
                     })
+                    ->editColumn('StockOrderID', function ($data) {
+                        return '<a href="/distribution/restock/detail/' . $data->StockOrderID . '" target="_blank">' . $data->StockOrderID . '</a>';
+                    })
+                    ->rawColumns(['StockOrderID'])
                     ->make(true);
             } elseif ($type == "countMerchantPO") {
                 return DataTables::of($dataCountMerchantPO)
+                    ->editColumn('MerchantID', function ($data) {
+                        return '<a href="/merchant/account/product/' . $data->MerchantID . '" target="_blank">' . $data->MerchantID . '</a>';
+                    })
+                    ->rawColumns(['MerchantID'])
                     ->make(true);
             } elseif ($type == "totalValueDO") {
                 return DataTables::of($dataTotalValueDO)
                     ->editColumn('CreatedDate', function ($dataTotalValueDO) {
                         return date('d M Y H:i', strtotime($dataTotalValueDO->CreatedDate));
+                    })
+                    ->editColumn('StockOrderID', function ($data) {
+                        return '<a href="/distribution/restock/detail/' . $data->StockOrderID . '" target="_blank">' . $data->StockOrderID . '</a>';
+                    })
+                    ->editColumn('MerchantExpeditionID', function ($data) {
+                        return '<a href="/delivery/history/detail/' . $data->MerchantExpeditionID . '" target="_blank">' . $data->MerchantExpeditionID . '</a>';
                     })
                     ->editColumn('StatusOrder', function ($dataTotalValueDO) {
                         if ($dataTotalValueDO->StatusOrder == "Dalam Pengiriman") {
@@ -176,12 +193,18 @@ class SummaryController extends Controller
                     ->addColumn('GrandTotal', function ($dataTotalValueDO) {
                         return $dataTotalValueDO->SubTotal - $dataTotalValueDO->Discount + $dataTotalValueDO->ServiceCharge + $dataTotalValueDO->DeliveryFee;
                     })
-                    ->rawColumns(['StatusOrder'])
+                    ->rawColumns(['StatusOrder', 'StockOrderID', 'MerchantExpeditionID'])
                     ->make(true);
             } elseif ($type == "countDO") {
                 return DataTables::of($dataCountDO)
                     ->editColumn('CreatedDate', function ($dataCountDO) {
                         return date('d M Y H:i', strtotime($dataCountDO->CreatedDate));
+                    })
+                    ->editColumn('StockOrderID', function ($data) {
+                        return '<a href="/distribution/restock/detail/' . $data->StockOrderID . '" target="_blank">' . $data->StockOrderID . '</a>';
+                    })
+                    ->editColumn('MerchantExpeditionID', function ($data) {
+                        return '<a href="/delivery/history/detail/' . $data->MerchantExpeditionID . '" target="_blank">' . $data->MerchantExpeditionID . '</a>';
                     })
                     ->editColumn('StatusOrder', function ($dataCountDO) {
                         if ($dataCountDO->StatusOrder == "Dalam Pengiriman") {
@@ -196,10 +219,14 @@ class SummaryController extends Controller
                     ->addColumn('GrandTotal', function ($dataCountDO) {
                         return $dataCountDO->SubTotal - $dataCountDO->Discount + $dataCountDO->ServiceCharge + $dataCountDO->DeliveryFee;
                     })
-                    ->rawColumns(['StatusOrder'])
+                    ->rawColumns(['StatusOrder', 'StockOrderID', 'MerchantExpeditionID'])
                     ->make(true);
             } elseif ($type == "countMerchantDO") {
                 return DataTables::of($dataCountMerchantDO)
+                    ->editColumn('MerchantID', function ($data) {
+                        return '<a href="/merchant/account/product/' . $data->MerchantID . '" target="_blank">' . $data->MerchantID . '</a>';
+                    })
+                    ->rawColumns(['MerchantID'])
                     ->make(true);
             }
         }
