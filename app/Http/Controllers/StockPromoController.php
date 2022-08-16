@@ -6,12 +6,79 @@ use App\Services\StockService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables;
 
 class StockPromoController extends Controller
 {
-    public function stockPromoInbound()
+    public function stockPromoInbound(StockService $stockService, Request $request)
     {
-        return view('stock-promo.list.index');
+        $fromDate = $request->input('fromDate');
+        $toDate = $request->input('toDate');
+
+        $sql = $stockService->getDataInboundStockPromo();
+
+        if ($fromDate != '' && $toDate != '') {
+            $sql->whereDate('ms_stock_promo_inbound.InboundDate', '>=', $fromDate)
+                ->whereDate('ms_stock_promo_inbound.InboundDate', '<=', $toDate);
+        }
+        if (Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $sql->where('ms_distributor.Depo', '=', $depoUser);
+        }
+        if (Auth::user()->InvestorID != null) {
+            $investorUser = Auth::user()->InvestorID;
+            $sql->where('ms_stock_promo_inbound.InvestorID', $investorUser);
+        }
+
+        $data = $sql;
+
+        if ($request->ajax()) {
+            return DataTables::of($data)
+                ->editColumn('InboundDate', function ($data) {
+                    return date('d M Y H:i', strtotime($data->InboundDate));
+                })
+                ->editColumn('StatusName', function ($data) {
+                    if ($data->StatusID == 1) {
+                        $color = 'warning';
+                    } elseif ($data->StatusID == 2) {
+                        $color = 'success';
+                    } else {
+                        $color = 'danger';
+                    }
+                    return '<span class="badge badge-' . $color . '">' . $data->StatusName . '</span>';
+                })
+                ->addColumn('Action', function ($data) {
+                    // if (($data->InvoiceNumber == null || $data->InvoiceFile == null) && ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI")) && str_contains($data->PurchaseID, "PRCH")) {
+                    //     $editInvoice = '<a href="/stock/purchase/edit/invoice/' . $data->PurchaseID . '" class="btn btn-xs btn-primary text-nowrap">Edit Invoice</a>';
+                    // } else {
+                    //     $editInvoice = '';
+                    // }
+
+                    // if ($data->StatusBy == null && ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI"))) {
+                    //     $ubah = '<a class="btn btn-xs btn-warning" href="/stock/purchase/edit/' . $data->PurchaseID . '">Ubah</a>';
+                    // } else {
+                    //     $ubah = '';
+                    // }
+                    $action = '<div class="d-flex flex-wrap" style="gap:5px">
+                                <a href="/stock-promo/inbound/detail/' . $data->StockPromoInboundID . '" class="btn btn-xs btn-info">Detail</a>
+                               </div>';
+
+                    return $action;
+                })
+                ->rawColumns(['StatusName', 'Action'])
+                ->make(true);
+        }
+
+        return view('stock-promo.inbound.index');
+    }
+
+    public function stockPromoInboundDetail($inboundID, StockService $stockService)
+    {
+        $stockPromo = $stockService->getDetailInboundStockPromo($inboundID);
+
+        return view('stock-promo.inbound.detail', [
+            'data' => $stockPromo
+        ]);
     }
 
     public function stockPromoInboundCreateByPurchase()
@@ -32,7 +99,7 @@ class StockPromoController extends Controller
             ->select('purchase.PurchaseID', 'purchase.DistributorID', 'ms_distributor.DistributorName', 'ms_investor.InvestorName')
             ->get();
 
-        return view('stock-promo.list.create-by-purchase', [
+        return view('stock-promo.inbound.create-by-purchase', [
             'purchases' => $purchases
         ]);
     }

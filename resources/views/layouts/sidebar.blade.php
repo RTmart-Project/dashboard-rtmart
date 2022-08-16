@@ -362,7 +362,7 @@
                             @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "INVTR") || (Auth::user()->RoleID == "BM")  || Auth::user()->RoleID == "HL")
                             <li class="nav-item">
                                 <a href="{{ route('stockPromo.inbound') }}"
-                                    class="nav-link {{ Request::is('stock-promo/list*') ? 'active' : '' }}">
+                                    class="nav-link {{ Request::is('stock-promo/inbound*') ? 'active' : '' }}">
                                     <i class="far fa-dot-circle nav-icon"></i>
                                     <p>Inbound</p>
                                 </a>

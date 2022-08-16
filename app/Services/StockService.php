@@ -27,6 +27,40 @@ class StockService
     return $newStockPromoInboundID;
   }
 
+  public function getDataInboundStockPromo()
+  {
+    $sql = DB::table('ms_stock_promo_inbound')
+      ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_stock_promo_inbound.DistributorID')
+      ->leftJoin('ms_investor', 'ms_investor.InvestorID', 'ms_stock_promo_inbound.InvestorID')
+      ->join('ms_suppliers', 'ms_suppliers.SupplierID', 'ms_stock_promo_inbound.SupplierID')
+      ->join('ms_status_stock', 'ms_status_stock.StatusID', 'ms_stock_promo_inbound.StatusID')
+      ->select('ms_stock_promo_inbound.StockPromoInboundID', 'ms_distributor.DistributorName', 'ms_stock_promo_inbound.InboundDate', 'ms_stock_promo_inbound.CreatedBy', 'ms_suppliers.SupplierName', 'ms_stock_promo_inbound.StatusID', 'ms_status_stock.StatusName', 'ms_stock_promo_inbound.StatusBy', 'ms_stock_promo_inbound.InvoiceNumber', 'ms_stock_promo_inbound.InvoiceFile', 'ms_investor.InvestorName', 'ms_stock_promo_inbound.Type');
+
+    return $sql;
+  }
+
+  public function getDetailInboundStockPromo($inboundID)
+  {
+    $sql = DB::table('ms_stock_promo_inbound')
+      ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_stock_promo_inbound.DistributorID')
+      ->leftJoin('ms_investor', 'ms_investor.InvestorID', 'ms_stock_promo_inbound.InvestorID')
+      ->join('ms_suppliers', 'ms_suppliers.SupplierID', 'ms_stock_promo_inbound.SupplierID')
+      ->join('ms_status_stock', 'ms_status_stock.StatusID', 'ms_stock_promo_inbound.StatusID')
+      ->where('ms_stock_promo_inbound.StockPromoInboundID', $inboundID)
+      ->select('ms_stock_promo_inbound.StockPromoInboundID', 'ms_stock_promo_inbound.PurchaseID', 'ms_distributor.DistributorName', 'ms_investor.InvestorName', 'ms_suppliers.SupplierName', 'ms_stock_promo_inbound.InboundDate', 'ms_stock_promo_inbound.InvoiceNumber', 'ms_stock_promo_inbound.InvoiceFile', 'ms_stock_promo_inbound.StatusID', 'ms_status_stock.StatusName', 'ms_stock_promo_inbound.StatusBy', 'ms_stock_promo_inbound.StatusDate', 'ms_stock_promo_inbound.CreatedBy', 'ms_stock_promo_inbound.CreatedDate')
+      ->first();
+
+    $sqlDetail = DB::table('ms_stock_promo_inbound_detail')
+      ->join('ms_product', 'ms_product.ProductID', 'ms_stock_promo_inbound_detail.ProductID')
+      ->where('ms_stock_promo_inbound_detail.StockPromoInboundID', $inboundID)
+      ->select('ms_stock_promo_inbound_detail.ProductID', 'ms_product.ProductName', 'ms_stock_promo_inbound_detail.ProductLabel', 'ms_stock_promo_inbound_detail.Qty', 'ms_stock_promo_inbound_detail.PurchasePrice', 'ms_stock_promo_inbound_detail.SellingPrice')
+      ->get()->toArray();
+
+    $sql->Detail = $sqlDetail;
+
+    return $sql;
+  }
+
   public function stockPromoDetailByPurchase($purchaseID, $stockPromoInboundID, $productId, $qty, $purchasePrice, $sellingPrice)
   {
     $detail = [];
