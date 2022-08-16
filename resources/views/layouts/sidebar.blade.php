@@ -301,42 +301,71 @@
                     </p>
                 </a>
                 <ul class="nav nav-treeview">
-                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "INVTR") || (Auth::user()->RoleID == "BM")  || Auth::user()->RoleID == "HL")
-                    <li class="nav-item">
-                        <a href="{{ route('stock.listStock') }}"
-                            class="nav-link {{ Request::is('stock/list*') ? 'active' : '' }}">
+                    <li class="nav-item {{ Request::is('stock/*') ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ Request::is('stock/*') ? 'active' : '' }}">
                             <i class="far fa-circle nav-icon"></i>
-                            <p>List Stock</p>
+                            <p>Stock Utama
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
                         </a>
+                        <ul class="nav nav-treeview">
+                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "INVTR") || (Auth::user()->RoleID == "BM")  || Auth::user()->RoleID == "HL")
+                            <li class="nav-item">
+                                <a href="{{ route('stock.listStock') }}"
+                                    class="nav-link {{ Request::is('stock/list*') ? 'active' : '' }}">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    <p>List Stock</p>
+                                </a>
+                            </li>
+                            @endif
+                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "INVTR") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "HL")
+                            <li class="nav-item">
+                                <a href="{{ route('stock.purchase') }}"
+                                    class="nav-link {{ Request::is('stock/purchase*') ? 'active' : '' }}">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    <p>Purchase Stock</p>
+                                </a>
+                            </li>
+                            @endif
+                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "INVTR") || (Auth::user()->RoleID == "BM")  || Auth::user()->RoleID == "HL")
+                            <li class="nav-item">
+                                <a href="{{ route('stock.mutation') }}"
+                                    class="nav-link {{ Request::is('stock/mutation*') ? 'active' : '' }}">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    <p>Mutasi</p>
+                                </a>
+                            </li>
+                            @endif
+                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "INVTR") || (Auth::user()->RoleID == "BM")  || Auth::user()->RoleID == "HL")
+                            <li class="nav-item">
+                                <a href="{{ route('stock.opname') }}"
+                                    class="nav-link {{ Request::is('stock/opname*') ? 'active' : '' }}">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    <p>Stock Opname</p>
+                                </a>
+                            </li>
+                            @endif
+                        </ul>
                     </li>
-                    @endif
-                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "INVTR") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "HL")
-                    <li class="nav-item">
-                        <a href="{{ route('stock.purchase') }}"
-                            class="nav-link {{ Request::is('stock/purchase*') ? 'active' : '' }}">
+                    {{-- <li class="nav-item {{ Request::is('stock-promo*') ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ Request::is('stock-promo*') ? 'active' : '' }}">
                             <i class="far fa-circle nav-icon"></i>
-                            <p>Purchase Stock</p>
+                            <p>Stock Promo
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
                         </a>
-                    </li>
-                    @endif
-                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "INVTR") || (Auth::user()->RoleID == "BM")  || Auth::user()->RoleID == "HL")
-                    <li class="nav-item">
-                        <a href="{{ route('stock.mutation') }}"
-                            class="nav-link {{ Request::is('stock/mutation*') ? 'active' : '' }}">
-                            <i class="far fa-circle nav-icon"></i>
-                            <p>Mutasi</p>
-                        </a>
-                    </li>
-                    @endif
-                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "INVTR") || (Auth::user()->RoleID == "BM")  || Auth::user()->RoleID == "HL")
-                    <li class="nav-item">
-                        <a href="{{ route('stock.opname') }}"
-                            class="nav-link {{ Request::is('stock/opname*') ? 'active' : '' }}">
-                            <i class="far fa-circle nav-icon"></i>
-                            <p>Stock Opname</p>
-                        </a>
-                    </li>
-                    @endif
+                        <ul class="nav nav-treeview">
+                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "INVTR") || (Auth::user()->RoleID == "BM")  || Auth::user()->RoleID == "HL")
+                            <li class="nav-item">
+                                <a href="{{ route('stockPromo.inbound') }}"
+                                    class="nav-link {{ Request::is('stock-promo/list*') ? 'active' : '' }}">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    <p>Inbound</p>
+                                </a>
+                            </li>
+                            @endif
+                        </ul>
+                    </li> --}}
                 </ul>
             </li>
             @endif

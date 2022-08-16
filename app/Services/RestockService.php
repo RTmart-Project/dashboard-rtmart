@@ -13,14 +13,15 @@ class RestockService
       ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tmo.MerchantID')
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'tmo.DistributorID')
       // ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', 'tmo.PaymentMethodID')
-      // ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tmo.StatusOrderID')
+      ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tmo.StatusOrderID')
       ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tmo.SalesCode')
       ->where('ms_merchant_account.IsTesting', 0)
-      ->where('tmo.StatusOrderID', 'S009')
+      ->whereIn('tmo.StatusOrderID', ['S009', 'S010', 'S023'])
       ->selectRaw("
         tmo.StockOrderID,
         tmo.CreatedDate,
-        -- ms_status_order.StatusOrder,
+        tmo.StatusOrderID,
+        ms_status_order.StatusOrder,
         -- ms_payment_method.PaymentMethodName,
         ms_distributor.DistributorName,
         tmo.MerchantID,
@@ -53,8 +54,10 @@ class RestockService
     $sql =  DB::table('tx_merchant_order AS tmo')
       ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tmo.MerchantID')
       ->where('tmo.StockOrderID', $stockOrderID)
+      ->where('ms_merchant_account.IsTesting', 0)
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'tmo.DistributorID')
       ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', 'tmo.PaymentMethodID')
+      ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tmo.StatusOrderID')
       ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tmo.SalesCode')
       ->selectRaw("
         tmo.StockOrderID,
@@ -67,6 +70,8 @@ class RestockService
         tmo.DiscountVoucher + tmo.DiscountPrice AS Discount,
         tmo.ServiceChargeNett,
         CONCAT(tmo.SalesCode, ' - ', ms_sales.SalesName) AS Sales,
+        tmo.StatusOrderID,
+        ms_status_order.StatusOrder,
         tmo.IsValid,
         CASE
             WHEN tmo.IsValid = 1 THEN 'Sudah Valid'

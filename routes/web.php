@@ -17,6 +17,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RTSalesController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\StockPromoController;
 use App\Http\Controllers\SummaryController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\VoucherController;
@@ -166,6 +167,13 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/getExcludeDistributorID/{distributorID}', [StockController::class, 'getExcludeDistributorID'])->name('stock.getExcludeDistributorID');
             Route::get('/getProductByPurchaseID/{purchaseID}', [StockController::class, 'getProductByPurchaseID'])->name('stock.getProductByPurchaseID');
             Route::post('/store', [StockController::class, 'storeMutation'])->name('stock.storeMutation');
+        });
+    });
+
+    Route::group(['prefix' => 'stock-promo'], function () {
+        Route::group(['prefix' => 'list', 'middleware' => ['checkRoleUser:IT,FI,BM,AD,HL']], function () {
+            Route::get('/', [StockPromoController::class, 'stockPromoInbound'])->name('stockPromo.inbound');
+            Route::get('/create', [StockPromoController::class, 'stockPromoInboundCreate'])->name('stockPromo.create');
         });
     });
 
