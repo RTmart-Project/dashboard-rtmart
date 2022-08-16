@@ -173,7 +173,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['prefix' => 'stock-promo'], function () {
         Route::group(['prefix' => 'list', 'middleware' => ['checkRoleUser:IT,FI,BM,AD,HL']], function () {
             Route::get('/', [StockPromoController::class, 'stockPromoInbound'])->name('stockPromo.inbound');
-            Route::get('/create', [StockPromoController::class, 'stockPromoInboundCreate'])->name('stockPromo.create');
+            Route::get('/create-by-purchase', [StockPromoController::class, 'stockPromoInboundCreateByPurchase'])->name('stockPromo.createByPurchase');
+            Route::post('/store-by-purchase', [StockPromoController::class, 'stockPromoInboundStoreByPurchase'])->name('stockPromo.storeByPurchase');
         });
     });
 

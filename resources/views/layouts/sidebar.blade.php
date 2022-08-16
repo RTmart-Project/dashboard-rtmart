@@ -351,7 +351,7 @@
                             @endif
                         </ul>
                     </li>
-                    {{-- <li class="nav-item {{ Request::is('stock-promo*') ? 'menu-open' : '' }}">
+                    <li class="nav-item {{ Request::is('stock-promo*') ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link {{ Request::is('stock-promo*') ? 'active' : '' }}">
                             <i class="far fa-circle nav-icon"></i>
                             <p>Stock Promo
@@ -369,7 +369,7 @@
                             </li>
                             @endif
                         </ul>
-                    </li> --}}
+                    </li>
                 </ul>
             </li>
             @endif
