@@ -30,6 +30,8 @@ class MutationService
   {
     $sql = DB::table('ms_stock_product as stock_product')
       ->join('ms_product', 'ms_product.ProductID', 'stock_product.ProductID')
+      ->join('ms_product_category', 'ms_product_category.ProductCategoryID', 'ms_product.ProductCategoryID')
+      ->join('ms_product_uom', 'ms_product_uom.ProductUOMID', 'ms_product.ProductUOMID')
       ->where('stock_product.PurchaseID', $purchaseID)
       ->where('stock_product.Qty', '>', 0)
       ->selectRaw("
@@ -37,26 +39,12 @@ class MutationService
               stock_product.PurchaseID, 
               stock_product.ProductID, 
               ms_product.ProductName,
+              ms_product_category.ProductCategoryName,
+              ms_product.ProductUOMDesc,
+              ms_product_uom.ProductUOMName,
               stock_product.ProductLabel,
               stock_product.PurchasePrice,
               stock_product.Qty AS QtyReady
-              -- (
-              --  SELECT SUM(QtyAction)
-              --  FROM ms_stock_product_log
-              --  JOIN ms_stock_product ON ms_stock_product.StockProductID = ms_stock_product_log.StockProductID
-              --  WHERE (
-              --    ms_stock_product_log.StockProductID IN (
-              --      SELECT StockProductID FROM ms_stock_product_log 
-              --      WHERE StockProductID = stock_product.StockProductID
-                    -- OR ReferenceStockProductID = stock_product.StockProductID
-              --    ) 
-                  -- OR 
-                  -- ms_stock_product_log.ReferenceStockProductID IN (
-                  --  SELECT StockProductID FROM ms_stock_product_log 
-                  --  WHERE ReferenceStockProductID = stock_product.StockProductID OR StockProductID = stock_product.StockProductID
-                  -- )
-              --  ) AND ms_stock_product.DistributorID = (SELECT DISTINCT DistributorID FROM ms_stock_product WHERE PurchaseID = '$purchaseID')
-              -- ) AS QtyReady
             ")
       ->get();
 

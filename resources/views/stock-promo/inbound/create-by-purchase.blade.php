@@ -41,7 +41,7 @@
               Kembali</a>
           </div>
           <div class="card-body">
-            <form id="add-inbound-promo" method="post" action="">
+            <form id="add-inbound-promo" method="post" action="{{ route('stockPromo.storeByPurchase') }}">
               @csrf
               <div class="row">
                 <div class="col-md-6 col-12">
@@ -51,7 +51,7 @@
                       class="form-control selectpicker border @if($errors->has('purchase')) is-invalid @endif"
                       required>
                       @foreach ($purchases as $purchase)
-                      <option value="{{ $purchase->PurchaseID }}" data-distributor-id="{{ $purchase->DistributorID }}">
+                      <option value="{{ $purchase->PurchaseID }}">
                         {{ $purchase->PurchaseID }} - {{ $purchase->DistributorName }} - {{ $purchase->InvestorName }}
                       </option>
                       @endforeach
@@ -63,33 +63,11 @@
                 </div>
                 <div class="col-md-6 col-12">
                   <div class="form-group">
-                    <label for="distributor">Mutasi ke Distributor</label>
-                    <select name="distributor" id="distributor" data-live-search="true" title="Pilih Distributor"
-                      class="form-control selectpicker border @if($errors->has('distributor')) is-invalid @endif"
-                      required>
-                    </select>
-                    @if($errors->has('distributor'))
-                    <span class="error invalid-feedback">{{ $errors->first('distributor') }}</span>
-                    @endif
-                  </div>
-                </div>
-                <div class="col-md-6 col-12">
-                  <div class="form-group">
-                    <label for="mutation_date">Tanggal Mutasi</label>
-                    <input type="datetime-local" name="mutation_date" id="mutation_date" value="{{ old('mutation_date') }}"
-                      class="form-control @if($errors->has('mutation_date')) is-invalid @endif" required>
-                    @if($errors->has('mutation_date'))
-                    <span class="error invalid-feedback">{{ $errors->first('mutation_date') }}</span>
-                    @endif
-                  </div>
-                </div>
-                <div class="col-md-6 col-12">
-                  <div class="form-group">
-                    <label for="notes">Catatan</label>
-                    <textarea class="form-control @if($errors->has('notes')) is-invalid @endif" 
-                      name="notes" id="notes" rows="3" placeholder="Masukkan Catatan (opsional)"></textarea>
-                    @if($errors->has('notes'))
-                    <span class="error invalid-feedback">{{ $errors->first('notes') }}</span>
+                    <label for="inbound_date">Tanggal Barang Masuk</label>
+                    <input type="datetime-local" name="inbound_date" id="inbound_date" value="{{ old('inbound_date') }}"
+                      class="form-control @if($errors->has('inbound_date')) is-invalid @endif" required>
+                    @if($errors->has('inbound_date'))
+                    <span class="error invalid-feedback">{{ $errors->first('inbound_date') }}</span>
                     @endif
                   </div>
                 </div>
@@ -118,7 +96,7 @@
                       </button>
                     </div>
                     <div class="modal-body">
-                      <h5>Apakah Qty Mutasi yang di-input sudah benar?</h5>
+                      <h5>Apakah data yang di-input sudah benar?</h5>
                     </div>
                     <div class="modal-footer">
                       <button type="button" class="btn btn-sm btn-outline-secondary"
@@ -134,13 +112,13 @@
                 <div class="modal-dialog">
                   <div class="modal-content">
                     <div class="modal-header">
-                      <h6 class="modal-title"><i class="far fa-question-circle"></i> Buat Mutasi Stok</h6>
+                      <h6 class="modal-title"><i class="far fa-question-circle"></i> Buat Stok Promo</h6>
                       <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                       </button>
                     </div>
                     <div class="modal-body">
-                      <h5>Apakah yakin ingin membuat Mutasi Stok?</h5>
+                      <h5>Apakah yakin ingin membuat Stok Promo?</h5>
                     </div>
                     <div class="modal-footer">
                       <button type="button" class="btn btn-sm btn-outline-secondary" data-toggle="modal"
@@ -167,20 +145,6 @@
 <script>
   $("#purchase").on('change', function () {
     const purchaseID = $(this).val();
-    const distributorID = $(this).find(':selected').data('distributor-id');
-    
-    $.ajax({
-      type: "get",
-      url: "/stock/mutation/getExcludeDistributorID/" + distributorID,
-      success: function (data) {
-        let option = '';
-        for (const item of data) {
-            option += `<option value="${item.DistributorID}">${item.DistributorName}</option>`;
-        }
-        $("#distributor").html(option);
-        $('.selectpicker').selectpicker('refresh');
-      },
-    });
     
     $.ajax({
       type: "get",
@@ -188,7 +152,7 @@
       success: function (data) {
         let note = '';
         if (data.length > 1) {
-          note = '<small class="form-text text-muted">Isi dengan 0 jika tidak ingin mutasi produk ini</small>';
+          note = `<li>Isi dengan 0 jika tidak ingin memindahkan produk ini</li>`;
         }
 
         let div = '';
@@ -196,27 +160,36 @@
             div += `<div class="col-md-5 col-12">
                       <div class="form-group">
                         <label>Nama Produk</label>
-                        <input class="form-control" value="${value.ProductID} - ${value.ProductName} - ${value.ProductLabel}" readonly>
+                        <input class="form-control" value="${value.ProductID} - ${value.ProductName} (${value.ProductCategoryName} ${value.ProductUOMDesc} ${value.ProductUOMName}) - ${value.ProductLabel}" readonly>
                         <input type="hidden" name="product_id[]" value="${value.ProductID}">
                       </div>
                     </div>
-                    <div class="col-md-2 col-12">
+                    <div class="col-md-1 col-12">
                       <div class="form-group">
                         <label>Qty Tersedia</label>
                         <input class="form-control" value="${value.QtyReady}" readonly>
                       </div>
                     </div>
-                    <div class="col-md-2 col-12">
+                    <div class="col-md-1 col-12">
                       <div class="form-group">
-                        <label>Harga Beli</label>
-                        <input class="form-control" value="${thousands_separators(value.PurchasePrice)}" readonly>
+                        <label>Harga Beli/pcs</label>
+                        <input class="form-control purchase_price" type="number" name="purchase_price[]">
                       </div>
                     </div>
-                    <div class="col-md-3 col-12">
+                    <div class="col-md-1 col-12">
                       <div class="form-group">
-                        <label>Qty Mutasi</label>
-                        <input type="number" class="form-control qty_mutation" name="qty_mutation[]" placeholder="Masukkan Qty yang ingin di-mutasi" required>
-                        ${note}
+                        <label>Harga Jual/pcs</label>
+                        <input class="form-control selling_price" type="number" name="selling_price[]">
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-12">
+                      <div class="form-group">
+                        <label>Qty u/ Stok Promo</label>
+                        <input type="number" class="form-control qty_mutation" name="qty_mutation[]" placeholder="Masukkan Qty u/ stok promo" required>
+                        <ul class="pl-4">
+                          ${note}
+                          <li>Qty yang dipindahkan akan dikalikan dengan ${value.ProductUOMDesc}</li>
+                        </ul>
                       </div>
                     </div>`;
         });
@@ -236,37 +209,52 @@
 
   $(".btn-simpan").on("click", function () {
     let purchaseID = $("#purchase").val();
-    let distributorID = $("#distributor").val();
-    let mutationDate = $("#mutation_date").val();
+    let mutationDate = $("#inbound_date").val();
 
     let arrayQtyMutation = [];
     $("#product-detail").find(".qty_mutation").each(function(){
       arrayQtyMutation.push($(this).val());
     });
     let qtyMutation = jQuery.inArray("", arrayQtyMutation)
+
+    let arrayPurchasePrice = [];
+    $("#product-detail").find(".purchase_price").each(function(){
+      arrayPurchasePrice.push($(this).val());
+    });
+    let purchasePrice = jQuery.inArray("", arrayPurchasePrice)
+
+    let arraySellingPrice = [];
+    $("#product-detail").find(".selling_price").each(function(){
+      arraySellingPrice.push($(this).val());
+    });
+    let sellingPrice = jQuery.inArray("", arraySellingPrice)
     
     if (purchaseID == "") {
       Toast.fire({
         icon: "error",
         title: " Harap isi Sumber Purchase!",
       });
-    } else if (distributorID == "") {
-      Toast.fire({
-        icon: "error",
-        title: " Harap isi Distributor!",
-      });
     } else if (mutationDate == "") {
       Toast.fire({
         icon: "error",
-        title: " Harap isi Tanggal Mutasi!",
+        title: " Harap isi Tanggal!",
+      });
+    } else if (purchasePrice != -1) {
+      Toast.fire({
+        icon: "error",
+        title: " Harap isi Harga Beli!",
+      });
+    } else if (sellingPrice != -1) {
+      Toast.fire({
+        icon: "error",
+        title: " Harap isi Harga Jual!",
       });
     } else if (qtyMutation != -1) {
       Toast.fire({
         icon: "error",
-        title: " Harap isi Qty Mutasi!",
+        title: " Harap isi Qty Stok Promo!",
       });
-    } 
-    else {
+    } else {
       $("#konfirmasi").modal("show");
     }
   })

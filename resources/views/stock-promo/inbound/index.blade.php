@@ -45,7 +45,7 @@
         <div class="card">
           @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI"))
           <div class="card-header">
-            <a href="{{ route('stockPromo.create') }}" class="btn btn-sm btn-success">
+            <a href="{{ route('stockPromo.createByPurchase') }}" class="btn btn-sm btn-success">
               <i class="fas fa-plus"></i> Tambah Inbound dari Purchase
             </a>
           </div>
@@ -79,17 +79,16 @@
                           <th>Distributor</th>
                           <th>Investor</th>
                           <th>Supplier</th>
-                          <th>Tanggal Pembelian</th>
-                          <th>Grand Total</th>
+                          <th>Tanggal</th>
                           <th>Dibuat Oleh</th>
                           <th>Status</th>
                           <th>Dikonfirmasi oleh</th>
                           <th>Invoice Number</th>
                           <th>Invoice File</th>
                           <th>Action</th>
-                          @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI"))
+                          {{-- @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI"))
                           <th>Konfirmasi</th>
-                          @endif
+                          @endif --}}
                         </tr>
                       </thead>
                       <tbody>
@@ -160,7 +159,7 @@
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!-- Main JS -->
-<script src="{{url('/')}}/main/js/stock/purchase/purchase.js"></script>
+<script src="{{url('/')}}/main/js/stock-promo/inbound/inbound.js"></script>
 <script src="{{url('/')}}/main/js/stock/purchase/purchase-all-product.js"></script>
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
 <script src="{{url('/')}}/main/js/helper/keep-tab-refresh.js"></script>
