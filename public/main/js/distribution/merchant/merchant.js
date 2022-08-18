@@ -56,6 +56,14 @@ $(document).ready(function () {
                     type: "date",
                 },
                 {
+                    data: "Latitude",
+                    name: "ms_merchant_account.Latitude",
+                },
+                {
+                    data: "Longitude",
+                    name: "ms_merchant_account.Longitude",
+                },
+                {
                     data: "StoreAddress",
                     name: "ms_merchant_account.StoreAddress",
                 },
@@ -85,12 +93,25 @@ $(document).ready(function () {
                     action: exportDatatableHelper.newExportAction,
                     text: "Export",
                     titleAttr: "Excel",
+                    className: "btn-sm",
                     exportOptions: {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                         orthogonal: "export",
+                    },
+                },
+            ],
+            aoColumnDefs: [
+                {
+                    aTargets: [8, 9],
+                    mRender: function (data, type, full) {
+                        if (type === "export") {
+                            return "'" + data;
+                        } else {
+                            return data;
+                        }
                     },
                 },
             ],

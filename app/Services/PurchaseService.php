@@ -301,11 +301,12 @@ class PurchaseService
       ->join('ms_stock_product AS stock_product', 'stock_product.StockProductID', 'ms_stock_product_log.StockProductID')
       ->leftJoin('ms_stock_product AS reference_stock_product', 'reference_stock_product.StockProductID', 'ms_stock_product_log.ReferenceStockProductID')
       ->leftJoin('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderDetailID', 'ms_stock_product_log.DeliveryOrderDetailID')
+      ->leftJoin('ms_stock_promo', 'ms_stock_promo.StockPromoID', 'ms_stock_product_log.StockPromoID')
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'stock_product.DistributorID')
       ->where('stock_product.DistributorID', $distributorID)
       ->where('ms_stock_product_log.ProductID', $productID)
       ->where('stock_product.ProductLabel', $label)
-      ->select('stock_product.PurchaseID', 'stock_product.ConditionStock', 'ms_stock_product_log.PurchasePrice', 'ms_stock_product_log.ActionType', 'ms_stock_product_log.ActionBy', 'ms_stock_product_log.QtyBefore', 'ms_stock_product_log.QtyAction', 'ms_stock_product_log.QtyAfter', 'ms_stock_product_log.CreatedDate', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_distributor.DistributorName', 'reference_stock_product.PurchaseID AS RefPurchaseID', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'stock_product.ProductLabel')
+      ->select('stock_product.PurchaseID', 'stock_product.ConditionStock', 'ms_stock_product_log.PurchasePrice', 'ms_stock_product_log.ActionType', 'ms_stock_product_log.ActionBy', 'ms_stock_product_log.QtyBefore', 'ms_stock_product_log.QtyAction', 'ms_stock_product_log.QtyAfter', 'ms_stock_product_log.CreatedDate', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_distributor.DistributorName', 'reference_stock_product.PurchaseID AS RefPurchaseID', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'stock_product.ProductLabel', 'ms_stock_promo.StockPromoInboundID', 'ms_stock_product_log.StockPromoID')
       ->orderByDesc('ms_stock_product_log.CreatedDate')
       ->orderByDesc('ms_stock_product_log.StockProductLogID');
 

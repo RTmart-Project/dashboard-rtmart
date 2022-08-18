@@ -720,6 +720,8 @@ class StockController extends Controller
                         $purchaseID = $data->PurchaseID . '<br> dari ' . $data->RefPurchaseID;
                     } elseif ($data->ActionType == "OUTBOUND") {
                         $purchaseID = $data->DeliveryOrderID . '<br> dari ' . $data->PurchaseID;
+                    } elseif ($data->StockPromoID != null) {
+                        $purchaseID = $data->StockPromoInboundID . '<br> dari ' . $data->PurchaseID;
                     } else {
                         $purchaseID = $data->PurchaseID;
                     }
