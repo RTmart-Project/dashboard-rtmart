@@ -372,7 +372,7 @@ class DistributionController extends Controller
                         if ($data->Qty == null) {
                             $marginReal = "";
                         } else {
-                            $marginReal = (($data->Price - $data->PurchasePrice) * $data->Qty) - $data->Discount;
+                            $marginReal = (($data->Price - $data->PurchasePrice) * $data->Qty);
                         }
                     }
                     return $marginReal;

@@ -233,7 +233,7 @@ class SummaryController extends Controller
 
         if ($type == "totalValuePO") {
             return view('summary.report.detail.po.total-value', [
-                'data' => (clone $dataTotalValuePO)->distinct('tmo.StockOrderID')->select('tmo.StockOrderID', 'tmo.NettPrice')->get()->toArray(),
+                'data' => (clone $dataTotalValuePO)->distinct('tmo.StockOrderID')->select('tmo.StockOrderID', 'tmo.TotalPrice')->get()->toArray(),
                 'dataFilter' => $dataFilter
             ]);
         } elseif ($type == "countPO") {

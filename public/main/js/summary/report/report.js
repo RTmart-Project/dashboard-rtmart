@@ -118,12 +118,14 @@ $(document).ready(function () {
         const dateDiff =
             (date2.getTime() - date1.getTime()) / (1000 * 3600 * 24);
 
-        if (dateDiff > 31) {
+        if (dateDiff > 60) {
             Toast.fire({
                 icon: "error",
-                title: " Rentang filter tanggal maksimal 31 hari!",
+                title: " Rentang filter tanggal maksimal 60 hari!",
             });
+            return false;
         }
+        $(".overlay").removeClass("d-none");
 
         summaryReportData(startDate, endDate, distributorID, salesCode);
     });
@@ -214,6 +216,14 @@ $(document).ready(function () {
                 $("#count-merchant-po").html(
                     res.PO.CountMerchantPO != null ? res.PO.CountMerchantPO : 0
                 );
+                $("#value-margin-estimasi").html(
+                    `${thousands_separators(res.PO.ValueMargin)}`
+                );
+                $("#voucher-po").html(
+                    res.PO.VoucherPO != null
+                        ? thousands_separators(res.PO.VoucherPO)
+                        : 0
+                );
                 $("#margin-estimasi").html(
                     `${
                         res.PO.ValueMarginEstimasi != null &&
@@ -239,6 +249,14 @@ $(document).ready(function () {
                 $("#count-merchant-do").html(
                     res.DO.CountMerchantDO != null ? res.DO.CountMerchantDO : 0
                 );
+                $("#value-margin").html(
+                    `${thousands_separators(res.DO.ValueMargin)}`
+                );
+                $("#voucher-do").html(
+                    res.DO.VoucherDO != null
+                        ? thousands_separators(res.DO.VoucherDO)
+                        : 0
+                );
                 $("#margin-real").html(
                     `${
                         res.DO.ValueMarginReal != null &&
@@ -251,6 +269,7 @@ $(document).ready(function () {
                             : 0
                     }`
                 );
+                $(".overlay").addClass("d-none");
             },
         });
     }

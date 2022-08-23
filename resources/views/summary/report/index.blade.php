@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="{{url('/')}}/plugins/bootstrap-select/bootstrap-select.min.css">
 <meta name="csrf_token" content="{{ csrf_token() }}">
 <link rel="stylesheet" href="{{url('/')}}/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
+<link rel="stylesheet" href="{{url('/')}}/main/css/custom/overlay-summary.css">
 @endsection
 
 @section('header-menu', 'Summary Report')
@@ -69,40 +70,59 @@
           </div>
         </div>
 
+        <div class="position-absolute overlay"><h3>loading <i class="fas fa-spinner fa-spin"></i></h3></div>
         <h5 class="mb-2">PO Summary</h5>
         <div class="row">
-          <div class="col-md-3 col-6">
+          <div class="col-md-4 col-6">
             <div class="info-box">
               <span class="info-box-icon bg-success elevation-1"><i class="fas fas fa-shopping-cart"></i></span>
               <div class="info-box-content">
-                <span class="info-box-text h6 mb-2"><a id="total-value-po-link" target="_blank">Total PO (Value)</a></span>
+                <span class="info-box-text no-wrap h6 mb-2"><a id="total-value-po-link" target="_blank">Total PO (Value)</a></span>
                 <span class="info-box-number h6 m-0" id="total-value-po"></span>
               </div>
             </div>
           </div>
-          <div class="col-md-3 col-6">
+          <div class="col-md-4 col-6">
             <div class="info-box">
               <span class="info-box-icon bg-success elevation-1"><i class="fas fa-shopping-cart"></i></span>
               <div class="info-box-content">
-                <span class="info-box-text h6 mb-2"><a id="count-total-po-link" target="_blank">Jumlah PO</a></span>
+                <span class="info-box-text no-wrap h6 mb-2"><a id="count-total-po-link" target="_blank">Jumlah PO</a></span>
                 <span class="info-box-number h6 m-0" id="count-total-po"></span>
               </div>
             </div>
           </div>
-          <div class="col-md-3 col-6">
+          <div class="col-md-4 col-6">
             <div class="info-box">
               <span class="info-box-icon bg-success elevation-1"><i class="fas fa-store"></i></span>
               <div class="info-box-content">
-                <span class="info-box-text h6 mb-2"><a id="count-merchant-po-link" target="_blank">Jumlah Toko</a></span>
+                <span class="info-box-text no-wrap h6 mb-2"><a id="count-merchant-po-link" target="_blank">Jumlah Toko</a></span>
                 <span class="info-box-number h6 m-0" id="count-merchant-po"></span>
               </div>
             </div>
           </div>
-          <div class="col-md-3 col-6">
+          <div class="col-md-4 col-6">
             <div class="info-box">
               <span class="info-box-icon bg-success elevation-1"><i class="fas fa-search-dollar"></i></span>
               <div class="info-box-content">
-                <span class="info-box-text h6 mb-2">Total Margin Estimasi</span>
+                <span class="info-box-text no-wrap h6 mb-2">Value Margin Estimasi (before disc)</span>
+                <span class="info-box-number h6 m-0" id="value-margin-estimasi"></span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 col-6">
+            <div class="info-box">
+              <span class="info-box-icon bg-success elevation-1"><i class="fas fa-search-dollar"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text no-wrap h6 mb-2">Total Voucher / Discount PO</span>
+                <span class="info-box-number h6 m-0" id="voucher-po"></span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 col-6">
+            <div class="info-box">
+              <span class="info-box-icon bg-success elevation-1"><i class="fas fa-search-dollar"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text no-wrap h6 mb-2">Total Margin Estimasi</span>
                 <span class="info-box-number h6 m-0" id="margin-estimasi"></span>
               </div>
             </div>
@@ -111,43 +131,62 @@
 
         <h5 class="my-2">DO Summary</h5>
         <div class="row">
-          <div class="col-md-3 col-6">
+          <div class="col-md-4 col-6">
             <div class="info-box">
               <span class="info-box-icon bg-info elevation-1"><i class="fas fa-truck"></i></span>
               <div class="info-box-content">
-                <span class="info-box-text h6 mb-2"><a id="total-value-do-link" target="_blank">Total DO (Value)</a></span>
+                <span class="info-box-text no-wrap h6 mb-2"><a id="total-value-do-link" target="_blank">Total DO (Value)</a></span>
                 <span class="info-box-number h6 m-0" id="total-value-do"></span>
               </div>
             </div>
           </div>
-          <div class="col-md-3 col-6">
+          <div class="col-md-4 col-6">
             <div class="info-box">
               <span class="info-box-icon bg-info elevation-1"><i class="fas fa-truck"></i></span>
               <div class="info-box-content">
-                <span class="info-box-text h6 mb-2"><a id="count-total-do-link" target="_blank">Jumlah DO</a></span>
+                <span class="info-box-text no-wrap h6 mb-2"><a id="count-total-do-link" target="_blank">Jumlah DO</a></span>
                 <span class="info-box-number h6 m-0" id="count-total-do"></span>
               </div>
             </div>
           </div>
-          <div class="col-md-3 col-6">
+          <div class="col-md-4 col-6">
             <div class="info-box">
               <span class="info-box-icon bg-info elevation-1"><i class="fas fa-store"></i></span>
               <div class="info-box-content">
-                <span class="info-box-text h6 mb-2"><a id="count-merchant-do-link" target="_blank">Jumlah Toko</a></span>
+                <span class="info-box-text no-wrap h6 mb-2"><a id="count-merchant-do-link" target="_blank">Jumlah Toko</a></span>
                 <span class="info-box-number h6 m-0" id="count-merchant-do"></span>
               </div>
             </div>
           </div>
-          <div class="col-md-3 col-6">
+          <div class="col-md-4 col-6">
             <div class="info-box">
               <span class="info-box-icon bg-info elevation-1"><i class="fas fa-search-dollar"></i></span>
               <div class="info-box-content">
-                <span class="info-box-text h6 mb-2">Total Margin Real</span>
+                <span class="info-box-text no-wrap h6 mb-2">Value Margin Real (before disc)</span>
+                <span class="info-box-number h6 m-0" id="value-margin"></span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 col-6">
+            <div class="info-box">
+              <span class="info-box-icon bg-info elevation-1"><i class="fas fa-search-dollar"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text no-wrap h6 mb-2">Total Vouvher / Discount DO</span>
+                <span class="info-box-number h6 m-0" id="voucher-do"></span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 col-6">
+            <div class="info-box">
+              <span class="info-box-icon bg-info elevation-1"><i class="fas fa-search-dollar"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text no-wrap h6 mb-2">Total Margin Real</span>
                 <span class="info-box-number h6 m-0" id="margin-real"></span>
               </div>
             </div>
           </div>
         </div>
+        
       </div>
     </div>
   </div>

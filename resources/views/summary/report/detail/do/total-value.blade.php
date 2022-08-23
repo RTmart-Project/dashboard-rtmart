@@ -47,7 +47,7 @@
                   <div class="info-box-content">
                     <span class="info-box-text h6 mb-2">Total DO (Value)</span>
                     <span class="info-box-number h6 m-0">
-                      {{ Helper::formatCurrency(array_sum(array_column($data, 'SubTotalMinVoucher')), 'Rp ') }}
+                      {{ Helper::formatCurrency(array_sum(array_column($data, 'SubTotal')), 'Rp ') }}
                     </span>
                   </div>
                 </div>
