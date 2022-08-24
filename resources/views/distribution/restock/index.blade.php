@@ -191,7 +191,7 @@
                                                     <th>Total Value PO</th>
                                                     <th>Qty DO</th>
                                                     <th>Total Value DO</th>
-                                                    <th class="d-none">Margin Real (Rp)</th>
+                                                    <th class="d-none">Value Margin Real (before disc)</th>
                                                     <th class="d-none">Margin Real (%)</th>
                                                     <th>Status DO</th>
                                                     <th>Bukti Pengiriman</th>
