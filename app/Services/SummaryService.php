@@ -249,7 +249,7 @@ class SummaryService
   {
     // Summary Purchase Order
     $sqlMainPO = DB::table('tx_merchant_order as tmo')
-      ->select('tmo.StockOrderID', 'tmo.CreatedDate', 'tmo.MerchantID', 'tmo.NettPrice')
+      ->select('tmo.StockOrderID', 'tmo.CreatedDate', 'tmo.MerchantID', 'tmo.TotalPrice', 'tmo.NettPrice', 'tmo.DiscountVoucher')
       ->whereRaw("DATE(tmo.CreatedDate) >= '$startDate'")
       ->whereRaw("DATE(tmo.CreatedDate) <= '$endDate'")
       ->whereRaw("tmo.StatusOrderID IN ('S009', 'S010', 'S023')");
@@ -301,7 +301,7 @@ class SummaryService
     $sqlPO = DB::table(DB::raw("($sqlMainPO) as SummaryPO"))
       ->selectRaw("
         ( 
-            SELECT SUM(SummaryPO.NettPrice)
+            SELECT SUM(SummaryPO.TotalPrice)
         ) as TotalValuePO,
         (
             SELECT COUNT(SummaryPO.StockOrderID)
@@ -311,9 +311,15 @@ class SummaryService
         ) as CountMerchantPO,
         (
             SELECT $valueMarginPO
+        ) as ValueMargin,
+        ( 
+            SELECT SUM(SummaryPO.DiscountVoucher)
+        ) as VoucherPO,
+        (
+            SELECT $valueMarginPO - SUM(SummaryPO.DiscountVoucher)
         ) as ValueMarginEstimasi,
         (
-            SELECT ROUND($valueMarginPO / SUM(SummaryPO.NettPrice) * 100, 2)
+            SELECT ROUND(($valueMarginPO - SUM(SummaryPO.DiscountVoucher)) / SUM(SummaryPO.NettPrice) * 100, 2)
         ) as PercentMarginEstimasi
     ");
 
@@ -325,7 +331,7 @@ class SummaryService
       ->select('tmdo.DeliveryOrderID', 'tmo.MerchantID', 'tmdo.Discount')
       ->whereRaw("DATE(tmdo.CreatedDate) >= '$startDate'")
       ->whereRaw("DATE(tmdo.CreatedDate) <= '$endDate'")
-      ->whereRaw("tmdo.StatusDO IN ('S024', 'S025')");
+      ->whereRaw("tmdo.StatusDO IN ('S025')");
 
     if ($distributorID != null) {
       $distributorIn = "'" . implode("', '", $distributorID) . "'";
@@ -366,7 +372,7 @@ class SummaryService
     $sqlDO = DB::table(DB::raw("($sqlMainDO) as SummaryDO"))
       ->selectRaw("
         (
-            SELECT $valueDO - SUM(SummaryDO.Discount)
+            SELECT $valueDO
         ) as TotalValueDO,
         (
             SELECT COUNT(SummaryDO.DeliveryOrderID)
@@ -374,6 +380,12 @@ class SummaryService
         (
             SELECT COUNT(DISTINCT SummaryDO.MerchantID)
         ) as CountMerchantDO,
+        (
+            SELECT $valueMarginDO
+        ) as ValueMargin,
+        (
+            SELECT SUM(SummaryDO.Discount)
+        ) as VoucherDO,
         (
             SELECT $valueMarginDO - SUM(SummaryDO.Discount)
         ) as ValueMarginReal,
@@ -451,7 +463,7 @@ class SummaryService
       ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tmo.SalesCode')
       ->whereRaw("DATE(tmdo.CreatedDate) >= '$startDate'")
       ->whereRaw("DATE(tmdo.CreatedDate) <= '$endDate'")
-      ->whereRaw("tmdo.StatusDO IN ('S024', 'S025')");
+      ->whereRaw("tmdo.StatusDO IN ('S025')");
 
     if ($distributorID != null) {
       $sql->whereIn('tmo.DistributorID', explode(",", $distributorID));
