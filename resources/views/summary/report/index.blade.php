@@ -171,7 +171,7 @@
             <div class="info-box">
               <span class="info-box-icon bg-info elevation-1"><i class="fas fa-search-dollar"></i></span>
               <div class="info-box-content">
-                <span class="info-box-text no-wrap h6 mb-2">Total Vouvher / Discount DO</span>
+                <span class="info-box-text no-wrap h6 mb-2">Total Voucher / Discount DO</span>
                 <span class="info-box-number h6 m-0" id="voucher-do"></span>
               </div>
             </div>
