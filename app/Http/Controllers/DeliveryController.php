@@ -90,7 +90,11 @@ class DeliveryController extends Controller
                     return $date . '<br>' . $dueDate;
                 })
                 ->addColumn('Checkbox', function ($data) {
-                    $checkbox = "<input type='checkbox' class='check-do-id larger' name='confirm[]' value='" . $data->DeliveryOrderID . "' />";
+                    if (date('Y-m-d', strtotime($data->CreatedDate)) > date('Y-m-d')) {
+                        $checkbox = "<input type='checkbox' class='larger' disabled />";
+                    } else {
+                        $checkbox = "<input type='checkbox' class='check-do-id larger' name='confirm[]' value='" . $data->DeliveryOrderID . "' />";
+                    }
                     return $checkbox;
                 })
                 ->filterColumn('Area', function ($query, $keyword) {
