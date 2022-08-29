@@ -190,6 +190,18 @@ class SummaryController extends Controller
 
                         return $statusOrder;
                     })
+                    ->addColumn('ValuePurchase', function ($data) {
+                        $valuePurchase = $data->Qty * $data->PurchasePrice;
+                        return $valuePurchase;
+                    })
+                    ->addColumn('ValueMargin', function ($data) {
+                        $valueMargin = $data->ValueProduct - ($data->Qty * $data->PurchasePrice);
+                        return $valueMargin;
+                    })
+                    ->addColumn('Margin', function ($data) {
+                        $margin =  ($data->ValueProduct - ($data->Qty * $data->PurchasePrice)) / $data->ValueProduct * 100;
+                        return round($margin, 2) . '%';
+                    })
                     ->addColumn('GrandTotal', function ($dataTotalValueDO) {
                         return $dataTotalValueDO->SubTotal - $dataTotalValueDO->Discount + $dataTotalValueDO->ServiceCharge + $dataTotalValueDO->DeliveryFee;
                     })

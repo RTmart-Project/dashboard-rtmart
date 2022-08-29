@@ -601,10 +601,11 @@ class DeliveryOrderService
           ->where('ProductID', $value->ProductID)
           ->where('DistributorID', $value->DistributorID)
           ->where('ProductLabel', $value->ProductLabel)
+          ->where('InvestorID', $value->InvestorID)
           ->where('ConditionStock', 'GOOD STOCK')
           ->sum('Qty');
 
-        $valAction = $value->QtyAction;
+        $valAction = abs($value->QtyAction);
 
         if ($qtyNext > 0) {
           $selisihQtyNext = $qtyNext - $valAction;

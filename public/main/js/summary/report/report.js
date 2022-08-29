@@ -102,6 +102,7 @@ $(document).ready(function () {
         let endDate = $("#to_date").val();
         let distributorID = $("#distributor").val();
         let salesCode = $("#sales").val();
+        $(".overlay").removeClass("d-none");
         summaryReportData(startDate, endDate, distributorID, salesCode);
     });
 

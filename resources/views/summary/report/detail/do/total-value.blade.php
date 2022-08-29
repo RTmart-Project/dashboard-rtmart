@@ -86,8 +86,12 @@
                           <th>Produk ID</th>
                           <th>Nama Produk</th>
                           <th>Qty</th>
-                          <th>Harga</th>
+                          <th>Harga Jual</th>
+                          <th>Harga Beli</th>
                           <th>Value Produk</th>
+                          <th>Value Beli</th>
+                          <th>Value Margin (before disc)</th>
+                          <th>Margin (before disc)</th>
                           <th>Sub Total</th>
                           <th>Diskon / Voucher</th>
                           <th>Biaya Layanan</th>
