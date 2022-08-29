@@ -499,6 +499,7 @@ class SummaryService
         ANY_VALUE(mma.Partner) AS Partner,
         ANY_VALUE(ms_distributor.DistributorName) AS DistributorName,
         ANY_VALUE(ms_payment_method.PaymentMethodName) AS PaymentMethodName,
+        ANY_VALUE(tmdod.DeliveryOrderDetailID) AS DeliveryOrderDetailID,
         ANY_VALUE(tmdod.ProductID) AS ProductID,
         ANY_VALUE(ms_product.ProductName) AS ProductName,
         ANY_VALUE(tmdod.Qty) AS Qty,
@@ -517,7 +518,14 @@ class SummaryService
           SELECT SUM(Qty * Price) - tmdo.Discount
           FROM tx_merchant_delivery_order_detail
           WHERE DeliveryOrderID = tmdo.DeliveryOrderID
-        ) AS SubTotalMinVoucher
+        ) AS SubTotalMinVoucher,
+        (
+          SELECT ms_stock_product_log.PurchasePrice
+          FROM ms_stock_product_log
+          WHERE ms_stock_product_log.DeliveryOrderDetailID = ANY_VALUE(tmdod.DeliveryOrderDetailID)
+            AND ms_stock_product_log.MerchantExpeditionDetailID = ANY_VALUE(tmed.MerchantExpeditionDetailID)
+          LIMIT 1
+        ) AS PurchasePrice
       ");
 
     return $sql;
