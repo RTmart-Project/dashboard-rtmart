@@ -16,10 +16,10 @@ use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RTSalesController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\SettlementController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\StockPromoController;
 use App\Http\Controllers\SummaryController;
-use App\Http\Controllers\TestController;
 use App\Http\Controllers\VoucherController;
 use Illuminate\Support\Facades\Auth;
 
@@ -44,6 +44,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/report', [SummaryController::class, 'summaryReport'])->name('summary.report');
         Route::post('/report/data', [SummaryController::class, 'summaryReportData'])->name('summary.reportData');
         Route::get('/reportDetail/{type}', [SummaryController::class, 'reportDetail'])->name('summary.detail');
+        Route::get('/margin', [SummaryController::class, 'margin'])->name('summary.margin');
+        Route::post('/margin/data', [SummaryController::class, 'marginData'])->name('summary.marginData');
     });
 
     Route::group(['prefix' => 'distribution'], function () {
@@ -71,6 +73,10 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/', [DistributionController::class, 'billPayLater'])->name('distribution.billPayLater');
             Route::get('/get', [DistributionController::class, 'getBillPayLater'])->name('distribution.getBillPayLater');
             Route::post('/update/{deliveryOrderID}', [DistributionController::class, 'updateBillPayLater'])->name('distribution.updateBillPayLater');
+        });
+        Route::group(['prefix' => 'settlement', 'middlewate' => ['checkRoleUser:IT,AD,BM,FI,HL']], function () {
+            Route::get('/', [SettlementController::class, 'index'])->name('distribution.settlement');
+            Route::post('/data', [SettlementController::class, 'getDataSettlement'])->name('distribution.getSettlement');
         });
         Route::group(['prefix' => 'product', 'middleware' => ['checkRoleUser:IT,AD,RBTAD,BM,FI,AH,DMO,HL']], function () {
             Route::get('/', [DistributionController::class, 'product'])->name('distribution.product');

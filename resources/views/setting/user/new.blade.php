@@ -106,9 +106,11 @@
                                         <select class="form-control selectpicker border @if($errors->has('depo')) is-invalid @endif"
                                             name="depo" id="depo" data-live-search="true" title="Pilih Depo" required>
                                             <option value="ALL" {{ (old('depo') == "ALL") ? 'selected' : '' }}>ALL</option>
-                                            <option value="CRS" {{ (old('depo') == "CRS") ? 'selected' : '' }}>Ciracas</option>
-                                            <option value="CKG" {{ (old('depo') == "CKG") ? 'selected' : '' }}>Cakung</option>
-                                            <option value="BDG" {{ (old('depo') == "BDG") ? 'selected' : '' }}>Bandung</option>
+                                            @foreach ($depo as $item)
+                                            <option value="{{ $item->Depo }}" {{ (old('depo') == $item->Depo) ? 'selected' : '' }}>
+                                                {{ $item->Depo }} - {{ $item->DistributorName }}
+                                            </option>
+                                            @endforeach
                                         </select>
                                         @if($errors->has('depo'))
                                         <span class="error invalid-feedback">{{ $errors->first('depo') }}</span>
@@ -121,6 +123,10 @@
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="checkbox" name="access[]" id="rtmart" value="IsDashboardRTMart">
                                             <label class="form-check-label" for="rtmart">Dashboard RTMart</label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" name="access[]" id="rtrabat" value="IsDashboardRTRabat">
+                                            <label class="form-check-label" for="rtrabat">Dashboard RTRabat</label>
                                         </div>
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="checkbox" name="access[]" id="rtsales" value="IsDashboardRTSales">

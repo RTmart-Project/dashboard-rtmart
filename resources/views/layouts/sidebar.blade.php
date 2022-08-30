@@ -51,6 +51,15 @@
                         </a>
                     </li>
                     @endif
+                    {{-- @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM")
+                    <li class="nav-item">
+                        <a href="{{ route('summary.margin') }}"
+                            class="nav-link {{ Request::is('summary/margin*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Margin</p>
+                        </a>
+                    </li>
+                    @endif --}}
                 </ul>
             </li>
             @endif
@@ -93,6 +102,15 @@
                             class="nav-link {{ Request::is('distribution/bill*') ? 'active' : '' }}">
                             <i class="far fa-circle nav-icon"></i>
                             <p>Tagihan RTpaylater</p>
+                        </a>
+                    </li>
+                    @endif
+                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "AD" || Auth::user()->RoleID == "HL")
+                    <li class="nav-item">
+                        <a href="{{ route('distribution.settlement') }}"
+                            class="nav-link {{ Request::is('distribution/settlement*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Setoran</p>
                         </a>
                     </li>
                     @endif
