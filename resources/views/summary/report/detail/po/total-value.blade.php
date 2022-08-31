@@ -93,7 +93,10 @@
                           <th>Qty</th>
                           <th>Harga Jual</th>
                           <th>Harga Beli</th>
-                          <th>Total Harga Produk</th>
+                          <th>Value Produk</th>
+                          <th>Value Beli</th>
+                          <th>Value Margin Est (before disc)</th>
+                          <th>Margin Est (before disc)</th>
                         </tr>
                       </thead>
                       <tbody>

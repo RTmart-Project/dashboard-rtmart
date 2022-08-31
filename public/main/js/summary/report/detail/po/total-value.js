@@ -122,6 +122,21 @@ $(document).ready(function () {
                     name: "SubTotalProduct",
                     searchable: false,
                 },
+                {
+                    data: "ValuePurchase",
+                    name: "ValuePurchase",
+                    searchable: false,
+                },
+                {
+                    data: "ValueMargin",
+                    name: "ValueMargin",
+                    searchable: false,
+                },
+                {
+                    data: "Margin",
+                    name: "Margin",
+                    searchable: false,
+                },
             ],
             buttons: [
                 {
@@ -140,7 +155,7 @@ $(document).ready(function () {
                         },
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-                            15, 16, 17, 18, 19, 20, 21, 22, 23,
+                            15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
                         ],
                         orthogonal: "export",
                     },
@@ -148,7 +163,7 @@ $(document).ready(function () {
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [11, 12, 13, 14, 15, 16, 21, 22, 23],
+                    aTargets: [11, 12, 13, 14, 15, 16, 21, 22, 23, 24, 25],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;

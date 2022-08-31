@@ -218,7 +218,16 @@ $(document).ready(function () {
                     res.PO.CountMerchantPO != null ? res.PO.CountMerchantPO : 0
                 );
                 $("#value-margin-estimasi").html(
-                    `${thousands_separators(res.PO.ValueMargin)}`
+                    `${
+                        res.PO.ValueMargin != null &&
+                        res.PO.PercentMarginEstimasiBeforeDisc != null
+                            ? "Rp " +
+                              thousands_separators(res.PO.ValueMargin) +
+                              " (" +
+                              res.PO.PercentMarginEstimasiBeforeDisc +
+                              "%)"
+                            : 0
+                    }`
                 );
                 $("#voucher-po").html(
                     res.PO.VoucherPO != null
@@ -251,7 +260,16 @@ $(document).ready(function () {
                     res.DO.CountMerchantDO != null ? res.DO.CountMerchantDO : 0
                 );
                 $("#value-margin").html(
-                    `${thousands_separators(res.DO.ValueMargin)}`
+                    `${
+                        res.DO.ValueMargin != null &&
+                        res.DO.PercentMarginRealBeforeDisc != null
+                            ? "Rp " +
+                              thousands_separators(res.DO.ValueMargin) +
+                              " (" +
+                              res.DO.PercentMarginRealBeforeDisc +
+                              "%)"
+                            : 0
+                    }`
                 );
                 $("#voucher-do").html(
                     res.DO.VoucherDO != null

@@ -319,6 +319,9 @@ class SummaryService
             SELECT $valueMarginPO - SUM(SummaryPO.DiscountVoucher)
         ) as ValueMarginEstimasi,
         (
+            SELECT ROUND($valueMarginPO / SUM(SummaryPO.TotalPrice) * 100, 2)
+        ) as PercentMarginEstimasiBeforeDisc,
+        (
             SELECT ROUND(($valueMarginPO - SUM(SummaryPO.DiscountVoucher)) / SUM(SummaryPO.NettPrice) * 100, 2)
         ) as PercentMarginEstimasi
     ");
@@ -389,6 +392,9 @@ class SummaryService
         (
             SELECT $valueMarginDO - SUM(SummaryDO.Discount)
         ) as ValueMarginReal,
+        (
+            SELECT ROUND($valueMarginDO / $valueDO * 100, 2)
+        ) as PercentMarginRealBeforeDisc,
         (
             SELECT ROUND(($valueMarginDO - SUM(SummaryDO.Discount)) / ($valueDO - SUM(SummaryDO.Discount)) * 100, 2)
         ) as PercentMarginReal
@@ -532,6 +538,7 @@ class SummaryService
         tmdo.StatusDO,
         ANY_VALUE(ms_status_order.StatusOrder) AS StatusOrder,
         tmdo.StockOrderID,
+        ANY_VALUE(tmo.CreatedDate) AS DatePO,
         ANY_VALUE(tmed.MerchantExpeditionID) AS MerchantExpeditionID,
         tmdo.CreatedDate,
         ANY_VALUE(mma.MerchantID) AS MerchantID,

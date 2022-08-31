@@ -73,8 +73,9 @@
                           <th>Delivery Order ID</th>
                           <th>Status DO</th>
                           <th>Stock Order ID</th>
+                          <th>Tanggal PO</th>
                           <th>Expedition ID</th>
-                          <th>Tgl Kirim</th>
+                          <th>Tgl Kirim DO</th>
                           <th>Merchant ID</th>
                           <th>Nama Toko</th>
                           <th>Nama Pemilik</th>
