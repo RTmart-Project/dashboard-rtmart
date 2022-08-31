@@ -157,6 +157,33 @@ class SummaryController extends Controller
                         }
                         return $purchasePrice;
                     })
+                    ->addColumn('ValuePurchase', function ($data) {
+                        if ($data->PurchasePrice != null) {
+                            $purchasePrice = $data->PurchasePrice;
+                        } else {
+                            $purchasePrice = $data->PurchasePriceProduct;
+                        }
+                        $valuePurchase = $data->PromisedQuantity * $purchasePrice;
+                        return $valuePurchase;
+                    })
+                    ->addColumn('ValueMargin', function ($data) {
+                        if ($data->PurchasePrice != null) {
+                            $purchasePrice = $data->PurchasePrice;
+                        } else {
+                            $purchasePrice = $data->PurchasePriceProduct;
+                        }
+                        $valueMargin = $data->SubTotalProduct - ($data->PromisedQuantity * $purchasePrice);
+                        return $valueMargin;
+                    })
+                    ->addColumn('Margin', function ($data) {
+                        if ($data->PurchasePrice != null) {
+                            $purchasePrice = $data->PurchasePrice;
+                        } else {
+                            $purchasePrice = $data->PurchasePriceProduct;
+                        }
+                        $margin =  ($data->SubTotalProduct - ($data->PromisedQuantity * $purchasePrice)) / $data->SubTotalProduct * 100;
+                        return round($margin, 2) . '%';
+                    })
                     ->rawColumns(['StatusOrder', 'StockOrderID'])
                     ->make(true);
             } elseif ($type == "countPO") {
@@ -178,6 +205,9 @@ class SummaryController extends Controller
                     ->make(true);
             } elseif ($type == "totalValueDO") {
                 return DataTables::of($dataTotalValueDO)
+                    ->editColumn('DatePO', function ($dataTotalValuePO) {
+                        return date('d M Y H:i', strtotime($dataTotalValuePO->DatePO));
+                    })
                     ->editColumn('CreatedDate', function ($dataTotalValueDO) {
                         return date('d M Y H:i', strtotime($dataTotalValueDO->CreatedDate));
                     })
