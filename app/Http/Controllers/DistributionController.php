@@ -349,7 +349,6 @@ class DistributionController extends Controller
                 ->whereDate('tmdo.CreatedDate', '<=', $endDateFormat);
         }
 
-
         if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
             $sqlAllRestockAndDO->where('ms_distributor.Depo', '=', $depoUser);

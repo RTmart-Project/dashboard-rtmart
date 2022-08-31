@@ -149,6 +149,14 @@ class SummaryController extends Controller
 
                         return $statusOrder;
                     })
+                    ->editColumn('PurchasePrice', function ($data) {
+                        if ($data->PurchasePrice != null) {
+                            $purchasePrice = $data->PurchasePrice;
+                        } else {
+                            $purchasePrice = $data->PurchasePriceProduct;
+                        }
+                        return $purchasePrice;
+                    })
                     ->rawColumns(['StatusOrder', 'StockOrderID'])
                     ->make(true);
             } elseif ($type == "countPO") {
@@ -273,6 +281,34 @@ class SummaryController extends Controller
                 'data' => (clone $dataCountMerchantDO)->get()->count(),
                 'dataFilter' => $dataFilter
             ]);
+        }
+    }
+
+    public function margin()
+    {
+        return view('summary.margin.index');
+    }
+
+    public function marginData(SummaryService $summaryService, Request $request)
+    {
+        $filterStartDate = $request->input('fromDate');
+        $filterEndDate = $request->input('toDate');
+
+        if ($filterStartDate != null && $filterEndDate != null) {
+            $startDate = $filterStartDate;
+            $endDate = $filterEndDate;
+        } else {
+            $startDate = date('Y-m-01');
+            $endDate = date('Y-m-d');
+        }
+
+        $data = $summaryService->dataSummaryMargin($startDate, $endDate);
+
+        // dd($data->get());
+
+        if ($request->ajax()) {
+            return DataTables::of($data)
+                ->make();
         }
     }
 }

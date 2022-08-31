@@ -113,6 +113,11 @@ $(document).ready(function () {
                     name: "tmod.Nett",
                 },
                 {
+                    data: "PurchasePrice",
+                    name: "PurchasePrice",
+                    searchable: false,
+                },
+                {
                     data: "SubTotalProduct",
                     name: "SubTotalProduct",
                     searchable: false,
@@ -135,7 +140,7 @@ $(document).ready(function () {
                         },
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-                            15, 16, 17, 18, 19, 20, 21, 22,
+                            15, 16, 17, 18, 19, 20, 21, 22, 23,
                         ],
                         orthogonal: "export",
                     },
@@ -143,7 +148,7 @@ $(document).ready(function () {
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [11, 12, 13, 14, 15, 16, 21, 22],
+                    aTargets: [11, 12, 13, 14, 15, 16, 21, 22, 23],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;

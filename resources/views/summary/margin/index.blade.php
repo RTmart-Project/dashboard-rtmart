@@ -1,7 +1,11 @@
 @extends('layouts.master')
-@section('title', 'Dashboard - Summary Report Detail - Total Value PO')
+@section('title', 'Dashboard - Summary Margin')
 
 @section('css-pages')
+<meta name="depo" content="{{ Auth::user()->Depo }}">
+<meta name="csrf_token" content="{{ csrf_token() }}">
+<!-- daterange picker -->
+<link rel="stylesheet" href="{{url('/')}}/plugins/daterangepicker/daterangepicker.css">
 <!-- Datatables -->
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
@@ -10,7 +14,7 @@
 <link rel="stylesheet" href="{{url('/')}}/main/css/custom/select-filter.css">
 @endsection
 
-@section('header-menu', 'Summary Report Detail - Total Value PO')
+@section('header-menu', 'Summary Margin')
 
 @section('content')
 <!-- Content Header (Page header) -->
@@ -39,61 +43,20 @@
     <div class="row">
       <div class="col-12">
         <div class="card">
-          <div class="card-header">
-            <div class="row align-items-center">
-              <div class="col-3">
-                <div class="info-box m-0">
-                  <span class="info-box-icon bg-success elevation-1"><i class="fas fas fa-shopping-cart"></i></span>
-                  <div class="info-box-content">
-                    <span class="info-box-text h6 mb-2">Total PO (Value)</span>
-                    <span class="info-box-number h6 m-0">
-                      {{ Helper::formatCurrency(array_sum(array_column($data, 'TotalPrice')), 'Rp ') }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div class="col-3">
-                <h6><strong>Start Date : </strong>{{ date('d F Y', strtotime($dataFilter->startDate)) }} </h6>
-                <h6><strong>End Date : </strong>{{ date('d F Y', strtotime($dataFilter->endDate)) }}</h6>
-              </div>
-              <div class="col-6">
-                <h6><strong>Distributor : </strong>{!! $dataFilter->distributor !!}</h6>
-                <h6><strong>Sales : </strong>{!! $dataFilter->sales !!}</h6>
-              </div>
-            </div>
-          </div>
-          <div class="card-body">
+          <div class="card-body mt-2">
             <div class="tab-content">
-              <div class="tab-pane active" id="summary-value-po">
+              <div class="tab-pane active" id="summary-margin">
                 <div class="row">
                   <div class="col-12">
                     <table class="table table-datatables">
                       <thead>
                         <tr>
-                          <th>Stock Order ID</th>
-                          <th>Tgl Transaksi</th>
-                          <th>Merchant ID</th>
-                          <th>Nama Toko</th>
-                          <th>Nama Pemilik</th>
-                          <th>No. Telp</th>
-                          <th>Alamat Toko</th>
-                          <th>Partner</th>
-                          <th>Nama Distributor</th>
-                          <th>Metode Pembayaran</th>
-                          <th>Status Order</th>
-                          <th>Total Harga</th>
-                          <th>Diskon</th>
-                          <th>Voucher</th>
-                          <th>Biaya Layanan</th>
-                          <th>Biaya Pengiriman</th>
-                          <th>Total Harga Bersih</th>
+                          <th>Distributor</th>
+                          {{-- <th>COGS</th>
                           <th>Sales</th>
-                          <th>Produk ID</th>
-                          <th>Nama Produk</th>
-                          <th>Qty</th>
-                          <th>Harga Jual</th>
-                          <th>Harga Beli</th>
-                          <th>Total Harga Produk</th>
+                          <th>Gross Margin (before disc)</th>
+                          <th>Gross Margin (after disc)</th>
+                          <th>% Margin</th> --}}
                         </tr>
                       </thead>
                       <tbody>
@@ -131,6 +94,9 @@
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!-- Main JS -->
-<script src="{{url('/')}}/main/js/summary/report/detail/po/total-value.js"></script>
+<script src="{{url('/')}}/main/js/custom/select-filter.js"></script>
+<script src="{{url('/')}}/main/js/summary/margin/margin.js"></script>
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
+<script>
+</script>
 @endsection

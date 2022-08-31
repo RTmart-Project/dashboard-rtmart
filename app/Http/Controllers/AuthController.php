@@ -205,8 +205,14 @@ class AuthController extends Controller
             ->whereNotIn('RoleID', ['R001', 'R002', 'R003', 'R004', 'R005', 'R006'])
             ->select('*')->get();
 
+        $depo = DB::table('ms_distributor')
+            ->select('Depo', 'DistributorName')
+            ->where('Depo', '!=', '')
+            ->get();
+
         return view('setting.user.new', [
-            'roleUser' => $roleUser
+            'roleUser' => $roleUser,
+            'depo' => $depo
         ]);
     }
 
@@ -217,7 +223,7 @@ class AuthController extends Controller
             'name' => 'required|string',
             'phonenumber' => 'required|numeric|unique:ms_user,PhoneNumber',
             'role_id' => 'required|string|exists:ms_role,RoleID',
-            'depo' => 'required|string|in:ALL,CRS,CKG,BDG',
+            'depo' => 'required',
             'password' => 'required|string',
             'access' => 'required'
         ]);
