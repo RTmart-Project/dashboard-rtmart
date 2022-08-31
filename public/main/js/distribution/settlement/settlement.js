@@ -1,6 +1,7 @@
 $(document).ready(function () {
     // DataTables
     dataTablesSettlement();
+    summarySettlement();
 
     function dataTablesSettlement(
         fromDate = "",
@@ -8,6 +9,7 @@ $(document).ready(function () {
         distributor = "",
         filterBy = ""
     ) {
+        let roleID = $('meta[name="role-id"]').attr("content");
         $.ajaxSetup({
             headers: {
                 "X-CSRF-TOKEN": $('meta[name="csrf_token"]').attr("content"),
@@ -98,12 +100,18 @@ $(document).ready(function () {
                     data: "PaymentSlip",
                     name: "tmdo.PaymentSlip",
                 },
-                // {
-                //     data: "Action",
-                //     name: "Action",
-                //     searchable: false,
-                //     orderable: false,
-                // },
+                {
+                    data: "Action",
+                    name: "Action",
+                    searchable: false,
+                    orderable: false,
+                },
+                {
+                    data: "Confirmation",
+                    name: "Confirmation",
+                    searchable: false,
+                    orderable: false,
+                },
             ],
             buttons: [
                 {
@@ -157,11 +165,11 @@ $(document).ready(function () {
                         }
                     },
                 },
+                {
+                    aTargets: [16],
+                    visible: roleID == "AD" ? false : true,
+                },
             ],
-            // order: [
-            //     [1, "desc"],
-            //     [14, "desc"],
-            // ],
             lengthChange: false,
             responsive: true,
             autoWidth: false,
@@ -172,9 +180,13 @@ $(document).ready(function () {
           <div class="input-group">
               <input type="text" name="from_date" id="from_date" class="form-control form-control-sm" readonly>
               <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
-              <select class="form-control form-control-sm ml-2 selectpicker border" id="filter_distributor"
-                title="Pilih Depo" multiple name="distributor">
-              </select>
+              ${
+                  roleID != "AD"
+                      ? `<select class="form-control form-control-sm ml-2 selectpicker border" id="filter_distributor"
+                            title="Pilih Depo" multiple name="distributor">
+                        </select>`
+                      : ``
+              }
               
               <div class="dropdown">
                   <button class="btn btn-primary btn-sm dropdown-toggle ml-2" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -196,7 +208,13 @@ $(document).ready(function () {
                 let option;
                 const dataDistributor = data.data;
                 for (const item of dataDistributor) {
-                    option += `<option value="${item.DistributorID}">${item.DistributorName}</option>`;
+                    let selected = "";
+                    for (const depo of distributor) {
+                        if (item.DistributorID == depo) {
+                            selected = "selected";
+                        }
+                    }
+                    option += `<option value="${item.DistributorID}" ${selected}>${item.DistributorName}</option>`;
                 }
                 $("#settlement #filter_distributor").append(option);
                 $("#settlement #filter_distributor").selectpicker("refresh");
@@ -280,6 +298,39 @@ $(document).ready(function () {
         $("#settlement #to_date").attr("placeholder", date);
     }
 
+    function summarySettlement(
+        fromDate = "",
+        toDate = "",
+        distributor = "",
+        filterBy = ""
+    ) {
+        $.ajax({
+            type: "post",
+            data: {
+                fromDate: fromDate,
+                toDate: toDate,
+                distributor: distributor,
+                filterBy: filterBy,
+            },
+            url: "/distribution/settlement/summary",
+            success: function (res) {
+                const difference =
+                    res.TotalMustSettlement - res.TotalDoneSettlement;
+                $("#nominal-must-settle").html(
+                    res.TotalMustSettlement === null
+                        ? `Rp 0`
+                        : `Rp ${thousands_separators(res.TotalMustSettlement)}`
+                );
+                $("#nominal-done-settle").html(
+                    res.TotalDoneSettlement === null
+                        ? `Rp 0`
+                        : `Rp ${thousands_separators(res.TotalDoneSettlement)}`
+                );
+                $("#difference").html(`Rp ${thousands_separators(difference)}`);
+            },
+        });
+    }
+
     // Event Listener saat tombol refresh diklik
     $("#settlement").on("click", "#refresh", function () {
         $("#settlement #from_date").val("");
@@ -291,6 +342,7 @@ $(document).ready(function () {
         const distributor = "";
         $("#settlement .table-datatables").DataTable().destroy();
         dataTablesSettlement(startDate, endDate, distributor, filterBy);
+        summarySettlement(startDate, endDate, distributor, filterBy);
         $("#settlement .table-datatables").DataTable().search("");
         $("#settlement .table-datatables").DataTable().ajax.reload(null, false);
     });
@@ -303,6 +355,7 @@ $(document).ready(function () {
         const distributor = $("#settlement #filter_distributor").val();
         $("#settlement .table-datatables").DataTable().destroy();
         dataTablesSettlement(startDate, endDate, distributor, filterBy);
+        summarySettlement(startDate, endDate, distributor, filterBy);
     });
 
     // Event listener saat tombol filter diklik
@@ -313,5 +366,156 @@ $(document).ready(function () {
         const distributor = $("#settlement #filter_distributor").val();
         $("#settlement .table-datatables").DataTable().destroy();
         dataTablesSettlement(startDate, endDate, distributor, filterBy);
+        summarySettlement(startDate, endDate, distributor, filterBy);
+    });
+
+    $("#settlement").on("click", ".btn-settlement", function () {
+        const deliveryOrderID = $(this).data("do-id");
+        const storeName = $(this).data("store-name");
+        const statusSettlement = $(this).data("status-settlement");
+        const paymentDate = $(this).data("payment-date");
+        const nominal = $(this).data("nominal");
+        const paymentSlip = $(this).data("payment-slip");
+        const config = $(this).data("config");
+
+        $("#form-setoran").attr(
+            "action",
+            `/distribution/settlement/update/${deliveryOrderID}`
+        );
+
+        $("#status_settlement").val(statusSettlement);
+        $("#payment_date").val(paymentDate);
+        $("#nominal").val(nominal);
+        if (paymentSlip != "") {
+            $("#img_output").removeClass("d-none");
+            $("#output").attr("src", config + paymentSlip);
+        } else {
+            $("#img_output").addClass("d-none");
+        }
+
+        $("#modal-settlement")
+            .modal("show")
+            .on("shown.bs.modal", function () {
+                $("#info").html(
+                    `Update Pelunasan <b>${deliveryOrderID}</b> dari <b>${storeName}</b>`
+                );
+            });
+    });
+
+    $("#payment_slip").change(function () {
+        $("#img_output").removeClass("d-none");
+    });
+
+    let Toast = Swal.mixin({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 4000,
+    });
+
+    $(".btn-setoran").click(function () {
+        const form = $(this).parent().prev();
+        const statusSettlement = form.find("#status_settlement").val();
+        const paymentDate = form.find("#payment_date").val();
+        const nominal = form.find("#nominal").val();
+        const paymentSlip = form.find("#payment_slip").val();
+
+        let next = true;
+
+        if (!paymentDate) {
+            Toast.fire({
+                icon: "error",
+                title: "Harap isi Tanggal Setoran!",
+            });
+            return (next = false);
+        }
+        if (!nominal) {
+            Toast.fire({
+                icon: "error",
+                title: "Harap isi Nominal Setoran!",
+            });
+            return (next = false);
+        }
+        if (!paymentSlip && statusSettlement != 2) {
+            Toast.fire({
+                icon: "error",
+                title: "Harap isi Bukti Setoran!",
+            });
+            return (next = false);
+        }
+
+        if (next == true) {
+            $("#modal-settlement").modal("hide");
+            $("#modalKonfirmasi").modal("show");
+        }
+    });
+
+    $("#btn-submit").on("click", function (e) {
+        $(this).prop("disabled", true);
+        $(this).children().removeClass("d-none");
+        $("#form-setoran").submit();
+    });
+
+    $("#settlement table").on("click", ".lihat-bukti", function (e) {
+        e.preventDefault();
+        const urlImg = $(this).attr("href");
+        const storeName = $(this).data("store-name");
+        const deliveryOrderID = $(this).data("do-id");
+        $.dialog({
+            title: `${deliveryOrderID} - ${storeName}`,
+            content: `<img  style="object-fit: contain; height: 350px; width: 100%;" src="${urlImg}">`,
+        });
+    });
+
+    $("#settlement table").on("click", ".btn-approve", function (e) {
+        e.preventDefault();
+        const deliveryOrderID = $(this).data("do-id");
+        const storeName = $(this).data("store-name");
+
+        $.confirm({
+            title: "Terima!",
+            content: `Yakin ingin menyetujui setoran <b>${deliveryOrderID}</b> - <b>${storeName}</b> ?`,
+            closeIcon: true,
+            buttons: {
+                Yakin: {
+                    btnClass: "btn-success",
+                    draggable: true,
+                    dragWindowGap: 0,
+                    action: function () {
+                        window.location =
+                            "/distribution/settlement/confirm/" +
+                            deliveryOrderID +
+                            "/approve";
+                    },
+                },
+                tidak: function () {},
+            },
+        });
+    });
+
+    $("#settlement table").on("click", ".btn-reject", function (e) {
+        e.preventDefault();
+        const deliveryOrderID = $(this).data("do-id");
+        const storeName = $(this).data("store-name");
+
+        $.confirm({
+            title: "Tolak!",
+            content: `Yakin ingin menolak setoran <b>${deliveryOrderID}</b> - <b>${storeName}</b> ?`,
+            closeIcon: true,
+            buttons: {
+                Yakin: {
+                    btnClass: "btn-red",
+                    draggable: true,
+                    dragWindowGap: 0,
+                    action: function () {
+                        window.location =
+                            "/distribution/settlement/confirm/" +
+                            deliveryOrderID +
+                            "/reject";
+                    },
+                },
+                tidak: function () {},
+            },
+        });
     });
 });

@@ -143,7 +143,7 @@
 	<body>
 		<div class="invoice-box position-relative">
 
-			@if ($merchant->PaymentMethodID == 14)
+			@if ($merchant->PaymentMethodID == 14 || $merchant->PaymentMethodID == 1)
 				@if ($merchant->IsPaid == 1)
 				<div class="watermark lunas"></div>
 				@else

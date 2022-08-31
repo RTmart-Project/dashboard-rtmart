@@ -26,6 +26,37 @@
     <div class="row">
       <div class="col-12">
         <div class="card mt-3">
+          <div class="card-header">
+            <div class="row">
+              <div class="col-12 col-md-4">
+                <div class="info-box">
+                  <span class="info-box-icon bg-info elevation-1"><i class="fas fa-file-invoice-dollar"></i></span>
+                  <div class="info-box-content">
+                    <span class="info-box-text no-wrap h6 mb-2">Total yg harus disetor</span>
+                    <span class="info-box-number h6 m-0" id="nominal-must-settle"></span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="info-box">
+                  <span class="info-box-icon bg-success elevation-1"><i class="fas fa-wallet"></i></span>
+                  <div class="info-box-content">
+                    <span class="info-box-text no-wrap h6 mb-2">Total yg sudah disetor</span>
+                    <span class="info-box-number h6 m-0" id="nominal-done-settle"></span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-4">
+                <div class="info-box">
+                  <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-comments-dollar"></i></span>
+                  <div class="info-box-content">
+                    <span class="info-box-text no-wrap h6 mb-2">Selisih</span>
+                    <span class="info-box-number h6 m-0" id="difference"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
           <div class="card-body mt-2">
             <div class="tab-content">
               <!-- All -->
@@ -44,13 +75,14 @@
                           <th>Sales</th>
                           <th>Tgl Kirim</th>
                           <th>Tgl Selesai</th>
-                          <th>Jumlah yg Harus Disetor</th>
+                          <th>Jumlah Harus Disetor</th>
                           <th>Status DO</th>
                           <th>Status Setoran</th>
                           <th>Tgl Setoran</th>
                           <th>Nominal Setoran</th>
                           <th>Bukti Setoran</th>
-                          {{-- <th>Action</th> --}}
+                          <th>Action</th>
+                          <th>Konfirmasi</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -61,13 +93,13 @@
               </div>
 
               {{-- Modal Pelunasan --}}
-              <form method="POST" enctype="multipart/form-data" id="form-pelunasan">
+              <form method="POST" enctype="multipart/form-data" id="form-setoran">
                 @csrf
-                <div class="modal fade" id="modal-payment">
+                <div class="modal fade" id="modal-settlement">
                   <div class="modal-dialog modal-xl">
                     <div class="modal-content">
                       <div class="modal-header">
-                        <h4 class="modal-title">Pelunasan PayLater RTmart</h4>
+                        <h4 class="modal-title">Setoran RTmart</h4>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                           <span aria-hidden="true">&times;</span>
                         </button>
@@ -77,20 +109,21 @@
                         <div class="row">
                           <div class="col-12 col-md-4">
                             <div class="form-group">
-                              <label for="payment_date">Tanggal Pelunasan</label>
+                              <label for="payment_date">Tanggal Setoran</label>
                               <input type="date" name="payment_date" class="form-control" id="payment_date" required>
+                              <input type="hidden" name="status_settlement" class="form-control" id="status_settlement">
                             </div>
                           </div>
                           <div class="col-12 col-md-4">
                             <div class="form-group">
-                              <label for="nominal">Nominal Bayar</label>
-                              <input type="text" name="nominal" class="form-control autonumeric" id="nominal" placeholder="Masukkan Nominal Bayar" required>
+                              <label for="nominal">Nominal Setoran</label>
+                              <input type="number" name="nominal" class="form-control" id="nominal" placeholder="Masukkan Nominal Bayar" required>
                             </div>
                           </div>
                           <div class="col-12 col-md-4">
                             <div class="form-group">
-                              <label for="payment_slip">Bukti Bayar</label>
-                              <input type="file" name="payment_slip" class="form-control" id="payment_slip" onchange="loadFile(event)" required>
+                              <label for="payment_slip">Bukti Setoran</label>
+                              <input type="file" name="payment_slip" class="form-control" id="payment_slip" onchange="loadFile(event)">
                             </div>
                           </div>
                           <div class="col-12 text-md-center d-none" id="img_output">
@@ -100,7 +133,7 @@
                       </div>
                       <div class="modal-footer justify-content-end">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Batalkan</button>
-                        <button type="button" class="btn btn-warning btn-pelunasan">Simpan</button>
+                        <button type="button" class="btn btn-warning btn-setoran">Simpan</button>
                       </div>
                     </div>
                   </div>
@@ -117,11 +150,11 @@
                         </button>
                       </div>
                       <div class="modal-body">
-                        <h5>Apakah data pelunasan yang dimasukkan sudah benar?</h5>
+                        <h5>Apakah data setoran yang dimasukkan sudah benar?</h5>
                       </div>
                       <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal" data-toggle="modal" data-target="#modal-payment">Kembali</button>
-                        <button type="submit" class="btn btn-success">Ya</button>
+                        <button type="submit" class="btn btn-success" id="btn-submit">Ya <i class="fas fa-circle-notch fa-spin d-none loader"></i></button>
                       </div>
                     </div>
                   </div>
@@ -162,7 +195,6 @@
 <script src="{{url('/')}}/main/js/helper/input-image-view.js"></script>
 <script src="{{url('/')}}/plugins/sweetalert2/sweetalert2.min.js"></script>
 <script src="{{url('/')}}/plugins/bootstrap-select/bootstrap-select.min.js"></script>
-<script src="https://unpkg.com/autonumeric"></script>
 <script>
 </script>
 @endsection

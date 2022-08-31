@@ -77,6 +77,9 @@ Route::group(['middleware' => ['auth']], function () {
         Route::group(['prefix' => 'settlement', 'middlewate' => ['checkRoleUser:IT,AD,BM,FI,HL']], function () {
             Route::get('/', [SettlementController::class, 'index'])->name('distribution.settlement');
             Route::post('/data', [SettlementController::class, 'getDataSettlement'])->name('distribution.getSettlement');
+            Route::post('/summary', [SettlementController::class, 'summarySettlement'])->name('distribution.summarySettlement');
+            Route::post('/update/{deliveryOrderID}', [SettlementController::class, 'updateSettlement'])->name('distribution.updateSettlement');
+            Route::get('/confirm/{deliveryOrderID}/{status}', [SettlementController::class, 'confirmSettlement'])->name('distribution.confirmSettlement');
         });
         Route::group(['prefix' => 'product', 'middleware' => ['checkRoleUser:IT,AD,RBTAD,BM,FI,AH,DMO,HL']], function () {
             Route::get('/', [DistributionController::class, 'product'])->name('distribution.product');
