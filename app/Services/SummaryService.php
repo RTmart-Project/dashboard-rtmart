@@ -319,6 +319,9 @@ class SummaryService
             SELECT $valueMarginPO - SUM(SummaryPO.DiscountVoucher)
         ) as ValueMarginEstimasi,
         (
+            SELECT ROUND($valueMarginPO / SUM(SummaryPO.TotalPrice) * 100, 2)
+        ) as PercentMarginEstimasiBeforeDisc,
+        (
             SELECT ROUND(($valueMarginPO - SUM(SummaryPO.DiscountVoucher)) / SUM(SummaryPO.NettPrice) * 100, 2)
         ) as PercentMarginEstimasi
     ");
@@ -390,6 +393,9 @@ class SummaryService
             SELECT $valueMarginDO - SUM(SummaryDO.Discount)
         ) as ValueMarginReal,
         (
+            SELECT ROUND($valueMarginDO / $valueDO * 100, 2)
+        ) as PercentMarginRealBeforeDisc,
+        (
             SELECT ROUND(($valueMarginDO - SUM(SummaryDO.Discount)) / ($valueDO - SUM(SummaryDO.Discount)) * 100, 2)
         ) as PercentMarginReal
     ");
@@ -430,7 +436,50 @@ class SummaryService
     $sql = $this->queryPO($startDate, $endDate, $distributorID, $salesCode)
       ->join('tx_merchant_order_detail as tmod', 'tmo.StockOrderID', 'tmod.StockOrderID')
       ->join('ms_product', 'ms_product.ProductID', 'tmod.ProductID')
-      ->select('tmo.StockOrderID', 'tmo.CreatedDate', 'tmo.MerchantID', 'mma.StoreName', 'mma.OwnerFullName', 'mma.PhoneNumber', 'mma.StoreAddress', 'mma.Partner', 'ms_distributor.DistributorName', 'ms_payment_method.PaymentMethodName', 'tmo.StatusOrderID', 'ms_status_order.StatusOrder', 'tmo.TotalPrice', 'tmo.NettPrice', 'tmo.DiscountPrice', 'tmo.DiscountVoucher', 'tmo.ServiceChargeNett', 'tmo.DeliveryFee', DB::raw("(tmo.NettPrice + tmo.ServiceChargeNett + tmo.DeliveryFee) as GrandTotal"), DB::raw("CONCAT(tmo.SalesCode, ' - ', ms_sales.SalesName) as Sales"), 'tmod.ProductID', 'ms_product.ProductName', 'tmod.PromisedQuantity', 'tmod.Nett', DB::raw("(tmod.PromisedQuantity * tmod.Nett) as SubTotalProduct"));
+      ->select(
+        'tmo.StockOrderID',
+        'tmo.CreatedDate',
+        'tmo.MerchantID',
+        'mma.StoreName',
+        'mma.OwnerFullName',
+        'mma.PhoneNumber',
+        'mma.StoreAddress',
+        'mma.Partner',
+        'ms_distributor.DistributorName',
+        'ms_payment_method.PaymentMethodName',
+        'tmo.StatusOrderID',
+        'ms_status_order.StatusOrder',
+        'tmo.TotalPrice',
+        'tmo.NettPrice',
+        'tmo.DiscountPrice',
+        'tmo.DiscountVoucher',
+        'tmo.ServiceChargeNett',
+        'tmo.DeliveryFee',
+        DB::raw("(tmo.NettPrice + tmo.ServiceChargeNett + tmo.DeliveryFee) as GrandTotal"),
+        DB::raw("CONCAT(tmo.SalesCode, ' - ', ms_sales.SalesName) as Sales"),
+        'tmod.ProductID',
+        'ms_product.ProductName',
+        'tmod.PromisedQuantity',
+        'tmod.Nett',
+        DB::raw("(tmod.PromisedQuantity * tmod.Nett) as SubTotalProduct"),
+        DB::raw("(
+            SELECT PurchasePrice
+            FROM ms_stock_product
+            WHERE DistributorID = tmo.DistributorID
+            AND ProductID = tmod.ProductID
+            AND Qty > 0
+            ORDER BY LevelType, CreatedDate
+            LIMIT 1
+        ) AS PurchasePrice"),
+        DB::raw("
+        (
+            SELECT Price
+            FROM ms_product
+            WHERE ProductID = tmod.ProductID
+            LIMIT 1
+        ) AS PurchasePriceProduct
+        ")
+      );
 
     return $sql;
   }
@@ -489,6 +538,7 @@ class SummaryService
         tmdo.StatusDO,
         ANY_VALUE(ms_status_order.StatusOrder) AS StatusOrder,
         tmdo.StockOrderID,
+        ANY_VALUE(tmo.CreatedDate) AS DatePO,
         ANY_VALUE(tmed.MerchantExpeditionID) AS MerchantExpeditionID,
         tmdo.CreatedDate,
         ANY_VALUE(mma.MerchantID) AS MerchantID,
@@ -609,5 +659,36 @@ class SummaryService
     $dataFilter->sales = $filterSales;
 
     return $dataFilter;
+  }
+
+  public function dataSummaryMargin($startDate, $endDate)
+  {
+    $sql = DB::table('tx_merchant_delivery_order')
+      ->join('tx_merchant_order as tmo', 'tmo.StockOrderID', 'tx_merchant_delivery_order.StockOrderID')
+      ->join('ms_distributor', 'ms_distributor.DistributorID', 'tmo.DistributorID')
+      ->join('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID')
+      ->join('ms_stock_product_log', 'ms_stock_product_log.DeliveryOrderDetailID', 'tx_merchant_delivery_order_detail.DeliveryOrderDetailID')
+      ->where('tx_merchant_delivery_order.StatusDO', 'S025')
+      ->whereDate('tx_merchant_delivery_order.CreatedDate', '>=', $startDate)
+      ->whereDate('tx_merchant_delivery_order.CreatedDate', '<=', $endDate)
+      ->whereIn('tmo.DistributorID', ['D-2004-000001', 'D-2004-000005', 'D-2004-000006'])
+      ->selectRaw("
+        tmo.DistributorID,
+        ms_distributor.DistributorName,
+        SUM(tx_merchant_delivery_order_detail.Qty * ms_stock_product_log.PurchasePrice) AS COGS,
+        SUM(tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price) AS Sales,
+        (
+          SELECT SUM(tx_merchant_delivery_order.Discount) 
+          FROM tx_merchant_delivery_order
+          JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_delivery_order.StockOrderID
+          WHERE tx_merchant_delivery_order.StatusDO = 'S025' 
+            AND DATE(tx_merchant_delivery_order.CreatedDate) >= '$startDate'
+            AND DATE(tx_merchant_delivery_order.CreatedDate) <= '$endDate'
+            AND tx_merchant_order.DistributorID = tmo.DistributorID
+        ) as Discount
+      ")
+      ->groupBy('tmo.DistributorID');
+
+    return $sql;
   }
 }

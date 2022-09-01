@@ -149,6 +149,41 @@ class SummaryController extends Controller
 
                         return $statusOrder;
                     })
+                    ->editColumn('PurchasePrice', function ($data) {
+                        if ($data->PurchasePrice != null) {
+                            $purchasePrice = $data->PurchasePrice;
+                        } else {
+                            $purchasePrice = $data->PurchasePriceProduct;
+                        }
+                        return $purchasePrice;
+                    })
+                    ->addColumn('ValuePurchase', function ($data) {
+                        if ($data->PurchasePrice != null) {
+                            $purchasePrice = $data->PurchasePrice;
+                        } else {
+                            $purchasePrice = $data->PurchasePriceProduct;
+                        }
+                        $valuePurchase = $data->PromisedQuantity * $purchasePrice;
+                        return $valuePurchase;
+                    })
+                    ->addColumn('ValueMargin', function ($data) {
+                        if ($data->PurchasePrice != null) {
+                            $purchasePrice = $data->PurchasePrice;
+                        } else {
+                            $purchasePrice = $data->PurchasePriceProduct;
+                        }
+                        $valueMargin = $data->SubTotalProduct - ($data->PromisedQuantity * $purchasePrice);
+                        return $valueMargin;
+                    })
+                    ->addColumn('Margin', function ($data) {
+                        if ($data->PurchasePrice != null) {
+                            $purchasePrice = $data->PurchasePrice;
+                        } else {
+                            $purchasePrice = $data->PurchasePriceProduct;
+                        }
+                        $margin =  ($data->SubTotalProduct - ($data->PromisedQuantity * $purchasePrice)) / $data->SubTotalProduct * 100;
+                        return round($margin, 2) . '%';
+                    })
                     ->rawColumns(['StatusOrder', 'StockOrderID'])
                     ->make(true);
             } elseif ($type == "countPO") {
@@ -170,6 +205,9 @@ class SummaryController extends Controller
                     ->make(true);
             } elseif ($type == "totalValueDO") {
                 return DataTables::of($dataTotalValueDO)
+                    ->editColumn('DatePO', function ($dataTotalValuePO) {
+                        return date('d M Y H:i', strtotime($dataTotalValuePO->DatePO));
+                    })
                     ->editColumn('CreatedDate', function ($dataTotalValueDO) {
                         return date('d M Y H:i', strtotime($dataTotalValueDO->CreatedDate));
                     })
@@ -273,6 +311,34 @@ class SummaryController extends Controller
                 'data' => (clone $dataCountMerchantDO)->get()->count(),
                 'dataFilter' => $dataFilter
             ]);
+        }
+    }
+
+    public function margin()
+    {
+        return view('summary.margin.index');
+    }
+
+    public function marginData(SummaryService $summaryService, Request $request)
+    {
+        $filterStartDate = $request->input('fromDate');
+        $filterEndDate = $request->input('toDate');
+
+        if ($filterStartDate != null && $filterEndDate != null) {
+            $startDate = $filterStartDate;
+            $endDate = $filterEndDate;
+        } else {
+            $startDate = date('Y-m-01');
+            $endDate = date('Y-m-d');
+        }
+
+        $data = $summaryService->dataSummaryMargin($startDate, $endDate);
+
+        // dd($data->get());
+
+        if ($request->ajax()) {
+            return DataTables::of($data)
+                ->make();
         }
     }
 }
