@@ -372,6 +372,7 @@ $(document).ready(function () {
     $("#settlement").on("click", ".btn-settlement", function () {
         const deliveryOrderID = $(this).data("do-id");
         const storeName = $(this).data("store-name");
+        const createdDate = $(this).data("created-date");
         const statusSettlement = $(this).data("status-settlement");
         const nominalMustSettle = $(this).data("must-settle");
         const paymentDate = $(this).data("payment-date");
@@ -385,7 +386,11 @@ $(document).ready(function () {
         );
 
         $("#status_settlement").val(statusSettlement);
+        $("#created_date").val(createdDate.substring(0, 10));
         $("#payment_date").val(paymentDate != "" ? paymentDate : date);
+        $("#payment_date").attr("min", createdDate.substring(0, 10));
+        $("#payment_date").attr("max", date);
+
         $("#nominal-settle").val(thousands_separators(nominalMustSettle));
         $("#nominal").val(nominal);
         if (paymentSlip != "") {
@@ -418,6 +423,7 @@ $(document).ready(function () {
     $(".btn-setoran").click(function () {
         const form = $(this).parent().prev();
         const statusSettlement = form.find("#status_settlement").val();
+        const createdDate = form.find("#created_date").val();
         const paymentDate = form.find("#payment_date").val();
         const nominal = form.find("#nominal").val();
         const paymentSlip = form.find("#payment_slip").val();
@@ -429,6 +435,14 @@ $(document).ready(function () {
                 icon: "error",
                 title: "Harap isi Tanggal Setoran!",
             });
+            return (next = false);
+        }
+        if (paymentDate < createdDate || paymentDate > date) {
+            Toast.fire({
+                icon: "error",
+                title: "Tanggal Setoran Tidak Valid!",
+            });
+            $("#payment_date").val(date);
             return (next = false);
         }
         if (!nominal) {
