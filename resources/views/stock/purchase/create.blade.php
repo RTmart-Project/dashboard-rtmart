@@ -73,7 +73,7 @@
                         {{ $investor->InvestorName }}
                       </option>
                       @endforeach
-                      <option value="Lainnya" {{ old('investor')=='Lainnya' ? 'selected' : '' }}>- Tambah Baru -</option>
+                      {{-- <option value="Lainnya" {{ old('investor')=='Lainnya' ? 'selected' : '' }}>- Tambah Baru -</option> --}}
                     </select>
                     @if($errors->has('investor'))
                     <span class="error invalid-feedback">{{ $errors->first('investor') }}</span>

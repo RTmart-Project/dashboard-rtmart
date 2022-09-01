@@ -128,11 +128,15 @@ class DeliveryController extends Controller
     public function sumStockProduct($productID, $distributorID, $investorID, $label)
     {
         $sumStockProduct = DB::table('ms_stock_product')
-            ->where('ProductID', $productID)->where('DistributorID', $distributorID)
-            ->where('InvestorID', $investorID)->where('ProductLabel', $label)
-            ->where('ConditionStock', 'GOOD STOCK')
-            ->where('Qty', '>', 0)
-            ->sum('Qty');
+            ->join('ms_investor', function ($join) {
+                $join->on('ms_investor.InvestorID', 'ms_stock_product.InvestorID');
+                $join->where('ms_investor.IsActive', 1);
+            })
+            ->where('ms_stock_product.ProductID', $productID)->where('ms_stock_product.DistributorID', $distributorID)
+            ->where('ms_stock_product.InvestorID', $investorID)->where('ms_stock_product.ProductLabel', $label)
+            ->where('ms_stock_product.ConditionStock', 'GOOD STOCK')
+            ->where('ms_stock_product.Qty', '>', 0)
+            ->sum('ms_stock_product.Qty');
 
         $investorName = DB::table('ms_investor')->where('InvestorID', $investorID)->select('InvestorName')->first();
 
@@ -163,7 +167,7 @@ class DeliveryController extends Controller
 
         return view('delivery.request.product-detail', [
             'detailProduct' => $data,
-            'investors' => DB::table('ms_investor')->get(),
+            'investors' => DB::table('ms_investor')->where('IsActive', 1)->get(),
             'firstInvestor' => DB::table('ms_investor')->where('InvestorID', 1)->first()
         ]);
     }

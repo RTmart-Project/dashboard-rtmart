@@ -21,7 +21,7 @@ class SettlementService
       ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tx_merchant_order.SalesCode')
       ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tmdo.StatusDO')
       ->where('tmdo.StatusDO', 'S025')
-      ->whereDate('tmdo.CreatedDate', '>=', '2022-08-30')
+      ->whereDate('tmdo.CreatedDate', '>=', '2022-09-01')
       ->selectRaw("
         tmdo.DeliveryOrderID,
         tmdo.StockOrderID,
@@ -65,7 +65,7 @@ class SettlementService
       })
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
       ->whereRaw("tmdo.StatusDO = 'S025'")
-      ->whereRaw("DATE(tmdo.CreatedDate) >= '2022-08-30'")
+      ->whereRaw("DATE(tmdo.CreatedDate) >= '2022-09-01'")
       ->selectRaw("
         CASE 
           WHEN tmdo.StatusSettlementID = 3 THEN tmdo.PaymentNominal

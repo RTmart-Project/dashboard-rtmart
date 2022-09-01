@@ -213,6 +213,10 @@ class DeliveryOrderService
         $join->on('ms_stock_product.DistributorID', 'tx_merchant_order.DistributorID');
         $join->where('ms_stock_product.ConditionStock', 'GOOD STOCK');
       })
+      ->leftJoin('ms_investor', function ($join) {
+        $join->on('ms_investor.InvestorID', 'ms_stock_product.InvestorID');
+        $join->where('ms_investor.IsActive', 1);
+      })
       ->selectRaw("
         ANY_VALUE(tx_merchant_delivery_order.StockOrderID) AS StockOrderID,
         ANY_VALUE(tx_merchant_delivery_order.DeliveryOrderID) AS DeliveryOrderID,
@@ -226,7 +230,7 @@ class DeliveryOrderService
         ANY_VALUE(sql1.CountCreatedDO) AS CountCreatedDO,
         ANY_VALUE(ms_distributor.IsHaistar) AS IsHaistar,
         ANY_VALUE(tx_merchant_delivery_order_detail.ProductID) AS ProductID,
-        IFNULL(SUM(ms_stock_product.Qty), 0) AS QtyStock,
+        IFNULL(SUM(IF(ms_investor.IsActive = 1, ms_stock_product.Qty, 0)), 0) AS QtyStock,
         SUM(IF(ms_stock_product.ProductLabel = 'PKP' AND ms_stock_product.InvestorID = 1, ms_stock_product.Qty, 0)) AS QtyStockPKP,
         SUM(IF(ms_stock_product.ProductLabel = 'NON-PKP' AND ms_stock_product.InvestorID = 1, ms_stock_product.Qty, 0)) AS QtyStockNonPKP,
         ANY_VALUE(tx_merchant_delivery_order_detail.Qty) AS QtyDO,
