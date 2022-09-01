@@ -37,10 +37,14 @@ class OpnameService
   public function getInbound()
   {
     $sql = DB::table('ms_stock_product')
-      ->where('Qty', '>', 0)
-      ->selectRaw("PurchaseID, ANY_VALUE(CreatedDate) AS CreatedDate")
-      ->groupBy('PurchaseID')
-      ->orderBy('CreatedDate');
+      ->join('ms_investor', function ($join) {
+        $join->on('ms_investor.InvestorID', 'ms_stock_product.InvestorID');
+        $join->where('ms_investor.IsActive', 1);
+      })
+      ->where('ms_stock_product.Qty', '>', 0)
+      ->selectRaw("PurchaseID, ANY_VALUE(ms_investor.InvestorName) AS InvestorName")
+      ->groupBy('ms_stock_product.PurchaseID')
+      ->orderByRaw("ANY_VALUE(ms_stock_product.CreatedDate)");
 
     return $sql;
   }
@@ -50,7 +54,10 @@ class OpnameService
     if ($inbound != "Lainnya") {
       $sql = DB::table('ms_stock_product')
         ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_stock_product.DistributorID')
-        ->join('ms_investor', 'ms_investor.InvestorID', 'ms_stock_product.InvestorID')
+        ->join('ms_investor', function ($join) {
+          $join->on('ms_investor.InvestorID', 'ms_stock_product.InvestorID');
+          $join->where('ms_investor.IsActive', 1);
+        })
         ->where('ms_stock_product.PurchaseID', $inbound)
         ->select('ms_stock_product.PurchaseID', 'ms_distributor.DistributorName', 'ms_investor.InvestorName')
         ->first();
@@ -63,7 +70,7 @@ class OpnameService
         ->get()->toArray();
     } else {
       $distributors = $this->purchaseService->getDistributors()->get()->toArray();
-      $investors = DB::table('ms_investor')->get()->toArray();
+      $investors = DB::table('ms_investor')->get()->where('IsActive', 1)->toArray();
 
       $sql = [
         'distributors' => $distributors,
