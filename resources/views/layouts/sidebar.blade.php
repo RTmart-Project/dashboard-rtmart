@@ -110,7 +110,7 @@
                         <a href="{{ route('distribution.settlement') }}"
                             class="nav-link {{ Request::is('distribution/settlement*') ? 'active' : '' }}">
                             <i class="far fa-circle nav-icon"></i>
-                            <p>Setoran</p>
+                            <p>Settlement</p>
                         </a>
                     </li>
                     @endif
