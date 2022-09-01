@@ -50,7 +50,7 @@
                       class="form-control selectpicker border @if($errors->has('inbound')) is-invalid @endif" required>
                       @foreach ($inbounds as $inbound)
                       <option value="{{ $inbound->PurchaseID }}" {{ old('inbound') == $inbound->PurchaseID ? 'selected' : '' }}>
-                        {{ $inbound->PurchaseID }}
+                        {{ $inbound->PurchaseID }} - {{ $inbound->InvestorName }}
                       </option>
                       @endforeach
                       <option value="Lainnya" {{ old('inbound') == "Lainnya" }}>Lainnya</option>

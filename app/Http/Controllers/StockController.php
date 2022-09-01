@@ -95,7 +95,7 @@ class StockController extends Controller
     {
         $inbounds = $opnameService->getInbound()->get();
         $distributors = $purchaseService->getDistributors()->get();
-        $investors = DB::table('ms_investor')->get();
+        $investors = DB::table('ms_investor')->where('IsActive', 1)->get();
         $users = $purchaseService->getUsers()->get();
         return view('stock.opname.create', [
             'inbounds' => $inbounds,
@@ -380,7 +380,7 @@ class StockController extends Controller
     public function createPurchase(PurchaseService $purchaseService)
     {
         $suppliers = DB::table('ms_suppliers')->get();
-        $investors = DB::table('ms_investor')->get();
+        $investors = DB::table('ms_investor')->where('IsActive', 1)->get();
         $products = DB::table('ms_product')
             ->join('ms_product_uom', 'ms_product_uom.ProductUOMID', 'ms_product.ProductUOMID')
             ->select('ms_product.ProductID', 'ms_product.ProductName', 'ms_product.ProductUOMDesc', 'ms_product_uom.ProductUOMName')
@@ -483,7 +483,7 @@ class StockController extends Controller
     public function editPurchase(PurchaseService $purchaseService, $purchaseID)
     {
         $suppliers = DB::table('ms_suppliers')->get();
-        $investors = DB::table('ms_investor')->get();
+        $investors = DB::table('ms_investor')->where('IsActive', 1)->get();
         $products = DB::table('ms_product')
             ->join('ms_product_uom', 'ms_product_uom.ProductUOMID', 'ms_product.ProductUOMID')
             ->select('ms_product.ProductID', 'ms_product.ProductName', 'ms_product.ProductUOMDesc', 'ms_product_uom.ProductUOMName')
@@ -816,7 +816,10 @@ class StockController extends Controller
                 )) AND Qty > 0
             ) AS purchase"))
             ->join('ms_distributor', 'ms_distributor.DistributorID', 'purchase.DistributorID')
-            ->join('ms_investor', 'ms_investor.InvestorID', 'purchase.InvestorID')
+            ->join('ms_investor', function ($join) {
+                $join->on('ms_investor.InvestorID', 'purchase.InvestorID');
+                $join->where('ms_investor.IsActive', 1);
+            })
             ->distinct()
             ->select('purchase.PurchaseID', 'purchase.DistributorID', 'ms_distributor.DistributorName', 'ms_investor.InvestorName')
             ->get();
