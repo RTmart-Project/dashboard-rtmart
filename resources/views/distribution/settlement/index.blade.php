@@ -1,5 +1,5 @@
 @extends('layouts.master')
-@section('title', 'Dashboard - Setoran')
+@section('title', 'Dashboard - Settlement')
 
 @section('css-pages')
 <meta name="role-id" content="{{ Auth::user()->RoleID }}">
@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="{{url('/')}}/plugins/bootstrap-select/bootstrap-select.min.css">
 @endsection
 
-@section('header-menu', 'Setoran')
+@section('header-menu', 'Settlement')
 
 @section('content')
 <!-- Main content -->
@@ -107,20 +107,26 @@
                       <div class="modal-body">
                         <p id="info"></p>
                         <div class="row">
-                          <div class="col-12 col-md-4">
+                          <div class="col-12 col-md-3">
                             <div class="form-group">
                               <label for="payment_date">Tanggal Setoran</label>
                               <input type="date" name="payment_date" class="form-control" id="payment_date" required>
                               <input type="hidden" name="status_settlement" class="form-control" id="status_settlement">
                             </div>
                           </div>
-                          <div class="col-12 col-md-4">
+                          <div class="col-12 col-md-3">
                             <div class="form-group">
-                              <label for="nominal">Nominal Setoran</label>
-                              <input type="number" name="nominal" class="form-control" id="nominal" placeholder="Masukkan Nominal Bayar" required>
+                              <label for="nominal-settle">Nominal Harus Disetor</label>
+                              <input type="text" class="form-control" id="nominal-settle" readonly>
                             </div>
                           </div>
-                          <div class="col-12 col-md-4">
+                          <div class="col-12 col-md-3">
+                            <div class="form-group">
+                              <label for="nominal">Nominal Setoran</label>
+                              <input type="number" min="1" name="nominal" class="form-control" id="nominal" placeholder="Masukkan Nominal Setoran" required>
+                            </div>
+                          </div>
+                          <div class="col-12 col-md-3">
                             <div class="form-group">
                               <label for="payment_slip">Bukti Setoran</label>
                               <input type="file" name="payment_slip" class="form-control" id="payment_slip" onchange="loadFile(event)">

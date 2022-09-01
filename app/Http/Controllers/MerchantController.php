@@ -1732,6 +1732,14 @@ class MerchantController extends Controller
                     $subTotalPrice = $data->Nett * $data->PromisedQuantity;
                     return "$subTotalPrice";
                 })
+                ->addColumn('ValueDikirim', function ($data) {
+                    $valueDikirim = $data->Nett * $data->QtyDOkirim;
+                    return $valueDikirim;
+                })
+                ->addColumn('ValueSelesai', function ($data) {
+                    $valueSelesai = $data->Nett * $data->DOSelesai;
+                    return $valueSelesai;
+                })
                 ->editColumn('Price', function ($data) {
                     return "$data->Price";
                 })

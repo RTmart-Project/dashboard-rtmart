@@ -110,11 +110,6 @@ class SettlementController extends Controller
                     return $paymentSlip;
                 })
                 ->addColumn('Action', function ($data) {
-                    if ($data->StatusSettlementID == 2) {
-                        $btnText = 'Edit ';
-                    } else {
-                        $btnText = 'Update ';
-                    }
                     if (
                         (Auth::user()->RoleID == "AD" || Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI") &&
                         ($data->StatusSettlementID == 1 || $data->StatusSettlementID == 2 || $data->StatusSettlementID == null)
@@ -122,9 +117,9 @@ class SettlementController extends Controller
                         $action = '<a class="btn btn-xs btn-warning btn-settlement my-1" 
                                     data-do-id="' . $data->DeliveryOrderID . '" data-store-name="' . $data->StoreName . '"
                                     data-payment-date="' . $data->PaymentDate . '" data-nominal="' . $data->PaymentNominal . '"
-                                    data-status-settlement="' . $data->StatusSettlementID . '"
+                                    data-status-settlement="' . $data->StatusSettlementID . '" data-must-settle="' . $data->TotalSettlement . '"
                                     data-payment-slip="' . $data->PaymentSlip . '" data-config="' . $this->baseImageUrl . 'settlement_slip_payment/' . '">
-                                    ' . $btnText . 'Setoran
+                                    Settle
                                 </a>';
                     } else {
                         $action = '';

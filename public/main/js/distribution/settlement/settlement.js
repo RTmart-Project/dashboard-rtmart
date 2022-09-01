@@ -1,4 +1,7 @@
 $(document).ready(function () {
+    const d = new Date();
+    const date = d.toISOString().split("T")[0];
+
     // DataTables
     dataTablesSettlement();
     summarySettlement();
@@ -288,9 +291,6 @@ $(document).ready(function () {
             }
         );
 
-        const d = new Date();
-        const date = d.toISOString().split("T")[0];
-
         // Menyisipkan Placeholder Date
         $("#settlement #from_date").val(fromDate);
         $("#settlement #to_date").val(toDate);
@@ -373,6 +373,7 @@ $(document).ready(function () {
         const deliveryOrderID = $(this).data("do-id");
         const storeName = $(this).data("store-name");
         const statusSettlement = $(this).data("status-settlement");
+        const nominalMustSettle = $(this).data("must-settle");
         const paymentDate = $(this).data("payment-date");
         const nominal = $(this).data("nominal");
         const paymentSlip = $(this).data("payment-slip");
@@ -384,7 +385,8 @@ $(document).ready(function () {
         );
 
         $("#status_settlement").val(statusSettlement);
-        $("#payment_date").val(paymentDate);
+        $("#payment_date").val(paymentDate != "" ? paymentDate : date);
+        $("#nominal-settle").val(thousands_separators(nominalMustSettle));
         $("#nominal").val(nominal);
         if (paymentSlip != "") {
             $("#img_output").removeClass("d-none");
@@ -433,6 +435,13 @@ $(document).ready(function () {
             Toast.fire({
                 icon: "error",
                 title: "Harap isi Nominal Setoran!",
+            });
+            return (next = false);
+        }
+        if (nominal < 1) {
+            Toast.fire({
+                icon: "error",
+                title: "Nominal Setoran harus lebih dari 0!",
             });
             return (next = false);
         }

@@ -336,7 +336,7 @@
                                                     <th>Keterangan</th>
                                                     <th>Omset Rata-Rata</th>
                                                     <th>Grade</th>
-                                                    <th>Partner</th>
+                                                    <th>Partner</th> {{-- 10 --}}
                                                     <th>No. Telp</th>
                                                     <th>Nama Distributor</th>
                                                     <th>Metode Pembayaran</th>
@@ -346,7 +346,7 @@
                                                     <th>Total Harga</th>
                                                     <th>Diskon</th>
                                                     <th>Voucher</th>
-                                                    <th>Biaya Layanan</th>
+                                                    <th>Biaya Layanan</th> {{-- 20 --}}
                                                     <th>Biaya Pengiriman</th>
                                                     <th>Total Harga Bersih</th>
                                                     <th>Referral</th>
@@ -356,16 +356,18 @@
                                                     <th>Qty</th>
                                                     <th>Qty dikirim</th>
                                                     <th>Qty DO Selesai</th>
-                                                    <th>Harga Satuan</th>
+                                                    <th>Harga Satuan</th> {{-- 30 --}}
                                                     <th>Diskon</th>
                                                     <th>Harga stlh Diskon</th>
-                                                    <th>Total Harga Produk</th>
+                                                    <th>Value Produk</th>
+                                                    <th>Value Produk Dikirim</th>
+                                                    <th>Value Produk Selesai</th>
                                                     @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM")
                                                     <th>Harga Beli Estimasi</th>
                                                     <th>Margin Estimasi (Rp)</th>
                                                     <th>Margin Estimasi (%)</th>
                                                     <th>Harga Beli Real</th>
-                                                    <th>Margin Real (Rp)</th>
+                                                    <th>Margin Real (Rp)</th> {{-- 40 --}}
                                                     <th>Margin Real (%)</th>
                                                     <th>Total Margin (Rp)</th>
                                                     <th>Total Margin (%)</th>
