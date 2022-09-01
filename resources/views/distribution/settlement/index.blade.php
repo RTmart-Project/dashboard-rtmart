@@ -99,7 +99,7 @@
                   <div class="modal-dialog modal-xl">
                     <div class="modal-content">
                       <div class="modal-header">
-                        <h4 class="modal-title">Setoran RTmart</h4>
+                        <h4 class="modal-title">Settlement RTmart</h4>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                           <span aria-hidden="true">&times;</span>
                         </button>
@@ -112,6 +112,7 @@
                               <label for="payment_date">Tanggal Setoran</label>
                               <input type="date" name="payment_date" class="form-control" id="payment_date" required>
                               <input type="hidden" name="status_settlement" class="form-control" id="status_settlement">
+                              <input type="hidden" name="created_date" class="form-control" id="created_date">
                             </div>
                           </div>
                           <div class="col-12 col-md-3">
@@ -156,7 +157,7 @@
                         </button>
                       </div>
                       <div class="modal-body">
-                        <h5>Apakah data setoran yang dimasukkan sudah benar?</h5>
+                        <h5>Apakah data yang dimasukkan sudah benar?</h5>
                       </div>
                       <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal" data-toggle="modal" data-target="#modal-payment">Kembali</button>

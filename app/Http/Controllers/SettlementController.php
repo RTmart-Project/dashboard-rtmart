@@ -118,6 +118,7 @@ class SettlementController extends Controller
                                     data-do-id="' . $data->DeliveryOrderID . '" data-store-name="' . $data->StoreName . '"
                                     data-payment-date="' . $data->PaymentDate . '" data-nominal="' . $data->PaymentNominal . '"
                                     data-status-settlement="' . $data->StatusSettlementID . '" data-must-settle="' . $data->TotalSettlement . '"
+                                    data-created-date="' . $data->CreatedDate . '"
                                     data-payment-slip="' . $data->PaymentSlip . '" data-config="' . $this->baseImageUrl . 'settlement_slip_payment/' . '">
                                     Settle
                                 </a>';
