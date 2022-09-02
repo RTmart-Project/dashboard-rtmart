@@ -249,6 +249,10 @@ class SummaryService
   {
     // Summary Purchase Order
     $sqlMainPO = DB::table('tx_merchant_order as tmo')
+      ->join('ms_merchant_account', function ($join) {
+        $join->on('ms_merchant_account.MerchantID', 'tmo.MerchantID');
+        $join->whereRaw("(ms_merchant_account.Partner != 'TRADING' OR ms_merchant_account.Partner IS NULL)");
+      })
       ->select('tmo.StockOrderID', 'tmo.CreatedDate', 'tmo.MerchantID', 'tmo.TotalPrice', 'tmo.NettPrice', 'tmo.DiscountVoucher')
       ->whereRaw("DATE(tmo.CreatedDate) >= '$startDate'")
       ->whereRaw("DATE(tmo.CreatedDate) <= '$endDate'")
@@ -331,6 +335,10 @@ class SummaryService
     // Summary Delivery Order
     $sqlMainDO = DB::table('tx_merchant_delivery_order as tmdo')
       ->join('tx_merchant_order as tmo', 'tmo.StockOrderID', 'tmdo.StockOrderID')
+      ->join('ms_merchant_account', function ($join) {
+        $join->on('ms_merchant_account.MerchantID', 'tmo.MerchantID');
+        $join->whereRaw("(ms_merchant_account.Partner != 'TRADING' OR ms_merchant_account.Partner IS NULL)");
+      })
       ->select('tmdo.DeliveryOrderID', 'tmo.MerchantID', 'tmdo.Discount')
       ->whereRaw("DATE(tmdo.CreatedDate) >= '$startDate'")
       ->whereRaw("DATE(tmdo.CreatedDate) <= '$endDate'")
@@ -412,7 +420,10 @@ class SummaryService
   public function queryPO($startDate, $endDate, $distributorID, $salesCode)
   {
     $sql = DB::table('tx_merchant_order as tmo')
-      ->join('ms_merchant_account as mma', 'mma.MerchantID', 'tmo.MerchantID')
+      ->join('ms_merchant_account as mma', function ($join) {
+        $join->on('mma.MerchantID', 'tmo.MerchantID');
+        $join->whereRaw("(mma.Partner != 'TRADING' OR mma.Partner IS NULL)");
+      })
       ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', 'tmo.PaymentMethodID')
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'tmo.DistributorID')
       ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tmo.StatusOrderID')
@@ -505,7 +516,10 @@ class SummaryService
   {
     $sql = DB::table('tx_merchant_delivery_order as tmdo')
       ->join('tx_merchant_order as tmo', 'tmo.StockOrderID', 'tmdo.StockOrderID')
-      ->join('ms_merchant_account as mma', 'mma.MerchantID', 'tmo.MerchantID')
+      ->join('ms_merchant_account as mma', function ($join) {
+        $join->on('mma.MerchantID', 'tmo.MerchantID');
+        $join->whereRaw("(mma.Partner != 'TRADING' OR mma.Partner IS NULL)");
+      })
       ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', 'tmo.PaymentMethodID')
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'tmo.DistributorID')
       ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tmdo.StatusDO')

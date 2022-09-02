@@ -17,7 +17,10 @@ class SettlementService
       })
       ->leftJoin('ms_status_settlement', 'ms_status_settlement.StatusSettlementID', 'tmdo.StatusSettlementID')
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
-      ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
+      ->join('ms_merchant_account', function ($join) {
+        $join->on('ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID');
+        $join->whereRaw("(ms_merchant_account.Partner != 'TRADING' OR ms_merchant_account.Partner IS NULL)");
+      })
       ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tx_merchant_order.SalesCode')
       ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tmdo.StatusDO')
       ->where('tmdo.StatusDO', 'S025')
@@ -62,6 +65,10 @@ class SettlementService
       ->join('tx_merchant_order', function ($join) {
         $join->on('tx_merchant_order.StockOrderID', 'tmdo.StockOrderID');
         $join->whereRaw("tx_merchant_order.PaymentMethodID = 1");
+      })
+      ->join('ms_merchant_account', function ($join) {
+        $join->on('ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID');
+        $join->whereRaw("(ms_merchant_account.Partner != 'TRADING' OR ms_merchant_account.Partner IS NULL)");
       })
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
       ->whereRaw("tmdo.StatusDO = 'S025'")
