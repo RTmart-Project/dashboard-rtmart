@@ -294,8 +294,8 @@ $(document).ready(function () {
         // Menyisipkan Placeholder Date
         $("#settlement #from_date").val(fromDate);
         $("#settlement #to_date").val(toDate);
-        $("#settlement #from_date").attr("placeholder", date);
-        $("#settlement #to_date").attr("placeholder", date);
+        $("#settlement #from_date").attr("placeholder", "From Date");
+        $("#settlement #to_date").attr("placeholder", "To Date");
     }
 
     function summarySettlement(
