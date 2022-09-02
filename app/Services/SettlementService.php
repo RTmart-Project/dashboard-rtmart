@@ -79,7 +79,7 @@ class SettlementService
         ) AS TotalMustSettlement
       ");
 
-    if ($filterBy == "CreatedDate" || $filterBy == "") {
+    if ($filterBy == "CreatedDate") {
       $settlement->whereRaw("DATE(tmdo.CreatedDate) >= '$startDateFormat'")
         ->whereRaw("DATE(tmdo.CreatedDate) <= '$endDateFormat'");
     } elseif ($filterBy == "FinishDate") {

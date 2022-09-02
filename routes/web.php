@@ -171,6 +171,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::group(['prefix' => 'mutation', 'middleware' => ['checkRoleUser:IT,FI,AD,BM,INVTR,HL']], function () {
             Route::get('/', [StockController::class, 'mutationStock'])->name('stock.mutation');
             Route::get('/get', [StockController::class, 'getMutationStock'])->name('stock.getMutation');
+            Route::get('/all-product/get', [StockController::class, 'getMutationStockAllProduct'])->name('stock.getMutationAllProduct');
             Route::get('/detail/{mutationID}', [StockController::class, 'detailMutation'])->name('stock.detailMutation');
             Route::get('/create', [StockController::class, 'createMutation'])->name('stock.createMutation');
             Route::get('/getExcludeDistributorID/{distributorID}', [StockController::class, 'getExcludeDistributorID'])->name('stock.getExcludeDistributorID');

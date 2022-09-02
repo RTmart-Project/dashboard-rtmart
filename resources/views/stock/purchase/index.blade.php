@@ -111,6 +111,7 @@
                           <th>Investor</th>
                           <th>Supplier</th>
                           <th>Tanggal Pembelian</th>
+                          <th>Produk ID</th>
                           <th>Produk</th>
                           <th>Label</th>
                           <th>Qty</th>
