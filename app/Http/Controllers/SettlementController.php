@@ -36,19 +36,19 @@ class SettlementController extends Controller
         $distributor = $request->input('distributor');
         $filterBy = $request->input('filterBy');
 
-        $startDate = new DateTime($fromDate) ?? new DateTime();
-        $endDate = new DateTime($toDate) ?? new DateTime();
-        $startDateFormat = $startDate->format('Y-m-d');
-        $endDateFormat = $endDate->format('Y-m-d');
+        // $startDate = new DateTime($fromDate) ?? new DateTime();
+        // $endDate = new DateTime($toDate) ?? new DateTime();
+        // $startDateFormat = $startDate->format('Y-m-d');
+        // $endDateFormat = $endDate->format('Y-m-d');
 
         $sql = $this->settlementService->dataSettlement();
 
-        if ($filterBy == "CreatedDate" || $filterBy == "") {
-            $sql->whereDate('tmdo.CreatedDate', '>=', $startDateFormat)
-                ->whereDate('tmdo.CreatedDate', '<=', $endDateFormat);
+        if ($filterBy == "CreatedDate") {
+            $sql->whereDate('tmdo.CreatedDate', '>=', $fromDate)
+                ->whereDate('tmdo.CreatedDate', '<=', $toDate);
         } elseif ($filterBy == "FinishDate") {
-            $sql->whereDate('tmdo.FinishDate', '>=', $startDateFormat)
-                ->whereDate('tmdo.FinishDate', '<=', $endDateFormat);
+            $sql->whereDate('tmdo.FinishDate', '>=', $fromDate)
+                ->whereDate('tmdo.FinishDate', '<=', $toDate);
         }
 
         if (!empty($distributor)) {
@@ -161,7 +161,7 @@ class SettlementController extends Controller
         $startDateFormat = $startDate->format('Y-m-d');
         $endDateFormat = $endDate->format('Y-m-d');
 
-        $data = $this->settlementService->summaryDataSettlemnet($startDateFormat, $endDateFormat, $distributor, $filterBy);
+        $data = $this->settlementService->summaryDataSettlemnet($fromDate, $toDate, $distributor, $filterBy);
 
         return $data;
     }

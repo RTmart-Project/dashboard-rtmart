@@ -50,9 +50,20 @@
             </a>
           </div>
           @endif
-          <div class="card-body mt-2">
+          <div class="card-body pt-2">
+            <ul class="nav nav-pills pb-2" id="tab-topup">
+              <li class="nav-item">
+                <a class="nav-link active" href="#mutation-stock" data-toggle="tab">
+                  Mutasi
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#mutation-stock-all-product" data-toggle="tab">
+                  Mutasi All Product
+                </a>
+              </li>
+            </ul>
             <div class="tab-content">
-
               <div class="tab-pane active" id="mutation-stock">
                 <div class="row">
                   <div class="col-12">
@@ -67,6 +78,34 @@
                           <th>Action By</th>
                           <th>Catatan</th>
                           <th>Detail</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tab-pane" id="mutation-stock-all-product">
+                <div class="row">
+                  <div class="col-12">
+                    <table class="table table-datatables">
+                      <thead>
+                        <tr>
+                          <th>Mutasi ID</th>
+                          <th>Tanggal Mutasi</th>
+                          <th>Sumber Purchase</th>
+                          <th>Dari Distributor</th>
+                          <th>Ke Distributor</th>
+                          <th>Action By</th>
+                          <th>Catatan</th>
+                          <th>Produk ID</th>
+                          <th>Produk</th>
+                          <th>Label</th>
+                          <th>Qty</th>
+                          <th>Harga Beli</th>
+                          <th>Total Harga Produk</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -106,7 +145,15 @@
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!-- Main JS -->
 <script src="{{url('/')}}/main/js/stock/mutation/mutation.js"></script>
+<script src="{{url('/')}}/main/js/stock/mutation/mutation-all-product.js"></script>
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
+<script src="{{url('/')}}/main/js/helper/keep-tab-refresh.js"></script>
 <script>
+   // Recall Responsive DataTables
+   $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+    $('.table-datatables:visible').each(function(e) {
+      $(this).DataTable().columns.adjust().responsive.recalc();
+    });
+  });
 </script>
 @endsection

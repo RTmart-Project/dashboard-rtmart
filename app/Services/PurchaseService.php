@@ -61,7 +61,7 @@ class PurchaseService
       ->leftJoin('ms_investor', 'ms_investor.InvestorID', 'ms_stock_purchase.InvestorID')
       ->join('ms_suppliers', 'ms_suppliers.SupplierID', 'ms_stock_purchase.SupplierID')
       ->join('ms_status_stock', 'ms_status_stock.StatusID', 'ms_stock_purchase.StatusID')
-      ->select('ms_stock_purchase.PurchaseID', 'ms_distributor.DistributorName', 'ms_stock_purchase.PurchaseDate', 'ms_stock_purchase.CreatedBy', 'ms_suppliers.SupplierName', 'ms_stock_purchase.StatusID', 'ms_status_stock.StatusName', 'ms_stock_purchase.StatusBy', 'ms_stock_purchase.InvoiceNumber', 'ms_stock_purchase.InvoiceFile', 'ms_investor.InvestorName', 'ms_stock_purchase.Type', 'ms_product.ProductName', 'ms_stock_purchase_detail.ProductLabel', 'ms_stock_purchase_detail.Qty', 'ms_stock_purchase_detail.PurchasePrice', DB::raw("ms_stock_purchase_detail.Qty * ms_stock_purchase_detail.PurchasePrice AS SubTotalPrice"));
+      ->select('ms_stock_purchase.PurchaseID', 'ms_distributor.DistributorName', 'ms_stock_purchase.PurchaseDate', 'ms_stock_purchase.CreatedBy', 'ms_suppliers.SupplierName', 'ms_stock_purchase.StatusID', 'ms_status_stock.StatusName', 'ms_stock_purchase.StatusBy', 'ms_stock_purchase.InvoiceNumber', 'ms_stock_purchase.InvoiceFile', 'ms_investor.InvestorName', 'ms_stock_purchase.Type', 'ms_stock_purchase_detail.ProductID', 'ms_product.ProductName', 'ms_stock_purchase_detail.ProductLabel', 'ms_stock_purchase_detail.Qty', 'ms_stock_purchase_detail.PurchasePrice', DB::raw("ms_stock_purchase_detail.Qty * ms_stock_purchase_detail.PurchasePrice AS SubTotalPrice"));
 
     if ($fromDate != '' && $toDate != '') {
       $mainSql->whereDate('ms_stock_purchase.PurchaseDate', '>=', $fromDate)
@@ -319,6 +319,18 @@ class PurchaseService
       ->join('ms_distributor AS from_distributor', 'from_distributor.DistributorID', 'ms_stock_mutation.FromDistributor')
       ->join('ms_distributor AS to_distributor', 'to_distributor.DistributorID', 'ms_stock_mutation.ToDistributor')
       ->select('ms_stock_mutation.StockMutationID', 'ms_stock_mutation.MutationDate', 'ms_stock_mutation.CreatedDate', 'ms_stock_mutation.CreatedBy', 'ms_stock_mutation.PurchaseID', 'ms_stock_mutation.Notes', 'from_distributor.DistributorName AS FromDistributorName', 'to_distributor.DistributorName AS ToDistributorName');
+
+    return $sql;
+  }
+
+  public function getMutationAllProduct()
+  {
+    $sql = DB::table('ms_stock_mutation')
+      ->join('ms_stock_mutation_detail', 'ms_stock_mutation_detail.StockMutationID', 'ms_stock_mutation.StockMutationID')
+      ->join('ms_product', 'ms_product.ProductID', 'ms_stock_mutation_detail.ProductID')
+      ->join('ms_distributor AS from_distributor', 'from_distributor.DistributorID', 'ms_stock_mutation.FromDistributor')
+      ->join('ms_distributor AS to_distributor', 'to_distributor.DistributorID', 'ms_stock_mutation.ToDistributor')
+      ->select('ms_stock_mutation.StockMutationID', 'ms_stock_mutation.MutationDate', 'ms_stock_mutation.CreatedDate', 'ms_stock_mutation.CreatedBy', 'ms_stock_mutation.PurchaseID', 'ms_stock_mutation.Notes', 'from_distributor.DistributorName AS FromDistributorName', 'to_distributor.DistributorName AS ToDistributorName', 'ms_stock_mutation_detail.ProductID', 'ms_product.ProductName', 'ms_stock_mutation_detail.ProductLabel', 'ms_stock_mutation_detail.Qty', 'ms_stock_mutation_detail.PurchasePrice', DB::raw("ms_stock_mutation_detail.Qty * ms_stock_mutation_detail.PurchasePrice as ValueProduct"));
 
     return $sql;
   }
