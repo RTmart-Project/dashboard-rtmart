@@ -5,7 +5,7 @@ $(document).ready(function () {
     function dataTablesSurveyReport() {
         $("#survey-report .table-datatables").DataTable({
             dom:
-                "<'row'<'col-sm-12 col-md-5'<'filter-survey-report'>tl><'col-sm-12 col-md-3'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
+                "<'row'<'col-sm-12 col-md-8'<'filter-survey-report'>tl><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
@@ -16,9 +16,22 @@ $(document).ready(function () {
                 data: function (d) {
                     d.fromDate = $("#survey-report #from_date").val();
                     d.toDate = $("#survey-report #to_date").val();
+                    d.filterValid = $(
+                        "#survey-report .filter-valid select"
+                    ).val();
                 },
             },
             columns: [
+                {
+                    data: "Empty",
+                    orderable: false,
+                    searchable: false,
+                },
+                {
+                    data: "Checkbox",
+                    orderable: false,
+                    searchable: false,
+                },
                 {
                     data: "CreatedDate",
                     name: "CreatedDate",
@@ -27,6 +40,10 @@ $(document).ready(function () {
                 {
                     data: "Sales",
                     name: "Sales",
+                },
+                {
+                    data: "TeamName",
+                    name: "TeamName",
                 },
                 {
                     data: "StoreID",
@@ -39,6 +56,10 @@ $(document).ready(function () {
                 {
                     data: "PhoneNumber",
                     name: "PhoneNumber",
+                },
+                {
+                    data: "ProductID",
+                    name: "ProductID",
                 },
                 {
                     data: "ProductName",
@@ -74,22 +95,23 @@ $(document).ready(function () {
                     action: exportDatatableHelper.newExportAction,
                     text: "Export",
                     titleAttr: "Excel",
+                    className: "btn-sm",
                     exportOptions: {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+                        columns: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                         orthogonal: "export",
                     },
                 },
             ],
-            order: [0, "desc"],
+            order: [2, "desc"],
             lengthChange: false,
             responsive: true,
             autoWidth: false,
             aoColumnDefs: [
                 {
-                    aTargets: [6, 7],
+                    aTargets: [10, 11],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
@@ -126,13 +148,18 @@ $(document).ready(function () {
 
     // Create element for DateRange Filter
     $("div.filter-survey-report").html(`<div class="input-group">
-                            <input type="text" name="from_date" id="from_date" class="form-control form-control-sm"
-                                readonly>
-                            <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm"
-                                readonly>
+                            <input type="text" name="from_date" id="from_date" class="form-control form-control-sm" readonly>
+                            <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
                             <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
-                            <button type="button" name="refresh" id="refresh"
-                                class="btn btn-sm btn-warning ml-2">Refresh</button>
+                            <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-2">Refresh</button>
+                            <div class="filter-valid ml-2">
+                                <select class="form-control form-control-sm">
+                                    <option selected disabled hidden>Filter Valid</option>
+                                    <option value="">All</option>
+                                    <option value="valid">Valid Checked</option>
+                                    <option value="invalid">Valid Unchecked</option>
+                                </select>
+                            </div>
                         </div>`);
 
     // Setting Awal Daterangepicker
@@ -202,11 +229,15 @@ $(document).ready(function () {
         }
     );
 
+    const d = new Date();
+
+    const dateNow = d.toISOString().split("T")[0];
+
     // Menyisipkan Placeholder Date
     $("#survey-report #from_date").val("");
     $("#survey-report #to_date").val("");
-    $("#survey-report #from_date").attr("placeholder", "From Date");
-    $("#survey-report #to_date").attr("placeholder", "To Date");
+    $("#survey-report #from_date").attr("placeholder", dateNow);
+    $("#survey-report #to_date").attr("placeholder", dateNow);
 
     // Event Listener saat tombol refresh diklik
     $("#survey-report #refresh").click(function () {
@@ -221,5 +252,61 @@ $(document).ready(function () {
     // Event listener saat tombol filter diklik
     $("#survey-report #filter").click(function () {
         $("#survey-report .table-datatables").DataTable().ajax.reload();
+    });
+
+    $("#survey-report .filter-valid select").change(function () {
+        $("#survey-report .table-datatables").DataTable().ajax.reload();
+    });
+
+    $("#survey-report table").on("change", ".check-isvalid", function () {
+        const visitSurveyID = $(this).val();
+        const checked = $(this).prop("checked");
+        const checkbox = $(this);
+
+        if (checked === true) {
+            $.ajax({
+                url: `/rtsales/surveyreport/update-valid/${visitSurveyID}/true`,
+                success: function (result) {
+                    if (result.status == "success") {
+                        iziToast.success({
+                            title: "Berhasil",
+                            message: result.message,
+                            position: "topRight",
+                        });
+                    }
+                    if (result.status == "failed") {
+                        checkbox.prop("checked", false);
+                        iziToast.error({
+                            title: "Gagal",
+                            message: result.message,
+                            position: "topRight",
+                        });
+                    }
+                },
+            });
+            $("#survey-report .table-datatables").DataTable().ajax.reload();
+        } else {
+            $.ajax({
+                url: `/rtsales/surveyreport/update-valid/${visitSurveyID}/false`,
+                success: function (result) {
+                    if (result.status == "success") {
+                        iziToast.success({
+                            title: "Berhasil",
+                            message: result.message,
+                            position: "topRight",
+                        });
+                    }
+                    if (result.status == "failed") {
+                        checkbox.prop("checked", false);
+                        iziToast.error({
+                            title: "Gagal",
+                            message: result.message,
+                            position: "topRight",
+                        });
+                    }
+                },
+            });
+            $("#survey-report .table-datatables").DataTable().ajax.reload();
+        }
     });
 });
