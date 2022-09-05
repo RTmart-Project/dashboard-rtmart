@@ -1,11 +1,11 @@
 @extends('layouts.master')
-@section('title', 'Dashboard - Add Purchase Stock')
+@section('title', 'Dashboard - Add Purchase Plan')
 
 @section('css-pages')
 <link rel="stylesheet" href="{{ url('/') }}/plugins/bootstrap-select/bootstrap-select.min.css">
 @endsection
 
-@section('header-menu', 'Tambah Purchase Stock')
+@section('header-menu', 'Tambah Purchase Plan')
 
 @section('content')
 <!-- Content Header (Page header) -->
@@ -36,32 +36,13 @@
       <div class="col-12">
         <div class="card">
           <div class="card-header">
-            <a href="{{ route('stock.purchase') }}" class="btn btn-sm btn-light"><i class="fas fa-arrow-left"></i>
+            <a href="{{ route('stock.purchasePlan') }}" class="btn btn-sm btn-light"><i class="fas fa-arrow-left"></i>
               Kembali</a>
           </div>
           <div class="card-body">
-            <form id="add-purchase" method="post" action="{{ route('stock.storePurchase') }}"
-              enctype="multipart/form-data">
+            <form id="add-purchase-plan" method="post"">
               @csrf
               <div class="row">
-                <div class="col-md-6 col-12">
-                  <div class="form-group">
-                    <label for="distributor">Distributor</label>
-                    <select name="distributor" id="distributor" data-live-search="true" title="Pilih Distributor"
-                      class="form-control selectpicker border @if($errors->has('distributor')) is-invalid @endif"
-                      required>
-                      @foreach ($distributors as $distributor)
-                      <option value="{{ $distributor->DistributorID }}" 
-                        {{ old('distributor') == $distributor->DistributorID ? 'selected' : '' }}>
-                        {{ $distributor->DistributorName }}
-                      </option>
-                      @endforeach
-                    </select>
-                    @if($errors->has('distributor'))
-                    <span class="error invalid-feedback">{{ $errors->first('distributor') }}</span>
-                    @endif
-                  </div>
-                </div>
                 <div class="col-md-6 col-12">
                   <div class="form-group">
                     <label for="investor">Investor</label>
@@ -88,31 +69,6 @@
                 </div>
                 <div class="col-md-6 col-12">
                   <div class="form-group">
-                    <label for="supplier">Supplier</label>
-                    <select name="supplier" id="supplier" data-live-search="true" title="Pilih Supplier"
-                      class="form-control selectpicker border @if($errors->has('supplier')) is-invalid @endif" required>
-                      @foreach ($suppliers as $supplier)
-                      <option value="{{ $supplier->SupplierID }}" {{ old('supplier')==$supplier->SupplierID ? 'selected'
-                        : '' }}>
-                        {{ $supplier->SupplierName }}
-                      </option>
-                      @endforeach
-                      <option value="Lainnya" {{ old('supplier')=='Lainnya' ? 'selected' : '' }}>- Tambah Baru -</option>
-                    </select>
-                    @if($errors->has('supplier'))
-                    <span class="error invalid-feedback">{{ $errors->first('supplier') }}</span>
-                    @endif
-
-                    <input type="text" name="other_supplier" id="other_supplier"
-                      class="form-control mt-2 {{ old('other_supplier') ? '' : 'd-none' }} @if($errors->has('other_supplier')) is-invalid @endif"
-                      placeholder="Isi Nama Supplier" value="{{ old('other_supplier') }}" autocomplete="off">
-                    @if($errors->has('other_supplier'))
-                    <span class="error invalid-feedback">{{ $errors->first('other_supplier') }}</span>
-                    @endif
-                  </div>
-                </div>
-                <div class="col-md-6 col-12">
-                  <div class="form-group">
                     <label for="purchase_date">Tanggal</label>
                     <input type="datetime-local" name="purchase_date" id="purchase_date" value="{{ old('purchase_date') }}"
                       class="form-control @if($errors->has('purchase_date')) is-invalid @endif" required>
@@ -121,35 +77,17 @@
                     @endif
                   </div>
                 </div>
-                <div class="col-md-6 col-12">
-                  <div class="form-group">
-                    <label for="invoice_number">No. Invoice</label>
-                    <input type="text" name="invoice_number" id="invoice_number" placeholder="Masukkan Nomor Invoice"
-                      class="form-control @if($errors->has('invoice_number')) is-invalid @endif" value="{{ old('invoice_number') }}">
-                    @if($errors->has('invoice_number'))
-                    <span class="error invalid-feedback">{{ $errors->first('invoice_number') }}</span>
-                    @endif
-                  </div>
-                </div>
-                <div class="col-md-6 col-12">
-                  <div class="form-group">
-                    <label for="invoice_image">File Invoice</label>
-                    <input type="file" name="invoice_image" id="invoice_image"
-                      class="form-control @if($errors->has('invoice_image')) is-invalid @endif">
-                    @if($errors->has('invoice_image'))
-                    <span class="error invalid-feedback">{{ $errors->first('invoice_image') }}</span>
-                    @endif
-                  </div>
-                </div>
               </div>
+              
               <hr>
+              
               <h4>Detail Produk</h4>
               <div id="wrapper-purchase-detail">
                 <div id="purchase-detail" class="row mb-3">
                   <div class="col-12">
                     <a class="btn btn-sm float-right remove"><i class="far fa-times-circle fa-lg text-danger"></i></a>
                   </div>
-                  <div class="col-md-6 col-12">
+                  <div class="col-md-4 col-12">
                     <div class="form-group">
                       <label for="product">Nama Produk</label>
                       <select title="Pilih Produk" name="product[]" data-live-search="true"
@@ -163,7 +101,7 @@
                       </select>
                     </div>
                   </div>
-                  <div class="col-md-6 col-12">
+                  <div class="col-md-4 col-12">
                     <div class="form-group">
                       <label for="labeling">Label Produk</label>
                       <select title="Pilih Labeling Produk" name="labeling[]" id="labeling"
@@ -179,14 +117,14 @@
                       </select>
                     </div>
                   </div>
-                  <div class="col-md-6 col-12">
+                  <div class="col-md-4 col-12">
                     <div class="form-group">
                       <label for="quantity">Kuantiti</label>
                       <input type="number" id="quantity" name="quantity[]" class="form-control"
                         value="{{ collect(old('quantity')) }}" placeholder="Masukkan Jumlah Kuantiti" required>
                     </div>
                   </div>
-                  <div class="col-md-6 col-12">
+                  <div class="col-md-4 col-12">
                     <div class="form-group">
                       <label for="purchase_price">Harga Beli</label>
                       <input type="number" id="purchase_price" name="purchase_price[]" class="form-control "

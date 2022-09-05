@@ -1,5 +1,5 @@
 @extends('layouts.master')
-@section('title', 'Dashboard - Survey Report')
+@section('title', 'Dashboard - Purchase Plan')
 
 @section('css-pages')
 <!-- daterange picker -->
@@ -14,7 +14,7 @@
 <meta name="base-image" content="{{ config('app.base_image_url') }}">
 @endsection
 
-@section('header-menu', 'Survey Report')
+@section('header-menu', 'Purchase Plan')
 
 @section('content')
 <!-- Content Header (Page header) -->
@@ -43,29 +43,29 @@
     <div class="row">
       <div class="col-12">
         <div class="card">
+          @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI"))
+          <div class="card-header">
+            <a href="{{ route('stock.createPurchasePlan') }}" class="btn btn-sm btn-success">
+              <i class="fas fa-plus"></i> Tambah Purchase Plan
+            </a>
+          </div>
+          @endif
           <div class="card-body mt-2">
             <div class="tab-content">
 
-              <div class="tab-pane active" id="survey-report">
+              <div class="tab-pane active" id="purchase-plan">
                 <div class="row">
                   <div class="col-12">
                     <table class="table table-datatables">
                       <thead>
                         <tr>
-                          <th></th>
-                          <th>Is Valid</th>
-                          <th>Date</th>
-                          <th>Sales</th>
-                          <th>Team</th>
-                          <th>Store ID</th>
-                          <th>Store Name</th>
-                          <th>Store PhoneNumber</th>
-                          <th>Product ID</th>
-                          <th>Product Name</th>
-                          <th>Purchase Price</th>
-                          <th>Selling Price</th>
-                          <th>Supplier</th>
-                          <th>Photo</th>
+                          <th>Purchase Plan ID</th>
+                          <th>Investor</th>
+                          <th>Tanggal Purchase Plan</th>
+                          <th>Dibuat Oleh</th>
+                          <th>Status</th>
+                          <th>Dikonfirmasi Oleh</th>
+                          <th>Tanggal Konfirmasi</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -78,26 +78,6 @@
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="modal fade" id="modal-photo">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title">Survey Photo</h4>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div id="photo" class="d-flex justify-content-center flex-wrap">
-
-        </div>
-      </div>
-      <div class="modal-footer justify-content-end">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
@@ -124,7 +104,7 @@
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!-- Main JS -->
-<script src="{{url('/')}}/main/js/rtsales/survey-report/survey-report.js"></script>
+<script src="{{url('/')}}/main/js/stock/opname/opname.js"></script>
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
 <script>
 </script>
