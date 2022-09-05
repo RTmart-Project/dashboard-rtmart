@@ -148,6 +148,27 @@ class PurchaseService
     return $newPurchaseID;
   }
 
+  public function generatePurchasePlanID()
+  {
+    $max = DB::table('ms_purchase_plan')
+      ->where('PurchasePlanID', 'like', '%PLAN%')
+      ->selectRaw('MAX(PurchasePlanID) AS PurchasePlanID, MAX(CreatedDate) AS CreatedDate')
+      ->first();
+
+    $maxMonth = date('m', strtotime($max->CreatedDate));
+    $now = date('m');
+
+    if ($max->PurchasePlanID == null || (strcmp($maxMonth, $now) != 0)) {
+      $newPurchasePlanID = "PLAN-" . date('YmdHis') . '-000001';
+    } else {
+      $maxPurchaseNumber = substr($max->PurchasePlanID, -6);
+      $newPurchaseNumber = $maxPurchaseNumber + 1;
+      $newPurchasePlanID = "PLAN-" . date('YmdHis') . "-" . str_pad($newPurchaseNumber, 6, '0', STR_PAD_LEFT);
+    }
+
+    return $newPurchasePlanID;
+  }
+
   public function dataPurchaseDetail($productID, $labeling, $qty, $purchasePrice, $purchaseID)
   {
     $dataPurchaseDetail = [];

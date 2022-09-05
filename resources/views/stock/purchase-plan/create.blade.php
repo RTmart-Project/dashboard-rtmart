@@ -40,7 +40,7 @@
               Kembali</a>
           </div>
           <div class="card-body">
-            <form id="add-purchase-plan" method="post"">
+            <form id="add-purchase-plan" method="post" action="{{ route('stock.storePurchasePlan') }}">
               @csrf
               <div class="row">
                 <div class="col-md-6 col-12">
@@ -69,74 +69,192 @@
                 </div>
                 <div class="col-md-6 col-12">
                   <div class="form-group">
-                    <label for="purchase_date">Tanggal</label>
-                    <input type="datetime-local" name="purchase_date" id="purchase_date" value="{{ old('purchase_date') }}"
-                      class="form-control @if($errors->has('purchase_date')) is-invalid @endif" required>
-                    @if($errors->has('purchase_date'))
-                    <span class="error invalid-feedback">{{ $errors->first('purchase_date') }}</span>
+                    <label for="purchase_plan_date">Tanggal Purchase Plan</label>
+                    <input type="datetime-local" name="purchase_plan_date" id="purchase_plan_date" value="{{ old('purchase_plan_date') }}"
+                      class="form-control @if($errors->has('purchase_plan_date')) is-invalid @endif" required>
+                    @if($errors->has('purchase_plan_date'))
+                    <span class="error invalid-feedback">{{ $errors->first('purchase_plan_date') }}</span>
                     @endif
                   </div>
                 </div>
               </div>
-              
+
               <hr>
               
               <h4>Detail Produk</h4>
-              <div id="wrapper-purchase-detail">
-                <div id="purchase-detail" class="row mb-3">
-                  <div class="col-12">
-                    <a class="btn btn-sm float-right remove"><i class="far fa-times-circle fa-lg text-danger"></i></a>
-                  </div>
-                  <div class="col-md-4 col-12">
-                    <div class="form-group">
-                      <label for="product">Nama Produk</label>
-                      <select title="Pilih Produk" name="product[]" data-live-search="true"
-                        class="form-control selectpicker border select-product" required>
-                        @foreach ($products as $product)
-                        <option value="{{ $product->ProductID }}" 
-                          {{ collect(old('product'))->contains($product->ProductID) ? 'selected' : '' }}>
-                          {{ $product->ProductID.' - '. $product->ProductName.' -- Isi: '. $product->ProductUOMDesc . ' ' . $product->ProductUOMName }}
-                        </option>
-                        @endforeach
-                      </select>
+              <span id="note-purchase-detail">
+                *Pilih Investor terlebih dahulu <br>
+                Pastikan memilih Investor dengan benar, jika ganti pilihan investor maka detail produk akan ter-refresh
+              </span>
+              <div id="main-wrapper-purchase-detail" class="d-none">
+                <div id="wrapper-purchase-detail">
+                  <div id="purchase-detail" class="row mb-3 purchase-detail">
+                    <div class="col-12">
+                      <a class="btn btn-sm float-right remove"><i class="far fa-times-circle fa-lg text-danger"></i></a>
                     </div>
-                  </div>
-                  <div class="col-md-4 col-12">
-                    <div class="form-group">
-                      <label for="labeling">Label Produk</label>
-                      <select title="Pilih Labeling Produk" name="labeling[]" id="labeling"
-                        class="form-control selectpicker border" required>
-                        <option value="PKP"
-                          {{ collect(old('labeling'))->contains('PKP') ? 'selected' : '' }}>
-                          PKP
-                        </option>
-                        <option value="NON-PKP"
-                          {{ collect(old('labeling'))->contains('NON PKP') ? 'selected' : '' }}>
-                          NON PKP
-                        </option>
-                      </select>
+                    <div class="col-md-4 col-12">
+                      <div class="form-group">
+                        <label for="distributor">Distributor</label>
+                        <select title="Pilih Distributor" name="distributor[]" data-live-search="true"
+                          class="form-control selectpicker border select-distributor" required>
+                          @foreach ($distributors as $distributor)
+                          <option value="{{ $distributor->DistributorID }}">
+                            {{ $distributor->DistributorName }}
+                          </option>
+                          @endforeach
+                        </select>
+                      </div>
                     </div>
-                  </div>
-                  <div class="col-md-4 col-12">
-                    <div class="form-group">
-                      <label for="quantity">Kuantiti</label>
-                      <input type="number" id="quantity" name="quantity[]" class="form-control"
-                        value="{{ collect(old('quantity')) }}" placeholder="Masukkan Jumlah Kuantiti" required>
+                    <div class="col-md-4 col-12">
+                      <div class="form-group">
+                        <label for="supplier">Supplier</label>
+                        <select name="supplier[]" id="supplier" data-live-search="true" title="Pilih Supplier"
+                          class="form-control selectpicker border select-supplier" required>
+                          @foreach ($suppliers as $supplier)
+                          <option value="{{ $supplier->SupplierID }}">
+                            {{ $supplier->SupplierName }}
+                          </option>
+                          @endforeach
+                        </select>
+                      </div>
                     </div>
-                  </div>
-                  <div class="col-md-4 col-12">
-                    <div class="form-group">
-                      <label for="purchase_price">Harga Beli</label>
-                      <input type="number" id="purchase_price" name="purchase_price[]" class="form-control "
-                        value="{{ collect(old('purchase_price')) }}" placeholder="Masukkan Harga Beli" required autocomplete="off">
+                    <div class="col-md-4 col-12">
+                      <div class="form-group">
+                        <label for="note">Keterangan</label>
+                        <input type="text" id="note" name="note[]" class="form-control note" placeholder="Masukkan Keterangan">
+                      </div>
                     </div>
+                    <div class="col-md-4 col-12">
+                      <div class="form-group">
+                        <label for="product">Nama Produk</label>
+                        <select title="Pilih Produk" name="product[]" data-live-search="true"
+                          class="form-control selectpicker border select-product" required>
+                          @foreach ($products as $product)
+                          <option value="{{ $product->ProductID }}">
+                            {{ $product->ProductID.' - '. $product->ProductName.' -- Isi: '. $product->ProductUOMDesc . ' ' . $product->ProductUOMName }}
+                          </option>
+                          @endforeach
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-12">
+                      <div class="form-group">
+                        <label for="labeling">Label Produk</label>
+                        <select title="Pilih Labeling Produk" name="labeling[]" id="labeling"
+                          class="form-control selectpicker border select-labeling" required>
+                          <option value="PKP">PKP</option>
+                          <option value="NON-PKP">NON PKP</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-12">
+                      <div class="form-group">
+                        <label for="quantity">Kuantiti</label>
+                        <input type="number" id="quantity" name="quantity[]" class="form-control quantity"
+                          value="{{ collect(old('quantity')) }}" placeholder="Masukkan Kuantiti" required>
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-12">
+                      <div class="form-group">
+                        <label for="quantity_po">Kuantiti PO</label>
+                        <input type="number" id="quantity_po" name="quantity_po[]" class="form-control quantity-po"
+                          value="{{ collect(old('quantity_po')) }}" placeholder="Masukkan Kuantiti PO" required>
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-12">
+                      <div class="form-group">
+                        <label for="percentage_po">Percent PO</label>
+                        <div class="input-group mb-3">
+                          <input type="number" id="percentage_po" name="percentage_po[]" class="form-control percentage-po"
+                            value="{{ collect(old('percentage_po')) }}" readonly>
+                          <div class="input-group-append">
+                            <span class="input-group-text">%</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-12">
+                      <div class="form-group">
+                        <label for="purchase_price">Harga Beli</label>
+                        <input type="number" id="purchase_price" name="purchase_price[]" class="form-control purchase-price"
+                          value="{{ collect(old('purchase_price')) }}" placeholder="Masukkan Harga Beli" required autocomplete="off">
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-12">
+                      <div class="form-group">
+                        <label for="purchase_value">Value Beli</label>
+                        <input type="number" id="purchase_value" name="purchase_value[]" class="form-control purchase-value"
+                          value="{{ collect(old('purchase_value')) }}" readonly>
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-12">
+                      <div class="form-group">
+                        <label for="selling_price">Harga Jual</label>
+                        <input type="number" id="selling_price" name="selling_price[]" class="form-control selling-price"
+                          value="{{ collect(old('selling_price')) }}" placeholder="Masukkan Harga Jual" required autocomplete="off">
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-12">
+                      <div class="form-group">
+                        <label for="selling_value">Value Jual</label>
+                        <input type="number" id="selling_value" name="selling_value[]" class="form-control selling-value"
+                          value="{{ collect(old('selling_value')) }}" readonly>
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-12">
+                      <div class="form-group">
+                        <label for="interest">Bunga</label>
+                        <input type="number" id="interest" name="interest[]" class="form-control interest"
+                          value="{{ collect(old('interest')) }}" readonly>
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-12">
+                      <div class="form-group">
+                        <label for="gross_margin">Gross Margin</label>
+                        <input type="number" id="gross_margin" name="gross_margin[]" class="form-control "
+                          value="{{ collect(old('gross_margin')) }}" readonly>
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-12">
+                      <div class="form-group">
+                        <label for="margin_ctn">Margin /ctn</label>
+                        <input type="number" id="margin_ctn" name="margin_ctn[]" class="form-control "
+                          value="{{ collect(old('margin_ctn')) }}" readonly>
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-12">
+                      <div class="form-group">
+                        <label for="nett_margin">Nett Margin</label>
+                        <input type="number" id="nett_margin" name="nett_margin[]" class="form-control "
+                          value="{{ collect(old('nett_margin')) }}" readonly>
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-12">
+                      <div class="form-group">
+                        <label for="percent_margin">Percent Margin</label>
+                        <div class="input-group mb-3">
+                          <input type="number" id="percent_margin" name="percent_margin[]" class="form-control "
+                            value="{{ collect(old('percent_margin')) }}" readonly>
+                          <div class="input-group-append">
+                            <span class="input-group-text">%</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-12">
+                      <div class="form-group">
+                        <label for="stock">Stock</label>
+                        <input type="number" id="stock" name="stock[]" class="form-control stock"
+                          value="{{ collect(old('stock')) }}" required readonly>
+                      </div>
+                    </div>
+                    <br>
                   </div>
-                  <br>
+                  <div id="purchase-detail-append"></div>
                 </div>
-                <div id="purchase-detail-append"></div>
-              </div>
-              <div class="clearfix">
-                <a class="btn btn-sm add float-right"><i class="fas fa-plus-circle fa-lg"></i></a>
+                <div class="clearfix">
+                  <a class="btn btn-sm add float-right"><i class="fas fa-plus-circle fa-lg"></i></a>
+                </div>
               </div>
 
               <div class="form-group float-right mt-4">
@@ -156,7 +274,7 @@
                       </button>
                     </div>
                     <div class="modal-body">
-                      <h5>Apakah produk yang di-input sudah benar?</h5>
+                      <h5>Apakah data yang di-input sudah benar?</h5>
                     </div>
                     <div class="modal-footer">
                       <button type="button" class="btn btn-sm btn-outline-secondary"
@@ -172,13 +290,13 @@
                 <div class="modal-dialog">
                   <div class="modal-content">
                     <div class="modal-header">
-                      <h6 class="modal-title"><i class="far fa-question-circle"></i> Buat Purchase Stock</h6>
+                      <h6 class="modal-title"><i class="far fa-question-circle"></i> Buat Purchase Plan</h6>
                       <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                       </button>
                     </div>
                     <div class="modal-body">
-                      <h5>Apakah yakin ingin membuat Purchase Stock?</h5>
+                      <h5>Apakah yakin ingin membuat Purchase Plan?</h5>
                     </div>
                     <div class="modal-footer">
                       <button type="button" class="btn btn-sm btn-outline-secondary" data-toggle="modal"
@@ -202,20 +320,68 @@
 <script src="{{url('/')}}/plugins/bootstrap-select/bootstrap-select.min.js"></script>
 <script src="{{url('/')}}/main/js/helper/clone-element.js"></script>
 <script>
-  $('#supplier').on('change', function() {
-    if ($(this).val() == 'Lainnya') {
-      $('#other_supplier').removeClass('d-none');
-    } else {
-      $('#other_supplier').addClass('d-none');
-    }
-  });
-
   $('#investor').on('change', function() {
+    $("#note-purchase-detail").addClass("d-none");
+    $("#main-wrapper-purchase-detail").removeClass("d-none");
+
+    $("#wrapper-purchase-detail select").val("");
+    $("#wrapper-purchase-detail input").val("");
+
+    $('.selectpicker').selectpicker('refresh');
+
     if ($(this).val() == 'Lainnya') {
       $('#other_investor').removeClass('d-none');
     } else {
       $('#other_investor').addClass('d-none');
     }
+  });
+
+  $("#wrapper-purchase-detail").on("change", ".select-distributor select, .select-product select, .select-labeling select", function () {
+    const thisForm = $(this).closest(".purchase-detail");
+    const investorID = $("#investor").val();
+    const distributorID = thisForm.find(".select-distributor select").val();
+    const productID = thisForm.find(".select-product select").val();
+    const productLabel = thisForm.find(".select-labeling select").val();
+    
+    $.ajax({
+      type: "get",
+      url: `/stock/opname/sumOldProduct/${distributorID}/${investorID}/${productID}/${productLabel}`,
+      success: function (response) {
+        const res = $.parseJSON(response);
+        thisForm.find(".stock").val(res.goodStock);
+      }
+    });
+  });
+
+  // FOR PERCENTAGE PO
+  $("#wrapper-purchase-detail").on("keyup", ".quantity, .quantity-po", function () {
+    const thisForm = $(this).closest(".purchase-detail");
+    const quantity = thisForm.find(".quantity").val();
+    const quantityPO = thisForm.find(".quantity-po").val();
+    let percentagePO;
+    if (quantityPO) {
+     percentagePO = quantity / quantityPO * 100;
+     percentagePO = Math.round(percentagePO * 100) / 100;
+    }
+    thisForm.find(".percentage-po").val(percentagePO)
+  });
+
+  // FOR PURCHASE VALUE
+  $("#wrapper-purchase-detail").on("keyup", ".quantity, .purchase-price", function () {
+    const thisForm = $(this).closest(".purchase-detail");
+    const quantity = thisForm.find(".quantity").val();
+    const purchasePrice = thisForm.find(".purchase-price").val();
+    const purchaseValue = quantity * purchasePrice;
+    thisForm.find(".purchase-value").val(purchaseValue)
+  });
+
+  // FOR SELLING VALUE
+  $("#wrapper-purchase-detail").on("keyup", ".quantity, .selling-price", function () {
+    const thisForm = $(this).closest(".purchase-detail");
+    const quantity = thisForm.find(".quantity").val();
+    const sellingPrice = thisForm.find(".selling-price").val();
+    const sellingValue = quantity * sellingPrice;
+    thisForm.find(".selling-value").val(sellingValue)
   });
 
   // Cloning Form Term Product

@@ -151,6 +151,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::group(['prefix' => 'plan-purchase', 'middleware' => ['checkRoleUser:IT,FI,BM,HL']], function () {
             Route::get('/', [StockController::class, 'purchasePlan'])->name('stock.purchasePlan');
             Route::get('/create', [StockController::class, 'createPurchasePlan'])->name('stock.createPurchasePlan');
+            Route::post('/store', [StockController::class, 'storePurchasePlan'])->name('stock.storePurchasePlan');
         });
 
         Route::group(['prefix' => 'purchase', 'middleware' => ['checkRoleUser:IT,FI,BM,HL,INVTR']], function () {
