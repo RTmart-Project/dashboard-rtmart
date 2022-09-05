@@ -148,6 +148,11 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/detail/{stockOpnameID}', [StockController::class, 'detailOpname'])->name('stock.detailOpname');
         });
 
+        Route::group(['prefix' => 'plan-purchase', 'middleware' => ['checkRoleUser:IT,FI,BM,HL']], function () {
+            Route::get('/', [StockController::class, 'purchasePlan'])->name('stock.purchasePlan');
+            Route::get('/create', [StockController::class, 'createPurchasePlan'])->name('stock.createPurchasePlan');
+        });
+
         Route::group(['prefix' => 'purchase', 'middleware' => ['checkRoleUser:IT,FI,BM,HL,INVTR']], function () {
             Route::get('/', [StockController::class, 'purchase'])->name('stock.purchase');
             Route::get('/get', [StockController::class, 'getPurchase'])->name('stock.getPurchase');
@@ -200,6 +205,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::group(['prefix' => 'surveyreport'], function () {
             Route::get('/', [RTSalesController::class, 'surveyReport'])->name('rtsales.surveyReport');
             Route::get('/get', [RTSalesController::class, 'getSurveyReport'])->name('rtsales.getSurveyReport');
+            Route::get('/update-valid/{visitSurveyID}/{isValid}', [RTSalesController::class, 'updateIsValid'])->name('rtsales.updateIsValid');
         });
 
         Route::group(['prefix' => 'saleslist'], function () {

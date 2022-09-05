@@ -297,12 +297,25 @@ class RTSalesController extends Controller
     {
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
+        $filterValid = $request->input('filterValid');
 
-        $data = $rTSalesService->surveyReportData($fromDate, $toDate);
+        $data = $rTSalesService->surveyReportData($fromDate, $toDate, $filterValid);
 
         // Return Data Using DataTables with Ajax
         if ($request->ajax()) {
             return Datatables::of($data)
+                ->addColumn('Empty', function ($data) {
+                    return "";
+                })
+                ->addColumn('Checkbox', function ($data) {
+                    if ($data->IsValid == 1) {
+                        $checked = 'checked';
+                    } else {
+                        $checked = '';
+                    }
+                    $checkbox = "<input type='checkbox' " . $checked . " class='check-isvalid larger' name='check_isvalid[]' value='" . $data->VisitSurveyID . "' />";
+                    return $checkbox;
+                })
                 ->addColumn('Sales', function ($data) {
                     return $data->SalesCode . ' - ' . $data->SalesName;
                 })
@@ -310,9 +323,39 @@ class RTSalesController extends Controller
                     $btn = "<button data-photo='$data->SurveyPhoto' id='survey-photo' type='button' class='btn btn-sm btn-info btn-photo' data-toggle='modal' data-target='#modal-photo'>Lihat</button>";
                     return $btn;
                 })
-                ->rawColumns(['Photo'])
+                ->rawColumns(['Checkbox', 'Photo'])
                 ->make(true);
         }
+    }
+
+    public function updateIsValid($visitSurveyID, $isValid)
+    {
+        if ($isValid === "true") {
+            $dataValid = 1;
+        } else {
+            $dataValid = 0;
+        }
+
+
+        $update =    DB::table('ms_visit_survey')
+            ->where('VisitSurveyID', $visitSurveyID)
+            ->update([
+                'IsValid' => $dataValid
+            ]);
+
+        if ($update) {
+            $status = "success";
+            $message = "Data berhasil diupdate";
+        } else {
+            $status = "failed";
+            $message = "Terjadi Kesalahan";
+        }
+
+
+        return response()->json([
+            'status' => $status,
+            'message' => $message
+        ]);
     }
 
     public function storeList()

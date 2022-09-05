@@ -323,14 +323,14 @@
                     </p>
                 </a>
                 <ul class="nav nav-treeview">
-                    <li class="nav-item {{ Request::is('stock/*') ? 'menu-open' : '' }}">
+                    {{-- <li class="nav-item {{ Request::is('stock/*') ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link {{ Request::is('stock/*') ? 'active' : '' }}">
                             <i class="far fa-circle nav-icon"></i>
                             <p>Stock Utama
                                 <i class="right fas fa-angle-left"></i>
                             </p>
                         </a>
-                        <ul class="nav nav-treeview">
+                        <ul class="nav nav-treeview"> --}}
                             @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "INVTR") || (Auth::user()->RoleID == "BM")  || Auth::user()->RoleID == "HL")
                             <li class="nav-item">
                                 <a href="{{ route('stock.listStock') }}"
@@ -340,6 +340,15 @@
                                 </a>
                             </li>
                             @endif
+                            {{-- @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "HL")
+                            <li class="nav-item">
+                                <a href="{{ route('stock.purchasePlan') }}"
+                                    class="nav-link {{ Request::is('stock/plan-purchase*') ? 'active' : '' }}">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    <p>Purchase Plan</p>
+                                </a>
+                            </li>
+                            @endif --}}
                             @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "INVTR") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "HL")
                             <li class="nav-item">
                                 <a href="{{ route('stock.purchase') }}"
@@ -367,8 +376,8 @@
                                 </a>
                             </li>
                             @endif
-                        </ul>
-                    </li>
+                        {{-- </ul>
+                    </li> --}}
                     {{-- <li class="nav-item {{ Request::is('stock-promo*') ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link {{ Request::is('stock-promo*') ? 'active' : '' }}">
                             <i class="far fa-circle nav-icon"></i>

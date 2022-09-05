@@ -271,6 +271,30 @@ class StockController extends Controller
         ]);
     }
 
+    public function purchasePlan()
+    {
+        return view('stock.purchase-plan.index');
+    }
+
+    public function createPurchasePlan(PurchaseService $purchaseService)
+    {
+        $suppliers = DB::table('ms_suppliers')->get();
+        $investors = DB::table('ms_investor')->where('IsActive', 1)->get();
+        $products = DB::table('ms_product')
+            ->join('ms_product_uom', 'ms_product_uom.ProductUOMID', 'ms_product.ProductUOMID')
+            ->select('ms_product.ProductID', 'ms_product.ProductName', 'ms_product.ProductUOMDesc', 'ms_product_uom.ProductUOMName')
+            ->where('ms_product.IsActive', 1)
+            ->orderBy('ms_product.ProductID')
+            ->get();
+        $distributors = $purchaseService->getDistributors()->get();
+        return view('stock.purchase-plan.create', [
+            'suppliers' => $suppliers,
+            'products' => $products,
+            'distributors' => $distributors,
+            'investors' => $investors
+        ]);
+    }
+
     public function purchase()
     {
         return view('stock.purchase.index');

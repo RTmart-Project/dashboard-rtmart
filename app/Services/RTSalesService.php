@@ -112,7 +112,7 @@ class RTSalesService
     return $sql;
   }
 
-  public function surveyReportData($fromDate = null, $toDate = null)
+  public function surveyReportData($fromDate = null, $toDate = null, $filterValid)
   {
     $startDate = new DateTime($fromDate) ?? new DateTime();
     $endDate = new DateTime($toDate) ?? new DateTime();
@@ -125,8 +125,8 @@ class RTSalesService
     //   $depoUser = "";
     // }
 
-    $sql = DB::table('ms_visit_survey')
-      ->select('ms_visit_survey.VisitSurveyID', 'ms_visit_survey.CreatedDate', 'ms_sales.SalesCode', 'ms_sales.SalesName', 'ms_visit_plan_result.StoreID', 'ms_store.StoreName', 'ms_store.PhoneNumber', 'ms_product.ProductName', 'ms_visit_survey.PurchasePrice', 'ms_visit_survey.SellingPrice', 'ms_visit_survey.Supplier')
+    $data = DB::table('ms_visit_survey')
+      ->select('ms_visit_survey.VisitSurveyID', 'ms_visit_survey.CreatedDate', 'ms_sales.SalesCode', 'ms_sales.SalesName', 'ms_visit_plan_result.StoreID', 'ms_store.StoreName', 'ms_store.PhoneNumber', 'ms_visit_survey.ProductID', 'ms_product.ProductName', 'ms_visit_survey.PurchasePrice', 'ms_visit_survey.SellingPrice', 'ms_visit_survey.Supplier', 'ms_visit_survey.IsValid', 'ms_team_name.TeamName')
       ->leftJoin('ms_visit_plan_result', 'ms_visit_survey.VisitResultID', 'ms_visit_plan_result.VisitResultID')
       ->join('ms_product', 'ms_visit_survey.ProductID', 'ms_product.ProductID')
       ->join('ms_sales', function ($join) {
@@ -136,11 +136,19 @@ class RTSalesService
           $join->where('ms_sales.Depo', '=', $depoUser);
         }
       })
+      ->join('ms_team_name', 'ms_team_name.TeamCode', 'ms_sales.Team')
       ->join('ms_store', 'ms_visit_plan_result.StoreID', 'ms_store.StoreID')
-      ->where('ms_sales.IsActive', 1)
+      // ->where('ms_sales.IsActive', 1)
       ->whereDate('ms_visit_survey.CreatedDate', '>=', $startDateFormat)
-      ->whereDate('ms_visit_survey.CreatedDate', '<=', $endDateFormat)
-      ->get();
+      ->whereDate('ms_visit_survey.CreatedDate', '<=', $endDateFormat);
+
+    if ($filterValid == "valid") {
+      $data->where('ms_visit_survey.IsValid', 1);
+    } elseif ($filterValid == "invalid") {
+      $data->where('ms_visit_survey.IsValid', 0);
+    }
+
+    $sql = $data->get();
 
     foreach ($sql as $key => $value) {
       $surveyPhoto = DB::table('ms_visit_survey_photo')
