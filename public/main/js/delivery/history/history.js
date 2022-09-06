@@ -71,7 +71,7 @@ $(document).ready(function () {
                     extend: "excelHtml5",
                     filename: function () {
                         return exportDatatableHelper.generateFilename(
-                            "DeliveryOrder"
+                            "DeliveryOrderHistory"
                         );
                     },
                     action: exportDatatableHelper.newExportAction,
