@@ -340,7 +340,7 @@
                                 </a>
                             </li>
                             @endif
-                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "HL")
+                            {{-- @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "HL")
                             <li class="nav-item">
                                 <a href="{{ route('stock.purchasePlan') }}"
                                     class="nav-link {{ Request::is('stock/plan-purchase*') ? 'active' : '' }}">
@@ -348,7 +348,7 @@
                                     <p>Purchase Plan</p>
                                 </a>
                             </li>
-                            @endif
+                            @endif --}}
                             @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "INVTR") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "HL")
                             <li class="nav-item">
                                 <a href="{{ route('stock.purchase') }}"

@@ -454,6 +454,19 @@ class DeliveryController extends Controller
         }
     }
 
+    public function getExpeditionAllProduct(Request $request)
+    {
+        $fromDate = $request->input('fromDate');
+        $toDate = $request->input('toDate');
+
+        $sql = DB::table('tx_merchant_expedition')
+            ->join('tx_merchant_expedition_detail', 'tx_merchant_expedition_detail.MerchantExpeditionID', 'tx_merchant_expedition.MerchantExpeditionID')
+            ->join('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderDetailID', 'tx_merchant_expedition_detail.DeliveryOrderDetailID')
+            ->get();
+
+        dd($sql);
+    }
+
     public function detailExpedition(DeliveryOrderService $deliveryOrderService, $expeditionID)
     {
         return view('delivery.expedition.detail', [

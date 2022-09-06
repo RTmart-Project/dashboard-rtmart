@@ -84,7 +84,7 @@
               <h4>Detail Produk</h4>
               <span id="note-purchase-detail">
                 *Pilih Investor terlebih dahulu <br>
-                Pastikan memilih Investor dengan benar, jika ganti pilihan investor maka detail produk akan ter-refresh
+                Pastikan memilih Investor dengan benar, jika ganti pilihan investor maka detail produk akan ter-reset
               </span>
               <div id="main-wrapper-purchase-detail" class="d-none">
                 <div id="wrapper-purchase-detail">
@@ -176,28 +176,28 @@
                     <div class="col-md-4 col-12">
                       <div class="form-group">
                         <label for="purchase_price">Harga Beli</label>
-                        <input type="number" id="purchase_price" name="purchase_price[]" class="form-control purchase-price"
+                        <input type="text" id="purchase_price" name="purchase_price[]" class="form-control purchase-price autonumeric"
                           value="{{ collect(old('purchase_price')) }}" placeholder="Masukkan Harga Beli" required autocomplete="off">
                       </div>
                     </div>
                     <div class="col-md-4 col-12">
                       <div class="form-group">
                         <label for="purchase_value">Value Beli</label>
-                        <input type="number" id="purchase_value" name="purchase_value[]" class="form-control purchase-value"
+                        <input type="text" id="purchase_value" name="purchase_value[]" class="form-control purchase-value"
                           value="{{ collect(old('purchase_value')) }}" readonly>
                       </div>
                     </div>
                     <div class="col-md-4 col-12">
                       <div class="form-group">
                         <label for="selling_price">Harga Jual</label>
-                        <input type="number" id="selling_price" name="selling_price[]" class="form-control selling-price"
+                        <input type="text" id="selling_price" name="selling_price[]" class="form-control selling-price autonumeric"
                           value="{{ collect(old('selling_price')) }}" placeholder="Masukkan Harga Jual" required autocomplete="off">
                       </div>
                     </div>
                     <div class="col-md-4 col-12">
                       <div class="form-group">
                         <label for="selling_value">Value Jual</label>
-                        <input type="number" id="selling_value" name="selling_value[]" class="form-control selling-value"
+                        <input type="text" id="selling_value" name="selling_value[]" class="form-control selling-value"
                           value="{{ collect(old('selling_value')) }}" readonly>
                       </div>
                     </div>
@@ -211,14 +211,14 @@
                     <div class="col-md-4 col-12">
                       <div class="form-group">
                         <label for="gross_margin">Gross Margin</label>
-                        <input type="number" id="gross_margin" name="gross_margin[]" class="form-control "
+                        <input type="text" id="gross_margin" name="gross_margin[]" class="form-control gross-margin"
                           value="{{ collect(old('gross_margin')) }}" readonly>
                       </div>
                     </div>
                     <div class="col-md-4 col-12">
                       <div class="form-group">
                         <label for="margin_ctn">Margin /ctn</label>
-                        <input type="number" id="margin_ctn" name="margin_ctn[]" class="form-control "
+                        <input type="text" id="margin_ctn" name="margin_ctn[]" class="form-control margin-ctn"
                           value="{{ collect(old('margin_ctn')) }}" readonly>
                       </div>
                     </div>
@@ -319,7 +319,16 @@
 @section('js-pages')
 <script src="{{url('/')}}/plugins/bootstrap-select/bootstrap-select.min.js"></script>
 <script src="{{url('/')}}/main/js/helper/clone-element.js"></script>
+<script src="https://unpkg.com/autonumeric"></script>
 <script>
+  // Set seperator '.' currency
+  new AutoNumeric.multiple('.autonumeric', {
+    allowDecimalPadding: false,
+    decimalCharacter: ',',
+    digitGroupSeparator: '.',
+    unformatOnSubmit: true
+  });
+  
   $('#investor').on('change', function() {
     $("#note-purchase-detail").addClass("d-none");
     $("#main-wrapper-purchase-detail").removeClass("d-none");
@@ -353,35 +362,28 @@
     });
   });
 
-  // FOR PERCENTAGE PO
-  $("#wrapper-purchase-detail").on("keyup", ".quantity, .quantity-po", function () {
+  $("#wrapper-purchase-detail").on("keyup", ".quantity, .quantity-po, .purchase-price, .selling-price", function () {
     const thisForm = $(this).closest(".purchase-detail");
     const quantity = thisForm.find(".quantity").val();
     const quantityPO = thisForm.find(".quantity-po").val();
+    const purchasePrice = thisForm.find(".purchase-price").val().replaceAll(".", "");
+    const sellingPrice = thisForm.find(".selling-price").val().replaceAll(".", "");
+
     let percentagePO;
+    const purchaseValue = quantity * purchasePrice;
+    const sellingValue = quantity * sellingPrice;
+    const grossMargin = sellingValue - purchaseValue;
+    const marginCtn = sellingPrice - purchasePrice;
+
     if (quantityPO) {
      percentagePO = quantity / quantityPO * 100;
      percentagePO = Math.round(percentagePO * 100) / 100;
     }
-    thisForm.find(".percentage-po").val(percentagePO)
-  });
-
-  // FOR PURCHASE VALUE
-  $("#wrapper-purchase-detail").on("keyup", ".quantity, .purchase-price", function () {
-    const thisForm = $(this).closest(".purchase-detail");
-    const quantity = thisForm.find(".quantity").val();
-    const purchasePrice = thisForm.find(".purchase-price").val();
-    const purchaseValue = quantity * purchasePrice;
-    thisForm.find(".purchase-value").val(purchaseValue)
-  });
-
-  // FOR SELLING VALUE
-  $("#wrapper-purchase-detail").on("keyup", ".quantity, .selling-price", function () {
-    const thisForm = $(this).closest(".purchase-detail");
-    const quantity = thisForm.find(".quantity").val();
-    const sellingPrice = thisForm.find(".selling-price").val();
-    const sellingValue = quantity * sellingPrice;
-    thisForm.find(".selling-value").val(sellingValue)
+    thisForm.find(".percentage-po").val(percentagePO);
+    thisForm.find(".purchase-value").val(thousands_separators(purchaseValue));
+    thisForm.find(".selling-value").val(thousands_separators(sellingValue));
+    thisForm.find(".gross-margin").val(thousands_separators(grossMargin));
+    thisForm.find(".margin-ctn").val(thousands_separators(marginCtn));
   });
 
   // Cloning Form Term Product
