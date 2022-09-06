@@ -169,6 +169,56 @@ class PurchaseService
     return $newPurchasePlanID;
   }
 
+  public function getPurchasePlan()
+  {
+    $sql = DB::table('ms_purchase_plan')
+      ->join('ms_investor', 'ms_investor.InvestorID', 'ms_purchase_plan.InvestorID')
+      ->join('ms_status_stock', 'ms_status_stock.StatusID', 'ms_purchase_plan.StatusID')
+      ->select('ms_purchase_plan.PurchasePlanID', 'ms_investor.InvestorName', 'ms_purchase_plan.PlanDate', 'ms_purchase_plan.CreatedBy', 'ms_purchase_plan.CreatedDate', 'ms_purchase_plan.ConfirmBy', 'ms_purchase_plan.ConfirmDate', 'ms_purchase_plan.StatusID', 'ms_status_stock.StatusName');
+
+    return $sql;
+  }
+
+  public function getPurchasePlanDetail($purchasePlanID)
+  {
+    $investor = DB::table('ms_purchase_plan')
+      ->join('ms_investor', 'ms_investor.InvestorID', 'ms_purchase_plan.InvestorID')
+      ->where('PurchasePlanID', $purchasePlanID)
+      ->select('Interest', 'PlanDate')
+      ->first();
+
+    $sql = DB::table('ms_purchase_plan_detail')
+      ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_purchase_plan_detail.DistributorID')
+      ->join('ms_suppliers', 'ms_suppliers.SupplierID', 'ms_purchase_plan_detail.SupplierID')
+      ->join('ms_product', 'ms_product.ProductID', 'ms_purchase_plan_detail.ProductID')
+      ->where('ms_purchase_plan_detail.PurchasePlanID', $purchasePlanID)
+      ->selectRaw("
+        '$investor->PlanDate' AS PlanDate,
+        ms_distributor.DistributorName,
+        ms_suppliers.SupplierName,
+        ms_purchase_plan_detail.Note,
+        ms_purchase_plan_detail.ProductID,
+        ms_product.ProductName,
+        ms_purchase_plan_detail.ProductLabel,
+        ms_purchase_plan_detail.Qty,
+        ms_purchase_plan_detail.QtyPO,
+        CONCAT(ROUND(ms_purchase_plan_detail.Qty / ms_purchase_plan_detail.QtyPO * 100, 0), '%') AS PercentagePO,
+        ms_purchase_plan_detail.PurchasePrice,
+        ms_purchase_plan_detail.PurchasePrice * ms_purchase_plan_detail.Qty AS PurchaseValue,
+        ROUND($investor->Interest * ms_purchase_plan_detail.PurchasePrice * ms_purchase_plan_detail.Qty / 100, 0) AS Interest,
+        ms_purchase_plan_detail.SellingPrice,
+        ms_purchase_plan_detail.SellingPrice * ms_purchase_plan_detail.Qty AS SellingValue,
+        (ms_purchase_plan_detail.SellingPrice * ms_purchase_plan_detail.Qty) - (ms_purchase_plan_detail.PurchasePrice * ms_purchase_plan_detail.Qty) AS GrossMargin,
+        ms_purchase_plan_detail.SellingPrice - ms_purchase_plan_detail.PurchasePrice AS MarginCtn,
+        ((ms_purchase_plan_detail.SellingPrice * ms_purchase_plan_detail.Qty) - (ms_purchase_plan_detail.PurchasePrice * ms_purchase_plan_detail.Qty)) - ROUND($investor->Interest * ms_purchase_plan_detail.PurchasePrice * ms_purchase_plan_detail.Qty / 100, 0) AS NettMargin,
+        CONCAT(ROUND((((ms_purchase_plan_detail.SellingPrice * ms_purchase_plan_detail.Qty) - (ms_purchase_plan_detail.PurchasePrice * ms_purchase_plan_detail.Qty)) - ROUND($investor->Interest * ms_purchase_plan_detail.PurchasePrice * ms_purchase_plan_detail.Qty / 100, 0)) / (ms_purchase_plan_detail.SellingPrice * ms_purchase_plan_detail.Qty) * 100, 2), '%') AS PercentageMargin,
+        ms_purchase_plan_detail.LastStock
+      ")
+      ->orderByRaw("ms_distributor.DistributorName, ms_purchase_plan_detail.ProductID");
+
+    return $sql;
+  }
+
   public function dataPurchaseDetail($productID, $labeling, $qty, $purchasePrice, $purchaseID)
   {
     $dataPurchaseDetail = [];

@@ -271,9 +271,71 @@ class StockController extends Controller
         ]);
     }
 
-    public function purchasePlan()
+    public function purchasePlan(Request $request, PurchaseService $purchaseService)
     {
+        $fromDate = $request->input('fromDate');
+        $toDate = $request->input('toDate');
+        $sqlPurchasePlan = $purchaseService->getPurchasePlan();
+
+        if ($fromDate != '' && $toDate != '') {
+            $sqlPurchasePlan->whereDate('ms_purchase_plan.PlanDate', '>=', $fromDate)
+                ->whereDate('ms_purchase_plan.PlanDate', '<=', $toDate);
+        }
+        $data = $sqlPurchasePlan;
+
+        if ($request->ajax()) {
+            return Datatables::of($data)
+                ->editColumn('PlanDate', function ($data) {
+                    return date('d M Y H:i', strtotime($data->PlanDate));
+                })
+                ->editColumn('ConfirmDate', function ($data) {
+                    if ($data->ConfirmDate !== null) {
+                        $confirmDate = date('d M Y H:i', strtotime($data->ConfirmDate));
+                    } else {
+                        $confirmDate = '';
+                    }
+                    return $confirmDate;
+                })
+                ->editColumn('StatusName', function ($data) {
+                    if ($data->StatusID === 8) {
+                        $badge = 'badge-warning';
+                    } elseif ($data->StatusID === 9) {
+                        $badge = 'badge-success';
+                    } elseif ($data->StatusID === 10) {
+                        $badge = 'badge-danger';
+                    } else {
+                        $badge = 'badge-info';
+                    }
+
+                    return '<span class="badge ' . $badge . '">' . $data->StatusName . '</span>';
+                })
+                ->addColumn('Detail', function ($data) {
+                    return '<a class="btn btn-xs btn-secondary" href="/stock/plan-purchase/detail/' . $data->PurchasePlanID . '">Lihat</a>';
+                })
+                ->rawColumns(['StatusName', 'Detail'])
+                ->make();
+        }
+
         return view('stock.purchase-plan.index');
+    }
+
+    public function purchasePlanDetail($purchasePlanID, PurchaseService $purchaseService, Request $request)
+    {
+        $dataPurchasePlan = $purchaseService->getPurchasePlan()->where('ms_purchase_plan.PurchasePlanID', $purchasePlanID)->first();
+
+        $data = $purchaseService->getPurchasePlanDetail($purchasePlanID);
+        // dd($data->get());
+        if ($request->ajax()) {
+            return Datatables::of($data)
+                ->editColumn('PlanDate', function ($data) {
+                    return date('d M Y', strtotime($data->PlanDate));
+                })
+                ->make();
+        }
+
+        return view('stock.purchase-plan.detail', [
+            'data' => $dataPurchasePlan
+        ]);
     }
 
     public function createPurchasePlan(PurchaseService $purchaseService)
@@ -334,7 +396,7 @@ class StockController extends Controller
             $investorID = $investor;
         }
 
-        $data = [
+        $dataPurchasePlan = [
             'PurchasePlanID' => $purchasePlanID,
             'InvestorID' => $investorID,
             'PlanDate' => $purchasePlanDate,
@@ -365,7 +427,36 @@ class StockController extends Controller
             array_push($dataPurchasePlanDetail, $value);
         }
 
-        dd($data, $dataPurchasePlanDetail);
+        try {
+            DB::transaction(function () use ($dataPurchasePlan, $dataPurchasePlanDetail) {
+                DB::table('ms_purchase_plan')->insert($dataPurchasePlan);
+                DB::table('ms_purchase_plan_detail')->insert($dataPurchasePlanDetail);
+            });
+            return redirect()->route('stock.purchasePlan')->with('success', 'Data Purchase Plan berhasil ditambahkan');
+        } catch (\Throwable $th) {
+            return redirect()->route('stock.purchase')->with('failed', 'Terjadi kesalahan!');
+        }
+    }
+
+    public function confirmPurchasePlan($purchasePlanID, $status)
+    {
+        if ($status === "approve") {
+            $statusID = 9;
+        } else {
+            $statusID = 10;
+        }
+        $confirm = DB::table('ms_purchase_plan')
+            ->where('PurchasePlanID', $purchasePlanID)
+            ->update([
+                'StatusID' => $statusID,
+                'ConfirmBy' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo,
+                'ConfirmDate' => date('Y-m-d H:i:s')
+            ]);
+        if ($confirm) {
+            return redirect()->back()->with('success', 'Data Purchase Plan berhasil dikonfirmasi');
+        } else {
+            return redirect()->back()->with('failed', 'Terjadi kesalahan!');
+        }
     }
 
     public function purchase()

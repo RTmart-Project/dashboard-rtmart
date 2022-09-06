@@ -55,6 +55,7 @@
                       @endforeach
                       <option value="Lainnya" {{ old('investor')=='Lainnya' ? 'selected' : '' }}>- Tambah Baru -</option>
                     </select>
+                    <input type="hidden" id="investor-interest">
                     @if($errors->has('investor'))
                     <span class="error invalid-feedback">{{ $errors->first('investor') }}</span>
                     @endif
@@ -204,7 +205,7 @@
                     <div class="col-md-4 col-12">
                       <div class="form-group">
                         <label for="interest">Bunga</label>
-                        <input type="number" id="interest" name="interest[]" class="form-control interest"
+                        <input type="text" id="interest" name="interest[]" class="form-control interest"
                           value="{{ collect(old('interest')) }}" readonly>
                       </div>
                     </div>
@@ -225,7 +226,7 @@
                     <div class="col-md-4 col-12">
                       <div class="form-group">
                         <label for="nett_margin">Nett Margin</label>
-                        <input type="number" id="nett_margin" name="nett_margin[]" class="form-control "
+                        <input type="text" id="nett_margin" name="nett_margin[]" class="form-control nett-margin"
                           value="{{ collect(old('nett_margin')) }}" readonly>
                       </div>
                     </div>
@@ -233,7 +234,7 @@
                       <div class="form-group">
                         <label for="percent_margin">Percent Margin</label>
                         <div class="input-group mb-3">
-                          <input type="number" id="percent_margin" name="percent_margin[]" class="form-control "
+                          <input type="number" id="percent_margin" name="percent_margin[]" class="form-control percent-margin"
                             value="{{ collect(old('percent_margin')) }}" readonly>
                           <div class="input-group-append">
                             <span class="input-group-text">%</span>
@@ -299,10 +300,10 @@
                       <h5>Apakah yakin ingin membuat Purchase Plan?</h5>
                     </div>
                     <div class="modal-footer">
-                      <button type="button" class="btn btn-sm btn-outline-secondary" data-toggle="modal"
-                        data-dismiss="modal">Batal</button>
-                      <button type="submit" class="btn btn-sm btn-success"
-                        data-toggle="modal">Yakin</button>
+                      <button type="button" class="btn btn-sm btn-outline-secondary" data-toggle="modal" data-dismiss="modal">Batal</button>
+                      <button type="submit" class="btn btn-sm btn-success btn-create-purchase-plan" data-toggle="modal">
+                        Yakin <i class="fas fa-circle-notch fa-spin d-none loader"></i>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -330,6 +331,7 @@
   });
   
   $('#investor').on('change', function() {
+    const investorID = $(this).val();
     $("#note-purchase-detail").addClass("d-none");
     $("#main-wrapper-purchase-detail").removeClass("d-none");
 
@@ -338,10 +340,19 @@
 
     $('.selectpicker').selectpicker('refresh');
 
-    if ($(this).val() == 'Lainnya') {
+    if (investorID == 'Lainnya') {
       $('#other_investor').removeClass('d-none');
+      $("#investor-interest").val(0);
     } else {
       $('#other_investor').addClass('d-none');
+
+      $.ajax({
+        type: "get",
+        url: `/investor/${investorID}`,
+        success: function (response) {
+          $("#investor-interest").val(response.Interest);
+        }
+      });
     }
   });
 
@@ -363,6 +374,7 @@
   });
 
   $("#wrapper-purchase-detail").on("keyup", ".quantity, .quantity-po, .purchase-price, .selling-price", function () {
+    const investorInterest = $("#investor-interest").val();
     const thisForm = $(this).closest(".purchase-detail");
     const quantity = thisForm.find(".quantity").val();
     const quantityPO = thisForm.find(".quantity-po").val();
@@ -372,18 +384,28 @@
     let percentagePO;
     const purchaseValue = quantity * purchasePrice;
     const sellingValue = quantity * sellingPrice;
+    const interest = investorInterest * purchaseValue / 100;
     const grossMargin = sellingValue - purchaseValue;
     const marginCtn = sellingPrice - purchasePrice;
+    const nettMargin = grossMargin - interest;
+    let percentageMargin;
 
     if (quantityPO) {
      percentagePO = quantity / quantityPO * 100;
-     percentagePO = Math.round(percentagePO * 100) / 100;
+     percentagePO = Math.round(percentagePO * 100) / 100; // buat ngebuletin 2 angka decimal
+    }
+    if (sellingValue > 0) {
+      percentageMargin = nettMargin / sellingValue * 100;
+      percentageMargin = Math.round(percentageMargin * 100) / 100; // buat ngebuletin 2 angka decimal
     }
     thisForm.find(".percentage-po").val(percentagePO);
     thisForm.find(".purchase-value").val(thousands_separators(purchaseValue));
     thisForm.find(".selling-value").val(thousands_separators(sellingValue));
+    thisForm.find(".interest").val(thousands_separators(interest));
     thisForm.find(".gross-margin").val(thousands_separators(grossMargin));
     thisForm.find(".margin-ctn").val(thousands_separators(marginCtn));
+    thisForm.find(".nett-margin").val(thousands_separators(nettMargin));
+    thisForm.find(".percent-margin").val(percentageMargin);
   });
 
   // Cloning Form Term Product
@@ -397,5 +419,11 @@
   $('body').on('click', '.remove', function() {
       let closest = $(this).closest('#purchase-detail').remove();
   });
+
+  $(".btn-create-purchase-plan").on("click", function (e) {
+    $(this).prop("disabled", true);
+    $(this).children().removeClass("d-none");
+    $("#add-purchase-plan").submit();
+  })
 </script>
 @endsection
