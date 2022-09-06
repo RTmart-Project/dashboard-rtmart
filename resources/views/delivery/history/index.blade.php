@@ -24,7 +24,7 @@
     <div class="row">
       <div class="col-12">
         <div class="card mt-3">
-          {{-- <div class="card-header">
+          <div class="card-header">
             <ul class="nav nav-pills" id="tab-topup">
               <li class="nav-item">
                 <a class="nav-link active" href="#expedition" data-toggle="tab">
@@ -37,7 +37,7 @@
                 </a>
               </li>
             </ul>
-          </div> --}}
+          </div>
           <div class="card-body pt-3">
             <div class="tab-content">
               <!-- All -->
@@ -85,6 +85,7 @@
                           <th>Qty</th>
                           <th>Harga</th>
                           <th>Total Harga Produk</th>
+                          <th>Status Produk</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -125,6 +126,7 @@
 <script src="{{url('/')}}/main/js/custom/select-filter.js"></script>
 <script src="{{ url('/') }}/plugins/bootstrap-select/bootstrap-select.min.js"></script>
 <script src="{{url('/')}}/main/js/delivery/history/history.js"></script>
+<script src="{{url('/')}}/main/js/delivery/history/all-product.js"></script>
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
 <script src="{{url('/')}}/main/js/helper/keep-tab-refresh.js"></script>
 <script>
