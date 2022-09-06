@@ -1,12 +1,12 @@
 @extends('layouts.master')
-@section('title', 'Dashboard - Detail Delivery Order')
+@section('title', 'Dashboard - Detail Ekspedisi')
 
 @section('css-pages')
 <meta name="csrf_token" content="{{ csrf_token() }}">
 <link rel="stylesheet" href="{{url('/')}}/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
 @endsection
 
-@section('header-menu', 'Data Detail Delivery Order')
+@section('header-menu', 'Data Detail Ekspedisi')
 
 @section('content')
 <!-- Main content -->
@@ -19,7 +19,7 @@
         @foreach ($expedition->groupBy('MerchantExpeditionID') as $expd)
         <div class="card mt-3">
           <div class="card-body">
-            <a href="{{ route('delivery.expedition') }}" class="btn btn-sm btn-light mb-2">
+            <a href="{{ url()->previous() }}" class="btn btn-sm btn-light mb-2">
               <i class="fas fa-arrow-left"></i> Kembali
             </a><br>
             @if ($expd[0]->StatusExpd == "S032" && Auth::user()->RoleID != "HL")

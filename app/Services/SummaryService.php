@@ -355,7 +355,10 @@ class SummaryService
     }
 
     $sqlProductDO = (clone $sqlMainDO)
-      ->join('tx_merchant_delivery_order_detail as tmdod', 'tmdod.DeliveryOrderID', 'tmdo.DeliveryOrderID')
+      ->join('tx_merchant_delivery_order_detail as tmdod', function ($join) {
+        $join->on('tmdod.DeliveryOrderID', 'tmdo.DeliveryOrderID');
+        $join->where('tmdod.StatusExpedition', 'S031');
+      })
       ->select(
         'tmdo.DeliveryOrderID',
         'tmdod.ProductID',
@@ -541,7 +544,10 @@ class SummaryService
   public function totalValueDO($startDate, $endDate, $distributorID, $salesCode)
   {
     $sql = $this->queryDO($startDate, $endDate, $distributorID, $salesCode)
-      ->join('tx_merchant_delivery_order_detail as tmdod', 'tmdod.DeliveryOrderID', 'tmdo.DeliveryOrderID')
+      ->join('tx_merchant_delivery_order_detail as tmdod', function ($join) {
+        $join->on('tmdod.DeliveryOrderID', 'tmdo.DeliveryOrderID');
+        $join->where('tmdod.StatusExpedition', 'S031');
+      })
       ->join('ms_product', 'ms_product.ProductID', 'tmdod.ProductID')
       ->leftJoin('tx_merchant_expedition_detail as tmed', function ($join) {
         $join->on('tmed.DeliveryOrderDetailID', 'tmdod.DeliveryOrderDetailID');
@@ -577,11 +583,13 @@ class SummaryService
           SELECT SUM(Qty * Price)
           FROM tx_merchant_delivery_order_detail
           WHERE DeliveryOrderID = tmdo.DeliveryOrderID
+            AND StatusExpedition = 'S031'
         ) AS SubTotal,
         (
           SELECT SUM(Qty * Price) - tmdo.Discount
           FROM tx_merchant_delivery_order_detail
           WHERE DeliveryOrderID = tmdo.DeliveryOrderID
+            AND StatusExpedition = 'S031'
         ) AS SubTotalMinVoucher,
         (
           SELECT ms_stock_product_log.PurchasePrice
@@ -598,7 +606,10 @@ class SummaryService
   public function countDO($startDate, $endDate, $distributorID, $salesCode)
   {
     $sql = $this->queryDO($startDate, $endDate, $distributorID, $salesCode)
-      ->join('tx_merchant_delivery_order_detail as tmdod', 'tmdod.DeliveryOrderID', 'tmdo.DeliveryOrderID')
+      ->join('tx_merchant_delivery_order_detail as tmdod', function ($join) {
+        $join->on('tmdod.DeliveryOrderID', 'tmdo.DeliveryOrderID');
+        $join->where('tmdod.StatusExpedition', 'S031');
+      })
       ->join('ms_product', 'ms_product.ProductID', 'tmdod.ProductID')
       ->leftJoin('tx_merchant_expedition_detail as tmed', function ($join) {
         $join->on('tmed.DeliveryOrderDetailID', 'tmdod.DeliveryOrderDetailID');

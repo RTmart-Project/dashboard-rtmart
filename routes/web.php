@@ -118,6 +118,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::group(['prefix' => 'on-going'], function () {
             Route::get('/', [DeliveryController::class, 'expedition'])->name('delivery.expedition');
             Route::get('/get/{status}', [DeliveryController::class, 'getExpedition'])->name('delivery.getExpedition');
+            Route::get('/all-product/get/{status}', [DeliveryController::class, 'getExpeditionAllProduct'])->name('delivery.getExpeditionAllProduct');
             Route::get('/detail/{expeditionID}', [DeliveryController::class, 'detailExpedition'])->name('delivery.detailExpedition');
             Route::get('/confirmExpedition/{status}/{expeditionID}', [DeliveryController::class, 'confirmExpedition'])->name('delivery.confirmExpedition');
             Route::post('/confirmProduct/{status}/{expeditionDetailID}', [DeliveryController::class, 'confirmProduct'])->name('delivery.confirmProduct');
@@ -151,6 +152,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::group(['prefix' => 'plan-purchase', 'middleware' => ['checkRoleUser:IT,FI,BM,HL']], function () {
             Route::get('/', [StockController::class, 'purchasePlan'])->name('stock.purchasePlan');
             Route::get('/create', [StockController::class, 'createPurchasePlan'])->name('stock.createPurchasePlan');
+            Route::post('/store', [StockController::class, 'storePurchasePlan'])->name('stock.storePurchasePlan');
         });
 
         Route::group(['prefix' => 'purchase', 'middleware' => ['checkRoleUser:IT,FI,BM,HL,INVTR']], function () {
