@@ -295,6 +295,79 @@ class StockController extends Controller
         ]);
     }
 
+    public function storePurchasePlan(Request $request, PurchaseService $purchaseService)
+    {
+        $request->validate([
+            'investor' => 'required',
+            'purchase_plan_date' => 'required',
+            'distributor' => 'required',
+            'distributor.*' => 'required',
+            'supplier' => 'required',
+            'supplier.*' => 'required',
+            'product' => 'required',
+            'product.*' => 'required',
+            'labeling' => 'required',
+            'labeling.*' => 'required',
+            'quantity' => 'required',
+            'quantity.*' => 'required',
+            'quantity_po' => 'required',
+            'quantity_po.*' => 'required',
+            'purchase_price' => 'required',
+            'purchase_price.*' => 'required',
+            'selling_price' => 'required',
+            'selling_price.*' => 'required',
+            'stock' => 'required',
+            'stock.*' => 'required',
+        ]);
+
+        $purchasePlanID = $purchaseService->generatePurchasePlanID();
+        $purchasePlanDate = str_replace("T", " ", $request->input('purchase_plan_date'));
+        $investor = $request->input('investor');
+        if ($investor == "Lainnya") {
+            $request->validate([
+                'other_investor' => 'unique:ms_investor,InvestorName'
+            ]);
+            $newInvestorID = DB::table('ms_investor')
+                ->insertGetId(['InvestorName' => $request->input('other_investor')]);
+            $investorID = $newInvestorID;
+        } else {
+            $investorID = $investor;
+        }
+
+        $data = [
+            'PurchasePlanID' => $purchasePlanID,
+            'InvestorID' => $investorID,
+            'PlanDate' => $purchasePlanDate,
+            'CreatedDate' => date('Y-m-d H:i:s'),
+            'CreatedBy' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo,
+            'StatusID' => 8
+        ];
+
+        $distributor = $request->input('distributor');
+        $supplier = $request->input('supplier');
+        $note = $request->input('note');
+        $productID = $request->input('product');
+        $labeling = $request->input('labeling');
+        $qty = $request->input('quantity');
+        $qtyPO = $request->input('quantity_po');
+        $purchasePrice = $request->input('purchase_price');
+        $sellingPrice = $request->input('selling_price');
+        $stock = $request->input('stock');
+
+        $dataPurchasePlanDetail = [];
+        $purchasePlanDetail = array_map(function () {
+            return func_get_args();
+        }, $distributor, $supplier, $note, $productID, $labeling, $qty, $qtyPO, $purchasePrice, $sellingPrice, $stock);
+
+        foreach ($purchasePlanDetail as $key => $value) {
+            $value = array_combine(['DistributorID', 'SupplierID', 'Note', 'ProductID', 'ProductLabel', 'Qty', 'QtyPO', 'PurchasePrice', 'SellingPrice', 'LastStock'], $value);
+            $value += ['PurchasePlanID' => $purchasePlanID];
+            array_push($dataPurchasePlanDetail, $value);
+        }
+
+        dd($data, $dataPurchasePlanDetail);
+    }
+
     public function purchase()
     {
         return view('stock.purchase.index');

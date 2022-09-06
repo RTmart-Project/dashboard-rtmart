@@ -24,7 +24,21 @@
     <div class="row">
       <div class="col-12">
         <div class="card mt-3">
-          <div class="card-body mt-2">
+          {{-- <div class="card-header">
+            <ul class="nav nav-pills" id="tab-topup">
+              <li class="nav-item">
+                <a class="nav-link active" href="#expedition" data-toggle="tab">
+                  Delivery History
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#expedition-all-product" data-toggle="tab">
+                  Delivery History All Product
+                </a>
+              </li>
+            </ul>
+          </div> --}}
+          <div class="card-body pt-3">
             <div class="tab-content">
               <!-- All -->
               <div class="tab-pane active" id="expedition">
@@ -43,6 +57,34 @@
                           <th>Nopol Kendaraan</th>
                           <th>Status</th>
                           <th>Detail</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tab-pane" id="expedition-all-product">
+                <div class="row">
+                  <div class="col-12">
+                    <table class="table table-datatables">
+                      <thead>
+                        <tr>
+                          <th>Ekspedisi ID</th>
+                          <th>Distributor</th>
+                          <th>Tanggal Kirim</th>
+                          <th>Stock Order ID</th>
+                          <th>Delivery Order ID</th>
+                          <th>Merchant ID</th>
+                          <th>Nama Toko</th>
+                          <th>No HP Toko</th>
+                          <th>Produk ID</th>
+                          <th>Nama Produk</th>
+                          <th>Qty</th>
+                          <th>Harga</th>
+                          <th>Total Harga Produk</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -84,6 +126,13 @@
 <script src="{{ url('/') }}/plugins/bootstrap-select/bootstrap-select.min.js"></script>
 <script src="{{url('/')}}/main/js/delivery/history/history.js"></script>
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
+<script src="{{url('/')}}/main/js/helper/keep-tab-refresh.js"></script>
 <script>
+  // Recall Responsive DataTables
+  $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
+    $('.table-datatables:visible').each(function(e) {
+      $(this).DataTable().columns.adjust().responsive.recalc();
+    });
+  });
 </script>
 @endsection
