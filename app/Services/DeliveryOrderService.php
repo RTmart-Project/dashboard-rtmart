@@ -513,6 +513,22 @@ class DeliveryOrderService
     return $sql;
   }
 
+  public function expeditionsAllProduct()
+  {
+    $sql = DB::table('tx_merchant_expedition')
+      ->join('tx_merchant_expedition_detail', 'tx_merchant_expedition_detail.MerchantExpeditionID', 'tx_merchant_expedition.MerchantExpeditionID')
+      ->join('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderDetailID', 'tx_merchant_expedition_detail.DeliveryOrderDetailID')
+      ->join('tx_merchant_delivery_order', 'tx_merchant_delivery_order.DeliveryOrderID', 'tx_merchant_delivery_order_detail.DeliveryOrderID')
+      ->join('tx_merchant_order', 'tx_merchant_order.StockOrderID', 'tx_merchant_delivery_order.StockOrderID')
+      ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
+      ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
+      ->join('ms_product', 'ms_product.ProductID', 'tx_merchant_delivery_order_detail.ProductID')
+      ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tx_merchant_delivery_order_detail.StatusExpedition')
+      ->select('tx_merchant_expedition.MerchantExpeditionID', 'ms_distributor.DistributorName', 'tx_merchant_expedition.CreatedDate', 'tx_merchant_order.StockOrderID', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber', 'tx_merchant_delivery_order_detail.ProductID', 'ms_product.ProductName', 'tx_merchant_delivery_order_detail.Qty', 'tx_merchant_delivery_order_detail.Price', DB::raw("tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price as ValueProduct"), 'ms_status_order.StatusOrder', 'tx_merchant_delivery_order_detail.StatusExpedition');
+
+    return $sql;
+  }
+
   public function expedition($expeditionID)
   {
     $sql = DB::table('tx_merchant_expedition AS expd')

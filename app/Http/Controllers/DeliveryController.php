@@ -454,17 +454,46 @@ class DeliveryController extends Controller
         }
     }
 
-    public function getExpeditionAllProduct(Request $request)
+    public function getExpeditionAllProduct($status, Request $request, DeliveryOrderService $deliveryOrderService)
     {
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
 
-        $sql = DB::table('tx_merchant_expedition')
-            ->join('tx_merchant_expedition_detail', 'tx_merchant_expedition_detail.MerchantExpeditionID', 'tx_merchant_expedition.MerchantExpeditionID')
-            ->join('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderDetailID', 'tx_merchant_expedition_detail.DeliveryOrderDetailID')
-            ->get();
+        $sqlExpeditionAllProduct = $deliveryOrderService->expeditionsAllProduct()->whereRaw("tx_merchant_expedition.StatusExpedition IN ($status)");
+        if (Auth::user()->Depo != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $sqlExpeditionAllProduct->where('ms_distributor.Depo', '=', $depoUser);
+        }
+        if ($fromDate != '' && $toDate != '') {
+            $sqlExpeditionAllProduct->whereDate('tx_merchant_expedition.CreatedDate', '>=', $fromDate)
+                ->whereDate('tx_merchant_expedition.CreatedDate', '<=', $toDate);
+        }
 
-        dd($sql);
+        $data = $sqlExpeditionAllProduct;
+
+        if ($request->ajax()) {
+            return DataTables::of($data)
+                ->editColumn('CreatedDate', function ($data) {
+                    return date('d M Y H:i', strtotime($data->CreatedDate));
+                })
+                ->editColumn('StatusOrder', function ($data) {
+                    if ($data->StatusExpedition == "S030") {
+                        $color = "warning";
+                    } elseif ($data->StatusExpedition == "S031") {
+                        $color = "success";
+                    } elseif ($data->StatusExpedition == "S037") {
+                        $color = "danger";
+                    } else {
+                        $color = "info";
+                    }
+                    return '<span class="badge badge-' . $color . '">' . $data->StatusOrder . '</span>';
+                })
+                ->filterColumn('tx_merchant_expedition.CreatedDate', function ($query, $keyword) {
+                    $query->whereRaw("DATE_FORMAT(tx_merchant_expedition.CreatedDate,'%d %b %Y %H:%i') like ?", ["%$keyword%"]);
+                })
+                ->rawColumns(['StatusOrder'])
+                ->make();
+        }
     }
 
     public function detailExpedition(DeliveryOrderService $deliveryOrderService, $expeditionID)
