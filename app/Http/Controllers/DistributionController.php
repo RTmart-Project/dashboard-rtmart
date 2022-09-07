@@ -288,6 +288,7 @@ class DistributionController extends Controller
             })
             ->where('ms_merchant_account.IsTesting', 0)
             ->select(
+                'tx_merchant_delivery_order_detail.DeliveryOrderDetailID',
                 'tx_merchant_order.StockOrderID',
                 'tx_merchant_order.CreatedDate',
                 'ms_distributor.DistributorName',

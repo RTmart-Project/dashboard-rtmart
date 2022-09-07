@@ -181,6 +181,7 @@
                                                     <th>Status Order PO</th>
                                                     <th>Validasi PO</th>
                                                     <th>Catatan Validasi PO</th>
+                                                    <th>DeliveryOrderDetailID</th>
                                                     <th>Delivery Order ID</th>
                                                     <th>Tanggal Kirim DO</th>
                                                     <th>Urutan DO</th>
