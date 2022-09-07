@@ -81,6 +81,10 @@ $(document).ready(function () {
                     name: "tx_merchant_order.ValidationNotes",
                 },
                 {
+                    data: "DeliveryOrderDetailID",
+                    name: "tx_merchant_delivery_order_detail.DeliveryOrderDetailID",
+                },
+                {
                     data: "DeliveryOrderID",
                     name: "tmdo.DeliveryOrderID",
                 },
@@ -226,7 +230,7 @@ $(document).ready(function () {
                             },
                         },
                         {
-                            cells: "M2:AE2",
+                            cells: "M2:AF2",
                             style: {
                                 fill: {
                                     pattern: {
@@ -243,7 +247,7 @@ $(document).ready(function () {
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15,
                             16, 17, 18, 19, 20, 21, 22, 23, 25, 26, 27, 28, 29,
-                            30, 31, 32,
+                            30, 31, 32, 33,
                         ],
                         orthogonal: "export",
                     },
@@ -251,7 +255,7 @@ $(document).ready(function () {
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [7, 17, 18, 20, 22, 23, 27, 28, 29],
+                    aTargets: [7, 18, 19, 21, 23, 24, 28, 29, 30],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
@@ -267,7 +271,7 @@ $(document).ready(function () {
                     },
                 },
                 {
-                    aTargets: [17, 23, 24],
+                    aTargets: [18, 24, 25, 13],
                     visible: false,
                 },
             ],

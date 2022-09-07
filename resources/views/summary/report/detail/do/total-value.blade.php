@@ -70,6 +70,7 @@
                     <table class="table table-datatables">
                       <thead>
                         <tr>
+                          <th>DeliveryOrderDetailID</th>
                           <th>Delivery Order ID</th>
                           <th>Status DO</th>
                           <th>Stock Order ID</th>
