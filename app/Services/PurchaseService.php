@@ -174,7 +174,7 @@ class PurchaseService
     $sql = DB::table('ms_purchase_plan')
       ->join('ms_investor', 'ms_investor.InvestorID', 'ms_purchase_plan.InvestorID')
       ->join('ms_status_stock', 'ms_status_stock.StatusID', 'ms_purchase_plan.StatusID')
-      ->select('ms_purchase_plan.PurchasePlanID', 'ms_investor.InvestorName', 'ms_purchase_plan.PlanDate', 'ms_purchase_plan.CreatedBy', 'ms_purchase_plan.CreatedDate', 'ms_purchase_plan.ConfirmBy', 'ms_purchase_plan.ConfirmDate', 'ms_purchase_plan.StatusID', 'ms_status_stock.StatusName');
+      ->select('ms_purchase_plan.PurchasePlanID', 'ms_purchase_plan.InvestorID', 'ms_investor.Interest', 'ms_investor.InvestorName', 'ms_purchase_plan.PlanDate', 'ms_purchase_plan.CreatedBy', 'ms_purchase_plan.CreatedDate', 'ms_purchase_plan.ConfirmBy', 'ms_purchase_plan.ConfirmDate', 'ms_purchase_plan.StatusID', 'ms_status_stock.StatusName');
 
     return $sql;
   }
@@ -194,7 +194,9 @@ class PurchaseService
       ->where('ms_purchase_plan_detail.PurchasePlanID', $purchasePlanID)
       ->selectRaw("
         '$investor->PlanDate' AS PlanDate,
+        ms_purchase_plan_detail.DistributorID,
         ms_distributor.DistributorName,
+        ms_purchase_plan_detail.SupplierID,
         ms_suppliers.SupplierName,
         ms_purchase_plan_detail.Note,
         ms_purchase_plan_detail.ProductID,
@@ -205,6 +207,7 @@ class PurchaseService
         CONCAT(ROUND(ms_purchase_plan_detail.Qty / ms_purchase_plan_detail.QtyPO * 100, 0), '%') AS PercentagePO,
         ms_purchase_plan_detail.PurchasePrice,
         ms_purchase_plan_detail.PurchasePrice * ms_purchase_plan_detail.Qty AS PurchaseValue,
+        $investor->Interest AS InvestorInterest,
         ROUND($investor->Interest * ms_purchase_plan_detail.PurchasePrice * ms_purchase_plan_detail.Qty / 100, 0) AS Interest,
         ms_purchase_plan_detail.SellingPrice,
         ms_purchase_plan_detail.SellingPrice * ms_purchase_plan_detail.Qty AS SellingValue,

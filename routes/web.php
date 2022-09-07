@@ -155,6 +155,8 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/detail/{purchasePlanID}', [StockController::class, 'purchasePlanDetail'])->name('stock.purchasePlanDetail');
             Route::get('/create', [StockController::class, 'createPurchasePlan'])->name('stock.createPurchasePlan');
             Route::post('/store', [StockController::class, 'storePurchasePlan'])->name('stock.storePurchasePlan');
+            Route::get('/edit/{purchasePlanID}', [StockController::class, 'editPurchasePlan'])->name('stock.editPurchasePlan');
+            Route::post('update/{purchasePlanID}', [StockController::class, 'updatePurchasePlan'])->name('stock.updatePurchasePlan');
             Route::get('/confirm/{purchasePlanID}/{status}', [StockController::class, 'confirmPurchasePlan'])->name('stock.confirmPurchasePlan');
         });
 

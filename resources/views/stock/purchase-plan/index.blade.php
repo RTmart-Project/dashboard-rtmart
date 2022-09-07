@@ -67,6 +67,7 @@
                           <th>Dikonfirmasi Oleh</th>
                           <th>Tanggal Konfirmasi</th>
                           <th>Detail</th>
+                          <th>Action</th>
                         </tr>
                       </thead>
                       <tbody>

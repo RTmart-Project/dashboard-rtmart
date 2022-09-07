@@ -5,7 +5,7 @@ $(document).ready(function () {
     function dataTablesPurchasePlan() {
         $("#purchase-plan .table-datatables").DataTable({
             dom:
-                "<'row'<'col-sm-12 col-md-8'<'filter-purchase-plan'>tl><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
+                "<'row'<'col-sm-12 col-md-6'<'filter-purchase-plan'>tl><'col-sm-12 col-md-5'f><'col-sm-12 col-md-1'B>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
@@ -52,6 +52,12 @@ $(document).ready(function () {
                 {
                     data: "Detail",
                     name: "Detail",
+                    searchable: false,
+                    orderable: false,
+                },
+                {
+                    data: "Action",
+                    name: "Action",
                     searchable: false,
                     orderable: false,
                 },
