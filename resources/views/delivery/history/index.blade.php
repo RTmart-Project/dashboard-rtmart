@@ -75,6 +75,12 @@
                           <th>Ekspedisi ID</th>
                           <th>Distributor</th>
                           <th>Tanggal Kirim</th>
+                          <th>Jumlah DO</th>
+                          <th>Driver</th>
+                          <th>Helper</th>
+                          <th>Kendaraan</th>
+                          <th>Nopol Kendaraan</th>
+                          <th>Status Ekspedisi</th>
                           <th>Stock Order ID</th>
                           <th>Delivery Order ID</th>
                           <th>Merchant ID</th>

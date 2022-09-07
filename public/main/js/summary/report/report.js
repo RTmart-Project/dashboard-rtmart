@@ -119,10 +119,10 @@ $(document).ready(function () {
         const dateDiff =
             (date2.getTime() - date1.getTime()) / (1000 * 3600 * 24);
 
-        if (dateDiff > 60) {
+        if (dateDiff > 92) {
             Toast.fire({
                 icon: "error",
-                title: " Rentang filter tanggal maksimal 60 hari!",
+                title: " Rentang filter tanggal maksimal 92 hari!",
             });
             return false;
         }

@@ -166,6 +166,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/all-product/get', [StockController::class, 'getPurchaseAllProduct'])->name('stock.getPurchaseAllProduct');
             Route::get('/create', [StockController::class, 'createPurchase'])->name('stock.createPurchase');
             Route::post('/store', [StockController::class, 'storePurchase'])->name('stock.storePurchase');
+            Route::get('/by-purchase-plan/{purchasePlanID}', [StockController::class, 'getPurchaseByPurchasePlan'])->name('stock.getPurchaseByPurchasePlan');
             Route::get('/edit/{purchaseID}', [StockController::class, 'editPurchase'])->name('stock.editPurchase');
             Route::post('/update/{purchaseID}', [StockController::class, 'updatePurchase'])->name('stock.updatePurchase');
             Route::get('/detail/{purchaseID}', [StockController::class, 'detailPurchase'])->name('stock.detailPurchase');

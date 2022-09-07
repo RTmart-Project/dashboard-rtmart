@@ -460,6 +460,7 @@ class DeliveryController extends Controller
         $toDate = $request->input('toDate');
 
         $sqlExpeditionAllProduct = $deliveryOrderService->expeditionsAllProduct()->whereRaw("tx_merchant_expedition.StatusExpedition IN ($status)");
+        // dd($sqlExpeditionAllProduct->get());
         if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
             $sqlExpeditionAllProduct->where('ms_distributor.Depo', '=', $depoUser);

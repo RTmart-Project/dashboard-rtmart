@@ -688,12 +688,18 @@ class StockController extends Controller
             ->orderBy('ms_product.ProductID')
             ->get();
         $distributors = $purchaseService->getDistributors()->get();
+        $purchasePlan = DB::table('ms_purchase_plan')
+            ->join('ms_investor', 'ms_investor.InvestorID', 'ms_purchase_plan.InvestorID')
+            ->where('ms_purchase_plan.StatusID', 9)
+            ->select('ms_purchase_plan.PurchasePlanID', 'ms_investor.InvestorName', 'ms_purchase_plan.PlanDate')
+            ->get();
 
         return view('stock.purchase.create', [
             'suppliers' => $suppliers,
             'products' => $products,
             'distributors' => $distributors,
-            'investors' => $investors
+            'investors' => $investors,
+            'purchasePlan' => $purchasePlan
         ]);
     }
 
@@ -778,6 +784,14 @@ class StockController extends Controller
         } catch (\Throwable $th) {
             return redirect()->route('stock.purchase')->with('failed', 'Terjadi kesalahan!');
         }
+    }
+
+    public function getPurchaseByPurchasePlan($purchasePlanID, PurchaseService $purchaseService)
+    {
+        $data = $purchaseService->getPurchasePlan()->where('ms_purchase_plan.PurchasePlanID', $purchasePlanID)->first();
+        $data->Detail = $purchaseService->getPurchasePlanDetail($purchasePlanID)->get();
+
+        return $data;
     }
 
     public function editPurchase(PurchaseService $purchaseService, $purchaseID)
