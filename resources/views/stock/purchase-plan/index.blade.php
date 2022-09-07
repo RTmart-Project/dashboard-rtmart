@@ -66,6 +66,8 @@
                           <th>Status</th>
                           <th>Dikonfirmasi Oleh</th>
                           <th>Tanggal Konfirmasi</th>
+                          <th>Detail</th>
+                          <th>Action</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -104,7 +106,7 @@
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!-- Main JS -->
-<script src="{{url('/')}}/main/js/stock/opname/opname.js"></script>
+<script src="{{url('/')}}/main/js/stock/purchase-plan/purchase-plan.js"></script>
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
 <script>
 </script>
