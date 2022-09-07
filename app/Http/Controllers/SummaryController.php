@@ -76,7 +76,7 @@ class SummaryController extends Controller
             ->get();
 
         $sales = DB::table('ms_sales')
-            ->where('IsActive', 1)
+            // ->where('IsActive', 1)
             ->select('SalesCode', 'SalesName')->get();
 
         return view('summary.report.index', [

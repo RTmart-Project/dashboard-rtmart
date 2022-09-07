@@ -7,6 +7,7 @@ use App\Http\Controllers\MerchantController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DistributorController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Controller;
 use App\Http\Controllers\CourierController;
 use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\DistributionController;
@@ -151,8 +152,12 @@ Route::group(['middleware' => ['auth']], function () {
 
         Route::group(['prefix' => 'plan-purchase', 'middleware' => ['checkRoleUser:IT,FI,BM,HL']], function () {
             Route::get('/', [StockController::class, 'purchasePlan'])->name('stock.purchasePlan');
+            Route::get('/detail/{purchasePlanID}', [StockController::class, 'purchasePlanDetail'])->name('stock.purchasePlanDetail');
             Route::get('/create', [StockController::class, 'createPurchasePlan'])->name('stock.createPurchasePlan');
             Route::post('/store', [StockController::class, 'storePurchasePlan'])->name('stock.storePurchasePlan');
+            Route::get('/edit/{purchasePlanID}', [StockController::class, 'editPurchasePlan'])->name('stock.editPurchasePlan');
+            Route::post('update/{purchasePlanID}', [StockController::class, 'updatePurchasePlan'])->name('stock.updatePurchasePlan');
+            Route::get('/confirm/{purchasePlanID}/{status}', [StockController::class, 'confirmPurchasePlan'])->name('stock.confirmPurchasePlan');
         });
 
         Route::group(['prefix' => 'purchase', 'middleware' => ['checkRoleUser:IT,FI,BM,HL,INVTR']], function () {
@@ -161,6 +166,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/all-product/get', [StockController::class, 'getPurchaseAllProduct'])->name('stock.getPurchaseAllProduct');
             Route::get('/create', [StockController::class, 'createPurchase'])->name('stock.createPurchase');
             Route::post('/store', [StockController::class, 'storePurchase'])->name('stock.storePurchase');
+            Route::get('/by-purchase-plan/{purchasePlanID}', [StockController::class, 'getPurchaseByPurchasePlan'])->name('stock.getPurchaseByPurchasePlan');
             Route::get('/edit/{purchaseID}', [StockController::class, 'editPurchase'])->name('stock.editPurchase');
             Route::post('/update/{purchaseID}', [StockController::class, 'updatePurchase'])->name('stock.updatePurchase');
             Route::get('/detail/{purchaseID}', [StockController::class, 'detailPurchase'])->name('stock.detailPurchase');
@@ -444,6 +450,9 @@ Route::group(['middleware' => ['auth']], function () {
 
     // Payment Method
     Route::get('/payment/method/get', [PaymentMethodController::class, 'getPaymentMethods'])->name('payment.getPaymentMethods');
+
+    // Investor by id
+    Route::get('/investor/{id}', [Controller::class, 'getInvestorByID'])->name('getInvestorByID');
 
     // Logout
     Route::get('/logout', [AuthController::class, 'logout'])->name('auth.logout');

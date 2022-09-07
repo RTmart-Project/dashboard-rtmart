@@ -523,8 +523,40 @@ class DeliveryOrderService
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
       ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
       ->join('ms_product', 'ms_product.ProductID', 'tx_merchant_delivery_order_detail.ProductID')
+      ->join('ms_status_order as StatusExpedition', 'StatusExpedition.StatusOrderID', 'tx_merchant_expedition.StatusExpedition')
       ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tx_merchant_delivery_order_detail.StatusExpedition')
-      ->select('tx_merchant_expedition.MerchantExpeditionID', 'ms_distributor.DistributorName', 'tx_merchant_expedition.CreatedDate', 'tx_merchant_order.StockOrderID', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.PhoneNumber', 'tx_merchant_delivery_order_detail.ProductID', 'ms_product.ProductName', 'tx_merchant_delivery_order_detail.Qty', 'tx_merchant_delivery_order_detail.Price', DB::raw("tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price as ValueProduct"), 'ms_status_order.StatusOrder', 'tx_merchant_delivery_order_detail.StatusExpedition');
+      ->leftJoin('ms_user AS driver', 'driver.UserID', 'tx_merchant_expedition.DriverID')
+      ->leftJoin('ms_user AS helper', 'helper.UserID', 'tx_merchant_expedition.HelperID')
+      ->leftJoin('ms_vehicle', 'ms_vehicle.VehicleID', 'tx_merchant_expedition.VehicleID')
+      ->select(
+        'tx_merchant_expedition.MerchantExpeditionID',
+        'ms_distributor.DistributorName',
+        'tx_merchant_expedition.CreatedDate',
+        'driver.Name as DriverName',
+        'helper.Name AS HelperName',
+        'tx_merchant_expedition.VehicleLicensePlate',
+        'ms_vehicle.VehicleName',
+        'tx_merchant_order.StockOrderID',
+        'tx_merchant_delivery_order_detail.DeliveryOrderID',
+        'tx_merchant_order.MerchantID',
+        'ms_merchant_account.StoreName',
+        'ms_merchant_account.PhoneNumber',
+        'tx_merchant_delivery_order_detail.ProductID',
+        'ms_product.ProductName',
+        'tx_merchant_delivery_order_detail.Qty',
+        'tx_merchant_delivery_order_detail.Price',
+        DB::raw("tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price as ValueProduct"),
+        'ms_status_order.StatusOrder',
+        'tx_merchant_delivery_order_detail.StatusExpedition',
+        'StatusExpedition.StatusOrder AS StatusExpeditionReal',
+        DB::raw("(SELECT COUNT(DISTINCT tx_merchant_delivery_order_detail.DeliveryOrderID) 
+          FROM tx_merchant_expedition_detail
+          JOIN tx_merchant_delivery_order_detail ON tx_merchant_delivery_order_detail.DeliveryOrderDetailID = tx_merchant_expedition_detail.DeliveryOrderDetailID
+          JOIN tx_merchant_delivery_order ON tx_merchant_delivery_order.DeliveryOrderID = tx_merchant_delivery_order_detail.DeliveryOrderID
+          WHERE tx_merchant_expedition_detail.MerchantExpeditionID = tx_merchant_expedition.MerchantExpeditionID
+          ) AS CountDO
+        ")
+      );
 
     return $sql;
   }

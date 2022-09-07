@@ -34,6 +34,32 @@ $(document).ready(function () {
                     type: "date",
                 },
                 {
+                    data: "CountDO",
+                    name: "CountDO",
+                    searchable: false,
+                },
+                {
+                    data: "DriverName",
+                    name: "DriverName",
+                },
+                {
+                    name: "HelperName",
+                    data: "HelperName",
+                },
+                {
+                    data: "VehicleName",
+                    name: "ms_vehicle.VehicleName",
+                },
+                {
+                    data: "VehicleLicensePlate",
+                    name: "tx_merchant_expedition.VehicleLicensePlate",
+                },
+                {
+                    data: "StatusExpeditionReal",
+                    name: "StatusExpeditionReal",
+                    orderable: false,
+                },
+                {
                     data: "StockOrderID",
                     name: "tx_merchant_order.StockOrderID",
                 },
@@ -95,14 +121,17 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+                        columns: [
+                            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+                            15, 16, 17, 18, 19,
+                        ],
                         orthogonal: "export",
                     },
                 },
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [11, 12],
+                    aTargets: [18, 17],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
