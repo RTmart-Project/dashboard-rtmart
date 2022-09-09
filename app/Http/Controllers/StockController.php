@@ -701,6 +701,14 @@ class StockController extends Controller
             'investors' => $investors,
             'purchasePlan' => $purchasePlan
         ]);
+
+        // return view('stock.purchase.createNew', [
+        //     'suppliers' => $suppliers,
+        //     'products' => $products,
+        //     'distributors' => $distributors,
+        //     'investors' => $investors,
+        //     'purchasePlan' => $purchasePlan
+        // ]);
     }
 
     public function storePurchase(Request $request, PurchaseService $purchaseService)
