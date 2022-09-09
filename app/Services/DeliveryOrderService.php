@@ -85,6 +85,45 @@ class DeliveryOrderService
     return $sql;
   }
 
+  public function calculateVoucherDObyMultiple(array $detailDeliveryOrderFromFrontend)
+  {
+    $deliveryOrderFromFrontend = [];
+    foreach ($detailDeliveryOrderFromFrontend as $key => $value) {
+      $deliveryOrderFromFrontend["$value->deliveryOrderID"]['DeliveryOrderID'] = $value->deliveryOrderID;
+      $deliveryOrderFromFrontend["$value->deliveryOrderID"]['Details'][] = array('DeliveryOrderDetailID' => $value->deliveryOrderDetailID, 'ProductID' => $value->productID, 'QtyExpedition' => $value->qtyExpedition);
+    }
+
+    foreach ($deliveryOrderFromFrontend as $key => $value) {
+      $deliveryOrder = DB::table('tx_merchant_delivery_order')
+        ->join('tx_merchant_order', 'tx_merchant_order.StockOrderID', 'tx_merchant_delivery_order.StockOrderID')
+        ->where('tx_merchant_delivery_order.DeliveryOrderID', $value['DeliveryOrderID'])
+        ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee')
+        ->first();
+
+      $sumDeliveryOrder = DB::table('tx_merchant_delivery_order')
+        ->where('StockOrderID', $deliveryOrder->StockOrderID)
+        ->whereIn('StatusDO', ['S024', 'S025'])
+        ->selectRaw("SUM(ServiceCharge) AS SumServiceChargeDO , SUM(DeliveryFee) AS SumDeliveryFee")
+        ->first();
+
+      $totalPriceDO = 0;
+      foreach ($value['Details'] as $detail) {
+        $deliveryOrderDetail = DB::table('tx_merchant_delivery_order_detail')
+          ->where('DeliveryOrderDetailID', $detail['DeliveryOrderDetailID'])
+          ->select('Price')
+          ->first();
+
+        $totalPriceDO += $deliveryOrderDetail->Price * $detail['QtyExpedition'];
+      }
+
+      $deliveryOrderFromFrontend[$key]['Discount'] = ceil($totalPriceDO / $deliveryOrder->TotalPrice * ($deliveryOrder->DiscountPrice + $deliveryOrder->DiscountVoucher));
+      $deliveryOrderFromFrontend[$key]['DeliveryFee'] = $deliveryOrder->DeliveryFee - $sumDeliveryOrder->SumDeliveryFee;
+      $deliveryOrderFromFrontend[$key]['ServiceCharge'] = $deliveryOrder->ServiceChargeNett - $sumDeliveryOrder->SumServiceChargeDO;
+    }
+
+    return array_values($deliveryOrderFromFrontend);
+  }
+
   public function insertDeliveryOrderLog($deliveryOrderID, $statusDO, $driverID, $helperID, $vehicleID, $vehicleLicensePlate, $actionBy, $createdDate)
   {
     $getSO = DB::table('tx_merchant_delivery_order')
