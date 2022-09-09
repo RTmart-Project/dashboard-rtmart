@@ -605,6 +605,7 @@ $(document).ready(function () {
             let deliveryOrderDetailID = $(this)
                 .find("input[type=checkbox]")
                 .val();
+            let deliveryOrderID = $(this).find("#delivery-order-id").val();
             let distributor = $(this).find("#distributor").val();
             let distributorID = $(this).find("#distributor-id").val();
             let productID = $(this).find("#product-id").val();
@@ -613,6 +614,7 @@ $(document).ready(function () {
             let sourceProductInvestor = $(this).find("#source-investor").text();
 
             dataDeliveryOrderDetail.push({
+                deliveryOrderID: deliveryOrderID,
                 deliveryOrderDetailID: deliveryOrderDetailID,
                 distributor: distributor,
                 distributorID: distributorID,

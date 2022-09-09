@@ -117,7 +117,7 @@
     <div class="row text-center border-bottom m-0 request-do">
       <div class="col-1 align-self-center">
         <input type="checkbox" class="check_rtmart larger" value="{{ $product->DeliveryOrderDetailID }}">
-        <input type="hidden" value="{{ $item[0]->DeliveryOrderID }}">
+        <input type="hidden" id="delivery-order-id" value="{{ $item[0]->DeliveryOrderID }}">
       </div>
       <div class="col-3 align-self-center">
         <img src="{{ config('app.base_image_url') . '/product/'. $product->ProductImage }}" alt="" width="80">
