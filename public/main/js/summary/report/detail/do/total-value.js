@@ -80,6 +80,10 @@ $(document).ready(function () {
                     name: "ms_payment_method.PaymentMethodName",
                 },
                 {
+                    data: "StatusPayLater",
+                    name: "StatusPayLater",
+                },
+                {
                     data: "ProductID",
                     name: "tmdod.ProductID",
                 },
@@ -168,7 +172,7 @@ $(document).ready(function () {
                         columns: [
                             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
                             16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-                            29,
+                            29, 30,
                         ],
                         orthogonal: "export",
                     },
@@ -176,7 +180,7 @@ $(document).ready(function () {
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [18, 19, 20, 21, 22, 24, 25, 26, 27, 28],
+                    aTargets: [19, 20, 21, 22, 23, 25, 26, 27, 28, 29],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
