@@ -228,6 +228,18 @@ class SummaryController extends Controller
 
                         return $statusOrder;
                     })
+                    ->addColumn('StatusPayLater', function ($data) {
+                        if ($data->PaymentMethodID === 14) {
+                            if ($data->IsPaid === 1) {
+                                $statusPayLater = 'Lunas';
+                            } else {
+                                $statusPayLater = 'Belum Lunas';
+                            }
+                        } else {
+                            $statusPayLater = '-';
+                        }
+                        return $statusPayLater;
+                    })
                     ->addColumn('ValuePurchase', function ($data) {
                         $valuePurchase = $data->Qty * $data->PurchasePrice;
                         return $valuePurchase;

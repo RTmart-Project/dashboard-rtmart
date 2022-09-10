@@ -10,6 +10,10 @@ class PayLaterService
   public function billPayLaterGet()
   {
     $sql = DB::table('tx_merchant_delivery_order as tmdo')
+      ->join('tx_merchant_delivery_order_detail', function ($join) {
+        $join->on('tx_merchant_delivery_order_detail.DeliveryOrderID', 'tmdo.DeliveryOrderID');
+        $join->where('tx_merchant_delivery_order_detail.StatusExpedition', 'S031');
+      })
       ->join('tx_merchant_order', function ($join) {
         $join->on('tx_merchant_order.StockOrderID', 'tmdo.StockOrderID');
         $join->where('tx_merchant_order.PaymentMethodID', 14);

@@ -557,6 +557,8 @@ class SummaryService
       ->selectRaw("
         tmdo.DeliveryOrderID,
         tmdo.StatusDO,
+        tmdo.IsPaid,
+        ANY_VALUE(tmo.PaymentMethodID) AS PaymentMethodID,
         ANY_VALUE(ms_status_order.StatusOrder) AS StatusOrder,
         tmdo.StockOrderID,
         ANY_VALUE(tmo.CreatedDate) AS DatePO,
