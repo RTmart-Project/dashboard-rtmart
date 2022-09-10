@@ -85,6 +85,7 @@
                           <th>Partner</th>
                           <th>Nama Distributor</th>
                           <th>Metode Pembayaran</th>
+                          <th>Status PayLater RTmart</th>
                           <th>Produk ID</th>
                           <th>Nama Produk</th>
                           <th>Qty</th>
