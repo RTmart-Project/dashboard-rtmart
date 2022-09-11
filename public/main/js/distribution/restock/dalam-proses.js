@@ -93,12 +93,12 @@ $(document).ready(function () {
                     orderable: false,
                     searchable: false,
                 },
-                {
-                    data: "PriceSubmission",
-                    name: "PriceSubmission",
-                    orderable: false,
-                    searchable: false,
-                },
+                // {
+                //     data: "PriceSubmission",
+                //     name: "PriceSubmission",
+                //     orderable: false,
+                //     searchable: false,
+                // },
             ],
             buttons: [
                 {
@@ -138,10 +138,10 @@ $(document).ready(function () {
                         }
                     },
                 },
-                {
-                    aTargets: [16],
-                    visible: roleID == "AD" ? false : true,
-                },
+                // {
+                //     aTargets: [16],
+                //     visible: roleID == "AD" ? false : true,
+                // },
             ],
             order: [1, "desc"],
             lengthChange: false,
