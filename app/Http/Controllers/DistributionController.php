@@ -150,9 +150,10 @@ class DistributionController extends Controller
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tx_merchant_order.DistributorID')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
             ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'tx_merchant_order.SalesCode')
+            ->leftJoin('ms_price_submission', 'ms_price_submission.StockOrderID', 'tx_merchant_order.StockOrderID')
             ->where('ms_merchant_account.IsTesting', 0)
             ->where('tx_merchant_order.StatusOrderID', '=', $statusOrder)
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'ms_distributor.DistributorName', 'tx_merchant_order.ShipmentDate', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CancelReasonNote', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order.SalesCode as ReferralCode', 'ms_sales.SalesName', 'ms_distributor_grade.Grade', 'tx_merchant_order.IsValid', 'tx_merchant_order.ValidationNotes');
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'ms_distributor.DistributorName', 'tx_merchant_order.ShipmentDate', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CancelReasonNote', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order.SalesCode as ReferralCode', 'ms_sales.SalesName', 'ms_distributor_grade.Grade', 'tx_merchant_order.IsValid', 'tx_merchant_order.ValidationNotes', 'ms_price_submission.StatusPriceSubmission');
 
         if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
@@ -233,6 +234,14 @@ class DistributionController extends Controller
                     $actionBtn = '<a class="btn btn-sm btn-secondary" href="/distribution/restock/detail/' . $data->StockOrderID . '">Lihat</a>';
                     return $actionBtn;
                 })
+                ->addColumn('PriceSubmission', function ($data) {
+                    if ($data->StatusPriceSubmission == "S041" || $data->StatusPriceSubmission == null) {
+                        $btn = '<a class="btn btn-sm btn-warning" href="/distribution/restock/price-submission/create/' . $data->StockOrderID . '">Buat Pengajuan</a>';
+                    } else {
+                        $btn = '';
+                    }
+                    return $btn;
+                })
                 ->filterColumn('tx_merchant_order.CreatedDate', function ($query, $keyword) {
                     $query->whereRaw("DATE_FORMAT(tx_merchant_order.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
                 })
@@ -246,7 +255,7 @@ class DistributionController extends Controller
                     $sql = "CONCAT(ms_merchant_account.ReferralCode,' - ',ms_sales.SalesName)  like ?";
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 })
-                ->rawColumns(['Invoice', 'Partner', 'Action', 'IsValid'])
+                ->rawColumns(['Invoice', 'Partner', 'Action', 'IsValid', 'PriceSubmission'])
                 ->make(true);
         }
     }
@@ -1544,6 +1553,281 @@ class DistributionController extends Controller
             }
         } else {
             return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Quantity yang dikirim tidak mencukupi');
+        }
+    }
+
+    public function priceSubmission()
+    {
+        return view('distribution.restock.price-submission.index');
+    }
+
+    public function getPriceSubmission($statusPriceSubmission, Request $request)
+    {
+        $fromDate = $request->input('fromDate');
+        $toDate = $request->input('toDate');
+
+        $sql = DB::table('ms_price_submission')
+            ->join('tx_merchant_order', 'tx_merchant_order.StockOrderID', 'ms_price_submission.StockOrderID')
+            ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'ms_price_submission.StatusPriceSubmission')
+            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
+            ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'tx_merchant_order.MerchantID')
+            ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', 'ms_distributor_merchant_grade.GradeID')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tx_merchant_order.DistributorID')
+            ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'tx_merchant_order.SalesCode')
+            ->where('ms_price_submission.StatusPriceSubmission', $statusPriceSubmission)
+            ->select(
+                'ms_price_submission.PriceSubmissionID',
+                'tx_merchant_order.StockOrderID',
+                'tx_merchant_order.CreatedDate as DatePO',
+                'tx_merchant_order.MerchantID',
+                'ms_merchant_account.StoreName',
+                'ms_distributor_grade.Grade',
+                'ms_distributor.DistributorName',
+                'tx_merchant_order.SalesCode',
+                'ms_sales.SalesName',
+                'ms_price_submission.CreatedDate',
+                'ms_price_submission.CreatedBy',
+                'ms_price_submission.StatusPriceSubmission',
+                'ms_status_order.StatusOrder',
+                'tx_merchant_order.TotalPrice',
+                DB::raw("
+                    (
+                        SELECT SUM(PromisedQuantity * PriceSubmission)
+                        FROM tx_merchant_order_detail
+                        WHERE StockOrderID = ms_price_submission.StockOrderID
+                    ) AS TotalTrxSubmission
+                ")
+            );
+
+        if ($fromDate != '' && $toDate != '') {
+            $sql->whereDate('tx_merchant_order.CreatedDate', '>=', $fromDate)
+                ->whereDate('tx_merchant_order.CreatedDate', '<=', $toDate);
+        }
+
+        $data = $sql;
+        if ($request->ajax()) {
+            return Datatables::of($data)
+                ->editColumn('StockOrderID', function ($data) {
+                    return '<a target="_blank" href="/distribution/restock/detail/' . $data->StockOrderID . '">' . $data->StockOrderID . '</a>';
+                })
+                ->editColumn('DatePO', function ($data) {
+                    return date('d M Y H:i', strtotime($data->DatePO));
+                })
+                ->editColumn('StoreName', function ($data) {
+                    return $data->StoreName . ' - ' . $data->Grade;
+                })
+                ->addColumn('Sales', function ($data) {
+                    return $data->SalesCode . ' ' . $data->SalesName;
+                })
+                ->editColumn('CreatedBy', function ($data) {
+                    return $data->CreatedBy . ' pada ' . date('d M Y H:i', strtotime($data->CreatedDate));
+                })
+                ->addColumn('Detail', function ($data) {
+                    return '<a class="btn btn-xs btn-secondary" href="/price-submission/detail/' . $data->PriceSubmissionID . '">Lihat</a>';
+                })
+                ->addColumn('Confirmation', function ($data) {
+                    return '<a class="btn btn-xs btn-success btn-approve" data-price-submission-id="' . $data->PriceSubmissionID . '" data-stock-order-id="' . $data->StockOrderID . '">Setujui</a>
+                    <a class="btn btn-xs btn-danger btn-reject" data-price-submission-id="' . $data->PriceSubmissionID . '" data-stock-order-id="' . $data->StockOrderID . '">Tolak</a>';
+                })
+                ->filterColumn('Sales', function ($query, $keyword) {
+                    $sql = "CONCAT(tx_merchant_order.SalesCode,' - ',ms_sales.SalesName)  like ?";
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                })
+                ->rawColumns(['StockOrderID', 'Detail', 'Confirmation'])
+                ->make();
+        }
+    }
+
+    public function detailPriceSubmission($priceSubmissionID)
+    {
+        $data = DB::table('ms_price_submission')
+            ->join('tx_merchant_order', 'tx_merchant_order.StockOrderID', 'ms_price_submission.StockOrderID')
+            ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
+            ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'tx_merchant_order.MerchantID')
+            ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', 'ms_distributor_merchant_grade.GradeID')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tx_merchant_order.DistributorID')
+            ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
+            ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'tx_merchant_order.SalesCode')
+            ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tx_merchant_order.StatusOrderID')
+            ->where('ms_price_submission.PriceSubmissionID', $priceSubmissionID)
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'ms_distributor.DistributorName', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order.SalesCode', 'ms_sales.SalesName', 'ms_distributor_grade.Grade', 'ms_status_order.StatusOrder', 'ms_price_submission.PriceSubmissionID', 'ms_price_submission.StatusPriceSubmission')
+            ->first();
+
+        $data->Detail = DB::table('tx_merchant_order_detail')
+            ->join('ms_product', 'ms_product.ProductID', 'tx_merchant_order_detail.ProductID')
+            ->where('tx_merchant_order_detail.StockOrderID', $data->StockOrderID)
+            ->select(
+                'tx_merchant_order_detail.ProductID',
+                'ms_product.ProductName',
+                'tx_merchant_order_detail.PromisedQuantity',
+                'tx_merchant_order_detail.Nett',
+                'tx_merchant_order_detail.PriceSubmission',
+                DB::raw("tx_merchant_order_detail.PromisedQuantity * tx_merchant_order_detail.Nett AS ValueProduct"),
+                DB::raw("tx_merchant_order_detail.PromisedQuantity * tx_merchant_order_detail.PriceSubmission AS ValueSubmission"),
+                DB::raw("(tx_merchant_order_detail.PromisedQuantity * tx_merchant_order_detail.Nett) - (tx_merchant_order_detail.PromisedQuantity * tx_merchant_order_detail.PriceSubmission) AS Voucher")
+            )
+            ->get();
+
+        return view('distribution.restock.price-submission.detail', [
+            'data' => $data
+        ]);
+    }
+
+    public function confirmPriceSubmission($priceSubmissionID, $status)
+    {
+        if ($status === "approve") {
+            $statusPriceSubmission = 'S040';
+        } else {
+            $statusPriceSubmission = 'S041';
+        }
+
+        $dataPriceSubmission = [
+            'StatusPriceSubmission' => $statusPriceSubmission,
+            'ConfirmDate' => date('Y-m-d H:i:s'),
+            'ConfirmBy' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo
+        ];
+
+        $merchantOrder = DB::table('ms_price_submission')
+            ->join('tx_merchant_order', 'tx_merchant_order.StockOrderID', 'ms_price_submission.StockOrderID')
+            ->where('ms_price_submission.PriceSubmissionID', $priceSubmissionID)
+            ->select('ms_price_submission.StockOrderID', 'tx_merchant_order.DistributorID', 'tx_merchant_order.TotalPrice', 'ms_price_submission.TotalVoucherSubmission')
+            ->first();
+
+        $dataTxMerchantOrder = [
+            'DiscountVoucher' => $merchantOrder->TotalVoucherSubmission,
+            'NettPrice' => $merchantOrder->TotalPrice - $merchantOrder->TotalVoucherSubmission
+        ];
+
+        $dataVoucherLog = [
+            'VoucherCode' => 'VOUCHERPENGAJUAN',
+            'NominalPromo' => $merchantOrder->TotalVoucherSubmission,
+            'ProcessTime' => date('Y-m-d H:i:s')
+        ];
+
+        $orderDetail = DB::table('tx_merchant_order_detail')
+            ->leftJoin('ms_stock_product', function ($join) use ($merchantOrder) {
+                $join->on('ms_stock_product.ProductID', 'tx_merchant_order_detail.ProductID');
+                $join->where('ms_stock_product.Qty', '>', 0);
+                $join->where('ms_stock_product.DistributorID', $merchantOrder->DistributorID);
+            })
+            ->join('ms_product', 'ms_product.ProductID', 'tx_merchant_order_detail.ProductID')
+            ->where('tx_merchant_order_detail.StockOrderID', $merchantOrder->StockOrderID)
+            ->select('tx_merchant_order_detail.ProductID', 'ms_stock_product.StockProductID', 'ms_stock_product.PurchasePrice', 'ms_product.Price')
+            ->get();
+
+        try {
+            DB::transaction(function () use ($priceSubmissionID, $status, $merchantOrder, $dataPriceSubmission, $dataTxMerchantOrder, $dataVoucherLog, $orderDetail) {
+                DB::table('ms_price_submission')->where('PriceSubmissionID', $priceSubmissionID)->update($dataPriceSubmission);
+                if ($status === "approve") {
+                    DB::table('tx_merchant_order')->where('StockOrderID', $merchantOrder->StockOrderID)->update($dataTxMerchantOrder);
+                    DB::table('ms_voucher_log')->updateOrInsert(['OrderID' => $merchantOrder->StockOrderID], $dataVoucherLog);
+                    foreach ($orderDetail as $key => $value) {
+                        if ($value->PurchasePrice === null) {
+                            $purchasePrice = $value->Price;
+                            $sourcePurchasePrice = $value->ProductID;
+                            $type = 'ms_product';
+                        } else {
+                            $purchasePrice = $value->PurchasePrice;
+                            $sourcePurchasePrice = $value->StockProductID;
+                            $type = 'ms_stock_product';
+                        }
+                        DB::table('ms_price_submission_log')
+                            ->where('PriceSubmissionID', $priceSubmissionID)
+                            ->where('StockOrderID', $merchantOrder->StockOrderID)
+                            ->where('ProductID', $value->ProductID)
+                            ->update([
+                                'PurchasePrice' => $purchasePrice,
+                                'SourcePurchasePrice' => $sourcePurchasePrice,
+                                'TypeSourcePurchasePrice' => $type
+                            ]);
+                    }
+                }
+            });
+            return redirect()->route('priceSubmission')->with('success', 'Pengajuan Harga berhasil dikonfirmasi');
+        } catch (\Throwable $th) {
+            dd($th->getMessage());
+            return redirect()->route('priceSubmission')->with('failed', 'Terjadi Kesalahan');
+        }
+    }
+
+    public function createPriceSubmission($stockOrderID)
+    {
+        $data = DB::table('tx_merchant_order')
+            ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
+            ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'tx_merchant_order.MerchantID')
+            ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', 'ms_distributor_merchant_grade.GradeID')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tx_merchant_order.DistributorID')
+            ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
+            ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'tx_merchant_order.SalesCode')
+            ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tx_merchant_order.StatusOrderID')
+            ->where('tx_merchant_order.StockOrderID', $stockOrderID)
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'ms_distributor.DistributorName', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order.SalesCode', 'ms_sales.SalesName', 'ms_distributor_grade.Grade', 'ms_status_order.StatusOrder')
+            ->first();
+
+        $data->Detail = DB::table('tx_merchant_order_detail')
+            ->join('ms_product', 'ms_product.ProductID', 'tx_merchant_order_detail.ProductID')
+            ->where('tx_merchant_order_detail.StockOrderID', $stockOrderID)
+            ->select('tx_merchant_order_detail.ProductID', 'ms_product.ProductName', 'tx_merchant_order_detail.PromisedQuantity', 'tx_merchant_order_detail.Nett')
+            ->get();
+        return view('distribution.restock.price-submission.create', [
+            'data' => $data
+        ]);
+    }
+
+    public function storePriceSubmission($stockOrderID, Request $request)
+    {
+        $stockOrder = DB::table('tx_merchant_order')
+            ->where('tx_merchant_order.StockOrderID', $stockOrderID)
+            ->select('tx_merchant_order.StatusOrderID')
+            ->first();
+
+        if ($stockOrder->StatusOrderID  == "S012" || $stockOrder->StatusOrderID  == "S018" || $stockOrder->StatusOrderID  == "S011") {
+            return redirect()->route('distribution.restock')->with('failed', 'Order telah dikirim / batal');
+        }
+
+        $dataPriceSubmission = [
+            'StockOrderID' => $stockOrderID,
+            'StatusPriceSubmission' => 'S039',
+            'CreatedDate' => date('Y-m-d H:i:s'),
+            'CreatedBy' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo,
+            'TotalVoucherSubmission' => str_replace('.', '', $request->input('total_voucher'))
+        ];
+
+        $productID = $request->input('product_id');
+        $priceSubmission = $request->input('price_submission');
+
+        $dataOrderDetail = [];
+        $orderDetail = array_map(function () {
+            return func_get_args();
+        }, $productID, $priceSubmission);
+
+        foreach ($orderDetail as $key => $value) {
+            $value = array_combine(['ProductID', 'PriceSubmission'], $value);
+            $value += ['StockOrderID' => $stockOrderID];
+            array_push($dataOrderDetail, $value);
+        }
+
+        try {
+            DB::transaction(function () use ($stockOrderID, $dataPriceSubmission, $dataOrderDetail) {
+                $priceSubmissionID = DB::table('ms_price_submission')->insertGetId($dataPriceSubmission);
+                foreach ($dataOrderDetail as $key => $value) {
+                    DB::table('ms_price_submission_log')->insert([
+                        'PriceSubmissionID' => $priceSubmissionID,
+                        'StockOrderID' => $stockOrderID,
+                        'ProductID' => $value['ProductID'],
+                        'PriceSubmission' => $value['PriceSubmission']
+                    ]);
+                    DB::table('tx_merchant_order_detail')
+                        ->where('StockOrderID', $stockOrderID)
+                        ->where('ProductID', $value['ProductID'])
+                        ->update([
+                            'PriceSubmission' => $value['PriceSubmission']
+                        ]);
+                }
+            });
+            return redirect()->route('distribution.restock')->with('success', 'Pengajuan Harga berhasil dibuat');
+        } catch (\Throwable $th) {
+            return redirect()->route('distribution.restock')->with('failed', 'Terjadi Kesalahan');
         }
     }
 

@@ -3,6 +3,8 @@ $(document).ready(function () {
     dataTablesDalamProses();
 
     function dataTablesDalamProses() {
+        let roleID = $('meta[name="role-id"]').attr("content");
+
         $("#dalam-proses .table-datatables").DataTable({
             dom:
                 "<'row'<'col-sm-12 col-md-5'<'filter-dalam-proses'>tl><'col-sm-12 col-md-3'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
@@ -91,6 +93,12 @@ $(document).ready(function () {
                     orderable: false,
                     searchable: false,
                 },
+                {
+                    data: "PriceSubmission",
+                    name: "PriceSubmission",
+                    orderable: false,
+                    searchable: false,
+                },
             ],
             buttons: [
                 {
@@ -129,6 +137,10 @@ $(document).ready(function () {
                             }
                         }
                     },
+                },
+                {
+                    aTargets: [16],
+                    visible: roleID == "AD" ? false : true,
                 },
             ],
             order: [1, "desc"],
