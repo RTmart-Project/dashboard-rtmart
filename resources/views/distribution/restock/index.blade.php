@@ -233,6 +233,7 @@
                                                     <th>No. Telp</th>
                                                     <th>Alamat</th>
                                                     <th>Detail</th>
+                                                    <th>Pengajuan Harga</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -265,6 +266,7 @@
                                                     <th>Alamat</th>
                                                     <th>Invoice</th>
                                                     <th>Detail</th>
+                                                    <th>Pengajuan Harga</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -297,6 +299,7 @@
                                                     <th>Alamat</th>
                                                     <th>Invoice</th>
                                                     <th>Detail</th>
+                                                    <th>Pengajuan Harga</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
