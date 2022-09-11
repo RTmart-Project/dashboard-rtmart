@@ -3,6 +3,8 @@ $(document).ready(function () {
     dataTablesPesananBaru();
 
     function dataTablesPesananBaru() {
+        let roleID = $('meta[name="role-id"]').attr("content");
+
         $("#pesanan-baru .table-datatables").DataTable({
             dom:
                 "<'row'<'col-sm-12 col-md-5'<'filter-pesanan-baru'>tl><'col-sm-12 col-md-3'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
@@ -85,6 +87,12 @@ $(document).ready(function () {
                     orderable: false,
                     searchable: false,
                 },
+                {
+                    data: "PriceSubmission",
+                    name: "PriceSubmission",
+                    orderable: false,
+                    searchable: false,
+                },
             ],
             buttons: [
                 {
@@ -123,6 +131,10 @@ $(document).ready(function () {
                             }
                         }
                     },
+                },
+                {
+                    aTargets: [15],
+                    visible: roleID == "AD" ? false : true,
                 },
             ],
             order: [1, "desc"],

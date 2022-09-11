@@ -3,6 +3,8 @@ $(document).ready(function () {
     dataTablesDikonfirmasi();
 
     function dataTablesDikonfirmasi() {
+        let roleID = $('meta[name="role-id"]').attr("content");
+
         $("#telah-dikonfirmasi .table-datatables").DataTable({
             dom:
                 "<'row'<'col-sm-12 col-md-5'<'filter-telah-dikonfirmasi'>tl><'col-sm-12 col-md-3'l><'col-sm-12 col-md-3'f><'col-sm-12 col-md-1'B>>" +
@@ -91,6 +93,12 @@ $(document).ready(function () {
                     orderable: false,
                     searchable: false,
                 },
+                {
+                    data: "PriceSubmission",
+                    name: "PriceSubmission",
+                    orderable: false,
+                    searchable: false,
+                },
             ],
             buttons: [
                 {
@@ -129,6 +137,10 @@ $(document).ready(function () {
                             }
                         }
                     },
+                },
+                {
+                    aTargets: [16],
+                    visible: roleID == "AD" ? false : true,
                 },
             ],
             order: [1, "desc"],
