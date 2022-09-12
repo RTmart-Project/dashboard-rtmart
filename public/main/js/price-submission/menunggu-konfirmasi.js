@@ -129,7 +129,7 @@ $(document).ready(function () {
                     },
                 },
                 {
-                    aTargets: [10],
+                    aTargets: [14],
                     visible: roleID == "CEO" || roleID == "IT" ? true : false,
                 },
             ],

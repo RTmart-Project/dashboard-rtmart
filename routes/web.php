@@ -39,7 +39,7 @@ Route::group(['middleware' => ['auth']], function () {
     // Home
     Route::get('/home', [HomeController::class, 'home'])->name('home');
 
-    Route::group(['prefix' => 'price-submission', 'middleware' => ['checkRoleUser:IT,BM,CEO']], function () {
+    Route::group(['prefix' => 'price-submission', 'middleware' => ['checkRoleUser:IT,BM,CEO,FI']], function () {
         Route::get('/', [DistributionController::class, 'priceSubmission'])->name('priceSubmission');
         Route::get('/get/{statusPriceSubmission}', [DistributionController::class, 'getPriceSubmission'])->name('getPriceSubmission');
         Route::get('/detail/{priceSubmissionID}', [DistributionController::class, 'detailPriceSubmission'])->name('detailPriceSubmission');
