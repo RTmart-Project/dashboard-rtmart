@@ -23,7 +23,7 @@
                 </a>
             </li>
 
-            @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO")
+            @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "FI")
             <li class="nav-item">
                 <a href="{{ route('priceSubmission') }}" class="nav-link {{ Request::is('price-submission*') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-money-bill-wave"></i>
