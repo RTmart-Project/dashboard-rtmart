@@ -49,8 +49,28 @@ $(document).ready(function () {
                     name: "tx_merchant_order.TotalPrice",
                 },
                 {
+                    data: "EstMarginTotalPrice",
+                    name: "EstMarginTotalPrice",
+                    searchable: false,
+                },
+                {
+                    data: "EstPercentMarginTotalPrice",
+                    name: "EstPercentMarginTotalPrice",
+                    searchable: false,
+                },
+                {
                     data: "TotalTrxSubmission",
                     name: "TotalTrxSubmission",
+                    searchable: false,
+                },
+                {
+                    data: "EstMarginTotalTrxSubmission",
+                    name: "EstMarginTotalTrxSubmission",
+                    searchable: false,
+                },
+                {
+                    data: "EstPercentMarginTotalTrxSubmission",
+                    name: "EstPercentMarginTotalTrxSubmission",
                     searchable: false,
                 },
                 {
@@ -86,14 +106,14 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                         orthogonal: "export",
                     },
                 },
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [6, 7],
+                    aTargets: [6, 7, 9, 10],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;

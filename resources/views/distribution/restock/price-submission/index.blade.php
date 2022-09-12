@@ -60,9 +60,11 @@
                           <th>Nama Toko</th>
                           <th>Sales</th>
                           <th>Total Transaksi (before disc)</th>
-                          {{-- <th>Est Margin (before disc)</th> --}}
+                          <th>Est Margin (before disc)</th>
+                          <th>% Est Margin (before disc)</th>
                           <th>Total Transaksi Pengajuan</th>
-                          {{-- <th>Est Margin Pengajuan</th> --}}
+                          <th>Est Margin Pengajuan</th>
+                          <th>% Est Margin Pengajuan</th>
                           <th>Diajukan Oleh</th>
                           <th>Detail</th>
                           <th>Konfirmasi</th>
@@ -88,9 +90,11 @@
                           <th>Nama Toko</th>
                           <th>Sales</th>
                           <th>Total Transaksi (before disc)</th>
-                          {{-- <th>Est Margin (before disc)</th> --}}
+                          <th>Est Margin (before disc)</th>
+                          <th>% Est Margin (before disc)</th>
                           <th>Total Transaksi Pengajuan</th>
-                          {{-- <th>Est Margin Pengajuan</th> --}}
+                          <th>Est Margin Pengajuan</th>
+                          <th>% Est Margin Pengajuan</th>
                           <th>Diajukan Oleh</th>
                           <th>Detail</th>
                         </tr>
@@ -115,9 +119,11 @@
                           <th>Nama Toko</th>
                           <th>Sales</th>
                           <th>Total Transaksi (before disc)</th>
-                          {{-- <th>Est Margin (before disc)</th> --}}
+                          <th>Est Margin (before disc)</th>
+                          <th>% Est Margin (before disc)</th>
                           <th>Total Transaksi Pengajuan</th>
-                          {{-- <th>Est Margin Pengajuan</th> --}}
+                          <th>Est Margin Pengajuan</th>
+                          <th>% Est Margin Pengajuan</th>
                           <th>Diajukan Oleh</th>
                           <th>Detail</th>
                         </tr>

@@ -89,10 +89,14 @@
                     <th>Produk ID</th>
                     <th>Nama Produk</th>
                     <th>Qty</th>
-                    <th>Harga Asli</th>
+                    <th>Harga Jual</th>
                     <th>Harga Pengajuan</th>
-                    <th>Value Asli</th>
+                    <th>Harga Beli</th>
+                    <th>Value Jual</th>
                     <th>Value Pengajuan</th>
+                    <th>Value Beli</th>
+                    <th>Est Margin Jual</th>
+                    <th>Est Margin Pengajuan</th>
                     <th>Voucher</th>
                     <th>% Voucher</th>
                   </tr>
@@ -100,6 +104,9 @@
                 <tbody>
                   @php
                   $totalPriceSubmission = 0;
+                  $valueBeli = 0;
+                  $estMarginPrice = 0;
+                  $estMarginSubmission = 0;
                   $totalVoucher = 0;
                   @endphp
                   @foreach ($data->Detail as $item)
@@ -107,24 +114,49 @@
                     <td>{{ $item->ProductID }}</td>
                     <td>{{ $item->ProductName }}</td>
                     <td>{{ $item->PromisedQuantity }}</td>
-                    <td>{{ Helper::formatCurrency($item->Nett, "Rp ") }}</td>
-                    <td>{{ Helper::formatCurrency($item->PriceSubmission, "Rp ") }}</td>
+                    <td class="text-right">{{ Helper::formatCurrency($item->Nett, "Rp ") }}</td>
+                    <td class="text-right">{{ Helper::formatCurrency($item->PriceSubmission, "Rp ") }}</td>
+                    <td class="text-right">
+                      @if ($item->PurchasePrice === null)
+                        {{ Helper::formatCurrency($item->Price, "Rp ") }}
+                      @else
+                        {{ Helper::formatCurrency($item->PurchasePrice, "Rp ") }}
+                      @endif
+                    </td>
                     <td class="text-right">{{ Helper::formatCurrency($item->ValueProduct, "Rp ") }}</td>
                     <td class="text-right">{{ Helper::formatCurrency($item->ValueSubmission, "Rp ") }}</td>
+                    <td class="text-right">
+                      @if ($item->PurchasePrice === null)
+                        {{ Helper::formatCurrency($item->Price * $item->PromisedQuantity, "Rp ") }}
+                      @else
+                        {{ Helper::formatCurrency($item->PurchasePrice * $item->PromisedQuantity, "Rp ") }}
+                      @endif
+                    </td>
+                    <td class="text-right">{{ Helper::formatCurrency($item->EstMarginPrice, "Rp ") }} | {{ round($item->EstMarginPrice / $item->ValueProduct * 100, 2) }}%</td>
+                    <td class="text-right">{{ Helper::formatCurrency($item->EstMarginSubmission, "Rp ") }} | {{ round($item->EstMarginSubmission / $item->ValueSubmission * 100, 2) }}%</td>
                     <td class="text-right">{{ Helper::formatCurrency($item->Voucher, "Rp ") }}</td>
                     <td class="text-center">{{ round($item->Voucher / $item->ValueProduct * 100, 2) }}</td>
                   </tr>
                   @php
                   $totalPriceSubmission += $item->ValueSubmission;
+                  $purchasePrice = $item->PurchasePrice === null ? $item->Price : $item->PurchasePrice;
+                  $valueBeli += $purchasePrice * $item->PromisedQuantity;
+
+                  $estMarginPrice += $item->EstMarginPrice;
+                  $estMarginSubmission += $item->EstMarginSubmission;
+
                   $totalVoucher += $item->Voucher;
                   @endphp
                   @endforeach
                 </tbody>
                 <tfoot>
                   <tr class="text-right">
-                    <th colspan="5"></th>
+                    <th colspan="6"></th>
                     <th>{{ Helper::formatCurrency($data->TotalPrice, "Rp ") }}</th>
                     <th>{{ Helper::formatCurrency($totalPriceSubmission, "Rp ") }}</th>
+                    <th>{{ Helper::formatCurrency($valueBeli, "Rp ") }}</th>
+                    <th>{{ Helper::formatCurrency($estMarginPrice, "Rp ") }} | {{ round($estMarginPrice / $data->TotalPrice * 100, 2) }}%</th>
+                    <th>{{ Helper::formatCurrency($estMarginSubmission, "Rp ") }} | {{ round($estMarginSubmission / $totalPriceSubmission * 100, 2) }}%</th>
                     <th>{{ Helper::formatCurrency($totalVoucher, "Rp ") }}</th>
                     <th class="text-center">{{ round($totalVoucher / $data->TotalPrice * 100, 2) }}</th>
                   </tr>
