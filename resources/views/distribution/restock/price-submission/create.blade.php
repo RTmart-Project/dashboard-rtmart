@@ -168,16 +168,36 @@
                         <input type="text" class="form-control voucher_product" value="0" readonly>
                       </div>
                     </div>
-                    <div class="col-12 col-md-1">
+                    {{-- <div class="col-12 col-md-1">
                       <div class="form-group">
                         <label>% Voucher</label>
                         <input type="text" class="form-control percent_voucher" readonly>
                       </div>
-                    </div>
+                    </div> --}}
                   </div>
                   @endforeach
                   
+                  <div class="border border-dark my-5"></div>
+
                   <div class="row">
+                    <div class="col-12 col-md-4">
+                      <div class="form-group">
+                        <label>Total Price</label>
+                        <input type="text" class="form-control total_price autonumeric" name="total_price" value="{{ $data->TotalPrice }}" readonly>
+                      </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                      <div class="form-group">
+                        <label>Total Voucher</label>
+                        <input type="text" class="form-control total_voucher" name="total_voucher" value="0" readonly>
+                      </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                      <div class="form-group">
+                        <label>Nett Price</label>
+                        <input type="text" class="form-control nett_price" name="nett_price" value="{{ Helper::formatCurrency($data->NettPrice, "") }}" readonly>
+                      </div>
+                    </div>
                     <div class="col-12 col-md-3">
                       <div class="form-group">
                         <label>Total Est Margin Jual</label>
@@ -200,24 +220,6 @@
                       <div class="form-group">
                         <label>% Total Est Margin Pengajuan</label>
                         <input type="text" class="form-control percent_total_est_margin_submission" readonly>
-                      </div>
-                    </div>
-                    <div class="col-12 col-md-4">
-                      <div class="form-group">
-                        <label>Total Price</label>
-                        <input type="text" class="form-control total_price autonumeric" name="total_price" value="{{ $data->TotalPrice }}" readonly>
-                      </div>
-                    </div>
-                    <div class="col-12 col-md-4">
-                      <div class="form-group">
-                        <label>Total Voucher</label>
-                        <input type="text" class="form-control total_voucher" name="total_voucher" value="0" readonly>
-                      </div>
-                    </div>
-                    <div class="col-12 col-md-4">
-                      <div class="form-group">
-                        <label>Nett Price</label>
-                        <input type="text" class="form-control nett_price" name="nett_price" value="{{ Helper::formatCurrency($data->NettPrice, "") }}" readonly>
                       </div>
                     </div>
                   </div>

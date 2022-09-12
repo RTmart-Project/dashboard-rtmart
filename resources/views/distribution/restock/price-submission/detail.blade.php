@@ -98,7 +98,7 @@
                     <th>Est Margin Jual</th>
                     <th>Est Margin Pengajuan</th>
                     <th>Voucher</th>
-                    <th>% Voucher</th>
+                    {{-- <th>% Voucher</th> --}}
                   </tr>
                 </thead>
                 <tbody>
@@ -135,7 +135,7 @@
                     <td class="text-right">{{ Helper::formatCurrency($item->EstMarginPrice, "Rp ") }} | {{ round($item->EstMarginPrice / $item->ValueProduct * 100, 2) }}%</td>
                     <td class="text-right">{{ Helper::formatCurrency($item->EstMarginSubmission, "Rp ") }} | {{ round($item->EstMarginSubmission / $item->ValueSubmission * 100, 2) }}%</td>
                     <td class="text-right">{{ Helper::formatCurrency($item->Voucher, "Rp ") }}</td>
-                    <td class="text-center">{{ round($item->Voucher / $item->ValueProduct * 100, 2) }}</td>
+                    {{-- <td class="text-center">{{ round($item->Voucher / $item->ValueProduct * 100, 2) }}</td> --}}
                   </tr>
                   @php
                   $totalPriceSubmission += $item->ValueSubmission;
@@ -158,7 +158,7 @@
                     <th>{{ Helper::formatCurrency($estMarginPrice, "Rp ") }} | {{ round($estMarginPrice / $data->TotalPrice * 100, 2) }}%</th>
                     <th>{{ Helper::formatCurrency($estMarginSubmission, "Rp ") }} | {{ round($estMarginSubmission / $totalPriceSubmission * 100, 2) }}%</th>
                     <th>{{ Helper::formatCurrency($totalVoucher, "Rp ") }}</th>
-                    <th class="text-center">{{ round($totalVoucher / $data->TotalPrice * 100, 2) }}</th>
+                    {{-- <th class="text-center">{{ round($totalVoucher / $data->TotalPrice * 100, 2) }}</th> --}}
                   </tr>
                 </tfoot>
               </table>
