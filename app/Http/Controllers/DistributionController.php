@@ -1592,10 +1592,54 @@ class DistributionController extends Controller
                 'tx_merchant_order.TotalPrice',
                 DB::raw("
                     (
+                        SELECT 
+                            SUM((tx_merchant_order_detail.Nett - IFNULL(ms_stock_product.PurchasePrice, ms_product.Price)) * tx_merchant_order_detail.PromisedQuantity)
+                        FROM tx_merchant_order_detail
+                        JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_order_detail.StockOrderID
+                        JOIN ms_product ON ms_product.ProductID = tx_merchant_order_detail.ProductID
+                        LEFT JOIN ms_stock_product ON ms_stock_product.ProductID = tx_merchant_order_detail.ProductID
+                            AND ms_stock_product.Qty > 0
+                            AND ms_stock_product.ConditionStock = 'GOOD STOCK'
+                            AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
+                            AND ms_stock_product.CreatedDate = (
+                                    SELECT MIN(CreatedDate) 
+                                    FROM ms_stock_product 
+                                    WHERE ProductID = tx_merchant_order_detail.ProductID
+                                    AND ms_stock_product.Qty > 0
+                                    AND ms_stock_product.ConditionStock = 'GOOD STOCK'
+                                    AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
+                                )
+                        WHERE tx_merchant_order_detail.StockOrderID = ms_price_submission.StockOrderID
+                    ) AS EstMarginTotalPrice
+                "),
+                DB::raw("
+                    (
                         SELECT SUM(PromisedQuantity * PriceSubmission)
                         FROM tx_merchant_order_detail
                         WHERE StockOrderID = ms_price_submission.StockOrderID
                     ) AS TotalTrxSubmission
+                "),
+                DB::raw("
+                    (
+                        SELECT 
+                            SUM((tx_merchant_order_detail.PriceSubmission - IFNULL(ms_stock_product.PurchasePrice, ms_product.Price)) * tx_merchant_order_detail.PromisedQuantity)
+                        FROM tx_merchant_order_detail
+                        JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_order_detail.StockOrderID
+                        JOIN ms_product ON ms_product.ProductID = tx_merchant_order_detail.ProductID
+                        LEFT JOIN ms_stock_product ON ms_stock_product.ProductID = tx_merchant_order_detail.ProductID
+                            AND ms_stock_product.Qty > 0
+                            AND ms_stock_product.ConditionStock = 'GOOD STOCK'
+                            AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
+                            AND ms_stock_product.CreatedDate = (
+                                    SELECT MIN(CreatedDate) 
+                                    FROM ms_stock_product 
+                                    WHERE ProductID = tx_merchant_order_detail.ProductID
+                                    AND ms_stock_product.Qty > 0
+                                    AND ms_stock_product.ConditionStock = 'GOOD STOCK'
+                                    AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
+                                )
+                        WHERE tx_merchant_order_detail.StockOrderID = ms_price_submission.StockOrderID
+                    ) AS EstMarginTotalTrxSubmission
                 ")
             );
 
@@ -1618,6 +1662,14 @@ class DistributionController extends Controller
                 })
                 ->addColumn('Sales', function ($data) {
                     return $data->SalesCode . ' ' . $data->SalesName;
+                })
+                ->addColumn('EstPercentMarginTotalPrice', function ($data) {
+                    $percent = round($data->EstMarginTotalPrice / $data->TotalPrice * 100, 2);
+                    return $percent . '%';
+                })
+                ->addColumn('EstPercentMarginTotalTrxSubmission', function ($data) {
+                    $percent = round($data->EstMarginTotalTrxSubmission / $data->TotalTrxSubmission * 100, 2);
+                    return $percent . '%';
                 })
                 ->editColumn('CreatedBy', function ($data) {
                     return $data->CreatedBy . ' pada ' . date('d M Y H:i', strtotime($data->CreatedDate));
@@ -1650,21 +1702,78 @@ class DistributionController extends Controller
             ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'tx_merchant_order.SalesCode')
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tx_merchant_order.StatusOrderID')
             ->where('ms_price_submission.PriceSubmissionID', $priceSubmissionID)
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'ms_distributor.DistributorName', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order.SalesCode', 'ms_sales.SalesName', 'ms_distributor_grade.Grade', 'ms_status_order.StatusOrder', 'ms_price_submission.PriceSubmissionID', 'ms_price_submission.StatusPriceSubmission')
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.DistributorID', 'ms_distributor.DistributorName', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order.SalesCode', 'ms_sales.SalesName', 'ms_distributor_grade.Grade', 'ms_status_order.StatusOrder', 'ms_price_submission.PriceSubmissionID', 'ms_price_submission.StatusPriceSubmission')
             ->first();
 
-        $data->Detail = DB::table('tx_merchant_order_detail')
-            ->join('ms_product', 'ms_product.ProductID', 'tx_merchant_order_detail.ProductID')
-            ->where('tx_merchant_order_detail.StockOrderID', $data->StockOrderID)
+        $data->Detail = DB::table('tx_merchant_order_detail as tmod')
+            ->join('ms_product', 'ms_product.ProductID', 'tmod.ProductID')
+            ->where('tmod.StockOrderID', $data->StockOrderID)
             ->select(
-                'tx_merchant_order_detail.ProductID',
+                'tmod.ProductID',
                 'ms_product.ProductName',
-                'tx_merchant_order_detail.PromisedQuantity',
-                'tx_merchant_order_detail.Nett',
-                'tx_merchant_order_detail.PriceSubmission',
-                DB::raw("tx_merchant_order_detail.PromisedQuantity * tx_merchant_order_detail.Nett AS ValueProduct"),
-                DB::raw("tx_merchant_order_detail.PromisedQuantity * tx_merchant_order_detail.PriceSubmission AS ValueSubmission"),
-                DB::raw("(tx_merchant_order_detail.PromisedQuantity * tx_merchant_order_detail.Nett) - (tx_merchant_order_detail.PromisedQuantity * tx_merchant_order_detail.PriceSubmission) AS Voucher")
+                'tmod.PromisedQuantity',
+                'tmod.Nett',
+                'tmod.PriceSubmission',
+                DB::raw("tmod.PromisedQuantity * tmod.Nett AS ValueProduct"),
+                DB::raw("tmod.PromisedQuantity * tmod.PriceSubmission AS ValueSubmission"),
+                DB::raw("(tmod.PromisedQuantity * tmod.Nett) - (tmod.PromisedQuantity * tmod.PriceSubmission) AS Voucher"),
+                'ms_product.Price',
+                DB::raw("
+                    (
+                        SELECT PurchasePrice
+                        FROM ms_stock_product
+                        WHERE DistributorID = '$data->DistributorID' 
+                            AND ProductID = tmod.ProductID 
+                            AND ms_stock_product.Qty > 0
+                            AND ms_stock_product.ConditionStock = 'GOOD STOCK'
+                        ORDER BY LevelType, CreatedDate
+                        LIMIT 1
+                    ) AS PurchasePrice
+                "),
+                DB::raw("
+                    (
+                        SELECT 
+                            SUM((tx_merchant_order_detail.Nett - IFNULL(ms_stock_product.PurchasePrice, ms_product.Price)) * tx_merchant_order_detail.PromisedQuantity) AS MarginValue
+                        FROM tx_merchant_order_detail
+                        JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_order_detail.StockOrderID
+                        JOIN ms_product ON ms_product.ProductID = tx_merchant_order_detail.ProductID
+                        LEFT JOIN ms_stock_product ON ms_stock_product.ProductID = tx_merchant_order_detail.ProductID
+                            AND ms_stock_product.Qty > 0
+                            AND ms_stock_product.ConditionStock = 'GOOD STOCK'
+                            AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
+                            AND ms_stock_product.CreatedDate = (
+                                    SELECT MIN(CreatedDate) 
+                                    FROM ms_stock_product 
+                                    WHERE ProductID = tx_merchant_order_detail.ProductID
+                                    AND ms_stock_product.Qty > 0
+                                    AND ms_stock_product.ConditionStock = 'GOOD STOCK'
+                                    AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
+                                )
+                        WHERE tx_merchant_order_detail.StockOrderID = '$data->StockOrderID' and tx_merchant_order_detail.ProductID = tmod.ProductID
+                    ) AS EstMarginPrice
+                "),
+                DB::raw("
+                    (
+                        SELECT 
+                            SUM((tx_merchant_order_detail.PriceSubmission - IFNULL(ms_stock_product.PurchasePrice, ms_product.Price)) * tx_merchant_order_detail.PromisedQuantity) AS MarginValue
+                        FROM tx_merchant_order_detail
+                        JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_order_detail.StockOrderID
+                        JOIN ms_product ON ms_product.ProductID = tx_merchant_order_detail.ProductID
+                        LEFT JOIN ms_stock_product ON ms_stock_product.ProductID = tx_merchant_order_detail.ProductID
+                            AND ms_stock_product.Qty > 0
+                            AND ms_stock_product.ConditionStock = 'GOOD STOCK'
+                            AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
+                            AND ms_stock_product.CreatedDate = (
+                                    SELECT MIN(CreatedDate) 
+                                    FROM ms_stock_product 
+                                    WHERE ProductID = tx_merchant_order_detail.ProductID
+                                    AND ms_stock_product.Qty > 0
+                                    AND ms_stock_product.ConditionStock = 'GOOD STOCK'
+                                    AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
+                                )
+                        WHERE tx_merchant_order_detail.StockOrderID = '$data->StockOrderID' and tx_merchant_order_detail.ProductID = tmod.ProductID
+                    ) AS EstMarginSubmission
+                ")
             )
             ->get();
 
@@ -1705,14 +1814,37 @@ class DistributionController extends Controller
         ];
 
         $orderDetail = DB::table('tx_merchant_order_detail')
-            ->leftJoin('ms_stock_product', function ($join) use ($merchantOrder) {
-                $join->on('ms_stock_product.ProductID', 'tx_merchant_order_detail.ProductID');
-                $join->where('ms_stock_product.Qty', '>', 0);
-                $join->where('ms_stock_product.DistributorID', $merchantOrder->DistributorID);
-            })
             ->join('ms_product', 'ms_product.ProductID', 'tx_merchant_order_detail.ProductID')
             ->where('tx_merchant_order_detail.StockOrderID', $merchantOrder->StockOrderID)
-            ->select('tx_merchant_order_detail.ProductID', 'ms_stock_product.StockProductID', 'ms_stock_product.PurchasePrice', 'ms_product.Price')
+            ->select(
+                'tx_merchant_order_detail.ProductID',
+                'ms_product.Price',
+                'ms_product.Price',
+                DB::raw("
+                    (
+                        SELECT PurchasePrice
+                        FROM ms_stock_product
+                        WHERE DistributorID = '$merchantOrder->DistributorID' 
+                            AND ProductID = tx_merchant_order_detail.ProductID 
+                            AND ms_stock_product.Qty > 0
+                            AND ms_stock_product.ConditionStock = 'GOOD STOCK'
+                        ORDER BY LevelType, CreatedDate
+                        LIMIT 1
+                    ) AS PurchasePrice
+                "),
+                DB::raw("
+                    (
+                        SELECT StockProductID
+                        FROM ms_stock_product
+                        WHERE DistributorID = '$merchantOrder->DistributorID' 
+                            AND ProductID = tx_merchant_order_detail.ProductID 
+                            AND ms_stock_product.Qty > 0
+                            AND ms_stock_product.ConditionStock = 'GOOD STOCK'
+                        ORDER BY LevelType, CreatedDate
+                        LIMIT 1
+                    ) AS StockProductID
+                ")
+            )
             ->get();
 
         try {
@@ -1745,7 +1877,6 @@ class DistributionController extends Controller
             });
             return redirect()->route('priceSubmission')->with('success', 'Pengajuan Harga berhasil dikonfirmasi');
         } catch (\Throwable $th) {
-            dd($th->getMessage());
             return redirect()->route('priceSubmission')->with('failed', 'Terjadi Kesalahan');
         }
     }
@@ -1761,14 +1892,34 @@ class DistributionController extends Controller
             ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'tx_merchant_order.SalesCode')
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tx_merchant_order.StatusOrderID')
             ->where('tx_merchant_order.StockOrderID', $stockOrderID)
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'ms_distributor.DistributorName', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order.SalesCode', 'ms_sales.SalesName', 'ms_distributor_grade.Grade', 'ms_status_order.StatusOrder')
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.DistributorID', 'ms_distributor.DistributorName', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order.SalesCode', 'ms_sales.SalesName', 'ms_distributor_grade.Grade', 'ms_status_order.StatusOrder')
             ->first();
 
         $data->Detail = DB::table('tx_merchant_order_detail')
             ->join('ms_product', 'ms_product.ProductID', 'tx_merchant_order_detail.ProductID')
             ->where('tx_merchant_order_detail.StockOrderID', $stockOrderID)
-            ->select('tx_merchant_order_detail.ProductID', 'ms_product.ProductName', 'tx_merchant_order_detail.PromisedQuantity', 'tx_merchant_order_detail.Nett')
+            ->select(
+                'tx_merchant_order_detail.ProductID',
+                'ms_product.ProductName',
+                'tx_merchant_order_detail.PromisedQuantity',
+                'tx_merchant_order_detail.Nett',
+                'ms_product.Price',
+                DB::raw("tx_merchant_order_detail.PromisedQuantity * tx_merchant_order_detail.Nett AS ValueProduct"),
+                DB::raw("
+                    (
+                        SELECT PurchasePrice
+                        FROM ms_stock_product
+                        WHERE DistributorID = '$data->DistributorID' 
+                            AND ProductID = tx_merchant_order_detail.ProductID 
+                            AND ms_stock_product.Qty > 0
+                            AND ms_stock_product.ConditionStock = 'GOOD STOCK'
+                        ORDER BY LevelType, CreatedDate
+                        LIMIT 1
+                    ) AS PurchasePrice
+                ")
+            )
             ->get();
+
         return view('distribution.restock.price-submission.create', [
             'data' => $data
         ]);
