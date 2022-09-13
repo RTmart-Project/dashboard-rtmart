@@ -295,7 +295,7 @@ class DeliveryOrderService
       ->join('ms_product', 'ms_product.ProductID', 'tx_merchant_delivery_order_detail.ProductID')
       ->join('tx_merchant_order', function ($join) {
         $join->on('tx_merchant_order.StockOrderID', 'tmdo.StockOrderID');
-        $join->whereIn('tx_merchant_order.StatusOrderID', ['S010', 'S012']);
+        $join->whereIn('tx_merchant_order.StatusOrderID', ['S012', 'S023']);
       })
       ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
