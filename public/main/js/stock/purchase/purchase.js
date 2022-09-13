@@ -31,6 +31,10 @@ $(document).ready(function () {
                     name: "ms_stock_purchase.PurchaseID",
                 },
                 {
+                    data: "PurchasePlanID",
+                    name: "ms_stock_purchase.PurchasePlanID",
+                },
+                {
                     data: "DistributorName",
                     name: "ms_distributor.DistributorName",
                 },
@@ -99,14 +103,14 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
                         orthogonal: "export",
                     },
                 },
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [6],
+                    aTargets: [7],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
@@ -122,7 +126,7 @@ $(document).ready(function () {
                     },
                 },
             ],
-            order: [5, "desc"],
+            order: [6, "desc"],
             lengthChange: false,
             responsive: true,
             autoWidth: false,

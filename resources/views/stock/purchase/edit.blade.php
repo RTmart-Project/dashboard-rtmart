@@ -188,7 +188,7 @@
                         PKP
                       </option>
                       <option value="NON-PKP"
-                        {{ $detail->ProductLabel == 'NON PKP' ? 'selected' : '' }}>
+                        {{ $detail->ProductLabel == 'NON-PKP' ? 'selected' : '' }}>
                         NON PKP
                       </option>
                     </select>

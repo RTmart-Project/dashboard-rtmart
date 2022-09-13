@@ -588,6 +588,9 @@ class StockController extends Controller
 
         if ($request->ajax()) {
             return DataTables::of($data)
+                ->editColumn('PurchasePlanID', function ($data) {
+                    return '<a target="_blank" href="/stock/plan-purchase/detail/' . $data->PurchasePlanID . '">' . $data->PurchasePlanID . '</a>';
+                })
                 ->editColumn('PurchaseDate', function ($data) {
                     return date('d M Y H:i', strtotime($data->PurchaseDate));
                 })
@@ -596,6 +599,8 @@ class StockController extends Controller
                         $color = 'warning';
                     } elseif ($data->StatusID == 2) {
                         $color = 'success';
+                    } elseif ($data->StatusID == 4) {
+                        $color = 'info';
                     } else {
                         $color = 'danger';
                     }
@@ -637,7 +642,7 @@ class StockController extends Controller
                     }
                     return $btn;
                 })
-                ->rawColumns(['InvoiceNumber', 'InvoiceFile', 'StatusName', 'Action', 'Confirmation'])
+                ->rawColumns(['PurchasePlanID', 'InvoiceNumber', 'InvoiceFile', 'StatusName', 'Action', 'Confirmation'])
                 ->make(true);
         }
     }
@@ -689,109 +694,139 @@ class StockController extends Controller
             ->get();
         $distributors = $purchaseService->getDistributors()->get();
         $purchasePlan = DB::table('ms_purchase_plan')
+            ->leftJoin('ms_stock_purchase', 'ms_stock_purchase.PurchasePlanID', 'ms_purchase_plan.PurchasePlanID')
             ->join('ms_investor', 'ms_investor.InvestorID', 'ms_purchase_plan.InvestorID')
             ->where('ms_purchase_plan.StatusID', 9)
+            ->whereNull('ms_stock_purchase.PurchaseID')
             ->select('ms_purchase_plan.PurchasePlanID', 'ms_investor.InvestorName', 'ms_purchase_plan.PlanDate')
             ->get();
 
-        return view('stock.purchase.create', [
-            'suppliers' => $suppliers,
-            'products' => $products,
-            'distributors' => $distributors,
-            'investors' => $investors,
-            'purchasePlan' => $purchasePlan
-        ]);
-
-        // return view('stock.purchase.createNew', [
+        // return view('stock.purchase.create', [
         //     'suppliers' => $suppliers,
         //     'products' => $products,
         //     'distributors' => $distributors,
         //     'investors' => $investors,
         //     'purchasePlan' => $purchasePlan
         // ]);
+
+        return view('stock.purchase.createNew', [
+            'suppliers' => $suppliers,
+            'products' => $products,
+            'distributors' => $distributors,
+            'investors' => $investors,
+            'purchasePlan' => $purchasePlan
+        ]);
     }
 
     public function storePurchase(Request $request, PurchaseService $purchaseService)
     {
         $request->validate([
-            'distributor' => 'required',
-            'investor' => 'required',
+            'purchase_plan' => 'required',
+            'investor_id' => 'required',
             'purchase_date' => 'required',
-            'supplier' => 'required',
-            'product' => 'required',
-            'product.*' => 'required',
-            'labeling' => 'required',
-            'labeling.*' => 'required',
-            'quantity' => 'required',
-            'quantity.*' => 'required|numeric|gte:1',
-            'purchase_price' => 'required',
-            'purchase_price.*' => 'required|numeric|gte:1'
+            'estimation_arrive' => 'required',
         ]);
 
         $purchaseID = $purchaseService->generatePurchaseID();
+        $purchasePlanID = $request->input('purchase_plan');
+        $investorID = $request->input('investor_id');
         $purchaseDate = str_replace("T", " ", $request->input('purchase_date'));
+        $estimationArrive = str_replace("T", " ", $request->input('estimation_arrive'));
         $user = Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo;
-
-        if ($request->hasFile('invoice_image')) {
-            $invoiceFile = str_replace(' ', '', $purchaseID) . '_' . time() . '.' . $request->file('invoice_image')->extension();
-            $request->file('invoice_image')->move($this->saveImageUrl . 'stock_invoice/', $invoiceFile);
-        } else {
-            $invoiceFile = NULL;
-        }
-
-        $supplier = $request->input('supplier');
-        if ($supplier == "Lainnya") {
-            $request->validate([
-                'other_supplier' => 'unique:ms_suppliers,SupplierName'
-            ]);
-            DB::table('ms_suppliers')->insert(['SupplierName' => $request->input('other_supplier')]);
-            $getSupplier = DB::table('ms_suppliers')->where('SupplierName', $request->input('other_supplier'))->select('SupplierID')->first();
-            $supplierID = $getSupplier->SupplierID;
-        } else {
-            $supplierID = $supplier;
-        }
-
-        $investor = $request->input('investor');
-        if ($investor == "Lainnya") {
-            $request->validate([
-                'other_investor' => 'unique:ms_investor,InvestorName'
-            ]);
-            DB::table('ms_investor')->insert(['InvestorName' => $request->input('other_investor')]);
-            $getInvestor = DB::table('ms_investor')->where('InvestorName', $request->input('other_investor'))->select('InvestorID')->first();
-            $investorID = $getInvestor->InvestorID;
-        } else {
-            $investorID = $investor;
-        }
 
         $dataPurchase = [
             'PurchaseID' => $purchaseID,
-            'DistributorID' => $request->input('distributor'),
+            'PurchasePlanID' => $purchasePlanID,
             'InvestorID' => $investorID,
-            'SupplierID' => $supplierID,
             'PurchaseDate' => $purchaseDate,
+            'EstimationArrive' => $estimationArrive,
             'CreatedBy' => $user,
-            'StatusID' => 1,
+            'StatusID' => 4,
             'CreatedDate' => date('Y-m-d H:i:s'),
-            'InvoiceNumber' => $request->input('invoice_number'),
-            'InvoiceFile' => $invoiceFile
         ];
 
-        $productID = $request->input('product');
-        $labeling = $request->input('labeling');
-        $qty = $request->input('quantity');
-        $purchasePrice = $request->input('purchase_price');
-
-        $dataPurchaseDetail = $purchaseService->dataPurchaseDetail($productID, $labeling, $qty, $purchasePrice, $purchaseID);
+        $dataPurchaseDetail = DB::table('ms_purchase_plan_detail')
+            ->where('PurchasePlanID', $purchasePlanID)
+            ->select('DistributorID', 'SupplierID', 'ProductID', 'ProductLabel', 'Qty', 'PurchasePrice')
+            ->get();
 
         try {
-            DB::transaction(function () use ($dataPurchase, $dataPurchaseDetail) {
+            DB::transaction(function () use ($dataPurchase, $dataPurchaseDetail, $purchaseID) {
                 DB::table('ms_stock_purchase')->insert($dataPurchase);
-                DB::table('ms_stock_purchase_detail')->insert($dataPurchaseDetail);
+                foreach ($dataPurchaseDetail as $key => $value) {
+                    DB::table('ms_stock_purchase_detail')->insert([
+                        'PurchaseID' => $purchaseID,
+                        'DistributorID' => $value->DistributorID,
+                        'SupplierID' => $value->SupplierID,
+                        'ProductID' => $value->ProductID,
+                        'ProductLabel' => $value->ProductLabel,
+                        'ConditionStock' => 'GOOD STOCK',
+                        'Qty' => $value->Qty,
+                        'PurchasePrice' => $value->PurchasePrice,
+                        'Type' => 'INBOUND',
+                        'StatusStockID' => 5
+                    ]);
+                }
             });
             return redirect()->route('stock.purchase')->with('success', 'Data Purchase Stock berhasil ditambahkan');
         } catch (\Throwable $th) {
+            dd($th->getMessage());
             return redirect()->route('stock.purchase')->with('failed', 'Terjadi kesalahan!');
         }
+
+        // dd($dataPurchase, $dataPurchaseDetail);
+
+        // if ($request->hasFile('invoice_image')) {
+        //     $invoiceFile = str_replace(' ', '', $purchaseID) . '_' . time() . '.' . $request->file('invoice_image')->extension();
+        //     $request->file('invoice_image')->move($this->saveImageUrl . 'stock_invoice/', $invoiceFile);
+        // } else {
+        //     $invoiceFile = NULL;
+        // }
+
+        // $supplier = $request->input('supplier');
+        // if ($supplier == "Lainnya") {
+        //     $request->validate([
+        //         'other_supplier' => 'unique:ms_suppliers,SupplierName'
+        //     ]);
+        //     DB::table('ms_suppliers')->insert(['SupplierName' => $request->input('other_supplier')]);
+        //     $getSupplier = DB::table('ms_suppliers')->where('SupplierName', $request->input('other_supplier'))->select('SupplierID')->first();
+        //     $supplierID = $getSupplier->SupplierID;
+        // } else {
+        //     $supplierID = $supplier;
+        // }
+
+        // if ($investor == "Lainnya") {
+        //     $request->validate([
+        //         'other_investor' => 'unique:ms_investor,InvestorName'
+        //     ]);
+        //     DB::table('ms_investor')->insert(['InvestorName' => $request->input('other_investor')]);
+        //     $getInvestor = DB::table('ms_investor')->where('InvestorName', $request->input('other_investor'))->select('InvestorID')->first();
+        //     $investorID = $getInvestor->InvestorID;
+        // } else {
+        //     $investorID = $investor;
+        // }
+
+        // $dataPurchase = [
+        //     'PurchaseID' => $purchaseID,
+        //     'DistributorID' => $request->input('distributor'),
+        //     'InvestorID' => $investorID,
+        //     'SupplierID' => $supplierID,
+        //     'PurchaseDate' => $purchaseDate,
+        //     'CreatedBy' => $user,
+        //     'StatusID' => 1,
+        //     'CreatedDate' => date('Y-m-d H:i:s'),
+        //     'InvoiceNumber' => $request->input('invoice_number'),
+        //     'InvoiceFile' => $invoiceFile
+        // ];
+
+        // $productID = $request->input('product');
+        // $labeling = $request->input('labeling');
+        // $qty = $request->input('quantity');
+        // $purchasePrice = $request->input('purchase_price');
+
+        // $dataPurchaseDetail = $purchaseService->dataPurchaseDetail($productID, $labeling, $qty, $purchasePrice, $purchaseID);
+
+
     }
 
     public function getPurchaseByPurchasePlan($purchasePlanID, PurchaseService $purchaseService)
@@ -926,9 +961,9 @@ class StockController extends Controller
     public function editInvoice($purchaseID)
     {
         $sql = DB::table('ms_stock_purchase')
-            ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_stock_purchase.DistributorID')
+            ->leftJoin('ms_distributor', 'ms_distributor.DistributorID', 'ms_stock_purchase.DistributorID')
             ->leftJoin('ms_investor', 'ms_investor.InvestorID', 'ms_stock_purchase.InvestorID')
-            ->join('ms_suppliers', 'ms_suppliers.SupplierID', 'ms_stock_purchase.SupplierID')
+            ->leftJoin('ms_suppliers', 'ms_suppliers.SupplierID', 'ms_stock_purchase.SupplierID')
             ->select('ms_stock_purchase.PurchaseID', 'ms_stock_purchase.InvoiceNumber', 'ms_stock_purchase.InvoiceFile', 'ms_distributor.DistributorName', 'ms_investor.InvestorName', 'ms_suppliers.SupplierName')
             ->where('ms_stock_purchase.PurchaseID', $purchaseID)
             ->first();

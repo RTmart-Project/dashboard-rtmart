@@ -76,6 +76,7 @@
                         <tr>
                           <th>Tipe</th>
                           <th>Purchase ID</th>
+                          <th>Purchase Plan ID</th>
                           <th>Distributor</th>
                           <th>Investor</th>
                           <th>Supplier</th>
