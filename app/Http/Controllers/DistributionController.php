@@ -150,7 +150,10 @@ class DistributionController extends Controller
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tx_merchant_order.DistributorID')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
             ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'tx_merchant_order.SalesCode')
-            ->leftJoin('ms_price_submission', 'ms_price_submission.StockOrderID', 'tx_merchant_order.StockOrderID')
+            ->leftJoin('ms_price_submission', function ($join) {
+                $join->on('ms_price_submission.StockOrderID', 'tx_merchant_order.StockOrderID');
+                $join->where('ms_price_submission.StatusPriceSubmission', '!=', 'S041');
+            })
             ->where('ms_merchant_account.IsTesting', 0)
             ->where('tx_merchant_order.StatusOrderID', '=', $statusOrder)
             ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'ms_distributor.DistributorName', 'tx_merchant_order.ShipmentDate', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CancelReasonNote', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order.SalesCode as ReferralCode', 'ms_sales.SalesName', 'ms_distributor_grade.Grade', 'tx_merchant_order.IsValid', 'tx_merchant_order.ValidationNotes', 'ms_price_submission.StatusPriceSubmission');

@@ -146,7 +146,7 @@
                         <label for="price_submission">Harga Pengajuan</label>
                         <input type="text" class="form-control price_submission autonumeric" name="price_submission[]" id="price_submission" value="0" required autocomplete="off">
                         @if ($data->Detail->count() > 1)
-                        <small>Jika tidak ada harga pengajuan, masukkan harga asli</small>
+                        <small>Jika tidak ada harga pengajuan, masukkan harga jual</small>
                         @endif
                       </div>
                     </div>
@@ -362,10 +362,10 @@
       const product = $(this).find('.product').val()
       const priceSubmission = $(this).find('.price_submission').val().replaceAll(".", "");
       const price = $(this).find('.price').val().replaceAll(".", "");
-      if (!priceSubmission) {
+      if (priceSubmission < 1) {
         Toast.fire({
           icon: "error",
-          title: `Harap Isi Harga Pengajuan!`,
+          title: `Harga Pengajuan ${product} harus lebih dari 0!`,
         });
         return (open = false);
       } else if (Number(priceSubmission) > Number(price)) {
