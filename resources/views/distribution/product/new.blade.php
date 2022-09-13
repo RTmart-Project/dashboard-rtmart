@@ -45,57 +45,7 @@
                             action="{{ route('distribution.insertProduct') }}">
                             @csrf
                             <div class="row">
-                                @if (Auth::user()->RoleID == "AD")
-                                <div class="col-md-4 col-12">
-                                    <div class="form-group">
-                                        <label for="distributor">Distributor</label>
-                                        <input class="form-control-plaintext" value="{{ $depo->DistributorName }}"
-                                            readonly>
-                                        <input type="hidden" name="distributor" value="{{ $depo->DistributorID }}">
-                                    </div>
-                                </div>
-                                <div class="col-md-8 col-12">
-                                    <div class="form-group">
-                                        <label for="product">Produk</label>
-                                        <select
-                                            class="form-control selectpicker border @if($errors->has('product')) is-invalid @endif"
-                                            name="product" id="product" data-live-search="true" title="Pilih Produk"
-                                            required>
-                                            @foreach ($productNotInDistributor as $item)
-                                            <option value="{{ $item->ProductID }}">{{ $item->ProductName }} -- Isi: {{
-                                                $item->ProductUOMDesc }} {{ $item->ProductUOMName }}</option>
-                                            @endforeach
-                                        </select>
-                                        @if($errors->has('product'))
-                                        <span class="error invalid-feedback">{{ $errors->first('product') }}</span>
-                                        @endif
-                                    </div>
-                                </div>
-                                <div class="col-12">
-                                    <label for="grade_price">Set Harga</label>
-                                    <div class="row">
-                                        @foreach ($gradeDistributor as $item)
-                                        <div class="col-4 d-flex justify-content-center">
-                                            <label>{{ $item->Grade }}</label>
-                                            <input type="hidden" name="grade_id[]" value="{{ $item->GradeID }}">
-                                        </div>
-                                        <div class="col-8">
-                                            <div class="form-group">
-                                                <input type="text" name="grade_price[]"
-                                                    class="form-control autonumeric @if($errors->has('grade_price')) is-invalid @endif"
-                                                    value="{{ collect(old('grade_price')) }}" autocomplete="off"
-                                                    required>
-                                                @if($errors->has('grade_price'))
-                                                <span class="error invalid-feedback">{{ $errors->first('grade_price')
-                                                    }}</span>
-                                                @endif
-                                            </div>
-                                        </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-                                @else
-                                <div class="col-md-4 col-12">
+                                <div class="col-md-3 col-12">
                                     <div class="form-group">
                                         <label for="distributor">Distributor</label>
                                         <select
@@ -112,7 +62,7 @@
                                         @endif
                                     </div>
                                 </div>
-                                <div class="col-md-8 col-12">
+                                <div class="col-md-6 col-12">
                                     <div class="form-group">
                                         <label for="product">Produk</label>
                                         <select
@@ -125,13 +75,26 @@
                                         @endif
                                     </div>
                                 </div>
+                                <div class="col-12 col-md-3">
+                                    <div class="form-group">
+                                        <label for="product_group">Produk Group</label>
+                                        <select class="form-control selectpicker border @if($errors->has('product_group')) is-invalid @endif"
+                                            name="product_group" id="product_group" title="Pilih Produk" required>
+                                            @foreach ($productGroup as $item)
+                                                <option value="{{ $item->ProductGroupID }}">{{ $item->ProductGroupName }}</option>
+                                            @endforeach
+                                        </select>
+                                        @if($errors->has('product_group'))
+                                        <span class="error invalid-feedback">{{ $errors->first('product_group') }}</span>
+                                        @endif
+                                    </div>
+                                </div>
                                 <div class="col-12">
                                     <label for="grade_price">Set Harga</label>
                                     <div class="row grade-price">
 
                                     </div>
                                 </div>
-                                @endif
                             </div>
 
                             <div class="form-group float-right">

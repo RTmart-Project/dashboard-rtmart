@@ -2262,8 +2262,13 @@ class DistributionController extends Controller
 
         $getDistributor = $getDistributorSql->get();
 
+        $productGroup = DB::table('ms_product_group')
+            ->select('ProductGroupID', 'ProductGroupName')
+            ->get();
+
         return view('distribution.product.new', [
-            'distributor' => $getDistributor
+            'distributor' => $getDistributor,
+            'productGroup' => $productGroup
         ]);
 
         // if (Auth::user()->RoleID == "AD") {
@@ -2322,9 +2327,13 @@ class DistributionController extends Controller
         $request->validate([
             'distributor' => 'exists:ms_distributor,DistributorID',
             'product' => 'required|exists:ms_product,ProductID',
+            'product_group' => 'required|exists:ms_product_group,ProductGroupID',
             'grade_price' => 'required',
             'grade_price.*' => 'numeric'
         ]);
+
+        $productID = $request->input('product');
+        $productGroupID = $request->input('product_group');
 
         $gradeID = $request->input('grade_id');
         $gradePrice = $request->input('grade_price');
@@ -2333,11 +2342,12 @@ class DistributionController extends Controller
         }, $gradeID, $gradePrice);
         foreach ($data as $key => $value) {
             $data[$key][] = $request->input('distributor');
-            $data[$key][] = $request->input('product');
+            $data[$key][] = $productID;
         }
 
         try {
-            DB::transaction(function () use ($data) {
+            DB::transaction(function () use ($data, $productID, $productGroupID) {
+                DB::table('ms_product')->where('ProductID', $productID)->update(['ProductGroup' => $productGroupID]);
                 foreach ($data as &$value) {
                     $value = array_combine(['GradeID', 'Price', 'DistributorID', 'ProductID'], $value);
                     DB::table('ms_distributor_product_price')
