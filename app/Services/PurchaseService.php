@@ -10,11 +10,31 @@ class PurchaseService
   public function getStockPurchase($fromDate, $toDate, $filterTipe)
   {
     $mainSql = DB::table('ms_stock_purchase')
-      ->leftJoin('ms_distributor', 'ms_distributor.DistributorID', 'ms_stock_purchase.DistributorID')
+      ->join('ms_stock_purchase_detail', 'ms_stock_purchase_detail.PurchaseID', 'ms_stock_purchase.PurchaseID')
       ->leftJoin('ms_investor', 'ms_investor.InvestorID', 'ms_stock_purchase.InvestorID')
-      ->leftJoin('ms_suppliers', 'ms_suppliers.SupplierID', 'ms_stock_purchase.SupplierID')
+      ->leftJoin('ms_distributor as single_distributor', 'single_distributor.DistributorID', 'ms_stock_purchase.DistributorID')
+      ->leftJoin('ms_distributor as combine_distributor', 'combine_distributor.DistributorID', 'ms_stock_purchase_detail.DistributorID')
+      ->leftJoin('ms_suppliers as single_supplier', 'single_supplier.SupplierID', 'ms_stock_purchase.SupplierID')
+      ->leftJoin('ms_suppliers as combine_supplier', 'combine_supplier.SupplierID', 'ms_stock_purchase_detail.SupplierID')
       ->join('ms_status_stock', 'ms_status_stock.StatusID', 'ms_stock_purchase.StatusID')
-      ->select('ms_stock_purchase.PurchaseID', 'ms_stock_purchase.PurchasePlanID', 'ms_distributor.DistributorName', 'ms_stock_purchase.PurchaseDate', 'ms_stock_purchase.CreatedBy', 'ms_suppliers.SupplierName', 'ms_stock_purchase.StatusID', 'ms_status_stock.StatusName', 'ms_stock_purchase.StatusBy', 'ms_stock_purchase.InvoiceNumber', 'ms_stock_purchase.InvoiceFile', 'ms_investor.InvestorName', 'ms_stock_purchase.Type');
+      ->selectRaw("
+        ms_stock_purchase.PurchaseID,
+        ms_stock_purchase.PurchasePlanID,
+        ANY_VALUE(single_distributor.DistributorName) AS DistributorName,
+        ms_stock_purchase.PurchaseDate,
+        ms_stock_purchase.CreatedBy,
+        ANY_VALUE(single_supplier.SupplierName) AS SupplierName,
+        ms_stock_purchase.StatusID,
+        ms_status_stock.StatusName,
+        ms_stock_purchase.StatusBy,
+        ms_stock_purchase.InvoiceNumber,
+        ms_stock_purchase.InvoiceFile,
+        ms_investor.InvestorName,
+        ms_stock_purchase.Type,
+        GROUP_CONCAT(combine_distributor.DistributorName SEPARATOR ', ') AS DistributorCombined,
+        GROUP_CONCAT(combine_supplier.SupplierName SEPARATOR ', ') AS SupplierCombined
+      ")
+      ->groupBy('ms_stock_purchase.PurchaseID');
 
     if ($fromDate != '' && $toDate != '') {
       $mainSql->whereDate('ms_stock_purchase.PurchaseDate', '>=', $fromDate)
@@ -27,7 +47,7 @@ class PurchaseService
     }
     if (Auth::user()->Depo != "ALL") {
       $depoUser = Auth::user()->Depo;
-      $mainSql->where('ms_distributor.Depo', '=', $depoUser);
+      $mainSql->where('single_distributor.Depo', '=', $depoUser);
     }
     if (Auth::user()->InvestorID != null) {
       $investorUser = Auth::user()->InvestorID;
@@ -102,17 +122,47 @@ class PurchaseService
   public function getStockPurchaseByID($purchaseID)
   {
     $sql = DB::table('ms_stock_purchase')
-      ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_stock_purchase.DistributorID')
+      ->join('ms_stock_purchase_detail', 'ms_stock_purchase_detail.PurchaseID', 'ms_stock_purchase.PurchaseID')
+      ->leftJoin('ms_distributor as single_distributor', 'single_distributor.DistributorID', 'ms_stock_purchase.DistributorID')
+      ->leftJoin('ms_distributor as combine_distributor', 'combine_distributor.DistributorID', 'ms_stock_purchase_detail.DistributorID')
       ->leftJoin('ms_investor', 'ms_investor.InvestorID', 'ms_stock_purchase.InvestorID')
-      ->join('ms_suppliers', 'ms_suppliers.SupplierID', 'ms_stock_purchase.SupplierID')
+      ->leftJoin('ms_suppliers as single_supplier', 'single_supplier.SupplierID', 'ms_stock_purchase.SupplierID')
+      ->leftJoin('ms_suppliers as combine_supplier', 'combine_supplier.SupplierID', 'ms_stock_purchase_detail.SupplierID')
       ->join('ms_status_stock', 'ms_status_stock.StatusID', 'ms_stock_purchase.StatusID')
       ->where('ms_stock_purchase.PurchaseID', $purchaseID)
-      ->select('ms_stock_purchase.PurchaseID', 'ms_stock_purchase.DistributorID', 'ms_stock_purchase.SupplierID', 'ms_distributor.DistributorName', 'ms_stock_purchase.PurchaseDate', 'ms_stock_purchase.CreatedBy', 'ms_stock_purchase.CreatedDate', 'ms_stock_purchase.StatusID', 'ms_suppliers.SupplierName', 'ms_status_stock.StatusName', 'ms_stock_purchase.StatusBy', 'ms_stock_purchase.StatusDate', 'ms_stock_purchase.InvoiceNumber', 'ms_stock_purchase.InvoiceFile', 'ms_stock_purchase.InvestorID', 'ms_investor.InvestorName')->first();
+      ->selectRaw("
+        ms_stock_purchase.PurchaseID,
+        ms_stock_purchase.DistributorID,
+        ms_stock_purchase.SupplierID,
+        ANY_VALUE(single_distributor.DistributorName) AS DistributorName,
+        ms_stock_purchase.PurchaseDate,
+        ms_stock_purchase.EstimationArrive,
+        ms_stock_purchase.CreatedBy,
+        ms_stock_purchase.CreatedDate,
+        ms_stock_purchase.StatusID,
+        ANY_VALUE(single_supplier.SupplierName) AS SupplierName,
+        ms_status_stock.StatusName,
+        ms_stock_purchase.StatusBy,
+        ms_stock_purchase.StatusDate,
+        ms_stock_purchase.InvoiceNumber,
+        ms_stock_purchase.InvoiceFile,
+        ms_stock_purchase.InvestorID,
+        ms_investor.InvestorName,
+        GROUP_CONCAT(combine_distributor.DistributorName SEPARATOR ', ') AS DistributorCombined,
+        GROUP_CONCAT(combine_supplier.SupplierName SEPARATOR ', ') AS SupplierCombined
+      ")
+      ->groupBy('ms_stock_purchase.PurchaseID')
+      ->first();
 
     $sqlDetail = DB::table('ms_stock_purchase_detail')
+      ->join('ms_stock_purchase', 'ms_stock_purchase.PurchaseID', 'ms_stock_purchase_detail.PurchaseID')
       ->join('ms_product', 'ms_product.ProductID', 'ms_stock_purchase_detail.ProductID')
+      ->leftJoin('ms_distributor as single_distributor', 'single_distributor.DistributorID', 'ms_stock_purchase.DistributorID')
+      ->leftJoin('ms_distributor', 'ms_distributor.DistributorID', 'ms_stock_purchase_detail.DistributorID')
+      ->leftJoin('ms_suppliers as single_supplier', 'single_supplier.SupplierID', 'ms_stock_purchase.SupplierID')
+      ->leftJoin('ms_suppliers', 'ms_suppliers.SupplierID', 'ms_stock_purchase_detail.SupplierID')
       ->where('ms_stock_purchase_detail.PurchaseID', $purchaseID)
-      ->select('ms_stock_purchase_detail.ProductID', 'ms_product.ProductName', 'ms_stock_purchase_detail.ProductLabel', 'ms_stock_purchase_detail.Qty', 'ms_stock_purchase_detail.PurchasePrice')
+      ->select('ms_stock_purchase_detail.PurchaseDetailID', 'ms_stock_purchase_detail.ProductID', 'ms_product.ProductName', 'ms_stock_purchase_detail.ProductLabel', 'ms_stock_purchase_detail.Qty', 'ms_stock_purchase_detail.PurchasePrice', 'ms_distributor.DistributorName', 'single_distributor.DistributorName as Distributor', 'ms_suppliers.SupplierName', 'ms_stock_purchase_detail.SupplierID', 'ms_stock_purchase.SupplierID as SingleSupplierID', 'single_supplier.SupplierName as Supplier', 'ms_stock_purchase_detail.StatusStockID', 'ms_stock_purchase_detail.IsGIT', 'ms_stock_purchase_detail.Note')
       ->get()->toArray();
 
     $grandTotal = 0;
@@ -120,8 +170,8 @@ class PurchaseService
     foreach ($sqlDetail as $key => $value) {
       $grandTotal += $value->Qty * $value->PurchasePrice;
     }
-
     $sql->Detail = $sqlDetail;
+
     $sql->GrandTotal = $grandTotal;
 
     return $sql;

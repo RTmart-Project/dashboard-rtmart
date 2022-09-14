@@ -594,6 +594,22 @@ class StockController extends Controller
                 ->editColumn('PurchaseDate', function ($data) {
                     return date('d M Y H:i', strtotime($data->PurchaseDate));
                 })
+                ->editColumn('DistributorName', function ($data) {
+                    if ($data->DistributorName === null) {
+                        $distributor = $data->DistributorCombined;
+                    } else {
+                        $distributor = $data->DistributorName;
+                    }
+                    return $distributor;
+                })
+                ->editColumn('SupplierName', function ($data) {
+                    if ($data->SupplierName === null) {
+                        $supplier = $data->SupplierCombined;
+                    } else {
+                        $supplier = $data->SupplierName;
+                    }
+                    return $supplier;
+                })
                 ->editColumn('StatusName', function ($data) {
                     if ($data->StatusID == 1) {
                         $color = 'warning';
@@ -624,7 +640,7 @@ class StockController extends Controller
                         $ubah = '';
                     }
                     $action = '<div class="d-flex flex-wrap" style="gap:5px">
-                                ' . $ubah . '
+                                
                                 <a href="/stock/purchase/detail/' . $data->PurchaseID . '" class="btn btn-xs btn-info">Detail</a>
                                 ' . $editInvoice . '
                                </div>';
@@ -939,12 +955,14 @@ class StockController extends Controller
         }
     }
 
-    public function detailPurchase(PurchaseService $purchaseService, $purchaseID, Request $request)
+    public function detailPurchase(PurchaseService $purchaseService, $purchaseID)
     {
         $purchaseByID = $purchaseService->getStockPurchaseByID($purchaseID);
+        $suppliers = DB::table('ms_suppliers')->select('*')->orderBy('SupplierID')->get();
 
         return view('stock.purchase.detail', [
-            'purchaseByID' => $purchaseByID
+            'purchaseByID' => $purchaseByID,
+            'suppliers' => $suppliers
         ]);
     }
 
@@ -956,6 +974,67 @@ class StockController extends Controller
         } catch (\Throwable $th) {
             return redirect()->route('stock.purchase')->with('failed', 'Terjadi kesalahan!');
         }
+    }
+
+    public function confirmProductPurchase(Request $request, $status, $purchaseDetailID)
+    {
+        $purchase = DB::table('ms_stock_purchase_detail')
+            ->join('ms_stock_purchase', 'ms_stock_purchase.PurchaseID', 'ms_stock_purchase_detail.PurchaseID')
+            ->where('ms_stock_purchase_detail.PurchaseDetailID', $purchaseDetailID)
+            ->select('ms_stock_purchase_detail.PurchaseID', 'ms_stock_purchase.InvestorID', 'ms_stock_purchase.EstimationArrive', 'ms_stock_purchase_detail.ProductID', 'ms_stock_purchase_detail.ProductLabel', 'ms_stock_purchase_detail.ConditionStock', 'ms_stock_purchase_detail.DistributorID')
+            ->first();
+
+
+        $supplier = $request->input('supplier');
+        $confirmDate = str_replace("T", " ", $request->input('confirm_date'));
+        $qty = $request->input('qty');
+        $purchasePrice = str_replace(".", "", $request->input('purchase_price'));
+        $note = $request->input('note');
+
+        if ($confirmDate > $purchase->EstimationArrive) {
+            $isGIT = 1;
+        } else {
+            $isGIT = 0;
+        }
+
+        if ($status === "approve") {
+            $statusStockID = 6;
+            $dataPurchaseDetail = [
+                'SupplierID' => $supplier,
+                'Qty' => $qty,
+                'PurchasePrice' => $purchasePrice,
+                'StatusStockID' => $statusStockID,
+                'CreatedDate' => date('Y-m-d H:i:s'),
+                'ConfirmDate' => $confirmDate,
+                'ConfirmBy' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo,
+                'IsGIT' => $isGIT,
+                'Note' => $note
+            ];
+        } else {
+            $statusStockID = 7;
+            $dataPurchaseDetail = [
+                'StatusStockID' => $statusStockID,
+                'CreatedDate' => date('Y-m-d H:i:s'),
+                'ConfirmBy' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo,
+                'Note' => $note
+            ];
+        }
+
+        $dataStockProduct = [
+            'PurchaseID' => $purchase->PurchaseID,
+            'InvestorID' => $purchase->InvestorID,
+            'ProductID' => $purchase->ProductID,
+            'ProductLabel' => $purchase->ProductLabel,
+            'ConditionStock' => $purchase->ConditionStock,
+            'Qty' => $qty,
+            'PurchasePrice' => $purchasePrice,
+            'DistributorID' => $purchase->DistributorID,
+            'CreatedDate' => date('Y-m-d H:i:s'),
+            'Type' => 'INBOUND',
+            'LevelType' => 3
+        ];
+
+        dd($dataPurchaseDetail, $dataStockProduct);
     }
 
     public function editInvoice($purchaseID)

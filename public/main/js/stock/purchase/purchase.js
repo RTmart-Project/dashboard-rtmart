@@ -36,7 +36,7 @@ $(document).ready(function () {
                 },
                 {
                     data: "DistributorName",
-                    name: "ms_distributor.DistributorName",
+                    name: "DistributorName",
                 },
                 {
                     data: "InvestorName",
@@ -44,7 +44,7 @@ $(document).ready(function () {
                 },
                 {
                     data: "SupplierName",
-                    name: "ms_suppliers.SupplierName",
+                    name: "SupplierName",
                 },
                 {
                     data: "PurchaseDate",

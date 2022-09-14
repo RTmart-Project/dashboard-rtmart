@@ -48,7 +48,7 @@
                 <div class="col-12">
                   <div class="form-group">
                     <label for="purchase_plan">Sumber Purchase Plan</label>
-                    <select name="purchase_plan" id="purchase_plan" data-live-search="true" title="Pilih purchase_plan"
+                    <select name="purchase_plan" id="purchase_plan" data-live-search="true" title="Pilih Purchase Plan"
                       class="form-control selectpicker border @if($errors->has('purchase_plan')) is-invalid @endif"
                       required>
                       @foreach ($purchasePlan as $item)
