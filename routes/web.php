@@ -43,7 +43,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/', [DistributionController::class, 'priceSubmission'])->name('priceSubmission');
         Route::get('/get/{statusPriceSubmission}', [DistributionController::class, 'getPriceSubmission'])->name('getPriceSubmission');
         Route::get('/detail/{priceSubmissionID}', [DistributionController::class, 'detailPriceSubmission'])->name('detailPriceSubmission');
-        Route::get('/confirm/{priceSubmissionID}/{status}', [DistributionController::class, 'confirmPriceSubmission'])->name('confirmPriceSubmission');
+        Route::post('/confirm/{priceSubmissionID}/{status}', [DistributionController::class, 'confirmPriceSubmission'])->name('confirmPriceSubmission');
     });
 
     Route::group(['prefix' => 'summary', 'middleware' => ['checkRoleUser:IT,FI,BM,CEO,HL']], function () {
@@ -463,6 +463,9 @@ Route::group(['middleware' => ['auth']], function () {
 
     // Investor by id
     Route::get('/investor/{id}', [Controller::class, 'getInvestorByID'])->name('getInvestorByID');
+
+    // Product by id
+    Route::get('/product/{productId}', [ProductController::class, 'getProductById'])->name('getProductById');
 
     // Logout
     Route::get('/logout', [AuthController::class, 'logout'])->name('auth.logout');
