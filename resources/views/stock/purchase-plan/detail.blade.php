@@ -69,7 +69,7 @@
                 @else
                 <p style="font-size: 13px" class="badge badge-danger">{{ $data->StatusName }}</p>
                 @endif
-                @if ($data->StatusID == 8)
+                @if ($data->StatusID == 8 && (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "CEO"))
                 <br>
                 <a class="btn btn-sm btn-danger btn-reject" data-purchase-plan-id="{{ $data->PurchasePlanID }}">Tolak</a>
                 <a class="btn btn-sm btn-success btn-approve" data-purchase-plan-id="{{ $data->PurchasePlanID }}">Setujui</a>

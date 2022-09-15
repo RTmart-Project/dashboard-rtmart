@@ -315,8 +315,16 @@ class StockController extends Controller
                 })
                 ->addColumn('Action', function ($data) {
                     if ($data->StatusID === 8) {
-                        $confirm = '<a class="btn btn-xs btn-info mb-1" href="/stock/plan-purchase/detail/' . $data->PurchasePlanID . '">Konfirmasi</a>';
-                        $edit = '<a class="btn btn-xs btn-warning mr-1 mb-1" href="/stock/plan-purchase/edit/' . $data->PurchasePlanID . '">Edit</a>';
+                        if (Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "IT") {
+                            $confirm = '<a class="btn btn-xs btn-info mb-1" href="/stock/plan-purchase/detail/' . $data->PurchasePlanID . '">Konfirmasi</a>';
+                        } else {
+                            $confirm = '';
+                        }
+                        if (Auth::user()->RoleID != "CEO") {
+                            $edit = '<a class="btn btn-xs btn-warning mr-1 mb-1" href="/stock/plan-purchase/edit/' . $data->PurchasePlanID . '">Edit</a>';
+                        } else {
+                            $edit = '';
+                        }
                     } else {
                         $confirm = '';
                         $edit = '';
@@ -998,6 +1006,12 @@ class StockController extends Controller
         }
 
         if ($status === "approve") {
+            $qtyBefore = DB::table('ms_stock_product')
+                ->where('DistributorID', $purchase->DistributorID)->where('InvestorID', $purchase->InvestorID)
+                ->where('ProductID', $purchase->ProductID)->where('ProductLabel', $purchase->ProductLabel)
+                ->where('ConditionStock', $purchase->ConditionStock)->where('Qty', '>', 0)
+                ->sum('Qty');
+
             $statusStockID = 6;
             $dataPurchaseDetail = [
                 'SupplierID' => $supplier,
@@ -1011,6 +1025,7 @@ class StockController extends Controller
                 'Note' => $note
             ];
         } else {
+            $qtyBefore = 0;
             $statusStockID = 7;
             $dataPurchaseDetail = [
                 'StatusStockID' => $statusStockID,
@@ -1034,7 +1049,30 @@ class StockController extends Controller
             'LevelType' => 3
         ];
 
-        dd($dataPurchaseDetail, $dataStockProduct);
+        try {
+            DB::transaction(function () use ($status, $purchaseDetailID, $dataPurchaseDetail, $dataStockProduct, $purchase, $qtyBefore, $qty, $purchasePrice) {
+                DB::table('ms_stock_purchase_detail')->where('PurchaseDetailID', $purchaseDetailID)->update($dataPurchaseDetail);
+
+                if ($status === "approve") {
+                    $stockProductID = DB::table('ms_stock_product')->insertGetId($dataStockProduct);
+                    DB::table('ms_stock_product_log')->insert([
+                        'StockProductID' => $stockProductID,
+                        'ProductID' => $purchase->ProductID,
+                        'QtyBefore' => $qtyBefore,
+                        'QtyAction' => $qty,
+                        'QtyAfter' => $qtyBefore + $qty,
+                        'PurchasePrice' => $purchasePrice,
+                        'SellingPrice' => 0,
+                        'CreatedDate' => date('Y-m-d H:i:s'),
+                        'ActionBy' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo,
+                        'ActionType' => 'INBOUND'
+                    ]);
+                }
+            });
+            return redirect()->back()->with('success', 'Produk Purchase Berhasil dikonfirmasi!');
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('failed', 'Terjadi kesalahan!');
+        }
     }
 
     public function editInvoice($purchaseID)

@@ -81,12 +81,12 @@ $(document).ready(function () {
                     searchable: false,
                     orderable: false,
                 },
-                {
-                    data: "Confirmation",
-                    name: "Confirmation",
-                    searchable: false,
-                    orderable: false,
-                },
+                // {
+                //     data: "Confirmation",
+                //     name: "Confirmation",
+                //     searchable: false,
+                //     orderable: false,
+                // },
             ],
             buttons: [
                 {

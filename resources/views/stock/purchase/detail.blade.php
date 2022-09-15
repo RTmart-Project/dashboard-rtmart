@@ -69,7 +69,11 @@
                   </div>
                   <div class="col-12 col-md-3 mb-2">
                     <strong><i class="fas fa-calendar-day mr-1"></i> Tanggal Estimasi Tiba</strong>
+                    @if ($purchaseByID->EstimationArrive != null)
                     <p class="m-0">{{ date('d F Y\, H:i', strtotime($purchaseByID->EstimationArrive)) }}</p>
+                    @else
+                    <p class="m-0">-</p>
+                    @endif
                   </div>
                   <div class="col-12 col-md-3 mb-2">
                     <strong><i class="fas fa-file-alt mr-1"></i> Invoice</strong><br>
@@ -107,8 +111,22 @@
                     -
                     @endif
                   </div>
-                  <div class="col-12 mt-2 table-responsive">
-                    <strong><i class="fas fa-cubes mr-1"></i> Detail Produk</strong><br>
+                  @if ($purchaseByID->StatusBy == null && (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI"))
+                  <div class="col-12 d-flex justify-content-center" style="gap: 8px">
+                    <button class="btn btn-success btn-approved"  data-purchase-id="{{ $purchaseByID->PurchaseID }}"
+                      {{ $purchaseByID->CountStatusProductNotConfirmed > 0 ? 'disabled' : '' }}>
+                      <i class="fas fa-check"></i> Selesaikan Purchase
+                    </button>
+                    @if ($purchaseByID->CountStatusProductApprove < 1)
+                    <a class="btn btn-danger btn-reject" data-purchase-id="{{ $purchaseByID->PurchaseID }}"><i class="fas fa-times"></i> Batalkan Purchase</a>
+                    @endif
+                  </div>
+                  <div class="col-12 d-flex justify-content-center mt-1">
+                    <p class="m-0">*Purchase dapat diselesaikan jika semua produk telah dikonfirmasi (Terima / Batalkan)</p>
+                  </div>
+                  @endif
+                  <div class="col-12 mt-2 table-responsive border-top border-secondary">
+                    <strong><i class="fas fa-cubes mr-1 mt-3"></i> Detail Produk</strong><br>
                     @if ($purchaseByID->StatusID === 4)
                         @foreach ($purchaseByID->Detail as $detail)
                         <div class="border-bottom border-secondary mb-2 wrapper-product">
@@ -128,6 +146,7 @@
                                   <div class="col-11 col-md-3">
                                     <div class="form-group">
                                       <label for="supplier" class="m-0">Supplier</label>
+                                      @if ($detail->StatusStockID === 5)
                                       <select name="supplier" id="supplier" class="form-control selectpicker border" data-live-search="true" title="Pilih Supplier" required>
                                         @foreach ($suppliers as $supplier)
                                           <option value="{{ $supplier->SupplierID }}"
@@ -136,6 +155,10 @@
                                           </option>
                                         @endforeach
                                       </select>
+                                      @else
+                                      <input type="text" readonly class="form-control-plaintext p-0" id="supplier" 
+                                        value="{{ $detail->SupplierName === null ? $detail->Supplier : $detail->SupplierName }}">    
+                                      @endif
                                     </div>
                                   </div>
                                   <div class="col-12 col-md-3">
@@ -155,31 +178,49 @@
                                   <div class="col-12 col-md-3">
                                     <div class="form-group">
                                       <label for="confirm_date">Tanggal Barang Tiba</label>
+                                      @if ($detail->StatusStockID === 5)
                                       <input type="datetime-local" class="form-control" id="confirm_date" name="confirm_date" required>
+                                      @else
+                                      <input type="text" readonly class="form-control-plaintext p-0" id="confirm_date"
+                                        value="{{ $detail->ConfirmDate !== null ? date('d F Y H:i', strtotime($detail->ConfirmDate)) : '-' }}">
+                                      @endif
                                     </div>
                                   </div>
                                   <div class="col-12 col-md-3">
                                     <div class="form-group">
                                       <label for="qty">Qty</label>
+                                      @if ($detail->StatusStockID === 5)
                                       <input type="number" min="0" class="form-control" id="qty" name="qty" value="{{ $detail->Qty }}" required>
+                                      @else
+                                      <input type="text" readonly class="form-control-plaintext p-0" id="qty" value="{{ $detail->Qty }}">
+                                      @endif
                                     </div>
                                   </div>
                                   <div class="col-12 col-md-3">
                                     <div class="form-group">
                                       <label for="purchase_price">Harga Beli</label>
+                                      @if ($detail->StatusStockID === 5)
                                       <input type="text" min="0" class="form-control autonumeric" id="purchase_price" name="purchase_price" value="{{ $detail->PurchasePrice }}" required>
+                                      @else
+                                      <input type="text" readonly class="form-control-plaintext p-0" id="purchase_price" value="{{ Helper::formatCurrency($detail->PurchasePrice, "") }}">
+                                      @endif
                                     </div>
                                   </div>
                                   <div class="col-12 col-md-3">
                                     <div class="form-group">
                                       <label for="note">Catatan</label>
+                                      @if ($detail->StatusStockID === 5)
                                       <textarea name="note" id="note" rows="2" class="form-control"></textarea>
+                                      @else
+                                      <textarea name="note" id="note" rows="2" class="form-control" readonly>{{ $detail->Note }}</textarea>
+                                      @endif
                                     </div>
                                   </div>
                                 </div>
                               </div>
                               <div class="col-12 col-md-1 mb-3 d-flex justify-content-center align-items-center">
                                 <div class="text-center">
+                                  @if ($detail->StatusStockID === 5)
                                   <a class="btn btn-xs mb-1 btn-success btn-approve-product" 
                                     data-purchase-detail-id="{{ $detail->PurchaseDetailID }}" data-product="{{ $detail->ProductName }}" 
                                     data-distributor="{{ $detail->DistributorName === null ? $detail->Distributor : $detail->DistributorName }}">
@@ -190,6 +231,10 @@
                                     data-distributor="{{ $detail->DistributorName === null ? $detail->Distributor : $detail->DistributorName }}">
                                     Batalkan
                                   </a>
+                                  @else
+                                  <label for="">Status Produk</label>
+                                  <span class="badge {{ $detail->StatusStockID === 6 ? 'badge-success' : 'badge-danger' }}">{{ $detail->StatusName }}</span>
+                                  @endif
                                 </div>
                               </div>
                             </div>
@@ -208,6 +253,7 @@
                           <th>Qty</th>
                           <th>Harga Beli</th>
                           <th>Total Harga</th>
+                          <th>Status Produk</th>
                           <th>GIT</th>
                           <th>Note</th>
                         </tr>
@@ -223,6 +269,16 @@
                           <td>{{ $detail->Qty }}</td>
                           <td>{{ Helper::formatCurrency($detail->PurchasePrice, 'Rp ') }}</td>
                           <td>{{ Helper::formatCurrency($detail->Qty * $detail->PurchasePrice, 'Rp ') }}</td>
+                          <td>
+                            @if ($detail->StatusStockID === 6)
+                            <span class="badge badge-success">{{ $detail->StatusName }}</span> pada {{ date('d F Y H:i', strtotime($detail->ConfirmDate)) }}
+                            @else
+                              @if ($detail->CreatedDate != null)
+                              <span class="badge badge-danger">{{ $detail->StatusName }}</span> pada {{ date('d F Y H:i', strtotime($detail->CreatedDate)) }}
+                              @endif
+                            @endif
+                            <br> oleh {{ $detail->ConfirmBy }}
+                          </td>
                           <td>{!! $detail->IsGIT === 1 ? '<i class="fas fa-check text-success"></i>' : '<i class="fas fa-times text-danger"></i>' !!}</td>
                           <td>{{ $detail->Note }}</td>
                         </tr>
@@ -233,24 +289,13 @@
                           <td colspan="6"></td>
                           <th class="text-center">GrandTotal</th>
                           <th>{{ Helper::formatCurrency($purchaseByID->GrandTotal, 'Rp ') }}</th>
-                          <td colspan="2"></td>
+                          <td colspan="3"></td>
                         </tr>
                       </tfoot>
                     </table>
                     @endif
                   </div>
                 </div>
-                {{-- @if ($purchaseByID->StatusBy == null && (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI"))
-                <div class="text-center mt-4">
-                  <strong>Konfirmasi</strong>
-                  <div class="d-flex justify-content-center mt-2" style="gap:10px">
-                    <a class="btn btn-sm btn-success btn-approved"
-                      data-purchase-id="{{ $purchaseByID->PurchaseID }}">Setujui</a>
-                    <a class="btn btn-sm btn-danger btn-reject"
-                      data-purchase-id="{{ $purchaseByID->PurchaseID }}">Tolak</a>
-                  </div>
-                </div>
-                @endif --}}
               </div>
             </div>
           </div>
@@ -367,8 +412,8 @@
     e.preventDefault();
     const purchaseID = $(this).data("purchase-id");
     $.confirm({
-      title: 'Setujui Purchase Stock!',
-      content: `Apakah yakin ingin menyetujui pembelian dengan Purchase ID <b>${purchaseID}</b>?`,
+      title: 'Selesaikan Purchase Stock!',
+      content: `Apakah yakin ingin menyelesaikan Purchase <b>${purchaseID}</b>?`,
       closeIcon: true,
       type: 'green',
       buttons: {
