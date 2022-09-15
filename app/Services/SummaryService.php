@@ -282,8 +282,10 @@ class SummaryService
             SELECT PurchasePrice
             FROM ms_stock_product
             WHERE DistributorID = tmo.DistributorID
-            AND ProductID = tmod.ProductID
-            AND Qty > 0
+              AND ProductID = tmod.ProductID
+              AND Qty > 0
+              AND ConditionStock = 'GOOD STOCK'
+              AND DATE(CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
             ORDER BY LevelType, CreatedDate
             LIMIT 1
         ) AS PurchasePrice")
@@ -480,8 +482,10 @@ class SummaryService
             SELECT PurchasePrice
             FROM ms_stock_product
             WHERE DistributorID = tmo.DistributorID
-            AND ProductID = tmod.ProductID
-            AND Qty > 0
+              AND ProductID = tmod.ProductID
+              AND Qty > 0
+              AND ConditionStock = 'GOOD STOCK'
+              AND DATE(CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
             ORDER BY LevelType, CreatedDate
             LIMIT 1
         ) AS PurchasePrice"),

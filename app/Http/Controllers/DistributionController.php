@@ -1604,14 +1604,7 @@ class DistributionController extends Controller
                             AND ms_stock_product.Qty > 0
                             AND ms_stock_product.ConditionStock = 'GOOD STOCK'
                             AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
-                            AND ms_stock_product.CreatedDate = (
-                                    SELECT MIN(CreatedDate) 
-                                    FROM ms_stock_product 
-                                    WHERE ProductID = tx_merchant_order_detail.ProductID
-                                    AND ms_stock_product.Qty > 0
-                                    AND ms_stock_product.ConditionStock = 'GOOD STOCK'
-                                    AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
-                                )
+                            AND DATE(ms_stock_product.CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
                         WHERE tx_merchant_order_detail.StockOrderID = ms_price_submission.StockOrderID
                     ) AS EstMarginTotalPrice
                 "),
@@ -1633,14 +1626,7 @@ class DistributionController extends Controller
                             AND ms_stock_product.Qty > 0
                             AND ms_stock_product.ConditionStock = 'GOOD STOCK'
                             AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
-                            AND ms_stock_product.CreatedDate = (
-                                    SELECT MIN(CreatedDate) 
-                                    FROM ms_stock_product 
-                                    WHERE ProductID = tx_merchant_order_detail.ProductID
-                                    AND ms_stock_product.Qty > 0
-                                    AND ms_stock_product.ConditionStock = 'GOOD STOCK'
-                                    AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
-                                )
+                            AND DATE(ms_stock_product.CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
                         WHERE tx_merchant_order_detail.StockOrderID = ms_price_submission.StockOrderID
                     ) AS EstMarginTotalTrxSubmission
                 ")
@@ -1705,7 +1691,7 @@ class DistributionController extends Controller
             ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'tx_merchant_order.SalesCode')
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tx_merchant_order.StatusOrderID')
             ->where('ms_price_submission.PriceSubmissionID', $priceSubmissionID)
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.DistributorID', 'ms_distributor.DistributorName', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order.SalesCode', 'ms_sales.SalesName', 'ms_distributor_grade.Grade', 'ms_status_order.StatusOrder', 'ms_price_submission.PriceSubmissionID', 'ms_price_submission.StatusPriceSubmission')
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.DistributorID', 'ms_distributor.DistributorName', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order.SalesCode', 'ms_sales.SalesName', 'ms_distributor_grade.Grade', 'ms_status_order.StatusOrder', 'ms_price_submission.PriceSubmissionID', 'ms_price_submission.StatusPriceSubmission', 'ms_price_submission.CreatedBy', 'ms_price_submission.CreatedDate as SubmissionDate', 'ms_price_submission.ConfirmBy', 'ms_price_submission.ConfirmDate')
             ->first();
 
         $data->Detail = DB::table('tx_merchant_order_detail as tmod')
@@ -1729,6 +1715,7 @@ class DistributionController extends Controller
                             AND ProductID = tmod.ProductID 
                             AND ms_stock_product.Qty > 0
                             AND ms_stock_product.ConditionStock = 'GOOD STOCK'
+                            AND DATE(ms_stock_product.CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
                         ORDER BY LevelType, CreatedDate
                         LIMIT 1
                     ) AS PurchasePrice
@@ -1744,14 +1731,7 @@ class DistributionController extends Controller
                             AND ms_stock_product.Qty > 0
                             AND ms_stock_product.ConditionStock = 'GOOD STOCK'
                             AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
-                            AND ms_stock_product.CreatedDate = (
-                                    SELECT MIN(CreatedDate) 
-                                    FROM ms_stock_product 
-                                    WHERE ProductID = tx_merchant_order_detail.ProductID
-                                    AND ms_stock_product.Qty > 0
-                                    AND ms_stock_product.ConditionStock = 'GOOD STOCK'
-                                    AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
-                                )
+                            AND DATE(ms_stock_product.CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
                         WHERE tx_merchant_order_detail.StockOrderID = '$data->StockOrderID' and tx_merchant_order_detail.ProductID = tmod.ProductID
                     ) AS EstMarginPrice
                 "),
@@ -1766,14 +1746,7 @@ class DistributionController extends Controller
                             AND ms_stock_product.Qty > 0
                             AND ms_stock_product.ConditionStock = 'GOOD STOCK'
                             AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
-                            AND ms_stock_product.CreatedDate = (
-                                    SELECT MIN(CreatedDate) 
-                                    FROM ms_stock_product 
-                                    WHERE ProductID = tx_merchant_order_detail.ProductID
-                                    AND ms_stock_product.Qty > 0
-                                    AND ms_stock_product.ConditionStock = 'GOOD STOCK'
-                                    AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
-                                )
+                            AND DATE(ms_stock_product.CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
                         WHERE tx_merchant_order_detail.StockOrderID = '$data->StockOrderID' and tx_merchant_order_detail.ProductID = tmod.ProductID
                     ) AS EstMarginSubmission
                 ")
@@ -1916,6 +1889,7 @@ class DistributionController extends Controller
                             AND ProductID = tx_merchant_order_detail.ProductID 
                             AND ms_stock_product.Qty > 0
                             AND ms_stock_product.ConditionStock = 'GOOD STOCK'
+                            AND DATE(ms_stock_product.CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
                         ORDER BY LevelType, CreatedDate
                         LIMIT 1
                     ) AS PurchasePrice

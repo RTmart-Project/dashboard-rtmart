@@ -70,6 +70,18 @@
                 <strong>Sales</strong>
                 <p>{{ $data->SalesCode }} {{ $data->SalesName }}</p>
               </div>
+              <div class="col-12 col-md-3">
+                <strong>Diajukan oleh</strong>
+                <p>{{ $data->CreatedBy }} pada {{ date('d F Y H:i', strtotime($data->CreatedDate)) }}</p>
+              </div>
+              <div class="col-12 col-md-3">
+                <strong>Dikonfirmasi oleh</strong>
+                @if ($data->ConfirmBy != null)
+                <p>{{ $data->ConfirmBy }} pada {{ date('d F Y H:i', strtotime($data->ConfirmDate)) }}</p>
+                @else
+                <p>-</p>
+                @endif
+              </div>
               @if ($data->StatusPriceSubmission === 'S039' && (Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "IT"))
               <div class="col-12 mb-3 justify-content-center d-flex" style="gap: 10px">
                 <a class="btn btn-xs btn-success btn-approve" 
