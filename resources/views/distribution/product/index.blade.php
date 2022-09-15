@@ -66,7 +66,8 @@
                                                     <th>Tipe</th>
                                                     <th>Jenis</th>
                                                     <th>Isi</th>
-                                                    <th>Harga</th>
+                                                    <th>Harga Beli (Acuan)</th>
+                                                    <th>Harga Jual</th>
                                                     <th>Grade</th>
                                                     <th>PreOrder</th>
                                                     <th class="{{ Auth::user()->RoleID == " AD" ? 'd-none' : '' }}">

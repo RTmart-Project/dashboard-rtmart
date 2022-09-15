@@ -78,6 +78,10 @@ $(document).ready(function () {
                     name: "ms_price_submission.CreatedBy",
                 },
                 {
+                    data: "Note",
+                    name: "ms_price_submission.Note",
+                },
+                {
                     data: "Detail",
                     name: "Detail",
                     searchable: false,
@@ -100,7 +104,7 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
                         orthogonal: "export",
                     },
                 },

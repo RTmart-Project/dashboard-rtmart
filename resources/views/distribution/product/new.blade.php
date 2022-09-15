@@ -62,7 +62,7 @@
                                         @endif
                                     </div>
                                 </div>
-                                <div class="col-md-6 col-12">
+                                <div class="col-md-5 col-12">
                                     <div class="form-group">
                                         <label for="product">Produk</label>
                                         <select
@@ -75,7 +75,16 @@
                                         @endif
                                     </div>
                                 </div>
-                                <div class="col-12 col-md-3">
+                                <div class="col-12 col-md-2">
+                                    <div class="form-group">
+                                        <label for="default_price">Harga Beli (Acuan)</label>
+                                        <input type="text" name="default_price" min="1" id="default_price" class="form-control @if($errors->has('default_price')) is-invalid @endif" required>
+                                        @if($errors->has('default_price'))
+                                        <span class="error invalid-feedback">{{ $errors->first('default_price') }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-2">
                                     <div class="form-group">
                                         <label for="product_group">Produk Group</label>
                                         <select class="form-control selectpicker border @if($errors->has('product_group')) is-invalid @endif"
@@ -90,7 +99,7 @@
                                     </div>
                                 </div>
                                 <div class="col-12">
-                                    <label for="grade_price">Set Harga</label>
+                                    <label for="grade_price">Set Harga Jual</label>
                                     <div class="row grade-price">
 
                                     </div>
@@ -148,18 +157,18 @@
                         let div = '';
                         $.each(res, function(index, value){
                             div += `<div class="col-4 d-flex justify-content-center">
-                                            <label>${value.Grade}</label>
-                                            <input type="hidden" name="grade_id[]" value="${value.GradeID}">
+                                        <label>${value.Grade}</label>
+                                        <input type="hidden" name="grade_id[]" value="${value.GradeID}">
+                                    </div>
+                                    <div class="col-8">
+                                        <div class="form-group">
+                                            <input type="text" name="grade_price[]"
+                                                class="form-control autonumeric @if($errors->has('grade_price')) is-invalid @endif" id="grade_price" value="{{ collect(old('grade_price')) }}" autocomplete="off" required>
+                                            @if($errors->has('grade_price'))
+                                                <span class="error invalid-feedback">{{ $errors->first('grade_price') }}</span>
+                                            @endif
                                         </div>
-                                        <div class="col-8">
-                                            <div class="form-group">
-                                                <input type="text" name="grade_price[]"
-                                                    class="form-control autonumeric @if($errors->has('grade_price')) is-invalid @endif" id="grade_price" value="{{ collect(old('grade_price')) }}" autocomplete="off" required>
-                                                @if($errors->has('grade_price'))
-                                                    <span class="error invalid-feedback">{{ $errors->first('grade_price') }}</span>
-                                                @endif
-                                            </div>
-                                        </div>`;
+                                    </div>`;
                         });
                         $('.grade-price').html(div);
                         // Set seperator '.' currency
@@ -174,5 +183,16 @@
             });
         }
     });
+
+    $("#product").on("change", function () {
+        const productID = $(this).val();
+        $.ajax({
+            type: "GET",
+            url: "/product/" + productID,
+            success:function(res){
+                $("#default_price").val(res.Price);
+            }
+        });
+    })
 </script>
 @endsection
