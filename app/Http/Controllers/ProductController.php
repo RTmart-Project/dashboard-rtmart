@@ -71,6 +71,12 @@ class ProductController extends Controller
         }
     }
 
+    public function getProductById($productId)
+    {
+        $product = DB::table('ms_product')->where('ProductID', $productId)->select('*')->first();
+        return $product;
+    }
+
     public function addList()
     {
         $categoryProduct = DB::table('ms_product_category')->select('*')->get();

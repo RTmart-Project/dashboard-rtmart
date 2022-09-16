@@ -2,6 +2,7 @@
 @section('title', 'Dashboard - Pengajuan Harga')
 
 @section('css-pages')
+<meta name="csrf_token" content="{{ csrf_token() }}">
 <meta name="role-id" content="{{ Auth::user()->RoleID }}">
 <link rel="stylesheet" href="{{ url('/') }}/plugins/bootstrap-select/bootstrap-select.min.css">
 <!-- daterange picker -->
@@ -96,6 +97,7 @@
                           <th>Est Margin Pengajuan</th>
                           <th>% Est Margin Pengajuan</th>
                           <th>Diajukan Oleh</th>
+                          <th>Catatan</th>
                           <th>Detail</th>
                         </tr>
                       </thead>
@@ -125,6 +127,7 @@
                           <th>Est Margin Pengajuan</th>
                           <th>% Est Margin Pengajuan</th>
                           <th>Diajukan Oleh</th>
+                          <th>Catatan</th>
                           <th>Detail</th>
                         </tr>
                       </thead>

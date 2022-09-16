@@ -55,6 +55,10 @@ $(document).ready(function () {
                     name: "ms_product.ProductUOMDesc",
                 },
                 {
+                    data: "ProductPrice",
+                    name: "ms_product.Price",
+                },
+                {
                     data: "Price",
                     name: "ms_distributor_product_price.Price",
                 },
@@ -84,11 +88,12 @@ $(document).ready(function () {
                     action: exportDatatableHelper.newExportAction,
                     text: "Export",
                     titleAttr: "Excel",
+                    className: "btn-sm",
                     exportOptions: {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 4, 5, 6, 7, 8, 9],
+                        columns: [0, 1, 2, 4, 5, 6, 7, 8, 9, 10],
                         orthogonal: "export",
                     },
                 },
@@ -98,7 +103,7 @@ $(document).ready(function () {
             autoWidth: false,
             aoColumnDefs: [
                 {
-                    aTargets: [8],
+                    aTargets: [8, 9],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
@@ -114,7 +119,7 @@ $(document).ready(function () {
                     },
                 },
                 {
-                    aTargets: [11],
+                    aTargets: [12],
                     visible: roleID != "HL" ? true : false,
                 },
             ],

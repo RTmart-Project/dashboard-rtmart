@@ -2,6 +2,7 @@
 @section('title', 'Dashboard - Detail Harga Pengajuan')
 
 @section('css-pages')
+<meta name="csrf_token" content="{{ csrf_token() }}">
 @endsection
 
 @section('header-menu', 'Detail Harga Pengajuan')
@@ -69,6 +70,26 @@
               <div class="col-12 col-md-3 mb-2">
                 <strong>Sales</strong>
                 <p>{{ $data->SalesCode }} {{ $data->SalesName }}</p>
+              </div>
+              <div class="col-12 col-md-3">
+                <strong>Diajukan oleh</strong>
+                <p>{{ $data->CreatedBy }} pada {{ date('d F Y H:i', strtotime($data->CreatedDate)) }}</p>
+              </div>
+              <div class="col-12 col-md-3">
+                <strong>Dikonfirmasi oleh</strong>
+                @if ($data->ConfirmBy != null)
+                <p>{{ $data->ConfirmBy }} pada {{ date('d F Y H:i', strtotime($data->ConfirmDate)) }}</p>
+                @else
+                <p>-</p>
+                @endif
+              </div>
+              <div class="col-12 col-md-3">
+                <strong>Catatan</strong>
+                @if ($data->Note != null)
+                <p>{{ $data->Note }}</p>
+                @else
+                <p>-</p>
+                @endif
               </div>
               @if ($data->StatusPriceSubmission === 'S039' && (Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "IT"))
               <div class="col-12 mb-3 justify-content-center d-flex" style="gap: 10px">
@@ -174,13 +195,20 @@
 
 @section('js-pages')
 <script>
+  let csrf = $('meta[name="csrf_token"]').attr("content");
+  
   $(".btn-approve").on("click", function (e) {
         e.preventDefault();
         const priceSubmissionID = $(this).data("price-submission-id");
         const stockOrderID = $(this).data("stock-order-id");
         $.confirm({
             title: "Setujui Pengajuan!",
-            content: `Yakin ingin menyetujui pengajuan <b>${stockOrderID}</b> ?`,
+            content: `<p>Yakin ingin menyetujui pengajuan <b>${stockOrderID}</b>?</p>
+                        <label class="mt-2 mb-0">Catatan</label>
+                        <form action="/price-submission/confirm/${priceSubmissionID}/approve" method="post">
+                            <input type="hidden" name="_token" value="${csrf}">
+                            <textarea class="form-control" name="note"></textarea>
+                        </form>`,
             closeIcon: true,
             buttons: {
                 Yakin: {
@@ -188,7 +216,7 @@
                     draggable: true,
                     dragWindowGap: 0,
                     action: function () {
-                        window.location = `/price-submission/confirm/${priceSubmissionID}/approve`;
+                      this.$content.find("form").submit();
                     },
                 },
                 tidak: function () {},
@@ -202,7 +230,12 @@
         const stockOrderID = $(this).data("stock-order-id");
         $.confirm({
             title: "Tolak Pengajuan!",
-            content: `Yakin ingin menolak pengajuan <b>${stockOrderID}</b> ?`,
+            content: `<p>Yakin ingin menolak pengajuan <b>${stockOrderID}</b>?</p>
+                        <label class="mt-2 mb-0">Catatan</label>
+                        <form action="/price-submission/confirm/${priceSubmissionID}/reject" method="post">
+                            <input type="hidden" name="_token" value="${csrf}">
+                            <textarea class="form-control" name="note"></textarea>
+                        </form>`,
             closeIcon: true,
             buttons: {
                 Yakin: {
@@ -210,7 +243,7 @@
                     draggable: true,
                     dragWindowGap: 0,
                     action: function () {
-                        window.location = `/price-submission/confirm/${priceSubmissionID}/reject`;
+                      this.$content.find("form").submit();
                     },
                 },
                 tidak: function () {},
