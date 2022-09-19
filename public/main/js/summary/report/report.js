@@ -10,6 +10,10 @@ $(document).ready(function () {
 
     const d = new Date();
 
+    const month = d.getMonth() + 1;
+    const year = d.getFullYear();
+    const startDateMonth = `${year}-${String(month).padStart(2, "0")}-01`;
+
     const dateNow = d.toISOString().split("T")[0];
 
     d.setDate(d.getDate() - 92);
@@ -17,7 +21,7 @@ $(document).ready(function () {
 
     let distributorID = "";
     let salesCode = "";
-    summaryReportData(dateNow, dateNow, distributorID, salesCode);
+    summaryReportData(startDateMonth, dateNow, distributorID, salesCode);
 
     // Setting Awal Daterangepicker
     $("#summary-report #from_date").daterangepicker({
@@ -85,13 +89,13 @@ $(document).ready(function () {
     });
 
     // Menyisipkan Placeholder Date
-    $("#summary-report #from_date").val(dateNow);
+    $("#summary-report #from_date").val(startDateMonth);
     $("#summary-report #to_date").val(dateNow);
-    $("#summary-report #from_date").attr("placeholder", dateNow);
+    $("#summary-report #from_date").attr("placeholder", startDateMonth);
     $("#summary-report #to_date").attr("placeholder", dateNow);
 
     $("#refresh").on("click", function () {
-        $("#from_date").val(dateNow);
+        $("#from_date").val(startDateMonth);
         $("#to_date").val(dateNow);
         $("#distributor").val("");
         $("#distributor").selectpicker("refresh");
