@@ -54,6 +54,11 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/reportDetail/{type}', [SummaryController::class, 'reportDetail'])->name('summary.detail');
         Route::get('/margin', [SummaryController::class, 'margin'])->name('summary.margin');
         Route::post('/margin/data', [SummaryController::class, 'marginData'])->name('summary.marginData');
+
+        Route::group(['prefix' => 'merchant'], function () {
+            Route::get('/', [SummaryController::class, 'summaryMerchant'])->name('summary.merchant');
+            Route::post('/data', [SummaryController::class, 'summaryMerchantData'])->name('summary.merchantData');
+        });
     });
 
     Route::group(['prefix' => 'distribution'], function () {

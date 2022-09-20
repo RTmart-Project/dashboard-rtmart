@@ -723,4 +723,100 @@ class SummaryService
 
     return $sql;
   }
+
+  public function dataSummaryMerchant($startDate, $endDate, $filterBy, $distributorID, $salesCode, $marginStatus)
+  {
+    $subSql = DB::table('tx_merchant_order')
+      ->selectRaw("
+                tx_merchant_order.StockOrderID,
+                ANY_VALUE(tx_merchant_order.CreatedDate) AS DatePO,
+                ANY_VALUE(ms_distributor.DistributorName) AS DistributorName,
+                ANY_VALUE(tx_merchant_order.SalesCode) AS SalesCode,
+                ANY_VALUE(ms_sales.SalesName) AS SalesName,
+                tx_merchant_delivery_order.DeliveryOrderID,
+                tx_merchant_delivery_order.CreatedDate AS DateDO,
+                ANY_VALUE(ms_merchant_account.MerchantID) AS MerchantID,
+                ANY_VALUE(ms_merchant_account.StoreName) AS StoreName,
+                ANY_VALUE(tx_merchant_order.TotalPrice) AS TotalPrice,
+                ABS(SUM(IFNULL(ms_stock_product_log.SellingPrice * ms_stock_product_log.QtyAction, 0))) AS TotalDO,
+                IFNULL(tx_merchant_delivery_order.Discount, 0) AS DiscountDO,
+                ABS(IFNULL(SUM((ms_stock_product_log.SellingPrice - ms_stock_product_log.PurchasePrice) * ms_stock_product_log.QtyAction), 0)) AS GrossMargin,
+                ABS(IFNULL(SUM((ms_stock_product_log.SellingPrice - ms_stock_product_log.PurchasePrice) * ms_stock_product_log.QtyAction), 0)) - IFNULL(tx_merchant_delivery_order.Discount, 0) AS NettMargin")
+      ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
+      ->join('ms_merchant_account', function ($join) {
+        $join->on('ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID');
+        $join->whereRaw("ms_merchant_account.IsTesting = 0");
+      })
+      ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tx_merchant_order.SalesCode')
+      ->leftJoin('tx_merchant_delivery_order', function ($join) {
+        $join->on('tx_merchant_delivery_order.StockOrderID', 'tx_merchant_order.StockOrderID');
+        $join->whereRaw("tx_merchant_delivery_order.StatusDO = 'S025'");
+      })
+      ->leftJoin('tx_merchant_delivery_order_detail', function ($join) {
+        $join->on('tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID');
+        $join->whereRaw("tx_merchant_delivery_order_detail.StatusExpedition = 'S031'");
+      })
+      ->leftJoin('ms_stock_product_log', 'ms_stock_product_log.DeliveryOrderDetailID', 'tx_merchant_delivery_order_detail.DeliveryOrderDetailID')
+      ->whereRaw("tx_merchant_order.StatusOrderID != 'S011'");
+
+    if ($filterBy == "DatePO" || $filterBy == "") {
+      $subSql->whereRaw("DATE(tx_merchant_order.CreatedDate) >= '$startDate'")
+        ->whereRaw("DATE(tx_merchant_order.CreatedDate) <= '$endDate'");
+    } else {
+      $subSql->whereRaw("DATE(tx_merchant_delivery_order.CreatedDate) >= '$startDate'")
+        ->whereRaw("DATE(tx_merchant_delivery_order.CreatedDate) <= '$endDate'");
+    }
+
+    if ($distributorID) {
+      $stringDistributorID = "'" . implode("', '", $distributorID) . "'";
+      $subSql->whereRaw("tx_merchant_order.DistributorID IN ($stringDistributorID)");
+    }
+
+    if ($salesCode) {
+      $stringSalesCode = "'" . implode("', '", $salesCode) . "'";
+      $subSql->whereRaw("tx_merchant_order.SalesCode IN ($stringSalesCode)");
+    }
+
+    $sql = $subSql->groupBy(['tx_merchant_order.StockOrderID', 'tx_merchant_delivery_order.DeliveryOrderID'])->toSql();
+
+    $sqlMain = DB::table(DB::raw("($sql) AS SummaryMerchant"))
+      ->selectRaw("
+        SummaryMerchant.MerchantID,
+        SummaryMerchant.StoreName,
+        SummaryMerchant.SalesCode,
+        SummaryMerchant.SalesName,
+        SummaryMerchant.DistributorName,
+        FLOOR(SUM(DISTINCT SummaryMerchant.TotalPrice + CONV(SUBSTRING(MD5(CONCAT(SummaryMerchant.StockOrderID)), 1, 8), 16, 10) / 1000000000000000)) AS TotalPO,
+        SUM(SummaryMerchant.TotalDO) AS TotalDO,
+        SUM(SummaryMerchant.DiscountDO) AS DiscountDO,
+        SUM(SummaryMerchant.GrossMargin) AS GrossMargin,
+        IFNULL(FORMAT(SUM(SummaryMerchant.GrossMargin) / SUM(SummaryMerchant.TotalDO) * 100, 2), 0) AS PercentGrossMargin,
+        SUM(SummaryMerchant.NettMargin) AS NettMargin,
+        IFNULL(FORMAT(SUM(SummaryMerchant.NettMargin) / SUM(SummaryMerchant.TotalDO) * 100, 2), 0) AS PercentNettMargin
+      ")->groupBy('SummaryMerchant.MerchantID')->toSql();
+
+    $sqlFix = DB::table(DB::raw("($sqlMain) AS FinalSummaryMerchant"))
+      ->selectRaw("
+        FinalSummaryMerchant.*,
+        CASE 
+          WHEN FinalSummaryMerchant.PercentNettMargin > 8 THEN 'High'
+          WHEN FinalSummaryMerchant.PercentNettMargin < 5 THEN 'Below'
+          ELSE 'Standart'
+        END AS NettMarginStatus
+      ");
+
+    if ($marginStatus === "high") {
+      $sqlFix->whereRaw("FinalSummaryMerchant.PercentNettMargin > 8");
+    }
+    if ($marginStatus === "standart") {
+      $sqlFix->whereRaw("FinalSummaryMerchant.PercentNettMargin BETWEEN 5 AND 8");
+    }
+    if ($marginStatus === "below") {
+      $sqlFix->whereRaw("FinalSummaryMerchant.PercentNettMargin < 5");
+    }
+
+    $data = $sqlFix;
+
+    return $data;
+  }
 }
