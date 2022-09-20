@@ -72,21 +72,15 @@ class MerchantService
                     WHERE tx_merchant_order_detail.StockOrderID = Restock.StockOrderID
                 ) AS MarginReal,
                 (
-                    SELECT IFNULL(SUM((tx_merchant_order_detail.Nett - IF(ms_stock_product.PurchasePrice = 0, tx_merchant_order_detail.Nett, ms_stock_product.PurchasePrice)) * (tx_merchant_order_detail.PromisedQuantity - IFNULL(DOkirim.Qty, 0))), 0)
+                    SELECT IFNULL(SUM((tx_merchant_order_detail.Nett - IFNULL(ms_stock_product.PurchasePrice, ms_product.Price)) * (tx_merchant_order_detail.PromisedQuantity - IFNULL(DOkirim.Qty, 0))), 0)
                     FROM tx_merchant_order_detail
                     JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_order_detail.StockOrderID
+                    JOIN ms_product ON ms_product.ProductID = tx_merchant_order_detail.ProductID
                     LEFT JOIN ms_stock_product ON ms_stock_product.ProductID = tx_merchant_order_detail.ProductID
                         AND ms_stock_product.Qty > 0
                         AND ms_stock_product.ConditionStock = 'GOOD STOCK'
                         AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
-                        AND ms_stock_product.CreatedDate = (
-                                SELECT MAX(CreatedDate) 
-                                FROM ms_stock_product 
-                                WHERE ProductID = tx_merchant_order_detail.ProductID
-                                AND ms_stock_product.Qty > 0
-                                AND ms_stock_product.ConditionStock = 'GOOD STOCK'
-                                AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
-                            )
+                        AND DATE(ms_stock_product.CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
                     LEFT JOIN (
                         SELECT SUM(tx_merchant_delivery_order_detail.Qty) AS Qty, tx_merchant_delivery_order_detail.ProductID, 
                         tx_merchant_delivery_order.StockOrderID
@@ -120,7 +114,7 @@ class MerchantService
                 $join->whereRaw("ms_merchant_assessment.IsActive = 1");
             })
             ->whereRaw('ms_merchant_account.IsTesting = 0')
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.DistributorID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.MerchantID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.NettPrice', 'tx_merchant_order.DeliveryFee', 'tx_merchant_order.StatusOrderID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'tx_merchant_order.SalesCode as ReferralCode', 'ms_sales.SalesName', 'tx_merchant_order.PaymentMethodID', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order_detail.ProductID', 'ms_product.ProductName', 'tx_merchant_order_detail.PromisedQuantity', 'tx_merchant_order_detail.Price', 'ms_merchant_account.StoreAddress', 'tx_merchant_order_detail.Discount', 'tx_merchant_order_detail.Nett', 'ms_distributor.Depo', 'ms_distributor_grade.Grade', 'ms_merchant_assessment.NumberIDCard', 'ms_merchant_assessment.TurnoverAverage', 'ms_merchant_account.OwnerFullName', 'ms_merchant_assessment.IsDownload', 'tx_merchant_order.IsValid', 'tx_merchant_order.ValidationNotes');
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.DistributorID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.MerchantID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.NettPrice', 'tx_merchant_order.DeliveryFee', 'tx_merchant_order.StatusOrderID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'tx_merchant_order.SalesCode as ReferralCode', 'ms_sales.SalesName', 'tx_merchant_order.PaymentMethodID', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order_detail.ProductID', 'ms_product.ProductName', 'tx_merchant_order_detail.PromisedQuantity', 'tx_merchant_order_detail.Price', 'ms_merchant_account.StoreAddress', 'tx_merchant_order_detail.Discount', 'tx_merchant_order_detail.Nett', 'ms_distributor.Depo', 'ms_distributor_grade.Grade', 'ms_merchant_assessment.NumberIDCard', 'ms_merchant_assessment.TurnoverAverage', 'ms_merchant_account.OwnerFullName', 'ms_merchant_assessment.IsDownload', 'tx_merchant_order.IsValid', 'tx_merchant_order.ValidationNotes', 'ms_product.Price as MsProductPrice');
 
         return $sql;
     }

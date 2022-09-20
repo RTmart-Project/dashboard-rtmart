@@ -353,4 +353,61 @@ class SummaryController extends Controller
                 ->make();
         }
     }
+
+    public function summaryMerchant()
+    {
+        $distributors = DB::table('ms_distributor')
+            ->where('IsActive', '=', 1)
+            ->whereNotNull('Email')
+            ->select('DistributorID', 'DistributorName')
+            ->get();
+
+        $sales = DB::table('ms_sales')
+            // ->where('IsActive', 1)
+            ->select('SalesCode', 'SalesName')->get();
+
+        return view('summary.merchant.index', [
+            'distributors' => $distributors,
+            'sales' => $sales
+        ]);
+    }
+
+    public function summaryMerchantData(Request $request, SummaryService $summaryService)
+    {
+        $startDate = $request->input('startDate');
+        $endDate = $request->input('endDate');
+        $filterBy = $request->input('filterBy');
+        $distributorID = $request->input('distributorID');
+        $salesCode = $request->input('salesCode');
+        $marginStatus = $request->input('marginStatus');
+
+        $sqlMain = $summaryService->dataSummaryMerchant($startDate, $endDate, $filterBy, $distributorID, $salesCode, $marginStatus);
+
+        $data = $sqlMain;
+
+        if ($request->ajax()) {
+            return Datatables::of($data)
+                ->addColumn('Sales', function ($data) {
+                    if ($data->SalesCode) {
+                        $sales = $data->SalesCode . ' ' . $data->SalesName;
+                    } else {
+                        $sales = '-';
+                    }
+                    return $sales;
+                })
+                ->addColumn('MarginStatus', function ($data) {
+                    // $nettMargin = $data->NettMargin / $data->TotalDO * 100;
+                    if ($data->PercentNettMargin > 8) {
+                        $status = '<span class="badge badge-success"><i class="fas fa-arrow-up"></i> High</span>';
+                    } else if ($data->PercentNettMargin < 5) {
+                        $status = '<span class="badge badge-danger"><i class="fas fa-arrow-down"></i> Below</span>';
+                    } else {
+                        $status = '<span class="badge badge-secondary"><i class="fas fa-minus"></i> Standart</span>';
+                    }
+                    return $status;
+                })
+                ->rawColumns(['MarginStatus'])
+                ->make(true);
+        }
+    }
 }

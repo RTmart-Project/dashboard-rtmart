@@ -239,13 +239,20 @@ $(document).ready(function () {
         $("#menunggu-konfirmasi .table-datatables").DataTable().ajax.reload();
     });
 
+    let csrf = $('meta[name="csrf_token"]').attr("content");
+
     $("#menunggu-konfirmasi table").on("click", ".btn-approve", function (e) {
         e.preventDefault();
         const priceSubmissionID = $(this).data("price-submission-id");
         const stockOrderID = $(this).data("stock-order-id");
         $.confirm({
             title: "Setujui Pengajuan!",
-            content: `Yakin ingin menyetujui pengajuan <b>${stockOrderID}</b> ?`,
+            content: `<p>Yakin ingin menyetujui pengajuan <b>${stockOrderID}</b>?</p>
+                          <label class="mt-2 mb-0">Catatan</label>
+                          <form action="/price-submission/confirm/${priceSubmissionID}/approve" method="post">
+                              <input type="hidden" name="_token" value="${csrf}">
+                              <textarea class="form-control" name="note"></textarea>
+                          </form>`,
             closeIcon: true,
             buttons: {
                 Yakin: {
@@ -253,7 +260,7 @@ $(document).ready(function () {
                     draggable: true,
                     dragWindowGap: 0,
                     action: function () {
-                        window.location = `/price-submission/confirm/${priceSubmissionID}/approve`;
+                        this.$content.find("form").submit();
                     },
                 },
                 tidak: function () {},
@@ -267,7 +274,12 @@ $(document).ready(function () {
         const stockOrderID = $(this).data("stock-order-id");
         $.confirm({
             title: "Tolak Pengajuan!",
-            content: `Yakin ingin menolak pengajuan <b>${stockOrderID}</b> ?`,
+            content: `<p>Yakin ingin menolak pengajuan <b>${stockOrderID}</b>?</p>
+                          <label class="mt-2 mb-0">Catatan</label>
+                          <form action="/price-submission/confirm/${priceSubmissionID}/reject" method="post">
+                              <input type="hidden" name="_token" value="${csrf}">
+                              <textarea class="form-control" name="note"></textarea>
+                          </form>`,
             closeIcon: true,
             buttons: {
                 Yakin: {
@@ -275,7 +287,7 @@ $(document).ready(function () {
                     draggable: true,
                     dragWindowGap: 0,
                     action: function () {
-                        window.location = `/price-submission/confirm/${priceSubmissionID}/reject`;
+                        this.$content.find("form").submit();
                     },
                 },
                 tidak: function () {},

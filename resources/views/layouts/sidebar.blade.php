@@ -62,6 +62,15 @@
                         </a>
                     </li>
                     @endif
+                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "HL")
+                    <li class="nav-item">
+                        <a href="{{ route('summary.merchant') }}"
+                            class="nav-link {{ Request::is('summary/merchant*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Summary Merchant</p>
+                        </a>
+                    </li>
+                    @endif
                     {{-- @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO")
                     <li class="nav-item">
                         <a href="{{ route('summary.margin') }}"

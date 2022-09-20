@@ -1591,6 +1591,7 @@ class DistributionController extends Controller
                 'ms_price_submission.CreatedDate',
                 'ms_price_submission.CreatedBy',
                 'ms_price_submission.StatusPriceSubmission',
+                'ms_price_submission.Note',
                 'ms_status_order.StatusOrder',
                 'tx_merchant_order.TotalPrice',
                 DB::raw("
@@ -1604,14 +1605,7 @@ class DistributionController extends Controller
                             AND ms_stock_product.Qty > 0
                             AND ms_stock_product.ConditionStock = 'GOOD STOCK'
                             AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
-                            AND ms_stock_product.CreatedDate = (
-                                    SELECT MIN(CreatedDate) 
-                                    FROM ms_stock_product 
-                                    WHERE ProductID = tx_merchant_order_detail.ProductID
-                                    AND ms_stock_product.Qty > 0
-                                    AND ms_stock_product.ConditionStock = 'GOOD STOCK'
-                                    AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
-                                )
+                            AND DATE(ms_stock_product.CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
                         WHERE tx_merchant_order_detail.StockOrderID = ms_price_submission.StockOrderID
                     ) AS EstMarginTotalPrice
                 "),
@@ -1633,14 +1627,7 @@ class DistributionController extends Controller
                             AND ms_stock_product.Qty > 0
                             AND ms_stock_product.ConditionStock = 'GOOD STOCK'
                             AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
-                            AND ms_stock_product.CreatedDate = (
-                                    SELECT MIN(CreatedDate) 
-                                    FROM ms_stock_product 
-                                    WHERE ProductID = tx_merchant_order_detail.ProductID
-                                    AND ms_stock_product.Qty > 0
-                                    AND ms_stock_product.ConditionStock = 'GOOD STOCK'
-                                    AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
-                                )
+                            AND DATE(ms_stock_product.CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
                         WHERE tx_merchant_order_detail.StockOrderID = ms_price_submission.StockOrderID
                     ) AS EstMarginTotalTrxSubmission
                 ")
@@ -1705,7 +1692,7 @@ class DistributionController extends Controller
             ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'tx_merchant_order.SalesCode')
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tx_merchant_order.StatusOrderID')
             ->where('ms_price_submission.PriceSubmissionID', $priceSubmissionID)
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.DistributorID', 'ms_distributor.DistributorName', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order.SalesCode', 'ms_sales.SalesName', 'ms_distributor_grade.Grade', 'ms_status_order.StatusOrder', 'ms_price_submission.PriceSubmissionID', 'ms_price_submission.StatusPriceSubmission')
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.DistributorID', 'ms_distributor.DistributorName', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order.SalesCode', 'ms_sales.SalesName', 'ms_distributor_grade.Grade', 'ms_status_order.StatusOrder', 'ms_price_submission.PriceSubmissionID', 'ms_price_submission.StatusPriceSubmission', 'ms_price_submission.CreatedBy', 'ms_price_submission.CreatedDate as SubmissionDate', 'ms_price_submission.ConfirmBy', 'ms_price_submission.ConfirmDate', 'ms_price_submission.Note')
             ->first();
 
         $data->Detail = DB::table('tx_merchant_order_detail as tmod')
@@ -1729,6 +1716,7 @@ class DistributionController extends Controller
                             AND ProductID = tmod.ProductID 
                             AND ms_stock_product.Qty > 0
                             AND ms_stock_product.ConditionStock = 'GOOD STOCK'
+                            AND DATE(ms_stock_product.CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
                         ORDER BY LevelType, CreatedDate
                         LIMIT 1
                     ) AS PurchasePrice
@@ -1744,14 +1732,7 @@ class DistributionController extends Controller
                             AND ms_stock_product.Qty > 0
                             AND ms_stock_product.ConditionStock = 'GOOD STOCK'
                             AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
-                            AND ms_stock_product.CreatedDate = (
-                                    SELECT MIN(CreatedDate) 
-                                    FROM ms_stock_product 
-                                    WHERE ProductID = tx_merchant_order_detail.ProductID
-                                    AND ms_stock_product.Qty > 0
-                                    AND ms_stock_product.ConditionStock = 'GOOD STOCK'
-                                    AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
-                                )
+                            AND DATE(ms_stock_product.CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
                         WHERE tx_merchant_order_detail.StockOrderID = '$data->StockOrderID' and tx_merchant_order_detail.ProductID = tmod.ProductID
                     ) AS EstMarginPrice
                 "),
@@ -1766,14 +1747,7 @@ class DistributionController extends Controller
                             AND ms_stock_product.Qty > 0
                             AND ms_stock_product.ConditionStock = 'GOOD STOCK'
                             AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
-                            AND ms_stock_product.CreatedDate = (
-                                    SELECT MIN(CreatedDate) 
-                                    FROM ms_stock_product 
-                                    WHERE ProductID = tx_merchant_order_detail.ProductID
-                                    AND ms_stock_product.Qty > 0
-                                    AND ms_stock_product.ConditionStock = 'GOOD STOCK'
-                                    AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
-                                )
+                            AND DATE(ms_stock_product.CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
                         WHERE tx_merchant_order_detail.StockOrderID = '$data->StockOrderID' and tx_merchant_order_detail.ProductID = tmod.ProductID
                     ) AS EstMarginSubmission
                 ")
@@ -1785,8 +1759,9 @@ class DistributionController extends Controller
         ]);
     }
 
-    public function confirmPriceSubmission($priceSubmissionID, $status)
+    public function confirmPriceSubmission($priceSubmissionID, $status, Request $request)
     {
+        $note = $request->input('note');
         if ($status === "approve") {
             $statusPriceSubmission = 'S040';
         } else {
@@ -1796,7 +1771,8 @@ class DistributionController extends Controller
         $dataPriceSubmission = [
             'StatusPriceSubmission' => $statusPriceSubmission,
             'ConfirmDate' => date('Y-m-d H:i:s'),
-            'ConfirmBy' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo
+            'ConfirmBy' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo,
+            'Note' => $note
         ];
 
         $merchantOrder = DB::table('ms_price_submission')
@@ -1822,7 +1798,6 @@ class DistributionController extends Controller
             ->select(
                 'tx_merchant_order_detail.ProductID',
                 'ms_product.Price',
-                'ms_product.Price',
                 DB::raw("
                     (
                         SELECT PurchasePrice
@@ -1831,6 +1806,7 @@ class DistributionController extends Controller
                             AND ProductID = tx_merchant_order_detail.ProductID 
                             AND ms_stock_product.Qty > 0
                             AND ms_stock_product.ConditionStock = 'GOOD STOCK'
+                            AND DATE(ms_stock_product.CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
                         ORDER BY LevelType, CreatedDate
                         LIMIT 1
                     ) AS PurchasePrice
@@ -1916,6 +1892,7 @@ class DistributionController extends Controller
                             AND ProductID = tx_merchant_order_detail.ProductID 
                             AND ms_stock_product.Qty > 0
                             AND ms_stock_product.ConditionStock = 'GOOD STOCK'
+                            AND DATE(ms_stock_product.CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
                         ORDER BY LevelType, CreatedDate
                         LIMIT 1
                     ) AS PurchasePrice
@@ -2194,7 +2171,7 @@ class DistributionController extends Controller
             ->join('ms_product_category', 'ms_product_category.ProductCategoryID', '=', 'ms_product.ProductCategoryID')
             ->join('ms_product_type', 'ms_product_type.ProductTypeID', '=', 'ms_product.ProductTypeID')
             ->join('ms_product_uom', 'ms_product_uom.ProductUOMID', '=', 'ms_product.ProductUOMID')
-            ->select('ms_distributor_product_price.DistributorID', 'ms_distributor.DistributorName', 'ms_distributor_product_price.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product_category.ProductCategoryName', 'ms_product_type.ProductTypeName', 'ms_product_uom.ProductUOMName', 'ms_product.ProductUOMDesc', 'ms_distributor_product_price.Price', 'ms_distributor_product_price.GradeID', 'ms_distributor_grade.Grade', 'ms_distributor_product_price.IsPreOrder');
+            ->select('ms_distributor_product_price.DistributorID', 'ms_distributor.DistributorName', 'ms_distributor_product_price.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product_category.ProductCategoryName', 'ms_product_type.ProductTypeName', 'ms_product_uom.ProductUOMName', 'ms_product.ProductUOMDesc', 'ms_distributor_product_price.Price', 'ms_distributor_product_price.GradeID', 'ms_distributor_grade.Grade', 'ms_distributor_product_price.IsPreOrder', 'ms_product.Price as ProductPrice');
 
         if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
@@ -2327,12 +2304,14 @@ class DistributionController extends Controller
         $request->validate([
             'distributor' => 'exists:ms_distributor,DistributorID',
             'product' => 'required|exists:ms_product,ProductID',
+            'default_price' => 'required',
             'product_group' => 'required|exists:ms_product_group,ProductGroupID',
             'grade_price' => 'required',
             'grade_price.*' => 'numeric'
         ]);
 
         $productID = $request->input('product');
+        $defaultPrice = $request->input('default_price');
         $productGroupID = $request->input('product_group');
 
         $gradeID = $request->input('grade_id');
@@ -2346,8 +2325,11 @@ class DistributionController extends Controller
         }
 
         try {
-            DB::transaction(function () use ($data, $productID, $productGroupID) {
-                DB::table('ms_product')->where('ProductID', $productID)->update(['ProductGroup' => $productGroupID]);
+            DB::transaction(function () use ($data, $productID, $productGroupID, $defaultPrice) {
+                DB::table('ms_product')->where('ProductID', $productID)->update([
+                    'Price' => $defaultPrice,
+                    'ProductGroup' => $productGroupID
+                ]);
                 foreach ($data as &$value) {
                     $value = array_combine(['GradeID', 'Price', 'DistributorID', 'ProductID'], $value);
                     DB::table('ms_distributor_product_price')

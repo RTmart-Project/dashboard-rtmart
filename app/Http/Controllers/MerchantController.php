@@ -1323,26 +1323,26 @@ class MerchantController extends Controller
                     return $marginReal;
                 })
                 ->addColumn('MarginEstimationPercentage', function ($data) {
-                    if ($data->MarginEstimation == null) {
-                        $data->MarginEstimation = 0;
-                    }
+                    // if ($data->MarginEstimation == null) {
+                    //     $data->MarginEstimation = 0;
+                    // }
 
-                    if ($data->NettPrice - $data->TotalPriceNotInStock == 0) {
-                        $marginEstimation = 0;
-                    } else {
-                        $marginEstimation = round((($data->MarginEstimation / ($data->NettPrice - $data->TotalPriceNotInStock)) * 100), 2);
-                    }
+                    // if ($data->NettPrice - $data->TotalPriceNotInStock == 0) {
+                    //     $marginEstimation = 0;
+                    // } else {
+                    $marginEstimation = round((($data->MarginEstimation / ($data->NettPrice)) * 100), 2);
+                    // }
                     return $marginEstimation;
                 })
                 ->addColumn('TotalMargin', function ($data) {
                     return $data->MarginReal + $data->MarginEstimation;
                 })
                 ->addColumn('TotalMarginPercentage', function ($data) {
-                    if ($data->NettPrice - $data->TotalPriceNotInStock == 0) {
-                        $totalMarginPercentage = 0;
-                    } else {
-                        $totalMarginPercentage = round((($data->MarginReal + $data->MarginEstimation) / ($data->NettPrice - $data->TotalPriceNotInStock)) * 100, 2);
-                    }
+                    // if ($data->NettPrice - $data->TotalPriceNotInStock == 0) {
+                    //     $totalMarginPercentage = 0;
+                    // } else {
+                    $totalMarginPercentage = round((($data->MarginReal + $data->MarginEstimation) / ($data->NettPrice)) * 100, 2);
+                    // }
                     return $totalMarginPercentage;
                 })
                 ->editColumn('Ket', function ($data) {
@@ -1359,11 +1359,11 @@ class MerchantController extends Controller
                     return $ket;
                 })
                 ->addColumn('Notes', function ($data) {
-                    if ($data->TotalPriceNotInStock > 0) {
-                        $notes = "Terdapat produk yg tidak tersedia di list stock.";
-                    } else {
-                        $notes = "";
-                    }
+                    // if ($data->TotalPriceNotInStock > 0) {
+                    //     $notes = "Terdapat produk yg tidak tersedia di list stock.";
+                    // } else {
+                    $notes = "";
+                    // }
                     return $notes;
                 })
                 ->editColumn('Grade', function ($data) {
@@ -1492,10 +1492,13 @@ class MerchantController extends Controller
                 ) AS PurchasePriceReal,
 
                 (SELECT PurchasePrice FROM ms_stock_product 
-                    WHERE ProductID = RestockProduct.ProductID AND DistributorID = RestockProduct.DistributorID 
-                    AND ConditionStock = 'GOOD STOCK' AND Qty > 0
-                    -- ORDER BY LevelType, CreatedDate LIMIT 1
-                    ORDER BY CreatedDate DESC LIMIT 1
+                    WHERE ProductID = RestockProduct.ProductID 
+                        AND DistributorID = RestockProduct.DistributorID 
+                        AND ConditionStock = 'GOOD STOCK' 
+                        AND Qty > 0
+                        AND DATE(CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
+                    ORDER BY LevelType, CreatedDate
+                    LIMIT 1
                 ) AS PurchasePriceEstimation
             ");
 
@@ -1604,38 +1607,44 @@ class MerchantController extends Controller
                     return $validation;
                 })
                 ->editColumn('PurchasePriceEstimation', function ($data) {
-                    if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM") {
-                        $purchasePriceEstimation = $data->PurchasePriceEstimation;
+                    if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO") {
+                        if ($data->PurchasePriceEstimation == null) {
+                            $purchasePriceEstimation = $data->MsProductPrice;
+                        } else {
+                            $purchasePriceEstimation = $data->PurchasePriceEstimation;
+                        }
                     } else {
                         $purchasePriceEstimation = "";
                     }
                     return $purchasePriceEstimation;
                 })
                 ->addColumn('MarginEstimation', function ($data) {
-                    if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM") {
+                    if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO") {
                         if ($data->PurchasePriceEstimation == null) {
-                            $marginEstimation = "-";
+                            $purchasePriceEstimation = $data->MsProductPrice;
                         } else {
-                            $marginEstimation = ($data->Nett - $data->PurchasePriceEstimation) * ($data->PromisedQuantity - $data->QtyDOkirim);
+                            $purchasePriceEstimation = $data->PurchasePriceEstimation;
                         }
+                        $marginEstimation = ($data->Nett - $purchasePriceEstimation) * ($data->PromisedQuantity - $data->QtyDOkirim);
                     } else {
                         $marginEstimation = "";
                     }
                     return $marginEstimation;
                 })
                 ->addColumn('MarginEstimationPercentage', function ($data) {
-                    if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM") {
+                    if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO") {
                         if ($data->PurchasePriceEstimation == null) {
-                            $marginEstimation = "-";
-                            $marginEstimationPercentage = "-";
+                            $purchasePriceEstimation = $data->MsProductPrice;
                         } else {
-                            $marginEstimation = ($data->Nett - $data->PurchasePriceEstimation) * ($data->PromisedQuantity - $data->QtyDOkirim);
-                            $divided = ($data->PromisedQuantity - $data->QtyDOkirim) * $data->Nett;
-                            if ($divided == 0) {
-                                $marginEstimationPercentage = 0;
-                            } else {
-                                $marginEstimationPercentage = round(($marginEstimation / $divided) * 100, 2);
-                            }
+                            $purchasePriceEstimation = $data->PurchasePriceEstimation;
+                        }
+
+                        $marginEstimation = ($data->Nett - $purchasePriceEstimation) * ($data->PromisedQuantity - $data->QtyDOkirim);
+                        $divided = ($data->PromisedQuantity - $data->QtyDOkirim) * $data->Nett;
+                        if ($divided == 0) {
+                            $marginEstimationPercentage = 0;
+                        } else {
+                            $marginEstimationPercentage = round(($marginEstimation / $divided) * 100, 2);
                         }
                     } else {
                         $marginEstimationPercentage = "";
@@ -1703,10 +1712,12 @@ class MerchantController extends Controller
                 ->addColumn('TotalMarginPercentage', function ($data) {
                     if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM") {
                         if ($data->PurchasePriceEstimation == null) {
-                            $marginEstimation = 0;
+                            $purchasePriceEstimation = $data->MsProductPrice;
                         } else {
-                            $marginEstimation = ($data->Nett - $data->PurchasePriceEstimation) * ($data->PromisedQuantity - $data->QtyDOkirim);
+                            $purchasePriceEstimation = $data->PurchasePriceEstimation;
                         }
+                        $marginEstimation = ($data->Nett - $purchasePriceEstimation) * ($data->PromisedQuantity - $data->QtyDOkirim);
+
                         if ($data->PurchasePriceReal == null) {
                             $marginReal = 0;
                         } else {
