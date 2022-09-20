@@ -22,13 +22,15 @@ $(document).ready(function () {
     let filterBy = "";
     let distributorID = "";
     let salesCode = "";
+    let marginStatus = "";
 
     summaryMerchantData(
         startDateMonth,
         dateNow,
         filterBy,
         distributorID,
-        salesCode
+        salesCode,
+        marginStatus
     );
 
     function summaryMerchantData(
@@ -36,7 +38,8 @@ $(document).ready(function () {
         endDate,
         filterBy,
         distributorID,
-        salesCode
+        salesCode,
+        marginStatus
     ) {
         $.ajaxSetup({
             headers: {
@@ -60,20 +63,21 @@ $(document).ready(function () {
                     filterBy: filterBy,
                     distributorID: distributorID,
                     salesCode: salesCode,
+                    marginStatus: marginStatus,
                 },
             },
             columns: [
                 {
                     data: "MerchantID",
-                    name: "SummaryMerchant.MerchantID",
+                    name: "FinalSummaryMerchant.MerchantID",
                 },
                 {
                     data: "StoreName",
-                    name: "SummaryMerchant.StoreName",
+                    name: "FinalSummaryMerchant.StoreName",
                 },
                 {
                     data: "DistributorName",
-                    name: "SummaryMerchant.DistributorName",
+                    name: "FinalSummaryMerchant.DistributorName",
                 },
                 {
                     data: "Sales",
@@ -81,33 +85,48 @@ $(document).ready(function () {
                 },
                 {
                     data: "TotalPO",
-                    name: "SummaryMerchant.TotalPO",
+                    name: "FinalSummaryMerchant.TotalPO",
                     searchable: false,
                 },
                 {
                     data: "TotalDO",
-                    name: "SummaryMerchant.TotalDO",
+                    name: "FinalSummaryMerchant.TotalDO",
+                    searchable: false,
+                },
+                {
+                    data: "DiscountDO",
+                    name: "FinalSummaryMerchant.DiscountDO",
                     searchable: false,
                 },
                 {
                     data: "GrossMargin",
-                    name: "SummaryMerchant.GrossMargin",
+                    name: "FinalSummaryMerchant.GrossMargin",
                     searchable: false,
                 },
                 {
                     data: "PercentGrossMargin",
-                    name: "SummaryMerchant.PercentGrossMargin",
+                    name: "FinalSummaryMerchant.PercentGrossMargin",
                     searchable: false,
                 },
                 {
                     data: "NettMargin",
-                    name: "SummaryMerchant.NettMargin",
+                    name: "FinalSummaryMerchant.NettMargin",
                     searchable: false,
                 },
                 {
                     data: "PercentNettMargin",
-                    name: "SummaryMerchant.PercentNettMargin",
+                    name: "FinalSummaryMerchant.PercentNettMargin",
                     searchable: false,
+                },
+                {
+                    data: "MarginStatus",
+                    name: "MarginStatus",
+                    searchable: false,
+                    orderable: false,
+                },
+                {
+                    data: "NettMarginStatus",
+                    name: "NettMarginStatus",
                 },
             ],
             buttons: [
@@ -126,14 +145,14 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12],
                         orthogonal: "export",
                     },
                 },
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [4, 5, 6, 8],
+                    aTargets: [4, 5, 6, 7, 9],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
@@ -147,6 +166,10 @@ $(document).ready(function () {
                             }
                         }
                     },
+                },
+                {
+                    aTargets: [12],
+                    visible: false,
                 },
             ],
             lengthChange: false,
@@ -232,6 +255,9 @@ $(document).ready(function () {
         let filterBy = "DatePO";
         let distributorID = $("#distributor").val();
         let salesCode = $("#sales").val();
+        let marginStatus = $("#margin").val();
+
+        $("#filter-date").html("Filter by Tanggal PO");
 
         $("#summary-merchant-table .table-datatables").DataTable().destroy();
         summaryMerchantData(
@@ -239,7 +265,8 @@ $(document).ready(function () {
             endDate,
             filterBy,
             distributorID,
-            salesCode
+            salesCode,
+            marginStatus
         );
     });
 
@@ -249,6 +276,9 @@ $(document).ready(function () {
         let filterBy = "DateDO";
         let distributorID = $("#distributor").val();
         let salesCode = $("#sales").val();
+        let marginStatus = $("#margin").val();
+
+        $("#filter-date").html("Filter by Tanggal DO");
 
         $("#summary-merchant-table .table-datatables").DataTable().destroy();
         summaryMerchantData(
@@ -256,7 +286,8 @@ $(document).ready(function () {
             endDate,
             filterBy,
             distributorID,
-            salesCode
+            salesCode,
+            marginStatus
         );
     });
 
@@ -267,11 +298,16 @@ $(document).ready(function () {
         $("#distributor").selectpicker("refresh");
         $("#sales").val("");
         $("#sales").selectpicker("refresh");
+        $("#margin").val("");
+        $("#margin").selectpicker("refresh");
+
+        $("#filter-date").html("Default Filter by Tanggal PO");
 
         let startDate = $("#from_date").val();
         let endDate = $("#to_date").val();
         let distributorID = $("#distributor").val();
         let salesCode = $("#sales").val();
+        let marginStatus = $("#margin").val();
 
         $("#summary-merchant-table .table-datatables").DataTable().destroy();
         summaryMerchantData(
@@ -279,7 +315,8 @@ $(document).ready(function () {
             endDate,
             filterBy,
             distributorID,
-            salesCode
+            salesCode,
+            marginStatus
         );
     });
 });

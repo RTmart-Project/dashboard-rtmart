@@ -379,8 +379,9 @@ class SummaryController extends Controller
         $filterBy = $request->input('filterBy');
         $distributorID = $request->input('distributorID');
         $salesCode = $request->input('salesCode');
+        $marginStatus = $request->input('marginStatus');
 
-        $sqlMain = $summaryService->dataSummaryMerchant($startDate, $endDate, $filterBy, $distributorID, $salesCode);
+        $sqlMain = $summaryService->dataSummaryMerchant($startDate, $endDate, $filterBy, $distributorID, $salesCode, $marginStatus);
 
         $data = $sqlMain;
 
@@ -394,6 +395,18 @@ class SummaryController extends Controller
                     }
                     return $sales;
                 })
+                ->addColumn('MarginStatus', function ($data) {
+                    // $nettMargin = $data->NettMargin / $data->TotalDO * 100;
+                    if ($data->PercentNettMargin > 8) {
+                        $status = '<span class="badge badge-success"><i class="fas fa-arrow-up"></i> High</span>';
+                    } else if ($data->PercentNettMargin < 5) {
+                        $status = '<span class="badge badge-danger"><i class="fas fa-arrow-down"></i> Below</span>';
+                    } else {
+                        $status = '<span class="badge badge-secondary"><i class="fas fa-minus"></i> Standart</span>';
+                    }
+                    return $status;
+                })
+                ->rawColumns(['MarginStatus'])
                 ->make(true);
         }
     }

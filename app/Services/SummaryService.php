@@ -724,7 +724,7 @@ class SummaryService
     return $sql;
   }
 
-  public function dataSummaryMerchant($startDate, $endDate, $filterBy, $distributorID, $salesCode)
+  public function dataSummaryMerchant($startDate, $endDate, $filterBy, $distributorID, $salesCode, $marginStatus)
   {
     $subSql = DB::table('tx_merchant_order')
       ->selectRaw("
@@ -786,16 +786,37 @@ class SummaryService
         SummaryMerchant.SalesCode,
         SummaryMerchant.SalesName,
         SummaryMerchant.DistributorName,
-        FLOOR(SUM(DISTINCT SummaryMerchant.TotalPrice + CONV(SUBSTRING(MD5(CONCAT(SummaryMerchant.StockOrderID)), 1, 8), 16, 10)/1000000000000000)) AS TotalPO,
+        FLOOR(SUM(DISTINCT SummaryMerchant.TotalPrice + CONV(SUBSTRING(MD5(CONCAT(SummaryMerchant.StockOrderID)), 1, 8), 16, 10) / 1000000000000000)) AS TotalPO,
         SUM(SummaryMerchant.TotalDO) AS TotalDO,
         SUM(SummaryMerchant.DiscountDO) AS DiscountDO,
         SUM(SummaryMerchant.GrossMargin) AS GrossMargin,
-        CONCAT(IFNULL(FORMAT(SUM(SummaryMerchant.GrossMargin) / SUM(SummaryMerchant.TotalDO) * 100, 2), 0), '%') AS PercentGrossMargin,
+        IFNULL(FORMAT(SUM(SummaryMerchant.GrossMargin) / SUM(SummaryMerchant.TotalDO) * 100, 2), 0) AS PercentGrossMargin,
         SUM(SummaryMerchant.NettMargin) AS NettMargin,
-        CONCAT(IFNULL(FORMAT(SUM(SummaryMerchant.NettMargin) / SUM(SummaryMerchant.TotalDO) * 100, 2), 0), '%') AS PercentNettMargin
-      ")
-      ->groupBy('SummaryMerchant.MerchantID');
+        IFNULL(FORMAT(SUM(SummaryMerchant.NettMargin) / SUM(SummaryMerchant.TotalDO) * 100, 2), 0) AS PercentNettMargin
+      ")->groupBy('SummaryMerchant.MerchantID')->toSql();
 
-    return $sqlMain;
+    $sqlFix = DB::table(DB::raw("($sqlMain) AS FinalSummaryMerchant"))
+      ->selectRaw("
+        FinalSummaryMerchant.*,
+        CASE 
+          WHEN FinalSummaryMerchant.PercentNettMargin > 8 THEN 'High'
+          WHEN FinalSummaryMerchant.PercentNettMargin < 5 THEN 'Below'
+          ELSE 'Standart'
+        END AS NettMarginStatus
+      ");
+
+    if ($marginStatus === "high") {
+      $sqlFix->whereRaw("FinalSummaryMerchant.PercentNettMargin > 8");
+    }
+    if ($marginStatus === "standart") {
+      $sqlFix->whereRaw("FinalSummaryMerchant.PercentNettMargin BETWEEN 5 AND 8");
+    }
+    if ($marginStatus === "below") {
+      $sqlFix->whereRaw("FinalSummaryMerchant.PercentNettMargin < 5");
+    }
+
+    $data = $sqlFix;
+
+    return $data;
   }
 }

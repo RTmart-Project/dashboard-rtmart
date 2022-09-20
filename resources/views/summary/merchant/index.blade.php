@@ -46,6 +46,9 @@
         <div class="card">
           <div class="card-header" id="summary-merchant">
             <div class="row">
+              <div class="col-12">
+                <label id="filter-date">Default Filter by Tanggal PO</label>
+              </div>
               <div class="col-md-2 col-6 p-1">
                 <input type="text" name="from_date" id="from_date" class="form-control form-control-sm" readonly>
               </div>
@@ -54,7 +57,7 @@
               </div>
               <div class="col-md-3 col-6 p-1">
                 <select class="form-control form-control-sm selectpicker border" name="distributor" id="distributor"
-                  title="Pilih Depo" multiple data-live-search="true">
+                  title="Filter Depo" multiple data-live-search="true">
                   @foreach ($distributors as $distributor)
                     <option value="{{ $distributor->DistributorID }}">{{ $distributor->DistributorName }}</option>
                   @endforeach
@@ -62,13 +65,21 @@
               </div>
               <div class="col-md-3 col-6 p-1">
                 <select class="form-control form-control-sm selectpicker border" name="sales" id="sales"
-                  title="Pilih Sales" multiple data-live-search="true">
+                  title="Filter Sales" multiple data-live-search="true">
                   @foreach ($sales as $item)
                     <option value="{{ $item->SalesCode }}">{{ $item->SalesCode }} - {{ $item->SalesName }}</option>
                   @endforeach
                 </select>
               </div>
-              <div class="col-md-2 col-12 p-1 d-flex justify-content-center justify-content-md-start">
+              <div class="col-6 col-md-2 p-1">
+                <select class="form-control form-control-sm selectpicker border" name="margin" id="margin"
+                  title="Filter Margin">
+                  <option value="high">High (> 8%)</option>
+                  <option value="standart">Standart (5% - 8%)</option>
+                  <option value="below">Below (< 5%)</option>
+                </select>
+              </div>
+              <div class="col-md-12 col-6 p-1 d-flex justify-content-md-end justify-content-center">
                 <button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Filter
                 </button>
@@ -94,12 +105,15 @@
                           <th>Nama Toko</th>
                           <th>Distributor</th>
                           <th>Sales</th>
-                          <th>Total PO</th>
-                          <th>Total DO</th>
+                          <th>Total PO (kecuali Batal)</th>
+                          <th>Total DO (Selesai)</th>
+                          <th>Discount DO</th>
                           <th>Margin (before disc)</th>
                           <th>% Margin (before disc)</th>
                           <th>Margin (after disc)</th>
                           <th>% Margin (after disc)</th>
+                          <th>Margin Status</th>
+                          <th>Margin Status (after disc)</th>
                         </tr>
                       </thead>
                       <tbody>
