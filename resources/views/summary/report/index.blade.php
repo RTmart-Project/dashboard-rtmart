@@ -75,7 +75,7 @@
         <div class="row">
           <div class="col-md-4 col-6">
             <div class="info-box">
-              <span class="info-box-icon bg-success elevation-1"><i class="fas fas fa-shopping-cart"></i></span>
+              <span class="info-box-icon bg-success elevation-1"><i class="fas fa-shopping-cart"></i></span>
               <div class="info-box-content">
                 <span class="info-box-text no-wrap h6 mb-2"><a id="total-value-po-link" target="_blank">Total PO (Value)</a></span>
                 <span class="info-box-number h6 m-0" id="total-value-po"></span>
@@ -133,10 +133,28 @@
         <div class="row">
           <div class="col-md-4 col-6">
             <div class="info-box">
+              <span class="info-box-icon bg-info elevation-1"><i class="fas fa-shopping-cart"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text no-wrap h6 mb-2">Total PO by DO (Value)</span>
+                <span class="info-box-number h6 m-0" id="total-value-po-by-do"></span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 col-6">
+            <div class="info-box">
               <span class="info-box-icon bg-info elevation-1"><i class="fas fa-truck"></i></span>
               <div class="info-box-content">
                 <span class="info-box-text no-wrap h6 mb-2"><a id="total-value-do-link" target="_blank">Total DO (Value)</a></span>
                 <span class="info-box-number h6 m-0" id="total-value-do"></span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 col-6">
+            <div class="info-box">
+              <span class="info-box-icon bg-info elevation-1"><i class="fas fa-cart-arrow-down"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text no-wrap h6 mb-2">Outstanding DO (Value)</span>
+                <span class="info-box-number h6 m-0" id="outstanding-do"></span>
               </div>
             </div>
           </div>
