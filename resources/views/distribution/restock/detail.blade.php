@@ -61,7 +61,8 @@
                                             <p>{{ $merchantOrder->StoreName }}</p>
                                             <p>{{ $merchantOrder->OwnerFullName }}</p>
                                             <p>{{ $merchantOrder->MerchantID }}</p>
-                                            <p class="mb-md-0">{{ $merchantOrder->PhoneNumber }}</p>
+                                            <p>{{ $merchantOrder->PhoneNumber }}</p>
+                                            <p class="mb-md-0">{{ $merchantOrder->DistributorName }}</p>
                                         </div>
                                         <div class="col-12 col-md-6">
                                             <label class="mb-0">Alamat:</label>
@@ -72,10 +73,12 @@
                                             @else
                                             <p class="mb-1">-</p>
                                             @endif
-                                            <label class="mb-0">Lat: </label>
+                                            <label class="mb-0">Latitude: </label>
                                             <p class="mb-1 latitude">{{ $merchantOrder->Latitude }}</p>
-                                            <label class="mb-0">Long: </label>
+                                            <label class="mb-0">Longitude: </label>
                                             <p class="mb-1 longitude">{{ $merchantOrder->Longitude }}</p>
+                                            <label class="mb-0">Jarak Radius: </label>
+                                            <p class="mb-1 longitude">{{ round($merchantOrder->RadiusDistance, 2) }} km</p>
                                         </div>
                                     </div>
                                 </div>

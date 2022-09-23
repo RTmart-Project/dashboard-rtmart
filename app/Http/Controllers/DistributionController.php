@@ -519,7 +519,45 @@ class DistributionController extends Controller
             ->leftJoin('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
             ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
             ->where('tx_merchant_order.StockOrderID', '=', $stockOrderID)
-            ->select('ms_merchant_account.StoreImage', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'tx_merchant_order.MerchantID', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.StoreAddressNote', 'ms_merchant_account.Latitude', 'ms_merchant_account.Longitude', 'tx_merchant_order.StockOrderID', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.PaymentMethodID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.NettPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.ShipmentDate', 'tx_merchant_order.MerchantNote', 'tx_merchant_order.DistributorNote', 'tx_merchant_order.Rating', 'tx_merchant_order.Feedback', 'tx_merchant_order.CancelReasonNote', 'ms_status_order.StatusOrder', 'ms_payment_method.PaymentMethodName', 'ms_distributor.IsHaistar', 'tx_merchant_order.IsValid', 'tx_merchant_order.ValidationNotes')
+            ->select(
+                'ms_merchant_account.StoreImage',
+                'ms_merchant_account.StoreName',
+                'ms_merchant_account.OwnerFullName',
+                'tx_merchant_order.MerchantID',
+                'ms_merchant_account.PhoneNumber',
+                'ms_merchant_account.StoreAddress',
+                'ms_merchant_account.StoreAddressNote',
+                'ms_merchant_account.Latitude',
+                'ms_merchant_account.Longitude',
+                'tx_merchant_order.StockOrderID',
+                'tx_merchant_order.StatusOrderID',
+                'tx_merchant_order.PaymentMethodID',
+                'tx_merchant_order.TotalPrice',
+                'tx_merchant_order.NettPrice',
+                'tx_merchant_order.DiscountPrice',
+                'tx_merchant_order.DiscountVoucher',
+                'tx_merchant_order.ServiceChargeNett',
+                'tx_merchant_order.DeliveryFee',
+                'tx_merchant_order.CreatedDate',
+                'tx_merchant_order.ShipmentDate',
+                'tx_merchant_order.MerchantNote',
+                'tx_merchant_order.DistributorNote',
+                'tx_merchant_order.Rating',
+                'tx_merchant_order.Feedback',
+                'tx_merchant_order.CancelReasonNote',
+                'ms_status_order.StatusOrder',
+                'ms_payment_method.PaymentMethodName',
+                'ms_distributor.IsHaistar',
+                'tx_merchant_order.IsValid',
+                'tx_merchant_order.ValidationNotes',
+                'ms_distributor.DistributorName',
+                DB::raw("coalesce(( 6371 * acos( cos( radians(tx_merchant_order.OrderLatitude))
+                    * cos( radians(ms_distributor.Latitude))
+                    * cos( radians(ms_distributor.Longitude) - radians(tx_merchant_order.OrderLongitude)) 
+                    + sin( radians(tx_merchant_order.OrderLatitude)) 
+                    * sin( radians(ms_distributor.Latitude)))),0) AS RadiusDistance
+                ")
+            )
             ->first();
 
         $merchantOrderDetail = DB::table('tx_merchant_order_detail')
@@ -1724,7 +1762,7 @@ class DistributionController extends Controller
                 DB::raw("
                     (
                         SELECT 
-                            SUM((tx_merchant_order_detail.Nett - IFNULL(ms_stock_product.PurchasePrice, ms_product.Price)) * tx_merchant_order_detail.PromisedQuantity) AS MarginValue
+                            SUM((tx_merchant_order_detail.Nett - IFNULL(ms_stock_product.PurchasePrice, ms_product.Price)) * tx_merchant_order_detail.PromisedQuantity)
                         FROM tx_merchant_order_detail
                         JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_order_detail.StockOrderID
                         JOIN ms_product ON ms_product.ProductID = tx_merchant_order_detail.ProductID

@@ -153,8 +153,20 @@
                         {{ Helper::formatCurrency($item->PurchasePrice * $item->PromisedQuantity, "Rp ") }}
                       @endif
                     </td>
-                    <td class="text-right">{{ Helper::formatCurrency($item->EstMarginPrice, "Rp ") }} | {{ round($item->EstMarginPrice / $item->ValueProduct * 100, 2) }}%</td>
-                    <td class="text-right">{{ Helper::formatCurrency($item->EstMarginSubmission, "Rp ") }} | {{ round($item->EstMarginSubmission / $item->ValueSubmission * 100, 2) }}%</td>
+                    <td class="text-right">
+                      @if ($item->PurchasePrice === null)
+                        {{ Helper::formatCurrency(($item->Nett - $item->Price) * $item->PromisedQuantity, "Rp ") }} | {{ round((($item->Nett - $item->Price) * $item->PromisedQuantity) / $item->ValueProduct * 100, 2) }}%
+                      @else
+                        {{ Helper::formatCurrency(($item->Nett - $item->PurchasePrice) * $item->PromisedQuantity, "Rp ") }} | {{ round((($item->Nett - $item->PurchasePrice) * $item->PromisedQuantity) / $item->ValueProduct * 100, 2) }}%
+                      @endif
+                    </td>
+                    <td class="text-right">
+                      @if ($item->PurchasePrice === null)
+                        {{ Helper::formatCurrency(($item->PriceSubmission - $item->Price) * $item->PromisedQuantity, "Rp ") }} | {{ round((($item->PriceSubmission - $item->Price) * $item->PromisedQuantity) / $item->ValueSubmission * 100, 2) }}%
+                      @else
+                        {{ Helper::formatCurrency(($item->PriceSubmission - $item->PurchasePrice) * $item->PromisedQuantity, "Rp ") }} | {{ round((($item->PriceSubmission - $item->PurchasePrice) * $item->PromisedQuantity) / $item->ValueSubmission * 100, 2) }}%
+                      @endif
+                    </td>
                     <td class="text-right">{{ Helper::formatCurrency($item->Voucher, "Rp ") }}</td>
                     {{-- <td class="text-center">{{ round($item->Voucher / $item->ValueProduct * 100, 2) }}</td> --}}
                   </tr>
