@@ -235,7 +235,7 @@ $(document).ready(function () {
                 );
                 $("#voucher-po").html(
                     res.PO.VoucherPO != null
-                        ? thousands_separators(res.PO.VoucherPO)
+                        ? "Rp " + thousands_separators(res.PO.VoucherPO)
                         : 0
                 );
                 $("#margin-estimasi").html(
@@ -252,9 +252,22 @@ $(document).ready(function () {
                 );
 
                 // DO Summary
+                $("#total-value-po-by-do").html(
+                    res.DO.TotalValuePObyDO != null
+                        ? "Rp " + thousands_separators(res.DO.TotalValuePObyDO)
+                        : 0
+                );
                 $("#total-value-do").html(
                     res.DO.TotalValueDO != null
                         ? "Rp " + thousands_separators(res.DO.TotalValueDO)
+                        : 0
+                );
+                $("#outstanding-do").html(
+                    res.DO.TotalValuePObyDO != null
+                        ? "Rp " +
+                              thousands_separators(
+                                  res.DO.TotalValuePObyDO - res.DO.TotalValueDO
+                              )
                         : 0
                 );
                 $("#count-total-do").html(
@@ -277,7 +290,7 @@ $(document).ready(function () {
                 );
                 $("#voucher-do").html(
                     res.DO.VoucherDO != null
-                        ? thousands_separators(res.DO.VoucherDO)
+                        ? "Rp " + thousands_separators(res.DO.VoucherDO)
                         : 0
                 );
                 $("#margin-real").html(

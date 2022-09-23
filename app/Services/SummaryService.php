@@ -356,39 +356,38 @@ class SummaryService
       $sqlMainDO->whereRaw("tmo.SalesCode IN ($salesCodeIn)");
     }
 
-    $sqlProductDO = (clone $sqlMainDO)
+    $sqlMargin = (clone $sqlMainDO)
+      ->join('tx_merchant_delivery_order_detail as tmdod', function ($join) {
+        $join->on('tmdod.DeliveryOrderID', 'tmdo.DeliveryOrderID');
+        $join->where('tmdod.StatusExpedition', 'S031');
+      })
+      ->leftJoin('ms_stock_product_log', 'ms_stock_product_log.DeliveryOrderDetailID', 'tmdod.DeliveryOrderDetailID')
+      ->select(
+        DB::raw("
+          ABS(IFNULL(SUM((ms_stock_product_log.SellingPrice - ms_stock_product_log.PurchasePrice) * ms_stock_product_log.QtyAction), 0)) AS GrossMargin
+        ")
+      )->first();
+
+    $sqlTotalValuePObyDO = (clone $sqlMainDO)
       ->join('tx_merchant_delivery_order_detail as tmdod', function ($join) {
         $join->on('tmdod.DeliveryOrderID', 'tmdo.DeliveryOrderID');
         $join->where('tmdod.StatusExpedition', 'S031');
       })
       ->select(
-        'tmdo.DeliveryOrderID',
-        'tmdod.ProductID',
-        'tmdod.Qty',
-        'tmdod.Price',
-        DB::raw("(
-            SELECT PurchasePrice
-            FROM ms_stock_product_log
-            WHERE DeliveryOrderDetailID = tmdod.DeliveryOrderDetailID
-            LIMIT 1
-        ) as PurchasePrice")
-      );
-
-    $productDO = $sqlProductDO->get()->toArray();
-
-    $valueDO = 0;
-    $valueMarginDO = 0;
-    foreach ($productDO as $key => $value) {
-      $valueDO += $value->Price * $value->Qty;
-      $valueMarginDO += ($value->Price - $value->PurchasePrice) * $value->Qty;
-    }
+        DB::raw("IFNULL(FLOOR(SUM(DISTINCT tmo.TotalPrice + CONV(SUBSTRING(MD5(CONCAT(tmo.StockOrderID)), 1, 8), 16, 10)/1000000000000000)), 0) AS TotalValuePO"),
+        DB::raw("IFNULL(SUM(tmdod.Qty * tmdod.Price), 0) AS TotalValueDO")
+      )
+      ->first();
 
     $sqlMainDO = $sqlMainDO->toSql();
 
     $sqlDO = DB::table(DB::raw("($sqlMainDO) as SummaryDO"))
       ->selectRaw("
         (
-            SELECT $valueDO
+            SELECT $sqlTotalValuePObyDO->TotalValuePO
+        ) as TotalValuePObyDO,
+        (
+            SELECT $sqlTotalValuePObyDO->TotalValueDO
         ) as TotalValueDO,
         (
             SELECT COUNT(SummaryDO.DeliveryOrderID)
@@ -397,19 +396,19 @@ class SummaryService
             SELECT COUNT(DISTINCT SummaryDO.MerchantID)
         ) as CountMerchantDO,
         (
-            SELECT $valueMarginDO
+            SELECT $sqlMargin->GrossMargin
         ) as ValueMargin,
         (
             SELECT SUM(SummaryDO.Discount)
         ) as VoucherDO,
         (
-            SELECT $valueMarginDO - SUM(SummaryDO.Discount)
+            SELECT $sqlMargin->GrossMargin - SUM(SummaryDO.Discount)
         ) as ValueMarginReal,
         (
-            SELECT ROUND($valueMarginDO / $valueDO * 100, 2)
+            SELECT ROUND($sqlMargin->GrossMargin / $sqlTotalValuePObyDO->TotalValueDO * 100, 2)
         ) as PercentMarginRealBeforeDisc,
         (
-            SELECT ROUND(($valueMarginDO - SUM(SummaryDO.Discount)) / ($valueDO - SUM(SummaryDO.Discount)) * 100, 2)
+            SELECT ROUND(($sqlMargin->GrossMargin - SUM(SummaryDO.Discount)) / ($sqlTotalValuePObyDO->TotalValueDO - SUM(SummaryDO.Discount)) * 100, 2)
         ) as PercentMarginReal
     ");
 
