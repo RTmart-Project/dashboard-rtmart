@@ -93,8 +93,7 @@ class SummaryController extends Controller
         $salesCode = $request->salesCode;
 
         $data = $summaryService->summaryReport($startDate, $endDate, $distributorID, $salesCode);
-        // $data = $summaryService->summaryReport("2022-09-21", "2022-09-21", $distributorID, $salesCode);
-        // dd($data);
+
         return $data;
     }
 

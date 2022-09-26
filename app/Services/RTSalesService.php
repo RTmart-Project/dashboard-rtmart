@@ -177,4 +177,53 @@ class RTSalesService
 
     return $newStoreID;
   }
+
+  public function callPlanData($visitDayName, $startDate, $endDate)
+  {
+    $sql = DB::table('ms_visit_plan')
+      ->join('ms_store', 'ms_store.StoreID', 'ms_visit_plan.StoreID')
+      ->leftJoin('ms_visit_plan_sort', 'ms_visit_plan_sort.VisitPlanID', 'ms_visit_plan.VisitPlanID')
+      ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_visit_plan.SalesCode')
+      ->select(
+        'ms_visit_plan.VisitDayName',
+        'ms_visit_plan.SalesCode',
+        'ms_sales.SalesName',
+        'ms_visit_plan.StoreID',
+        'ms_store.MerchantID',
+        'ms_store.StoreName',
+        'ms_store.PhoneNumber',
+        'ms_store.Latitude',
+        'ms_store.Longitude',
+        'ms_store.StoreAddress',
+        'ms_store.Grade',
+        'ms_store.StoreType',
+        'ms_visit_plan.Sorting',
+        'ms_visit_plan_sort.Distance',
+        DB::raw("
+          (
+            SELECT 
+              IFNULL(SUM(tx_merchant_order.TotalPrice), 0) AS TotalPrice
+            FROM tx_merchant_order
+            WHERE tx_merchant_order.StatusOrderID != 'S011'
+              AND tx_merchant_order.MerchantID = ms_store.MerchantID
+              AND DATE(tx_merchant_order.CreatedDate) BETWEEN '$startDate' AND '$endDate'
+          ) AS TotalPO
+        "),
+        DB::raw("
+            (
+              SELECT IFNULL(SUM(tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price), 0)
+              FROM tx_merchant_delivery_order
+              JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_delivery_order.StockOrderID
+              JOIN tx_merchant_delivery_order_detail ON tx_merchant_delivery_order_detail.DeliveryOrderID = tx_merchant_delivery_order.DeliveryOrderID
+                AND tx_merchant_delivery_order_detail.StatusExpedition = 'S031'
+              WHERE tx_merchant_delivery_order.StatusDO = 'S025'
+                AND tx_merchant_order.MerchantID = ms_store.MerchantID
+                AND DATE(tx_merchant_delivery_order.CreatedDate) BETWEEN '$startDate' AND '$endDate'
+            ) AS TotalDO
+        ")
+      )
+      ->whereIn('ms_visit_plan.VisitDayName', $visitDayName);
+
+    return $sql;
+  }
 }

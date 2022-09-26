@@ -221,6 +221,11 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['prefix' => 'rtsales', 'middleware' => ['checkRoleUser:IT,FI,BM,CEO,DMO']], function () {
         Route::get('/summary', [RTSalesController::class, 'summary'])->name('rtsales.summary');
 
+        Route::group(['prefix' => 'callplan'], function () {
+            Route::post('/', [RTSalesController::class, 'callplan'])->name('rtsales.callPlan');
+            Route::get('/index', [RTSalesController::class, 'callplanIndex'])->name('rtsales.callPlanIndex');
+        });
+
         Route::group(['prefix' => 'callreport'], function () {
             Route::get('/', [RTSalesController::class, 'callReport'])->name('rtsales.callReport');
             Route::get('/get', [RTSalesController::class, 'getCallReport'])->name('rtsales.getCallReport');
