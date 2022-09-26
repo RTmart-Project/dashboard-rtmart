@@ -505,6 +505,13 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a href="{{ route('rtsales.callPlanIndex') }}"
+                            class="nav-link {{ Request::is('rtsales/callplan*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Call Plan</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="{{ route('rtsales.callReport') }}"
                             class="nav-link {{ Request::is('rtsales/callreport*') ? 'active' : '' }}">
                             <i class="far fa-circle nav-icon"></i>
