@@ -211,7 +211,7 @@
                             <th>Voucher</th>
                           </tr>
                           <tr id="delivery-order-cakung" style="background-color: rgb(216,216,216);">
-                            <th>Delivery Order</th>
+                            <th>Delivery Order (Selesai)</th>
                           </tr>
                           <tr id="bill-real-cakung" style="background-color: rgb(216,216,216);">
                             <th>Paid Bill</th>
@@ -240,7 +240,7 @@
                             <th>Voucher</th>
                           </tr>
                           <tr id="delivery-order-bandung" style="background-color: rgb(252,213,180);">
-                            <th>Delivery Order</th>
+                            <th>Delivery Order (Selesai)</th>
                           </tr>
                           <tr id="bill-real-bandung" style="background-color: rgb(252,213,180);">
                             <th>Paid Bill</th>
@@ -269,7 +269,7 @@
                             <th>Voucher</th>
                           </tr>
                           <tr id="delivery-order-ciracas" style="background-color: rgb(219,238,243);">
-                            <th>Delivery Order</th>
+                            <th>Delivery Order (Selesai)</th>
                           </tr>
                           <tr id="bill-real-ciracas" style="background-color: rgb(219,238,243);">
                             <th>Paid Bill</th>
@@ -298,7 +298,7 @@
                             <th>Voucher</th>
                           </tr>
                           <tr id="delivery-order-grand-total" style="background-color: rgb(255,255,0);">
-                            <th>Delivery Order</th>
+                            <th>Delivery Order (Selesai)</th>
                           </tr>
                           <tr id="bill-real-grand-total" style="background-color: rgb(255,255,0);">
                             <th>Paid Bill</th>
