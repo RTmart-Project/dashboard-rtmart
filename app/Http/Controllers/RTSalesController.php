@@ -566,4 +566,32 @@ class RTSalesController extends Controller
             return redirect()->route('rtsales.storeList')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
         }
     }
+
+    public function callplan(Request $request, RTSalesService $rTSalesService)
+    {
+        $visitDayName = $request->input('visitDayName');
+        $startDate = $request->input('startDate');
+        $endDate = $request->input('endDate');
+
+        $sql = $rTSalesService->callPlanData($visitDayName, $startDate, $endDate);
+
+        $data = $sql;
+
+        if ($request->ajax()) {
+            return Datatables::of($data)
+                ->addColumn('Sales', function ($data) {
+                    return $data->SalesCode . ' - ' . $data->SalesName;
+                })
+                ->filterColumn('Sales', function ($query, $keyword) {
+                    $sql = "CONCAT(ms_visit_plan.SalesCode, ' ', ms_sales.SalesName) like ?";
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                })
+                ->make();
+        }
+    }
+
+    public function callplanIndex()
+    {
+        return view('rtsales.callPlan.index');
+    }
 }

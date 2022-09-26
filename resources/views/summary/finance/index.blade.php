@@ -196,10 +196,13 @@
                         <tbody>
                           {{-- CAKUNG --}}
                           <tr style="background-color: rgb(216,216,216);">
-                            <th class="text-center align-middle" rowspan="8">Cakung</th>
+                            <th class="text-center align-middle" rowspan="9">Cakung</th>
+                          </tr>
+                          <tr id="purchase-order-cakung-exclude-batal" style="background-color: rgb(216,216,216);">
+                            <th>Purchase Order (Kecuali Batal)</th>
                           </tr>
                           <tr id="purchase-order-cakung" style="background-color: rgb(216,216,216);">
-                            <th>Purchase Order</th>
+                            <th>Purchase Order (Dlm Proses)</th>
                           </tr>
                           <tr id="purchasing-cakung" style="background-color: rgb(216,216,216);">
                             <th>Purchasing</th>
@@ -208,7 +211,7 @@
                             <th>Voucher</th>
                           </tr>
                           <tr id="delivery-order-cakung" style="background-color: rgb(216,216,216);">
-                            <th>Delivery Order</th>
+                            <th>Delivery Order (Selesai)</th>
                           </tr>
                           <tr id="bill-real-cakung" style="background-color: rgb(216,216,216);">
                             <th>Paid Bill</th>
@@ -222,10 +225,13 @@
 
                           {{-- BANDUNG --}}
                           <tr style="background-color: rgb(252,213,180);">
-                            <th class="text-center align-middle" rowspan="8">Bandung</th>
+                            <th class="text-center align-middle" rowspan="9">Bandung</th>
+                          </tr>
+                          <tr id="purchase-order-bandung-exclude-batal" style="background-color: rgb(252,213,180);">
+                            <th>Purchase Order (Kecuali Batal)</th>
                           </tr>
                           <tr id="purchase-order-bandung" style="background-color: rgb(252,213,180);">
-                            <th>Purchase Order</th>
+                            <th>Purchase Order (Dlm Proses)</th>
                           </tr>
                           <tr id="purchasing-bandung" style="background-color: rgb(252,213,180);">
                             <th>Purchasing</th>
@@ -234,7 +240,7 @@
                             <th>Voucher</th>
                           </tr>
                           <tr id="delivery-order-bandung" style="background-color: rgb(252,213,180);">
-                            <th>Delivery Order</th>
+                            <th>Delivery Order (Selesai)</th>
                           </tr>
                           <tr id="bill-real-bandung" style="background-color: rgb(252,213,180);">
                             <th>Paid Bill</th>
@@ -248,10 +254,13 @@
 
                           {{-- CIRACAS --}}
                           <tr style="background-color: rgb(219,238,243);">
-                            <th class="text-center align-middle" rowspan="8">Ciracas</th>
+                            <th class="text-center align-middle" rowspan="9">Ciracas</th>
+                          </tr>
+                          <tr id="purchase-order-ciracas-exclude-batal" style="background-color: rgb(219,238,243);">
+                            <th>Purchase Order (Dlm Proses)</th>
                           </tr>
                           <tr id="purchase-order-ciracas" style="background-color: rgb(219,238,243);">
-                            <th>Purchase Order</th>
+                            <th>Purchase Order (Dlm Proses)</th>
                           </tr>
                           <tr id="purchasing-ciracas" style="background-color: rgb(219,238,243);">
                             <th>Purchasing</th>
@@ -260,7 +269,7 @@
                             <th>Voucher</th>
                           </tr>
                           <tr id="delivery-order-ciracas" style="background-color: rgb(219,238,243);">
-                            <th>Delivery Order</th>
+                            <th>Delivery Order (Selesai)</th>
                           </tr>
                           <tr id="bill-real-ciracas" style="background-color: rgb(219,238,243);">
                             <th>Paid Bill</th>
@@ -274,10 +283,13 @@
 
                           {{-- GRAND TOTAL --}}
                           <tr style="background-color: rgb(255,255,0);">
-                            <th class="text-center align-middle" rowspan="8">Grand Total</th>
+                            <th class="text-center align-middle" rowspan="9">Grand Total</th>
+                          </tr>
+                          <tr id="purchase-order-grand-total-exclude-batal" style="background-color: rgb(255,255,0);">
+                            <th>Purchase Order (Kecuali Batal)</th>
                           </tr>
                           <tr id="purchase-order-grand-total" style="background-color: rgb(255,255,0);">
-                            <th>Purchase Order</th>
+                            <th>Purchase Order (Dlm Proses)</th>
                           </tr>
                           <tr id="purchasing-grand-total" style="background-color: rgb(255,255,0);">
                             <th>Purchasing</th>
@@ -286,7 +298,7 @@
                             <th>Voucher</th>
                           </tr>
                           <tr id="delivery-order-grand-total" style="background-color: rgb(255,255,0);">
-                            <th>Delivery Order</th>
+                            <th>Delivery Order (Selesai)</th>
                           </tr>
                           <tr id="bill-real-grand-total" style="background-color: rgb(255,255,0);">
                             <th>Paid Bill</th>

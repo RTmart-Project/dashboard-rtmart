@@ -129,6 +129,7 @@
                   $estMarginPrice = 0;
                   $estMarginSubmission = 0;
                   $totalVoucher = 0;
+                  $qty = 0;
                   @endphp
                   @foreach ($data->Detail as $item)
                   <tr>
@@ -179,6 +180,8 @@
                   $estMarginSubmission += $item->EstMarginSubmission;
 
                   $totalVoucher += $item->Voucher;
+
+                  $qty += $item->PromisedQuantity;
                   @endphp
                   @endforeach
                 </tbody>
@@ -192,6 +195,21 @@
                     <th>{{ Helper::formatCurrency($estMarginSubmission, "Rp ") }} | {{ round($estMarginSubmission / $totalPriceSubmission * 100, 2) }}%</th>
                     <th>{{ Helper::formatCurrency($totalVoucher, "Rp ") }}</th>
                     {{-- <th class="text-center">{{ round($totalVoucher / $data->TotalPrice * 100, 2) }}</th> --}}
+                  </tr>
+                  <tr class="text-right">
+                    <th colspan="8"></th>
+                    <th colspan="2">Bunga (2.4% / {{ $data->CountPOselesai }}) x Value Pengajuan</th>
+                    <th>{{ Helper::formatCurrency($data->Bunga / 100 * $totalPriceSubmission, "Rp ") }}</th>
+                  </tr>
+                  <tr class="text-right">
+                    <th colspan="8"></th>
+                    <th colspan="2">Cost Logistic (2250 x {{ $qty }})</th>
+                    <th>{{ Helper::formatCurrency(2250 * $qty, "Rp ") }}</th>
+                  </tr>
+                  <tr class="text-right">
+                    <th colspan="8"></th>
+                    <th colspan="2">Grand Total Margin Pengajuan</th>
+                    <th>{{ Helper::formatCurrency($estMarginSubmission - round($data->Bunga / 100 * $totalPriceSubmission) - (2250 * $qty), "Rp ") }}</th>
                   </tr>
                 </tfoot>
               </table>

@@ -87,7 +87,7 @@
                     <div class="col-12 col-md-2">
                       <div class="form-group">
                         <label for="product_id">Produk ID</label>
-                        <input type="text" class="form-control" name="product_id[]" id="product_id" value="{{ $item->ProductID }}" readonly>
+                        <input type="text" class="form-control product-id" name="product_id[]" id="product_id" value="{{ $item->ProductID }}" readonly>
                       </div>
                     </div>
                     <div class="col-12 col-md-2">
@@ -359,13 +359,24 @@
   $("#btn-save").on("click", function () {
     let open = true;
     $(".wrapper-product").each(function () {
-      const product = $(this).find('.product').val()
+      const productID = $(this).find('.product-id').val();
+      const product = $(this).find('.product').val();
       const priceSubmission = $(this).find('.price_submission').val().replaceAll(".", "");
       const price = $(this).find('.price').val().replaceAll(".", "");
+      const estPercentMarginSubmission = $(this).find('.est_percent_margin_submission').val();
+      
+      const margin = (priceSubmission)
+
       if (priceSubmission < 1) {
         Toast.fire({
           icon: "error",
           title: `Harga Pengajuan ${product} harus lebih dari 0!`,
+        });
+        return (open = false);
+      } else if (productID === "P-000002" && estPercentMarginSubmission < 10) {
+        Toast.fire({
+          icon: "error",
+          title: `Estimasi Margin Pengajuan ${product} harus lebih dari 10%!`,
         });
         return (open = false);
       } else if (Number(priceSubmission) > Number(price)) {

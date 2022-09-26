@@ -1733,6 +1733,21 @@ class DistributionController extends Controller
             ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.DistributorID', 'ms_distributor.DistributorName', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order.SalesCode', 'ms_sales.SalesName', 'ms_distributor_grade.Grade', 'ms_status_order.StatusOrder', 'ms_price_submission.PriceSubmissionID', 'ms_price_submission.StatusPriceSubmission', 'ms_price_submission.CreatedBy', 'ms_price_submission.CreatedDate as SubmissionDate', 'ms_price_submission.ConfirmBy', 'ms_price_submission.ConfirmDate', 'ms_price_submission.Note')
             ->first();
 
+        $countPOselesai = DB::table('tx_merchant_order')
+            ->where('MerchantID', $data->MerchantID)
+            ->where('StatusOrderID', 'S018')
+            ->whereRaw("DATE(CreatedDate) >= DATE('$data->CreatedDate' - INTERVAL 31 DAY)")
+            ->where('CreatedDate', '<', $data->CreatedDate)
+            ->count('StockOrderID');
+
+        if ($countPOselesai === 0) {
+            $data->Bunga = 2.4;
+            $data->CountPOselesai = 1;
+        } else {
+            $data->Bunga = 2.4 / $countPOselesai;
+            $data->CountPOselesai = $countPOselesai;
+        }
+
         $data->Detail = DB::table('tx_merchant_order_detail as tmod')
             ->join('ms_product', 'ms_product.ProductID', 'tmod.ProductID')
             ->where('tmod.StockOrderID', $data->StockOrderID)
@@ -1816,12 +1831,22 @@ class DistributionController extends Controller
         $merchantOrder = DB::table('ms_price_submission')
             ->join('tx_merchant_order', 'tx_merchant_order.StockOrderID', 'ms_price_submission.StockOrderID')
             ->where('ms_price_submission.PriceSubmissionID', $priceSubmissionID)
-            ->select('ms_price_submission.StockOrderID', 'tx_merchant_order.DistributorID', 'tx_merchant_order.TotalPrice', 'ms_price_submission.TotalVoucherSubmission')
+            ->select('ms_price_submission.StockOrderID', 'tx_merchant_order.DistributorID', 'tx_merchant_order.MerchantID', 'tx_merchant_order.TotalPrice', 'ms_price_submission.TotalVoucherSubmission')
             ->first();
 
         $dataTxMerchantOrder = [
+            'StatusOrderID' => 'S023',
             'DiscountVoucher' => $merchantOrder->TotalVoucherSubmission,
             'NettPrice' => $merchantOrder->TotalPrice - $merchantOrder->TotalVoucherSubmission
+        ];
+
+        $dataTxMerchantOrderLog = [
+            'StockOrderId' => $merchantOrder->StockOrderID,
+            'DistributorID' => $merchantOrder->DistributorID,
+            'MerchantID' => $merchantOrder->MerchantID,
+            'StatusOrderId' => 'S023',
+            'ProcessTime' => date('Y-m-d H:i:s'),
+            'ActionBy' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo
         ];
 
         $dataVoucherLog = [
@@ -1865,10 +1890,11 @@ class DistributionController extends Controller
             ->get();
 
         try {
-            DB::transaction(function () use ($priceSubmissionID, $status, $merchantOrder, $dataPriceSubmission, $dataTxMerchantOrder, $dataVoucherLog, $orderDetail) {
+            DB::transaction(function () use ($priceSubmissionID, $status, $merchantOrder, $dataPriceSubmission, $dataTxMerchantOrder, $dataTxMerchantOrderLog, $dataVoucherLog, $orderDetail) {
                 DB::table('ms_price_submission')->where('PriceSubmissionID', $priceSubmissionID)->update($dataPriceSubmission);
                 if ($status === "approve") {
                     DB::table('tx_merchant_order')->where('StockOrderID', $merchantOrder->StockOrderID)->update($dataTxMerchantOrder);
+                    DB::table('tx_merchant_order_log')->insert($dataTxMerchantOrderLog);
                     DB::table('ms_voucher_log')->updateOrInsert(['OrderID' => $merchantOrder->StockOrderID], $dataVoucherLog);
                     foreach ($orderDetail as $key => $value) {
                         if ($value->PurchasePrice === null) {

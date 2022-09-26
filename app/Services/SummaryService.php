@@ -14,9 +14,20 @@ class SummaryService
           'GrandTotal',
           b.DateSummary,
           (
-            SELECT IFNULL(SUM(TotalPrice), 0) FROM tx_merchant_order
-            WHERE StatusOrderID = 'S023'
-            AND DATE(CreatedDate) BETWEEN '$startDate' AND b.DateSummary
+            SELECT IFNULL(SUM(tx_merchant_order.TotalPrice), 0) 
+            FROM tx_merchant_order
+            JOIN ms_merchant_account ON ms_merchant_account.MerchantID = tx_merchant_order.MerchantID
+	            AND ms_merchant_account.IsTesting = 0 AND (ms_merchant_account.Partner != 'TRADING' OR ms_merchant_account.Partner IS NULL)
+            WHERE tx_merchant_order.StatusOrderID != 'S011'
+            AND DATE(tx_merchant_order.CreatedDate) BETWEEN '$startDate' AND b.DateSummary
+          ) AS PurchaseOrderExcludeBatal,
+          (
+            SELECT IFNULL(SUM(tx_merchant_order.TotalPrice), 0) 
+            FROM tx_merchant_order
+            JOIN ms_merchant_account ON ms_merchant_account.MerchantID = tx_merchant_order.MerchantID
+	            AND ms_merchant_account.IsTesting = 0 AND (ms_merchant_account.Partner != 'TRADING' OR ms_merchant_account.Partner IS NULL)
+            WHERE tx_merchant_order.StatusOrderID = 'S023'
+            AND DATE(tx_merchant_order.CreatedDate) BETWEEN '$startDate' AND b.DateSummary
           ) AS PurchaseOrder,
           (
             SELECT IFNULL(SUM(ms_stock_purchase_detail.Qty * ms_stock_purchase_detail.PurchasePrice), 0)
@@ -31,27 +42,15 @@ class SummaryService
             AND DATE(CreatedDate) BETWEEN '$startDate' AND b.DateSummary
           ) AS Voucher,
           (
-            SELECT IFNULL(
-                SUM(delivery_order_value.SubTotal - delivery_order_value.Discount + delivery_order_value.ServiceCharge + delivery_order_value.DeliveryFee)
-              , 0)
-            FROM (
-              SELECT 
-                tx_merchant_delivery_order.DeliveryOrderID,
-                MAX(tx_merchant_delivery_order_log.ProcessTime) AS DeliveryDate,
-                SUM(tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price) AS SubTotal,
-                IFNULL(tx_merchant_delivery_order.Discount, 0) AS Discount,
-                IFNULL(tx_merchant_delivery_order.ServiceCharge, 0) AS ServiceCharge,
-                IFNULL(tx_merchant_delivery_order.DeliveryFee, 0) AS DeliveryFee
-              FROM tx_merchant_delivery_order_detail
-              JOIN tx_merchant_delivery_order ON tx_merchant_delivery_order.DeliveryOrderID = tx_merchant_delivery_order_detail.DeliveryOrderID
-                AND tx_merchant_delivery_order.StatusDO = 'S025'
-              JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_delivery_order.StockOrderID
-              LEFT JOIN tx_merchant_delivery_order_log ON tx_merchant_delivery_order_log.DeliveryOrderID = tx_merchant_delivery_order.DeliveryOrderID
-                AND tx_merchant_delivery_order_log.StatusDO = 'S024'
-              WHERE tx_merchant_delivery_order_detail.StatusExpedition = 'S031'
-              GROUP BY tx_merchant_delivery_order.DeliveryOrderID
-            ) AS delivery_order_value
-            WHERE DATE(delivery_order_value.DeliveryDate) BETWEEN '$startDate' AND b.DateSummary
+            SELECT IFNULL(SUM(tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price), 0)
+            FROM tx_merchant_delivery_order
+            JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_delivery_order.StockOrderID
+            JOIN ms_merchant_account ON ms_merchant_account.MerchantID = tx_merchant_order.MerchantID
+              AND ms_merchant_account.IsTesting = 0 AND (ms_merchant_account.Partner != 'TRADING' OR ms_merchant_account.Partner IS NULL)
+            JOIN tx_merchant_delivery_order_detail ON tx_merchant_delivery_order_detail.DeliveryOrderID = tx_merchant_delivery_order.DeliveryOrderID
+              AND tx_merchant_delivery_order_detail.StatusExpedition = 'S031'
+            WHERE tx_merchant_delivery_order.StatusDO = 'S025'
+              AND DATE(tx_merchant_delivery_order.CreatedDate) BETWEEN '$startDate' AND b.DateSummary
           ) AS DeliveryOrder,
           (
             SELECT IFNULL(SUM(PaymentNominal), 0)
@@ -130,9 +129,20 @@ class SummaryService
           a.DistributorName,
           b.DateSummary,
           (
-            SELECT IFNULL(SUM(TotalPrice), 0) FROM tx_merchant_order
-            WHERE DistributorID = a.DistributorID AND StatusOrderID = 'S023'
-            AND DATE(CreatedDate) BETWEEN '$startDate' AND b.DateSummary
+            SELECT IFNULL(SUM(tx_merchant_order.TotalPrice), 0) 
+            FROM tx_merchant_order
+            JOIN ms_merchant_account ON ms_merchant_account.MerchantID = tx_merchant_order.MerchantID
+	            AND ms_merchant_account.IsTesting = 0 AND (ms_merchant_account.Partner != 'TRADING' OR ms_merchant_account.Partner IS NULL)
+            WHERE tx_merchant_order.DistributorID = a.DistributorID AND tx_merchant_order.StatusOrderID != 'S011'
+              AND DATE(tx_merchant_order.CreatedDate) BETWEEN '$startDate' AND b.DateSummary
+          ) AS PurchaseOrderExcludeBatal,
+          (
+            SELECT IFNULL(SUM(tx_merchant_order.TotalPrice), 0) 
+            FROM tx_merchant_order
+            JOIN ms_merchant_account ON ms_merchant_account.MerchantID = tx_merchant_order.MerchantID
+	            AND ms_merchant_account.IsTesting = 0 AND (ms_merchant_account.Partner != 'TRADING' OR ms_merchant_account.Partner IS NULL)
+            WHERE tx_merchant_order.DistributorID = a.DistributorID AND tx_merchant_order.StatusOrderID = 'S023'
+              AND DATE(tx_merchant_order.CreatedDate) BETWEEN '$startDate' AND b.DateSummary
           ) AS PurchaseOrder,
           (
             SELECT IFNULL(SUM(ms_stock_purchase_detail.Qty * ms_stock_purchase_detail.PurchasePrice), 0)
@@ -147,31 +157,20 @@ class SummaryService
             WHERE DistributorID = a.DistributorID AND StatusOrderID = 'S023'
             AND DATE(CreatedDate) BETWEEN '$startDate' AND b.DateSummary
           ) AS Voucher,
+
           (
-            SELECT IFNULL(
-                SUM(delivery_order_value.SubTotal - delivery_order_value.Discount + delivery_order_value.ServiceCharge + delivery_order_value.DeliveryFee)
-              , 0)
-            FROM (
-              SELECT 
-                tx_merchant_delivery_order.DeliveryOrderID,
-                MAX(tx_merchant_delivery_order_log.ProcessTime) AS DeliveryDate,
-                ANY_VALUE(tx_merchant_order.DistributorID) AS DistributorID,
-                SUM(tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price) AS SubTotal,
-                IFNULL(tx_merchant_delivery_order.Discount, 0) AS Discount,
-                IFNULL(tx_merchant_delivery_order.ServiceCharge, 0) AS ServiceCharge,
-                IFNULL(tx_merchant_delivery_order.DeliveryFee, 0) AS DeliveryFee
-              FROM tx_merchant_delivery_order_detail
-              JOIN tx_merchant_delivery_order ON tx_merchant_delivery_order.DeliveryOrderID = tx_merchant_delivery_order_detail.DeliveryOrderID
-                AND tx_merchant_delivery_order.StatusDO = 'S025'
-              JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_delivery_order.StockOrderID
-              LEFT JOIN tx_merchant_delivery_order_log ON tx_merchant_delivery_order_log.DeliveryOrderID = tx_merchant_delivery_order.DeliveryOrderID
-                AND tx_merchant_delivery_order_log.StatusDO = 'S024'
-              WHERE tx_merchant_delivery_order_detail.StatusExpedition = 'S031'
-              GROUP BY tx_merchant_delivery_order.DeliveryOrderID
-            ) AS delivery_order_value
-            WHERE delivery_order_value.DistributorID = a.DistributorID
-            AND DATE(delivery_order_value.DeliveryDate) BETWEEN '$startDate' AND b.DateSummary
+            SELECT IFNULL(SUM(tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price), 0)
+            FROM tx_merchant_delivery_order
+            JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_delivery_order.StockOrderID
+            JOIN ms_merchant_account ON ms_merchant_account.MerchantID = tx_merchant_order.MerchantID
+              AND ms_merchant_account.IsTesting = 0 AND (ms_merchant_account.Partner != 'TRADING' OR ms_merchant_account.Partner IS NULL)
+            JOIN tx_merchant_delivery_order_detail ON tx_merchant_delivery_order_detail.DeliveryOrderID = tx_merchant_delivery_order.DeliveryOrderID
+              AND tx_merchant_delivery_order_detail.StatusExpedition = 'S031'
+            WHERE tx_merchant_delivery_order.StatusDO = 'S025'
+              AND tx_merchant_order.DistributorID = a.DistributorID
+              AND DATE(tx_merchant_delivery_order.CreatedDate) BETWEEN '$startDate' AND b.DateSummary
           ) AS DeliveryOrder,
+
           (
             SELECT IFNULL(SUM(PaymentNominal), 0)
             FROM tx_merchant_delivery_order
