@@ -66,7 +66,7 @@
                           <th>Total Transaksi Pengajuan</th>
                           <th>Est Margin Pengajuan</th>
                           <th>% Est Margin Pengajuan</th>
-                          <th>Bunga</th>
+                          <th>Bunga BPR</th>
                           <th>Cost Logistic</th>
                           <th>Final Est Margin Pengajuan</th>
                           <th>Diajukan Oleh</th>
@@ -113,7 +113,7 @@
                   <div class="col-md-4 col-12">
                     <div class="info-box">
                       <div class="info-box-content">
-                        <span class="info-box-text h6 mb-1" style="white-space: unset">Total Bunga</span>
+                        <span class="info-box-text h6 mb-1" style="white-space: unset">Total Bunga BPR</span>
                         <span class="info-box-number h-6 m-0">{{ Helper::formatCurrency($summarySubmission->TotalBunga) }}</span>
                       </div>
                     </div>
@@ -151,7 +151,7 @@
                           <th>Total Transaksi Pengajuan</th>
                           <th>Est Margin Pengajuan</th>
                           <th>% Est Margin Pengajuan</th>
-                          <th>Bunga</th>
+                          <th>Bunga BPR</th>
                           <th>Cost Logistic</th>
                           <th>Final Est Margin Pengajuan</th>
                           <th>Diajukan Oleh</th>
@@ -184,7 +184,7 @@
                           <th>Total Transaksi Pengajuan</th>
                           <th>Est Margin Pengajuan</th>
                           <th>% Est Margin Pengajuan</th>
-                          <th>Bunga</th>
+                          <th>Bunga BPR</th>
                           <th>Cost Logistic</th>
                           <th>Final Est Margin Pengajuan</th>
                           <th>Diajukan Oleh</th>

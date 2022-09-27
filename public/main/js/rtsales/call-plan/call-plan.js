@@ -3,12 +3,16 @@ $(document).ready(function () {
 
     const d = new Date();
 
+    const month = d.getMonth() + 1;
+    const year = d.getFullYear();
+    const startDateMonth = `${year}-${String(month).padStart(2, "0")}-01`;
+
     const dateNow = d.toISOString().split("T")[0];
     const dayNameNow = new Date(dateNow).toLocaleString("en-us", {
         weekday: "long",
     });
 
-    callPlanData([dayNameNow], dateNow, dateNow);
+    callPlanData([dayNameNow], startDateMonth, dateNow);
     $("#call-plan #visit_day").val([dayNameNow]);
 
     function callPlanData(visitDayName, startDate, endDate) {
@@ -208,9 +212,9 @@ $(document).ready(function () {
     });
 
     // Menyisipkan Placeholder Date
-    $("#call-plan #from_date").val(dateNow);
+    $("#call-plan #from_date").val(startDateMonth);
     $("#call-plan #to_date").val(dateNow);
-    $("#call-plan #from_date").attr("placeholder", dateNow);
+    $("#call-plan #from_date").attr("placeholder", startDateMonth);
     $("#call-plan #to_date").attr("placeholder", dateNow);
 
     $("#filter").on("click", function () {
@@ -225,11 +229,11 @@ $(document).ready(function () {
     $("#refresh").on("click", function () {
         $("#visit_day").val([dayNameNow]);
         $("#visit_day").selectpicker("refresh");
-        $("#from_date").val(dateNow);
+        $("#from_date").val(startDateMonth);
         $("#to_date").val(dateNow);
 
         $("#call-plan-table .table-datatables").DataTable().destroy();
-        callPlanData([dayNameNow], dateNow, dateNow);
+        callPlanData([dayNameNow], startDateMonth, dateNow);
 
         // Setting Awal Daterangepicker
         $("#call-plan #from_date").daterangepicker({
