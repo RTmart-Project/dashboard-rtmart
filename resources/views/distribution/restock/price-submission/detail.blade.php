@@ -91,6 +91,10 @@
                 <p>-</p>
                 @endif
               </div>
+              <div class="col-12 col-md-3">
+                <strong>Info</strong>
+                <p>Toko ini sudah restock sebanyak {{ $countPOselesai }} kali sejak {{ date('d F Y',strtotime('-31 days',strtotime($data->CreatedDate))) }}</p>
+              </div>
               @if ($data->StatusPriceSubmission === 'S039' && (Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "IT"))
               <div class="col-12 mb-3 justify-content-center d-flex" style="gap: 10px">
                 <a class="btn btn-xs btn-success btn-approve" 
@@ -208,7 +212,7 @@
                   </tr>
                   <tr class="text-right">
                     <th colspan="8"></th>
-                    <th colspan="2">Grand Total Margin Pengajuan</th>
+                    <th colspan="2">Grand Total Est Margin Pengajuan</th>
                     <th>{{ Helper::formatCurrency($estMarginSubmission - round($data->Bunga / 100 * $totalPriceSubmission) - (2250 * $qty), "Rp ") }}</th>
                   </tr>
                 </tfoot>

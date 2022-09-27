@@ -71,12 +71,17 @@
                 <strong>Sales</strong>
                 <p>{{ $data->SalesCode }} {{ $data->SalesName }}</p>
               </div>
+              <div class="col-12 col-md-3 mb-2">
+                <strong>Info</strong>
+                <p>Toko ini sudah restock sebanyak {{ $countPOselesai }} kali sejak {{ date('d F Y',strtotime('-31 days',strtotime($data->CreatedDate))) }}</p>
+              </div>
               <div class="col-12">
                 @if ($data->StatusOrderID === "S009" || $data->StatusOrderID === "S010" || $data->StatusOrderID === "S023")
                 <form action="{{ route('distribution.storePriceSubmission', ['stockOrderID' => $data->StockOrderID]) }}" method="POST" id="add-price-submission">
                   @csrf
                   @php
                     $totalEstMarginPrice = 0;
+                    $totalQty = 0;
                   @endphp
                   <strong>Detail Produk</strong>
                   @foreach ($data->Detail as $item)
@@ -100,6 +105,7 @@
                       <div class="form-group">
                         <label>Quantity</label>
                         <input type="text" class="form-control qty" value="{{ $item->PromisedQuantity }}" readonly>
+                        @php $totalQty += $item->PromisedQuantity @endphp
                       </div>
                     </div>
                     <div class="col-12 col-md-2">
@@ -198,28 +204,57 @@
                         <input type="text" class="form-control nett_price" name="nett_price" value="{{ Helper::formatCurrency($data->NettPrice, "") }}" readonly>
                       </div>
                     </div>
-                    <div class="col-12 col-md-3">
+                    <div class="col-12 col-md-6">
                       <div class="form-group">
                         <label>Total Est Margin Jual</label>
                         <input type="text" class="form-control total_est_margin_price autonumeric" value="{{ $totalEstMarginPrice }}" readonly>
                       </div>
                     </div>
-                    <div class="col-12 col-md-3">
+                    <div class="col-12 col-md-6">
                       <div class="form-group">
                         <label>% Total Est Margin Jual</label>
                         <input type="text" class="form-control percent_total_est_margin_price autonumeric" value="{{ round($totalEstMarginPrice / $data->TotalPrice * 100, 2) }}" readonly>
                       </div>
                     </div>
-                    <div class="col-12 col-md-3">
-                      <div class="form-group">
-                        <label>Total Est Margin Pengajuan</label>
-                        <input type="text" class="form-control total_est_margin_submission" readonly>
+                    <div class="col-12 col-md-6">
+                      <div class="form-group row">
+                        <label class="col-sm-4 col-form-label">Total Est Margin Pengajuan</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control total_est_margin_submission" readonly>
+                        </div>
                       </div>
                     </div>
-                    <div class="col-12 col-md-3">
-                      <div class="form-group">
-                        <label>% Total Est Margin Pengajuan</label>
-                        <input type="text" class="form-control percent_total_est_margin_submission" readonly>
+                    <div class="col-12 col-md-6">
+                      <div class="form-group row">
+                        <label class="col-sm-4 col-form-label">% Total Est Margin Pengajuan</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control percent_total_est_margin_submission" readonly>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <div class="form-group row">
+                        <label class="col-sm-4 col-form-label">Bunga (2.4% / {{ $data->CountPOselesai }}) x Value Pengajuan</label>
+                        <input type="hidden" id="bunga" value="{{ $data->Bunga }}">
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control bunga" readonly>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <div class="form-group row">
+                        <label class="col-sm-4 col-form-label">Cost Logistic (2250 x {{ $totalQty }})</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control autonumeric cost_logistic" value="{{ 2250 * $totalQty }}" readonly>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <div class="form-group row">
+                        <label class="col-sm-4 col-form-label">Grand Total Est Margin Pengajuan</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control grand_total_est_margin_submission" readonly>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -310,6 +345,8 @@
     const sellingPrice = thisForm.find('.price').val().replaceAll(".", "");
     const purchasePrice = thisForm.find('.purchase_price').val().replaceAll(".", "");
     const qty = thisForm.find('.qty').val();
+    const percentBunga = $('#bunga').val();
+    const costLogistic = $('.cost_logistic').val().replaceAll(".", "");
     
     const valueSelling = qty * sellingPrice;
     const valueSubmission = qty * priceSubmission;
@@ -345,9 +382,13 @@
     })
 
     const percentTotalEstMarginSubmission = Math.round(totalEstMarginSubmission / totalValueSubmission * 100 * 100) / 100;
+    const bunga = Math.round(totalValueSubmission * percentBunga / 100);
+    const grandTotalEstMarginSubmission = totalEstMarginSubmission - bunga - costLogistic;
 
     $('.total_est_margin_submission').val(thousands_separators(totalEstMarginSubmission));
     $('.percent_total_est_margin_submission').val(percentTotalEstMarginSubmission);
+    $('.bunga').val(thousands_separators(bunga));
+    $('.grand_total_est_margin_submission').val(thousands_separators(grandTotalEstMarginSubmission));
 
     const totalPrice = $(".total_price").val().replaceAll(".", "");
     const nettPrice = totalPrice - totalVoucher;
@@ -358,6 +399,7 @@
 
   $("#btn-save").on("click", function () {
     let open = true;
+    const grandTotalEstMarginSubmission = $('.grand_total_est_margin_submission').val().replaceAll(".", "");
     $(".wrapper-product").each(function () {
       const productID = $(this).find('.product-id').val();
       const product = $(this).find('.product').val();
@@ -387,7 +429,13 @@
         return (open = false);
       }
     });
-    if (open === true) {
+    if (grandTotalEstMarginSubmission < 0) {
+      Toast.fire({
+        icon: "error",
+        title: ` Grand Total Est Margin Pengajuan harus lebih dari 0`,
+      });
+      return (open = false);
+    } else if (open === true) {
       $('#konfirmasi').modal('show');
     }
   })
