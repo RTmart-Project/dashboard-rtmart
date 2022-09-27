@@ -72,8 +72,8 @@
                 <p>{{ $data->SalesCode }} {{ $data->SalesName }}</p>
               </div>
               <div class="col-12 col-md-3 mb-2">
-                <strong>Info</strong>
-                <p>Toko ini sudah restock sebanyak {{ $countPOselesai }} kali sejak {{ date('d F Y',strtotime('-31 days',strtotime($data->CreatedDate))) }}</p>
+                <strong>Cycle Restock</strong>
+                <p>{{ $countPOselesai === 0 ? 'Belum pernah' : $countPOselesai . ' kali' }} <br> sejak {{ date('d F Y',strtotime('-31 days',strtotime($data->CreatedDate))) }}</p>
               </div>
               <div class="col-12">
                 @if ($data->StatusOrderID === "S009" || $data->StatusOrderID === "S010" || $data->StatusOrderID === "S023")
@@ -251,9 +251,17 @@
                     </div>
                     <div class="col-12 col-md-6">
                       <div class="form-group row">
-                        <label class="col-sm-4 col-form-label">Grand Total Est Margin Pengajuan</label>
+                        <label class="col-sm-4 col-form-label">Final Est Margin Pengajuan</label>
                         <div class="col-sm-8">
                           <input type="text" class="form-control grand_total_est_margin_submission" readonly>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <div class="form-group row">
+                        <label class="col-sm-4 col-form-label">% Final Est Margin Pengajuan</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control percent_final_est_margin_submission" readonly>
                         </div>
                       </div>
                     </div>
@@ -262,6 +270,27 @@
                   <div class="form-group float-right mt-4">
                     <button type="button" class="btn btn-success" id="btn-save">Simpan</button>
                   </div>
+                  {{-- Alert using modal --}}
+                  <div class="modal fade" id="alert-margin-final" data-backdrop="static" tabindex="-1" role="dialog"
+                  aria-labelledby="konfirmasiLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h6 class="modal-title" id="konfirmasiLabel"><i class="fas fa-info"></i> Peringatan</h6>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <h5>Final Estimasi Margin Pengajuan Tidak Memenuhi Minimum</h5>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-sm btn-outline-secondary" data-dismiss="modal">Kembali</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   <!-- Modal -->
                   <div class="modal fade" id="konfirmasi" data-backdrop="static" tabindex="-1" role="dialog"
                   aria-labelledby="konfirmasiLabel" aria-hidden="true">
@@ -384,11 +413,13 @@
     const percentTotalEstMarginSubmission = Math.round(totalEstMarginSubmission / totalValueSubmission * 100 * 100) / 100;
     const bunga = Math.round(totalValueSubmission * percentBunga / 100);
     const grandTotalEstMarginSubmission = totalEstMarginSubmission - bunga - costLogistic;
+    const percentGrandTotalEstMarginSubmission = Math.round(grandTotalEstMarginSubmission / totalValueSubmission * 100 * 100) / 100
 
     $('.total_est_margin_submission').val(thousands_separators(totalEstMarginSubmission));
     $('.percent_total_est_margin_submission').val(percentTotalEstMarginSubmission);
     $('.bunga').val(thousands_separators(bunga));
     $('.grand_total_est_margin_submission').val(thousands_separators(grandTotalEstMarginSubmission));
+    $('.percent_final_est_margin_submission').val(percentGrandTotalEstMarginSubmission);
 
     const totalPrice = $(".total_price").val().replaceAll(".", "");
     const nettPrice = totalPrice - totalVoucher;
@@ -430,10 +461,7 @@
       }
     });
     if (grandTotalEstMarginSubmission < 0) {
-      Toast.fire({
-        icon: "error",
-        title: ` Grand Total Est Margin Pengajuan harus lebih dari 0`,
-      });
+      $('#alert-margin-final').modal('show');
       return (open = false);
     } else if (open === true) {
       $('#konfirmasi').modal('show');
