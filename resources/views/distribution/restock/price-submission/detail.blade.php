@@ -92,8 +92,8 @@
                 @endif
               </div>
               <div class="col-12 col-md-3">
-                <strong>Info</strong>
-                <p>Toko ini sudah restock sebanyak {{ $countPOselesai }} kali sejak {{ date('d F Y',strtotime('-31 days',strtotime($data->CreatedDate))) }}</p>
+                <strong>Cycle Restock</strong>
+                <p>{{ $countPOselesai === 0 ? 'Belum pernah' : $countPOselesai . ' kali' }} <br> sejak {{ date('d F Y',strtotime('-31 days',strtotime($data->CreatedDate))) }}</p>
               </div>
               @if ($data->StatusPriceSubmission === 'S039' && (Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "IT"))
               <div class="col-12 mb-3 justify-content-center d-flex" style="gap: 10px">
@@ -202,7 +202,7 @@
                   </tr>
                   <tr class="text-right">
                     <th colspan="8"></th>
-                    <th colspan="2">Bunga (2.4% / {{ $data->CountPOselesai }}) x Value Pengajuan</th>
+                    <th colspan="2">Bunga BPR (2.4% / {{ $data->CountPOselesai }}) x Value Pengajuan</th>
                     <th>{{ Helper::formatCurrency($data->Bunga / 100 * $totalPriceSubmission, "Rp ") }}</th>
                   </tr>
                   <tr class="text-right">
@@ -212,8 +212,11 @@
                   </tr>
                   <tr class="text-right">
                     <th colspan="8"></th>
-                    <th colspan="2">Grand Total Est Margin Pengajuan</th>
-                    <th>{{ Helper::formatCurrency($estMarginSubmission - round($data->Bunga / 100 * $totalPriceSubmission) - (2250 * $qty), "Rp ") }}</th>
+                    <th colspan="2">Final Est Margin Pengajuan</th>
+                    <th>
+                      {{ Helper::formatCurrency($estMarginSubmission - round($data->Bunga / 100 * $totalPriceSubmission) - (2250 * $qty), "Rp ") }} | 
+                      {{ round(($estMarginSubmission - round($data->Bunga / 100 * $totalPriceSubmission) - (2250 * $qty)) / $totalPriceSubmission * 100, 2) }}%
+                    </th>
                   </tr>
                 </tfoot>
               </table>

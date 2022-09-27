@@ -1773,7 +1773,13 @@ class DistributionController extends Controller
                 })
                 ->addColumn('FinalEstMarginSubmission', function ($data) {
                     $finalEstMarginSubmission = $data->EstMarginTotalTrxSubmission - round($data->Bunga / 100 * $data->TotalTrxSubmission) - $data->CostLogistic;
-                    return $finalEstMarginSubmission;
+                    if ($finalEstMarginSubmission < 0) {
+                        $finalMargin = $finalEstMarginSubmission . ' <i class="fas fa-exclamation-triangle text-warning"></i>';
+                    } else {
+                        $finalMargin = $finalEstMarginSubmission;
+                    }
+
+                    return $finalMargin;
                 })
                 ->editColumn('CreatedBy', function ($data) {
                     return $data->CreatedBy . ' pada ' . date('d M Y H:i', strtotime($data->CreatedDate));
@@ -1786,10 +1792,10 @@ class DistributionController extends Controller
                     <a class="btn btn-xs btn-danger btn-reject" data-price-submission-id="' . $data->PriceSubmissionID . '" data-stock-order-id="' . $data->StockOrderID . '">Tolak</a>';
                 })
                 ->filterColumn('Sales', function ($query, $keyword) {
-                    $sql = "CONCAT(tx_merchant_order.SalesCode,' - ',ms_sales.SalesName)  like ?";
+                    $sql = "CONCAT(tmo.SalesCode,' - ',ms_sales.SalesName)  like ?";
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 })
-                ->rawColumns(['StockOrderID', 'Detail', 'Confirmation'])
+                ->rawColumns(['StockOrderID', 'FinalEstMarginSubmission', 'Detail', 'Confirmation'])
                 ->make();
         }
     }
