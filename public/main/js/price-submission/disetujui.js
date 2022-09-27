@@ -22,11 +22,17 @@ $(document).ready(function () {
             columns: [
                 {
                     data: "StockOrderID",
-                    name: "tx_merchant_order.StockOrderID",
+                    name: "tmo.StockOrderID",
                 },
                 {
                     data: "DatePO",
-                    name: "tx_merchant_order.CreatedDate",
+                    name: "tmo.CreatedDate",
+                    type: "date",
+                },
+                {
+                    data: "ConfirmDate",
+                    name: "ms_price_submission.ConfirmDate",
+                    type: "date",
                 },
                 {
                     data: "DistributorName",
@@ -34,7 +40,7 @@ $(document).ready(function () {
                 },
                 {
                     data: "MerchantID",
-                    name: "tx_merchant_order.MerchantID",
+                    name: "tmo.MerchantID",
                 },
                 {
                     data: "StoreName",
@@ -46,7 +52,7 @@ $(document).ready(function () {
                 },
                 {
                     data: "TotalPrice",
-                    name: "tx_merchant_order.TotalPrice",
+                    name: "tmo.TotalPrice",
                 },
                 {
                     data: "EstMarginTotalPrice",
@@ -71,6 +77,21 @@ $(document).ready(function () {
                 {
                     data: "EstPercentMarginTotalTrxSubmission",
                     name: "EstPercentMarginTotalTrxSubmission",
+                    searchable: false,
+                },
+                {
+                    data: "PotonganBunga",
+                    name: "PotonganBunga",
+                    searchable: false,
+                },
+                {
+                    data: "CostLogistic",
+                    name: "CostLogistic",
+                    searchable: false,
+                },
+                {
+                    data: "FinalEstMarginSubmission",
+                    name: "FinalEstMarginSubmission",
                     searchable: false,
                 },
                 {
@@ -104,14 +125,17 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+                        columns: [
+                            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+                            15, 16, 17,
+                        ],
                         orthogonal: "export",
                     },
                 },
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [6, 7, 9, 10],
+                    aTargets: [7, 8, 10, 11, 13, 14, 15],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;

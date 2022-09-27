@@ -71,12 +71,17 @@
                 <strong>Sales</strong>
                 <p>{{ $data->SalesCode }} {{ $data->SalesName }}</p>
               </div>
+              <div class="col-12 col-md-3 mb-2">
+                <strong>Cycle Restock</strong>
+                <p>{{ $countPOselesai === 0 ? 'Belum pernah' : $countPOselesai . ' kali' }} <br> sejak {{ date('d F Y',strtotime('-31 days',strtotime($data->CreatedDate))) }}</p>
+              </div>
               <div class="col-12">
                 @if ($data->StatusOrderID === "S009" || $data->StatusOrderID === "S010" || $data->StatusOrderID === "S023")
                 <form action="{{ route('distribution.storePriceSubmission', ['stockOrderID' => $data->StockOrderID]) }}" method="POST" id="add-price-submission">
                   @csrf
                   @php
                     $totalEstMarginPrice = 0;
+                    $totalQty = 0;
                   @endphp
                   <strong>Detail Produk</strong>
                   @foreach ($data->Detail as $item)
@@ -87,7 +92,7 @@
                     <div class="col-12 col-md-2">
                       <div class="form-group">
                         <label for="product_id">Produk ID</label>
-                        <input type="text" class="form-control" name="product_id[]" id="product_id" value="{{ $item->ProductID }}" readonly>
+                        <input type="text" class="form-control product-id" name="product_id[]" id="product_id" value="{{ $item->ProductID }}" readonly>
                       </div>
                     </div>
                     <div class="col-12 col-md-2">
@@ -100,6 +105,7 @@
                       <div class="form-group">
                         <label>Quantity</label>
                         <input type="text" class="form-control qty" value="{{ $item->PromisedQuantity }}" readonly>
+                        @php $totalQty += $item->PromisedQuantity @endphp
                       </div>
                     </div>
                     <div class="col-12 col-md-2">
@@ -198,28 +204,65 @@
                         <input type="text" class="form-control nett_price" name="nett_price" value="{{ Helper::formatCurrency($data->NettPrice, "") }}" readonly>
                       </div>
                     </div>
-                    <div class="col-12 col-md-3">
+                    <div class="col-12 col-md-6">
                       <div class="form-group">
                         <label>Total Est Margin Jual</label>
                         <input type="text" class="form-control total_est_margin_price autonumeric" value="{{ $totalEstMarginPrice }}" readonly>
                       </div>
                     </div>
-                    <div class="col-12 col-md-3">
+                    <div class="col-12 col-md-6">
                       <div class="form-group">
                         <label>% Total Est Margin Jual</label>
                         <input type="text" class="form-control percent_total_est_margin_price autonumeric" value="{{ round($totalEstMarginPrice / $data->TotalPrice * 100, 2) }}" readonly>
                       </div>
                     </div>
-                    <div class="col-12 col-md-3">
-                      <div class="form-group">
-                        <label>Total Est Margin Pengajuan</label>
-                        <input type="text" class="form-control total_est_margin_submission" readonly>
+                    <div class="col-12 col-md-6">
+                      <div class="form-group row">
+                        <label class="col-sm-4 col-form-label">Total Est Margin Pengajuan</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control total_est_margin_submission" readonly>
+                        </div>
                       </div>
                     </div>
-                    <div class="col-12 col-md-3">
-                      <div class="form-group">
-                        <label>% Total Est Margin Pengajuan</label>
-                        <input type="text" class="form-control percent_total_est_margin_submission" readonly>
+                    <div class="col-12 col-md-6">
+                      <div class="form-group row">
+                        <label class="col-sm-4 col-form-label">% Total Est Margin Pengajuan</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control percent_total_est_margin_submission" readonly>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <div class="form-group row">
+                        <label class="col-sm-4 col-form-label">Bunga (2.4% / {{ $data->CountPOselesai }}) x Value Pengajuan</label>
+                        <input type="hidden" id="bunga" value="{{ $data->Bunga }}">
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control bunga" readonly>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <div class="form-group row">
+                        <label class="col-sm-4 col-form-label">Cost Logistic (2250 x {{ $totalQty }})</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control autonumeric cost_logistic" value="{{ 2250 * $totalQty }}" readonly>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <div class="form-group row">
+                        <label class="col-sm-4 col-form-label">Final Est Margin Pengajuan</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control grand_total_est_margin_submission" readonly>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <div class="form-group row">
+                        <label class="col-sm-4 col-form-label">% Final Est Margin Pengajuan</label>
+                        <div class="col-sm-8">
+                          <input type="text" class="form-control percent_final_est_margin_submission" readonly>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -227,6 +270,27 @@
                   <div class="form-group float-right mt-4">
                     <button type="button" class="btn btn-success" id="btn-save">Simpan</button>
                   </div>
+                  {{-- Alert using modal --}}
+                  <div class="modal fade" id="alert-margin-final" data-backdrop="static" tabindex="-1" role="dialog"
+                  aria-labelledby="konfirmasiLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h6 class="modal-title" id="konfirmasiLabel"><i class="fas fa-info"></i> Peringatan</h6>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <h5>Final Estimasi Margin Pengajuan Tidak Memenuhi Minimum</h5>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-sm btn-outline-secondary" data-dismiss="modal">Kembali</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   <!-- Modal -->
                   <div class="modal fade" id="konfirmasi" data-backdrop="static" tabindex="-1" role="dialog"
                   aria-labelledby="konfirmasiLabel" aria-hidden="true">
@@ -310,6 +374,8 @@
     const sellingPrice = thisForm.find('.price').val().replaceAll(".", "");
     const purchasePrice = thisForm.find('.purchase_price').val().replaceAll(".", "");
     const qty = thisForm.find('.qty').val();
+    const percentBunga = $('#bunga').val();
+    const costLogistic = $('.cost_logistic').val().replaceAll(".", "");
     
     const valueSelling = qty * sellingPrice;
     const valueSubmission = qty * priceSubmission;
@@ -345,9 +411,15 @@
     })
 
     const percentTotalEstMarginSubmission = Math.round(totalEstMarginSubmission / totalValueSubmission * 100 * 100) / 100;
+    const bunga = Math.round(totalValueSubmission * percentBunga / 100);
+    const grandTotalEstMarginSubmission = totalEstMarginSubmission - bunga - costLogistic;
+    const percentGrandTotalEstMarginSubmission = Math.round(grandTotalEstMarginSubmission / totalValueSubmission * 100 * 100) / 100
 
     $('.total_est_margin_submission').val(thousands_separators(totalEstMarginSubmission));
     $('.percent_total_est_margin_submission').val(percentTotalEstMarginSubmission);
+    $('.bunga').val(thousands_separators(bunga));
+    $('.grand_total_est_margin_submission').val(thousands_separators(grandTotalEstMarginSubmission));
+    $('.percent_final_est_margin_submission').val(percentGrandTotalEstMarginSubmission);
 
     const totalPrice = $(".total_price").val().replaceAll(".", "");
     const nettPrice = totalPrice - totalVoucher;
@@ -358,14 +430,26 @@
 
   $("#btn-save").on("click", function () {
     let open = true;
+    const grandTotalEstMarginSubmission = $('.grand_total_est_margin_submission').val().replaceAll(".", "");
     $(".wrapper-product").each(function () {
-      const product = $(this).find('.product').val()
+      const productID = $(this).find('.product-id').val();
+      const product = $(this).find('.product').val();
       const priceSubmission = $(this).find('.price_submission').val().replaceAll(".", "");
       const price = $(this).find('.price').val().replaceAll(".", "");
+      const estPercentMarginSubmission = $(this).find('.est_percent_margin_submission').val();
+      
+      const margin = (priceSubmission)
+
       if (priceSubmission < 1) {
         Toast.fire({
           icon: "error",
           title: `Harga Pengajuan ${product} harus lebih dari 0!`,
+        });
+        return (open = false);
+      } else if (productID === "P-000002" && estPercentMarginSubmission < 10) {
+        Toast.fire({
+          icon: "error",
+          title: `Estimasi Margin Pengajuan ${product} harus lebih dari 10%!`,
         });
         return (open = false);
       } else if (Number(priceSubmission) > Number(price)) {
@@ -376,7 +460,10 @@
         return (open = false);
       }
     });
-    if (open === true) {
+    if (grandTotalEstMarginSubmission < 0) {
+      $('#alert-margin-final').modal('show');
+      return (open = false);
+    } else if (open === true) {
       $('#konfirmasi').modal('show');
     }
   })

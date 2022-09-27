@@ -45,7 +45,7 @@
               </li>
             </ul>
           </div>
-          <div class="card-body pt-3">
+          <div class="card-body pt-2">
             <div class="tab-content">
               <!-- All -->
               <div class="tab-pane active" id="menunggu-konfirmasi">
@@ -66,6 +66,9 @@
                           <th>Total Transaksi Pengajuan</th>
                           <th>Est Margin Pengajuan</th>
                           <th>% Est Margin Pengajuan</th>
+                          <th>Bunga BPR</th>
+                          <th>Cost Logistic</th>
+                          <th>Final Est Margin Pengajuan</th>
                           <th>Diajukan Oleh</th>
                           <th>Detail</th>
                           <th>Konfirmasi</th>
@@ -81,11 +84,63 @@
               <div class="tab-pane" id="disetujui">
                 <div class="row">
                   <div class="col-12">
+                    <label>Summary Pengajuan {{ date('d F Y') }}</label>
+                  </div>
+                  <div class="col-md-4 col-12">
+                    <div class="info-box">
+                      <div class="info-box-content">
+                        <span class="info-box-text h6 mb-1" style="white-space: unset">Total Value Pengajuan</span>
+                        <span class="info-box-number h-6 m-0">{{ Helper::formatCurrency($summarySubmission->TotalSubmission) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-4 col-12">
+                    <div class="info-box">
+                      <div class="info-box-content">
+                        <span class="info-box-text h6 mb-1" style="white-space: unset">Total Est Margin Pengajuan</span>
+                        <span class="info-box-number h-6 m-0">{{ Helper::formatCurrency($summarySubmission->TotalEstMarginSubmission) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-4 col-12">
+                    <div class="info-box">
+                      <div class="info-box-content">
+                        <span class="info-box-text h6 mb-1" style="white-space: unset">% Est Margin Pengajuan</span>
+                        <span class="info-box-number h-6 m-0">{{ $summarySubmission->PercentEstMarginSubmission }}%</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-4 col-12">
+                    <div class="info-box">
+                      <div class="info-box-content">
+                        <span class="info-box-text h6 mb-1" style="white-space: unset">Total Bunga BPR</span>
+                        <span class="info-box-number h-6 m-0">{{ Helper::formatCurrency($summarySubmission->TotalBunga) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-4 col-12">
+                    <div class="info-box">
+                      <div class="info-box-content">
+                        <span class="info-box-text h6 mb-1" style="white-space: unset">Total Cost Logistic</span>
+                        <span class="info-box-number h-6 m-0">{{ Helper::formatCurrency($summarySubmission->TotalCostLogistic) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-4 col-12">
+                    <div class="info-box">
+                      <div class="info-box-content">
+                        <span class="info-box-text h6 mb-1" style="white-space: unset">Total Final Est Margin Pengajuan</span>
+                        <span class="info-box-number h-6 m-0">{{ Helper::formatCurrency($summarySubmission->FinalEstMarginSubmission) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12">
                     <table class="table table-datatables">
                       <thead>
                         <tr>
                           <th>Stock Order ID</th>
                           <th>Tgl Order</th>
+                          <th>Tgl Approve Pengajuan</th>
                           <th>Distributor</th>
                           <th>Merchant ID</th>
                           <th>Nama Toko</th>
@@ -96,6 +151,9 @@
                           <th>Total Transaksi Pengajuan</th>
                           <th>Est Margin Pengajuan</th>
                           <th>% Est Margin Pengajuan</th>
+                          <th>Bunga BPR</th>
+                          <th>Cost Logistic</th>
+                          <th>Final Est Margin Pengajuan</th>
                           <th>Diajukan Oleh</th>
                           <th>Catatan</th>
                           <th>Detail</th>
@@ -126,6 +184,9 @@
                           <th>Total Transaksi Pengajuan</th>
                           <th>Est Margin Pengajuan</th>
                           <th>% Est Margin Pengajuan</th>
+                          <th>Bunga BPR</th>
+                          <th>Cost Logistic</th>
+                          <th>Final Est Margin Pengajuan</th>
                           <th>Diajukan Oleh</th>
                           <th>Catatan</th>
                           <th>Detail</th>

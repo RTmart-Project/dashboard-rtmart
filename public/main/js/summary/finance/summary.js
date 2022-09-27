@@ -12,6 +12,7 @@ function getSummaryCakung(startDate = null, endDate = null) {
         },
         type: "post",
         success: function (data) {
+            let purchaseOrderCakungExcludeBatal = "";
             let purchaseOrderCakung = "";
             let purchasingCakung = "";
             let voucherCakung = "";
@@ -20,6 +21,9 @@ function getSummaryCakung(startDate = null, endDate = null) {
             let billTargetCakung = "";
             let endingInventoryCakung = "";
             for (const item of data) {
+                purchaseOrderCakungExcludeBatal += `<td class="text-right align-middle p-2 data">${thousands_separators(
+                    item.PurchaseOrderExcludeBatal
+                )}</td>`;
                 purchaseOrderCakung += `<td class="text-right align-middle p-2 data">${thousands_separators(
                     item.PurchaseOrder
                 )}</td>`;
@@ -42,6 +46,9 @@ function getSummaryCakung(startDate = null, endDate = null) {
                     item.EndingInventory
                 )}</td>`;
             }
+            $("#purchase-order-cakung-exclude-batal").append(
+                purchaseOrderCakungExcludeBatal
+            );
             $("#purchase-order-cakung").append(purchaseOrderCakung);
             $("#purchasing-cakung").append(purchasingCakung);
             $("#voucher-cakung").append(voucherCakung);
@@ -49,7 +56,7 @@ function getSummaryCakung(startDate = null, endDate = null) {
             $("#bill-real-cakung").append(billRealCakung);
             $("#bill-target-cakung").append(billTargetCakung);
             $("#ending-inventory-cakung").append(endingInventoryCakung);
-            $("#purchase-order-cakung .loader-cakung").remove();
+            $("#purchase-order-cakung-exclude-batal .loader-cakung").remove();
         },
     });
 }
@@ -68,6 +75,7 @@ function getSummaryBandung(startDate = null, endDate = null) {
         },
         type: "post",
         success: function (data) {
+            let purchaseOrderBandungExcludeBatal = "";
             let purchaseOrderBandung = "";
             let purchasingBandung = "";
             let voucherBandung = "";
@@ -76,6 +84,9 @@ function getSummaryBandung(startDate = null, endDate = null) {
             let billTargetBandung = "";
             let endingInventoryBandung = "";
             for (const item of data) {
+                purchaseOrderBandungExcludeBatal += `<td class="text-right align-middle p-2 data">${thousands_separators(
+                    item.PurchaseOrderExcludeBatal
+                )}</td>`;
                 purchaseOrderBandung += `<td class="text-right align-middle p-2 data">${thousands_separators(
                     item.PurchaseOrder
                 )}</td>`;
@@ -98,6 +109,9 @@ function getSummaryBandung(startDate = null, endDate = null) {
                     item.EndingInventory
                 )}</td>`;
             }
+            $("#purchase-order-bandung-exclude-batal").append(
+                purchaseOrderBandungExcludeBatal
+            );
             $("#purchase-order-bandung").append(purchaseOrderBandung);
             $("#purchasing-bandung").append(purchasingBandung);
             $("#voucher-bandung").append(voucherBandung);
@@ -105,7 +119,7 @@ function getSummaryBandung(startDate = null, endDate = null) {
             $("#bill-real-bandung").append(billRealBandung);
             $("#bill-target-bandung").append(billTargetBandung);
             $("#ending-inventory-bandung").append(endingInventoryBandung);
-            $("#purchase-order-bandung .loader-bandung").remove();
+            $("#purchase-order-bandung-exclude-batal .loader-bandung").remove();
         },
     });
 }
@@ -124,6 +138,7 @@ function getSummaryCiracas(startDate = null, endDate = null) {
         },
         type: "post",
         success: function (data) {
+            let purchaseOrderCiracasExcludeBatal = "";
             let purchaseOrderCiracas = "";
             let purchasingCiracas = "";
             let voucherCiracas = "";
@@ -132,6 +147,9 @@ function getSummaryCiracas(startDate = null, endDate = null) {
             let billTargetCiracas = "";
             let endingInventoryCiracas = "";
             for (const item of data) {
+                purchaseOrderCiracasExcludeBatal += `<td class="text-right align-middle p-2 data">${thousands_separators(
+                    item.PurchaseOrderExcludeBatal
+                )}</td>`;
                 purchaseOrderCiracas += `<td class="text-right align-middle p-2 data">${thousands_separators(
                     item.PurchaseOrder
                 )}</td>`;
@@ -154,6 +172,9 @@ function getSummaryCiracas(startDate = null, endDate = null) {
                     item.EndingInventory
                 )}</td>`;
             }
+            $("#purchase-order-ciracas-exclude-batal").append(
+                purchaseOrderCiracasExcludeBatal
+            );
             $("#purchase-order-ciracas").append(purchaseOrderCiracas);
             $("#purchasing-ciracas").append(purchasingCiracas);
             $("#voucher-ciracas").append(voucherCiracas);
@@ -161,7 +182,7 @@ function getSummaryCiracas(startDate = null, endDate = null) {
             $("#bill-real-ciracas").append(billRealCiracas);
             $("#bill-target-ciracas").append(billTargetCiracas);
             $("#ending-inventory-ciracas").append(endingInventoryCiracas);
-            $("#purchase-order-ciracas .loader-ciracas").remove();
+            $("#purchase-order-ciracas-exclude-batal .loader-ciracas").remove();
         },
     });
 }
@@ -180,6 +201,7 @@ function getSummaryGrandTotal(startDate = null, endDate = null) {
         },
         type: "post",
         success: function (data) {
+            let purchaseOrderGrandTotalExcludeBatal = "";
             let purchaseOrderGrandTotal = "";
             let purchasingGrandTotal = "";
             let voucherGrandTotal = "";
@@ -188,6 +210,9 @@ function getSummaryGrandTotal(startDate = null, endDate = null) {
             let billTargetGrandTotal = "";
             let endingInventoryGrandTotal = "";
             for (const item of data) {
+                purchaseOrderGrandTotalExcludeBatal += `<td class="text-right align-middle p-2 data">${thousands_separators(
+                    item.PurchaseOrderExcludeBatal
+                )}</td>`;
                 purchaseOrderGrandTotal += `<td class="text-right align-middle p-2 data">${thousands_separators(
                     item.PurchaseOrder
                 )}</td>`;
@@ -210,6 +235,9 @@ function getSummaryGrandTotal(startDate = null, endDate = null) {
                     item.EndingInventory
                 )}</td>`;
             }
+            $("#purchase-order-grand-total-exclude-batal").append(
+                purchaseOrderGrandTotalExcludeBatal
+            );
             $("#purchase-order-grand-total").append(purchaseOrderGrandTotal);
             $("#purchasing-grand-total").append(purchasingGrandTotal);
             $("#voucher-grand-total").append(voucherGrandTotal);
@@ -219,7 +247,9 @@ function getSummaryGrandTotal(startDate = null, endDate = null) {
             $("#ending-inventory-grand-total").append(
                 endingInventoryGrandTotal
             );
-            $("#purchase-order-grand-total .loader-grand-total").remove();
+            $(
+                "#purchase-order-grand-total-exclude-batal .loader-grand-total"
+            ).remove();
         },
     });
 }
@@ -245,16 +275,18 @@ function getSummary(startDate = null, endDate = null) {
             $("#tanggal").append(tanggal);
 
             const loaderCakung = `<td class="w-50 text-center align-middle loader-cakung" colspan="${data.length}" rowspan="8">harap tunggu <i class="fas fa-spinner fa-spin"></i></td>`;
-            $("#purchase-order-cakung").append(loaderCakung);
+            $("#purchase-order-cakung-exclude-batal").append(loaderCakung);
 
             const loaderBandung = `<td class="w-50 text-center align-middle loader-bandung" colspan="${data.length}" rowspan="8">harap tunggu <i class="fas fa-spinner fa-spin"></i></td>`;
-            $("#purchase-order-bandung").append(loaderBandung);
+            $("#purchase-order-bandung-exclude-batal").append(loaderBandung);
 
             const loaderCiracas = `<td class="w-50 text-center align-middle loader-ciracas" colspan="${data.length}" rowspan="8">harap tunggu <i class="fas fa-spinner fa-spin"></i></td>`;
-            $("#purchase-order-ciracas").append(loaderCiracas);
+            $("#purchase-order-ciracas-exclude-batal").append(loaderCiracas);
 
             const loaderGrandTotal = `<td class="w-50 text-center align-middle loader-grand-total" colspan="${data.length}" rowspan="8">harap tunggu <i class="fas fa-spinner fa-spin"></i></td>`;
-            $("#purchase-order-grand-total").append(loaderGrandTotal);
+            $("#purchase-order-grand-total-exclude-batal").append(
+                loaderGrandTotal
+            );
 
             getSummaryCakung(startDate, endDate);
             getSummaryBandung(startDate, endDate);

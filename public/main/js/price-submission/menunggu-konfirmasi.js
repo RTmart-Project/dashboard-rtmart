@@ -22,11 +22,11 @@ $(document).ready(function () {
             columns: [
                 {
                     data: "StockOrderID",
-                    name: "tx_merchant_order.StockOrderID",
+                    name: "tmo.StockOrderID",
                 },
                 {
                     data: "DatePO",
-                    name: "tx_merchant_order.CreatedDate",
+                    name: "tmo.CreatedDate",
                 },
                 {
                     data: "DistributorName",
@@ -34,7 +34,7 @@ $(document).ready(function () {
                 },
                 {
                     data: "MerchantID",
-                    name: "tx_merchant_order.MerchantID",
+                    name: "tmo.MerchantID",
                 },
                 {
                     data: "StoreName",
@@ -46,7 +46,7 @@ $(document).ready(function () {
                 },
                 {
                     data: "TotalPrice",
-                    name: "tx_merchant_order.TotalPrice",
+                    name: "tmo.TotalPrice",
                 },
                 {
                     data: "EstMarginTotalPrice",
@@ -71,6 +71,21 @@ $(document).ready(function () {
                 {
                     data: "EstPercentMarginTotalTrxSubmission",
                     name: "EstPercentMarginTotalTrxSubmission",
+                    searchable: false,
+                },
+                {
+                    data: "PotonganBunga",
+                    name: "PotonganBunga",
+                    searchable: false,
+                },
+                {
+                    data: "CostLogistic",
+                    name: "CostLogistic",
+                    searchable: false,
+                },
+                {
+                    data: "FinalEstMarginSubmission",
+                    name: "FinalEstMarginSubmission",
                     searchable: false,
                 },
                 {
@@ -106,14 +121,17 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+                        columns: [
+                            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+                            15,
+                        ],
                         orthogonal: "export",
                     },
                 },
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [6, 7, 9, 10],
+                    aTargets: [6, 7, 9, 10, 12, 13, 14],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
@@ -129,7 +147,7 @@ $(document).ready(function () {
                     },
                 },
                 {
-                    aTargets: [14],
+                    aTargets: [17],
                     visible: roleID == "CEO" || roleID == "IT" ? true : false,
                 },
             ],

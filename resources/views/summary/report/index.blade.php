@@ -131,15 +131,15 @@
 
         <h5 class="my-2">DO Summary</h5>
         <div class="row">
-          {{-- <div class="col-md-4 col-6">
+          <div class="col-md-4 col-6">
             <div class="info-box">
               <span class="info-box-icon bg-info elevation-1"><i class="fas fa-shopping-cart"></i></span>
               <div class="info-box-content">
-                <span class="info-box-text no-wrap h6 mb-2">Total PO by DO (Value)</span>
+                <span class="info-box-text no-wrap h6 mb-2">Total PO of DO (Value)</span>
                 <span class="info-box-number h6 m-0" id="total-value-po-by-do"></span>
               </div>
             </div>
-          </div> --}}
+          </div>
           <div class="col-md-4 col-6">
             <div class="info-box">
               <span class="info-box-icon bg-info elevation-1"><i class="fas fa-truck"></i></span>
@@ -149,7 +149,7 @@
               </div>
             </div>
           </div>
-          {{-- <div class="col-md-4 col-6">
+          <div class="col-md-4 col-6">
             <div class="info-box">
               <span class="info-box-icon bg-info elevation-1"><i class="fas fa-cart-arrow-down"></i></span>
               <div class="info-box-content">
@@ -157,7 +157,7 @@
                 <span class="info-box-number h6 m-0" id="outstanding-do"></span>
               </div>
             </div>
-          </div> --}}
+          </div>
           <div class="col-md-4 col-6">
             <div class="info-box">
               <span class="info-box-icon bg-info elevation-1"><i class="fas fa-truck"></i></span>

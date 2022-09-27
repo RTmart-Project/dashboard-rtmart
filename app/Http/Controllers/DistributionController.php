@@ -1599,7 +1599,64 @@ class DistributionController extends Controller
 
     public function priceSubmission()
     {
-        return view('distribution.restock.price-submission.index');
+        $today = date('Y-m-d');
+        $summarySubmissionApproved = DB::table('ms_price_submission')
+            ->join('tx_merchant_order as tmo', 'tmo.StockOrderID', 'ms_price_submission.StockOrderID')
+            ->whereRaw("ms_price_submission.StatusPriceSubmission = 'S040'")
+            ->whereRaw("DATE(ms_price_submission.ConfirmDate) = '$today'")
+            ->selectRaw("
+                (
+                    SELECT SUM(PromisedQuantity * PriceSubmission)
+                    FROM tx_merchant_order_detail
+                    WHERE StockOrderID = ms_price_submission.StockOrderID
+                ) AS TotalTrxSubmission,
+                (
+                    SELECT 
+                        SUM((tx_merchant_order_detail.PriceSubmission - IFNULL(ms_stock_product.PurchasePrice, ms_product.Price)) * tx_merchant_order_detail.PromisedQuantity)
+                    FROM tx_merchant_order_detail
+                    JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_order_detail.StockOrderID
+                    JOIN ms_product ON ms_product.ProductID = tx_merchant_order_detail.ProductID
+                    LEFT JOIN ms_stock_product ON ms_stock_product.ProductID = tx_merchant_order_detail.ProductID
+                        AND ms_stock_product.Qty > 0
+                        AND ms_stock_product.ConditionStock = 'GOOD STOCK'
+                        AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
+                        AND DATE(ms_stock_product.CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
+                    WHERE tx_merchant_order_detail.StockOrderID = ms_price_submission.StockOrderID
+                ) AS EstMarginTotalTrxSubmission,
+                (
+                    SELECT 
+                        IF(COUNT(tx_merchant_order.StockOrderID) = 0, 2.4, 2.4 / COUNT(tx_merchant_order.StockOrderID))
+                    FROM tx_merchant_order
+                    WHERE tx_merchant_order.StatusOrderID = 'S018'
+                        AND tx_merchant_order.MerchantID = tmo.MerchantID
+                        AND DATE(tx_merchant_order.CreatedDate) >= DATE(tmo.CreatedDate - INTERVAL 31 DAY)
+                        AND tx_merchant_order.CreatedDate < tmo.CreatedDate
+                ) AS Bunga,
+                (
+                    SELECT SUM(tx_merchant_order_detail.PromisedQuantity * 2250)
+                    FROM tx_merchant_order_detail
+                    WHERE tx_merchant_order_detail.StockOrderID = ms_price_submission.StockOrderID
+                ) AS CostLogistic
+            ")
+            ->toSql();
+
+        $sqlSummarySubmission = DB::table(DB::raw("($summarySubmissionApproved) as SummarySubmission"))
+            ->selectRaw("
+                IFNULL(SUM(SummarySubmission.TotalTrxSubmission), 0) AS TotalSubmission,
+                IFNULL(SUM(SummarySubmission.EstMarginTotalTrxSubmission), 0) AS TotalEstMarginSubmission,
+                IFNULL(ROUND(SUM(SummarySubmission.EstMarginTotalTrxSubmission)	/ SUM(SummarySubmission.TotalTrxSubmission) * 100, 2), 0) AS PercentEstMarginSubmission,
+                IFNULL(ROUND(SUM(SummarySubmission.Bunga / 100 * SummarySubmission.TotalTrxSubmission), 0), 0) AS TotalBunga,
+                IFNULL(SUM(SummarySubmission.CostLogistic), 0) AS TotalCostLogistic,
+                IFNULL(SUM(SummarySubmission.EstMarginTotalTrxSubmission), 0) - 
+                    IFNULL(ROUND(SUM(SummarySubmission.Bunga / 100 * SummarySubmission.TotalTrxSubmission), 0), 0) - 
+                    IFNULL(SUM(SummarySubmission.CostLogistic), 0)
+                AS FinalEstMarginSubmission
+            ")
+            ->first();
+
+        return view('distribution.restock.price-submission.index', [
+            'summarySubmission' => $sqlSummarySubmission
+        ]);
     }
 
     public function getPriceSubmission($statusPriceSubmission, Request $request)
@@ -1608,72 +1665,81 @@ class DistributionController extends Controller
         $toDate = $request->input('toDate');
 
         $sql = DB::table('ms_price_submission')
-            ->join('tx_merchant_order', 'tx_merchant_order.StockOrderID', 'ms_price_submission.StockOrderID')
+            ->join('tx_merchant_order as tmo', 'tmo.StockOrderID', 'ms_price_submission.StockOrderID')
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'ms_price_submission.StatusPriceSubmission')
-            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
-            ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'tx_merchant_order.MerchantID')
+            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tmo.MerchantID')
+            ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'tmo.MerchantID')
             ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', 'ms_distributor_merchant_grade.GradeID')
-            ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tx_merchant_order.DistributorID')
-            ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'tx_merchant_order.SalesCode')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tmo.DistributorID')
+            ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'tmo.SalesCode')
             ->where('ms_price_submission.StatusPriceSubmission', $statusPriceSubmission)
-            ->select(
-                'ms_price_submission.PriceSubmissionID',
-                'tx_merchant_order.StockOrderID',
-                'tx_merchant_order.CreatedDate as DatePO',
-                'tx_merchant_order.MerchantID',
-                'ms_merchant_account.StoreName',
-                'ms_distributor_grade.Grade',
-                'ms_distributor.DistributorName',
-                'tx_merchant_order.SalesCode',
-                'ms_sales.SalesName',
-                'ms_price_submission.CreatedDate',
-                'ms_price_submission.CreatedBy',
-                'ms_price_submission.StatusPriceSubmission',
-                'ms_price_submission.Note',
-                'ms_status_order.StatusOrder',
-                'tx_merchant_order.TotalPrice',
-                DB::raw("
-                    (
-                        SELECT 
-                            SUM((tx_merchant_order_detail.Nett - IFNULL(ms_stock_product.PurchasePrice, ms_product.Price)) * tx_merchant_order_detail.PromisedQuantity)
-                        FROM tx_merchant_order_detail
-                        JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_order_detail.StockOrderID
-                        JOIN ms_product ON ms_product.ProductID = tx_merchant_order_detail.ProductID
-                        LEFT JOIN ms_stock_product ON ms_stock_product.ProductID = tx_merchant_order_detail.ProductID
-                            AND ms_stock_product.Qty > 0
-                            AND ms_stock_product.ConditionStock = 'GOOD STOCK'
-                            AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
-                            AND DATE(ms_stock_product.CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
-                        WHERE tx_merchant_order_detail.StockOrderID = ms_price_submission.StockOrderID
-                    ) AS EstMarginTotalPrice
-                "),
-                DB::raw("
-                    (
-                        SELECT SUM(PromisedQuantity * PriceSubmission)
-                        FROM tx_merchant_order_detail
-                        WHERE StockOrderID = ms_price_submission.StockOrderID
-                    ) AS TotalTrxSubmission
-                "),
-                DB::raw("
-                    (
-                        SELECT 
-                            SUM((tx_merchant_order_detail.PriceSubmission - IFNULL(ms_stock_product.PurchasePrice, ms_product.Price)) * tx_merchant_order_detail.PromisedQuantity)
-                        FROM tx_merchant_order_detail
-                        JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_order_detail.StockOrderID
-                        JOIN ms_product ON ms_product.ProductID = tx_merchant_order_detail.ProductID
-                        LEFT JOIN ms_stock_product ON ms_stock_product.ProductID = tx_merchant_order_detail.ProductID
-                            AND ms_stock_product.Qty > 0
-                            AND ms_stock_product.ConditionStock = 'GOOD STOCK'
-                            AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
-                            AND DATE(ms_stock_product.CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
-                        WHERE tx_merchant_order_detail.StockOrderID = ms_price_submission.StockOrderID
-                    ) AS EstMarginTotalTrxSubmission
-                ")
-            );
+            ->selectRaw("
+                ms_price_submission.PriceSubmissionID,
+                tmo.StockOrderID,
+                tmo.CreatedDate as DatePO,
+                tmo.MerchantID,
+                ms_merchant_account.StoreName,
+                ms_distributor_grade.Grade,
+                ms_distributor.DistributorName,
+                tmo.SalesCode,
+                ms_sales.SalesName,
+                ms_price_submission.CreatedDate,
+                ms_price_submission.CreatedBy,
+                ms_price_submission.ConfirmDate,
+                ms_price_submission.StatusPriceSubmission,
+                ms_price_submission.Note,
+                ms_status_order.StatusOrder,
+                tmo.TotalPrice,
+                (
+                    SELECT 
+                        SUM((tx_merchant_order_detail.Nett - IFNULL(ms_stock_product.PurchasePrice, ms_product.Price)) * tx_merchant_order_detail.PromisedQuantity)
+                    FROM tx_merchant_order_detail
+                    JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_order_detail.StockOrderID
+                    JOIN ms_product ON ms_product.ProductID = tx_merchant_order_detail.ProductID
+                    LEFT JOIN ms_stock_product ON ms_stock_product.ProductID = tx_merchant_order_detail.ProductID
+                        AND ms_stock_product.Qty > 0
+                        AND ms_stock_product.ConditionStock = 'GOOD STOCK'
+                        AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
+                        AND DATE(ms_stock_product.CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
+                    WHERE tx_merchant_order_detail.StockOrderID = ms_price_submission.StockOrderID
+                ) AS EstMarginTotalPrice,
+                (
+                    SELECT SUM(PromisedQuantity * PriceSubmission)
+                    FROM tx_merchant_order_detail
+                    WHERE StockOrderID = ms_price_submission.StockOrderID
+                ) AS TotalTrxSubmission,
+                (
+                    SELECT 
+                        SUM((tx_merchant_order_detail.PriceSubmission - IFNULL(ms_stock_product.PurchasePrice, ms_product.Price)) * tx_merchant_order_detail.PromisedQuantity)
+                    FROM tx_merchant_order_detail
+                    JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_order_detail.StockOrderID
+                    JOIN ms_product ON ms_product.ProductID = tx_merchant_order_detail.ProductID
+                    LEFT JOIN ms_stock_product ON ms_stock_product.ProductID = tx_merchant_order_detail.ProductID
+                        AND ms_stock_product.Qty > 0
+                        AND ms_stock_product.ConditionStock = 'GOOD STOCK'
+                        AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
+                        AND DATE(ms_stock_product.CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
+                    WHERE tx_merchant_order_detail.StockOrderID = ms_price_submission.StockOrderID
+                ) AS EstMarginTotalTrxSubmission,
+                (
+                    SELECT 
+                        IF(COUNT(tx_merchant_order.StockOrderID) = 0, 2.4, 2.4 / COUNT(tx_merchant_order.StockOrderID))
+                    FROM tx_merchant_order
+                    WHERE tx_merchant_order.StatusOrderID = 'S018'
+                        AND tx_merchant_order.MerchantID = tmo.MerchantID
+                        AND DATE(tx_merchant_order.CreatedDate) >= DATE(tmo.CreatedDate - INTERVAL 31 DAY)
+                        AND tx_merchant_order.CreatedDate < tmo.CreatedDate
+                ) AS Bunga,
+                (
+                    SELECT SUM(tx_merchant_order_detail.PromisedQuantity * 2250)
+                    FROM tx_merchant_order_detail
+                    WHERE tx_merchant_order_detail.StockOrderID = ms_price_submission.StockOrderID
+                ) AS CostLogistic
+            ");
 
         if ($fromDate != '' && $toDate != '') {
-            $sql->whereDate('tx_merchant_order.CreatedDate', '>=', $fromDate)
-                ->whereDate('tx_merchant_order.CreatedDate', '<=', $toDate);
+            $sql->whereDate('tmo.CreatedDate', '>=', $fromDate)
+                ->whereDate('tmo.CreatedDate', '<=', $toDate);
         }
 
         $data = $sql;
@@ -1684,6 +1750,9 @@ class DistributionController extends Controller
                 })
                 ->editColumn('DatePO', function ($data) {
                     return date('d M Y H:i', strtotime($data->DatePO));
+                })
+                ->editColumn('ConfirmDate', function ($data) {
+                    return date('d M Y H:i', strtotime($data->ConfirmDate));
                 })
                 ->editColumn('StoreName', function ($data) {
                     return $data->StoreName . ' - ' . $data->Grade;
@@ -1699,6 +1768,19 @@ class DistributionController extends Controller
                     $percent = round($data->EstMarginTotalTrxSubmission / $data->TotalTrxSubmission * 100, 2);
                     return $percent . '%';
                 })
+                ->addColumn('PotonganBunga', function ($data) {
+                    return round($data->Bunga / 100 * $data->TotalTrxSubmission);
+                })
+                ->addColumn('FinalEstMarginSubmission', function ($data) {
+                    $finalEstMarginSubmission = $data->EstMarginTotalTrxSubmission - round($data->Bunga / 100 * $data->TotalTrxSubmission) - $data->CostLogistic;
+                    if ($finalEstMarginSubmission < 0) {
+                        $finalMargin = $finalEstMarginSubmission . ' <i class="fas fa-exclamation-triangle text-warning"></i>';
+                    } else {
+                        $finalMargin = $finalEstMarginSubmission;
+                    }
+
+                    return $finalMargin;
+                })
                 ->editColumn('CreatedBy', function ($data) {
                     return $data->CreatedBy . ' pada ' . date('d M Y H:i', strtotime($data->CreatedDate));
                 })
@@ -1710,10 +1792,10 @@ class DistributionController extends Controller
                     <a class="btn btn-xs btn-danger btn-reject" data-price-submission-id="' . $data->PriceSubmissionID . '" data-stock-order-id="' . $data->StockOrderID . '">Tolak</a>';
                 })
                 ->filterColumn('Sales', function ($query, $keyword) {
-                    $sql = "CONCAT(tx_merchant_order.SalesCode,' - ',ms_sales.SalesName)  like ?";
+                    $sql = "CONCAT(tmo.SalesCode,' - ',ms_sales.SalesName)  like ?";
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 })
-                ->rawColumns(['StockOrderID', 'Detail', 'Confirmation'])
+                ->rawColumns(['StockOrderID', 'FinalEstMarginSubmission', 'Detail', 'Confirmation'])
                 ->make();
         }
     }
@@ -1732,6 +1814,21 @@ class DistributionController extends Controller
             ->where('ms_price_submission.PriceSubmissionID', $priceSubmissionID)
             ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.DistributorID', 'ms_distributor.DistributorName', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order.SalesCode', 'ms_sales.SalesName', 'ms_distributor_grade.Grade', 'ms_status_order.StatusOrder', 'ms_price_submission.PriceSubmissionID', 'ms_price_submission.StatusPriceSubmission', 'ms_price_submission.CreatedBy', 'ms_price_submission.CreatedDate as SubmissionDate', 'ms_price_submission.ConfirmBy', 'ms_price_submission.ConfirmDate', 'ms_price_submission.Note')
             ->first();
+
+        $countPOselesai = DB::table('tx_merchant_order')
+            ->where('MerchantID', $data->MerchantID)
+            ->where('StatusOrderID', 'S018')
+            ->whereRaw("DATE(CreatedDate) >= DATE('$data->CreatedDate' - INTERVAL 31 DAY)")
+            ->where('CreatedDate', '<', $data->CreatedDate)
+            ->count('StockOrderID');
+
+        if ($countPOselesai === 0) {
+            $data->Bunga = 2.4;
+            $data->CountPOselesai = 1;
+        } else {
+            $data->Bunga = 2.4 / $countPOselesai;
+            $data->CountPOselesai = $countPOselesai;
+        }
 
         $data->Detail = DB::table('tx_merchant_order_detail as tmod')
             ->join('ms_product', 'ms_product.ProductID', 'tmod.ProductID')
@@ -1793,7 +1890,8 @@ class DistributionController extends Controller
             ->get();
 
         return view('distribution.restock.price-submission.detail', [
-            'data' => $data
+            'data' => $data,
+            'countPOselesai' => $countPOselesai
         ]);
     }
 
@@ -1816,12 +1914,22 @@ class DistributionController extends Controller
         $merchantOrder = DB::table('ms_price_submission')
             ->join('tx_merchant_order', 'tx_merchant_order.StockOrderID', 'ms_price_submission.StockOrderID')
             ->where('ms_price_submission.PriceSubmissionID', $priceSubmissionID)
-            ->select('ms_price_submission.StockOrderID', 'tx_merchant_order.DistributorID', 'tx_merchant_order.TotalPrice', 'ms_price_submission.TotalVoucherSubmission')
+            ->select('ms_price_submission.StockOrderID', 'tx_merchant_order.DistributorID', 'tx_merchant_order.MerchantID', 'tx_merchant_order.TotalPrice', 'ms_price_submission.TotalVoucherSubmission')
             ->first();
 
         $dataTxMerchantOrder = [
+            'StatusOrderID' => 'S023',
             'DiscountVoucher' => $merchantOrder->TotalVoucherSubmission,
             'NettPrice' => $merchantOrder->TotalPrice - $merchantOrder->TotalVoucherSubmission
+        ];
+
+        $dataTxMerchantOrderLog = [
+            'StockOrderId' => $merchantOrder->StockOrderID,
+            'DistributorID' => $merchantOrder->DistributorID,
+            'MerchantID' => $merchantOrder->MerchantID,
+            'StatusOrderId' => 'S023',
+            'ProcessTime' => date('Y-m-d H:i:s'),
+            'ActionBy' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo
         ];
 
         $dataVoucherLog = [
@@ -1865,10 +1973,11 @@ class DistributionController extends Controller
             ->get();
 
         try {
-            DB::transaction(function () use ($priceSubmissionID, $status, $merchantOrder, $dataPriceSubmission, $dataTxMerchantOrder, $dataVoucherLog, $orderDetail) {
+            DB::transaction(function () use ($priceSubmissionID, $status, $merchantOrder, $dataPriceSubmission, $dataTxMerchantOrder, $dataTxMerchantOrderLog, $dataVoucherLog, $orderDetail) {
                 DB::table('ms_price_submission')->where('PriceSubmissionID', $priceSubmissionID)->update($dataPriceSubmission);
                 if ($status === "approve") {
                     DB::table('tx_merchant_order')->where('StockOrderID', $merchantOrder->StockOrderID)->update($dataTxMerchantOrder);
+                    DB::table('tx_merchant_order_log')->insert($dataTxMerchantOrderLog);
                     DB::table('ms_voucher_log')->updateOrInsert(['OrderID' => $merchantOrder->StockOrderID], $dataVoucherLog);
                     foreach ($orderDetail as $key => $value) {
                         if ($value->PurchasePrice === null) {
@@ -1912,6 +2021,21 @@ class DistributionController extends Controller
             ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.DistributorID', 'ms_distributor.DistributorName', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order.SalesCode', 'ms_sales.SalesName', 'ms_distributor_grade.Grade', 'ms_status_order.StatusOrder')
             ->first();
 
+        $countPOselesai = DB::table('tx_merchant_order')
+            ->where('MerchantID', $data->MerchantID)
+            ->where('StatusOrderID', 'S018')
+            ->whereRaw("DATE(CreatedDate) >= DATE('$data->CreatedDate' - INTERVAL 31 DAY)")
+            ->where('CreatedDate', '<', $data->CreatedDate)
+            ->count('StockOrderID');
+
+        if ($countPOselesai === 0) {
+            $data->Bunga = 2.4;
+            $data->CountPOselesai = 1;
+        } else {
+            $data->Bunga = 2.4 / $countPOselesai;
+            $data->CountPOselesai = $countPOselesai;
+        }
+
         $data->Detail = DB::table('tx_merchant_order_detail')
             ->join('ms_product', 'ms_product.ProductID', 'tx_merchant_order_detail.ProductID')
             ->where('tx_merchant_order_detail.StockOrderID', $stockOrderID)
@@ -1939,7 +2063,8 @@ class DistributionController extends Controller
             ->get();
 
         return view('distribution.restock.price-submission.create', [
-            'data' => $data
+            'data' => $data,
+            'countPOselesai' => $countPOselesai
         ]);
     }
 
