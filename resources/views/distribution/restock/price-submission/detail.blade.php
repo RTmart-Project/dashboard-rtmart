@@ -205,17 +205,24 @@
                     <th colspan="2">Bunga BPR (2.4% / {{ $data->CountPOselesai }}) x Value Pengajuan</th>
                     <th>{{ Helper::formatCurrency($data->Bunga / 100 * $totalPriceSubmission, "Rp ") }}</th>
                   </tr>
+                  @if ($data->PaymentMethodID != 13)
                   <tr class="text-right">
                     <th colspan="8"></th>
                     <th colspan="2">Cost Logistic (2250 x {{ $qty }})</th>
                     <th>{{ Helper::formatCurrency(2250 * $qty, "Rp ") }}</th>
                   </tr>
+                  @endif
                   <tr class="text-right">
                     <th colspan="8"></th>
                     <th colspan="2">Final Est Margin Pengajuan</th>
                     <th>
-                      {{ Helper::formatCurrency($estMarginSubmission - round($data->Bunga / 100 * $totalPriceSubmission) - (2250 * $qty), "Rp ") }} | 
-                      {{ round(($estMarginSubmission - round($data->Bunga / 100 * $totalPriceSubmission) - (2250 * $qty)) / $totalPriceSubmission * 100, 2) }}%
+                      @if ($data->PaymentMethodID == 13)
+                        {{ Helper::formatCurrency($estMarginSubmission - round($data->Bunga / 100 * $totalPriceSubmission), "Rp ") }} | 
+                        {{ round(($estMarginSubmission - round($data->Bunga / 100 * $totalPriceSubmission)) / $totalPriceSubmission * 100, 2) }}%
+                      @else
+                        {{ Helper::formatCurrency($estMarginSubmission - round($data->Bunga / 100 * $totalPriceSubmission) - (2250 * $qty), "Rp ") }} | 
+                        {{ round(($estMarginSubmission - round($data->Bunga / 100 * $totalPriceSubmission) - (2250 * $qty)) / $totalPriceSubmission * 100, 2) }}%
+                      @endif
                     </th>
                   </tr>
                 </tfoot>
