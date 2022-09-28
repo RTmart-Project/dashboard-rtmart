@@ -66,6 +66,7 @@
               <div class="col-12 col-md-3 mb-2">
                 <strong>Metode Pembayaran</strong>
                 <p>{{ $data->PaymentMethodName }}</p>
+                <input type="hidden" id="payment_method" value="{{ $data->PaymentMethodID }}">
               </div>
               <div class="col-12 col-md-3 mb-2">
                 <strong>Sales</strong>
@@ -242,12 +243,14 @@
                       </div>
                     </div>
                     <div class="col-12 col-md-6">
+                      @if ($data->PaymentMethodID != 13)
                       <div class="form-group row">
                         <label class="col-sm-4 col-form-label">Cost Logistic (2250 x {{ $totalQty }})</label>
                         <div class="col-sm-8">
                           <input type="text" class="form-control autonumeric cost_logistic" value="{{ 2250 * $totalQty }}" readonly>
                         </div>
                       </div>
+                      @endif
                     </div>
                     <div class="col-12 col-md-6">
                       <div class="form-group row">
@@ -374,8 +377,8 @@
     const sellingPrice = thisForm.find('.price').val().replaceAll(".", "");
     const purchasePrice = thisForm.find('.purchase_price').val().replaceAll(".", "");
     const qty = thisForm.find('.qty').val();
+    const paymentMethod = $('#payment_method').val();
     const percentBunga = $('#bunga').val();
-    const costLogistic = $('.cost_logistic').val().replaceAll(".", "");
     
     const valueSelling = qty * sellingPrice;
     const valueSubmission = qty * priceSubmission;
@@ -412,7 +415,14 @@
 
     const percentTotalEstMarginSubmission = Math.round(totalEstMarginSubmission / totalValueSubmission * 100 * 100) / 100;
     const bunga = Math.round(totalValueSubmission * percentBunga / 100);
-    const grandTotalEstMarginSubmission = totalEstMarginSubmission - bunga - costLogistic;
+
+    let grandTotalEstMarginSubmission;
+    if (paymentMethod == 13) {
+      grandTotalEstMarginSubmission = totalEstMarginSubmission - bunga;
+    } else {
+      const costLogistic = $('.cost_logistic').val().replaceAll(".", "");
+      grandTotalEstMarginSubmission = totalEstMarginSubmission - bunga - costLogistic;
+    }
     const percentGrandTotalEstMarginSubmission = Math.round(grandTotalEstMarginSubmission / totalValueSubmission * 100 * 100) / 100
 
     $('.total_est_margin_submission').val(thousands_separators(totalEstMarginSubmission));
