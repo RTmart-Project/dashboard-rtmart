@@ -551,6 +551,12 @@ class SummaryService
         $join->on('tmdod.DeliveryOrderID', 'tmdo.DeliveryOrderID');
         $join->where('tmdod.StatusExpedition', 'S031');
       })
+      ->join('ms_stock_product_log', function ($join) {
+        $join->on('ms_stock_product_log.DeliveryOrderDetailID', 'tmdod.DeliveryOrderDetailID');
+        $join->where('ms_stock_product_log.ActionType', 'OUTBOUND');
+      })
+      ->join('ms_stock_product', 'ms_stock_product.StockProductID', 'ms_stock_product_log.StockProductID')
+      ->join('ms_investor', 'ms_investor.InvestorID', 'ms_stock_product.InvestorID')
       ->join('ms_product', 'ms_product.ProductID', 'tmdod.ProductID')
       ->leftJoin('tx_merchant_expedition_detail as tmed', function ($join) {
         $join->on('tmed.DeliveryOrderDetailID', 'tmdod.DeliveryOrderDetailID');
@@ -602,8 +608,11 @@ class SummaryService
           WHERE ms_stock_product_log.DeliveryOrderDetailID = ANY_VALUE(tmdod.DeliveryOrderDetailID)
             AND ms_stock_product_log.MerchantExpeditionDetailID = ANY_VALUE(tmed.MerchantExpeditionDetailID)
           LIMIT 1
-        ) AS PurchasePrice
-      ");
+        ) AS PurchasePrice,
+        ANY_VALUE(ms_investor.InvestorName) AS InvestorName,
+        ANY_VALUE(ms_stock_product.ProductLabel) AS ProductLabel
+      ")
+      ->groupBy('tmdod.DeliveryOrderDetailID');
 
     return $sql;
   }

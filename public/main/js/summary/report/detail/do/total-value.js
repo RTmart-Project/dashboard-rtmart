@@ -105,6 +105,14 @@ $(document).ready(function () {
                     searchable: false,
                 },
                 {
+                    data: "InvestorName",
+                    name: "ms_investor.InvestorName",
+                },
+                {
+                    data: "ProductLabel",
+                    name: "ms_stock_product.ProductLabel",
+                },
+                {
                     data: "ValueProduct",
                     name: "ValueProduct",
                     searchable: false,
@@ -172,7 +180,7 @@ $(document).ready(function () {
                         columns: [
                             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
                             16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-                            29, 30,
+                            29, 30, 31, 32,
                         ],
                         orthogonal: "export",
                     },
@@ -180,7 +188,7 @@ $(document).ready(function () {
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [19, 20, 21, 22, 23, 25, 26, 27, 28, 29],
+                    aTargets: [19, 20, 23, 24, 25, 27, 28, 29, 30, 31],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;

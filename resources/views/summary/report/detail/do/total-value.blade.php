@@ -91,6 +91,8 @@
                           <th>Qty</th>
                           <th>Harga Jual</th>
                           <th>Harga Beli</th>
+                          <th>Stock Investor</th>
+                          <th>Stock Label</th>
                           <th>Value Produk</th>
                           <th>Value Beli</th>
                           <th>Value Margin (before disc)</th>
