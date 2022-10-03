@@ -175,7 +175,7 @@
                         <label for="percentage_po">Percent PO</label>
                         <div class="input-group mb-3">
                           <input type="number" id="percentage_po" name="percentage_po[]" class="form-control percentage-po"
-                            value="{{ round($item->QtyPO / $item->Qty * 100, 2) }}" readonly>
+                            value="{{ round($item->QtyPO / $item->Qty * 100, 0) }}" readonly>
                           <div class="input-group-append">
                             <span class="input-group-text">%</span>
                           </div>
@@ -256,7 +256,7 @@
                         <label for="percent_margin">Percent Margin</label>
                         <div class="input-group mb-3">
                           <input type="number" id="percent_margin" name="percent_margin[]" class="form-control percent-margin"
-                            value="{{ round(($item->GrossMargin - $item->InterestValue - $item->VoucherValue) / $item->SellingValue * 100, 2) }}" readonly>
+                            value="{{ round(($item->GrossMargin - $item->InterestValue - $item->VoucherValue) / $item->SellingValue * 100, 0) }}" readonly>
                           <div class="input-group-append">
                             <span class="input-group-text">%</span>
                           </div>
