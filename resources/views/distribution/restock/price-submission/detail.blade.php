@@ -195,8 +195,14 @@
                     <th>{{ Helper::formatCurrency($data->TotalPrice, "Rp ") }}</th>
                     <th>{{ Helper::formatCurrency($totalPriceSubmission, "Rp ") }}</th>
                     <th>{{ Helper::formatCurrency($valueBeli, "Rp ") }}</th>
-                    <th>{{ Helper::formatCurrency($estMarginPrice, "Rp ") }} | {{ round($estMarginPrice / $data->TotalPrice * 100, 2) }}%</th>
-                    <th>{{ Helper::formatCurrency($estMarginSubmission, "Rp ") }} | {{ round($estMarginSubmission / $totalPriceSubmission * 100, 2) }}%</th>
+                    <th>
+                      {{ Helper::formatCurrency($data->TotalPrice - $valueBeli, "Rp ") }} | 
+                      {{ round(($data->TotalPrice - $valueBeli) / $data->TotalPrice * 100, 2) }}%
+                    </th>
+                    <th>
+                      {{ Helper::formatCurrency($totalPriceSubmission - $valueBeli, "Rp ") }} | 
+                      {{ round(($totalPriceSubmission - $valueBeli) / $totalPriceSubmission * 100, 2) }}%
+                    </th>
                     <th>{{ Helper::formatCurrency($totalVoucher, "Rp ") }}</th>
                     {{-- <th class="text-center">{{ round($totalVoucher / $data->TotalPrice * 100, 2) }}</th> --}}
                   </tr>
@@ -217,11 +223,11 @@
                     <th colspan="2">Final Est Margin Pengajuan</th>
                     <th>
                       @if ($data->PaymentMethodID == 13)
-                        {{ Helper::formatCurrency($estMarginSubmission - round($data->Bunga / 100 * $totalPriceSubmission), "Rp ") }} | 
-                        {{ round(($estMarginSubmission - round($data->Bunga / 100 * $totalPriceSubmission)) / $totalPriceSubmission * 100, 2) }}%
+                        {{ Helper::formatCurrency(($totalPriceSubmission - $valueBeli) - round($data->Bunga / 100 * $totalPriceSubmission), "Rp ") }} | 
+                        {{ round((($totalPriceSubmission - $valueBeli) - round($data->Bunga / 100 * $totalPriceSubmission)) / $totalPriceSubmission * 100, 2) }}%
                       @else
-                        {{ Helper::formatCurrency($estMarginSubmission - round($data->Bunga / 100 * $totalPriceSubmission) - (2250 * $qty), "Rp ") }} | 
-                        {{ round(($estMarginSubmission - round($data->Bunga / 100 * $totalPriceSubmission) - (2250 * $qty)) / $totalPriceSubmission * 100, 2) }}%
+                        {{ Helper::formatCurrency(($totalPriceSubmission - $valueBeli) - round($data->Bunga / 100 * $totalPriceSubmission) - (2250 * $qty), "Rp ") }} | 
+                        {{ round((($totalPriceSubmission - $valueBeli) - round($data->Bunga / 100 * $totalPriceSubmission) - (2250 * $qty)) / $totalPriceSubmission * 100, 2) }}%
                       @endif
                     </th>
                   </tr>

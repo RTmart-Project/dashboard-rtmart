@@ -53,24 +53,24 @@
                     <input type="text" class="form-control" readonly value="{{ $purchase->PurchaseID }}">
                   </div>
                 </div>
-                <div class="col-md-6 col-12">
+                {{-- <div class="col-md-6 col-12">
                   <div class="form-group">
                     <label for="distributor">Distributor</label>
                     <input type="text" class="form-control" readonly value="{{ $purchase->DistributorName }}">
                   </div>
-                </div>
+                </div> --}}
                 <div class="col-md-6 col-12">
                   <div class="form-group">
                     <label for="investor">Investor</label>
                     <input type="text" class="form-control" readonly value="{{ $purchase->InvestorName }}">
                   </div>
                 </div>
-                <div class="col-md-6 col-12">
+                {{-- <div class="col-md-6 col-12">
                   <div class="form-group">
                     <label for="supplier">Supplier</label>
                     <input type="text" class="form-control" readonly value="{{ $purchase->SupplierName }}">
                   </div>
-                </div>
+                </div> --}}
                 <div class="col-md-6 col-12">
                   <div class="form-group">
                     <label for="invoice_number">No. Invoice</label>

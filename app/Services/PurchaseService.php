@@ -10,11 +10,31 @@ class PurchaseService
   public function getStockPurchase($fromDate, $toDate, $filterTipe)
   {
     $mainSql = DB::table('ms_stock_purchase')
-      ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_stock_purchase.DistributorID')
+      ->join('ms_stock_purchase_detail', 'ms_stock_purchase_detail.PurchaseID', 'ms_stock_purchase.PurchaseID')
       ->leftJoin('ms_investor', 'ms_investor.InvestorID', 'ms_stock_purchase.InvestorID')
-      ->join('ms_suppliers', 'ms_suppliers.SupplierID', 'ms_stock_purchase.SupplierID')
+      ->leftJoin('ms_distributor as single_distributor', 'single_distributor.DistributorID', 'ms_stock_purchase.DistributorID')
+      ->leftJoin('ms_distributor as combine_distributor', 'combine_distributor.DistributorID', 'ms_stock_purchase_detail.DistributorID')
+      ->leftJoin('ms_suppliers as single_supplier', 'single_supplier.SupplierID', 'ms_stock_purchase.SupplierID')
+      ->leftJoin('ms_suppliers as combine_supplier', 'combine_supplier.SupplierID', 'ms_stock_purchase_detail.SupplierID')
       ->join('ms_status_stock', 'ms_status_stock.StatusID', 'ms_stock_purchase.StatusID')
-      ->select('ms_stock_purchase.PurchaseID', 'ms_distributor.DistributorName', 'ms_stock_purchase.PurchaseDate', 'ms_stock_purchase.CreatedBy', 'ms_suppliers.SupplierName', 'ms_stock_purchase.StatusID', 'ms_status_stock.StatusName', 'ms_stock_purchase.StatusBy', 'ms_stock_purchase.InvoiceNumber', 'ms_stock_purchase.InvoiceFile', 'ms_investor.InvestorName', 'ms_stock_purchase.Type');
+      ->selectRaw("
+        ms_stock_purchase.PurchaseID,
+        ms_stock_purchase.PurchasePlanID,
+        ANY_VALUE(single_distributor.DistributorName) AS DistributorName,
+        ms_stock_purchase.PurchaseDate,
+        ms_stock_purchase.CreatedBy,
+        ANY_VALUE(single_supplier.SupplierName) AS SupplierName,
+        ms_stock_purchase.StatusID,
+        ms_status_stock.StatusName,
+        ms_stock_purchase.StatusBy,
+        ms_stock_purchase.InvoiceNumber,
+        ms_stock_purchase.InvoiceFile,
+        ms_investor.InvestorName,
+        ms_stock_purchase.Type,
+        GROUP_CONCAT(combine_distributor.DistributorName SEPARATOR ', ') AS DistributorCombined,
+        GROUP_CONCAT(combine_supplier.SupplierName SEPARATOR ', ') AS SupplierCombined
+      ")
+      ->groupBy('ms_stock_purchase.PurchaseID');
 
     if ($fromDate != '' && $toDate != '') {
       $mainSql->whereDate('ms_stock_purchase.PurchaseDate', '>=', $fromDate)
@@ -27,7 +47,7 @@ class PurchaseService
     }
     if (Auth::user()->Depo != "ALL") {
       $depoUser = Auth::user()->Depo;
-      $mainSql->where('ms_distributor.Depo', '=', $depoUser);
+      $mainSql->where('single_distributor.Depo', '=', $depoUser);
     }
     if (Auth::user()->InvestorID != null) {
       $investorUser = Auth::user()->InvestorID;
@@ -102,17 +122,58 @@ class PurchaseService
   public function getStockPurchaseByID($purchaseID)
   {
     $sql = DB::table('ms_stock_purchase')
-      ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_stock_purchase.DistributorID')
+      ->join('ms_stock_purchase_detail', 'ms_stock_purchase_detail.PurchaseID', 'ms_stock_purchase.PurchaseID')
+      ->leftJoin('ms_distributor as single_distributor', 'single_distributor.DistributorID', 'ms_stock_purchase.DistributorID')
+      ->leftJoin('ms_distributor as combine_distributor', 'combine_distributor.DistributorID', 'ms_stock_purchase_detail.DistributorID')
       ->leftJoin('ms_investor', 'ms_investor.InvestorID', 'ms_stock_purchase.InvestorID')
-      ->join('ms_suppliers', 'ms_suppliers.SupplierID', 'ms_stock_purchase.SupplierID')
+      ->leftJoin('ms_suppliers as single_supplier', 'single_supplier.SupplierID', 'ms_stock_purchase.SupplierID')
+      ->leftJoin('ms_suppliers as combine_supplier', 'combine_supplier.SupplierID', 'ms_stock_purchase_detail.SupplierID')
       ->join('ms_status_stock', 'ms_status_stock.StatusID', 'ms_stock_purchase.StatusID')
       ->where('ms_stock_purchase.PurchaseID', $purchaseID)
-      ->select('ms_stock_purchase.PurchaseID', 'ms_stock_purchase.DistributorID', 'ms_stock_purchase.SupplierID', 'ms_distributor.DistributorName', 'ms_stock_purchase.PurchaseDate', 'ms_stock_purchase.CreatedBy', 'ms_stock_purchase.CreatedDate', 'ms_stock_purchase.StatusID', 'ms_suppliers.SupplierName', 'ms_status_stock.StatusName', 'ms_stock_purchase.StatusBy', 'ms_stock_purchase.StatusDate', 'ms_stock_purchase.InvoiceNumber', 'ms_stock_purchase.InvoiceFile', 'ms_stock_purchase.InvestorID', 'ms_investor.InvestorName')->first();
+      ->selectRaw("
+        ms_stock_purchase.PurchaseID,
+        ms_stock_purchase.DistributorID,
+        ms_stock_purchase.SupplierID,
+        ANY_VALUE(single_distributor.DistributorName) AS DistributorName,
+        ms_stock_purchase.PurchaseDate,
+        ms_stock_purchase.EstimationArrive,
+        ms_stock_purchase.CreatedBy,
+        ms_stock_purchase.CreatedDate,
+        ms_stock_purchase.StatusID,
+        ANY_VALUE(single_supplier.SupplierName) AS SupplierName,
+        ms_status_stock.StatusName,
+        ms_stock_purchase.StatusBy,
+        ms_stock_purchase.StatusDate,
+        ms_stock_purchase.InvoiceNumber,
+        ms_stock_purchase.InvoiceFile,
+        ms_stock_purchase.InvestorID,
+        ms_investor.InvestorName,
+        GROUP_CONCAT(combine_distributor.DistributorName SEPARATOR ', ') AS DistributorCombined,
+        GROUP_CONCAT(combine_supplier.SupplierName SEPARATOR ', ') AS SupplierCombined,
+        (
+          SELECT SUM(IF(ms_stock_purchase_detail.StatusStockID = 6, 1, 0))
+          FROM ms_stock_purchase_detail
+          WHERE PurchaseID = ms_stock_purchase.PurchaseID
+        ) AS CountStatusProductApprove,
+        (
+          SELECT SUM(IF(ms_stock_purchase_detail.StatusStockID = 5, 1, 0))
+          FROM ms_stock_purchase_detail
+          WHERE PurchaseID = ms_stock_purchase.PurchaseID
+        ) AS CountStatusProductNotConfirmed
+      ")
+      ->groupBy('ms_stock_purchase.PurchaseID')
+      ->first();
 
     $sqlDetail = DB::table('ms_stock_purchase_detail')
+      ->join('ms_stock_purchase', 'ms_stock_purchase.PurchaseID', 'ms_stock_purchase_detail.PurchaseID')
       ->join('ms_product', 'ms_product.ProductID', 'ms_stock_purchase_detail.ProductID')
+      ->leftJoin('ms_distributor as single_distributor', 'single_distributor.DistributorID', 'ms_stock_purchase.DistributorID')
+      ->leftJoin('ms_distributor', 'ms_distributor.DistributorID', 'ms_stock_purchase_detail.DistributorID')
+      ->leftJoin('ms_suppliers as single_supplier', 'single_supplier.SupplierID', 'ms_stock_purchase.SupplierID')
+      ->leftJoin('ms_suppliers', 'ms_suppliers.SupplierID', 'ms_stock_purchase_detail.SupplierID')
+      ->leftJoin('ms_status_stock', 'ms_status_stock.StatusID', 'ms_stock_purchase_detail.StatusStockID')
       ->where('ms_stock_purchase_detail.PurchaseID', $purchaseID)
-      ->select('ms_stock_purchase_detail.ProductID', 'ms_product.ProductName', 'ms_stock_purchase_detail.ProductLabel', 'ms_stock_purchase_detail.Qty', 'ms_stock_purchase_detail.PurchasePrice')
+      ->select('ms_stock_purchase_detail.PurchaseDetailID', 'ms_stock_purchase_detail.ProductID', 'ms_product.ProductName', 'ms_stock_purchase_detail.ProductLabel', 'ms_stock_purchase_detail.Qty', 'ms_stock_purchase_detail.PurchasePrice', 'ms_distributor.DistributorName', 'single_distributor.DistributorName as Distributor', 'ms_suppliers.SupplierName', 'ms_stock_purchase_detail.SupplierID', 'ms_stock_purchase.SupplierID as SingleSupplierID', 'single_supplier.SupplierName as Supplier', 'ms_stock_purchase_detail.StatusStockID', 'ms_status_stock.StatusName', 'ms_stock_purchase_detail.IsGIT', 'ms_stock_purchase_detail.Note', 'ms_stock_purchase_detail.ConfirmDate', 'ms_stock_purchase_detail.CreatedDate', 'ms_stock_purchase_detail.ConfirmBy')
       ->get()->toArray();
 
     $grandTotal = 0;
@@ -120,8 +181,8 @@ class PurchaseService
     foreach ($sqlDetail as $key => $value) {
       $grandTotal += $value->Qty * $value->PurchasePrice;
     }
-
     $sql->Detail = $sqlDetail;
+
     $sql->GrandTotal = $grandTotal;
 
     return $sql;
@@ -174,7 +235,8 @@ class PurchaseService
     $sql = DB::table('ms_purchase_plan')
       ->join('ms_investor', 'ms_investor.InvestorID', 'ms_purchase_plan.InvestorID')
       ->join('ms_status_stock', 'ms_status_stock.StatusID', 'ms_purchase_plan.StatusID')
-      ->select('ms_purchase_plan.PurchasePlanID', 'ms_purchase_plan.InvestorID', 'ms_investor.Interest', 'ms_investor.InvestorName', 'ms_purchase_plan.PlanDate', 'ms_purchase_plan.CreatedBy', 'ms_purchase_plan.CreatedDate', 'ms_purchase_plan.ConfirmBy', 'ms_purchase_plan.ConfirmDate', 'ms_purchase_plan.StatusID', 'ms_status_stock.StatusName');
+      ->leftJoin('ms_stock_purchase', 'ms_stock_purchase.PurchasePlanID', 'ms_purchase_plan.PurchasePlanID')
+      ->select('ms_purchase_plan.PurchasePlanID', 'ms_stock_purchase.PurchaseID', 'ms_purchase_plan.InvestorID', 'ms_investor.Interest', 'ms_investor.InvestorName', 'ms_purchase_plan.PlanDate', 'ms_purchase_plan.CreatedBy', 'ms_purchase_plan.CreatedDate', 'ms_purchase_plan.ConfirmBy', 'ms_purchase_plan.ConfirmDate', 'ms_purchase_plan.StatusID', 'ms_status_stock.StatusName');
 
     return $sql;
   }
@@ -204,17 +266,16 @@ class PurchaseService
         ms_purchase_plan_detail.ProductLabel,
         ms_purchase_plan_detail.Qty,
         ms_purchase_plan_detail.QtyPO,
-        CONCAT(ROUND(ms_purchase_plan_detail.Qty / ms_purchase_plan_detail.QtyPO * 100, 0), '%') AS PercentagePO,
         ms_purchase_plan_detail.PurchasePrice,
         ms_purchase_plan_detail.PurchasePrice * ms_purchase_plan_detail.Qty AS PurchaseValue,
-        $investor->Interest AS InvestorInterest,
-        ROUND($investor->Interest * ms_purchase_plan_detail.PurchasePrice * ms_purchase_plan_detail.Qty / 100, 0) AS Interest,
+        ms_purchase_plan_detail.PercentInterest,
+        ROUND(ms_purchase_plan_detail.PercentInterest * ms_purchase_plan_detail.PurchasePrice * ms_purchase_plan_detail.Qty / 100, 0) AS InterestValue,
         ms_purchase_plan_detail.SellingPrice,
         ms_purchase_plan_detail.SellingPrice * ms_purchase_plan_detail.Qty AS SellingValue,
+        ms_purchase_plan_detail.PercentVoucher,
+        ROUND(ms_purchase_plan_detail.PercentVoucher * ms_purchase_plan_detail.SellingPrice * ms_purchase_plan_detail.Qty / 100, 0) AS VoucherValue,
         (ms_purchase_plan_detail.SellingPrice * ms_purchase_plan_detail.Qty) - (ms_purchase_plan_detail.PurchasePrice * ms_purchase_plan_detail.Qty) AS GrossMargin,
         ms_purchase_plan_detail.SellingPrice - ms_purchase_plan_detail.PurchasePrice AS MarginCtn,
-        ((ms_purchase_plan_detail.SellingPrice * ms_purchase_plan_detail.Qty) - (ms_purchase_plan_detail.PurchasePrice * ms_purchase_plan_detail.Qty)) - ROUND($investor->Interest * ms_purchase_plan_detail.PurchasePrice * ms_purchase_plan_detail.Qty / 100, 0) AS NettMargin,
-        CONCAT(ROUND((((ms_purchase_plan_detail.SellingPrice * ms_purchase_plan_detail.Qty) - (ms_purchase_plan_detail.PurchasePrice * ms_purchase_plan_detail.Qty)) - ROUND($investor->Interest * ms_purchase_plan_detail.PurchasePrice * ms_purchase_plan_detail.Qty / 100, 0)) / (ms_purchase_plan_detail.SellingPrice * ms_purchase_plan_detail.Qty) * 100, 2), '%') AS PercentageMargin,
         ms_purchase_plan_detail.LastStock
       ")
       ->orderByRaw("ms_distributor.DistributorName, ms_purchase_plan_detail.ProductID");
@@ -241,64 +302,91 @@ class PurchaseService
 
   public function confirmationPurchase($status, $purchaseID)
   {
-    $detail = DB::table('ms_stock_purchase_detail')
-      ->join('ms_stock_purchase', 'ms_stock_purchase.PurchaseID', 'ms_stock_purchase_detail.PurchaseID')
-      ->where('ms_stock_purchase_detail.PurchaseID', $purchaseID)
-      ->select('ms_stock_purchase_detail.PurchaseID', 'ms_stock_purchase_detail.ProductID', 'ms_stock_purchase_detail.ProductLabel', 'ms_stock_purchase_detail.Qty', 'ms_stock_purchase_detail.PurchasePrice', 'ms_stock_purchase.DistributorID', 'ms_stock_purchase.InvestorID')->get()
-      ->map(function ($item, $key) {
-        $item->CreatedDate  = date('Y-m-d H:i:s');
-        $item->Type = 'INBOUND';
-        $item->LevelType = 3;
-        return (array) $item;
-      })
-      ->all();
+    // $detail = DB::table('ms_stock_purchase_detail')
+    //   ->join('ms_stock_purchase', 'ms_stock_purchase.PurchaseID', 'ms_stock_purchase_detail.PurchaseID')
+    //   ->where('ms_stock_purchase_detail.PurchaseID', $purchaseID)
+    //   ->select('ms_stock_purchase_detail.PurchaseID', 'ms_stock_purchase_detail.ProductID', 'ms_stock_purchase_detail.ProductLabel', 'ms_stock_purchase_detail.Qty', 'ms_stock_purchase_detail.PurchasePrice', 'ms_stock_purchase.DistributorID', 'ms_stock_purchase.InvestorID')->get()
+    //   ->map(function ($item, $key) {
+    //     $item->CreatedDate  = date('Y-m-d H:i:s');
+    //     $item->Type = 'INBOUND';
+    //     $item->LevelType = 3;
+    //     return (array) $item;
+    //   })
+    //   ->all();
 
-    if ($status == "approved") {
-      $confirm = DB::transaction(function () use ($purchaseID, $detail) {
-        DB::table('ms_stock_purchase')
-          ->where('PurchaseID', $purchaseID)
-          ->update([
-            'StatusID' => 2,
-            'StatusBy' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo,
-            'StatusDate' => date('Y-m-d H:i:s')
-          ]);
-        // $stockProductID = DB::table('ms_stock_product')->insertGetId($detail, 'StockProductID');
-        foreach ($detail as $key => $value) {
-          $stockProductID = DB::table('ms_stock_product')->insertGetId($value, 'StockProductID');
-          $qtyBefore = DB::table('ms_stock_product')
-            ->where('ms_stock_product.StockProductID', '!=', $stockProductID)
-            ->where('ms_stock_product.ProductID', $value['ProductID'])
-            ->where('ms_stock_product.ProductLabel', $value['ProductLabel'])
-            ->where('ms_stock_product.DistributorID', $value['DistributorID'])
-            ->where('ms_stock_product.InvestorID', $value['InvestorID'])
-            ->where('ms_stock_product.ConditionStock', 'GOOD STOCK')
-            ->selectRaw("IFNULL(SUM(ms_stock_product.Qty), 0) AS QtyBefore")
-            ->first();
+    // if ($status == "approved") {
+    //   $confirm = DB::transaction(function () use ($purchaseID, $detail) {
+    //     DB::table('ms_stock_purchase')
+    //       ->where('PurchaseID', $purchaseID)
+    //       ->update([
+    //         'StatusID' => 2,
+    //         'StatusBy' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo,
+    //         'StatusDate' => date('Y-m-d H:i:s')
+    //       ]);
+    //     // $stockProductID = DB::table('ms_stock_product')->insertGetId($detail, 'StockProductID');
+    //     foreach ($detail as $key => $value) {
+    //       $stockProductID = DB::table('ms_stock_product')->insertGetId($value, 'StockProductID');
+    //       $qtyBefore = DB::table('ms_stock_product')
+    //         ->where('ms_stock_product.StockProductID', '!=', $stockProductID)
+    //         ->where('ms_stock_product.ProductID', $value['ProductID'])
+    //         ->where('ms_stock_product.ProductLabel', $value['ProductLabel'])
+    //         ->where('ms_stock_product.DistributorID', $value['DistributorID'])
+    //         ->where('ms_stock_product.InvestorID', $value['InvestorID'])
+    //         ->where('ms_stock_product.ConditionStock', 'GOOD STOCK')
+    //         ->selectRaw("IFNULL(SUM(ms_stock_product.Qty), 0) AS QtyBefore")
+    //         ->first();
 
-          DB::table('ms_stock_product_log')
-            ->insert([
-              'StockProductID' => $stockProductID,
-              'ProductID' => $value['ProductID'],
-              'QtyBefore' => $qtyBefore->QtyBefore,
-              'QtyAction' => $value['Qty'],
-              'QtyAfter' => $qtyBefore->QtyBefore + $value['Qty'],
-              'PurchasePrice' => $value['PurchasePrice'],
-              'SellingPrice' => 0,
-              'DeliveryOrderDetailID' => 0,
-              'CreatedDate' => date('Y-m-d H:i:s'),
-              'ActionBy' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo,
-              'ActionType' => 'INBOUND'
-            ]);
-        }
-      });
-    } else {
+    //       DB::table('ms_stock_product_log')
+    //         ->insert([
+    //           'StockProductID' => $stockProductID,
+    //           'ProductID' => $value['ProductID'],
+    //           'QtyBefore' => $qtyBefore->QtyBefore,
+    //           'QtyAction' => $value['Qty'],
+    //           'QtyAfter' => $qtyBefore->QtyBefore + $value['Qty'],
+    //           'PurchasePrice' => $value['PurchasePrice'],
+    //           'SellingPrice' => 0,
+    //           'DeliveryOrderDetailID' => 0,
+    //           'CreatedDate' => date('Y-m-d H:i:s'),
+    //           'ActionBy' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo,
+    //           'ActionType' => 'INBOUND'
+    //         ]);
+    //     }
+    //   });
+    // } else {
+    //   $confirm = DB::table('ms_stock_purchase')
+    //     ->where('PurchaseID', $purchaseID)
+    //     ->update([
+    //       'StatusID' => 3,
+    //       'StatusBy' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo,
+    //       'StatusDate' => date('Y-m-d H:i:s')
+    //     ]);
+    // }
+
+    if ($status === "approved") {
       $confirm = DB::table('ms_stock_purchase')
         ->where('PurchaseID', $purchaseID)
         ->update([
-          'StatusID' => 3,
+          'StatusID' => 2,
           'StatusBy' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo,
           'StatusDate' => date('Y-m-d H:i:s')
         ]);
+    } else {
+      $confirm = DB::transaction(function () use ($purchaseID) {
+        DB::table('ms_stock_purchase')
+          ->where('PurchaseID', $purchaseID)
+          ->update([
+            'StatusID' => 3,
+            'StatusBy' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo,
+            'StatusDate' => date('Y-m-d H:i:s')
+          ]);
+        DB::table('ms_stock_purchase_detail')
+          ->where('PurchaseID', $purchaseID)
+          ->update([
+            'StatusStockID' => 7,
+            'CreatedDate' => date('Y-m-d H:i:s'),
+            'ConfirmBy' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo
+          ]);
+      });
     }
 
     return $confirm;

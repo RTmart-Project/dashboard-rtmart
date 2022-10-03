@@ -60,6 +60,7 @@
                       <thead>
                         <tr>
                           <th>Purchase Plan ID</th>
+                          <th>Flag</th>
                           <th>Investor</th>
                           <th>Tanggal Purchase Plan</th>
                           <th>Dibuat Oleh</th>

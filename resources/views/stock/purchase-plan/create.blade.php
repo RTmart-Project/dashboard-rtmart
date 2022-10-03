@@ -56,7 +56,7 @@
                       @endforeach
                       <option value="Lainnya" {{ old('investor')=='Lainnya' ? 'selected' : '' }}>- Tambah Baru -</option>
                     </select>
-                    <input type="hidden" id="investor-interest">
+                    <input type="hidden" id="investor-interest" name="investor_interest">
                     @if($errors->has('investor'))
                     <span class="error invalid-feedback">{{ $errors->first('investor') }}</span>
                     @endif
@@ -205,7 +205,7 @@
                     </div>
                     <div class="col-md-4 col-12">
                       <div class="form-group">
-                        <label for="interest">Bunga</label>
+                        <label for="interest" class="label-interest">Bunga (0%)</label>
                         <input type="text" id="interest" name="interest[]" class="form-control interest"
                           value="{{ collect(old('interest')) }}" readonly>
                       </div>
@@ -222,6 +222,19 @@
                         <label for="margin_ctn">Margin /ctn</label>
                         <input type="text" id="margin_ctn" name="margin_ctn[]" class="form-control margin-ctn"
                           value="{{ collect(old('margin_ctn')) }}" readonly>
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-12">
+                      <div class="form-group">
+                        <label for="percent_voucher">% Voucher</label>
+                        <input type="text" name="percent_voucher[]" id="percent_voucher" class="form-control percent-voucher" value="{{ $percentVoucher->Value }}">
+                        <small>* gunakan titik (.) untuk bilangan decimal</small>
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-12">
+                      <div class="form-group">
+                        <label for="value_voucher">Value Voucher</label>
+                        <input type="text" name="value_voucher[]" id="value_voucher" readonly class="form-control voucher-value" value="{{ collect(old('value_voucher')) }}">
                       </div>
                     </div>
                     <div class="col-md-4 col-12">
@@ -245,7 +258,7 @@
                     </div>
                     <div class="col-md-4 col-12">
                       <div class="form-group">
-                        <label for="stock">Stock</label>
+                        <label for="stock">Current Stock</label>
                         <input type="number" id="stock" name="stock[]" class="form-control stock"
                           value="{{ collect(old('stock')) }}" required readonly>
                       </div>
@@ -337,13 +350,14 @@
     $("#main-wrapper-purchase-detail").removeClass("d-none");
 
     $("#wrapper-purchase-detail select").val("");
-    $("#wrapper-purchase-detail input").val("");
+    $("#wrapper-purchase-detail input").not(".percent-voucher").val("");
 
     $('.selectpicker').selectpicker('refresh');
 
     if (investorID == 'Lainnya') {
       $('#other_investor').removeClass('d-none');
       $("#investor-interest").val(0);
+      $(".label-interest").html(`Bunga (0%)`);
     } else {
       $('#other_investor').addClass('d-none');
 
@@ -352,6 +366,7 @@
         url: `/investor/${investorID}`,
         success: function (response) {
           $("#investor-interest").val(response.Interest);
+          $(".label-interest").html(`Bunga ${response.InvestorName} (${response.Interest}%)`);
         }
       });
     }
@@ -374,13 +389,14 @@
     });
   });
 
-  $("#wrapper-purchase-detail").on("keyup", ".quantity, .quantity-po, .purchase-price, .selling-price", function () {
+  $("#wrapper-purchase-detail").on("keyup", ".quantity, .quantity-po, .purchase-price, .selling-price, .percent-voucher", function () {
     const investorInterest = $("#investor-interest").val();
     const thisForm = $(this).closest(".purchase-detail");
     const quantity = thisForm.find(".quantity").val();
     const quantityPO = thisForm.find(".quantity-po").val();
     const purchasePrice = thisForm.find(".purchase-price").val().replaceAll(".", "");
     const sellingPrice = thisForm.find(".selling-price").val().replaceAll(".", "");
+    const percentVoucher = thisForm.find(".percent-voucher").val();
 
     let percentagePO;
     const purchaseValue = quantity * purchasePrice;
@@ -388,11 +404,12 @@
     const interest = investorInterest * purchaseValue / 100;
     const grossMargin = sellingValue - purchaseValue;
     const marginCtn = sellingPrice - purchasePrice;
-    const nettMargin = grossMargin - interest;
+    const voucherValue = Math.round(percentVoucher / 100 * sellingValue);
+    const nettMargin = grossMargin - interest - voucherValue;
     let percentageMargin;
 
-    if (quantityPO) {
-     percentagePO = quantity / quantityPO * 100;
+    if (quantity) {
+     percentagePO = quantityPO / quantity * 100;
      percentagePO = Math.round(percentagePO * 100) / 100; // buat ngebuletin 2 angka decimal
     }
     if (sellingValue > 0) {
@@ -407,6 +424,7 @@
     thisForm.find(".margin-ctn").val(thousands_separators(marginCtn));
     thisForm.find(".nett-margin").val(thousands_separators(nettMargin));
     thisForm.find(".percent-margin").val(percentageMargin);
+    thisForm.find(".voucher-value").val(thousands_separators(voucherValue));
   });
 
   // Cloning Form Term Product
