@@ -44,7 +44,13 @@
             <form id="edit-purchase-plan" method="post" action="{{ route('stock.updatePurchasePlan', ['purchasePlanID' => $data->PurchasePlanID]) }}">
               @csrf
               <div class="row">
-                <div class="col-md-6 col-12">
+                <div class="col-md-4 col-12">
+                  <div class="form-group">
+                    <label for="purchase_plan_id">Purchase Plan ID</label>
+                    <input type="text" value="{{ $data->PurchasePlanID }}" readonly class="form-control">
+                  </div>
+                </div>
+                <div class="col-md-4 col-12">
                   <div class="form-group">
                     <label for="investor">Investor</label>
                     <select name="investor" id="investor" data-live-search="true" title="Pilih Investor"
@@ -54,22 +60,26 @@
                         {{ $investor->InvestorName }}
                       </option>
                       @endforeach
-                      <option value="Lainnya" {{ old('investor')=='Lainnya' ? 'selected' : '' }}>- Tambah Baru -</option>
+                      {{-- <option value="Lainnya" {{ old('investor')=='Lainnya' ? 'selected' : '' }}>- Tambah Baru -</option> --}}
                     </select>
                     <input type="hidden" id="investor-interest" value="{{ $data->Interest }}">
                     @if($errors->has('investor'))
                     <span class="error invalid-feedback">{{ $errors->first('investor') }}</span>
                     @endif
 
-                    <input type="text" name="other_investor" id="other_investor"
+                    <span id="note-purchase-detail">
+                      *Jika ganti pilihan investor maka detail produk akan ter-reset
+                    </span>
+
+                    {{-- <input type="text" name="other_investor" id="other_investor"
                       class="form-control mt-2 {{ old('other_investor') ? '' : 'd-none' }} @if($errors->has('other_investor')) is-invalid @endif"
                       placeholder="Isi Nama investor" value="{{ old('other_investor') }}" autocomplete="off">
                     @if($errors->has('other_investor'))
-                    <span class="error invalid-feedback">{{ $errors->first('other_investor') }}</span>
-                    @endif
+                    <span class="error invalid-feedback">{{ $errors->first('other_investor') }}</span> --}}
+                    {{-- @endif --}}
                   </div>
                 </div>
-                <div class="col-md-6 col-12">
+                <div class="col-md-4 col-12">
                   <div class="form-group">
                     <label for="purchase_plan_date">Tanggal Purchase Plan</label>
                     <input type="datetime-local" name="purchase_plan_date" id="purchase_plan_date" value="{{ date('Y-m-d\TH:i', strtotime($data->PlanDate)) }}"
@@ -84,10 +94,6 @@
               <hr>
               
               <h4>Detail Produk</h4>
-              {{-- <span id="note-purchase-detail">
-                *Pilih Investor terlebih dahulu <br>
-                Pastikan memilih Investor dengan benar, jika ganti pilihan investor maka detail produk akan ter-reset
-              </span> --}}
               <div id="main-wrapper-purchase-detail">
                 <div id="wrapper-purchase-detail">
                   @foreach ($dataDetail as $item)
@@ -169,7 +175,7 @@
                         <label for="percentage_po">Percent PO</label>
                         <div class="input-group mb-3">
                           <input type="number" id="percentage_po" name="percentage_po[]" class="form-control percentage-po"
-                            value="{{ str_replace("%", "", $item->PercentagePO) }}" readonly>
+                            value="{{ round($item->QtyPO / $item->Qty * 100, 2) }}" readonly>
                           <div class="input-group-append">
                             <span class="input-group-text">%</span>
                           </div>
@@ -186,7 +192,7 @@
                     <div class="col-md-4 col-12">
                       <div class="form-group">
                         <label for="purchase_value">Value Beli</label>
-                        <input type="text" id="purchase_value" name="purchase_value[]" class="form-control purchase-value autonumeric"
+                        <input type="text" id="purchase_value" name="purchase_value[]" class="form-control purchase-value"
                           value="{{ $item->PurchaseValue }}" readonly>
                       </div>
                     </div>
@@ -200,15 +206,15 @@
                     <div class="col-md-4 col-12">
                       <div class="form-group">
                         <label for="selling_value">Value Jual</label>
-                        <input type="text" id="selling_value" name="selling_value[]" class="form-control selling-value autonumeric"
+                        <input type="text" id="selling_value" name="selling_value[]" class="form-control selling-value"
                           value="{{ $item->SellingValue }}" readonly>
                       </div>
                     </div>
                     <div class="col-md-4 col-12">
                       <div class="form-group">
-                        <label for="interest">Bunga</label>
-                        <input type="text" id="interest" name="interest[]" class="form-control interest autonumeric"
-                          value="{{ $item->Interest }}" readonly>
+                        <label for="interest" class="label-interest">Bunga {{ $data->InvestorName }} ({{ $item->PercentInterest }}%)</label>
+                        <input type="text" id="interest" name="interest[]" class="form-control interest"
+                          value="{{ $item->InterestValue }}" readonly>
                       </div>
                     </div>
                     <div class="col-md-4 col-12">
@@ -227,9 +233,22 @@
                     </div>
                     <div class="col-md-4 col-12">
                       <div class="form-group">
+                        <label for="percent_voucher">% Voucher</label>
+                        <input type="text" name="percent_voucher[]" id="percent_voucher" class="form-control percent-voucher" 
+                          value="{{ $item->PercentVoucher }}">
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-12">
+                      <div class="form-group">
+                        <label for="value_voucher">Value Voucher</label>
+                        <input type="text" name="value_voucher[]" id="value_voucher" readonly value="{{ $item->VoucherValue }}" class="form-control voucher-value">
+                      </div>
+                    </div>
+                    <div class="col-md-4 col-12">
+                      <div class="form-group">
                         <label for="nett_margin">Nett Margin</label>
                         <input type="text" id="nett_margin" name="nett_margin[]" class="form-control nett-margin"
-                          value="{{ $item->NettMargin }}" readonly>
+                          value="{{ $item->GrossMargin - $item->InterestValue - $item->VoucherValue }}" readonly>
                       </div>
                     </div>
                     <div class="col-md-4 col-12">
@@ -237,7 +256,7 @@
                         <label for="percent_margin">Percent Margin</label>
                         <div class="input-group mb-3">
                           <input type="number" id="percent_margin" name="percent_margin[]" class="form-control percent-margin"
-                            value="{{ str_replace("%", "", $item->PercentageMargin) }}" readonly>
+                            value="{{ round(($item->GrossMargin - $item->InterestValue - $item->VoucherValue) / $item->SellingValue * 100, 2) }}" readonly>
                           <div class="input-group-append">
                             <span class="input-group-text">%</span>
                           </div>
@@ -356,6 +375,7 @@
         url: `/investor/${investorID}`,
         success: function (response) {
           $("#investor-interest").val(response.Interest);
+          $(".label-interest").html(`Bunga ${response.InvestorName} (${response.Interest}%)`);
         }
       });
     }
@@ -378,13 +398,14 @@
     });
   });
 
-  $("#wrapper-purchase-detail").on("keyup", ".quantity, .quantity-po, .purchase-price, .selling-price", function () {
+  $("#wrapper-purchase-detail").on("keyup", ".quantity, .quantity-po, .purchase-price, .selling-price, .percent-voucher", function () {
     const investorInterest = $("#investor-interest").val();
     const thisForm = $(this).closest(".purchase-detail");
     const quantity = thisForm.find(".quantity").val();
     const quantityPO = thisForm.find(".quantity-po").val();
     const purchasePrice = thisForm.find(".purchase-price").val().replaceAll(".", "");
     const sellingPrice = thisForm.find(".selling-price").val().replaceAll(".", "");
+    const percentVoucher = thisForm.find(".percent-voucher").val();
 
     let percentagePO;
     const purchaseValue = quantity * purchasePrice;
@@ -392,12 +413,13 @@
     const interest = (investorInterest * purchaseValue / 100).toFixed(0);
     const grossMargin = sellingValue - purchaseValue;
     const marginCtn = sellingPrice - purchasePrice;
-    const nettMargin = grossMargin - interest;
+    const voucherValue = Math.round(percentVoucher / 100 * sellingValue);
+    const nettMargin = grossMargin - interest - voucherValue;
     let percentageMargin;
 
     if (quantityPO) {
-     percentagePO = quantity / quantityPO * 100;
-     percentagePO = Math.round(percentagePO * 100) / 100; // buat ngebuletin 2 angka decimal
+      percentagePO = quantityPO / quantity * 100;
+      percentagePO = Math.round(percentagePO * 100) / 100; // buat ngebuletin 2 angka decimal
     }
     if (sellingValue > 0) {
       percentageMargin = nettMargin / sellingValue * 100;
@@ -411,6 +433,7 @@
     thisForm.find(".margin-ctn").val(thousands_separators(marginCtn));
     thisForm.find(".nett-margin").val(thousands_separators(nettMargin));
     thisForm.find(".percent-margin").val(percentageMargin);
+    thisForm.find(".voucher-value").val(thousands_separators(voucherValue));
   });
 
   // Cloning Form Term Product

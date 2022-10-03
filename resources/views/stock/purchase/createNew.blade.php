@@ -108,9 +108,12 @@
                       <th>% PO</th>
                       <th>Harga Beli</th>
                       <th>Value Beli</th>
+                      <th>% Bunga</th>
                       <th>Bunga</th>
                       <th>Harga Jual</th>
                       <th>Value Jual</th>
+                      <th>% Voucher</th>
+                      <th>Voucher</th>
                       <th>Gross Margin</th>
                       <th>Margin /ctn</th>
                       <th>Nett Margin</th>
@@ -210,22 +213,25 @@
           data += `<tr>
                     <td>${value.DistributorName}</td>
                     <td>${value.SupplierName}</td>
-                    <td>${value.Note}</td>
+                    <td>${value.Note !== null ? value.Note : '-'}</td>
                     <td>${value.ProductID}</td>
                     <td>${value.ProductName}</td>
                     <td>${value.ProductLabel}</td>
                     <td>${value.Qty}</td>
                     <td>${value.QtyPO}</td>
-                    <td>${value.PercentagePO}</td>
+                    <td>${Math.round(value.QtyPO / value.Qty * 100 * 100) / 100}</td>
                     <td>${thousands_separators(value.PurchasePrice)}</td>
                     <td>${thousands_separators(value.PurchaseValue)}</td>
-                    <td>${thousands_separators(value.Interest)}</td>
+                    <td>${value.PercentInterest}</td>
+                    <td>${thousands_separators(value.InterestValue)}</td>
                     <td>${thousands_separators(value.SellingPrice)}</td>
                     <td>${thousands_separators(value.SellingValue)}</td>
+                    <td>${value.PercentVoucher}</td>
+                    <td>${thousands_separators(value.VoucherValue)}</td>
                     <td>${thousands_separators(value.GrossMargin)}</td>
                     <td>${thousands_separators(value.MarginCtn)}</td>
-                    <td>${thousands_separators(value.NettMargin)}</td>
-                    <td>${value.PercentageMargin}</td>
+                    <td>${thousands_separators(value.GrossMargin - value.InterestValue - value.VoucherValue)}</td>
+                    <td>${(value.GrossMargin - value.InterestValue - value.VoucherValue) / value.SellingValue * 100}</td>
                     <td>${value.LastStock}</td>
                   </tr>`;
         });

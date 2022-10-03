@@ -65,8 +65,12 @@ $(document).ready(function () {
                     name: "PurchaseValue",
                 },
                 {
-                    data: "Interest",
-                    name: "Interest",
+                    data: "PercentInterest",
+                    name: "PercentInterest",
+                },
+                {
+                    data: "InterestValue",
+                    name: "InterestValue",
                 },
                 {
                     data: "SellingPrice",
@@ -75,6 +79,14 @@ $(document).ready(function () {
                 {
                     data: "SellingValue",
                     name: "SellingValue",
+                },
+                {
+                    data: "PercentVoucher",
+                    name: "PercentVoucher",
+                },
+                {
+                    data: "VoucherValue",
+                    name: "VoucherValue",
                 },
                 {
                     data: "GrossMargin",
@@ -114,7 +126,7 @@ $(document).ready(function () {
                         },
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-                            15, 16, 17, 18,
+                            15, 16, 17, 18, 19, 20, 21, 22,
                         ],
                         orthogonal: "export",
                     },
@@ -122,7 +134,7 @@ $(document).ready(function () {
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [10, 11, 12, 13, 14, 15, 16, 17],
+                    aTargets: [10, 11, 13, 14, 15, 17, 18, 19, 20],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;

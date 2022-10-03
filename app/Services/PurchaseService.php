@@ -235,7 +235,8 @@ class PurchaseService
     $sql = DB::table('ms_purchase_plan')
       ->join('ms_investor', 'ms_investor.InvestorID', 'ms_purchase_plan.InvestorID')
       ->join('ms_status_stock', 'ms_status_stock.StatusID', 'ms_purchase_plan.StatusID')
-      ->select('ms_purchase_plan.PurchasePlanID', 'ms_purchase_plan.InvestorID', 'ms_investor.Interest', 'ms_investor.InvestorName', 'ms_purchase_plan.PlanDate', 'ms_purchase_plan.CreatedBy', 'ms_purchase_plan.CreatedDate', 'ms_purchase_plan.ConfirmBy', 'ms_purchase_plan.ConfirmDate', 'ms_purchase_plan.StatusID', 'ms_status_stock.StatusName');
+      ->leftJoin('ms_stock_purchase', 'ms_stock_purchase.PurchasePlanID', 'ms_purchase_plan.PurchasePlanID')
+      ->select('ms_purchase_plan.PurchasePlanID', 'ms_stock_purchase.PurchaseID', 'ms_purchase_plan.InvestorID', 'ms_investor.Interest', 'ms_investor.InvestorName', 'ms_purchase_plan.PlanDate', 'ms_purchase_plan.CreatedBy', 'ms_purchase_plan.CreatedDate', 'ms_purchase_plan.ConfirmBy', 'ms_purchase_plan.ConfirmDate', 'ms_purchase_plan.StatusID', 'ms_status_stock.StatusName');
 
     return $sql;
   }
@@ -265,17 +266,16 @@ class PurchaseService
         ms_purchase_plan_detail.ProductLabel,
         ms_purchase_plan_detail.Qty,
         ms_purchase_plan_detail.QtyPO,
-        CONCAT(ROUND(ms_purchase_plan_detail.Qty / ms_purchase_plan_detail.QtyPO * 100, 0), '%') AS PercentagePO,
         ms_purchase_plan_detail.PurchasePrice,
         ms_purchase_plan_detail.PurchasePrice * ms_purchase_plan_detail.Qty AS PurchaseValue,
-        $investor->Interest AS InvestorInterest,
-        ROUND($investor->Interest * ms_purchase_plan_detail.PurchasePrice * ms_purchase_plan_detail.Qty / 100, 0) AS Interest,
+        ms_purchase_plan_detail.PercentInterest,
+        ROUND(ms_purchase_plan_detail.PercentInterest * ms_purchase_plan_detail.PurchasePrice * ms_purchase_plan_detail.Qty / 100, 0) AS InterestValue,
         ms_purchase_plan_detail.SellingPrice,
         ms_purchase_plan_detail.SellingPrice * ms_purchase_plan_detail.Qty AS SellingValue,
+        ms_purchase_plan_detail.PercentVoucher,
+        ROUND(ms_purchase_plan_detail.PercentVoucher * ms_purchase_plan_detail.SellingPrice * ms_purchase_plan_detail.Qty / 100, 0) AS VoucherValue,
         (ms_purchase_plan_detail.SellingPrice * ms_purchase_plan_detail.Qty) - (ms_purchase_plan_detail.PurchasePrice * ms_purchase_plan_detail.Qty) AS GrossMargin,
         ms_purchase_plan_detail.SellingPrice - ms_purchase_plan_detail.PurchasePrice AS MarginCtn,
-        ((ms_purchase_plan_detail.SellingPrice * ms_purchase_plan_detail.Qty) - (ms_purchase_plan_detail.PurchasePrice * ms_purchase_plan_detail.Qty)) - ROUND($investor->Interest * ms_purchase_plan_detail.PurchasePrice * ms_purchase_plan_detail.Qty / 100, 0) AS NettMargin,
-        CONCAT(ROUND((((ms_purchase_plan_detail.SellingPrice * ms_purchase_plan_detail.Qty) - (ms_purchase_plan_detail.PurchasePrice * ms_purchase_plan_detail.Qty)) - ROUND($investor->Interest * ms_purchase_plan_detail.PurchasePrice * ms_purchase_plan_detail.Qty / 100, 0)) / (ms_purchase_plan_detail.SellingPrice * ms_purchase_plan_detail.Qty) * 100, 2), '%') AS PercentageMargin,
         ms_purchase_plan_detail.LastStock
       ")
       ->orderByRaw("ms_distributor.DistributorName, ms_purchase_plan_detail.ProductID");

@@ -1,5 +1,5 @@
 @extends('layouts.master')
-@section('title', 'Dashboard - Detail Purchase Plan')
+@section('title', 'Dashboard - Detail Purchase Plan '. $data->PurchasePlanID)
 
 @section('css-pages')
 <!-- Datatables -->
@@ -107,9 +107,12 @@
                           <th>% PO</th>
                           <th>Harga Beli</th>
                           <th>Value Beli</th>
+                          <th>% Bunga</th>
                           <th>Bunga</th>
                           <th>Harga Jual</th>
                           <th>Value Jual</th>
+                          <th>% Voucher</th>
+                          <th>Value Voucher</th>
                           <th>Gross Margin</th>
                           <th>Margin /ctn</th>
                           <th>Nett Margin</th>

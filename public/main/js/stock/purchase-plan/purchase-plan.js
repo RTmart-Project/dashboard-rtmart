@@ -24,6 +24,10 @@ $(document).ready(function () {
                     name: "ms_purchase_plan.PurchasePlanID",
                 },
                 {
+                    data: "FlagPurchasePlan",
+                    name: "FlagPurchasePlan",
+                },
+                {
                     data: "InvestorName",
                     name: "ms_investor.InvestorName",
                 },
@@ -77,12 +81,12 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7],
                         orthogonal: "export",
                     },
                 },
             ],
-            order: [2, "desc"],
+            order: [3, "desc"],
             lengthChange: false,
             responsive: true,
             autoWidth: false,

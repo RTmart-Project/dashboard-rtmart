@@ -288,6 +288,16 @@ class StockController extends Controller
                 ->editColumn('PlanDate', function ($data) {
                     return date('d M Y H:i', strtotime($data->PlanDate));
                 })
+                ->addColumn('FlagPurchasePlan', function ($data) {
+                    if ($data->PurchaseID === null && $data->StatusID === 9) {
+                        $flag = '<span class="badge badge-secondary">Belum di Purchase</span>';
+                    } else if ($data->PurchaseID !== null && $data->StatusID === 9) {
+                        $flag = '<span class="badge badge-primary">Sudah di Purchase</span>';
+                    } else {
+                        $flag = '-';
+                    }
+                    return $flag;
+                })
                 ->editColumn('ConfirmDate', function ($data) {
                     if ($data->ConfirmDate !== null) {
                         $confirmDate = date('d M Y H:i', strtotime($data->ConfirmDate));
@@ -331,7 +341,7 @@ class StockController extends Controller
                     }
                     return $edit . $confirm;
                 })
-                ->rawColumns(['StatusName', 'Detail', 'Action'])
+                ->rawColumns(['StatusName', 'FlagPurchasePlan', 'Detail', 'Action'])
                 ->make();
         }
 
@@ -343,11 +353,27 @@ class StockController extends Controller
         $dataPurchasePlan = $purchaseService->getPurchasePlan()->where('ms_purchase_plan.PurchasePlanID', $purchasePlanID)->first();
 
         $data = $purchaseService->getPurchasePlanDetail($purchasePlanID);
-        // dd($data->get());
+
         if ($request->ajax()) {
             return Datatables::of($data)
                 ->editColumn('PlanDate', function ($data) {
                     return date('d M Y', strtotime($data->PlanDate));
+                })
+                ->addColumn('PercentagePO', function ($data) {
+                    return round($data->QtyPO / $data->Qty * 100, 2) . '%';
+                })
+                ->editColumn('PercentInterest', function ($data) {
+                    return $data->PercentInterest . '%';
+                })
+                ->editColumn('PercentVoucher', function ($data) {
+                    return $data->PercentVoucher . '%';
+                })
+                ->addColumn('NettMargin', function ($data) {
+                    return $data->GrossMargin - $data->InterestValue - $data->VoucherValue;
+                })
+                ->addColumn('PercentageMargin', function ($data) {
+                    $nettMargin = $data->GrossMargin - $data->InterestValue - $data->VoucherValue;
+                    return round($nettMargin / $data->SellingValue * 100, 2) . '%';
                 })
                 ->make();
         }
@@ -361,6 +387,7 @@ class StockController extends Controller
     {
         $suppliers = DB::table('ms_suppliers')->get();
         $investors = DB::table('ms_investor')->where('IsActive', 1)->get();
+        $percentVoucher = DB::table('ms_mobileconfig')->where('ID', 'VOUCHER_PURCHASE_PLAN')->select('Value')->first();
         $products = DB::table('ms_product')
             ->join('ms_product_uom', 'ms_product_uom.ProductUOMID', 'ms_product.ProductUOMID')
             ->select('ms_product.ProductID', 'ms_product.ProductName', 'ms_product.ProductUOMDesc', 'ms_product_uom.ProductUOMName')
@@ -372,7 +399,8 @@ class StockController extends Controller
             'suppliers' => $suppliers,
             'products' => $products,
             'distributors' => $distributors,
-            'investors' => $investors
+            'investors' => $investors,
+            'percentVoucher' => $percentVoucher
         ]);
     }
 
@@ -397,12 +425,15 @@ class StockController extends Controller
             'purchase_price.*' => 'required',
             'selling_price' => 'required',
             'selling_price.*' => 'required',
+            'percent_voucher' => 'required',
+            'percent_voucher.*' => 'required',
             'stock' => 'required',
             'stock.*' => 'required',
         ]);
 
         $purchasePlanID = $purchaseService->generatePurchasePlanID();
         $purchasePlanDate = str_replace("T", " ", $request->input('purchase_plan_date'));
+        $investorInterest = $request->input('investor_interest');
         $investor = $request->input('investor');
         if ($investor == "Lainnya") {
             $request->validate([
@@ -434,15 +465,17 @@ class StockController extends Controller
         $purchasePrice = $request->input('purchase_price');
         $sellingPrice = $request->input('selling_price');
         $stock = $request->input('stock');
+        $percentVoucher = $request->input('percent_voucher');
 
         $dataPurchasePlanDetail = [];
         $purchasePlanDetail = array_map(function () {
             return func_get_args();
-        }, $distributor, $supplier, $note, $productID, $labeling, $qty, $qtyPO, $purchasePrice, $sellingPrice, $stock);
+        }, $distributor, $supplier, $note, $productID, $labeling, $qty, $qtyPO, $purchasePrice, $sellingPrice, $stock, $percentVoucher);
 
         foreach ($purchasePlanDetail as $key => $value) {
-            $value = array_combine(['DistributorID', 'SupplierID', 'Note', 'ProductID', 'ProductLabel', 'Qty', 'QtyPO', 'PurchasePrice', 'SellingPrice', 'LastStock'], $value);
+            $value = array_combine(['DistributorID', 'SupplierID', 'Note', 'ProductID', 'ProductLabel', 'Qty', 'QtyPO', 'PurchasePrice', 'SellingPrice', 'LastStock', 'PercentVoucher'], $value);
             $value += ['PurchasePlanID' => $purchasePlanID];
+            $value += ['PercentInterest' => $investorInterest];
             array_push($dataPurchasePlanDetail, $value);
         }
 
@@ -502,22 +535,25 @@ class StockController extends Controller
             'purchase_price.*' => 'required',
             'selling_price' => 'required',
             'selling_price.*' => 'required',
+            'percent_voucher' => 'required',
+            'percent_voucher.*' => 'required',
             'stock' => 'required',
             'stock.*' => 'required',
         ]);
 
         $purchasePlanDate = str_replace("T", " ", $request->input('purchase_plan_date'));
-        $investor = $request->input('investor');
-        if ($investor == "Lainnya") {
-            $request->validate([
-                'other_investor' => 'unique:ms_investor,InvestorName'
-            ]);
-            $newInvestorID = DB::table('ms_investor')
-                ->insertGetId(['InvestorName' => $request->input('other_investor')]);
-            $investorID = $newInvestorID;
-        } else {
-            $investorID = $investor;
-        }
+        $investorID = $request->input('investor');
+        $investor = DB::table('ms_investor')->where('InvestorID', $investorID)->select('Interest')->first();
+        // if ($investor == "Lainnya") {
+        //     $request->validate([
+        //         'other_investor' => 'unique:ms_investor,InvestorName'
+        //     ]);
+        //     $newInvestorID = DB::table('ms_investor')
+        //         ->insertGetId(['InvestorName' => $request->input('other_investor')]);
+        //     $investorID = $newInvestorID;
+        // } else {
+        //     $investorID = $investor;
+        // }
 
         $dataPurchasePlan = [
             'InvestorID' => $investorID,
@@ -534,15 +570,17 @@ class StockController extends Controller
         $purchasePrice = $request->input('purchase_price');
         $sellingPrice = $request->input('selling_price');
         $stock = $request->input('stock');
+        $percentVoucher = $request->input('percent_voucher');
 
         $dataPurchasePlanDetail = [];
         $purchasePlanDetail = array_map(function () {
             return func_get_args();
-        }, $distributor, $supplier, $note, $productID, $labeling, $qty, $qtyPO, $purchasePrice, $sellingPrice, $stock);
+        }, $distributor, $supplier, $note, $productID, $labeling, $qty, $qtyPO, $purchasePrice, $sellingPrice, $stock, $percentVoucher);
 
         foreach ($purchasePlanDetail as $key => $value) {
-            $value = array_combine(['DistributorID', 'SupplierID', 'Note', 'ProductID', 'ProductLabel', 'Qty', 'QtyPO', 'PurchasePrice', 'SellingPrice', 'LastStock'], $value);
+            $value = array_combine(['DistributorID', 'SupplierID', 'Note', 'ProductID', 'ProductLabel', 'Qty', 'QtyPO', 'PurchasePrice', 'SellingPrice', 'LastStock', 'PercentVoucher'], $value);
             $value += ['PurchasePlanID' => $purchasePlanID];
+            $value += ['PercentInterest' => $investor->Interest];
             array_push($dataPurchasePlanDetail, $value);
         }
 
@@ -794,7 +832,6 @@ class StockController extends Controller
             });
             return redirect()->route('stock.purchase')->with('success', 'Data Purchase Stock berhasil ditambahkan');
         } catch (\Throwable $th) {
-            dd($th->getMessage());
             return redirect()->route('stock.purchase')->with('failed', 'Terjadi kesalahan!');
         }
 

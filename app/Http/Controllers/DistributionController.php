@@ -1621,6 +1621,17 @@ class DistributionController extends Controller
                         AND ms_stock_product.ConditionStock = 'GOOD STOCK'
                         AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
                         AND DATE(ms_stock_product.CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
+                        AND ms_stock_product.CreatedDate = (
+                            SELECT CreatedDate
+                            FROM ms_stock_product
+                            WHERE DistributorID = tx_merchant_order.DistributorID
+                                AND ProductID = tx_merchant_order_detail.ProductID 
+                                AND ms_stock_product.Qty > 0
+                                AND ms_stock_product.ConditionStock = 'GOOD STOCK'
+                                AND DATE(ms_stock_product.CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
+                            ORDER BY CreatedDate DESC
+                            LIMIT 1
+                        )
                     WHERE tx_merchant_order_detail.StockOrderID = ms_price_submission.StockOrderID
                 ) AS EstMarginTotalTrxSubmission,
                 (
@@ -1635,7 +1646,9 @@ class DistributionController extends Controller
                 (
                     SELECT SUM(tx_merchant_order_detail.PromisedQuantity * 2250)
                     FROM tx_merchant_order_detail
+                    JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_order_detail.StockOrderID
                     WHERE tx_merchant_order_detail.StockOrderID = ms_price_submission.StockOrderID
+                    AND tx_merchant_order.PaymentMethodID != 13
                 ) AS CostLogistic
             ")
             ->toSql();
@@ -1702,6 +1715,17 @@ class DistributionController extends Controller
                         AND ms_stock_product.ConditionStock = 'GOOD STOCK'
                         AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
                         AND DATE(ms_stock_product.CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
+                        AND ms_stock_product.CreatedDate = (
+                            SELECT CreatedDate
+                            FROM ms_stock_product
+                            WHERE DistributorID = tx_merchant_order.DistributorID
+                                AND ProductID = tx_merchant_order_detail.ProductID 
+                                AND ms_stock_product.Qty > 0
+                                AND ms_stock_product.ConditionStock = 'GOOD STOCK'
+                                AND DATE(ms_stock_product.CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
+                            ORDER BY CreatedDate DESC
+                            LIMIT 1
+                        )
                     WHERE tx_merchant_order_detail.StockOrderID = ms_price_submission.StockOrderID
                 ) AS EstMarginTotalPrice,
                 (
@@ -1720,6 +1744,17 @@ class DistributionController extends Controller
                         AND ms_stock_product.ConditionStock = 'GOOD STOCK'
                         AND ms_stock_product.DistributorID = tx_merchant_order.DistributorID
                         AND DATE(ms_stock_product.CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
+                        AND ms_stock_product.CreatedDate = (
+                            SELECT CreatedDate
+                            FROM ms_stock_product
+                            WHERE DistributorID = tx_merchant_order.DistributorID
+                                AND ProductID = tx_merchant_order_detail.ProductID 
+                                AND ms_stock_product.Qty > 0
+                                AND ms_stock_product.ConditionStock = 'GOOD STOCK'
+                                AND DATE(ms_stock_product.CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
+                            ORDER BY CreatedDate DESC
+                            LIMIT 1
+                        )
                     WHERE tx_merchant_order_detail.StockOrderID = ms_price_submission.StockOrderID
                 ) AS EstMarginTotalTrxSubmission,
                 (
@@ -1866,7 +1901,7 @@ class DistributionController extends Controller
                             AND ms_stock_product.Qty > 0
                             AND ms_stock_product.ConditionStock = 'GOOD STOCK'
                             AND DATE(ms_stock_product.CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
-                        ORDER BY LevelType, CreatedDate
+                        ORDER BY CreatedDate DESC
                         LIMIT 1
                     ) AS PurchasePrice
                 "),
@@ -1967,7 +2002,7 @@ class DistributionController extends Controller
                             AND ms_stock_product.Qty > 0
                             AND ms_stock_product.ConditionStock = 'GOOD STOCK'
                             AND DATE(ms_stock_product.CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
-                        ORDER BY LevelType, CreatedDate
+                        ORDER BY CreatedDate DESC
                         LIMIT 1
                     ) AS PurchasePrice
                 "),
@@ -2069,7 +2104,7 @@ class DistributionController extends Controller
                             AND ms_stock_product.Qty > 0
                             AND ms_stock_product.ConditionStock = 'GOOD STOCK'
                             AND DATE(ms_stock_product.CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
-                        ORDER BY LevelType, CreatedDate
+                        ORDER BY CreatedDate DESC
                         LIMIT 1
                     ) AS PurchasePrice
                 ")
