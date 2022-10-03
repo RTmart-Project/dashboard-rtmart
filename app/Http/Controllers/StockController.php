@@ -724,6 +724,22 @@ class StockController extends Controller
                 ->editColumn('PurchaseDate', function ($data) {
                     return date('d M Y H:i', strtotime($data->PurchaseDate));
                 })
+                ->editColumn('DistributorName', function ($data) {
+                    if ($data->DistributorName === null) {
+                        $distributor = $data->DistributorProduct;
+                    } else {
+                        $distributor = $data->DistributorName;
+                    }
+                    return $distributor;
+                })
+                ->editColumn('SupplierName', function ($data) {
+                    if ($data->SupplierName === null) {
+                        $supplier = $data->SupplierProduct;
+                    } else {
+                        $supplier = $data->SupplierName;
+                    }
+                    return $supplier;
+                })
                 ->editColumn('StatusName', function ($data) {
                     if ($data->StatusID == 1) {
                         $color = 'warning';
