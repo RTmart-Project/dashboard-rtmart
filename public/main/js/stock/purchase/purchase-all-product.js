@@ -88,6 +88,10 @@ $(document).ready(function () {
                     name: "ms_status_stock.StatusName",
                 },
                 {
+                    data: "StatusProduct",
+                    name: "status_product.StatusName",
+                },
+                {
                     data: "StatusBy",
                     name: "ms_stock_purchase.StatusBy",
                 },
