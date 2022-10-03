@@ -360,7 +360,7 @@ class StockController extends Controller
                     return date('d M Y', strtotime($data->PlanDate));
                 })
                 ->addColumn('PercentagePO', function ($data) {
-                    return round($data->QtyPO / $data->Qty * 100, 2) . '%';
+                    return round($data->QtyPO / $data->Qty * 100) . '%';
                 })
                 ->editColumn('PercentInterest', function ($data) {
                     return $data->PercentInterest . '%';
@@ -373,7 +373,7 @@ class StockController extends Controller
                 })
                 ->addColumn('PercentageMargin', function ($data) {
                     $nettMargin = $data->GrossMargin - $data->InterestValue - $data->VoucherValue;
-                    return round($nettMargin / $data->SellingValue * 100, 2) . '%';
+                    return round($nettMargin / $data->SellingValue * 100) . '%';
                 })
                 ->make();
         }
