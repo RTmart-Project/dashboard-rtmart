@@ -410,11 +410,11 @@
 
     if (quantity) {
      percentagePO = quantityPO / quantity * 100;
-     percentagePO = Math.round(percentagePO * 100) / 100; // buat ngebuletin 2 angka decimal
+     percentagePO = Math.round(percentagePO); // buat ngebuletin 2 angka decimal
     }
     if (sellingValue > 0) {
       percentageMargin = nettMargin / sellingValue * 100;
-      percentageMargin = Math.round(percentageMargin * 100) / 100; // buat ngebuletin 2 angka decimal
+      percentageMargin = Math.round(percentageMargin); // buat ngebuletin 2 angka decimal
     }
     thisForm.find(".percentage-po").val(percentagePO);
     thisForm.find(".purchase-value").val(thousands_separators(purchaseValue));
