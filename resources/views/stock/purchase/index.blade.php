@@ -83,7 +83,7 @@
                           <th>Tanggal Pembelian</th>
                           <th>Grand Total</th>
                           <th>Dibuat Oleh</th>
-                          <th>Status</th>
+                          <th>Status Inbound</th>
                           <th>Dikonfirmasi oleh</th>
                           <th>Invoice Number</th>
                           <th>Invoice File</th>
@@ -120,7 +120,8 @@
                           <th>Total Harga Produk</th>
                           <th>Grand Total</th>
                           <th>Dibuat Oleh</th>
-                          <th>Status</th>
+                          <th>Status Inbound</th>
+                          <th>Status Product</th>
                           <th>Dikonfirmasi oleh</th>
                           <th>Invoice Number</th>
                           <th>Invoice File</th>

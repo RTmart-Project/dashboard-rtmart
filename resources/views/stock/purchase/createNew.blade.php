@@ -219,7 +219,7 @@
                     <td>${value.ProductLabel}</td>
                     <td>${value.Qty}</td>
                     <td>${value.QtyPO}</td>
-                    <td>${Math.round(value.QtyPO / value.Qty * 100 * 100) / 100}</td>
+                    <td>${Math.round(value.QtyPO / value.Qty * 100)}</td>
                     <td>${thousands_separators(value.PurchasePrice)}</td>
                     <td>${thousands_separators(value.PurchaseValue)}</td>
                     <td>${value.PercentInterest}</td>
@@ -231,7 +231,7 @@
                     <td>${thousands_separators(value.GrossMargin)}</td>
                     <td>${thousands_separators(value.MarginCtn)}</td>
                     <td>${thousands_separators(value.GrossMargin - value.InterestValue - value.VoucherValue)}</td>
-                    <td>${(value.GrossMargin - value.InterestValue - value.VoucherValue) / value.SellingValue * 100}</td>
+                    <td>${Math.round((value.GrossMargin - value.InterestValue - value.VoucherValue) / value.SellingValue * 100)}</td>
                     <td>${value.LastStock}</td>
                   </tr>`;
         });

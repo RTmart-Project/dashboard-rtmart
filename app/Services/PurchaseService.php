@@ -31,8 +31,8 @@ class PurchaseService
         ms_stock_purchase.InvoiceFile,
         ms_investor.InvestorName,
         ms_stock_purchase.Type,
-        GROUP_CONCAT(combine_distributor.DistributorName SEPARATOR ', ') AS DistributorCombined,
-        GROUP_CONCAT(combine_supplier.SupplierName SEPARATOR ', ') AS SupplierCombined
+        GROUP_CONCAT(DISTINCT combine_distributor.DistributorName SEPARATOR ', ') AS DistributorCombined,
+        GROUP_CONCAT(DISTINCT combine_supplier.SupplierName SEPARATOR ', ') AS SupplierCombined
       ")
       ->groupBy('ms_stock_purchase.PurchaseID');
 
@@ -77,11 +77,36 @@ class PurchaseService
     $mainSql = DB::table('ms_stock_purchase')
       ->join('ms_stock_purchase_detail', 'ms_stock_purchase_detail.PurchaseID', 'ms_stock_purchase.PurchaseID')
       ->join('ms_product', 'ms_product.ProductID', 'ms_stock_purchase_detail.ProductID')
-      ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_stock_purchase.DistributorID')
       ->leftJoin('ms_investor', 'ms_investor.InvestorID', 'ms_stock_purchase.InvestorID')
-      ->join('ms_suppliers', 'ms_suppliers.SupplierID', 'ms_stock_purchase.SupplierID')
+      ->leftJoin('ms_distributor as single_distributor', 'single_distributor.DistributorID', 'ms_stock_purchase.DistributorID')
+      ->leftJoin('ms_distributor as product_distributor', 'product_distributor.DistributorID', 'ms_stock_purchase_detail.DistributorID')
+      ->leftJoin('ms_suppliers as single_supplier', 'single_supplier.SupplierID', 'ms_stock_purchase.SupplierID')
+      ->leftJoin('ms_suppliers as product_supplier', 'product_supplier.SupplierID', 'ms_stock_purchase_detail.SupplierID')
       ->join('ms_status_stock', 'ms_status_stock.StatusID', 'ms_stock_purchase.StatusID')
-      ->select('ms_stock_purchase.PurchaseID', 'ms_distributor.DistributorName', 'ms_stock_purchase.PurchaseDate', 'ms_stock_purchase.CreatedBy', 'ms_suppliers.SupplierName', 'ms_stock_purchase.StatusID', 'ms_status_stock.StatusName', 'ms_stock_purchase.StatusBy', 'ms_stock_purchase.InvoiceNumber', 'ms_stock_purchase.InvoiceFile', 'ms_investor.InvestorName', 'ms_stock_purchase.Type', 'ms_stock_purchase_detail.ProductID', 'ms_product.ProductName', 'ms_stock_purchase_detail.ProductLabel', 'ms_stock_purchase_detail.Qty', 'ms_stock_purchase_detail.PurchasePrice', DB::raw("ms_stock_purchase_detail.Qty * ms_stock_purchase_detail.PurchasePrice AS SubTotalPrice"));
+      ->leftJoin('ms_status_stock as status_product', 'status_product.StatusID', 'ms_stock_purchase_detail.StatusStockID')
+      ->selectRaw("
+        ms_stock_purchase.PurchaseID,
+        single_distributor.DistributorName,
+        ms_stock_purchase.PurchaseDate,
+        ms_stock_purchase.CreatedBy,
+        single_supplier.SupplierName,
+        ms_stock_purchase.StatusID,
+        ms_status_stock.StatusName,
+        status_product.StatusName AS StatusProduct,
+        ms_stock_purchase.StatusBy,
+        ms_stock_purchase.InvoiceNumber,
+        ms_stock_purchase.InvoiceFile,
+        ms_investor.InvestorName,
+        ms_stock_purchase.Type,
+        product_distributor.DistributorName AS DistributorProduct,
+        product_supplier.SupplierName AS SupplierProduct,
+        ms_stock_purchase_detail.ProductID,
+        ms_product.ProductName,
+        ms_stock_purchase_detail.ProductLabel,
+        ms_stock_purchase_detail.Qty,
+        ms_stock_purchase_detail.PurchasePrice,
+        ms_stock_purchase_detail.Qty * ms_stock_purchase_detail.PurchasePrice AS SubTotalPrice
+      ");
 
     if ($fromDate != '' && $toDate != '') {
       $mainSql->whereDate('ms_stock_purchase.PurchaseDate', '>=', $fromDate)
@@ -94,7 +119,7 @@ class PurchaseService
     }
     if (Auth::user()->Depo != "ALL") {
       $depoUser = Auth::user()->Depo;
-      $mainSql->where('ms_distributor.Depo', '=', $depoUser);
+      $mainSql->where('single_distributor.Depo', '=', $depoUser);
     }
     if (Auth::user()->InvestorID != null) {
       $investorUser = Auth::user()->InvestorID;
@@ -148,8 +173,8 @@ class PurchaseService
         ms_stock_purchase.InvoiceFile,
         ms_stock_purchase.InvestorID,
         ms_investor.InvestorName,
-        GROUP_CONCAT(combine_distributor.DistributorName SEPARATOR ', ') AS DistributorCombined,
-        GROUP_CONCAT(combine_supplier.SupplierName SEPARATOR ', ') AS SupplierCombined,
+        GROUP_CONCAT(DISTINCT combine_distributor.DistributorName SEPARATOR ', ') AS DistributorCombined,
+        GROUP_CONCAT(DISTINCT combine_supplier.SupplierName SEPARATOR ', ') AS SupplierCombined,
         (
           SELECT SUM(IF(ms_stock_purchase_detail.StatusStockID = 6, 1, 0))
           FROM ms_stock_purchase_detail
