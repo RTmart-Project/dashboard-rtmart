@@ -3,6 +3,7 @@
 
 @section('css-pages')
 <link rel="stylesheet" href="{{ url('/') }}/plugins/bootstrap-select/bootstrap-select.min.css">
+<link rel="stylesheet" href="{{url('/')}}/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
 @endsection
 
 @section('header-menu', 'Tambah Purchase Stock')
@@ -47,7 +48,7 @@
                 <div class="col-12">
                   <div class="form-group">
                     <label for="purchase_plan">Sumber Purchase Plan</label>
-                    <select name="purchase_plan" id="purchase_plan" data-live-search="true" title="Pilih purchase_plan"
+                    <select name="purchase_plan" id="purchase_plan" data-live-search="true" title="Pilih Purchase Plan"
                       class="form-control selectpicker border @if($errors->has('purchase_plan')) is-invalid @endif"
                       required>
                       @foreach ($purchasePlan as $item)
@@ -92,59 +93,42 @@
               </div>
               <hr>
               <h4>Detail Produk</h4>
-              <div id="wrapper-purchase-detail">
-                <div id="purchase-detail" class="row mb-3">
-                  <div class="col-md-6 col-12">
-                    <div class="form-group">
-                      <label for="product">Nama Produk</label>
-                      <select title="Pilih Produk" name="product[]" data-live-search="true"
-                        class="form-control selectpicker border select-product" required>
-                        @foreach ($products as $product)
-                        <option value="{{ $product->ProductID }}" 
-                          {{ collect(old('product'))->contains($product->ProductID) ? 'selected' : '' }}>
-                          {{ $product->ProductID.' - '. $product->ProductName.' -- Isi: '. $product->ProductUOMDesc . ' ' . $product->ProductUOMName }}
-                        </option>
-                        @endforeach
-                      </select>
-                    </div>
-                  </div>
-                  <div class="col-md-6 col-12">
-                    <div class="form-group">
-                      <label for="labeling">Label Produk</label>
-                      <select title="Pilih Labeling Produk" name="labeling[]" id="labeling"
-                        class="form-control selectpicker border" required>
-                        <option value="PKP"
-                          {{ collect(old('labeling'))->contains('PKP') ? 'selected' : '' }}>
-                          PKP
-                        </option>
-                        <option value="NON-PKP"
-                          {{ collect(old('labeling'))->contains('NON PKP') ? 'selected' : '' }}>
-                          NON PKP
-                        </option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="col-md-6 col-12">
-                    <div class="form-group">
-                      <label for="quantity">Kuantiti</label>
-                      <input type="number" id="quantity" name="quantity[]" class="form-control"
-                        value="{{ collect(old('quantity')) }}" placeholder="Masukkan Jumlah Kuantiti" required>
-                    </div>
-                  </div>
-                  <div class="col-md-6 col-12">
-                    <div class="form-group">
-                      <label for="purchase_price">Harga Beli</label>
-                      <input type="number" id="purchase_price" name="purchase_price[]" class="form-control "
-                        value="{{ collect(old('purchase_price')) }}" placeholder="Masukkan Harga Beli" required autocomplete="off">
-                    </div>
-                  </div>
-                  <br>
-                </div>
+              <div class="table-responsive">
+                <table class="table table-datatables">
+                  <thead>
+                    <tr>
+                      <th>Distributor</th>
+                      <th>Supplier</th>
+                      <th>Keterangan</th>
+                      <th>Produk ID</th>
+                      <th>Produk</th>
+                      <th>Produk Label</th>
+                      <th>Qty</th>
+                      <th>Qty PO</th>
+                      <th>% PO</th>
+                      <th>Harga Beli</th>
+                      <th>Value Beli</th>
+                      <th>% Bunga</th>
+                      <th>Bunga</th>
+                      <th>Harga Jual</th>
+                      <th>Value Jual</th>
+                      <th>% Voucher</th>
+                      <th>Voucher</th>
+                      <th>Gross Margin</th>
+                      <th>Margin /ctn</th>
+                      <th>Nett Margin</th>
+                      <th>% Margin</th>
+                      <th>Stock</th>
+                    </tr>
+                  </thead>
+                  <tbody id="details">
+                    
+                  </tbody>
+                </table>
               </div>
 
               <div class="form-group float-right mt-4">
-                <button type="button" class="btn btn-success" data-target="#konfirmasi"
-                data-toggle="modal" data-dismiss="modal">Simpan</button>
+                <button type="button" class="btn btn-success" id="btn-save">Simpan</button>
               </div>
               
               <!-- Modal -->
@@ -186,8 +170,9 @@
                     <div class="modal-footer">
                       <button type="button" class="btn btn-sm btn-outline-secondary" data-toggle="modal"
                         data-dismiss="modal">Batal</button>
-                      <button type="submit" class="btn btn-sm btn-success"
-                        data-toggle="modal">Yakin</button>
+                      <button type="submit" class="btn btn-sm btn-success btn-create-purchase-stock" data-toggle="modal">
+                        Yakin <i class="fas fa-circle-notch fa-spin d-none loader"></i>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -203,7 +188,15 @@
 
 @section('js-pages')
 <script src="{{url('/')}}/plugins/bootstrap-select/bootstrap-select.min.js"></script>
+<script src="{{url('/')}}/plugins/sweetalert2/sweetalert2.min.js"></script>
 <script>
+  let Toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 4000,
+  });
+
   $("#purchase_plan").on("change", function () {
     const purchasePlanID = $(this).val();
     
@@ -211,13 +204,64 @@
       type: "get",
       url: `/stock/purchase/by-purchase-plan/${purchasePlanID}`,
       success: function (response) {
-        console.log(response);
-        
         $("#investor").val(response.InvestorName);
         $("#investor_id").val(response.InvestorID);
         $("#purchase_date").val(response.PlanDate.replace(" ", "T").substring(0,16));
+
+        let data = '';
+        $.each(response.Detail, function(index, value){
+          data += `<tr>
+                    <td>${value.DistributorName}</td>
+                    <td>${value.SupplierName}</td>
+                    <td>${value.Note !== null ? value.Note : '-'}</td>
+                    <td>${value.ProductID}</td>
+                    <td>${value.ProductName}</td>
+                    <td>${value.ProductLabel}</td>
+                    <td>${value.Qty}</td>
+                    <td>${value.QtyPO}</td>
+                    <td>${Math.round(value.QtyPO / value.Qty * 100 * 100) / 100}</td>
+                    <td>${thousands_separators(value.PurchasePrice)}</td>
+                    <td>${thousands_separators(value.PurchaseValue)}</td>
+                    <td>${value.PercentInterest}</td>
+                    <td>${thousands_separators(value.InterestValue)}</td>
+                    <td>${thousands_separators(value.SellingPrice)}</td>
+                    <td>${thousands_separators(value.SellingValue)}</td>
+                    <td>${value.PercentVoucher}</td>
+                    <td>${thousands_separators(value.VoucherValue)}</td>
+                    <td>${thousands_separators(value.GrossMargin)}</td>
+                    <td>${thousands_separators(value.MarginCtn)}</td>
+                    <td>${thousands_separators(value.GrossMargin - value.InterestValue - value.VoucherValue)}</td>
+                    <td>${(value.GrossMargin - value.InterestValue - value.VoucherValue) / value.SellingValue * 100}</td>
+                    <td>${value.LastStock}</td>
+                  </tr>`;
+        });
+        $('#details').html(data);
       }
     });
   });
+
+  $("#btn-save").on("click", function () {
+    const planID = $("#purchase_plan").val();
+    const estimationArrive = $("#estimation_arrive").val();
+
+    if (!planID) {
+      Toast.fire({
+        icon: "error",
+        title: `Harap Pilih Purchase Plan!`,
+      });    
+    } else if (!estimationArrive) {
+      Toast.fire({
+        icon: "error",
+        title: `Harap Isi Tanggal Estimasi Tiba!`,
+      });    
+    } else {
+      $('#konfirmasi').modal('show');
+    }
+  });
+
+  $("#add-purchase").on("submit", function (e) {
+    $('.btn-create-purchase-stock').prop("disabled", true);
+    $('.btn-create-purchase-stock').children().removeClass("d-none");
+  })
 </script>
 @endsection

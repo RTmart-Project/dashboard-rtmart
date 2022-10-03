@@ -76,6 +76,7 @@
                         <tr>
                           <th>Tipe</th>
                           <th>Purchase ID</th>
+                          <th>Purchase Plan ID</th>
                           <th>Distributor</th>
                           <th>Investor</th>
                           <th>Supplier</th>
@@ -87,9 +88,9 @@
                           <th>Invoice Number</th>
                           <th>Invoice File</th>
                           <th>Action</th>
-                          @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI"))
+                          {{-- @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI"))
                           <th>Konfirmasi</th>
-                          @endif
+                          @endif --}}
                         </tr>
                       </thead>
                       <tbody>
