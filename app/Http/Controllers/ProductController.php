@@ -32,6 +32,7 @@ class ProductController extends Controller
             ->leftJoin('ms_brand_type', 'ms_brand_type.BrandID', '=', 'ms_product.BrandTypeID')
             ->leftJoin('ms_product_uom', 'ms_product_uom.ProductUOMID', '=', 'ms_product.ProductUOMID')
             ->leftJoin('ms_distributor', 'ms_distributor.DistributorID', 'ms_product.ProductOwner')
+            ->where('ms_product.IsActive', 1)
             ->select('ms_product.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product.ProductUOMDesc', 'ms_product.Price', 'ms_product.ProductOwner', 'ms_product_category.ProductCategoryName', 'ms_product_type.ProductTypeName', 'ms_brand_type.Brand', 'ms_product_uom.ProductUOMName', 'ms_distributor.DistributorName');
 
         $depoUser = Auth::user()->Depo;
