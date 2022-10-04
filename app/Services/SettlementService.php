@@ -13,7 +13,7 @@ class SettlementService
     $sql = DB::table('tx_merchant_delivery_order as tmdo')
       ->join('tx_merchant_order', function ($join) {
         $join->on('tx_merchant_order.StockOrderID', 'tmdo.StockOrderID');
-        $join->where('tx_merchant_order.PaymentMethodID', 1);
+        $join->whereIn('tx_merchant_order.PaymentMethodID', [1, 13]);
       })
       ->leftJoin('ms_status_settlement', 'ms_status_settlement.StatusSettlementID', 'tmdo.StatusSettlementID')
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
@@ -64,7 +64,7 @@ class SettlementService
     $settlement = DB::table('tx_merchant_delivery_order as tmdo')
       ->join('tx_merchant_order', function ($join) {
         $join->on('tx_merchant_order.StockOrderID', 'tmdo.StockOrderID');
-        $join->whereRaw("tx_merchant_order.PaymentMethodID = 1");
+        $join->whereRaw("tx_merchant_order.PaymentMethodID IN (1,13)");
       })
       ->join('ms_merchant_account', function ($join) {
         $join->on('ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID');
