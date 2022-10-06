@@ -23,6 +23,10 @@ class SettlementService
       })
       ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tx_merchant_order.SalesCode')
       ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tmdo.StatusDO')
+      ->leftJoin('tx_merchant_delivery_order_payment_log', function ($join) {
+        $join->on('tx_merchant_delivery_order_payment_log.DeliveryOrderID', 'tmdo.DeliveryOrderID');
+        $join->where('tx_merchant_delivery_order_payment_log.StatusSettlementID', 2);
+      })
       ->where('tmdo.StatusDO', 'S025')
       ->whereDate('tmdo.CreatedDate', '>=', '2022-09-01')
       ->selectRaw("
@@ -54,7 +58,9 @@ class SettlementService
           FROM tx_merchant_delivery_order_detail
           WHERE tx_merchant_delivery_order_detail.DeliveryOrderID = tmdo.DeliveryOrderID
             AND tx_merchant_delivery_order_detail.StatusExpedition = 'S031'
-        ) AS TotalSettlement
+        ) AS TotalSettlement,
+        tx_merchant_delivery_order_payment_log.CreatedDate AS SettlementDate,
+        tx_merchant_delivery_order_payment_log.ActionBy
       ");
     return $sql;
   }

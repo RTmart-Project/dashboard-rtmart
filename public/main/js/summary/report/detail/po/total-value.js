@@ -4,6 +4,7 @@ $(document).ready(function () {
 
     function dataTablesTotalValuePO() {
         const params = location.search;
+        const { pathname, search } = location;
 
         $("#summary-value-po .table-datatables").DataTable({
             dom:
@@ -14,7 +15,7 @@ $(document).ready(function () {
             serverSide: false,
             stateServe: true,
             ajax: {
-                url: "/summary/reportDetail/totalValuePO" + params,
+                url: pathname + search,
             },
             columns: [
                 {

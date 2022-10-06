@@ -21,7 +21,10 @@ $(document).ready(function () {
 
     let distributorID = "";
     let salesCode = "";
-    summaryReportData(startDateMonth, dateNow, distributorID, salesCode);
+    summaryReportData(startDateMonth, dateNow, distributorID, salesCode, [
+        "REGULER",
+    ]);
+    $("#type-po").val(["REGULER"]);
 
     // Setting Awal Daterangepicker
     $("#summary-report #from_date").daterangepicker({
@@ -101,20 +104,24 @@ $(document).ready(function () {
         $("#distributor").selectpicker("refresh");
         $("#sales").val("");
         $("#sales").selectpicker("refresh");
+        $("#type-po").val(["REGULER"]);
+        $("#type-po").selectpicker("refresh");
 
-        let startDate = $("#from_date").val();
-        let endDate = $("#to_date").val();
-        let distributorID = $("#distributor").val();
-        let salesCode = $("#sales").val();
+        const startDate = $("#from_date").val();
+        const endDate = $("#to_date").val();
+        const distributorID = $("#distributor").val();
+        const salesCode = $("#sales").val();
+        const typePO = $("#type-po").val();
         $(".overlay").removeClass("d-none");
-        summaryReportData(startDate, endDate, distributorID, salesCode);
+        summaryReportData(startDate, endDate, distributorID, salesCode, typePO);
     });
 
     $("#filter").on("click", function () {
-        let startDate = $("#from_date").val();
-        let endDate = $("#to_date").val();
-        let distributorID = $("#distributor").val();
-        let salesCode = $("#sales").val();
+        const startDate = $("#from_date").val();
+        const endDate = $("#to_date").val();
+        const distributorID = $("#distributor").val();
+        const salesCode = $("#sales").val();
+        const typePO = $("#type-po").val();
 
         const today = new Date().toJSON().slice(0, 10).replace(/-/g, "-");
 
@@ -132,14 +139,27 @@ $(document).ready(function () {
         }
         $(".overlay").removeClass("d-none");
 
-        summaryReportData(startDate, endDate, distributorID, salesCode);
+        summaryReportData(startDate, endDate, distributorID, salesCode, typePO);
     });
 
-    function createLink(type, startDate, endDate, distributorID, salesCode) {
-        return `/summary/reportDetail/${type}?startDate=${startDate}&endDate=${endDate}&distributorID=${distributorID}&salesCode=${salesCode}`;
+    function createLink(
+        type,
+        startDate,
+        endDate,
+        distributorID,
+        salesCode,
+        typePO
+    ) {
+        return `/summary/reportDetail/${type}?startDate=${startDate}&endDate=${endDate}&distributorID=${distributorID}&salesCode=${salesCode}&typePO=${typePO}`;
     }
 
-    function summaryReportData(startDate, endDate, distributorID, salesCode) {
+    function summaryReportData(
+        startDate,
+        endDate,
+        distributorID,
+        salesCode,
+        typePO
+    ) {
         $.ajax({
             url: "/summary/report/data",
             headers: {
@@ -150,6 +170,7 @@ $(document).ready(function () {
                 endDate,
                 distributorID,
                 salesCode,
+                typePO,
             },
             type: "post",
             success: function (res) {
@@ -159,16 +180,44 @@ $(document).ready(function () {
                     startDate,
                     endDate,
                     distributorID,
-                    salesCode
+                    salesCode,
+                    typePO
                 );
                 $("#total-value-po-link").prop("href", linkTotalValuePO);
+
+                const linkTotalValuePOallStatus = createLink(
+                    "totalValuePOallStatus",
+                    startDate,
+                    endDate,
+                    distributorID,
+                    salesCode,
+                    typePO
+                );
+                $("#total-value-po-all-status-link").prop(
+                    "href",
+                    linkTotalValuePOallStatus
+                );
+
+                const linkTotalValuePOcancelled = createLink(
+                    "totalValuePOcancelled",
+                    startDate,
+                    endDate,
+                    distributorID,
+                    salesCode,
+                    typePO
+                );
+                $("#total-value-po-cancelled-link").prop(
+                    "href",
+                    linkTotalValuePOcancelled
+                );
 
                 const linkCountPO = createLink(
                     "countPO",
                     startDate,
                     endDate,
                     distributorID,
-                    salesCode
+                    salesCode,
+                    typePO
                 );
                 $("#count-total-po-link").prop("href", linkCountPO);
 
@@ -177,7 +226,8 @@ $(document).ready(function () {
                     startDate,
                     endDate,
                     distributorID,
-                    salesCode
+                    salesCode,
+                    typePO
                 );
                 $("#count-merchant-po-link").prop("href", linkCountMerchantPO);
 
@@ -187,7 +237,8 @@ $(document).ready(function () {
                     startDate,
                     endDate,
                     distributorID,
-                    salesCode
+                    salesCode,
+                    typePO
                 );
                 $("#total-value-do-link").prop("href", linkTotalValueDO);
 
@@ -196,7 +247,8 @@ $(document).ready(function () {
                     startDate,
                     endDate,
                     distributorID,
-                    salesCode
+                    salesCode,
+                    typePO
                 );
                 $("#count-total-do-link").prop("href", linkCountDO);
 
@@ -205,11 +257,38 @@ $(document).ready(function () {
                     startDate,
                     endDate,
                     distributorID,
-                    salesCode
+                    salesCode,
+                    typePO
                 );
                 $("#count-merchant-do-link").prop("href", linkCountMerchantDO);
 
                 // PO Summary
+                $("#total-value-po-all-status").html(
+                    res.PO.TotalValuePOallStatus != null
+                        ? "Rp " +
+                              thousands_separators(res.PO.TotalValuePOallStatus)
+                        : 0
+                );
+                $("#count-merchant-po-all-status").html(`
+                    ${
+                        res.PO.CountMerchantPOallStatus != null
+                            ? `dari ${res.PO.CountMerchantPOallStatus} toko`
+                            : 0
+                    }
+                `);
+                $("#total-value-po-cancelled").html(
+                    res.PO.TotalValuePOcancelled != null
+                        ? "Rp " +
+                              thousands_separators(res.PO.TotalValuePOcancelled)
+                        : 0
+                );
+                $("#count-merchant-po-cancelled").html(`
+                    ${
+                        res.PO.CountMerchantPOcancelled != null
+                            ? `dari ${res.PO.CountMerchantPOcancelled} toko`
+                            : 0
+                    }
+                `);
                 $("#total-value-po").html(
                     res.PO.TotalValuePO != null
                         ? "Rp " + thousands_separators(res.PO.TotalValuePO)
@@ -218,9 +297,13 @@ $(document).ready(function () {
                 $("#count-total-po").html(
                     res.PO.CountTotalPO != null ? res.PO.CountTotalPO : 0
                 );
-                $("#count-merchant-po").html(
-                    res.PO.CountMerchantPO != null ? res.PO.CountMerchantPO : 0
-                );
+                $("#count-merchant-po").html(`
+                    ${
+                        res.PO.CountMerchantPO != null
+                            ? `dari ${res.PO.CountMerchantPO} toko`
+                            : 0
+                    }
+                `);
                 $("#value-margin-estimasi").html(
                     `${
                         res.PO.ValueMargin != null &&
@@ -270,11 +353,28 @@ $(document).ready(function () {
                               )
                         : 0
                 );
+                $("#total-value-do-cancelled").html(
+                    res.DO.TotalValueDOcancelled != null
+                        ? "Rp " +
+                              thousands_separators(res.DO.TotalValueDOcancelled)
+                        : 0
+                );
+                $("#count-merchant-do-cancelled").html(`
+                    ${
+                        res.DO.CountMerchantDOcancelled != null
+                            ? `dari ${res.DO.CountMerchantDOcancelled} toko`
+                            : 0
+                    }
+                `);
                 $("#count-total-do").html(
                     res.DO.CountTotalDO != null ? res.DO.CountTotalDO : 0
                 );
                 $("#count-merchant-do").html(
-                    res.DO.CountMerchantDO != null ? res.DO.CountMerchantDO : 0
+                    `${
+                        res.DO.CountMerchantDO != null
+                            ? `dari ${res.DO.CountMerchantDO} toko`
+                            : 0
+                    }`
                 );
                 $("#value-margin").html(
                     `${

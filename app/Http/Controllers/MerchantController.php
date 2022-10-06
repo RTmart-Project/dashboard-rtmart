@@ -160,7 +160,8 @@ class MerchantController extends Controller
                 })
                 ->addColumn('Product', function ($data) {
                     $productBtn = '<a href="/merchant/account/product/' . $data->MerchantID . '" class="btn-sm btn-info detail-order">Detail</a>';
-                    return $productBtn;
+                    $mapsBtn = '<a target="_blank" class="btn-sm btn-primary ml-1" href="https://www.google.co.id/maps/place/' . $data->Latitude . ',' . $data->Longitude . '">Buka Maps</a>';
+                    return $productBtn . $mapsBtn;
                 })
                 ->addColumn('Action', function ($data) {
                     $edit = '<a href="/merchant/account/edit/' . $data->MerchantID . '" class="btn-sm btn-warning detail-order">Edit</a>';
@@ -640,7 +641,7 @@ class MerchantController extends Controller
         }
 
         $data = $sqlAssessments;
-        // dd($data->get());
+
         if ($request->ajax()) {
             return Datatables::of($data)
                 ->addColumn('Empty', function ($data) {

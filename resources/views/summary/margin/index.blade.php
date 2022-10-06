@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
 <!-- Main -->
-<link rel="stylesheet" href="{{url('/')}}/main/css/custom/select-filter.css">
+<link rel="stylesheet" href="{{url('/')}}/plugins/bootstrap-select/bootstrap-select.min.css">
 @endsection
 
 @section('header-menu', 'Summary Margin')
@@ -52,11 +52,12 @@
                       <thead>
                         <tr>
                           <th>Distributor</th>
-                          {{-- <th>COGS</th>
+                          <th>COGS</th>
                           <th>Sales</th>
-                          <th>Gross Margin (before disc)</th>
-                          <th>Gross Margin (after disc)</th>
-                          <th>% Margin</th> --}}
+                          <th>Gross Margin</th>
+                          <th>Discount</th>
+                          <th>Nett Margin</th>
+                          <th>% Nett Margin</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -94,7 +95,7 @@
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!-- Main JS -->
-<script src="{{url('/')}}/main/js/custom/select-filter.js"></script>
+<script src="{{url('/')}}/plugins/bootstrap-select/bootstrap-select.min.js"></script>
 <script src="{{url('/')}}/main/js/summary/margin/margin.js"></script>
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
 <script>

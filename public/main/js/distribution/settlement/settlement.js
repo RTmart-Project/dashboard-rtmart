@@ -104,6 +104,14 @@ $(document).ready(function () {
                     name: "tmdo.PaymentSlip",
                 },
                 {
+                    data: "SettlementDate",
+                    name: "tx_merchant_delivery_order_payment_log.CreatedDate",
+                },
+                {
+                    data: "ActionBy",
+                    name: "tx_merchant_delivery_order_payment_log.ActionBy",
+                },
+                {
                     data: "Action",
                     name: "Action",
                     searchable: false,
@@ -146,6 +154,7 @@ $(document).ready(function () {
                         },
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+                            15, 16,
                         ],
                         orthogonal: "export",
                     },
@@ -169,7 +178,7 @@ $(document).ready(function () {
                     },
                 },
                 {
-                    aTargets: [16],
+                    aTargets: [18],
                     visible: roleID == "AD" ? false : true,
                 },
             ],
