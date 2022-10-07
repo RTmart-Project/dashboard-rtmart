@@ -1830,6 +1830,17 @@ class DistributionController extends Controller
 
                     return $finalMargin;
                 })
+                ->addColumn('PercentFinalEstMarginSubmission', function ($data) {
+                    if ($data->PaymentMethodID === 13) {
+                        $finalEstMarginSubmission = $data->EstMarginTotalTrxSubmission - round($data->Bunga / 100 * $data->TotalTrxSubmission);
+                    } else {
+                        $finalEstMarginSubmission = $data->EstMarginTotalTrxSubmission - round($data->Bunga / 100 * $data->TotalTrxSubmission) - $data->CostLogistic;
+                    }
+
+                    $percentFinalMargin = round($finalEstMarginSubmission / $data->TotalTrxSubmission * 100, 2);
+
+                    return $percentFinalMargin . '%';
+                })
                 ->editColumn('CreatedBy', function ($data) {
                     return $data->CreatedBy . ' pada ' . date('d M Y H:i', strtotime($data->CreatedDate));
                 })

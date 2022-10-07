@@ -79,9 +79,13 @@ class SummaryController extends Controller
             // ->where('IsActive', 1)
             ->select('SalesCode', 'SalesName')->get();
 
+        $typePO = DB::table('tx_merchant_order')
+            ->distinct('Type')->select('Type')->get();
+
         return view('summary.report.index', [
             'distributors' => $distributors,
-            'sales' => $sales
+            'sales' => $sales,
+            'typePO' => $typePO
         ]);
     }
 
@@ -91,8 +95,9 @@ class SummaryController extends Controller
         $endDate = $request->endDate;
         $distributorID = $request->distributorID;
         $salesCode = $request->salesCode;
+        $typePO = $request->typePO;
 
-        $data = $summaryService->summaryReport($startDate, $endDate, $distributorID, $salesCode);
+        $data = $summaryService->summaryReport($startDate, $endDate, $distributorID, $salesCode, $typePO);
 
         return $data;
     }
@@ -103,19 +108,20 @@ class SummaryController extends Controller
         $endDate = $request->input('endDate');
         $distributorID = $request->input('distributorID');
         $salesCode = $request->input('salesCode');
+        $typePO = $request->input('typePO');
 
-        $dataTotalValuePO = $summaryService->totalValuePO($startDate, $endDate, $distributorID, $salesCode);
-        $dataCountPO = $summaryService->countPO($startDate, $endDate, $distributorID, $salesCode);
-        $dataCountMerchantPO = $summaryService->countMerchantPO($startDate, $endDate, $distributorID, $salesCode);
+        $dataTotalValuePO = $summaryService->totalValuePO($type, $startDate, $endDate, $distributorID, $salesCode, $typePO);
+        $dataCountPO = $summaryService->countPO($type, $startDate, $endDate, $distributorID, $salesCode, $typePO);
+        $dataCountMerchantPO = $summaryService->countMerchantPO($type, $startDate, $endDate, $distributorID, $salesCode, $typePO);
 
-        $dataTotalValueDO = $summaryService->totalValueDO($startDate, $endDate, $distributorID, $salesCode);
-        $dataCountDO = $summaryService->countDO($startDate, $endDate, $distributorID, $salesCode);
-        $dataCountMerchantDO = $summaryService->countMerchantDO($startDate, $endDate, $distributorID, $salesCode);
+        $dataTotalValueDO = $summaryService->totalValueDO($startDate, $endDate, $distributorID, $salesCode, $typePO);
+        $dataCountDO = $summaryService->countDO($startDate, $endDate, $distributorID, $salesCode, $typePO);
+        $dataCountMerchantDO = $summaryService->countMerchantDO($startDate, $endDate, $distributorID, $salesCode, $typePO);
 
-        $dataFilter = $summaryService->dataFilter($startDate, $endDate, $distributorID, $salesCode);
+        $dataFilter = $summaryService->dataFilter($startDate, $endDate, $distributorID, $salesCode, $typePO);
 
         if ($request->ajax()) {
-            if ($type == "totalValuePO") {
+            if ($type == "totalValuePO" || $type == "totalValuePOallStatus" || $type == "totalValuePOcancelled") {
                 return DataTables::of($dataTotalValuePO)
                     ->editColumn('CreatedDate', function ($dataTotalValuePO) {
                         return date('d M Y H:i', strtotime($dataTotalValuePO->CreatedDate));
@@ -293,10 +299,11 @@ class SummaryController extends Controller
             }
         }
 
-        if ($type == "totalValuePO") {
+        if ($type == "totalValuePO" || $type == "totalValuePOallStatus" || $type == "totalValuePOcancelled") {
             return view('summary.report.detail.po.total-value', [
                 'data' => (clone $dataTotalValuePO)->distinct('tmo.StockOrderID')->select('tmo.StockOrderID', 'tmo.TotalPrice')->get()->toArray(),
-                'dataFilter' => $dataFilter
+                'dataFilter' => $dataFilter,
+                'type' => $type
             ]);
         } elseif ($type == "countPO") {
             return view('summary.report.detail.po.count-po', [
@@ -335,6 +342,10 @@ class SummaryController extends Controller
     {
         $filterStartDate = $request->input('fromDate');
         $filterEndDate = $request->input('toDate');
+        $filterTypePO = $request->input('typePO');
+        if ($filterTypePO === null) {
+            $filterTypePO = ["REGULER"];
+        }
 
         if ($filterStartDate != null && $filterEndDate != null) {
             $startDate = $filterStartDate;
@@ -344,12 +355,26 @@ class SummaryController extends Controller
             $endDate = date('Y-m-d');
         }
 
-        $data = $summaryService->dataSummaryMargin($startDate, $endDate);
-
-        // dd($data->get());
+        $data = $summaryService->dataSummaryMargin($startDate, $endDate, $filterTypePO);
 
         if ($request->ajax()) {
             return DataTables::of($data)
+                ->addColumn('GrossMargin', function ($data) {
+                    return $data->Sales - $data->COGS;
+                })
+                ->addColumn('NettMargin', function ($data) {
+                    return $data->Sales - $data->COGS - $data->Discount;
+                })
+                ->addColumn('PercentMargin', function ($data) {
+                    if ($data->Sales - $data->Discount === 0) {
+                        $percentMargin = 0;
+                    } else {
+                        $percentMargin = round(($data->Sales - $data->COGS - $data->Discount) / ($data->Sales - $data->Discount) * 100, 2) . '%';
+                    }
+
+                    return $percentMargin;
+                })
+                ->rawColumns(['DistributorName'])
                 ->make();
         }
     }

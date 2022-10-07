@@ -71,15 +71,15 @@
                         </a>
                     </li>
                     @endif
-                    {{-- @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO")
+                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO")
                     <li class="nav-item">
                         <a href="{{ route('summary.margin') }}"
                             class="nav-link {{ Request::is('summary/margin*') ? 'active' : '' }}">
                             <i class="far fa-circle nav-icon"></i>
-                            <p>Margin</p>
+                            <p>Summary Margin</p>
                         </a>
                     </li>
-                    @endif --}}
+                    @endif
                 </ul>
             </li>
             @endif
@@ -441,6 +441,15 @@
                             class="nav-link {{ Request::is('merchant/account*') ? 'active' : '' }}">
                             <i class="far fa-circle nav-icon"></i>
                             <p>Akun</p>
+                        </a>
+                    </li>
+                    @endif
+                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH"))
+                    <li class="nav-item">
+                        <a href="{{ route('merchant.membership') }}"
+                            class="nav-link {{ Request::is('merchant/membership*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Membership</p>
                         </a>
                     </li>
                     @endif

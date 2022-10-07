@@ -160,7 +160,8 @@ class MerchantController extends Controller
                 })
                 ->addColumn('Product', function ($data) {
                     $productBtn = '<a href="/merchant/account/product/' . $data->MerchantID . '" class="btn-sm btn-info detail-order">Detail</a>';
-                    return $productBtn;
+                    $mapsBtn = '<a target="_blank" class="btn-sm btn-primary ml-1" href="https://www.google.co.id/maps/place/' . $data->Latitude . ',' . $data->Longitude . '">Buka Maps</a>';
+                    return $productBtn . $mapsBtn;
                 })
                 ->addColumn('Action', function ($data) {
                     $edit = '<a href="/merchant/account/edit/' . $data->MerchantID . '" class="btn-sm btn-warning detail-order">Edit</a>';
@@ -263,6 +264,10 @@ class MerchantController extends Controller
             ->where('IsActive', 1)
             ->select('SalesCode', 'SalesName')->get();
 
+        $partners  = DB::table('ms_partner')->where('IsActive', 1)->get();
+
+        $merchantPartner = DB::table('ms_merchant_partner')->where('MerchantID', $merchantId)->get();
+
         if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
             $distributorSql->where('ms_distributor.Depo', '=', $depoUser);
@@ -280,7 +285,9 @@ class MerchantController extends Controller
             'merchantById' => $merchantById,
             'distributor' => $distributor,
             'grade' => $grade,
-            'sales' => $sales
+            'sales' => $sales,
+            'partners' => $partners,
+            'merchantPartner' => $merchantPartner
         ]);
     }
 
@@ -313,6 +320,17 @@ class MerchantController extends Controller
         $user = Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo;
         $referralCode = $request->input('referral_code');
 
+        $merchantPartner = $request->input('partner');
+        $arrayMerchantPartner = [];
+        $merchantPartners = array_map(function () {
+            return func_get_args();
+        }, $merchantPartner);
+        foreach ($merchantPartners as $key => $value) {
+            $value = array_combine(['PartnerID'], $value);
+            $value += ['MerchantID' => $merchantId];
+            array_push($arrayMerchantPartner, $value);
+        }
+
         $data = [
             'StoreName' => $request->input('store_name'),
             'OwnerFullName' => $request->input('owner_name'),
@@ -334,7 +352,7 @@ class MerchantController extends Controller
         ];
 
         try {
-            DB::transaction(function () use ($merchantId, $merchantGrade, $data, $dataGrade, $merchant, $referralCode, $user) {
+            DB::transaction(function () use ($merchantId, $merchantGrade, $data, $dataGrade, $merchant, $referralCode, $user, $arrayMerchantPartner) {
                 DB::table('ms_merchant_account')
                     ->where('MerchantID', '=', $merchantId)
                     ->update($data);
@@ -356,6 +374,8 @@ class MerchantController extends Controller
                             'ActionBy' => $user
                         ]);
                 }
+                DB::table('ms_merchant_partner')->where('MerchantID', $merchantId)->delete();
+                DB::table('ms_merchant_partner')->insert($arrayMerchantPartner);
             });
 
             return redirect()->route('merchant.account')->with('success', 'Data merchant berhasil diubah');
@@ -640,7 +660,7 @@ class MerchantController extends Controller
         }
 
         $data = $sqlAssessments;
-        // dd($data->get());
+
         if ($request->ajax()) {
             return Datatables::of($data)
                 ->addColumn('Empty', function ($data) {

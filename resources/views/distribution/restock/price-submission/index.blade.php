@@ -69,6 +69,7 @@
                           <th>Bunga BPR</th>
                           <th>Cost Logistic</th>
                           <th>Final Est Margin Pengajuan</th>
+                          <th>% Final Est Margin Pengajuan</th>
                           <th>Diajukan Oleh</th>
                           <th>Detail</th>
                           <th>Konfirmasi</th>
@@ -154,6 +155,7 @@
                           <th>Bunga BPR</th>
                           <th>Cost Logistic</th>
                           <th>Final Est Margin Pengajuan</th>
+                          <th>% Final Est Margin Pengajuan</th>
                           <th>Diajukan Oleh</th>
                           <th>Catatan</th>
                           <th>Detail</th>
@@ -187,6 +189,7 @@
                           <th>Bunga BPR</th>
                           <th>Cost Logistic</th>
                           <th>Final Est Margin Pengajuan</th>
+                          <th>% Final Est Margin Pengajuan</th>
                           <th>Diajukan Oleh</th>
                           <th>Catatan</th>
                           <th>Detail</th>

@@ -36,11 +36,6 @@ class SettlementController extends Controller
         $distributor = $request->input('distributor');
         $filterBy = $request->input('filterBy');
 
-        // $startDate = new DateTime($fromDate) ?? new DateTime();
-        // $endDate = new DateTime($toDate) ?? new DateTime();
-        // $startDateFormat = $startDate->format('Y-m-d');
-        // $endDateFormat = $endDate->format('Y-m-d');
-
         $sql = $this->settlementService->dataSettlement();
 
         if ($filterBy == "CreatedDate") {
@@ -83,6 +78,14 @@ class SettlementController extends Controller
                         $paymentDate = date('d-M-Y', strtotime($data->PaymentDate));
                     }
                     return $paymentDate;
+                })
+                ->editColumn('SettlementDate', function ($data) {
+                    if ($data->SettlementDate == null) {
+                        $settlementDate = "-";
+                    } else {
+                        $settlementDate = date('d-M-Y', strtotime($data->SettlementDate));
+                    }
+                    return $settlementDate;
                 })
                 ->editColumn('StatusSettlementName', function ($data) {
                     if ($data->StatusSettlementID == 1 || $data->StatusSettlementID == null) {
