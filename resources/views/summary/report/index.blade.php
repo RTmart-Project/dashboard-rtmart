@@ -46,7 +46,7 @@
               <div class="col-md-2 col-6 p-1">
                 <input type="text" name="to_date" id="to_date" class="form-control form-control-sm" readonly>
               </div>
-              <div class="col-md-3 col-6 p-1">
+              <div class="col-md-2 col-6 p-1">
                 <select class="form-control form-control-sm selectpicker border" name="distributor" id="distributor"
                   title="Pilih Depo" multiple data-live-search="true">
                   @foreach ($distributors as $distributor)
@@ -54,11 +54,20 @@
                   @endforeach
                 </select>
               </div>
-              <div class="col-md-3 col-6 p-1">
+              <div class="col-md-2 col-6 p-1">
                 <select class="form-control form-control-sm selectpicker border" name="sales" id="sales"
                   title="Pilih Sales" multiple data-live-search="true">
                   @foreach ($sales as $item)
-                    <option value="{{ $item->SalesCode }}">{{ $item->SalesCode }} - {{ $item->SalesName }}</option>
+                  <option value="{{ $item->SalesCode }}">{{ $item->SalesCode }} - {{ $item->SalesName }}</option>
+                  @endforeach
+                </select>
+              </div>
+              <div class="col-md-2 col-12 p-1">
+                <select class="form-control form-control-sm selectpicker border" name="type-po" id="type-po"
+                title="Pilih Tipe PO" multiple>
+                  <option value="#" disabled>-- Filter Tipe PO --</option>
+                  @foreach ($typePO as $item)
+                    <option value="{{ $item->Type }}">{{ $item->Type }}</option>
                   @endforeach
                 </select>
               </div>
@@ -77,12 +86,33 @@
             <div class="info-box">
               <span class="info-box-icon bg-success elevation-1"><i class="fas fa-shopping-cart"></i></span>
               <div class="info-box-content">
-                <span class="info-box-text no-wrap h6 mb-2"><a id="total-value-po-link" target="_blank">Total PO (Value)</a></span>
-                <span class="info-box-number h6 m-0" id="total-value-po"></span>
+                <span class="info-box-text no-wrap h6 mb-2"><a id="total-value-po-all-status-link" target="_blank">Total PO (Semua Status)</a></span>
+                <span class="info-box-number h6 m-0" id="total-value-po-all-status"></span>
+                <span class="m-0" id="count-merchant-po-all-status"></span>
               </div>
             </div>
           </div>
           <div class="col-md-4 col-6">
+            <div class="info-box">
+              <span class="info-box-icon bg-success elevation-1"><i class="fas fa-shopping-cart"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text no-wrap h6 mb-2"><a id="total-value-po-link" target="_blank">Total PO (Belum di Kirim)</a></span>
+                <span class="info-box-number h6 m-0" id="total-value-po"></span>
+                <span class="m-0" id="count-merchant-po"></span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 col-6">
+            <div class="info-box">
+              <span class="info-box-icon bg-success elevation-1"><i class="fas fa-shopping-cart"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text no-wrap h6 mb-2"><a id="total-value-po-cancelled-link" target="_blank">Total PO (Dibatalkan)</a></span>
+                <span class="info-box-number h6 m-0" id="total-value-po-cancelled"></span>
+                <span class="m-0" id="count-merchant-po-cancelled"></span>
+              </div>
+            </div>
+          </div>
+          {{-- <div class="col-md-4 col-6">
             <div class="info-box">
               <span class="info-box-icon bg-success elevation-1"><i class="fas fa-shopping-cart"></i></span>
               <div class="info-box-content">
@@ -99,7 +129,7 @@
                 <span class="info-box-number h6 m-0" id="count-merchant-po"></span>
               </div>
             </div>
-          </div>
+          </div> --}}
           <div class="col-md-4 col-6">
             <div class="info-box">
               <span class="info-box-icon bg-success elevation-1"><i class="fas fa-search-dollar"></i></span>
@@ -144,8 +174,9 @@
             <div class="info-box">
               <span class="info-box-icon bg-info elevation-1"><i class="fas fa-truck"></i></span>
               <div class="info-box-content">
-                <span class="info-box-text no-wrap h6 mb-2"><a id="total-value-do-link" target="_blank">Total DO (Value)</a></span>
+                <span class="info-box-text no-wrap h6 mb-2"><a id="total-value-do-link" target="_blank">Total DO (Selesai)</a></span>
                 <span class="info-box-number h6 m-0" id="total-value-do"></span>
+                <span class="m-0" id="count-merchant-do"></span>
               </div>
             </div>
           </div>
@@ -159,6 +190,16 @@
             </div>
           </div>
           <div class="col-md-4 col-6">
+            <div class="info-box">
+              <span class="info-box-icon bg-info elevation-1"><i class="fas fa-cart-arrow-down"></i></span>
+              <div class="info-box-content">
+                <span class="info-box-text no-wrap h6 mb-2">Total DO (Dibatalkan)</span>
+                <span class="info-box-number h6 m-0" id="total-value-do-cancelled"></span>
+                <span class="m-0" id="count-merchant-do-cancelled"></span>
+              </div>
+            </div>
+          </div>
+          {{-- <div class="col-md-4 col-6">
             <div class="info-box">
               <span class="info-box-icon bg-info elevation-1"><i class="fas fa-truck"></i></span>
               <div class="info-box-content">
@@ -175,7 +216,7 @@
                 <span class="info-box-number h6 m-0" id="count-merchant-do"></span>
               </div>
             </div>
-          </div>
+          </div> --}}
           <div class="col-md-4 col-6">
             <div class="info-box">
               <span class="info-box-icon bg-info elevation-1"><i class="fas fa-search-dollar"></i></span>

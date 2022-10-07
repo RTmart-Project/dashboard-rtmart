@@ -12,6 +12,7 @@ use App\Http\Controllers\CourierController;
 use App\Http\Controllers\DeliveryController;
 use App\Http\Controllers\DistributionController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\MerchantMembershipController;
 use App\Http\Controllers\MonthlyReportController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\ProductController;
@@ -378,6 +379,13 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/merchant/powermerchant/delete/{merchantId}', [MerchantController::class, 'deletePowerMerchant'])->name('merchant.deletePowerMerchant');
         Route::get('/merchant/otp', [MerchantController::class, 'otp'])->name('merchant.otp');
         Route::get('/merchant/otp/get', [MerchantController::class, 'getOtps'])->name('merchant.getOtps');
+
+        Route::group(['prefix' => 'merchant/membership'], function () {
+            Route::get('/', [MerchantMembershipController::class, 'index'])->name('merchant.membership');
+            Route::post('/data', [MerchantMembershipController::class, 'data'])->name('merchant.membershipData');
+            Route::get('/photo/{merchantID}', [MerchantMembershipController::class, 'photo'])->name('merchant.membershipPhoto');
+            Route::post('/confirm/{merchantID}/{status}', [MerchantMembershipController::class, 'confirm'])->name('merchant.membershipConfirm');
+        });
     });
 
     // Customer

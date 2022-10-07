@@ -244,7 +244,7 @@ class SummaryService
     return $sql;
   }
 
-  public function summaryReport($startDate, $endDate, $distributorID, $salesCode)
+  public function summaryReport($startDate, $endDate, $distributorID, $salesCode, $typePO)
   {
     // Summary Purchase Order
     $sqlMainPO = DB::table('tx_merchant_order as tmo')
@@ -257,14 +257,25 @@ class SummaryService
       ->whereRaw("DATE(tmo.CreatedDate) <= '$endDate'")
       ->whereRaw("tmo.StatusOrderID IN ('S009', 'S010', 'S023')");
 
+    $filterDistributor = "";
     if ($distributorID != null) {
       $distributorIn = "'" . implode("', '", $distributorID) . "'";
       $sqlMainPO->whereRaw("tmo.DistributorID IN ($distributorIn)");
+      $filterDistributor = "AND tx_merchant_order.DistributorID IN ($distributorIn)";
     }
 
+    $filterSales = "";
     if ($salesCode != null) {
       $salesCodeIn = "'" . implode("', '", $salesCode) . "'";
       $sqlMainPO->whereRaw("tmo.SalesCode IN ($salesCodeIn)");
+      $filterSales = "AND tx_merchant_order.SalesCode IN ($salesCodeIn)";
+    }
+
+    $filterTypePO = "";
+    if ($typePO != null) {
+      $typePOin = "'" . implode("', '", $typePO) . "'";
+      $sqlMainPO->whereRaw("tmo.Type IN ($typePOin)");
+      $filterTypePO = "AND tx_merchant_order.Type IN ($typePOin)";
     }
 
     $sqlProductPO = (clone $sqlMainPO)
@@ -305,6 +316,56 @@ class SummaryService
 
     $sqlPO = DB::table(DB::raw("($sqlMainPO) as SummaryPO"))
       ->selectRaw("
+        ( 
+          SELECT SUM(tx_merchant_order.TotalPrice)
+          FROM tx_merchant_order
+          JOIN ms_merchant_account ON ms_merchant_account.MerchantID = tx_merchant_order.MerchantID
+          WHERE ms_merchant_account.IsTesting = 0
+            AND (ms_merchant_account.Partner != 'TRADING' OR ms_merchant_account.Partner IS NULL)
+            AND DATE(tx_merchant_order.CreatedDate) >= '$startDate'
+            AND DATE(tx_merchant_order.CreatedDate) <= '$endDate'
+            $filterDistributor
+            $filterSales
+            $filterTypePO
+        ) as TotalValuePOallStatus,
+        (
+          SELECT COUNT(DISTINCT tx_merchant_order.MerchantID)
+          FROM tx_merchant_order
+          JOIN ms_merchant_account ON ms_merchant_account.MerchantID = tx_merchant_order.MerchantID
+          WHERE ms_merchant_account.IsTesting = 0
+            AND (ms_merchant_account.Partner != 'TRADING' OR ms_merchant_account.Partner IS NULL)
+            AND DATE(tx_merchant_order.CreatedDate) >= '$startDate'
+            AND DATE(tx_merchant_order.CreatedDate) <= '$endDate'
+            $filterDistributor
+            $filterSales
+            $filterTypePO
+        ) as CountMerchantPOallStatus,
+        ( 
+          SELECT SUM(tx_merchant_order.TotalPrice)
+          FROM tx_merchant_order
+          JOIN ms_merchant_account ON ms_merchant_account.MerchantID = tx_merchant_order.MerchantID
+          WHERE ms_merchant_account.IsTesting = 0
+            AND tx_merchant_order.StatusOrderID = 'S011'
+            AND (ms_merchant_account.Partner != 'TRADING' OR ms_merchant_account.Partner IS NULL)
+            AND DATE(tx_merchant_order.CreatedDate) >= '$startDate'
+            AND DATE(tx_merchant_order.CreatedDate) <= '$endDate'
+            $filterDistributor
+            $filterSales
+            $filterTypePO
+        ) as TotalValuePOcancelled,
+        (
+          SELECT COUNT(DISTINCT tx_merchant_order.MerchantID)
+          FROM tx_merchant_order
+          JOIN ms_merchant_account ON ms_merchant_account.MerchantID = tx_merchant_order.MerchantID
+          WHERE ms_merchant_account.IsTesting = 0
+            AND tx_merchant_order.StatusOrderID = 'S011'
+            AND (ms_merchant_account.Partner != 'TRADING' OR ms_merchant_account.Partner IS NULL)
+            AND DATE(tx_merchant_order.CreatedDate) >= '$startDate'
+            AND DATE(tx_merchant_order.CreatedDate) <= '$endDate'
+            $filterDistributor
+            $filterSales
+            $filterTypePO
+        ) as CountMerchantPOcancelled,
         ( 
             SELECT SUM(SummaryPO.TotalPrice)
         ) as TotalValuePO,
@@ -355,6 +416,11 @@ class SummaryService
       $sqlMainDO->whereRaw("tmo.SalesCode IN ($salesCodeIn)");
     }
 
+    if ($typePO != null) {
+      $typePOin = "'" . implode("', '", $typePO) . "'";
+      $sqlMainDO->whereRaw("tmo.Type IN ($typePOin)");
+    }
+
     $sqlMargin = (clone $sqlMainDO)
       ->join('tx_merchant_delivery_order_detail as tmdod', function ($join) {
         $join->on('tmdod.DeliveryOrderID', 'tmdo.DeliveryOrderID');
@@ -374,7 +440,8 @@ class SummaryService
       })
       ->select(
         DB::raw("IFNULL(FLOOR(SUM(DISTINCT tmo.TotalPrice + CONV(SUBSTRING(MD5(CONCAT(tmo.StockOrderID)), 1, 8), 16, 10)/1000000000000000)), 0) AS TotalValuePO"),
-        DB::raw("IFNULL(SUM(tmdod.Qty * tmdod.Price), 0) AS TotalValueDO")
+        DB::raw("IFNULL(SUM(tmdod.Qty * tmdod.Price), 0) AS TotalValueDO"),
+        DB::raw("COUNT(DISTINCT tmo.MerchantID) AS CountMerchantDO")
       )
       ->first();
 
@@ -383,11 +450,44 @@ class SummaryService
     $sqlDO = DB::table(DB::raw("($sqlMainDO) as SummaryDO"))
       ->selectRaw("
         (
-            SELECT $sqlTotalValuePObyDO->TotalValuePO
+          SELECT $sqlTotalValuePObyDO->TotalValuePO
         ) as TotalValuePObyDO,
         (
-            SELECT $sqlTotalValuePObyDO->TotalValueDO
+          SELECT $sqlTotalValuePObyDO->CountMerchantDO
+        ) as cnt,
+        (
+          SELECT $sqlTotalValuePObyDO->TotalValueDO
         ) as TotalValueDO,
+        (
+          SELECT IFNULL(SUM(tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price), 0)
+          FROM tx_merchant_delivery_order
+          JOIN tx_merchant_delivery_order_detail ON tx_merchant_delivery_order_detail.DeliveryOrderID = tx_merchant_delivery_order.DeliveryOrderID
+            AND tx_merchant_delivery_order_detail.StatusExpedition = 'S037'
+          JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_delivery_order.StockOrderID
+          JOIN ms_merchant_account ON ms_merchant_account.MerchantID = tx_merchant_order.MerchantID
+            AND (ms_merchant_account.Partner != 'TRADING' OR ms_merchant_account.Partner IS NULL)
+            AND ms_merchant_account.IsTesting = 0
+          WHERE DATE(tx_merchant_delivery_order.CreatedDate) >= '$startDate'
+            AND DATE(tx_merchant_delivery_order.CreatedDate) <= '$endDate'
+            $filterDistributor
+            $filterSales
+            $filterTypePO
+        ) as TotalValueDOcancelled,
+        (
+          SELECT COUNT(DISTINCT tx_merchant_order.MerchantID)
+          FROM tx_merchant_delivery_order
+          JOIN tx_merchant_delivery_order_detail ON tx_merchant_delivery_order_detail.DeliveryOrderID = tx_merchant_delivery_order.DeliveryOrderID
+            AND tx_merchant_delivery_order_detail.StatusExpedition = 'S037'
+          JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_delivery_order.StockOrderID
+          JOIN ms_merchant_account ON ms_merchant_account.MerchantID = tx_merchant_order.MerchantID
+            AND (ms_merchant_account.Partner != 'TRADING' OR ms_merchant_account.Partner IS NULL)
+            AND ms_merchant_account.IsTesting = 0
+          WHERE DATE(tx_merchant_delivery_order.CreatedDate) >= '$startDate'
+            AND DATE(tx_merchant_delivery_order.CreatedDate) <= '$endDate'
+            $filterDistributor
+            $filterSales
+            $filterTypePO
+        ) as CountMerchantDOcancelled,
         (
             SELECT COUNT(SummaryDO.DeliveryOrderID)
         ) as CountTotalDO,
@@ -420,18 +520,17 @@ class SummaryService
     return $data;
   }
 
-  public function queryPO($startDate, $endDate, $distributorID, $salesCode)
+  public function queryPO($type, $startDate, $endDate, $distributorID, $salesCode, $typePO)
   {
     $sql = DB::table('tx_merchant_order as tmo')
       ->join('ms_merchant_account as mma', function ($join) {
         $join->on('mma.MerchantID', 'tmo.MerchantID');
-        $join->whereRaw("(mma.Partner != 'TRADING' OR mma.Partner IS NULL)");
+        $join->whereRaw("mma.IsTesting = 0 AND (mma.Partner != 'TRADING' OR mma.Partner IS NULL)");
       })
       ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', 'tmo.PaymentMethodID')
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'tmo.DistributorID')
       ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tmo.StatusOrderID')
       ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tmo.SalesCode')
-      ->whereIn('tmo.StatusOrderID', ['S009', 'S010', 'S023'])
       ->whereDate('tmo.CreatedDate', '>=', $startDate)
       ->whereDate('tmo.CreatedDate', '<=', $endDate);
 
@@ -441,13 +540,22 @@ class SummaryService
     if ($salesCode != null) {
       $sql->whereIn('tmo.SalesCode', explode(",", $salesCode));
     }
+    if ($typePO != null) {
+      $sql->whereIn('tmo.Type', explode(",", $typePO));
+    }
+    if ($type === "totalValuePO") {
+      $sql->whereIn('tmo.StatusOrderID', ['S009', 'S010', 'S023']);
+    }
+    if ($type === "totalValuePOcancelled") {
+      $sql->whereIn('tmo.StatusOrderID', ['S011']);
+    }
 
     return $sql;
   }
 
-  public function totalValuePO($startDate, $endDate, $distributorID, $salesCode)
+  public function totalValuePO($type, $startDate, $endDate, $distributorID, $salesCode, $typePO)
   {
-    $sql = $this->queryPO($startDate, $endDate, $distributorID, $salesCode)
+    $sql = $this->queryPO($type, $startDate, $endDate, $distributorID, $salesCode, $typePO)
       ->join('tx_merchant_order_detail as tmod', 'tmo.StockOrderID', 'tmod.StockOrderID')
       ->join('ms_product', 'ms_product.ProductID', 'tmod.ProductID')
       ->select(
@@ -500,24 +608,26 @@ class SummaryService
     return $sql;
   }
 
-  public function countPO($startDate, $endDate, $distributorID, $salesCode)
+  public function countPO($type, $startDate, $endDate, $distributorID, $salesCode, $typePO)
   {
-    $sql = $this->queryPO($startDate, $endDate, $distributorID, $salesCode)
+    $sql = $this->queryPO($type, $startDate, $endDate, $distributorID, $salesCode, $typePO)
+      ->whereIn('tmo.StatusOrderID', ['S009', 'S010', 'S023'])
       ->select('tmo.StockOrderID', 'tmo.CreatedDate', 'tmo.MerchantID', 'mma.StoreName', 'mma.OwnerFullName', 'mma.PhoneNumber', 'mma.StoreAddress', 'mma.Partner', 'ms_distributor.DistributorName', 'ms_payment_method.PaymentMethodName', 'tmo.StatusOrderID', 'ms_status_order.StatusOrder', 'tmo.TotalPrice', 'tmo.DiscountPrice', 'tmo.DiscountVoucher', 'tmo.ServiceChargeNett', 'tmo.DeliveryFee', DB::raw("(tmo.NettPrice + tmo.ServiceChargeNett + tmo.DeliveryFee) as GrandTotal"), DB::raw("CONCAT(tmo.SalesCode, ' - ', ms_sales.SalesName) as Sales"));
 
     return $sql;
   }
 
-  public function countMerchantPO($startDate, $endDate, $distributorID, $salesCode)
+  public function countMerchantPO($type, $startDate, $endDate, $distributorID, $salesCode, $typePO)
   {
-    $sql = $this->queryPO($startDate, $endDate, $distributorID, $salesCode)
+    $sql = $this->queryPO($type, $startDate, $endDate, $distributorID, $salesCode, $typePO)
+      ->whereIn('tmo.StatusOrderID', ['S009', 'S010', 'S023'])
       ->distinct('tmo.MerchantID')
       ->select('tmo.MerchantID', 'mma.StoreName', 'mma.OwnerFullName', 'mma.PhoneNumber', 'mma.StoreAddress', 'mma.Partner', 'ms_distributor.DistributorName', DB::raw("CONCAT(tmo.SalesCode, ' - ', ms_sales.SalesName) as Sales"));
 
     return $sql;
   }
 
-  public function queryDO($startDate, $endDate, $distributorID, $salesCode)
+  public function queryDO($startDate, $endDate, $distributorID, $salesCode, $typePO)
   {
     $sql = DB::table('tx_merchant_delivery_order as tmdo')
       ->join('tx_merchant_order as tmo', 'tmo.StockOrderID', 'tmdo.StockOrderID')
@@ -540,13 +650,16 @@ class SummaryService
     if ($salesCode != null) {
       $sql->whereIn('tmo.SalesCode', explode(",", $salesCode));
     }
+    if ($typePO != null) {
+      $sql->whereIn('tmo.Type', explode(",", $typePO));
+    }
 
     return $sql;
   }
 
-  public function totalValueDO($startDate, $endDate, $distributorID, $salesCode)
+  public function totalValueDO($startDate, $endDate, $distributorID, $salesCode, $typePO)
   {
-    $sql = $this->queryDO($startDate, $endDate, $distributorID, $salesCode)
+    $sql = $this->queryDO($startDate, $endDate, $distributorID, $salesCode, $typePO)
       ->join('tx_merchant_delivery_order_detail as tmdod', function ($join) {
         $join->on('tmdod.DeliveryOrderID', 'tmdo.DeliveryOrderID');
         $join->where('tmdod.StatusExpedition', 'S031');
@@ -617,9 +730,9 @@ class SummaryService
     return $sql;
   }
 
-  public function countDO($startDate, $endDate, $distributorID, $salesCode)
+  public function countDO($startDate, $endDate, $distributorID, $salesCode, $typePO)
   {
-    $sql = $this->queryDO($startDate, $endDate, $distributorID, $salesCode)
+    $sql = $this->queryDO($startDate, $endDate, $distributorID, $salesCode, $typePO)
       ->join('tx_merchant_delivery_order_detail as tmdod', function ($join) {
         $join->on('tmdod.DeliveryOrderID', 'tmdo.DeliveryOrderID');
         $join->where('tmdod.StatusExpedition', 'S031');
@@ -668,16 +781,16 @@ class SummaryService
     return $sql;
   }
 
-  public function countMerchantDO($startDate, $endDate, $distributorID, $salesCode)
+  public function countMerchantDO($startDate, $endDate, $distributorID, $salesCode, $typePO)
   {
-    $sql = $this->queryDO($startDate, $endDate, $distributorID, $salesCode)
+    $sql = $this->queryDO($startDate, $endDate, $distributorID, $salesCode, $typePO)
       ->select('tmo.MerchantID', 'mma.StoreName', 'mma.OwnerFullName', 'mma.PhoneNumber', 'mma.StoreAddress', 'mma.Partner', DB::raw("ANY_VALUE(ms_distributor.DistributorName) AS DistributorName"), DB::raw("CONCAT(ANY_VALUE(tmo.SalesCode), ' - ', ANY_VALUE(ms_sales.SalesName)) as Sales"))
       ->groupBy('tmo.MerchantID');
 
     return $sql;
   }
 
-  public function dataFilter($startDate, $endDate, $distributorID, $salesCode)
+  public function dataFilter($startDate, $endDate, $distributorID, $salesCode, $typePO)
   {
     $sqlFilterDepo = DB::table('ms_distributor')->whereIn('DistributorID', explode(",", $distributorID))->select('DistributorName')->get()->toArray();
     $arrayDepo = array_map(function ($value) {
@@ -696,16 +809,67 @@ class SummaryService
     $dataFilter->endDate = $endDate;
     $dataFilter->distributor = $filterDepo;
     $dataFilter->sales = $filterSales;
+    $dataFilter->typePO = $typePO;
 
     return $dataFilter;
   }
 
-  public function dataSummaryMargin($startDate, $endDate)
+  public function dataSummaryMargin($startDate, $endDate, $typePO)
   {
+    $typePOin = "";
+    $filterTypePO = "";
+    if ($typePO != null) {
+      $typePOin = "'" . implode("', '", $typePO) . "'";
+      $filterTypePO = "AND tx_merchant_order.Type IN ($typePOin)";
+    }
+
+    $grandTotal = DB::table('tx_merchant_delivery_order')
+      ->join('tx_merchant_order as tmo', 'tmo.StockOrderID', 'tx_merchant_delivery_order.StockOrderID')
+      ->join('ms_merchant_account', function ($join) {
+        $join->on('ms_merchant_account.MerchantID', 'tmo.MerchantID');
+        $join->whereRaw("ms_merchant_account.IsTesting = 0 AND (ms_merchant_account.Partner != 'TRADING' OR ms_merchant_account.Partner IS NULL)");
+      })
+      ->join('ms_distributor', 'ms_distributor.DistributorID', 'tmo.DistributorID')
+      ->join('tx_merchant_delivery_order_detail', function ($join) {
+        $join->on('tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID');
+        $join->where('tx_merchant_delivery_order_detail.StatusExpedition', 'S031');
+      })
+      ->join('ms_stock_product_log', 'ms_stock_product_log.DeliveryOrderDetailID', 'tx_merchant_delivery_order_detail.DeliveryOrderDetailID')
+      ->where('tx_merchant_delivery_order.StatusDO', 'S025')
+      ->whereDate('tx_merchant_delivery_order.CreatedDate', '>=', $startDate)
+      ->whereDate('tx_merchant_delivery_order.CreatedDate', '<=', $endDate)
+      ->whereIn('tmo.DistributorID', ['D-2004-000001', 'D-2004-000005', 'D-2004-000006'])
+      ->selectRaw("
+        'Total' AS DistributorID,
+        '<b>Total</b>' AS DistributorName,
+        ABS(IFNULL(SUM(ms_stock_product_log.QtyAction * ms_stock_product_log.PurchasePrice), 0)) AS COGS,
+        ABS(IFNULL(SUM(ms_stock_product_log.QtyAction * ms_stock_product_log.SellingPrice), 0)) AS Sales,
+        (
+          SELECT IFNULL(SUM(tx_merchant_delivery_order.Discount), 0)
+          FROM tx_merchant_delivery_order
+          JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_delivery_order.StockOrderID
+          WHERE tx_merchant_delivery_order.StatusDO = 'S025' 
+            AND DATE(tx_merchant_delivery_order.CreatedDate) >= '$startDate'
+            AND DATE(tx_merchant_delivery_order.CreatedDate) <= '$endDate'
+            $filterTypePO
+        ) as Discount
+      ");
+
+    if ($typePO != null) {
+      $grandTotal->whereRaw("tmo.Type IN ($typePOin)");
+    }
+
     $sql = DB::table('tx_merchant_delivery_order')
       ->join('tx_merchant_order as tmo', 'tmo.StockOrderID', 'tx_merchant_delivery_order.StockOrderID')
+      ->join('ms_merchant_account', function ($join) {
+        $join->on('ms_merchant_account.MerchantID', 'tmo.MerchantID');
+        $join->whereRaw("ms_merchant_account.IsTesting = 0 AND (ms_merchant_account.Partner != 'TRADING' OR ms_merchant_account.Partner IS NULL)");
+      })
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'tmo.DistributorID')
-      ->join('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID')
+      ->join('tx_merchant_delivery_order_detail', function ($join) {
+        $join->on('tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID');
+        $join->where('tx_merchant_delivery_order_detail.StatusExpedition', 'S031');
+      })
       ->join('ms_stock_product_log', 'ms_stock_product_log.DeliveryOrderDetailID', 'tx_merchant_delivery_order_detail.DeliveryOrderDetailID')
       ->where('tx_merchant_delivery_order.StatusDO', 'S025')
       ->whereDate('tx_merchant_delivery_order.CreatedDate', '>=', $startDate)
@@ -714,19 +878,25 @@ class SummaryService
       ->selectRaw("
         tmo.DistributorID,
         ms_distributor.DistributorName,
-        SUM(tx_merchant_delivery_order_detail.Qty * ms_stock_product_log.PurchasePrice) AS COGS,
-        SUM(tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price) AS Sales,
+        ABS(IFNULL(SUM(ms_stock_product_log.QtyAction * ms_stock_product_log.PurchasePrice), 0)) AS COGS,
+        ABS(IFNULL(SUM(ms_stock_product_log.QtyAction * ms_stock_product_log.SellingPrice), 0)) AS Sales,
         (
-          SELECT SUM(tx_merchant_delivery_order.Discount) 
+          SELECT IFNULL(SUM(tx_merchant_delivery_order.Discount), 0) 
           FROM tx_merchant_delivery_order
           JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_delivery_order.StockOrderID
           WHERE tx_merchant_delivery_order.StatusDO = 'S025' 
             AND DATE(tx_merchant_delivery_order.CreatedDate) >= '$startDate'
             AND DATE(tx_merchant_delivery_order.CreatedDate) <= '$endDate'
             AND tx_merchant_order.DistributorID = tmo.DistributorID
+            $filterTypePO
         ) as Discount
       ")
-      ->groupBy('tmo.DistributorID');
+      ->groupBy('tmo.DistributorID')
+      ->unionAll($grandTotal);
+
+    if ($typePO != null) {
+      $sql->whereRaw("tmo.Type IN ($typePOin)");
+    }
 
     return $sql;
   }

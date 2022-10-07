@@ -45,7 +45,13 @@
                 <div class="info-box m-0">
                   <span class="info-box-icon bg-success elevation-1"><i class="fas fas fa-shopping-cart"></i></span>
                   <div class="info-box-content">
-                    <span class="info-box-text h6 mb-2">Total PO (Value)</span>
+                    @if ($type == "totalValuePO")
+                      <span class="info-box-text h6 mb-2">Total PO (Belum di Kirim)</span>
+                    @elseif ($type == "totalValuePOallStatus")
+                      <span class="info-box-text h6 mb-2">Total PO (Semua Status)</span>
+                    @elseif ($type == "totalValuePOcancelled")
+                      <span class="info-box-text h6 mb-2">Total PO (Dibatalkan)</span>
+                    @endif
                     <span class="info-box-number h6 m-0">
                       {{ Helper::formatCurrency(array_sum(array_column($data, 'TotalPrice')), 'Rp ') }}
                     </span>
@@ -55,6 +61,7 @@
               <div class="col-3">
                 <h6><strong>Start Date : </strong>{{ date('d F Y', strtotime($dataFilter->startDate)) }} </h6>
                 <h6><strong>End Date : </strong>{{ date('d F Y', strtotime($dataFilter->endDate)) }}</h6>
+                <h6><strong>Type PO : </strong>{{ $dataFilter->typePO }}</h6>
               </div>
               <div class="col-6">
                 <h6><strong>Distributor : </strong>{!! $dataFilter->distributor !!}</h6>

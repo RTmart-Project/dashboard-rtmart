@@ -152,6 +152,27 @@
                                         @endif
                                     </div>
                                 </div>
+
+                                <div class="col-md-4 col-12">
+                                    <div class="form-group">
+                                        <label for="partner">Partner</label>
+                                        <select name="partner[]" id="partner" data-live-search="true" title="Pilih Partner" multiple 
+                                            class="form-control selectpicker border @if($errors->has('partner')) is-invalid @endif">
+                                            @foreach ($partners as $partner)
+                                            <option value="{{ $partner->PartnerID }}" 
+                                                @foreach ($merchantPartner as $item)
+                                                    {{ collect($item->PartnerID)->contains($partner->PartnerID) ? 'selected' : '' }}
+                                                @endforeach
+                                                >
+                                                {{ $partner->Name }}
+                                            </option>
+                                            @endforeach
+                                        </select>
+                                        @if($errors->has('partner'))
+                                        <span class="error invalid-feedback">{{ $errors->first('partner') }}</span>
+                                        @endif
+                                    </div>
+                                </div>
                                 @endif
 
                                 <div class="col-12">

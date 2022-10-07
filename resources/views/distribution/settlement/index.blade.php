@@ -81,6 +81,8 @@
                           <th>Tgl Setoran</th>
                           <th>Nominal Setoran</th>
                           <th>Bukti Setoran</th>
+                          <th>Tgl Input Setoran</th>
+                          <th>Diinput Oleh</th>
                           <th>Action</th>
                           <th>Konfirmasi</th>
                         </tr>
