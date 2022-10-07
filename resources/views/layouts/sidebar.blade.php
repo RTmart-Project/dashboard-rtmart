@@ -446,6 +446,15 @@
                     @endif
                     @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH"))
                     <li class="nav-item">
+                        <a href="{{ route('merchant.membership') }}"
+                            class="nav-link {{ Request::is('merchant/membership*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Membership</p>
+                        </a>
+                    </li>
+                    @endif
+                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH"))
+                    <li class="nav-item">
                         <a href="{{ route('merchant.assessment') }}"
                             class="nav-link {{ Request::is('merchant/assessment*') ? 'active' : '' }}">
                             <i class="far fa-circle nav-icon"></i>

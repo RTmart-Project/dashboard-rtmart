@@ -89,6 +89,11 @@ $(document).ready(function () {
                     searchable: false,
                 },
                 {
+                    data: "PercentFinalEstMarginSubmission",
+                    name: "PercentFinalEstMarginSubmission",
+                    searchable: false,
+                },
+                {
                     data: "CreatedBy",
                     name: "ms_price_submission.CreatedBy",
                 },
@@ -123,7 +128,7 @@ $(document).ready(function () {
                         },
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-                            15,
+                            15, 16,
                         ],
                         orthogonal: "export",
                     },
@@ -147,7 +152,7 @@ $(document).ready(function () {
                     },
                 },
                 {
-                    aTargets: [17],
+                    aTargets: [18],
                     visible: roleID == "CEO" || roleID == "IT" ? true : false,
                 },
             ],
