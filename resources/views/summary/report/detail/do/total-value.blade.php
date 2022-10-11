@@ -76,6 +76,8 @@
                           <th>Stock Order ID</th>
                           <th>Tanggal PO</th>
                           <th>Expedition ID</th>
+                          <th>Driver</th>
+                          <th>Nopol</th>
                           <th>Tgl Kirim DO</th>
                           <th>Merchant ID</th>
                           <th>Nama Toko</th>
