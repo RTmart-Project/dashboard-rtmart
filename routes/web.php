@@ -7,6 +7,7 @@ use App\Http\Controllers\MerchantController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DistributorController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Banner\BannerSliderController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\CourierController;
 use App\Http\Controllers\DeliveryController;
@@ -401,6 +402,14 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,HR']], function () {
         Route::get('/customer/otp', [CustomerController::class, 'otp'])->name('customer.otp');
         Route::get('/customer/otp/get', [CustomerController::class, 'getOtps'])->name('customer.getOtps');
+    });
+
+    // Banner
+    Route::group(['prefix' => 'banner', 'middleware' => ['checkRoleUser:IT']], function () {
+        Route::group(['prefix' => 'slider'], function () {
+            Route::get('/', [BannerSliderController::class, 'index'])->name('banner.slider');
+            Route::post('/data', [BannerSliderController::class, 'data'])->name('banner.sliderData');
+        });
     });
 
     // RT Courier

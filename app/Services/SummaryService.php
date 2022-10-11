@@ -675,6 +675,7 @@ class SummaryService
         $join->on('tmed.DeliveryOrderDetailID', 'tmdod.DeliveryOrderDetailID');
         $join->whereIn('tmed.StatusExpeditionDetail', ['S030', 'S031']);
       })
+      ->leftJoin('ms_user', 'ms_user.UserID', 'tmdo.DriverID')
       ->selectRaw("
         tmdo.DeliveryOrderID,
         tmdo.StatusDO,
@@ -684,6 +685,8 @@ class SummaryService
         tmdo.StockOrderID,
         ANY_VALUE(tmo.CreatedDate) AS DatePO,
         ANY_VALUE(tmed.MerchantExpeditionID) AS MerchantExpeditionID,
+        ANY_VALUE(ms_user.Name) AS Driver,
+        ANY_VALUE(tmdo.VehicleLicensePlate) AS Nopol,
         tmdo.CreatedDate,
         ANY_VALUE(mma.MerchantID) AS MerchantID,
         ANY_VALUE(mma.StoreName) AS StoreName,
