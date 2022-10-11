@@ -602,6 +602,27 @@
             </li>
             @endif
 
+            {{-- @if (Auth::user()->RoleID == "IT")
+            <li class="nav-item {{ Request::is('banner*') ? 'menu-open' : '' }}">
+                <a href="#" class="nav-link {{ Request::is('banner*') ? 'active' : '' }}">
+                    <i class="nav-icon fas fa-flag"></i>
+                    <p>
+                        Banner
+                        <i class="right fas fa-angle-left"></i>
+                    </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="{{ route('banner.slider') }}"
+                            class="nav-link {{ Request::is('banner/slider*') ? 'active' : '' }}">
+                            <i class="far fa-circle nav-icon"></i>
+                            <p>Banner Slider</p>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            @endif --}}
+
             {{-- <li class="nav-item {{ Request::is('rtcourier*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('rtcourier*') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-paper-plane"></i>
