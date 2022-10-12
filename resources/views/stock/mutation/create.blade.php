@@ -56,6 +56,7 @@
                       </option>
                       @endforeach
                     </select>
+                    <input type="hidden" name="from_distributor" id="from_distributor">
                     @if($errors->has('purchase'))
                     <span class="error invalid-feedback">{{ $errors->first('purchase') }}</span>
                     @endif
@@ -169,6 +170,7 @@
   $("#purchase").on('change', function () {
     const purchaseID = $(this).val();
     const distributorID = $(this).find(':selected').data('distributor-id');
+    $("#from_distributor").val(distributorID);
     
     $.ajax({
       type: "get",
@@ -185,7 +187,7 @@
     
     $.ajax({
       type: "get",
-      url: "/stock/mutation/getProductByPurchaseID/" + purchaseID,
+      url: `/stock/mutation/getProductByPurchaseID/${purchaseID}/${distributorID}` ,
       success: function (data) {
         let note = '';
         if (data.length > 1) {
