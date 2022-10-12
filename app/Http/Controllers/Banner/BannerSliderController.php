@@ -27,13 +27,42 @@ class BannerSliderController extends Controller
         $filterStatus = $request->input('filterStatus');
         $filterBy = $request->input('filterBy');
 
-        $sql = $this->bannerSliderService->dataBannerSlider();
+        $sql = $this->bannerSliderService->dataBannerSlider($startDate, $endDate, $filterStatus, $filterBy);
 
         $data = $sql;
 
         if ($request->ajax()) {
             return DataTables::of($data)
+                ->editColumn('PromoImage', function ($data) {
+                    $baseImageUrl = config('app.base_image_url');
+                    $image = '<img src="' . $baseImageUrl . 'promo/' . $data->PromoImage . '" width="180" />';
+                    return $image;
+                })
+                ->editColumn('PromoStartDate', function ($data) {
+                    return date('d F Y', strtotime($data->PromoStartDate));
+                })
+                ->editColumn('PromoExpiryDate', function ($data) {
+                    return date('d F Y', strtotime($data->PromoExpiryDate));
+                })
+                ->editColumn('PromoStatus', function ($data) {
+                    if ($data->PromoStatus === 1) {
+                        $status = '<span class="badge badge-success">Aktif</span>';
+                    } else {
+                        $status = '<span class="badge badge-danger">Tidak Aktif</span>';
+                    }
+                    return $status;
+                })
+                ->addColumn('Action', function ($data) {
+                    $btnEdit = '<button class="btn btn-sm btn-warning">Edit</button>';
+                    return $btnEdit;
+                })
+                ->rawColumns(['PromoImage', 'PromoStatus', 'Action'])
                 ->make();
         }
+    }
+
+    public function create()
+    {
+        return view('banner.banner-slider.create');
     }
 }
