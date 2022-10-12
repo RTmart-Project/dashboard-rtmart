@@ -410,6 +410,8 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/', [BannerSliderController::class, 'index'])->name('banner.slider');
             Route::post('/data', [BannerSliderController::class, 'data'])->name('banner.sliderData');
             Route::get('/create', [BannerSliderController::class, 'create'])->name('banner.sliderCreate');
+            Route::get('/listTargetID/{target}', [BannerSliderController::class, 'listTargetID'])->name('banner.listTargetID');
+            Route::post('/store', [BannerSliderController::class, 'store'])->name('banner.sliderStore');
         });
     });
 
