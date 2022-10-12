@@ -206,7 +206,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/detail/{mutationID}', [StockController::class, 'detailMutation'])->name('stock.detailMutation');
             Route::get('/create', [StockController::class, 'createMutation'])->name('stock.createMutation');
             Route::get('/getExcludeDistributorID/{distributorID}', [StockController::class, 'getExcludeDistributorID'])->name('stock.getExcludeDistributorID');
-            Route::get('/getProductByPurchaseID/{purchaseID}', [StockController::class, 'getProductByPurchaseID'])->name('stock.getProductByPurchaseID');
+            Route::get('/getProductByPurchaseID/{purchaseID}/{distributorID}', [StockController::class, 'getProductByPurchaseID'])->name('stock.getProductByPurchaseID');
             Route::post('/store', [StockController::class, 'storeMutation'])->name('stock.storeMutation');
         });
     });
@@ -409,6 +409,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::group(['prefix' => 'slider'], function () {
             Route::get('/', [BannerSliderController::class, 'index'])->name('banner.slider');
             Route::post('/data', [BannerSliderController::class, 'data'])->name('banner.sliderData');
+            Route::get('/create', [BannerSliderController::class, 'create'])->name('banner.sliderCreate');
         });
     });
 

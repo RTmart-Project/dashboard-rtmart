@@ -46,6 +46,9 @@
         <div class="card">
           <div class="card-header" id="banner-slider">
             <div class="row">
+              <div class="col-12 p-1 pb-2">
+                <a href="{{ route('banner.sliderCreate') }}" class="btn btn-sm btn-success"><i class="fas fa-plus"></i> Tambah Banner Slider</a>
+              </div>
               <div class="col-md-2 col-6 p-1">
                 <input type="text" name="from_date" id="from_date" class="form-control form-control-sm" readonly>
               </div>
@@ -91,6 +94,7 @@
                           <th>Target</th>
                           <th>Activity Page</th>
                           <th>Activity Button Text</th>
+                          <th>Action</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -128,7 +132,7 @@
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!-- Main JS -->
-<script src="{{url('/')}}/main/js/banner.js"></script>
+<script src="{{url('/')}}/main/js/banner/banner-slider.js"></script>
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
 <script src="{{url('/')}}/plugins/bootstrap-select/bootstrap-select.min.js"></script>
 <script>

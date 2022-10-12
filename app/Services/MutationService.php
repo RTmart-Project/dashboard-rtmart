@@ -26,26 +26,27 @@ class MutationService
     return $newStockMutationID;
   }
 
-  public function getProductByPurchaseID($purchaseID)
+  public function getProductByPurchaseID($purchaseID, $distributorID)
   {
     $sql = DB::table('ms_stock_product as stock_product')
       ->join('ms_product', 'ms_product.ProductID', 'stock_product.ProductID')
       ->join('ms_product_category', 'ms_product_category.ProductCategoryID', 'ms_product.ProductCategoryID')
       ->join('ms_product_uom', 'ms_product_uom.ProductUOMID', 'ms_product.ProductUOMID')
       ->where('stock_product.PurchaseID', $purchaseID)
+      ->where('stock_product.DistributorID', $distributorID)
       ->where('stock_product.Qty', '>', 0)
       ->selectRaw("
-              stock_product.StockProductID, 
-              stock_product.PurchaseID, 
-              stock_product.ProductID, 
-              ms_product.ProductName,
-              ms_product_category.ProductCategoryName,
-              ms_product.ProductUOMDesc,
-              ms_product_uom.ProductUOMName,
-              stock_product.ProductLabel,
-              stock_product.PurchasePrice,
-              stock_product.Qty AS QtyReady
-            ")
+        stock_product.StockProductID, 
+        stock_product.PurchaseID, 
+        stock_product.ProductID, 
+        ms_product.ProductName,
+        ms_product_category.ProductCategoryName,
+        ms_product.ProductUOMDesc,
+        ms_product_uom.ProductUOMName,
+        stock_product.ProductLabel,
+        stock_product.PurchasePrice,
+        stock_product.Qty AS QtyReady
+      ")
       ->get();
 
     return $sql;

@@ -1371,7 +1371,7 @@ class StockController extends Controller
                     SELECT StockMutationID FROM ms_stock_mutation
                 )) AND Qty > 0
             ) AS purchase"))
-            ->join('ms_distributor', 'ms_distributor.DistributorID', 'purchase.DistributorID')
+            ->leftJoin('ms_distributor', 'ms_distributor.DistributorID', 'purchase.DistributorID')
             ->join('ms_investor', function ($join) {
                 $join->on('ms_investor.InvestorID', 'purchase.InvestorID');
                 $join->where('ms_investor.IsActive', 1);
@@ -1399,9 +1399,9 @@ class StockController extends Controller
         return $sql;
     }
 
-    public function getProductByPurchaseID($purchaseID, MutationService $mutationService)
+    public function getProductByPurchaseID($purchaseID, $distributorID, MutationService $mutationService)
     {
-        $data = $mutationService->getProductByPurchaseID($purchaseID);
+        $data = $mutationService->getProductByPurchaseID($purchaseID, $distributorID);
 
         return $data;
     }
@@ -1410,6 +1410,7 @@ class StockController extends Controller
     {
         $request->validate([
             'purchase' => 'required',
+            'from_distributor' => 'required',
             'distributor' => 'required',
             'mutation_date' => 'required',
             'qty_mutation' => 'required',
@@ -1420,7 +1421,10 @@ class StockController extends Controller
         $user = Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo;
         $dateNow = date('Y-m-d H:i:s');
         $purchaseID = $request->input('purchase');
-        $purchase = DB::table('ms_stock_product')->where('PurchaseID', $purchaseID)
+        $distributorID = $request->input('from_distributor');
+        $purchase = DB::table('ms_stock_product')
+            ->where('PurchaseID', $purchaseID)
+            ->where('DistributorID', $distributorID)
             ->where('Qty', '>', 0)
             ->select('DistributorID', 'InvestorID')->first();
         $toDistributor = $request->input('distributor');
