@@ -98,7 +98,7 @@ class AuthController extends Controller
 
         // Get data, jika tanggal filter kosong tampilkan semua data.
         $sqlUsers = DB::table('ms_user')
-            ->join('ms_role', 'ms_role.RoleID', '=', 'ms_user.RoleID')
+            ->join('ms_roles', 'ms_roles.RoleID', '=', 'ms_user.RoleID')
             ->leftJoin('ms_user_activity_log', function ($join) {
                 $join->on('ms_user_activity_log.UserID', 'ms_user.UserID');
                 $join->whereRaw("ms_user_activity_log.UserActivityLogID = (
@@ -106,7 +106,7 @@ class AuthController extends Controller
                 )");
             })
             ->where('ms_user.IsTesting', '=', 0)
-            ->select('ms_user.*', 'ms_role.RoleName', 'ms_user_activity_log.URL', 'ms_user_activity_log.CreatedDate as LastActivityDate')
+            ->select('ms_user.*', 'ms_roles.RoleName', 'ms_user_activity_log.URL', 'ms_user_activity_log.CreatedDate as LastActivityDate')
             ->orderByDesc('ms_user.CreatedDate');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
@@ -172,9 +172,9 @@ class AuthController extends Controller
         $endDateFormat = $endDate->format('Y-m-d');
 
         $sqlGetUserLog = DB::table('ms_user')
-            ->join('ms_role', 'ms_role.RoleID', 'ms_user.RoleID')
+            ->join('ms_roles', 'ms_roles.RoleID', 'ms_user.RoleID')
             ->where('ms_user.UserID', $userID)
-            ->select('ms_user.UserID', 'ms_user.Email', 'ms_user.Name', 'ms_user.PhoneNumber', 'ms_user.Depo', 'ms_role.RoleName')
+            ->select('ms_user.UserID', 'ms_user.Email', 'ms_user.Name', 'ms_user.PhoneNumber', 'ms_user.Depo', 'ms_roles.RoleName')
             ->first();
 
         $sqlGetUserLogDetail = DB::table('ms_user')
@@ -201,7 +201,7 @@ class AuthController extends Controller
 
     public function newUser()
     {
-        $roleUser = DB::table('ms_role')
+        $roleUser = DB::table('ms_roles')
             ->whereNotIn('RoleID', ['R001', 'R002', 'R003', 'R004', 'R005', 'R006'])
             ->select('*')->get();
 
@@ -222,7 +222,7 @@ class AuthController extends Controller
             'email' => 'required|string|email|unique:ms_user,Email',
             'name' => 'required|string',
             'phonenumber' => 'required|numeric|unique:ms_user,PhoneNumber',
-            'role_id' => 'required|string|exists:ms_role,RoleID',
+            'role_id' => 'required|string|exists:ms_roles,RoleID',
             'depo' => 'required',
             'password' => 'required|string',
             'access' => 'required'
@@ -281,7 +281,7 @@ class AuthController extends Controller
             ->where('UserID', '=', $user)
             ->select('*')->first();
 
-        $roleUser = DB::table('ms_role')
+        $roleUser = DB::table('ms_roles')
             ->whereNotIn('RoleID', ['R001', 'R002', 'R003', 'R004', 'R005', 'R006'])
             ->select('*')->get();
 
@@ -306,7 +306,7 @@ class AuthController extends Controller
                 'numeric',
                 Rule::unique('ms_user', 'PhoneNumber')->ignore($user, 'UserID')
             ],
-            'role_id' => 'required|string|exists:ms_role,RoleID',
+            'role_id' => 'required|string|exists:ms_roles,RoleID',
             'depo' => 'required|string|in:ALL,CRS,CKG,BDG',
             'access' => 'required'
         ]);
@@ -368,7 +368,7 @@ class AuthController extends Controller
 
     public function getRoles(Request $request)
     {
-        $sqlRoles = DB::table('ms_role')
+        $sqlRoles = DB::table('ms_roles')
             ->whereNotIn('RoleID', ['R001', 'R002', 'R003', 'R004', 'R005', 'R006'])
             ->select('*');
 
@@ -393,8 +393,8 @@ class AuthController extends Controller
     public function createRole(Request $request)
     {
         $request->validate([
-            'role_id' => 'required|string|unique:ms_role,RoleID',
-            'role_name' => 'required|string|unique:ms_role,RoleName'
+            'role_id' => 'required|string|unique:ms_roles,RoleID',
+            'role_name' => 'required|string|unique:ms_roles,RoleName'
         ]);
 
         $data = [
@@ -402,7 +402,7 @@ class AuthController extends Controller
             'RoleName' => $request->input('role_name')
         ];
 
-        $createRole = DB::table('ms_role')->insert($data);
+        $createRole = DB::table('ms_roles')->insert($data);
 
         if ($createRole) {
             return redirect()->route('setting.role')->with('success', 'Data Role baru telah ditambahkan');
@@ -413,7 +413,7 @@ class AuthController extends Controller
 
     public function editRole($role)
     {
-        $roleById = DB::table('ms_role')
+        $roleById = DB::table('ms_roles')
             ->where('RoleID', '=', $role)
             ->select('*')->first();
 
@@ -434,7 +434,7 @@ class AuthController extends Controller
             'RoleName' => $request->input('role_name')
         ];
 
-        $updateRole = DB::table('ms_role')
+        $updateRole = DB::table('ms_roles')
             ->where('RoleID', '=', $role)
             ->update($data);
 
