@@ -39,8 +39,9 @@ $(document).ready(function () {
                     name: "ms_merchant_account.StoreName",
                 },
                 {
-                    data: "Partner",
-                    name: "ms_merchant_account.Partner",
+                    data: "Partners",
+                    name: "ms_partner.Name",
+                    orderable: false,
                 },
                 {
                     data: "OwnerFullName",

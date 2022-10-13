@@ -60,6 +60,12 @@ $(document).ready(function () {
                     name: "ms_store.StoreName",
                 },
                 {
+                    data: "Partners",
+                    name: "ms_partner.Name",
+                    searchable: false,
+                    orderable: false,
+                },
+                {
                     data: "Grade",
                     name: "ms_store.Grade",
                 },
@@ -120,6 +126,7 @@ $(document).ready(function () {
                         },
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+                            15,
                         ],
                         orthogonal: "export",
                     },
@@ -127,7 +134,7 @@ $(document).ready(function () {
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [13, 14],
+                    aTargets: [14, 15],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
@@ -143,7 +150,7 @@ $(document).ready(function () {
                     },
                 },
             ],
-            order: [11, "desc"],
+            order: [12, "desc"],
             lengthChange: false,
             responsive: true,
             autoWidth: false,
