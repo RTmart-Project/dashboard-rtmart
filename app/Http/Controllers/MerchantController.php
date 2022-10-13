@@ -95,8 +95,30 @@ class MerchantController extends Controller
                 $join->on('ms_merchant_assessment.MerchantID', 'ms_merchant_account.MerchantID');
                 $join->where('ms_merchant_assessment.IsActive', 1);
             })
+            ->leftJoin('ms_merchant_partner', 'ms_merchant_partner.MerchantID', 'ms_merchant_account.MerchantID')
+            ->leftJoin('ms_partner', 'ms_partner.PartnerID', 'ms_merchant_partner.PartnerID')
             ->where('ms_merchant_account.IsTesting', 0)
-            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.CreatedDate', 'ms_merchant_account.Latitude', 'ms_merchant_account.Longitude', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_distributor.DistributorName', 'ms_distributor_grade.Grade', 'ms_merchant_assessment.MerchantAssessmentID', 'ms_merchant_assessment.IsActive', 'ms_sales.SalesName', 'ms_merchant_account.IsBlocked', 'ms_merchant_account.BlockedMessage');
+            ->selectRaw("
+                ms_merchant_account.MerchantID,
+                ms_merchant_account.StoreName,
+                ms_merchant_account.Partner,
+                GROUP_CONCAT(ms_partner.Name SEPARATOR ', ') AS Partners,
+                ms_merchant_account.OwnerFullName,
+                ms_merchant_account.PhoneNumber,
+                ms_merchant_account.CreatedDate,
+                ms_merchant_account.Latitude,
+                ms_merchant_account.Longitude,
+                ms_merchant_account.StoreAddress,
+                ms_merchant_account.ReferralCode,
+                ms_distributor.DistributorName,
+                ANY_VALUE(ms_distributor_grade.Grade) AS Grade,
+                ANY_VALUE(ms_merchant_assessment.MerchantAssessmentID) AS MerchantAssessmentID,
+                ANY_VALUE(ms_merchant_assessment.IsActive) AS IsActive,
+                ANY_VALUE(ms_sales.SalesName) AS SalesName,
+                ms_merchant_account.IsBlocked,
+                ms_merchant_account.BlockedMessage
+            ")
+            ->groupBy('ms_merchant_account.MerchantID');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {

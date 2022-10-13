@@ -84,6 +84,7 @@
                           <th>Store ID</th>
                           <th>Merchant ID</th>
                           <th>Store Name</th>
+                          <th>Partner</th>
                           <th>Grade</th>
                           <th>Latitude</th>
                           <th>Longitude</th>

@@ -184,45 +184,45 @@ class RTSalesService
       ->join('ms_store', 'ms_store.StoreID', 'ms_visit_plan.StoreID')
       ->leftJoin('ms_visit_plan_sort', 'ms_visit_plan_sort.VisitPlanID', 'ms_visit_plan.VisitPlanID')
       ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_visit_plan.SalesCode')
-      ->select(
-        'ms_visit_plan.VisitDayName',
-        'ms_visit_plan.SalesCode',
-        'ms_sales.SalesName',
-        'ms_visit_plan.StoreID',
-        'ms_store.MerchantID',
-        'ms_store.StoreName',
-        'ms_store.PhoneNumber',
-        'ms_store.Latitude',
-        'ms_store.Longitude',
-        'ms_store.StoreAddress',
-        'ms_store.Grade',
-        'ms_store.StoreType',
-        'ms_visit_plan.Sorting',
-        'ms_visit_plan_sort.Distance',
-        DB::raw("
-          (
-            SELECT 
-              IFNULL(SUM(tx_merchant_order.TotalPrice), 0) AS TotalPrice
-            FROM tx_merchant_order
-            WHERE tx_merchant_order.StatusOrderID != 'S011'
-              AND tx_merchant_order.MerchantID = ms_store.MerchantID
-              AND DATE(tx_merchant_order.CreatedDate) BETWEEN '$startDate' AND '$endDate'
-          ) AS TotalPO
-        "),
-        DB::raw("
-            (
-              SELECT IFNULL(SUM(tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price), 0)
-              FROM tx_merchant_delivery_order
-              JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_delivery_order.StockOrderID
-              JOIN tx_merchant_delivery_order_detail ON tx_merchant_delivery_order_detail.DeliveryOrderID = tx_merchant_delivery_order.DeliveryOrderID
-                AND tx_merchant_delivery_order_detail.StatusExpedition = 'S031'
-              WHERE tx_merchant_delivery_order.StatusDO = 'S025'
-                AND tx_merchant_order.MerchantID = ms_store.MerchantID
-                AND DATE(tx_merchant_delivery_order.CreatedDate) BETWEEN '$startDate' AND '$endDate'
-            ) AS TotalDO
-        ")
-      )
-      ->whereIn('ms_visit_plan.VisitDayName', $visitDayName);
+      ->leftJoin('ms_merchant_partner', 'ms_merchant_partner.MerchantID', 'ms_store.MerchantID')
+      ->leftJoin('ms_partner', 'ms_partner.PartnerID', 'ms_merchant_partner.PartnerID')
+      ->selectRaw("
+        ANY_VALUE(ms_visit_plan.VisitDayName) AS VisitDayName,
+        ANY_VALUE(ms_visit_plan.SalesCode) AS SalesCode,
+        ANY_VALUE(ms_sales.SalesName) AS SalesName,
+        ANY_VALUE(ms_visit_plan.StoreID) AS StoreID,
+        ANY_VALUE(ms_store.MerchantID) AS MerchantID,
+        ANY_VALUE(ms_store.StoreName) AS StoreName,
+        GROUP_CONCAT(ms_partner.Name SEPARATOR ', ') AS Partners,
+        ANY_VALUE(ms_store.PhoneNumber) AS PhoneNumber,
+        ANY_VALUE(ms_store.Latitude) AS Latitude,
+        ANY_VALUE(ms_store.Longitude) AS Longitude,
+        ANY_VALUE(ms_store.StoreAddress) AS StoreAddress,
+        ANY_VALUE(ms_store.Grade) AS Grade,
+        ANY_VALUE(ms_store.StoreType) AS StoreType,
+        ANY_VALUE(ms_visit_plan.Sorting) AS Sorting,
+        ANY_VALUE(ms_visit_plan_sort.Distance) AS Distance,
+        (
+          SELECT 
+            IFNULL(SUM(tx_merchant_order.TotalPrice), 0) AS TotalPrice
+          FROM tx_merchant_order
+          WHERE tx_merchant_order.StatusOrderID != 'S011'
+            AND tx_merchant_order.MerchantID = ANY_VALUE(ms_store.MerchantID)
+            AND DATE(tx_merchant_order.CreatedDate) BETWEEN '$startDate' AND '$endDate'
+        ) AS TotalPO,
+        (
+          SELECT IFNULL(SUM(tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price), 0)
+          FROM tx_merchant_delivery_order
+          JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_delivery_order.StockOrderID
+          JOIN tx_merchant_delivery_order_detail ON tx_merchant_delivery_order_detail.DeliveryOrderID = tx_merchant_delivery_order.DeliveryOrderID
+            AND tx_merchant_delivery_order_detail.StatusExpedition = 'S031'
+          WHERE tx_merchant_delivery_order.StatusDO = 'S025'
+            AND tx_merchant_order.MerchantID = ANY_VALUE(ms_store.MerchantID)
+            AND DATE(tx_merchant_delivery_order.CreatedDate) BETWEEN '$startDate' AND '$endDate'
+        ) AS TotalDO 
+      ")
+      ->whereIn('ms_visit_plan.VisitDayName', $visitDayName)
+      ->groupBy('ms_visit_plan.VisitDayName', 'ms_visit_plan.SalesCode', 'ms_visit_plan.StoreID');
 
     return $sql;
   }
