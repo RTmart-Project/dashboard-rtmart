@@ -187,10 +187,10 @@ class RTSalesService
       ->leftJoin('ms_merchant_partner', 'ms_merchant_partner.MerchantID', 'ms_store.MerchantID')
       ->leftJoin('ms_partner', 'ms_partner.PartnerID', 'ms_merchant_partner.PartnerID')
       ->selectRaw("
-        ANY_VALUE(ms_visit_plan.VisitDayName) AS VisitDayName,
-        ANY_VALUE(ms_visit_plan.SalesCode) AS SalesCode,
+        ms_visit_plan.VisitDayName AS VisitDayName,
+        ms_visit_plan.SalesCode AS SalesCode,
         ANY_VALUE(ms_sales.SalesName) AS SalesName,
-        ANY_VALUE(ms_visit_plan.StoreID) AS StoreID,
+        ms_visit_plan.StoreID AS StoreID,
         ANY_VALUE(ms_store.MerchantID) AS MerchantID,
         ANY_VALUE(ms_store.StoreName) AS StoreName,
         GROUP_CONCAT(ms_partner.Name SEPARATOR ', ') AS Partners,
@@ -222,6 +222,7 @@ class RTSalesService
         ) AS TotalDO 
       ")
       ->whereIn('ms_visit_plan.VisitDayName', $visitDayName)
+      ->orderByRaw("ANY_VALUE(ms_visit_plan.Sorting) DESC")
       ->groupBy('ms_visit_plan.VisitDayName', 'ms_visit_plan.SalesCode', 'ms_visit_plan.StoreID');
 
     return $sql;
