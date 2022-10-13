@@ -92,6 +92,8 @@ $(document).ready(function () {
                 {
                     data: "Sorting",
                     name: "ms_visit_plan.Sorting",
+                    orderable: false,
+                    searchable: false,
                 },
                 {
                     data: "Distance",
@@ -150,7 +152,7 @@ $(document).ready(function () {
                     },
                 },
             ],
-            order: [12, "desc"],
+            // order: [12, "desc"],
             lengthChange: false,
             responsive: true,
             autoWidth: false,
