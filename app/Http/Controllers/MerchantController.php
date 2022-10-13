@@ -343,14 +343,19 @@ class MerchantController extends Controller
         $referralCode = $request->input('referral_code');
 
         $merchantPartner = $request->input('partner');
-        $arrayMerchantPartner = [];
-        $merchantPartners = array_map(function () {
-            return func_get_args();
-        }, $merchantPartner);
-        foreach ($merchantPartners as $key => $value) {
-            $value = array_combine(['PartnerID'], $value);
-            $value += ['MerchantID' => $merchantId];
-            array_push($arrayMerchantPartner, $value);
+
+        if ($merchantPartner != null) {
+            $arrayMerchantPartner = [];
+            $merchantPartners = array_map(function () {
+                return func_get_args();
+            }, $merchantPartner);
+            foreach ($merchantPartners as $key => $value) {
+                $value = array_combine(['PartnerID'], $value);
+                $value += ['MerchantID' => $merchantId];
+                array_push($arrayMerchantPartner, $value);
+            }
+        } else {
+            $arrayMerchantPartner = null;
         }
 
         $data = [
@@ -397,7 +402,9 @@ class MerchantController extends Controller
                         ]);
                 }
                 DB::table('ms_merchant_partner')->where('MerchantID', $merchantId)->delete();
-                DB::table('ms_merchant_partner')->insert($arrayMerchantPartner);
+                if ($arrayMerchantPartner != null) {
+                    DB::table('ms_merchant_partner')->insert($arrayMerchantPartner);
+                }
             });
 
             return redirect()->route('merchant.account')->with('success', 'Data merchant berhasil diubah');
