@@ -117,9 +117,11 @@
                     <th>Harga Jual</th>
                     <th>Harga Pengajuan</th>
                     <th>Harga Beli</th>
+                    <th>Cost Logistic</th>
                     <th>Value Jual</th>
                     <th>Value Pengajuan</th>
                     <th>Value Beli</th>
+                    <th>Total Cost Logistic</th>
                     <th>Est Margin Jual</th>
                     <th>Est Margin Pengajuan</th>
                     <th>Voucher</th>
@@ -134,6 +136,7 @@
                   $estMarginSubmission = 0;
                   $totalVoucher = 0;
                   $qty = 0;
+                  $totalCostLogistic = 0;
                   @endphp
                   @foreach ($data->Detail as $item)
                   <tr>
@@ -149,6 +152,7 @@
                         {{ Helper::formatCurrency($item->PurchasePrice, "Rp ") }}
                       @endif
                     </td>
+                    <td class="text-right">{{ $data->PaymentMethodID == 13 ? "-" : Helper::formatCurrency($item->CostLogistic, "Rp ") }}</td>
                     <td class="text-right">{{ Helper::formatCurrency($item->ValueProduct, "Rp ") }}</td>
                     <td class="text-right">{{ Helper::formatCurrency($item->ValueSubmission, "Rp ") }}</td>
                     <td class="text-right">
@@ -158,6 +162,7 @@
                         {{ Helper::formatCurrency($item->PurchasePrice * $item->PromisedQuantity, "Rp ") }}
                       @endif
                     </td>
+                    <td class="text-right">{{ $data->PaymentMethodID == 13 ? "-" : Helper::formatCurrency($item->CostLogistic * $item->PromisedQuantity, "Rp ") }}</td>
                     <td class="text-right">
                       @if ($item->PurchasePrice === null)
                         {{ Helper::formatCurrency(($item->Nett - $item->Price) * $item->PromisedQuantity, "Rp ") }} | {{ round((($item->Nett - $item->Price) * $item->PromisedQuantity) / $item->ValueProduct * 100, 2) }}%
@@ -184,17 +189,18 @@
                   $estMarginSubmission += $item->EstMarginSubmission;
 
                   $totalVoucher += $item->Voucher;
-
                   $qty += $item->PromisedQuantity;
+                  $totalCostLogistic += $item->CostLogistic * $item->PromisedQuantity;
                   @endphp
                   @endforeach
                 </tbody>
                 <tfoot>
                   <tr class="text-right">
-                    <th colspan="6"></th>
+                    <th colspan="7"></th>
                     <th>{{ Helper::formatCurrency($data->TotalPrice, "Rp ") }}</th>
                     <th>{{ Helper::formatCurrency($totalPriceSubmission, "Rp ") }}</th>
                     <th>{{ Helper::formatCurrency($valueBeli, "Rp ") }}</th>
+                    <th>{{ $data->PaymentMethodID == 13 ? "-" : Helper::formatCurrency($totalCostLogistic, "Rp ") }}</th>
                     <th>
                       {{ Helper::formatCurrency($data->TotalPrice - $valueBeli, "Rp ") }} | 
                       {{ round(($data->TotalPrice - $valueBeli) / $data->TotalPrice * 100, 2) }}%
@@ -207,27 +213,27 @@
                     {{-- <th class="text-center">{{ round($totalVoucher / $data->TotalPrice * 100, 2) }}</th> --}}
                   </tr>
                   <tr class="text-right">
-                    <th colspan="8"></th>
+                    <th colspan="10"></th>
                     <th colspan="2">Bunga BPR (2.4% / {{ $data->CountPOselesai }}) x Value Pengajuan</th>
                     <th>{{ Helper::formatCurrency($data->Bunga / 100 * $totalPriceSubmission, "Rp ") }}</th>
                   </tr>
                   @if ($data->PaymentMethodID != 13)
                   <tr class="text-right">
-                    <th colspan="8"></th>
-                    <th colspan="2">Cost Logistic (2250 x {{ $qty }})</th>
-                    <th>{{ Helper::formatCurrency(2250 * $qty, "Rp ") }}</th>
+                    <th colspan="10"></th>
+                    <th colspan="2">Total Cost Logistic</th>
+                    <th>{{ Helper::formatCurrency($totalCostLogistic, "Rp ") }}</th>
                   </tr>
                   @endif
                   <tr class="text-right">
-                    <th colspan="8"></th>
+                    <th colspan="10"></th>
                     <th colspan="2">Final Est Margin Pengajuan</th>
                     <th>
                       @if ($data->PaymentMethodID == 13)
                         {{ Helper::formatCurrency(($totalPriceSubmission - $valueBeli) - round($data->Bunga / 100 * $totalPriceSubmission), "Rp ") }} | 
                         {{ round((($totalPriceSubmission - $valueBeli) - round($data->Bunga / 100 * $totalPriceSubmission)) / $totalPriceSubmission * 100, 2) }}%
                       @else
-                        {{ Helper::formatCurrency(($totalPriceSubmission - $valueBeli) - round($data->Bunga / 100 * $totalPriceSubmission) - (2250 * $qty), "Rp ") }} | 
-                        {{ round((($totalPriceSubmission - $valueBeli) - round($data->Bunga / 100 * $totalPriceSubmission) - (2250 * $qty)) / $totalPriceSubmission * 100, 2) }}%
+                        {{ Helper::formatCurrency(($totalPriceSubmission - $valueBeli) - round($data->Bunga / 100 * $totalPriceSubmission) - ($totalCostLogistic), "Rp ") }} | 
+                        {{ round((($totalPriceSubmission - $valueBeli) - round($data->Bunga / 100 * $totalPriceSubmission) - $totalCostLogistic) / $totalPriceSubmission * 100, 2) }}%
                       @endif
                     </th>
                   </tr>
