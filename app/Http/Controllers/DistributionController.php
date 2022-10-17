@@ -1644,9 +1644,10 @@ class DistributionController extends Controller
                         AND tx_merchant_order.CreatedDate < tmo.CreatedDate
                 ) AS Bunga,
                 (
-                    SELECT SUM(tx_merchant_order_detail.PromisedQuantity * 2250)
+                    SELECT SUM(tx_merchant_order_detail.PromisedQuantity * ms_product.CostLogistic)
                     FROM tx_merchant_order_detail
                     JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_order_detail.StockOrderID
+                    JOIN ms_product ON ms_product.ProductID = tx_merchant_order_detail.ProductID
                     WHERE tx_merchant_order_detail.StockOrderID = ms_price_submission.StockOrderID
                     AND tx_merchant_order.PaymentMethodID != 13
                 ) AS CostLogistic
@@ -1767,8 +1768,9 @@ class DistributionController extends Controller
                         AND tx_merchant_order.CreatedDate < tmo.CreatedDate
                 ) AS Bunga,
                 (
-                    SELECT SUM(tx_merchant_order_detail.PromisedQuantity * 2250)
+                    SELECT SUM(tx_merchant_order_detail.PromisedQuantity * ms_product.CostLogistic)
                     FROM tx_merchant_order_detail
+                    JOIN ms_product ON ms_product.ProductID = tx_merchant_order_detail.ProductID
                     WHERE tx_merchant_order_detail.StockOrderID = ms_price_submission.StockOrderID
                 ) AS CostLogistic
             ");
@@ -1896,6 +1898,7 @@ class DistributionController extends Controller
             ->select(
                 'tmod.ProductID',
                 'ms_product.ProductName',
+                'ms_product.CostLogistic',
                 'tmod.PromisedQuantity',
                 'tmod.Nett',
                 'tmod.PriceSubmission',
@@ -2103,6 +2106,7 @@ class DistributionController extends Controller
                 'tx_merchant_order_detail.ProductID',
                 'ms_product.ProductName',
                 'tx_merchant_order_detail.PromisedQuantity',
+                'ms_product.CostLogistic',
                 'tx_merchant_order_detail.Nett',
                 'ms_product.Price',
                 DB::raw("tx_merchant_order_detail.PromisedQuantity * tx_merchant_order_detail.Nett AS ValueProduct"),
