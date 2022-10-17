@@ -23,9 +23,11 @@
                 </a>
             </li>
 
-            @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "FI")
+            @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO" ||
+            Auth::user()->RoleID == "FI")
             <li class="nav-item">
-                <a href="{{ route('priceSubmission') }}" class="nav-link {{ Request::is('price-submission*') ? 'active' : '' }}">
+                <a href="{{ route('priceSubmission') }}"
+                    class="nav-link {{ Request::is('price-submission*') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-money-bill-wave"></i>
                     <p>
                         Price Submission
@@ -34,7 +36,8 @@
             </li>
             @endif
 
-            @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "HL")
+            @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" ||
+            Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "HL")
             <li class="nav-item {{ Request::is('summary*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('summary*') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-file-alt"></i>
@@ -44,7 +47,8 @@
                     </p>
                 </a>
                 <ul class="nav nav-treeview">
-                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO")
+                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" ||
+                    Auth::user()->RoleID == "CEO")
                     <li class="nav-item">
                         <a href="{{ route('summary.summary') }}"
                             class="nav-link {{ Request::is('summary/finance*') ? 'active' : '' }}">
@@ -53,7 +57,8 @@
                         </a>
                     </li>
                     @endif
-                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "HL")
+                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" ||
+                    Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "HL")
                     <li class="nav-item">
                         <a href="{{ route('summary.report') }}"
                             class="nav-link {{ Request::is('summary/report*') ? 'active' : '' }}">
@@ -62,7 +67,8 @@
                         </a>
                     </li>
                     @endif
-                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "HL")
+                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" ||
+                    Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "HL")
                     <li class="nav-item">
                         <a href="{{ route('summary.merchant') }}"
                             class="nav-link {{ Request::is('summary/merchant*') ? 'active' : '' }}">
@@ -71,7 +77,8 @@
                         </a>
                     </li>
                     @endif
-                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO")
+                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" ||
+                    Auth::user()->RoleID == "CEO")
                     <li class="nav-item">
                         <a href="{{ route('summary.margin') }}"
                             class="nav-link {{ Request::is('summary/margin*') ? 'active' : '' }}">
@@ -85,7 +92,8 @@
             @endif
 
             @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "RBTAD") ||
-            (Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH") || 
+            (Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO") || (Auth::user()->RoleID == "FI") ||
+            (Auth::user()->RoleID == "AH") ||
             (Auth::user()->RoleID == "DMO") || Auth::user()->RoleID == "HL")
             <li class="nav-item {{ Request::is('distribution*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('distribution*') ? 'active' : '' }}">
@@ -105,8 +113,10 @@
                         </a>
                     </li>
                     @endif
-                    @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "RBTAD") ||
-                    (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH") || 
+                    @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID ==
+                    "RBTAD") ||
+                    (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" || (Auth::user()->RoleID == "FI") ||
+                    (Auth::user()->RoleID == "AH") ||
                     (Auth::user()->RoleID == "DMO") || Auth::user()->RoleID == "HL")
                     <li class="nav-item">
                         <a href="{{ route('distribution.restock') }}"
@@ -116,7 +126,8 @@
                         </a>
                     </li>
                     @endif
-                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "AD" || Auth::user()->RoleID == "HL")
+                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" ||
+                    Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "AD" || Auth::user()->RoleID == "HL")
                     <li class="nav-item">
                         <a href="{{ route('distribution.billPayLater') }}"
                             class="nav-link {{ Request::is('distribution/bill*') ? 'active' : '' }}">
@@ -125,7 +136,8 @@
                         </a>
                     </li>
                     @endif
-                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "AD" || Auth::user()->RoleID == "HL")
+                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" ||
+                    Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "AD" || Auth::user()->RoleID == "HL")
                     <li class="nav-item">
                         <a href="{{ route('distribution.settlement') }}"
                             class="nav-link {{ Request::is('distribution/settlement*') ? 'active' : '' }}">
@@ -134,8 +146,10 @@
                         </a>
                     </li>
                     @endif
-                    @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "RBTAD") ||
-                    (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH") || 
+                    @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID ==
+                    "RBTAD") ||
+                    (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" || (Auth::user()->RoleID == "FI") ||
+                    (Auth::user()->RoleID == "AH") ||
                     (Auth::user()->RoleID == "DMO") || Auth::user()->RoleID == "HL")
                     <li class="nav-item">
                         <a href="{{ route('distribution.product') }}"
@@ -145,8 +159,10 @@
                         </a>
                     </li>
                     @endif
-                    @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "RBTAD") ||
-                    (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH") || 
+                    @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID ==
+                    "RBTAD") ||
+                    (Auth::user()->RoleID == "BM") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH")
+                    ||
                     (Auth::user()->RoleID == "DMO"))
                     <li class="nav-item">
                         <a href="{{ route('distribution.merchant') }}"
@@ -161,7 +177,8 @@
             @endif
 
             @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "RBTAD") ||
-            (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH") || Auth::user()->RoleID == "HL")
+            (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" || (Auth::user()->RoleID == "FI") ||
+            (Auth::user()->RoleID == "AH") || Auth::user()->RoleID == "HL")
             <li class="nav-item {{ Request::is('delivery*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('delivery*') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-truck"></i>
@@ -196,7 +213,8 @@
             </li>
             @endif
 
-            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" || (Auth::user()->RoleID == "FI") ||
+            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" ||
+            (Auth::user()->RoleID == "FI") ||
             (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID == "DMO"))
             <li class="nav-item {{ Request::is('master*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('master*') ? 'active' : '' }}">
@@ -214,8 +232,10 @@
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
-                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" ||
-                            (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "RBTAD") || 
+                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") ||
+                            Auth::user()->RoleID == "CEO" ||
+                            (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID ==
+                            "RBTAD") ||
                             (Auth::user()->RoleID == "DMO"))
                             <li class="nav-item">
                                 <a href="{{ route('product.list') }}"
@@ -225,7 +245,8 @@
                                 </a>
                             </li>
                             @endif
-                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" ||
+                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") ||
+                            Auth::user()->RoleID == "CEO" ||
                             (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "DMO"))
                             <li class="nav-item">
                                 <a href="{{ route('product.category') }}"
@@ -235,7 +256,8 @@
                                 </a>
                             </li>
                             @endif
-                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" ||
+                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") ||
+                            Auth::user()->RoleID == "CEO" ||
                             (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "DMO"))
                             <li class="nav-item">
                                 <a href="{{ route('product.uom') }}"
@@ -245,7 +267,8 @@
                                 </a>
                             </li>
                             @endif
-                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" ||
+                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") ||
+                            Auth::user()->RoleID == "CEO" ||
                             (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "DMO"))
                             <li class="nav-item">
                                 <a href="{{ route('product.type') }}"
@@ -255,7 +278,8 @@
                                 </a>
                             </li>
                             @endif
-                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" ||
+                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") ||
+                            Auth::user()->RoleID == "CEO" ||
                             (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "DMO"))
                             <li class="nav-item">
                                 <a href="{{ route('product.brand') }}"
@@ -271,7 +295,8 @@
             </li>
             @endif
 
-            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" || (Auth::user()->RoleID == "FI") ||
+            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" ||
+            (Auth::user()->RoleID == "FI") ||
             (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO"))
             <li class="nav-item {{ Request::is('ppob*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('ppob*') ? 'active' : '' }}">
@@ -300,8 +325,10 @@
             </li>
             @endif
 
-            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" || (Auth::user()->RoleID == "FI") ||
-            (Auth::user()->RoleID == "HR") || (Auth::user()->RoleID == "AH") || Auth::user()->RoleID == "HL" || (Auth::user()->RoleID == "DMO"))
+            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" ||
+            (Auth::user()->RoleID == "FI") ||
+            (Auth::user()->RoleID == "HR") || (Auth::user()->RoleID == "AH") || Auth::user()->RoleID == "HL" ||
+            (Auth::user()->RoleID == "DMO"))
             <li class="nav-item {{ Request::is('distributor*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('distributor*') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-store-alt"></i>
@@ -332,8 +359,10 @@
             </li>
             @endif
 
-            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "INVTR") 
-            || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "HL")
+            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AD") ||
+            (Auth::user()->RoleID == "INVTR")
+            || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "CEO" ||
+            Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "HL")
             <li class="nav-item {{ Request::is('stock*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('stock*') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-cubes"></i>
@@ -351,7 +380,9 @@
                             </p>
                         </a>
                         <ul class="nav nav-treeview"> --}}
-                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "INVTR") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "HL")
+                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") ||
+                            (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "INVTR") || (Auth::user()->RoleID
+                            == "BM") || Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "HL")
                             <li class="nav-item">
                                 <a href="{{ route('stock.listStock') }}"
                                     class="nav-link {{ Request::is('stock/list*') ? 'active' : '' }}">
@@ -360,7 +391,9 @@
                                 </a>
                             </li>
                             @endif
-                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "HL")
+                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") ||
+                            (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" || Auth::user()->RoleID ==
+                            "HL")
                             <li class="nav-item">
                                 <a href="{{ route('stock.purchasePlan') }}"
                                     class="nav-link {{ Request::is('stock/plan-purchase*') ? 'active' : '' }}">
@@ -369,7 +402,9 @@
                                 </a>
                             </li>
                             @endif
-                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "INVTR") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "HL")
+                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") ||
+                            (Auth::user()->RoleID == "INVTR") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID
+                            == "CEO" || Auth::user()->RoleID == "HL")
                             <li class="nav-item">
                                 <a href="{{ route('stock.purchase') }}"
                                     class="nav-link {{ Request::is('stock/purchase*') ? 'active' : '' }}">
@@ -378,7 +413,9 @@
                                 </a>
                             </li>
                             @endif
-                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "INVTR") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO"  || Auth::user()->RoleID == "HL")
+                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") ||
+                            (Auth::user()->RoleID == "INVTR") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID
+                            == "CEO" || Auth::user()->RoleID == "HL")
                             <li class="nav-item">
                                 <a href="{{ route('stock.mutation') }}"
                                     class="nav-link {{ Request::is('stock/mutation*') ? 'active' : '' }}">
@@ -387,7 +424,9 @@
                                 </a>
                             </li>
                             @endif
-                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "INVTR") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO"  || Auth::user()->RoleID == "HL")
+                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") ||
+                            (Auth::user()->RoleID == "INVTR") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID
+                            == "CEO" || Auth::user()->RoleID == "HL")
                             <li class="nav-item">
                                 <a href="{{ route('stock.opname') }}"
                                     class="nav-link {{ Request::is('stock/opname*') ? 'active' : '' }}">
@@ -396,7 +435,8 @@
                                 </a>
                             </li>
                             @endif
-                        {{-- </ul>
+                            {{--
+                        </ul>
                     </li> --}}
                     {{-- <li class="nav-item {{ Request::is('stock-promo*') ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link {{ Request::is('stock-promo*') ? 'active' : '' }}">
@@ -406,7 +446,10 @@
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
-                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "INVTR") || (Auth::user()->RoleID == "BM")  || Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "HL")
+                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI") ||
+                            (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "INVTR") || (Auth::user()->RoleID
+                            == "BM") || Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "CEO" ||
+                            Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "HL")
                             <li class="nav-item">
                                 <a href="{{ route('stockPromo.inbound') }}"
                                     class="nav-link {{ Request::is('stock-promo/inbound*') ? 'active' : '' }}">
@@ -421,8 +464,9 @@
             </li>
             @endif
 
-            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO"
-            || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "HR") || (Auth::user()->RoleID == "AH") 
+            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID == "BM")
+            || Auth::user()->RoleID == "CEO"
+            || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "HR") || (Auth::user()->RoleID == "AH")
             || (Auth::user()->RoleID == "DMO") || Auth::user()->RoleID == "HL")
             <li class="nav-item {{ Request::is('merchant*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('merchant*') ? 'active' : '' }}">
@@ -433,7 +477,8 @@
                     </p>
                 </a>
                 <ul class="nav nav-treeview">
-                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID == "BM") ||
+                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID ==
+                    "BM") ||
                     (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "HR") ||
                     (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO") || Auth::user()->RoleID == "HL")
                     <li class="nav-item">
@@ -444,7 +489,8 @@
                         </a>
                     </li>
                     @endif
-                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH"))
+                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID ==
+                    "CEO" || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH"))
                     <li class="nav-item">
                         <a href="{{ route('merchant.membership') }}"
                             class="nav-link {{ Request::is('merchant/membership*') ? 'active' : '' }}">
@@ -453,7 +499,8 @@
                         </a>
                     </li>
                     @endif
-                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH"))
+                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID ==
+                    "CEO" || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH"))
                     <li class="nav-item">
                         <a href="{{ route('merchant.assessment') }}"
                             class="nav-link {{ Request::is('merchant/assessment*') ? 'active' : '' }}">
@@ -462,7 +509,8 @@
                         </a>
                     </li>
                     @endif
-                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "CEO" ||
+                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID ==
+                    "CEO" || Auth::user()->RoleID == "CEO" ||
                     (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "HR") || (Auth::user()->RoleID == "AH"))
                     <li class="nav-item">
                         <a href="{{ route('merchant.powermerchant') }}"
@@ -495,7 +543,8 @@
             </li>
             @endif
 
-            @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" ||
+            @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "BM") ||
+            Auth::user()->RoleID == "CEO" ||
             (Auth::user()->RoleID == "DMO"))
             <li class="nav-item {{ Request::is('rtsales*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('rtsales*') ? 'active' : '' }}">
@@ -552,8 +601,10 @@
             </li>
             @endif
 
-            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" ||
-            (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "HR") || (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO"))
+            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID == "BM")
+            || Auth::user()->RoleID == "CEO" ||
+            (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "HR") || (Auth::user()->RoleID == "AH") ||
+            (Auth::user()->RoleID == "DMO"))
             <li class="nav-item {{ Request::is('customer*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('customer*') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-users"></i>
@@ -575,7 +626,8 @@
                         </a>
                     </li>
                     @endif
-                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" ||
+                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID ==
+                    "CEO" ||
                     (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "HR") ||
                     (Auth::user()->RoleID == "AH"))
                     <li class="nav-item">
@@ -602,7 +654,7 @@
             </li>
             @endif
 
-            {{-- @if (Auth::user()->RoleID == "IT")
+            @if (Auth::user()->RoleID == "IT")
             <li class="nav-item {{ Request::is('banner*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('banner*') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-flag"></i>
@@ -621,7 +673,7 @@
                     </li>
                 </ul>
             </li>
-            @endif --}}
+            @endif
 
             {{-- <li class="nav-item {{ Request::is('rtcourier*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('rtcourier*') ? 'active' : '' }}">
@@ -723,7 +775,8 @@
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
-                            @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO")
+                            @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID ==
+                            "CEO")
                             <li class="nav-item">
                                 <a href="{{ route('setting.fairbanc') }}"
                                     class="nav-link {{ Request::is('*module/fairbanc*') ? 'active' : '' }}">
