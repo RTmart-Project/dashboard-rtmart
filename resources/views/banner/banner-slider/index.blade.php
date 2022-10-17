@@ -47,7 +47,8 @@
           <div class="card-header" id="banner-slider">
             <div class="row">
               <div class="col-12 p-1 pb-2">
-                <a href="{{ route('banner.sliderCreate') }}" class="btn btn-sm btn-success"><i class="fas fa-plus"></i> Tambah Banner Slider</a>
+                <a href="{{ route('banner.sliderCreate') }}" class="btn btn-sm btn-success"><i class="fas fa-plus"></i>
+                  Tambah Banner Slider</a>
               </div>
               <div class="col-md-2 col-6 p-1">
                 <input type="text" name="from_date" id="from_date" class="form-control form-control-sm" readonly>
@@ -56,19 +57,21 @@
                 <input type="text" name="to_date" id="to_date" class="form-control form-control-sm" readonly>
               </div>
               <div class="col-md-2 col-6 p-1">
-                <select class="form-control form-control-sm selectpicker border" name="status" id="status" title="Filter Status">
+                <select class="form-control form-control-sm selectpicker border" name="status" id="status"
+                  title="Filter Status">
                   <option value="1">Aktif</option>
                   <option value="0">Tidak Aktif</option>
                 </select>
               </div>
               <div class="col-md-3 col-6 p-1 input-group">
                 <div class="dropdown">
-                  <button class="btn btn-primary btn-sm dropdown-toggle h-100" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      Filter
+                  <button class="btn btn-primary btn-sm dropdown-toggle h-100" type="button" id="dropdownMenuButton"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Filter
                   </button>
                   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                      <a class="dropdown-item" id="filter-tanggal-mulai">Tanggal Mulai</a>
-                      <a class="dropdown-item" id="filter-tanggal-berakhir">Tanggal Berakhir</a>
+                    <a class="dropdown-item" id="filter-tanggal-mulai">Tanggal Mulai</a>
+                    <a class="dropdown-item" id="filter-tanggal-berakhir">Tanggal Berakhir</a>
                   </div>
                 </div>
                 <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-1">Refresh</button>
@@ -78,7 +81,6 @@
 
           <div class="card-body">
             <div class="tab-content">
-
               <div class="tab-pane active" id="banner-slider-table">
                 <div class="row">
                   <div class="col-12">
@@ -103,7 +105,6 @@
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
         </div>

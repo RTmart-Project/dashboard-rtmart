@@ -27,7 +27,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- CSS Per-Pages -->
     @yield('css-pages')
-    
+
     <style>
         /* Chrome, Safari, Edge, Opera */
         input::-webkit-outer-spin-button,
@@ -35,16 +35,16 @@ scratch. This page gets rid of all links and provides the needed markup only.
             -webkit-appearance: none !important;
             margin: 0 !important;
         }
-    
+
         /* Firefox */
         input[type=number] {
             -moz-appearance: textfield !important;
         }
     </style>
     {{-- <style>
-    .toolbar {
-        float: left;
-    }
+        .toolbar {
+            float: left;
+        }
     </style> --}}
 </head>
 
@@ -94,7 +94,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <!-- JS Per-Pages -->
     @yield('js-pages')
     <script>
-    $(document).ready(function() {
+        $(document).ready(function() {
         const messageNotifSuccess = $('body .wrapper').data("notif-success");
         const messageNotifFailed = $('body .wrapper').data("notif-failed");
         if (messageNotifSuccess != "") {
@@ -114,7 +114,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
         }
     });
     </script>
-    
+
 </body>
 
 </html>

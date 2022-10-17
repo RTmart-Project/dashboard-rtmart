@@ -41,14 +41,15 @@
               Kembali</a>
           </div>
           <div class="card-body">
-            <form id="add-banner-slider" method="post" action="{{ route('banner.sliderStore') }}" enctype="multipart/form-data">
+            <form id="add-banner-slider" method="post" action="{{ route('banner.sliderStore') }}"
+              enctype="multipart/form-data">
               @csrf
               <div class="row">
                 <div class="col-md-4 col-12">
                   <div class="form-group">
                     <label for="title">Judul</label>
-                    <input type="text" name="title" id="title" placeholder="Masukan Judul"
-                      value="{{ old('title') }}" class="form-control @if($errors->has('title')) is-invalid @endif" required>
+                    <input type="text" name="title" id="title" placeholder="Masukan Judul" value="{{ old('title') }}"
+                      class="form-control @if($errors->has('title')) is-invalid @endif" required>
                     @if($errors->has('title'))
                     <span class="error invalid-feedback">{{ $errors->first('title') }}</span>
                     @endif
@@ -57,20 +58,22 @@
                 <div class="col-md-4 col-12">
                   <div class="form-group">
                     <label for="start_date">Tanggal Mulai</label>
-                    <input type="date" name="start_date" id="start_date" class="form-control @if($errors->has('start_date')) is-invalid @endif" 
+                    <input type="date" name="start_date" id="start_date"
+                      class="form-control @if($errors->has('start_date')) is-invalid @endif"
                       value="{{ old('start_date') }}" required>
                     @if($errors->has('start_date'))
-                      <span class="error invalid-feedback">{{ $errors->first('start_date') }}</span>
+                    <span class="error invalid-feedback">{{ $errors->first('start_date') }}</span>
                     @endif
                   </div>
                 </div>
                 <div class="col-md-4 col-12">
                   <div class="form-group">
                     <label for="end_date">Tanggal Berakhir</label>
-                    <input type="date" name="end_date" id="end_date" class="form-control @if($errors->has('end_date')) is-invalid @endif"
-                      value="{{ old('end_date') }}" required>
+                    <input type="date" name="end_date" id="end_date"
+                      class="form-control @if($errors->has('end_date')) is-invalid @endif" value="{{ old('end_date') }}"
+                      required>
                     @if($errors->has('end_date'))
-                      <span class="error invalid-feedback">{{ $errors->first('end_date') }}</span>
+                    <span class="error invalid-feedback">{{ $errors->first('end_date') }}</span>
                     @endif
                   </div>
                 </div>
@@ -80,11 +83,11 @@
                     <select name="target" id="target" title="Pilih Target Banner" required
                       class="form-control selectpicker border @if ($errors->has('target')) is-invalid @endif">
                       @foreach ($targets as $target)
-                        <option value="{{ $target->PromoTarget }}">{{ $target->PromoTarget }}</option>
+                      <option value="{{ $target->PromoTarget }}">{{ $target->PromoTarget }}</option>
                       @endforeach
                     </select>
                     @if($errors->has('target'))
-                      <span class="error invalid-feedback">{{ $errors->first('target') }}</span>
+                    <span class="error invalid-feedback">{{ $errors->first('target') }}</span>
                     @endif
                     <select name="target_id[]" id="target_id" title="Pilih Target ID" data-live-search="true" multiple
                       class="form-control selectpicker border mt-2 d-none target_id @if ($errors->has('target_id')) is-invalid @endif">
@@ -106,11 +109,11 @@
                 <div class="col-md-4 col-12">
                   <div class="form-group">
                     <label for="banner_image">Gambar Banner</label>
-                    <input type="file" name="banner_image" id="banner_image" accept="image/*"
-                      onchange="loadFile(event)" class="form-control 
+                    <input type="file" name="banner_image" id="banner_image" accept="image/*" onchange="loadFile(event)"
+                      class="form-control 
                       @if($errors->has('banner_image')) is-invalid @endif" required>
                     @if($errors->has('banner_image'))
-                      <span class="error invalid-feedback">{{ $errors->first('banner_image') }}</span>
+                    <span class="error invalid-feedback">{{ $errors->first('banner_image') }}</span>
                     @endif
                   </div>
                 </div>
@@ -122,7 +125,7 @@
                   <textarea name="description" class="textarea 
                     @if ($errors->has('description')) is-invalid @endif">{{ old('description') }}</textarea>
                   @if($errors->has('description'))
-                      <span class="error invalid-feedback">{{ $errors->first('description') }}</span>
+                  <span class="error invalid-feedback">{{ $errors->first('description') }}</span>
                   @endif
                 </div>
               </div>
@@ -145,7 +148,6 @@
 <script src="{{ url('/') }}/plugins/bootstrap-select/bootstrap-select.min.js"></script>
 <script src="{{ url('/') }}/plugins/summernote/summernote-bs4.min.js"></script>
 <script>
-
   $("#target").on("change", function () {
     const target = $(this).val();
     
