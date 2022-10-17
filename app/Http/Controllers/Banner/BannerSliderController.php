@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Banner;
 
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -82,12 +83,13 @@ class BannerSliderController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required',
-            'start_date' => 'required',
-            'end_date' => 'required',
-            'target' => 'required',
-            'banner_image' => 'required',
-            'description' => 'required'
+            'title' => 'required|min:5|max:30',
+            'start_date' => 'required|after_or_equal:today',
+            'end_date' => 'required|after_or_equal:start_date',
+            'target' => 'required|string|exists:ms_promo,PromoTarget',
+            'promostatus' => 'required|between:0,1',
+            'banner_image' => 'required|image',
+            'description' => 'required|string',
         ]);
 
         $promoID = $this->bannerSliderService->generatePromoID();
@@ -137,7 +139,6 @@ class BannerSliderController extends Controller
                 $value += ['ActivityButtonText' => $activityButtonText];
                 array_push($dataPromo, $value);
             }
-            return $dataPromo;
         }
 
         $insert = DB::table('ms_promo')->insert($dataPromo);
@@ -160,79 +161,75 @@ class BannerSliderController extends Controller
 
     public function update(Request $request, $promoId)
     {
-        $validate = Validator::make($request->only('title', 'start_date', 'end_date', 'target', 'promostatus', 'activity_buttton_page', 'activity_button_text', 'description'), [
-            'title' => 'min:5|max:50',
-            'start_date' => 'date_format:Y-m-d|after_or_equal:today',
+        $request->validate([
+            'title' => 'min:5|max:30',
+            'start_date' => 'after_or_equal:today',
             'end_date' => 'after_or_equal:start_date',
             'target' => 'string|exists:ms_promo,PromoTarget',
             'promostatus' => 'between:0,1',
-            // 'banner_image' => 'image',
-            'description' => 'string',
+            'banner_image' => 'image',
+            'description' => 'string|max:80',
         ]);
 
         $target = $request->input('target');
-        if ($validate->passes()) {
-            $res = [
-                'PromoTitle' => $request->input('title'),
-                'PromoDesc' => $request->input('description'),
-                'PromoTarget' => $request->input('target'),
-                'PromoStatus' => intval($request->input('promo_status')),
-                'PromoStartDate' => $request->input('start_date'),
-                'PromoEndDate' => $request->input('end_date'),
-                'ClassActivityPage' => $request->input('activity_button_page'),
-                'ActivityButtonText' => $request->input('activity_button_text'),
-                'TargetID' => $request->input('target_id'),
-            ];
 
-            if ($request->hasFile('banner_image')) {
-                $promoImage = $promoId . '.' . $request->file('banner_image')->extension();
-                $request->file('banner_image')->move($this->saveImageUrl . 'promo/', $promoImage);
-                $res['PromoImage'] = $promoImage;
-            } else {
-                $temp = DB::table('ms_promo')->where('PromoID', $promoId)->select('PromoImage')->first();
-                $res['PromoImage'] = $temp->PromoImage;
-            }
+        $res = [
+            'PromoTitle' => $request->input('title'),
+            'PromoDesc' => $request->input('description'),
+            'PromoTarget' => $request->input('target'),
+            'PromoStatus' => intval($request->input('promo_status')),
+            'PromoStartDate' => $request->input('start_date'),
+            'PromoEndDate' => $request->input('end_date'),
+            'ClassActivityPage' => $request->input('activity_button_page'),
+            'ActivityButtonText' => $request->input('activity_button_text'),
+            'TargetID' => $request->input('target_id'),
+        ];
 
-            if ($request->target === "MERCHANT_GLOBAL" || $request->target === "CUSTOMER_GLOBAL") {
-                $data = $res;
-            } else {
-                $data = [];
-                $targets = array_map(function () {
-                    return func_get_args();
-                }, $res['TargetID']);
-                foreach ($targets as $key => $value) {
-                    $value = array_combine(['TargetID'], $value);
-                    $value += ['PromoID' => $promoId];
-                    $value += ['PromoTitle' => $res['PromoTitle']];
-                    $value += ['PromoDesc' => $res['PromoDesc']];
-                    $value += ['PromoImage' => $res['PromoImage']];
-                    $value += ['PromoStartDate' => $res['PromoStartDate']];
-                    $value += ['PromoEndDate' => $res['PromoEndDate']];
-                    $value += ['PromoStatus' => $res['PromoStatus']];
-                    $value += ['PromoTarget' => $res['PromoTarget']];
-                    $value += ['PromoEndDate' => $res['PromoEndDate']];
-                    $value += ['ClassActivityPage' => $res['ClassActivityPage']];
-                    $value += ['ActivityButtonText' => $res['ActivityButtonText']];
-                    array_push($data, $value);
-                }
-                // dd($data);
-            }
-
-            try {
-                DB::transaction(function () use ($data, $target, $promoId) {
-                    if ($target === "MERCHANT_GLOBAL" || $target === "CUSTOMER_GLOBAL") {
-                        DB::table('ms_promo')->where('PromoID', $promoId)->update($data);
-                    } else {
-                        DB::table('ms_promo')->where('PromoID', $promoId)->delete();
-                        DB::table('ms_promo')->insert($data);
-                    }
-                });
-                return back()->with(['success' => 'Berhasil mengubah data']);
-            } catch (Exception $e) {
-                return back()->with(['failed', 'Gagal, terjadi kesalahan sistem atau jaringan']);
-            }
+        if ($request->hasFile('banner_image')) {
+            $promoImage = $promoId . '.' . $request->file('banner_image')->extension();
+            $request->file('banner_image')->move($this->saveImageUrl . 'promo/', $promoImage);
+            $res['PromoImage'] = $promoImage;
         } else {
-            return back()->withErrors($validate);
+            $temp = DB::table('ms_promo')->where('PromoID', $promoId)->select('PromoImage')->first();
+            $res['PromoImage'] = $temp->PromoImage;
+        }
+
+        if ($request->target === "MERCHANT_GLOBAL" || $request->target === "CUSTOMER_GLOBAL") {
+            $data = $res;
+        } else {
+            $data = [];
+            $targets = array_map(function () {
+                return func_get_args();
+            }, $res['TargetID']);
+            foreach ($targets as $key => $value) {
+                $value = array_combine(['TargetID'], $value);
+                $value += ['PromoID' => $promoId];
+                $value += ['PromoTitle' => $res['PromoTitle']];
+                $value += ['PromoDesc' => $res['PromoDesc']];
+                $value += ['PromoImage' => $res['PromoImage']];
+                $value += ['PromoStartDate' => $res['PromoStartDate']];
+                $value += ['PromoEndDate' => $res['PromoEndDate']];
+                $value += ['PromoStatus' => $res['PromoStatus']];
+                $value += ['PromoTarget' => $res['PromoTarget']];
+                $value += ['PromoEndDate' => $res['PromoEndDate']];
+                $value += ['ClassActivityPage' => $res['ClassActivityPage']];
+                $value += ['ActivityButtonText' => $res['ActivityButtonText']];
+                array_push($data, $value);
+            }
+        }
+
+        try {
+            DB::transaction(function () use ($data, $target, $promoId) {
+                if ($target === "MERCHANT_GLOBAL" || $target === "CUSTOMER_GLOBAL") {
+                    DB::table('ms_promo')->where('PromoID', $promoId)->update($data);
+                } else {
+                    DB::table('ms_promo')->where('PromoID', $promoId)->delete();
+                    DB::table('ms_promo')->insert($data);
+                }
+            });
+            return back()->with(['success' => 'Berhasil mengubah data']);
+        } catch (Exception $e) {
+            return back()->with(['failed', 'Gagal, terjadi kesalahan sistem atau jaringan']);
         }
     }
 }

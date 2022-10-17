@@ -21,7 +21,7 @@ class BannerSliderService
       $sql->where('PromoStatus', $filterStatus);
     }
 
-    $data = $sql->groupBy('PromoID');
+    $data = $sql;
 
     return $data;
   }
