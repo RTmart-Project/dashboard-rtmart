@@ -83,6 +83,7 @@
                   @php
                     $totalEstMarginPrice = 0;
                     $totalQty = 0;
+                    $totalCostLogistic = 0;
                   @endphp
                   <strong>Detail Produk</strong>
                   @foreach ($data->Detail as $item)
@@ -169,6 +170,15 @@
                         <input type="text" class="form-control est_percent_margin_submission" readonly>
                       </div>
                     </div>
+                    @if ($data->PaymentMethodID != 13)
+                    <div class="col-12 col-md-1">
+                      <div class="form-group">
+                        <label>Cost Logistic</label>
+                        <input type="text" class="form-control autonumeric" value="{{ $item->CostLogistic }}" readonly>
+                        @php $totalCostLogistic += $item->CostLogistic * $item->PromisedQuantity @endphp
+                      </div>
+                    </div>
+                    @endif
                     <div class="col-12 col-md-2">
                       <div class="form-group">
                         <label>Voucher</label>
@@ -245,9 +255,9 @@
                     <div class="col-12 col-md-6">
                       @if ($data->PaymentMethodID != 13)
                       <div class="form-group row">
-                        <label class="col-sm-4 col-form-label">Cost Logistic (2250 x {{ $totalQty }})</label>
+                        <label class="col-sm-4 col-form-label">Total Cost Logistic</label>
                         <div class="col-sm-8">
-                          <input type="text" class="form-control autonumeric cost_logistic" value="{{ 2250 * $totalQty }}" readonly>
+                          <input type="text" class="form-control autonumeric cost_logistic" value="{{ $totalCostLogistic }}" readonly>
                         </div>
                       </div>
                       @endif

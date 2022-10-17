@@ -323,7 +323,6 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/ppob/merchant/get', [PpobController::class, 'getActiveMerchant'])->name('ppob.activeMerchant');
     });
 
-
     Route::group(['middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,HR,AD,HL,DMO,RBTAD']], function () {
         Route::post('/merchant/restock/get', [MerchantController::class, 'getRestocks'])->name('merchant.getRestocks');
         Route::post('/merchant/restock/product/get', [MerchantController::class, 'getRestockProduct'])->name('merchant.getRestockProduct');
@@ -410,6 +409,8 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/', [BannerSliderController::class, 'index'])->name('banner.slider');
             Route::post('/data', [BannerSliderController::class, 'data'])->name('banner.sliderData');
             Route::get('/create', [BannerSliderController::class, 'create'])->name('banner.sliderCreate');
+            Route::get('/edit/{promoId}', [BannerSliderController::class, 'edit'])->name('banner.sliderEdit');
+            Route::put('/update/{promoId}', [BannerSliderController::class, 'update'])->name('banner.sliderUpdate');
             Route::get('/listTargetID/{target}', [BannerSliderController::class, 'listTargetID'])->name('banner.listTargetID');
             Route::post('/store', [BannerSliderController::class, 'store'])->name('banner.sliderStore');
         });
