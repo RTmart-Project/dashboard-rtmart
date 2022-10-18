@@ -130,11 +130,11 @@
 				transform: rotate(-25deg);
 			}
 			.lunas {	
-				background-image: url({{ asset('dist/img/lunas.png') }});
+				background-image: url("/dist/img/lunas.png");
 				opacity: 0.25;
 			}
 			.belum-lunas{
-				background-image: url({{ asset('dist/img/belumlunas.png') }});
+				background-image: url("/dist/img/belumlunas.png");
 				opacity: 0.15;
 			}
 		</style>
@@ -151,52 +151,57 @@
 				@endif
 			@endif
 
-			<div class="row m-1 mb-3">
-				<div class="col-5 text-left">
-					<img src="{{ url('/') }}/dist/img/rtmart.png" alt="Company logo" style="width: 100%; max-width: 220px" />
-				</div>
-				<div class="col-7 text-right">
-					<b>DELIVERY ORDER</b><br>
-					#{{ $merchant->StockOrderID }} <br>
-					#{{ $merchant->DeliveryOrderID }} <br>
-					Tanggal Pengiriman: {{ date('d M Y H:i', strtotime($merchant->DeliveryDate)) }}<br>
-					@if ($merchant->PaymentMethodID == 14 && $merchant->IsPaid != 1)
-						<p class="m-0">{{ $merchant->FinishDate != null ? "Tanggal barang diterima: ".date("d M Y H:i", strtotime($merchant->FinishDate)) : "" }}</p> 
-						Jatuh Tempo Pembayaran: {{ $merchant->FinishDate == null ? "H+5 setelah barang diterima" : date( "d M Y", strtotime("$merchant->FinishDate +5 day")) }} <br />
-					@endif
-					@if ($merchant->StatusOrder == "Selesai" && $merchant->IsPaid == 1)
-						Tgl Selesai: {{ date('d M Y H:i', strtotime($merchant->FinishDate)) }}<br>
-					@endif
-					{{ $merchant->StatusOrder }}
-				</div>
-			</div>
+			<table>
+				<tr class="top">
+					<td colspan="4">
+						<table>
+							<tr>
+								<td class="title">
+									<img src="{{ url('/') }}/dist/img/rtmart.png" alt="Company logo" style="width: 100%; max-width: 220px" />
+								</td>
+
+								<td>
+									<b>DELIVERY ORDER</b><br>
+									#{{ $merchant->StockOrderID }} <br>
+									#{{ $merchant->DeliveryOrderID }} <br>
+									Tanggal Pengiriman: {{ date('d M Y H:i', strtotime($merchant->DeliveryDate)) }}<br>
+									@if ($merchant->PaymentMethodID == 14 && $merchant->IsPaid != 1)
+										<p class="m-0">{{ $merchant->FinishDate != null ? "Tanggal barang diterima: ".date("d M Y H:i", strtotime($merchant->FinishDate)) : "" }}</p> 
+										Jatuh Tempo Pembayaran: {{ $merchant->FinishDate == null ? "H+5 setelah barang diterima" : date( "d M Y", strtotime("$merchant->FinishDate +5 day")) }} <br />
+									@endif
+									@if ($merchant->StatusOrder == "Selesai" && $merchant->IsPaid == 1)
+										Tgl Selesai: {{ date('d M Y H:i', strtotime($merchant->FinishDate)) }}<br>
+									@endif
+									{{ $merchant->StatusOrder }}
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</table>
+
+			<tr class="information">
+				<td colspan="4">
+					<table>
+						<tr>
+							<td>
+								<label class="mb-1">Pembeli</label><br>
+								ID Toko : {{ $merchant->MerchantID }} <br>
+								Nama Toko : {{ $merchant->StoreName }} ({{ $merchant->OwnerFullName }})<br>
+								No. Telepon : {{ $merchant->PhoneNumber }}
+							</td>
+
+							<td class="responsive-td">
+								<label class="mb-1">Alamat</label><br>
+								{{ $merchant->StoreAddress }}
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
 
 			<div class="row m-1 mb-3">
-				<div class="col-6 text-left">
-					<label class="mb-1">Pembeli</label>
-				</div>
-				<div class="col-6 text-right">
-					<label class="mb-1">Alamat</label>
-				</div>
-				<div class="col-6 text-left">
-					<div class="row">
-						<div class="col-4">ID Toko</div>
-						<div class="col-1 text-center">:</div>
-						<div class="col-7">{{ $merchant->MerchantID }}</div>
-
-						<div class="col-4">Nama Toko</div>
-						<div class="col-1 text-center">:</div>
-						<div class="col-7">{{ $merchant->StoreName }} ({{ $merchant->OwnerFullName }})</div>
-
-						<div class="col-4">No. Telepon</div>
-						<div class="col-1 text-center">:</div>
-						<div class="col-7">{{ $merchant->PhoneNumber }}</div>
-					</div>
-				</div>
-				<div class="col-6 text-right">
-					{{ $merchant->StoreAddress }}
-				</div>
-				<div class="col-12 text-right">
+				<div class="col-12 text-right p-0">
 					<label class="mb-1">Metode Pembayaran</label>
 					<br>
 					{{ $merchant->PaymentMethodName }}
@@ -274,29 +279,42 @@
 							Pengirim : <strong>{{ $merchant->Name == "" ? '-' : $merchant->Name }}</strong>
 						@endif
 					</div>
-					<div class="text-center col-4">
-						Security
-						<br>
-						<br>
-						<br>
-						<br>
-						( ................................. )
-					</div>
-					<div class="col-4 text-center">
-						Penerima
-						<br>
-						<br>
-						<br>
-						<br>
-						( ................................. )
-					</div>
-					<div class="col-7 mt-4">
-						<small>Invoice ini sah dan diproses oleh komputer</small> <br>
-						<small class="text-danger">Pembayaran tidak boleh diberikan kepada sales.</small>
-					</div>
-					<div class="col-5 mt-4 font-italic">
-						<small class="">Terakhir diupdate: {{ date('d F Y H:i', strtotime($processTime)) }} WIB</small>
-					</div>
+					
+					<tr class="information">
+						<td colspan="4">
+							<table>
+								<tr>
+									<td></td>
+									<td class="responsive-td text-center">
+										Security
+										<br>
+										<br>
+										<br>
+										<br>
+										( ................................. )
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+
+					<tr class="information">
+						<td colspan="4">
+							<table>
+								<tr>
+									<td style="font-style: italic">
+										<small>Invoice ini sah dan diproses oleh komputer</small> <br>
+										<small class="text-danger">Pembayaran tidak boleh diberikan kepada sales.</small>
+									</td>
+									<td class="responsive-td" style="font-style: italic">
+										<br><br>
+										<small class="">Terakhir diupdate: {{ date('d F Y H:i', strtotime($processTime)) }} WIB</small>
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					
 				</div>
 			</div>
 		</div>

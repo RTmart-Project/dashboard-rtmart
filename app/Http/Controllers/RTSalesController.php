@@ -67,7 +67,7 @@ class RTSalesController extends Controller
         $request->validate([
             'sales_name' => 'string|required',
             'sales_level' => 'required|numeric',
-            'team' => 'required|exists:ms_distributor,Depo',
+            'team' => 'required|exists:ms_team_name,TeamCode',
             'team_by' => 'required',
             'product_group' => 'required',
             'product_group.*' => 'exists:ms_product_group,ProductGroupID',
