@@ -514,3 +514,4 @@ Route::group(['middleware' => ['guest']], function () {
 
 Route::get('/restock/invoice/{stockOrderId}', [InvoiceController::class, 'invoiceSO'])->name('restock.invoice');
 Route::get('/restock/deliveryOrder/invoice/{deliveryOrderId}', [InvoiceController::class, 'invoiceDO'])->name('restockDeliveryOrder.invoice');
+Route::get('/restock/invoice/completed/{stockOrderId}', [InvoiceController::class, 'invoiceDOselesai'])->name('deliveryOrderSelesai.invoice');
