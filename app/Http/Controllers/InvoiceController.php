@@ -107,4 +107,46 @@ class InvoiceController extends Controller
             'processTime' => $processTime
         ]);
     }
+
+    public function invoiceDOselesai($stockOrderId)
+    {
+        $merchant = DB::table('tx_merchant_order')
+            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
+            ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_order.StatusOrderID')
+            ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
+            ->where('tx_merchant_order.StockOrderID', '=', $stockOrderId)
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_status_order.StatusOrder', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order.StatusOrderID')
+            ->first();
+
+        $deliveryOrder = DB::table('tx_merchant_delivery_order')
+            ->where('tx_merchant_delivery_order.StockOrderID', $stockOrderId)
+            ->selectRaw("SUM(Discount) AS Discount, SUM(ServiceCharge) AS ServiceCharge, SUM(DeliveryFee) AS DeliveryFee")
+            ->where('tx_merchant_delivery_order.StatusDO', 'S025')
+            ->first();
+
+        $deliveryOrderSelesai = DB::table('tx_merchant_delivery_order')
+            ->join('tx_merchant_delivery_order_detail', function($join) {
+                $join->on('tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID');
+                $join->where('tx_merchant_delivery_order_detail.StatusExpedition', 'S031');
+            })
+            ->join('ms_product', 'ms_product.ProductID', 'tx_merchant_delivery_order_detail.ProductID')
+            ->where('tx_merchant_delivery_order.StockOrderID', $stockOrderId)
+            ->where('tx_merchant_delivery_order.StatusDO', 'S025')
+            ->selectRaw("ANY_VALUE(ms_product.ProductName) AS ProductName, SUM(tx_merchant_delivery_order_detail.Qty) AS Qty, ANY_VALUE(tx_merchant_delivery_order_detail.Price) AS Price")
+            ->groupBy('tx_merchant_delivery_order_detail.ProductID')
+            ->get();
+
+        $subTotal = 0;
+        foreach ($deliveryOrderSelesai as $key => $value) {
+            $subTotal += $value->Price * $value->Qty;
+        }
+
+        return view('merchant.restock.invoice.invoice_do_selesai', [
+            'stockOrderId' => $stockOrderId,
+            'merchant' => $merchant,
+            'deliveryOrder' => $deliveryOrder,
+            'deliveryOrderSelesai' => $deliveryOrderSelesai,
+            'subTotal' => $subTotal
+        ]);
+    }
 }
