@@ -48,6 +48,22 @@ $(document).ready(function () {
                     name: "ms_merchant_account.PhoneNumber",
                 },
                 {
+                    data: "NumberIDCard",
+                    name: "ms_merchant_account.NumberIDCard",
+                },
+                {
+                    data: "UsernameIDCard",
+                    name: "ms_merchant_account.UsernameIDCard",
+                },
+                {
+                    data: "NumberIDCardCouple",
+                    name: "ms_merchant_account.NumberIDCardCouple",
+                },
+                {
+                    data: "UsernameIDCardCouple",
+                    name: "ms_merchant_account.UsernameIDCardCouple",
+                },
+                {
                     data: "DistributorName",
                     name: "ms_distributor.DistributorName",
                 },
@@ -102,7 +118,7 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
                         orthogonal: "export",
                     },
                 },
@@ -208,9 +224,8 @@ $(document).ready(function () {
                   <h5 class="mb-1 text-center">${res.AsIDCard.toUpperCase()}</h5>
                   <img 
                     class="rounded" width="300" height="200" style="object-fit: cover"
-                    src="${baseImg}rtsales/merchantassessment/${
-                    res.PhotoIDCard
-                }">
+                    src="${baseImg}rtsales/merchantassessment/${res.PhotoIDCard
+                    }">
                   <h6 class="my-1 text-center">${res.UsernameIDCard}</h6>
                   <h6 class="text-center">${res.NumberIDCard}</h6>
                 </div>
@@ -218,9 +233,8 @@ $(document).ready(function () {
                   <h5 class="mb-1 text-center">${res.AsIDCardCouple.toUpperCase()}</h5>
                   <img 
                     class="rounded" width="300" height="200" style="object-fit: cover"
-                    src="${baseImg}rtsales/merchantassessment/${
-                    res.PhotoIDCardCouple
-                }">
+                    src="${baseImg}rtsales/merchantassessment/${res.PhotoIDCardCouple
+                    }">
                   <h6 class="my-1 text-center">${res.UsernameIDCardCouple}</h6>
                   <h6 class="text-center">${res.NumberIDCardCouple}</h6>
                 </div>
@@ -228,9 +242,8 @@ $(document).ready(function () {
                   <h5 class="mb-1 text-center">FOTO TOKO</h5>
                   <img 
                     class="rounded" width="300" height="200" style="object-fit: cover"
-                    src="${baseImg}rtsales/merchantassessment/${
-                    res.StorePhotoMembership
-                }">
+                    src="${baseImg}rtsales/merchantassessment/${res.StorePhotoMembership
+                    }">
                 </div>`;
                 $("#merchant").html(store);
                 $("#photo").html(div);
@@ -268,7 +281,7 @@ $(document).ready(function () {
                         this.$content.find("form").submit();
                     },
                 },
-                tidak: function () {},
+                tidak: function () { },
             },
         });
     });
@@ -302,7 +315,7 @@ $(document).ready(function () {
                         this.$content.find("form").submit();
                     },
                 },
-                tidak: function () {},
+                tidak: function () { },
             },
         });
     });

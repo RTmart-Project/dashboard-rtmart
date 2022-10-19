@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Services\RTSalesService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -337,7 +336,7 @@ class RTSalesController extends Controller
         }
 
 
-        $update =    DB::table('ms_visit_survey')
+        $update = DB::table('ms_visit_survey')
             ->where('VisitSurveyID', $visitSurveyID)
             ->update([
                 'IsValid' => $dataValid

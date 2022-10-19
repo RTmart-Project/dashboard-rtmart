@@ -413,6 +413,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::put('/update/{promoId}', [BannerSliderController::class, 'update'])->name('banner.sliderUpdate');
             Route::get('/listTargetID/{target}', [BannerSliderController::class, 'listTargetID'])->name('banner.listTargetID');
             Route::post('/store', [BannerSliderController::class, 'store'])->name('banner.sliderStore');
+            Route::get('/delete/{id}', [BannerSliderController::class, 'destroy',])->name('banner.deletePromo');
         });
     });
 

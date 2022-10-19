@@ -81,6 +81,10 @@
                           <th>Nama Toko</th>
                           <th>Nama Pemilik</th>
                           <th>No HP</th>
+                          <th>No. KTP</th>
+                          <th>Nama KTP</th>
+                          <th>No. KTP Pasangan</th>
+                          <th>Nama KTP Pasangan</th>
                           <th>Distributor</th>
                           <th>Alamat</th>
                           <th>Sales</th>
