@@ -857,9 +857,9 @@ class DistributionController extends Controller
 
             try {
                 DB::transaction(function () use ($stockOrderID, $statusOrder, $dataLog, $txMerchantOrder, $titleNotif, $bodyNotif, $baseImageUrl, $deliveryOrderService) {
-                    if ($txMerchantOrder->PaymentMethodID == 14) {
-                        $deliveryOrderService->splitDeliveryOrder($stockOrderID, 3);
-                    }
+                    // if ($txMerchantOrder->PaymentMethodID == 14) {
+                    //     $deliveryOrderService->splitDeliveryOrder($stockOrderID, 3);
+                    // }
 
                     DB::table('tx_merchant_order')
                         ->where('StockOrderID', '=', $stockOrderID)

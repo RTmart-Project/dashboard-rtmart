@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
 <!-- -->
+<meta name="role-id" content="{{ Auth::user()->RoleID }}">
 <meta name="csrf_token" content="{{ csrf_token() }}">
 <meta name="base-image" content="{{ config('app.base_image_url') }}">
 <link rel="stylesheet" href="{{url('/')}}/plugins/bootstrap-select/bootstrap-select.min.css">
@@ -80,17 +81,22 @@
                           <th>Merchant ID</th>
                           <th>Nama Toko</th>
                           <th>Nama Pemilik</th>
-                          <th>No HP</th>
-                          <th>Distributor</th>
+                          <th>No. HP</th>
+                          <th>No. KTP</th>
+                          <th>Nama KTP</th>
+                          <th>No. KTP Pasangan</th>
+                          <th>Nama KTP Pasangan</th>
                           <th>Alamat</th>
+                          <th>Distributor</th>
                           <th>Sales</th>
+                          <th>Status Crowdo</th>
                           <th>Status Membership</th>
                           <th>Tanggal Submit</th>
                           <th>Tanggal Konfirmasi</th>
                           <th>Dikonfirmasi Oleh</th>
                           <th>Catatan</th>
                           <th>Photo</th>
-                          {{-- <th>Action</th> --}}
+                          <th>Action</th>
                         </tr>
                       </thead>
                       <tbody>

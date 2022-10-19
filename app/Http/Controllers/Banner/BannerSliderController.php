@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Yajra\DataTables\Facades\DataTables;
-use Illuminate\Support\Facades\Validator;
 use App\Services\BannerService\BannerSliderService;
 
 class BannerSliderController extends Controller
@@ -58,8 +57,9 @@ class BannerSliderController extends Controller
                     return $status;
                 })
                 ->addColumn('Action', function ($data) {
-                    $btnEdit = '<a href="/banner/slider/edit/' . $data->PromoID . '" class="btn btn-sm btn-warning">Edit</a>';
-                    return $btnEdit;
+                    $btn = '<a href="/banner/slider/edit/' . $data->PromoID . '" class="btn btn-xs btn-warning">Ubah</a>
+                            <a href="#" class="btn btn-xs btn-danger delete-promo" data-promoid="' . $data->PromoID . '">Hapus</a>';
+                    return $btn;
                 })
                 ->rawColumns(['PromoImage', 'PromoStatus', 'Action'])
                 ->make();
@@ -83,11 +83,10 @@ class BannerSliderController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|min:5|max:30',
-            'start_date' => 'required|after_or_equal:today',
+            'title' => 'required|min:5',
+            'start_date' => 'required|before_or_equal:end_date',
             'end_date' => 'required|after_or_equal:start_date',
             'target' => 'required|string|exists:ms_promo,PromoTarget',
-            'promostatus' => 'required|between:0,1',
             'banner_image' => 'required|image',
             'description' => 'required|string',
         ]);
@@ -102,7 +101,7 @@ class BannerSliderController extends Controller
         $activityButtonText = $request->input('activity_button_text');
         $targetID = $request->input('target_id');
 
-        $promoImage = $promoID . '.' . $request->file('banner_image')->extension();
+        $promoImage = $promoID . '-' . time() . '.' . $request->file('banner_image')->extension();
         $request->file('banner_image')->move($this->saveImageUrl . 'promo/', $promoImage);
 
         if ($target === "MERCHANT_GLOBAL" || $target === "CUSTOMER_GLOBAL") {
@@ -154,39 +153,55 @@ class BannerSliderController extends Controller
         $sql = DB::table('ms_promo')
             ->select('PromoID', 'PromoTitle', 'PromoDesc', 'PromoImage', 'PromoStartDate', 'PromoEndDate', 'PromoStatus', 'PromoTarget', 'PromoExpiryDate', 'ClassActivityPage', 'ActivityButtonText')
             ->where('PromoID', $promoId)->first();
+
+        $targetID = DB::table('ms_promo')
+            ->where('PromoID', $promoId)
+            ->select('TargetID')->get();
+
+        $listTargetID = $this->bannerSliderService->listTargetIDBannerSlider($sql->PromoTarget);
+
         $promoTarget = DB::table('ms_promo')->selectRaw('DISTINCT(PromoTarget)')->get()->toArray();
         $promoStatus = DB::table('ms_promo')->select('PromoStatus')->distinct()->get()->toArray();
-        return view('banner.banner-slider.edit', ['targets' => $sql, 'promoTarget' => $promoTarget, 'promoStatus' => $promoStatus]);
+
+        return view('banner.banner-slider.edit', [
+            'targets' => $sql,
+            'targetID' => $targetID,
+            'listTargetID' => $listTargetID,
+            'promoTarget' => $promoTarget,
+            'promoStatus' => $promoStatus
+        ]);
     }
 
     public function update(Request $request, $promoId)
     {
         $request->validate([
-            'title' => 'min:5|max:30',
-            'start_date' => 'after_or_equal:today',
-            'end_date' => 'after_or_equal:start_date',
-            'target' => 'string|exists:ms_promo,PromoTarget',
+            'title' => 'required|min:5',
+            'start_date' => 'required|before_or_equal:end_date',
+            'end_date' => 'required|after_or_equal:start_date',
+            'target' => 'required|string|exists:ms_promo,PromoTarget',
             'promostatus' => 'between:0,1',
             'banner_image' => 'image',
-            'description' => 'string|max:80',
+            'description' => 'required|string',
         ]);
 
         $target = $request->input('target');
 
         $res = [
+            'PromoID' => $promoId,
             'PromoTitle' => $request->input('title'),
             'PromoDesc' => $request->input('description'),
             'PromoTarget' => $request->input('target'),
             'PromoStatus' => intval($request->input('promo_status')),
             'PromoStartDate' => $request->input('start_date'),
             'PromoEndDate' => $request->input('end_date'),
+            'PromoExpiryDate' => $request->input('end_date'),
             'ClassActivityPage' => $request->input('activity_button_page'),
             'ActivityButtonText' => $request->input('activity_button_text'),
             'TargetID' => $request->input('target_id'),
         ];
 
         if ($request->hasFile('banner_image')) {
-            $promoImage = $promoId . '.' . $request->file('banner_image')->extension();
+            $promoImage = $promoId . '-' . time() . '.' . $request->file('banner_image')->extension();
             $request->file('banner_image')->move($this->saveImageUrl . 'promo/', $promoImage);
             $res['PromoImage'] = $promoImage;
         } else {
@@ -212,6 +227,7 @@ class BannerSliderController extends Controller
                 $value += ['PromoStatus' => $res['PromoStatus']];
                 $value += ['PromoTarget' => $res['PromoTarget']];
                 $value += ['PromoEndDate' => $res['PromoEndDate']];
+                $value += ['PromoExpiryDate' => $res['PromoEndDate']];
                 $value += ['ClassActivityPage' => $res['ClassActivityPage']];
                 $value += ['ActivityButtonText' => $res['ActivityButtonText']];
                 array_push($data, $value);
@@ -220,16 +236,28 @@ class BannerSliderController extends Controller
 
         try {
             DB::transaction(function () use ($data, $target, $promoId) {
+                DB::table('ms_promo')->where('PromoID', $promoId)->delete();
                 if ($target === "MERCHANT_GLOBAL" || $target === "CUSTOMER_GLOBAL") {
-                    DB::table('ms_promo')->where('PromoID', $promoId)->update($data);
+                    DB::table('ms_promo')->insert($data);
                 } else {
-                    DB::table('ms_promo')->where('PromoID', $promoId)->delete();
                     DB::table('ms_promo')->insert($data);
                 }
             });
-            return back()->with(['success' => 'Berhasil mengubah data']);
+            return redirect()->route('banner.slider')->with(['success' => 'Data Banner Slider berhasil diubah']);
         } catch (Exception $e) {
-            return back()->with(['failed', 'Gagal, terjadi kesalahan sistem atau jaringan']);
+            return redirect()->route('banner.slider')->with(['failed', 'Gagal, terjadi kesalahan sistem atau jaringan']);
+        }
+    }
+
+    public function destroy($promoId)
+    {
+        try {
+            DB::transaction(function () use ($promoId) {
+                DB::table('ms_promo')->where('PromoID', $promoId)->delete();
+            });
+            return redirect()->route('banner.slider')->with('success', 'Data Banner berhasil dihapus');
+        } catch (\Throwable $th) {
+            return redirect()->route('banner.slider')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
         }
     }
 }

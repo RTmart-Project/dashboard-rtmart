@@ -157,6 +157,10 @@ $(document).ready(function () {
                     name: "PromoTarget",
                 },
                 {
+                    data: "TargetID",
+                    name: "TargetID",
+                },
+                {
                     data: "ClassActivityPage",
                     name: "ClassActivityPage",
                 },
@@ -198,4 +202,25 @@ $(document).ready(function () {
             autoWidth: false,
         });
     }
+
+    $("#banner-slider-table").on("click", ".delete-promo", function (e) {
+        e.preventDefault();
+        const promoId = $(this).data("promoid");
+        $.confirm({
+            title: "Hapus Banner!",
+            content: "Apakah yakin ingin menghapus banner?",
+            closeIcon: true,
+            buttons: {
+                hapus: {
+                    btnClass: "btn-red",
+                    draggable: true,
+                    dragWindowGap: 0,
+                    action: function () {
+                        window.location = "/banner/slider/delete/" + promoId;
+                    },
+                },
+                batal: function () { },
+            },
+        });
+    });
 });

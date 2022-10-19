@@ -42,11 +42,17 @@
                             Kembali</a>
                     </div>
                     <div class="card-body">
-                        <form id="add-banner-slider" action="{{ url('/banner/slider/update/'.$targets->PromoID) }}"
+                        <form id="edit-banner-slider" action="{{ url('/banner/slider/update/'.$targets->PromoID) }}"
                             method="POST" enctype="multipart/form-data">
                             @method('PUT')
                             @csrf
                             <div class="row">
+                                <div class="col-md-4 col-12">
+                                    <div class="form-group">
+                                        <label>Promo ID</label>
+                                        <input type="text" class="form-control" readonly value="{{ $targets->PromoID }}">
+                                    </div>
+                                </div>
                                 <div class="col-md-4 col-12">
                                     <div class="form-group">
                                         <label for="title">Judul</label>
@@ -56,6 +62,64 @@
                                         @if($errors->has('title'))
                                         <span class="error invalid-feedback">{{ $errors->first('title') }}</span>
                                         @endif
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <div class="form-group">
+                                        <label for="promostatus">Promo Status</label>
+                                        <select name="promo_status" id="promostatus" title="Pilih Promo Status Banner"
+                                            class="form-control selectpicker border 
+                                            @if ($errors->has('PromoStatus')) is-invalid @endif">
+                                            @foreach ($promoStatus as $value)
+                                            <option value="{{$value->PromoStatus}}" 
+                                                {{$value->PromoStatus == $targets->PromoStatus ? 'selected' : ''}}>
+                                                {{ $value->PromoStatus == 1 ? 'AKTIF' : 'TIDAK AKTIF'}}
+                                            </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <div class="form-group">
+                                        <label for="target">Target</label>
+                                        <select name="target" id="target" title="Pilih Target Banner"
+                                            class="form-control selectpicker border">
+                                            @foreach ($promoTarget as $value)
+                                            <option value="{{$value->PromoTarget}}" {{$value->PromoTarget ==
+                                                $targets->PromoTarget ? 'selected' : ''}}>
+                                                {{$value->PromoTarget }}
+                                            </option>
+                                            @endforeach
+                                        </select>
+                                        @if($errors->has('target'))
+                                        <span class="error invalid-feedback">{{ $errors->first('target') }}</span>
+                                        @endif
+                                        <select name="target_id[]" id="target_id" title="Pilih Target ID"
+                                            data-live-search="true" multiple
+                                            class="form-control selectpicker border mt-2 target_id 
+                                                {{ $targets->PromoTarget == "MERCHANT" || $targets->PromoTarget == "CUSTOMER" ? '' : 'd-none' }}">
+                                        @if ($targets->PromoTarget == "MERCHANT")
+                                            @foreach ($listTargetID as $item)
+                                                <option value="{{ $item->MerchantID }}" 
+                                                    @foreach ($targetID as $target)
+                                                        {{ collect($target->TargetID)->contains($item->MerchantID) ? 'selected' : '' }}
+                                                    @endforeach
+                                                    >
+                                                    {{ $item->MerchantID }} - {{ $item->StoreName }}
+                                                </option>
+                                            @endforeach
+                                        @elseif ($targets->PromoTarget == "CUSTOMER")
+                                            @foreach ($listTargetID as $item)
+                                                <option value="{{ $item->CustomerID }}" 
+                                                    @foreach ($targetID as $target)
+                                                        {{ collect($target->TargetID)->contains($item->CustomerID) ? 'selected' : '' }}
+                                                    @endforeach
+                                                    >
+                                                    {{ $item->CustomerID }} - {{ $item->FullName }}
+                                                </option>
+                                            @endforeach
+                                        @endif
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="col-md-4 col-12">
@@ -78,42 +142,6 @@
                                         @if($errors->has('end_date'))
                                         <span class="error invalid-feedback">{{ $errors->first('end_date') }}</span>
                                         @endif
-                                    </div>
-                                </div>
-                                <div class="col-md-4 col-12">
-                                    <div class="form-group">
-                                        <label for="target">Target</label>
-                                        <select name="target" id="target" title="Pilih Target Banner"
-                                            class="form-control selectpicker border">
-                                            @foreach ($promoTarget as $value)
-                                            <option value="{{$value->PromoTarget}}" {{$value->PromoTarget ==
-                                                $targets->PromoTarget ? 'selected' : ''}}>
-                                                {{$value->PromoTarget }}
-                                            </option>
-                                            @endforeach
-                                        </select>
-                                        @if($errors->has('target'))
-                                        <span class="error invalid-feedback">{{ $errors->first('target') }}</span>
-                                        @endif
-                                        <select name="target_id[]" id="target_id" title="Pilih Target ID"
-                                            data-live-search="true" multiple
-                                            class="form-control selectpicker border mt-2 d-none target_id">
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 col-12">
-                                    <div class="form-group">
-                                        <label for="promostatus">Promo Status</label>
-                                        <select name="promo_status" id="promostatus" title="Pilih Promo Status Banner"
-                                            class="form-control selectpicker border 
-                                            @if ($errors->has('PromoStatus')) is-invalid @endif">
-                                            @foreach ($promoStatus as $value)
-                                            <option value="{{$value->PromoStatus}}" {{$value->PromoStatus ==
-                                                $targets->PromoStatus ? 'selected' : ''}}>{{ $value->PromoStatus == 1 ?
-                                                'AKTIF' : 'TIDAK AKTIF'}}
-                                            </option>
-                                            @endforeach
-                                        </select>
                                     </div>
                                 </div>
                                 <div class="col-md-4 col-12">
@@ -156,7 +184,7 @@
                             </div>
 
                             <div class="form-group float-right">
-                                <button type="submit" class="btn btn-success">Ubah</button>
+                                <button type="submit" class="btn btn-warning">Ubah</button>
                             </div>
                         </form>
                     </div>

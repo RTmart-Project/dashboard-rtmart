@@ -385,6 +385,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/data', [MerchantMembershipController::class, 'data'])->name('merchant.membershipData');
             Route::get('/photo/{merchantID}', [MerchantMembershipController::class, 'photo'])->name('merchant.membershipPhoto');
             Route::post('/confirm/{merchantID}/{status}', [MerchantMembershipController::class, 'confirm'])->name('merchant.membershipConfirm');
+            Route::post('/updateCrowdo/{merchantID}', [MerchantMembershipController::class, 'updateCrowdo'])->name('merchant.membershipUpdateCrowdo');
         });
     });
 
@@ -413,6 +414,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::put('/update/{promoId}', [BannerSliderController::class, 'update'])->name('banner.sliderUpdate');
             Route::get('/listTargetID/{target}', [BannerSliderController::class, 'listTargetID'])->name('banner.listTargetID');
             Route::post('/store', [BannerSliderController::class, 'store'])->name('banner.sliderStore');
+            Route::get('/delete/{promoId}', [BannerSliderController::class, 'destroy',])->name('banner.deletePromo');
         });
     });
 
