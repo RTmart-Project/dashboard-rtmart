@@ -58,7 +58,7 @@ class BannerSliderController extends Controller
                 })
                 ->addColumn('Action', function ($data) {
                     $btn = '<a href="/banner/slider/edit/' . $data->PromoID . '" class="btn btn-xs btn-warning">Ubah</a>
-                            <a class="btn btn-xs btn-danger delete-promo" href="#" data-id="' . $data->ID . '">Hapus</a>';
+                            <a href="#" class="btn btn-xs btn-danger delete-promo" data-promoid="' . $data->PromoID . '">Hapus</a>';
                     return $btn;
                 })
                 ->rawColumns(['PromoImage', 'PromoStatus', 'Action'])
@@ -101,7 +101,7 @@ class BannerSliderController extends Controller
         $activityButtonText = $request->input('activity_button_text');
         $targetID = $request->input('target_id');
 
-        $promoImage = $promoID . '.' . $request->file('banner_image')->extension();
+        $promoImage = $promoID . '-' . time() . '.' . $request->file('banner_image')->extension();
         $request->file('banner_image')->move($this->saveImageUrl . 'promo/', $promoImage);
 
         if ($target === "MERCHANT_GLOBAL" || $target === "CUSTOMER_GLOBAL") {
@@ -164,10 +164,10 @@ class BannerSliderController extends Controller
         $promoStatus = DB::table('ms_promo')->select('PromoStatus')->distinct()->get()->toArray();
 
         return view('banner.banner-slider.edit', [
-            'targets' => $sql, 
+            'targets' => $sql,
             'targetID' => $targetID,
             'listTargetID' => $listTargetID,
-            'promoTarget' => $promoTarget, 
+            'promoTarget' => $promoTarget,
             'promoStatus' => $promoStatus
         ]);
     }
@@ -201,7 +201,7 @@ class BannerSliderController extends Controller
         ];
 
         if ($request->hasFile('banner_image')) {
-            $promoImage = $promoId . '.' . $request->file('banner_image')->extension();
+            $promoImage = $promoId . '-' . time() . '.' . $request->file('banner_image')->extension();
             $request->file('banner_image')->move($this->saveImageUrl . 'promo/', $promoImage);
             $res['PromoImage'] = $promoImage;
         } else {
@@ -249,11 +249,11 @@ class BannerSliderController extends Controller
         }
     }
 
-    public function destroy($id)
+    public function destroy($promoId)
     {
         try {
-            DB::transaction(function () use ($id) {
-                DB::table('ms_promo')->where('ID', $id)->delete();
+            DB::transaction(function () use ($promoId) {
+                DB::table('ms_promo')->where('PromoID', $promoId)->delete();
             });
             return redirect()->route('banner.slider')->with('success', 'Data Banner berhasil dihapus');
         } catch (\Throwable $th) {
