@@ -654,7 +654,7 @@
             </li>
             @endif
 
-            {{-- @if (Auth::user()->RoleID == "IT")
+            @if (Auth::user()->RoleID == "IT")
             <li class="nav-item {{ Request::is('banner*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('banner*') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-flag"></i>
@@ -673,7 +673,7 @@
                     </li>
                 </ul>
             </li>
-            @endif --}}
+            @endif
 
             {{-- <li class="nav-item {{ Request::is('rtcourier*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('rtcourier*') ? 'active' : '' }}">

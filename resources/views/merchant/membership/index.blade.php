@@ -80,16 +80,22 @@
                           <th>Merchant ID</th>
                           <th>Nama Toko</th>
                           <th>Nama Pemilik</th>
-                          <th>No HP</th>
-                          <th>Distributor</th>
+                          <th>No. HP</th>
+                          <th>No. KTP</th>
+                          <th>Nama KTP</th>
+                          <th>No. KTP Pasangan</th>
+                          <th>Nama KTP Pasangan</th>
                           <th>Alamat</th>
+                          <th>Distributor</th>
                           <th>Sales</th>
+                          <th>Status Crowdo</th>
                           <th>Status Membership</th>
                           <th>Tanggal Submit</th>
                           <th>Tanggal Konfirmasi</th>
                           <th>Dikonfirmasi Oleh</th>
                           <th>Catatan</th>
                           <th>Photo</th>
+                          <th>Action</th>
                           {{-- <th>Action</th> --}}
                         </tr>
                       </thead>

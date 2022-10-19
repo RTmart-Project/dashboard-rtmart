@@ -48,20 +48,40 @@ $(document).ready(function () {
                     name: "ms_merchant_account.PhoneNumber",
                 },
                 {
-                    data: "DistributorName",
-                    name: "ms_distributor.DistributorName",
+                    data: "NumberIDCard",
+                    name: "ms_merchant_account.NumberIDCard",
+                },
+                {
+                    data: "UsernameIDCard",
+                    name: "ms_merchant_account.UsernameIDCard",
+                },
+                {
+                    data: "NumberIDCardCouple",
+                    name: "ms_merchant_account.NumberIDCardCouple",
+                },
+                {
+                    data: "UsernameIDCardCouple",
+                    name: "ms_merchant_account.UsernameIDCardCouple",
                 },
                 {
                     data: "StoreAddress",
                     name: "ms_merchant_account.StoreAddress",
                 },
                 {
+                    data: "DistributorName",
+                    name: "ms_distributor.DistributorName",
+                },
+                {
                     data: "Sales",
                     name: "Sales",
                 },
                 {
+                    data: "StatusNameCrowdo",
+                    name: "StatusCrowdo.StatusName",
+                },
+                {
                     data: "StatusName",
-                    name: "ms_status_couple_preneur.StatusName",
+                    name: "StatusMembership.StatusName",
                 },
                 {
                     data: "MembershipCoupleSubmitDate",
@@ -85,6 +105,12 @@ $(document).ready(function () {
                     searchable: false,
                     orderable: false,
                 },
+                {
+                    data: "Action",
+                    name: "Action",
+                    searchable: false,
+                    orderable: false,
+                },
             ],
             buttons: [
                 {
@@ -102,8 +128,23 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+                        columns: [
+                            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+                            15, 16,
+                        ],
                         orthogonal: "export",
+                    },
+                },
+            ],
+            aoColumnDefs: [
+                {
+                    aTargets: [4, 6],
+                    mRender: function (data, type, full) {
+                        if (type === "export") {
+                            return "'" + data;
+                        } else {
+                            return data;
+                        }
                     },
                 },
             ],
@@ -306,4 +347,51 @@ $(document).ready(function () {
             },
         });
     });
+
+    $("#merchant-membership-table").on(
+        "click",
+        ".btn-update-crowdo",
+        function (e) {
+            e.preventDefault();
+            const merchantID = $(this).data("merchant-id");
+            const store = $(this).data("store");
+            $.confirm({
+                title: "Update Status Crowdo",
+                content: `<b>${merchantID} - ${store}</b>?
+                  <form action="/merchant/membership/updateCrowdo/${merchantID}" method="post">
+                    <input type="hidden" name="_token" value="${csrf}">
+                    <label for="note" class="m-0">Status :</label>
+                    <select class="form-control" name="status-crowdo" id="status-crowdo">
+                        <option value="" selected hidden disabled>-- Pilih Status --</option>
+                        <option value="5">Submitted</option>
+                        <option value="6">Approved</option>
+                        <option value="7">Rejected</option>
+                    </select>
+                  </form>`,
+                closeIcon: true,
+                typeAnimated: true,
+                buttons: {
+                    update: {
+                        btnClass: "btn-warning",
+                        draggable: true,
+                        dragWindowGap: 0,
+                        action: function () {
+                            let status = this.$content
+                                .find("#status-crowdo")
+                                .val();
+                            if (!status) {
+                                $.alert(
+                                    "Harap Pilih Status Crowdo",
+                                    "Update Status Crowdo"
+                                );
+                                return false;
+                            }
+                            this.$content.find("form").submit();
+                        },
+                    },
+                    batal: function () {},
+                },
+            });
+        }
+    );
 });

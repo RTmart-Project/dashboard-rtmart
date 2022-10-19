@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Yajra\DataTables\Facades\DataTables;
-use Illuminate\Support\Facades\Validator;
 use App\Services\BannerService\BannerSliderService;
 
 class BannerSliderController extends Controller
@@ -58,8 +57,9 @@ class BannerSliderController extends Controller
                     return $status;
                 })
                 ->addColumn('Action', function ($data) {
-                    $btnEdit = '<a href="/banner/slider/edit/' . $data->PromoID . '" class="btn btn-sm btn-warning">Edit</a>';
-                    return $btnEdit;
+                    $btn = '<a href="/banner/slider/edit/' . $data->PromoID . '" class="btn btn-xs btn-warning">Ubah</a>
+                            <a class="btn btn-xs btn-danger delete-promo" href="#" data-id="' . $data->ID . '">Hapus</a>';
+                    return $btn;
                 })
                 ->rawColumns(['PromoImage', 'PromoStatus', 'Action'])
                 ->make();
@@ -230,6 +230,18 @@ class BannerSliderController extends Controller
             return back()->with(['success' => 'Berhasil mengubah data']);
         } catch (Exception $e) {
             return back()->with(['failed', 'Gagal, terjadi kesalahan sistem atau jaringan']);
+        }
+    }
+
+    public function destroy($id)
+    {
+        try {
+            DB::transaction(function () use ($id) {
+                DB::table('ms_promo')->where('ID', $id)->delete();
+            });
+            return back()->with('success', 'Data Store berhasil diubah');
+        } catch (\Throwable $th) {
+            return back()->with('failed', 'Terjadi kesalahan sistem atau jaringan');
         }
     }
 }
