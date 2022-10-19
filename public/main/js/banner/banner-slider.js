@@ -205,7 +205,7 @@ $(document).ready(function () {
 
     $("#banner-slider-table").on("click", ".delete-promo", function (e) {
         e.preventDefault();
-        const id = $(this).data("id");
+        const promoId = $(this).data("promoid");
         $.confirm({
             title: "Hapus Banner!",
             content: "Apakah yakin ingin menghapus banner?",
@@ -216,10 +216,10 @@ $(document).ready(function () {
                     draggable: true,
                     dragWindowGap: 0,
                     action: function () {
-                        window.location = "/banner/slider/delete/" + id;
+                        window.location = "/banner/slider/delete/" + promoId;
                     },
                 },
-                batal: function () {},
+                batal: function () { },
             },
         });
     });
