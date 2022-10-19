@@ -80,7 +80,6 @@ $(document).ready(function () {
                     },
                 },
             ],
-            // order: [0, "desc"],
             lengthChange: false,
             responsive: true,
             autoWidth: false,

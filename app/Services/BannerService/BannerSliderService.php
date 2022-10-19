@@ -9,7 +9,7 @@ class BannerSliderService
   public function dataBannerSlider($startDate, $endDate, $filterStatus, $filterBy)
   {
     $sql = DB::table('ms_promo')
-      ->select('PromoID', 'PromoTitle', 'PromoImage', 'PromoStartDate', 'PromoEndDate', 'PromoStatus', 'PromoTarget', 'PromoExpiryDate', 'ClassActivityPage', 'ActivityButtonText');
+      ->select('ID', 'PromoID', 'PromoTitle', 'PromoImage', 'PromoStartDate', 'PromoEndDate', 'PromoStatus', 'PromoTarget', 'PromoExpiryDate', 'ClassActivityPage', 'ActivityButtonText');
 
     if ($filterBy === "tanggal-mulai") {
       $sql->whereDate('PromoStartDate', '>=', $startDate)->whereDate('PromoStartDate', '<=', $endDate);

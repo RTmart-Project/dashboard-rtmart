@@ -198,4 +198,26 @@ $(document).ready(function () {
             autoWidth: false,
         });
     }
+
+    $("#banner-slider-table").on("click", ".delete-promo", function (e) {
+        e.preventDefault();
+        const id = $(this).data("id");
+        $.confirm({
+            title: "Delete Data!",
+            content: "Are you sure want to <b>delete</b> this data?",
+            closeIcon: true,
+            buttons: {
+                delete: {
+                    btnClass: "btn-red",
+                    draggable: true,
+                    dragWindowGap: 0,
+                    action: function () {
+                        window.location =
+                            "/banner/slider/delete/" + id;
+                    },
+                },
+                cancel: function () { },
+            },
+        });
+    });
 });
