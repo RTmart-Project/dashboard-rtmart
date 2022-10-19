@@ -60,6 +60,18 @@ class MerchantMembershipController extends Controller
                     }
                     return $badge;
                 })
+                ->editColumn('StatusNameCrowdo', function($data) {
+                    if ($data->StatusCrowdo == 5) {
+                        $badge = '<span class="badge badge-warning">' . $data->StatusNameCrowdo . '</span>';
+                    } elseif ($data->StatusCrowdo == 6) {
+                        $badge = '<span class="badge badge-success">' . $data->StatusNameCrowdo . '</span>';
+                    } elseif ($data->StatusCrowdo == 7) {
+                        $badge = '<span class="badge badge-danger">' . $data->StatusNameCrowdo . '</span>';
+                    } else {
+                        $badge = '<span class="badge badge-info">' . $data->StatusNameCrowdo . '</span>';
+                    }
+                    return $badge;
+                })
                 ->editColumn('MembershipCoupleSubmitDate', function ($data) {
                     return date('d-M-Y H:i:s', strtotime($data->MembershipCoupleSubmitDate));
                 })
@@ -77,11 +89,17 @@ class MerchantMembershipController extends Controller
                                 Lihat
                             </button>";
                 })
+                ->addColumn('Action', function ($data) {
+                    return "<button class='btn btn-sm btn-warning btn-update-crowdo' 
+                                data-merchant-id='$data->MerchantID' data-store='$data->StoreName'>
+                                Update Status Crowdo
+                            </button>";
+                })
                 ->filterColumn('Sales', function ($query, $keyword) {
                     $sql = "CONCAT(ms_merchant_account.ReferralCode,' - ', ms_sales.SalesName)  like ?";
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 })
-                ->rawColumns(['StatusName', 'Photo'])
+                ->rawColumns(['StatusNameCrowdo', 'StatusName', 'Photo', 'Action'])
                 ->make();
         }
     }
@@ -137,7 +155,24 @@ class MerchantMembershipController extends Controller
             $this->merchantMembershipService->merchantMembershipConfirm($merchantID, $status, $dataMerchantAccount, $dataMerchantCouplePreneurLog);
             return redirect()->route('merchant.membership')->with('success', 'Data membership merchant berhasil dikonfirmasi');
         } catch (\Throwable $th) {
-            dd($th->getMessage());
+            return redirect()->route('merchant.membership')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
+        }
+    }
+
+    public function updateCrowdo($merchantID, Request $request)
+    {
+        $status = $request->input('status-crowdo');
+        $dataCouplePreneurCrowdoLog = [
+            'MerchantID' => $merchantID,
+            'StatusCrowdo' => $status,
+            'CreatedDate' => date('Y-m-d H:i:s'),
+            'ActionBy' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo
+        ];
+
+        try {
+            $this->merchantMembershipService->updateStatusCrowdo($merchantID, $status, $dataCouplePreneurCrowdoLog);
+            return redirect()->route('merchant.membership')->with('success', 'Status Crowdo Merchant berhasil di-update');
+        } catch (\Throwable $th) {
             return redirect()->route('merchant.membership')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
         }
     }

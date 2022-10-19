@@ -385,6 +385,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/data', [MerchantMembershipController::class, 'data'])->name('merchant.membershipData');
             Route::get('/photo/{merchantID}', [MerchantMembershipController::class, 'photo'])->name('merchant.membershipPhoto');
             Route::post('/confirm/{merchantID}/{status}', [MerchantMembershipController::class, 'confirm'])->name('merchant.membershipConfirm');
+            Route::post('/updateCrowdo/{merchantID}', [MerchantMembershipController::class, 'updateCrowdo'])->name('merchant.membershipUpdateCrowdo');
         });
     });
 

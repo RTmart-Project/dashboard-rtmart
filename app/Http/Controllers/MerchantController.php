@@ -404,6 +404,8 @@ class MerchantController extends Controller
                 DB::table('ms_merchant_partner')->where('MerchantID', $merchantId)->delete();
                 if ($arrayMerchantPartner != null) {
                     DB::table('ms_merchant_partner')->insert($arrayMerchantPartner);
+                } else {
+                    DB::table('ms_merchant_partner')->where('MerchantID', $merchantId)->delete();
                 }
             });
 

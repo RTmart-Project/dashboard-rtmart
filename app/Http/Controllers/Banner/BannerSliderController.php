@@ -57,7 +57,7 @@ class BannerSliderController extends Controller
                     return $status;
                 })
                 ->addColumn('Action', function ($data) {
-                    $btn = '<a href="/banner/slider/edit/' . $data->PromoID . '" class="btn btn-sm btn-warning">Ubah</a>
+                    $btn = '<a href="/banner/slider/edit/' . $data->PromoID . '" class="btn btn-xs btn-warning">Ubah</a>
                             <a class="btn btn-xs btn-danger delete-promo" href="#" data-id="' . $data->ID . '">Hapus</a>';
                     return $btn;
                 })

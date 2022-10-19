@@ -13,7 +13,8 @@ class MerchantMembershipService
     $sqlMembership = DB::table('ms_merchant_account')
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_merchant_account.DistributorID')
       ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
-      ->join('ms_status_couple_preneur', 'ms_status_couple_preneur.StatusCouplePreneurID', 'ms_merchant_account.ValidationStatusMembershipCouple')
+      ->join('ms_status_couple_preneur as StatusMembership', 'StatusMembership.StatusCouplePreneurID', 'ms_merchant_account.ValidationStatusMembershipCouple')
+      ->leftJoin('ms_status_couple_preneur as StatusCrowdo', 'StatusCrowdo.StatusCouplePreneurID', 'ms_merchant_account.StatusCrowdo')
       ->where('ms_merchant_account.IsTesting', 0)
       ->where('ms_merchant_account.ValidationStatusMembershipCouple', '!=', 0)
       ->select(
@@ -30,7 +31,9 @@ class MerchantMembershipService
         'ms_merchant_account.ReferralCode',
         'ms_sales.SalesName',
         'ms_merchant_account.ValidationStatusMembershipCouple',
-        'ms_status_couple_preneur.StatusName',
+        'StatusMembership.StatusName',
+        'ms_merchant_account.StatusCrowdo',
+        'StatusCrowdo.StatusName AS StatusNameCrowdo',
         'ms_merchant_account.MembershipCoupleSubmitDate',
         'ms_merchant_account.MembershipCoupleConfirmDate',
         'ms_merchant_account.MembershipCoupleConfirmBy',
@@ -58,6 +61,16 @@ class MerchantMembershipService
       if ($status === "approve") {
         DB::table('ms_merchant_partner')->updateOrInsert(['MerchantID' => $merchantID], ['PartnerID' => 1]);
       }
+    });
+
+    return $sql;
+  }
+
+  public function updateStatusCrowdo($merchantID, $status, $dataCouplePreneurCrowdoLog)
+  {
+    $sql = DB::transaction(function () use ($merchantID, $status, $dataCouplePreneurCrowdoLog) {
+        DB::table('ms_merchant_account')->where('MerchantID', $merchantID)->update(['StatusCrowdo' => $status]);
+        DB::table('ms_merchant_couple_preneur_crowdo_log')->insert($dataCouplePreneurCrowdoLog);
     });
 
     return $sql;

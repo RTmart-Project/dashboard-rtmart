@@ -216,11 +216,10 @@ $(document).ready(function () {
                     draggable: true,
                     dragWindowGap: 0,
                     action: function () {
-                        window.location =
-                            "/banner/slider/delete/" + id;
+                        window.location = "/banner/slider/delete/" + id;
                     },
                 },
-                cancel: function () { },
+                cancel: function () {},
             },
         });
     });
