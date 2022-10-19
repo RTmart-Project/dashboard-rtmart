@@ -1,5 +1,6 @@
 $(document).ready(function () {
     const csrf = $('meta[name="csrf_token"]').attr("content");
+    const roleID = $('meta[name="role-id"]').attr("content");
 
     merchantMembership();
 
@@ -146,6 +147,10 @@ $(document).ready(function () {
                             return data;
                         }
                     },
+                },
+                {
+                    aTargets: [18],
+                    visible: roleID == "IT" ? true : false,
                 },
             ],
             lengthChange: false,
