@@ -157,6 +157,10 @@ $(document).ready(function () {
                     name: "PromoTarget",
                 },
                 {
+                    data: "TargetID",
+                    name: "TargetID",
+                },
+                {
                     data: "ClassActivityPage",
                     name: "ClassActivityPage",
                 },

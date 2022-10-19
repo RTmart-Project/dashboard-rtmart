@@ -94,6 +94,7 @@
                           <th>Tgl Berakhir</th>
                           <th>Status</th>
                           <th>Target</th>
+                          <th>Target ID</th>
                           <th>Activity Page</th>
                           <th>Activity Button Text</th>
                           <th>Action</th>
