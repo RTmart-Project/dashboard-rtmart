@@ -207,11 +207,11 @@ $(document).ready(function () {
         e.preventDefault();
         const id = $(this).data("id");
         $.confirm({
-            title: "Delete Data!",
-            content: "Are you sure want to <b>delete</b> this data?",
+            title: "Hapus Banner!",
+            content: "Apakah yakin ingin menghapus banner?",
             closeIcon: true,
             buttons: {
-                delete: {
+                hapus: {
                     btnClass: "btn-red",
                     draggable: true,
                     dragWindowGap: 0,
@@ -219,7 +219,7 @@ $(document).ready(function () {
                         window.location = "/banner/slider/delete/" + id;
                     },
                 },
-                cancel: function () {},
+                batal: function () {},
             },
         });
     });
