@@ -94,7 +94,7 @@
             @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "RBTAD") ||
             (Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO") || (Auth::user()->RoleID == "FI") ||
             (Auth::user()->RoleID == "AH") ||
-            (Auth::user()->RoleID == "DMO") || Auth::user()->RoleID == "HL")
+            (Auth::user()->RoleID == "DMO") || Auth::user()->RoleID == "HL" || Auth::user()->RoleID == "DRV" )
             <li class="nav-item {{ Request::is('distribution*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('distribution*') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-boxes"></i>
@@ -127,7 +127,8 @@
                     </li>
                     @endif
                     @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" ||
-                    Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "AD" || Auth::user()->RoleID == "HL")
+                    Auth::user()->RoleID == "CEO" || Auth::user()->RoleID == "AD" || Auth::user()->RoleID == "HL" ||
+                    Auth::user()->RoleID == "DRV")
                     <li class="nav-item">
                         <a href="{{ route('distribution.billPayLater') }}"
                             class="nav-link {{ Request::is('distribution/bill*') ? 'active' : '' }}">
@@ -178,7 +179,7 @@
 
             @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "RBTAD") ||
             (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" || (Auth::user()->RoleID == "FI") ||
-            (Auth::user()->RoleID == "AH") || Auth::user()->RoleID == "HL")
+            (Auth::user()->RoleID == "AH") || Auth::user()->RoleID == "HL" || Auth::user()->RoleID == "DRV")
             <li class="nav-item {{ Request::is('delivery*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('delivery*') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-truck"></i>
@@ -188,6 +189,11 @@
                     </p>
                 </a>
                 <ul class="nav nav-treeview">
+                    @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID ==
+                    "RBTAD")
+                    ||
+                    (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" || (Auth::user()->RoleID == "FI") ||
+                    (Auth::user()->RoleID == "AH") || Auth::user()->RoleID == "HL")
                     <li class="nav-item">
                         <a href="{{ route('delivery.request') }}"
                             class="nav-link {{ Request::is('delivery/request*') ? 'active' : '' }}">
@@ -195,6 +201,8 @@
                             <p>Delivery Plan</p>
                         </a>
                     </li>
+                    @endif
+                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "DRV")
                     <li class="nav-item">
                         <a href="{{ route('delivery.expedition') }}"
                             class="nav-link {{ Request::is('delivery/on-going*') ? 'active' : '' }}">
@@ -209,6 +217,7 @@
                             <p>Delivery History</p>
                         </a>
                     </li>
+                    @endif
                 </ul>
             </li>
             @endif
