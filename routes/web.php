@@ -133,7 +133,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/sumStockProduct/{productID}/{distributorID}/{investorID}/{label}', [DeliveryController::class, 'sumStockProduct'])->name('delivery.sumStockProduct');
         });
 
-        Route::group(['prefix' => 'on-going', 'middleware' => ['checkRoleUser:IT,DRV']], function () {
+        Route::group(['prefix' => 'on-going'], function () {
             Route::get('/', [DeliveryController::class, 'expedition'])->name('delivery.expedition');
             Route::get('/get/{status}', [DeliveryController::class, 'getExpedition'])->name('delivery.getExpedition');
             Route::get('/all-product/get/{status}', [DeliveryController::class, 'getExpeditionAllProduct'])->name('delivery.getExpeditionAllProduct');
@@ -144,7 +144,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/requestCancelHaistar/{deliveryOrderID}/{expeditionID}', [DeliveryController::class, 'requestCancelHaistar'])->name('delivery.requestCancelHaistar');
         });
 
-        Route::group(['prefix' => 'history', 'middleware' => ['checkRoleUser:IT,DRV']], function () {
+        Route::group(['prefix' => 'history'], function () {
             Route::get('/', [DeliveryController::class, 'history'])->name('delivery.history');
             Route::get('/detail/{expeditionID}', [DeliveryController::class, 'detailHistory'])->name('delivery.detailHistory');
         });
