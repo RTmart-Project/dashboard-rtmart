@@ -558,52 +558,54 @@ class SummaryService
     $sql = $this->queryPO($type, $startDate, $endDate, $distributorID, $salesCode, $typePO)
       ->join('tx_merchant_order_detail as tmod', 'tmo.StockOrderID', 'tmod.StockOrderID')
       ->join('ms_product', 'ms_product.ProductID', 'tmod.ProductID')
-      ->select(
-        'tmo.StockOrderID',
-        'tmo.CreatedDate',
-        'tmo.MerchantID',
-        'mma.StoreName',
-        'mma.OwnerFullName',
-        'mma.PhoneNumber',
-        'mma.StoreAddress',
-        'mma.Partner',
-        'ms_distributor.DistributorName',
-        'ms_payment_method.PaymentMethodName',
-        'tmo.StatusOrderID',
-        'ms_status_order.StatusOrder',
-        'tmo.TotalPrice',
-        'tmo.NettPrice',
-        'tmo.DiscountPrice',
-        'tmo.DiscountVoucher',
-        'tmo.ServiceChargeNett',
-        'tmo.DeliveryFee',
-        DB::raw("(tmo.NettPrice + tmo.ServiceChargeNett + tmo.DeliveryFee) as GrandTotal"),
-        DB::raw("CONCAT(tmo.SalesCode, ' - ', ms_sales.SalesName) as Sales"),
-        'tmod.ProductID',
-        'ms_product.ProductName',
-        'tmod.PromisedQuantity',
-        'tmod.Nett',
-        DB::raw("(tmod.PromisedQuantity * tmod.Nett) as SubTotalProduct"),
-        DB::raw("(
+      ->leftJoin('ms_merchant_partner', 'ms_merchant_partner.MerchantID', 'tmo.MerchantID')
+      ->leftJoin('ms_partner', 'ms_partner.PartnerID', 'ms_merchant_partner.PartnerID')
+      ->selectRaw("
+        tmo.StockOrderID,
+        ANY_VALUE(tmo.CreatedDate) AS CreatedDate,
+        ANY_VALUE(tmo.MerchantID) AS MerchantID,
+        ANY_VALUE(mma.StoreName) AS StoreName,
+        ANY_VALUE(mma.OwnerFullName) AS OwnerFullName,
+        ANY_VALUE(mma.PhoneNumber) AS PhoneNumber,
+        ANY_VALUE(mma.StoreAddress) AS StoreAddress,
+        -- ANY_VALUE(mma.Partner) AS Partner,
+        GROUP_CONCAT(ms_partner.Name SEPARATOR ', ') AS Partners,
+        ANY_VALUE(ms_distributor.DistributorName) AS DistributorName,
+        ANY_VALUE(ms_payment_method.PaymentMethodName) AS PaymentMethodName,
+        ANY_VALUE(tmo.StatusOrderID) AS StatusOrderID,
+        ANY_VALUE(ms_status_order.StatusOrder) AS StatusOrder,
+        ANY_VALUE(tmo.TotalPrice) AS TotalPrice,
+        ANY_VALUE(tmo.NettPrice) AS NettPrice,
+        ANY_VALUE(tmo.DiscountPrice) AS DiscountPrice,
+        ANY_VALUE(tmo.DiscountVoucher) AS DiscountVoucher,
+        ANY_VALUE(tmo.ServiceChargeNett) AS ServiceChargeNett,
+        ANY_VALUE(tmo.DeliveryFee) AS DeliveryFee,
+        (ANY_VALUE(tmo.NettPrice) + ANY_VALUE(tmo.ServiceChargeNett) + ANY_VALUE(tmo.DeliveryFee)) as GrandTotal,
+        CONCAT(ANY_VALUE(tmo.SalesCode), ' - ', ANY_VALUE(ms_sales.SalesName)) as Sales,
+        ANY_VALUE(tmod.ProductID) AS ProductID,
+        ANY_VALUE(ms_product.ProductName) AS ProductName,
+        ANY_VALUE(tmod.PromisedQuantity) AS PromisedQuantity,
+        ANY_VALUE(tmod.Nett) AS Nett,
+        (ANY_VALUE(tmod.PromisedQuantity) * ANY_VALUE(tmod.Nett)) as SubTotalProduct,
+        (
             SELECT PurchasePrice
             FROM ms_stock_product
-            WHERE DistributorID = tmo.DistributorID
-              AND ProductID = tmod.ProductID
+            WHERE DistributorID = ANY_VALUE(tmo.DistributorID)
+              AND ProductID = ANY_VALUE(tmod.ProductID)
               AND Qty > 0
               AND ConditionStock = 'GOOD STOCK'
               AND DATE(CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
             ORDER BY LevelType, CreatedDate
             LIMIT 1
-        ) AS PurchasePrice"),
-        DB::raw("
+        ) AS PurchasePrice,
         (
             SELECT Price
             FROM ms_product
-            WHERE ProductID = tmod.ProductID
+            WHERE ProductID = ANY_VALUE(tmod.ProductID)
             LIMIT 1
         ) AS PurchasePriceProduct
-        ")
-      );
+      ")
+      ->groupBy('tmo.StockOrderID', 'tmod.ProductID');
 
     return $sql;
   }
@@ -676,6 +678,8 @@ class SummaryService
         $join->whereIn('tmed.StatusExpeditionDetail', ['S030', 'S031']);
       })
       ->leftJoin('ms_user', 'ms_user.UserID', 'tmdo.DriverID')
+      ->leftJoin('ms_merchant_partner', 'ms_merchant_partner.MerchantID', 'tmo.MerchantID')
+      ->leftJoin('ms_partner', 'ms_partner.PartnerID', 'ms_merchant_partner.PartnerID')
       ->selectRaw("
         tmdo.DeliveryOrderID,
         tmdo.StatusDO,
@@ -693,7 +697,8 @@ class SummaryService
         ANY_VALUE(mma.OwnerFullName) AS OwnerFullName,
         ANY_VALUE(mma.PhoneNumber) AS PhoneNumber,
         ANY_VALUE(mma.StoreAddress) AS StoreAddress,
-        ANY_VALUE(mma.Partner) AS Partner,
+        -- ANY_VALUE(mma.Partner) AS Partner,
+        GROUP_CONCAT(ms_partner.Name SEPARATOR ', ') AS Partners,
         ANY_VALUE(ms_distributor.DistributorName) AS DistributorName,
         ANY_VALUE(ms_payment_method.PaymentMethodName) AS PaymentMethodName,
         ANY_VALUE(tmdod.DeliveryOrderDetailID) AS DeliveryOrderDetailID,

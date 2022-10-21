@@ -18,7 +18,10 @@ class MerchantMembershipController extends Controller
     }
     public function index()
     {
-        $statusMembership = DB::table('ms_status_couple_preneur')->where('StatusCouplePreneurID', '!=', 0)->get();
+        $statusMembership = DB::table('ms_status_couple_preneur')
+            ->where('StatusCouplePreneurID', '!=', 0)
+            ->where('StatusNote', 'MEMBERSHIP')
+            ->get();
 
         return view('merchant.membership.index', [
             'statusMembership' => $statusMembership
