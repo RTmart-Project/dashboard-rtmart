@@ -22,9 +22,43 @@ class MerchantService
                 $join->on('ms_merchant_assessment.MerchantID', 'tx_merchant_order.MerchantID');
                 $join->whereRaw("ms_merchant_assessment.IsActive = 1");
             })
-            ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'tx_merchant_order.SalesCode')
+            ->leftJoin('ms_merchant_partner', 'ms_merchant_partner.MerchantID', 'tx_merchant_order.MerchantID')
+            ->leftJoin('ms_partner', 'ms_partner.PartnerID', 'ms_merchant_partner.PartnerID')
+            ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tx_merchant_order.SalesCode')
             ->whereRaw('ms_merchant_account.IsTesting = 0')
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.MerchantID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'tx_merchant_order.NettPrice', 'tx_merchant_order.StatusOrderID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.SalesCode as ReferralCode', 'ms_sales.SalesName', 'ms_payment_method.PaymentMethodName', 'ms_distributor_grade.Grade', 'tx_merchant_order.DistributorID', 'tx_merchant_order.PaymentMethodID', 'ms_distributor.Depo', 'ms_merchant_account.OwnerFullName', 'ms_merchant_assessment.NumberIDCard', 'ms_merchant_assessment.IsDownload', 'ms_merchant_assessment.TurnoverAverage', 'tx_merchant_order.IsValid', 'tx_merchant_order.ValidationNotes')
+            ->selectRaw("
+                tx_merchant_order.StockOrderID,
+                ANY_VALUE(tx_merchant_order.CreatedDate) AS CreatedDate,
+                ANY_VALUE(tx_merchant_order.MerchantID) AS MerchantID,
+                ANY_VALUE(tx_merchant_order.TotalPrice) AS TotalPrice,
+                ANY_VALUE(tx_merchant_order.DiscountPrice) AS DiscountPrice,
+                ANY_VALUE(tx_merchant_order.DiscountVoucher) AS DiscountVoucher,
+                ANY_VALUE(tx_merchant_order.ServiceChargeNett) AS ServiceChargeNett,
+                ANY_VALUE(tx_merchant_order.DeliveryFee) AS DeliveryFee,
+                ANY_VALUE(tx_merchant_order.NettPrice) AS NettPrice,
+                ANY_VALUE(tx_merchant_order.StatusOrderID) AS StatusOrderID,
+                ANY_VALUE(ms_merchant_account.StoreName) AS StoreName,
+                -- ANY_VALUE(ms_merchant_account.Partner) AS Partner,
+                GROUP_CONCAT(ms_partner.Name SEPARATOR ', ') AS Partners,
+                ANY_VALUE(ms_merchant_account.PhoneNumber) AS PhoneNumber,
+                ANY_VALUE(ms_distributor.DistributorName) AS DistributorName,
+                ANY_VALUE(ms_status_order.StatusOrder) AS StatusOrder,
+                ANY_VALUE(ms_merchant_account.StoreAddress) AS StoreAddress,
+                ANY_VALUE(tx_merchant_order.SalesCode) AS ReferralCode,
+                ANY_VALUE(ms_sales.SalesName) AS SalesName,
+                ANY_VALUE(ms_payment_method.PaymentMethodName) AS PaymentMethodName,
+                ANY_VALUE(ms_distributor_grade.Grade) AS Grade,
+                ANY_VALUE(tx_merchant_order.DistributorID) AS DistributorID,
+                ANY_VALUE(tx_merchant_order.PaymentMethodID) AS PaymentMethodID,
+                ANY_VALUE(ms_distributor.Depo) AS Depo,
+                ANY_VALUE(ms_merchant_account.OwnerFullName) AS OwnerFullName,
+                ANY_VALUE(ms_merchant_assessment.NumberIDCard) AS NumberIDCard,
+                ANY_VALUE(ms_merchant_assessment.IsDownload) AS IsDownload,
+                ANY_VALUE(ms_merchant_assessment.TurnoverAverage) AS TurnoverAverage,
+                ANY_VALUE(tx_merchant_order.IsValid) AS IsValid,
+                ANY_VALUE(tx_merchant_order.ValidationNotes) AS ValidationNotes
+            ")
+            ->groupBy('tx_merchant_order.StockOrderID')
             ->toSql();
 
         $sql = DB::table(DB::raw("($sqlMain) AS Restock"))
@@ -100,11 +134,11 @@ class MerchantService
     public function merchantRestockAllProduct()
     {
         $sql = DB::table('tx_merchant_order')
-            ->leftJoin('tx_merchant_order_detail', 'tx_merchant_order_detail.StockOrderID', '=', 'tx_merchant_order.StockOrderID')
+            ->join('tx_merchant_order_detail', 'tx_merchant_order_detail.StockOrderID', '=', 'tx_merchant_order.StockOrderID')
             ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'tx_merchant_order.MerchantID')
             ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', 'ms_distributor_merchant_grade.GradeID')
-            ->leftJoin('ms_product', 'ms_product.ProductID', '=', 'tx_merchant_order_detail.ProductID')
-            ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
+            ->join('ms_product', 'ms_product.ProductID', '=', 'tx_merchant_order_detail.ProductID')
+            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tx_merchant_order.DistributorID')
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_order.StatusOrderID')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
@@ -113,8 +147,49 @@ class MerchantService
                 $join->on('ms_merchant_assessment.MerchantID', 'tx_merchant_order.MerchantID');
                 $join->whereRaw("ms_merchant_assessment.IsActive = 1");
             })
+            ->leftJoin('ms_merchant_partner', 'ms_merchant_partner.MerchantID', 'tx_merchant_order.MerchantID')
+            ->leftJoin('ms_partner', 'ms_partner.PartnerID', 'ms_merchant_partner.PartnerID')
             ->whereRaw('ms_merchant_account.IsTesting = 0')
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.DistributorID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.MerchantID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.NettPrice', 'tx_merchant_order.DeliveryFee', 'tx_merchant_order.StatusOrderID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.PhoneNumber', 'ms_distributor.DistributorName', 'ms_status_order.StatusOrder', 'tx_merchant_order.SalesCode as ReferralCode', 'ms_sales.SalesName', 'tx_merchant_order.PaymentMethodID', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order_detail.ProductID', 'ms_product.ProductName', 'tx_merchant_order_detail.PromisedQuantity', 'tx_merchant_order_detail.Price', 'ms_merchant_account.StoreAddress', 'tx_merchant_order_detail.Discount', 'tx_merchant_order_detail.Nett', 'ms_distributor.Depo', 'ms_distributor_grade.Grade', 'ms_merchant_assessment.NumberIDCard', 'ms_merchant_assessment.TurnoverAverage', 'ms_merchant_account.OwnerFullName', 'ms_merchant_assessment.IsDownload', 'tx_merchant_order.IsValid', 'tx_merchant_order.ValidationNotes', 'ms_product.Price as MsProductPrice');
+            ->selectRaw("
+                ANY_VALUE(tx_merchant_order.StockOrderID) AS StockOrderID,
+                ANY_VALUE(tx_merchant_order.DistributorID) AS DistributorID,
+                ANY_VALUE(tx_merchant_order.CreatedDate) AS CreatedDate,
+                ANY_VALUE(tx_merchant_order.MerchantID) AS MerchantID,
+                ANY_VALUE(tx_merchant_order.TotalPrice) AS TotalPrice,
+                ANY_VALUE(tx_merchant_order.DiscountPrice) AS DiscountPrice,
+                ANY_VALUE(tx_merchant_order.DiscountVoucher) AS DiscountVoucher,
+                ANY_VALUE(tx_merchant_order.ServiceChargeNett) AS ServiceChargeNett,
+                ANY_VALUE(tx_merchant_order.NettPrice) AS NettPrice,
+                ANY_VALUE(tx_merchant_order.DeliveryFee) AS DeliveryFee,
+                ANY_VALUE(tx_merchant_order.StatusOrderID) AS StatusOrderID,
+                ANY_VALUE(ms_merchant_account.StoreName) AS StoreName,
+                -- ANY_VALUE(ms_merchant_account.Partner) AS Partner,
+                GROUP_CONCAT(ms_partner.Name SEPARATOR ', ') AS Partners,
+                ANY_VALUE(ms_merchant_account.PhoneNumber) AS PhoneNumber,
+                ANY_VALUE(ms_distributor.DistributorName) AS DistributorName,
+                ANY_VALUE(ms_status_order.StatusOrder) AS StatusOrder,
+                ANY_VALUE(tx_merchant_order.SalesCode) AS ReferralCode,
+                ANY_VALUE(ms_sales.SalesName) AS SalesName,
+                ANY_VALUE(tx_merchant_order.PaymentMethodID) AS PaymentMethodID,
+                ANY_VALUE(ms_payment_method.PaymentMethodName) AS PaymentMethodName,
+                ANY_VALUE(tx_merchant_order_detail.ProductID) AS ProductID,
+                ANY_VALUE(ms_product.ProductName) AS ProductName,
+                ANY_VALUE(tx_merchant_order_detail.PromisedQuantity) AS PromisedQuantity,
+                ANY_VALUE(tx_merchant_order_detail.Price) AS Price,
+                ANY_VALUE(ms_merchant_account.StoreAddress) AS StoreAddress,
+                ANY_VALUE(tx_merchant_order_detail.Discount) AS Discount,
+                ANY_VALUE(tx_merchant_order_detail.Nett) AS Nett,
+                ANY_VALUE(ms_distributor.Depo) AS Depo,
+                ANY_VALUE(ms_distributor_grade.Grade) AS Grade,
+                ANY_VALUE(ms_merchant_assessment.NumberIDCard) AS NumberIDCard,
+                ANY_VALUE(ms_merchant_assessment.TurnoverAverage) AS TurnoverAverage,
+                ANY_VALUE(ms_merchant_account.OwnerFullName) AS OwnerFullName,
+                ANY_VALUE(ms_merchant_assessment.IsDownload) AS IsDownload,
+                ANY_VALUE(tx_merchant_order.IsValid) AS IsValid,
+                ANY_VALUE(tx_merchant_order.ValidationNotes) AS ValidationNotes,
+                ANY_VALUE(ms_product.Price) AS MsProductPrice
+            ")
+            ->groupBy('tx_merchant_order.StockOrderID', 'tx_merchant_order_detail.ProductID');
 
         return $sql;
     }

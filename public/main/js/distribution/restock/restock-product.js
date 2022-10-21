@@ -61,8 +61,8 @@ $(document).ready(function () {
                     name: "RestockProduct.PhoneNumber",
                 },
                 {
-                    data: "Partner",
-                    name: "RestockProduct.Partner",
+                    data: "Partners",
+                    name: "Partners",
                 },
                 {
                     data: "PaymentMethodName",

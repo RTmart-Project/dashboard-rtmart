@@ -79,8 +79,8 @@ $(document).ready(function () {
                     name: "RestockProduct.Grade",
                 },
                 {
-                    data: "Partner",
-                    name: "RestockProduct.Partner",
+                    data: "Partners",
+                    name: "Partners",
                 },
                 {
                     data: "PhoneNumber",

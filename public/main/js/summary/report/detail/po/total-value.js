@@ -48,8 +48,8 @@ $(document).ready(function () {
                     name: "mma.StoreAddress",
                 },
                 {
-                    data: "Partner",
-                    name: "mma.Partner",
+                    data: "Partners",
+                    name: "Partners",
                 },
                 {
                     data: "DistributorName",

@@ -301,7 +301,7 @@ class SummaryController extends Controller
 
         if ($type == "totalValuePO" || $type == "totalValuePOallStatus" || $type == "totalValuePOcancelled") {
             return view('summary.report.detail.po.total-value', [
-                'data' => (clone $dataTotalValuePO)->distinct('tmo.StockOrderID')->select('tmo.StockOrderID', 'tmo.TotalPrice')->get()->toArray(),
+                'data' => (clone $dataTotalValuePO)->distinct('tmo.StockOrderID')->selectRaw("tmo.StockOrderID, ANY_VALUE(tmo.TotalPrice) AS TotalPrice")->get()->toArray(),
                 'dataFilter' => $dataFilter,
                 'type' => $type
             ]);

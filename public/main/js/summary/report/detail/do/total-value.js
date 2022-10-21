@@ -76,8 +76,8 @@ $(document).ready(function () {
                     name: "mma.StoreAddress",
                 },
                 {
-                    data: "Partner",
-                    name: "mma.Partner",
+                    data: "Partners",
+                    name: "ms_partner.Name",
                 },
                 {
                     data: "DistributorName",
