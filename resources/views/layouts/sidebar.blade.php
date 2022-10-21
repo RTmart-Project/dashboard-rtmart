@@ -189,9 +189,7 @@
                     </p>
                 </a>
                 <ul class="nav nav-treeview">
-                    @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID ==
-                    "RBTAD")
-                    ||
+                    @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "RBTAD") || 
                     (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" || (Auth::user()->RoleID == "FI") ||
                     (Auth::user()->RoleID == "AH") || Auth::user()->RoleID == "HL")
                     <li class="nav-item">
@@ -202,7 +200,9 @@
                         </a>
                     </li>
                     @endif
-                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "DRV")
+                    @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "RBTAD") || 
+                    (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" || (Auth::user()->RoleID == "FI") ||
+                    (Auth::user()->RoleID == "AH") || Auth::user()->RoleID == "HL")
                     <li class="nav-item">
                         <a href="{{ route('delivery.expedition') }}"
                             class="nav-link {{ Request::is('delivery/on-going*') ? 'active' : '' }}">
