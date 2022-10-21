@@ -1425,14 +1425,14 @@ class MerchantController extends Controller
                     }
                     return $grade;
                 })
-                ->editColumn('Partner', function ($data) {
-                    if ($data->Partner != null) {
-                        $partner = '<a class="badge badge-info">' . $data->Partner . '</a>';
-                    } else {
-                        $partner = '';
-                    }
-                    return $partner;
-                })
+                // ->editColumn('Partner', function ($data) {
+                //     if ($data->Partner != null) {
+                //         $partner = '<a class="badge badge-info">' . $data->Partner . '</a>';
+                //     } else {
+                //         $partner = '';
+                //     }
+                //     return $partner;
+                // })
                 ->addColumn('Invoice', function ($data) {
                     if ($data->StatusOrderID == "S009") {
                         $invoice = "";
@@ -1489,7 +1489,7 @@ class MerchantController extends Controller
                 ->filterColumn('tx_merchant_order.CreatedDate', function ($query, $keyword) {
                     $query->whereRaw("DATE_FORMAT(tx_merchant_order.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
                 })
-                ->rawColumns(['Partner', 'Action', 'Invoice', 'StatusOrder', 'IsValid'])
+                ->rawColumns(['Action', 'Invoice', 'StatusOrder', 'IsValid'])
                 ->make(true);
         }
     }
@@ -1591,14 +1591,14 @@ class MerchantController extends Controller
                     }
                     return $grade;
                 })
-                ->editColumn('Partner', function ($data) {
-                    if ($data->Partner != null) {
-                        $partner = '<a class="badge badge-info">' . $data->Partner . '</a>';
-                    } else {
-                        $partner = '';
-                    }
-                    return $partner;
-                })
+                // ->editColumn('Partner', function ($data) {
+                //     if ($data->Partner != null) {
+                //         $partner = '<a class="badge badge-info">' . $data->Partner . '</a>';
+                //     } else {
+                //         $partner = '';
+                //     }
+                //     return $partner;
+                // })
                 ->editColumn('Ket', function ($data) {
                     if ($data->NumberIDCard != null) {
                         if ($data->IsDownload == 1) {
@@ -1805,7 +1805,7 @@ class MerchantController extends Controller
                 ->editColumn('Price', function ($data) {
                     return "$data->Price";
                 })
-                ->rawColumns(['Partner', 'Action', 'StatusOrder', 'IsValid'])
+                ->rawColumns(['Action', 'StatusOrder', 'IsValid'])
                 ->make(true);
         }
     }

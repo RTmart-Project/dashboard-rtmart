@@ -79,8 +79,8 @@ $(document).ready(function () {
                     name: "Restock.Grade",
                 },
                 {
-                    data: "Partner",
-                    name: "Restock.Partner",
+                    data: "Partners",
+                    name: "Partners",
                 },
                 {
                     data: "PhoneNumber",
@@ -378,7 +378,7 @@ $(document).ready(function () {
             }
             $("#merchant-restock .filter-payment select").append(option);
             $("#product-restock .filter-payment select").append(option);
-            customDropdownFilter.createCustomDropdowns();
+            // customDropdownFilter.createCustomDropdowns();
         },
     });
 
