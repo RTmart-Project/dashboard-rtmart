@@ -202,7 +202,7 @@
                     @endif
                     @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "RBTAD") || 
                     (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" || (Auth::user()->RoleID == "FI") ||
-                    (Auth::user()->RoleID == "AH") || Auth::user()->RoleID == "HL")
+                    (Auth::user()->RoleID == "AH") || Auth::user()->RoleID == "HL" || Auth::user()->RoleID == "DRV")
                     <li class="nav-item">
                         <a href="{{ route('delivery.expedition') }}"
                             class="nav-link {{ Request::is('delivery/on-going*') ? 'active' : '' }}">
