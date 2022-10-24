@@ -53,7 +53,13 @@
                       <span class="info-box-text h6 mb-2">Total PO (Dibatalkan)</span>
                     @endif
                     <span class="info-box-number h6 m-0">
-                      {{ Helper::formatCurrency(array_sum(array_column($data, 'TotalPrice')), 'Rp ') }}
+                      @if ($type == "totalValuePO")
+                        {{ Helper::formatCurrency($data->TotalValuePO, "Rp ") }}
+                      @elseif ($type == "totalValuePOallStatus")
+                        {{ Helper::formatCurrency($data->TotalValuePOallStatus, "Rp ") }}
+                      @elseif ($type == "totalValuePOcancelled")
+                        {{ Helper::formatCurrency($data->TotalValuePOcancelled, "Rp ") }}
+                      @endif
                     </span>
                   </div>
                 </div>
