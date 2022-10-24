@@ -110,6 +110,9 @@ class SummaryController extends Controller
         $salesCode = $request->input('salesCode');
         $typePO = $request->input('typePO');
 
+        $filterPO = explode(",", $typePO);
+        $data = $summaryService->summaryReport($startDate, $endDate, $distributorID, $salesCode, $filterPO);
+
         $dataTotalValuePO = $summaryService->totalValuePO($type, $startDate, $endDate, $distributorID, $salesCode, $typePO);
         $dataCountPO = $summaryService->countPO($type, $startDate, $endDate, $distributorID, $salesCode, $typePO);
         $dataCountMerchantPO = $summaryService->countMerchantPO($type, $startDate, $endDate, $distributorID, $salesCode, $typePO);
@@ -301,7 +304,7 @@ class SummaryController extends Controller
 
         if ($type == "totalValuePO" || $type == "totalValuePOallStatus" || $type == "totalValuePOcancelled") {
             return view('summary.report.detail.po.total-value', [
-                'data' => (clone $dataTotalValuePO)->distinct('tmo.StockOrderID')->selectRaw("tmo.StockOrderID, ANY_VALUE(tmo.TotalPrice) AS TotalPrice")->get()->toArray(),
+                'data' => $data->PO,
                 'dataFilter' => $dataFilter,
                 'type' => $type
             ]);
@@ -317,7 +320,7 @@ class SummaryController extends Controller
             ]);
         } elseif ($type == "totalValueDO") {
             return view('summary.report.detail.do.total-value', [
-                'data' => (clone $dataTotalValueDO)->groupBy('tmdo.DeliveryOrderID')->get()->toArray(),
+                'data' => $data->DO->TotalValueDO,
                 'dataFilter' => $dataFilter
             ]);
         } elseif ($type == "countDO") {
