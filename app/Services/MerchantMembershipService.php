@@ -15,6 +15,7 @@ class MerchantMembershipService
       ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
       ->join('ms_status_couple_preneur as StatusMembership', 'StatusMembership.StatusCouplePreneurID', 'ms_merchant_account.ValidationStatusMembershipCouple')
       ->leftJoin('ms_status_couple_preneur as StatusCrowdo', 'StatusCrowdo.StatusCouplePreneurID', 'ms_merchant_account.StatusCrowdo')
+      ->leftJoin('ms_area', 'ms_area.AreaID', 'ms_merchant_account.AreaID')
       ->where('ms_merchant_account.IsTesting', 0)
       ->where('ms_merchant_account.ValidationStatusMembershipCouple', '!=', 0)
       ->select(
@@ -28,6 +29,11 @@ class MerchantMembershipService
         'ms_merchant_account.UsernameIDCardCouple',
         'ms_distributor.DistributorName',
         'ms_merchant_account.StoreAddress',
+        'ms_area.AreaName',
+        'ms_area.Subdistrict',
+        'ms_area.City',
+        'ms_area.Province',
+        'ms_area.PostalCode',
         'ms_merchant_account.ReferralCode',
         'ms_sales.SalesName',
         'ms_merchant_account.ValidationStatusMembershipCouple',
@@ -37,7 +43,15 @@ class MerchantMembershipService
         'ms_merchant_account.MembershipCoupleSubmitDate',
         'ms_merchant_account.MembershipCoupleConfirmDate',
         'ms_merchant_account.MembershipCoupleConfirmBy',
-        'ms_merchant_account.ValidationNoteMembershipCouple'
+        'ms_merchant_account.ValidationNoteMembershipCouple',
+        DB::raw("
+          (
+            SELECT COUNT(StockOrderID)
+            FROM tx_merchant_order
+            WHERE MerchantID = ms_merchant_account.MerchantID
+              AND StatusOrderID IN ('S023', 'S012','S018')
+          ) AS CountTrx
+        ")
       );
 
     return $sqlMembership;
@@ -69,8 +83,8 @@ class MerchantMembershipService
   public function updateStatusCrowdo($merchantID, $status, $dataCouplePreneurCrowdoLog)
   {
     $sql = DB::transaction(function () use ($merchantID, $status, $dataCouplePreneurCrowdoLog) {
-        DB::table('ms_merchant_account')->where('MerchantID', $merchantID)->update(['StatusCrowdo' => $status]);
-        DB::table('ms_merchant_couple_preneur_crowdo_log')->insert($dataCouplePreneurCrowdoLog);
+      DB::table('ms_merchant_account')->where('MerchantID', $merchantID)->update(['StatusCrowdo' => $status]);
+      DB::table('ms_merchant_couple_preneur_crowdo_log')->insert($dataCouplePreneurCrowdoLog);
     });
 
     return $sql;
