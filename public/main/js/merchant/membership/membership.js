@@ -65,8 +65,33 @@ $(document).ready(function () {
                     name: "ms_merchant_account.UsernameIDCardCouple",
                 },
                 {
+                    data: "CountTrx",
+                    name: "CountTrx",
+                    searchable: false,
+                },
+                {
                     data: "StoreAddress",
                     name: "ms_merchant_account.StoreAddress",
+                },
+                {
+                    data: "AreaName",
+                    name: "ms_area.AreaName",
+                },
+                {
+                    data: "Subdistrict",
+                    name: "ms_area.Subdistrict",
+                },
+                {
+                    data: "City",
+                    name: "ms_area.City",
+                },
+                {
+                    data: "Province",
+                    name: "ms_area.Province",
+                },
+                {
+                    data: "PostalCode",
+                    name: "ms_area.PostalCode",
                 },
                 {
                     data: "DistributorName",
@@ -131,7 +156,7 @@ $(document).ready(function () {
                         },
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-                            15, 16,
+                            15, 16, 17, 18, 19, 20, 21, 22,
                         ],
                         orthogonal: "export",
                     },
@@ -149,7 +174,7 @@ $(document).ready(function () {
                     },
                 },
                 {
-                    aTargets: [18],
+                    aTargets: [24],
                     visible: roleID == "IT" ? true : false,
                 },
             ],
