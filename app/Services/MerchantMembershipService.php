@@ -51,6 +51,14 @@ class MerchantMembershipService
             WHERE MerchantID = ms_merchant_account.MerchantID
               AND StatusOrderID IN ('S023', 'S012','S018')
           ) AS CountTrx
+        "),
+        DB::raw("
+          (
+            SELECT IFNULL(SUM(NettPrice), 0)
+            FROM tx_merchant_order
+            WHERE MerchantID = ms_merchant_account.MerchantID
+              AND StatusOrderID IN ('S023', 'S012','S018')
+          ) AS SumTrx
         ")
       );
 
