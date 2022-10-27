@@ -69,7 +69,7 @@ class MerchantMembershipService
   {
     $sql = DB::table('ms_merchant_account')
       ->where('MerchantID', $merchantID)
-      ->select('PhotoIDCard', 'NumberIDCard', 'UsernameIDCard', 'AsIDCard', 'PhotoIDCardCouple', 'NumberIDCardCouple', 'UsernameIDCardCouple', 'AsIDCardCouple', 'StorePhotoMembership', 'ValidationStatusMembershipCouple')
+      ->select('PhotoIDCard', 'NumberIDCard', 'UsernameIDCard', 'AsIDCard', 'PhotoIDCardCouple', 'NumberIDCardCouple', 'UsernameIDCardCouple', 'AsIDCardCouple', 'StorePhotoMembership', 'ValidationStatusMembershipCouple', 'ValidationNoteMembershipCouple')
       ->first();
 
     return $sql;
@@ -90,9 +90,40 @@ class MerchantMembershipService
 
   public function updateStatusCrowdo($merchantID, $status, $dataCouplePreneurCrowdoLog)
   {
-    $sql = DB::transaction(function () use ($merchantID, $status, $dataCouplePreneurCrowdoLog) {
-      DB::table('ms_merchant_account')->where('MerchantID', $merchantID)->update(['StatusCrowdo' => $status]);
+    $membership = DB::table('ms_merchant_account')->where('MerchantID', $merchantID)->select('ValidationStatusMembershipCouple')->first();
+    $statusMembership = $membership->ValidationStatusMembershipCouple;
+
+    $data = $this->merchantMembershipPhoto($merchantID);
+
+    if ($status == 6) {
+      $statusMembership = 3;
+    } else if ($status == 7) {
+      $statusMembership = 2;
+    }
+    $sql = DB::transaction(function () use ($merchantID, $status, $dataCouplePreneurCrowdoLog, $statusMembership, $data) {
+      DB::table('ms_merchant_account')->where('MerchantID', $merchantID)->update([
+        'StatusCrowdo' => $status,
+        'ValidationStatusMembershipCouple' => $statusMembership
+      ]);
       DB::table('ms_merchant_couple_preneur_crowdo_log')->insert($dataCouplePreneurCrowdoLog);
+      if ($status == 6 || $status == 7) {
+        DB::table('ms_merchant_couple_preneur_log')->insert([
+          'MerchantID' => $merchantID,
+          'PhotoIDCard' => $data->PhotoIDCard,
+          'NumberIDCard' => $data->NumberIDCard,
+          'UsernameIDCard' => $data->UsernameIDCard,
+          'AsIDCard' => $data->AsIDCard,
+          'PhotoIDCardCouple' => $data->PhotoIDCardCouple,
+          'NumberIDCardCouple' => $data->NumberIDCardCouple,
+          'UsernameIDCardCouple' => $data->UsernameIDCardCouple,
+          'AsIDCardCouple' => $data->AsIDCardCouple,
+          'StorePhotoMembership' => $data->StorePhotoMembership,
+          'StatusMembershipCouple' => $statusMembership,
+          'NoteMembershipCouple' => $data->ValidationNoteMembershipCouple,
+          'CreatedDate' => date('Y-m-d H:i:s'),
+          'ActionBy' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo
+        ]);
+      }
     });
 
     return $sql;
