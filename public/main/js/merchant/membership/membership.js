@@ -199,6 +199,7 @@ $(document).ready(function () {
                     visible: roleID == "IT" ? true : false,
                 },
             ],
+            order: [20, "desc"],
             lengthChange: false,
             responsive: true,
             autoWidth: false,
