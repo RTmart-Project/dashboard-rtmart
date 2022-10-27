@@ -165,6 +165,7 @@ class MerchantMembershipController extends Controller
     public function updateCrowdo($merchantID, Request $request)
     {
         $status = $request->input('status-crowdo');
+
         $dataCouplePreneurCrowdoLog = [
             'MerchantID' => $merchantID,
             'StatusCrowdo' => $status,
