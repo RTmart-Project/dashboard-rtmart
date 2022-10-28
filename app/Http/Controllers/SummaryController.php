@@ -115,13 +115,28 @@ class SummaryController extends Controller
         $typePO = $request->input('typePO');
         $partner = $request->input('partner');
 
-        $filterPO = explode(",", $typePO);
+        if ($typePO != null) {
+            $filterPO = explode(",", $typePO);
+        } else {
+            $filterPO = $typePO;
+        }
+        if ($distributorID != null) {
+            $filterDistributor = explode(",", $distributorID);
+        } else {
+            $filterDistributor = $distributorID;
+        }
+        if ($salesCode != null) {
+
+            $filterSales = explode(",", $salesCode);
+        } else {
+            $filterSales = $salesCode;
+        }
         if ($partner == null) {
             $filterPartner = null;
         } else {
             $filterPartner = explode(",", $partner);
         }
-        $data = $summaryService->summaryReport($startDate, $endDate, $distributorID, $salesCode, $filterPO, $filterPartner);
+        $data = $summaryService->summaryReport($startDate, $endDate, $filterDistributor, $filterSales, $filterPO, $filterPartner);
 
         $dataTotalValuePO = $summaryService->totalValuePO($type, $startDate, $endDate, $distributorID, $salesCode, $typePO, $partner);
         // dd($dataTotalValuePO);

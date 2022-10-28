@@ -63,7 +63,7 @@ class MerchantMembershipController extends Controller
                     }
                     return $badge;
                 })
-                ->editColumn('StatusNameCrowdo', function($data) {
+                ->editColumn('StatusNameCrowdo', function ($data) {
                     if ($data->StatusCrowdo == 5) {
                         $badge = '<span class="badge badge-warning">' . $data->StatusNameCrowdo . '</span>';
                     } elseif ($data->StatusCrowdo == 6) {
@@ -165,6 +165,7 @@ class MerchantMembershipController extends Controller
     public function updateCrowdo($merchantID, Request $request)
     {
         $status = $request->input('status-crowdo');
+
         $dataCouplePreneurCrowdoLog = [
             'MerchantID' => $merchantID,
             'StatusCrowdo' => $status,

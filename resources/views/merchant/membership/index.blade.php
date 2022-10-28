@@ -86,7 +86,14 @@
                           <th>Nama KTP</th>
                           <th>No. KTP Pasangan</th>
                           <th>Nama KTP Pasangan</th>
+                          <th>Total Transaksi</th>
+                          <th>Value Transaksi</th>
                           <th>Alamat</th>
+                          <th>Kelurahan</th>
+                          <th>Kecamatan</th>
+                          <th>Kabupaten / Kota</th>
+                          <th>Provinsi</th>
+                          <th>Kode Pos</th>
                           <th>Distributor</th>
                           <th>Sales</th>
                           <th>Status Crowdo</th>
