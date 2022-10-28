@@ -102,7 +102,6 @@ class SummaryController extends Controller
         $partner = $request->partner;
 
         $data = $summaryService->summaryReport($startDate, $endDate, $distributorID, $salesCode, $typePO, $partner);
-
         return $data;
     }
 
@@ -131,19 +130,18 @@ class SummaryController extends Controller
         } else {
             $filterSales = $salesCode;
         }
-        if ($partner == null) {
-            $filterPartner = null;
-        } else {
+        if ($partner != null) {
             $filterPartner = explode(",", $partner);
+        } else {
+            $filterPartner = $partner;
         }
         $data = $summaryService->summaryReport($startDate, $endDate, $filterDistributor, $filterSales, $filterPO, $filterPartner);
 
         $dataTotalValuePO = $summaryService->totalValuePO($type, $startDate, $endDate, $distributorID, $salesCode, $typePO, $partner);
-        // dd($dataTotalValuePO);
         $dataCountPO = $summaryService->countPO($type, $startDate, $endDate, $distributorID, $salesCode, $typePO);
         $dataCountMerchantPO = $summaryService->countMerchantPO($type, $startDate, $endDate, $distributorID, $salesCode, $typePO);
 
-        $dataTotalValueDO = $summaryService->totalValueDO($startDate, $endDate, $distributorID, $salesCode, $typePO);
+        $dataTotalValueDO = $summaryService->totalValueDO($startDate, $endDate, $distributorID, $salesCode, $typePO, $partner);
         $dataCountDO = $summaryService->countDO($startDate, $endDate, $distributorID, $salesCode, $typePO);
         $dataCountMerchantDO = $summaryService->countMerchantDO($startDate, $endDate, $distributorID, $salesCode, $typePO);
 

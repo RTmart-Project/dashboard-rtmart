@@ -420,6 +420,7 @@ class SummaryService
         $join->on('ms_merchant_account.MerchantID', 'tmo.MerchantID');
         $join->whereRaw("ms_merchant_account.IsTesting = 0 AND (ms_merchant_account.Partner != 'TRADING' OR ms_merchant_account.Partner IS NULL)");
       })
+      ->leftJoin('ms_merchant_partner', 'ms_merchant_partner.MerchantID', 'tmo.MerchantID')
       ->select('tmdo.DeliveryOrderID', 'tmo.MerchantID', 'tmdo.Discount')
       ->whereRaw("DATE(tmdo.CreatedDate) >= '$startDate'")
       ->whereRaw("DATE(tmdo.CreatedDate) <= '$endDate'")
@@ -440,6 +441,11 @@ class SummaryService
       $sqlMainDO->whereRaw("tmo.Type IN ($typePOin)");
     }
 
+    if ($partner != null) {
+      $partnerIn = "'" . implode("', '", $partner) . "'";
+      $sqlMainDO->whereRaw("ms_merchant_partner.PartnerID IN ($partnerIn)");
+    }
+
     $sqlMargin = (clone $sqlMainDO)
       ->join('tx_merchant_delivery_order_detail as tmdod', function ($join) {
         $join->on('tmdod.DeliveryOrderID', 'tmdo.DeliveryOrderID');
@@ -448,9 +454,10 @@ class SummaryService
       ->leftJoin('ms_stock_product_log', 'ms_stock_product_log.DeliveryOrderDetailID', 'tmdod.DeliveryOrderDetailID')
       ->select(
         DB::raw("
-          ABS(IFNULL(SUM((ms_stock_product_log.SellingPrice - ms_stock_product_log.PurchasePrice) * ms_stock_product_log.QtyAction), 0)) AS GrossMargin
+          ABS(IFNULL(FLOOR(SUM(DISTINCT ((ms_stock_product_log.SellingPrice - ms_stock_product_log.PurchasePrice) * ms_stock_product_log.QtyAction) + CONV(SUBSTRING(MD5(CONCAT(ms_stock_product_log.DeliveryOrderDetailID)), 1, 8), 16, 10)/1000000000000000)), 0)) AS GrossMargin
         ")
-      )->first();
+      )
+      ->first();
 
     $sqlTotalValuePObyDO = (clone $sqlMainDO)
       ->join('tx_merchant_delivery_order_detail as tmdod', function ($join) {
@@ -459,7 +466,7 @@ class SummaryService
       })
       ->select(
         DB::raw("IFNULL(FLOOR(SUM(DISTINCT tmo.TotalPrice + CONV(SUBSTRING(MD5(CONCAT(tmo.StockOrderID)), 1, 8), 16, 10)/1000000000000000)), 0) AS TotalValuePO"),
-        DB::raw("IFNULL(SUM(tmdod.Qty * tmdod.Price), 0) AS TotalValueDO"),
+        DB::raw("IFNULL(FLOOR(SUM(DISTINCT (tmdod.Qty * tmdod.Price) + CONV(SUBSTRING(MD5(CONCAT(tmdod.DeliveryOrderDetailID)), 1, 8), 16, 10)/1000000000000000)), 0) AS TotalValueDO"),
         DB::raw("COUNT(DISTINCT tmo.MerchantID) AS CountMerchantDO")
       )
       ->first();
@@ -478,11 +485,12 @@ class SummaryService
           SELECT $sqlTotalValuePObyDO->TotalValueDO
         ) as TotalValueDO,
         (
-          SELECT IFNULL(SUM(tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price), 0)
+          SELECT IFNULL(FLOOR(SUM(DISTINCT (tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price) + CONV(SUBSTRING(MD5(CONCAT(tx_merchant_delivery_order_detail.DeliveryOrderDetailID)), 1, 8), 16, 10)/1000000000000000)), 0)
           FROM tx_merchant_delivery_order
           JOIN tx_merchant_delivery_order_detail ON tx_merchant_delivery_order_detail.DeliveryOrderID = tx_merchant_delivery_order.DeliveryOrderID
             AND tx_merchant_delivery_order_detail.StatusExpedition = 'S037'
           JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_delivery_order.StockOrderID
+          LEFT JOIN ms_merchant_partner ON ms_merchant_partner.MerchantID = tx_merchant_order.MerchantID
           JOIN ms_merchant_account ON ms_merchant_account.MerchantID = tx_merchant_order.MerchantID
             AND (ms_merchant_account.Partner != 'TRADING' OR ms_merchant_account.Partner IS NULL)
             AND ms_merchant_account.IsTesting = 0
@@ -491,6 +499,7 @@ class SummaryService
             $filterDistributor
             $filterSales
             $filterTypePO
+            $filterPartner
         ) as TotalValueDOcancelled,
         (
           SELECT COUNT(DISTINCT tx_merchant_order.MerchantID)
@@ -498,6 +507,7 @@ class SummaryService
           JOIN tx_merchant_delivery_order_detail ON tx_merchant_delivery_order_detail.DeliveryOrderID = tx_merchant_delivery_order.DeliveryOrderID
             AND tx_merchant_delivery_order_detail.StatusExpedition = 'S037'
           JOIN tx_merchant_order ON tx_merchant_order.StockOrderID = tx_merchant_delivery_order.StockOrderID
+          LEFT JOIN ms_merchant_partner ON ms_merchant_partner.MerchantID = tx_merchant_order.MerchantID
           JOIN ms_merchant_account ON ms_merchant_account.MerchantID = tx_merchant_order.MerchantID
             AND (ms_merchant_account.Partner != 'TRADING' OR ms_merchant_account.Partner IS NULL)
             AND ms_merchant_account.IsTesting = 0
@@ -506,6 +516,7 @@ class SummaryService
             $filterDistributor
             $filterSales
             $filterTypePO
+            $filterPartner
         ) as CountMerchantDOcancelled,
         (
             SELECT COUNT(SummaryDO.DeliveryOrderID)
@@ -517,16 +528,16 @@ class SummaryService
             SELECT $sqlMargin->GrossMargin
         ) as ValueMargin,
         (
-            SELECT SUM(SummaryDO.Discount)
+            SELECT IFNULL(FLOOR(SUM(DISTINCT SummaryDO.Discount + CONV(SUBSTRING(MD5(CONCAT(SummaryDO.DeliveryOrderID)), 1, 8), 16, 10)/1000000000000000)), 0)
         ) as VoucherDO,
         (
-            SELECT $sqlMargin->GrossMargin - SUM(SummaryDO.Discount)
+            SELECT $sqlMargin->GrossMargin - IFNULL(FLOOR(SUM(DISTINCT SummaryDO.Discount + CONV(SUBSTRING(MD5(CONCAT(SummaryDO.DeliveryOrderID)), 1, 8), 16, 10)/1000000000000000)), 0)
         ) as ValueMarginReal,
         (
             SELECT ROUND($sqlMargin->GrossMargin / $sqlTotalValuePObyDO->TotalValueDO * 100, 2)
         ) as PercentMarginRealBeforeDisc,
         (
-            SELECT ROUND(($sqlMargin->GrossMargin - SUM(SummaryDO.Discount)) / ($sqlTotalValuePObyDO->TotalValueDO - SUM(SummaryDO.Discount)) * 100, 2)
+            SELECT ROUND(($sqlMargin->GrossMargin - IFNULL(FLOOR(SUM(DISTINCT SummaryDO.Discount + CONV(SUBSTRING(MD5(CONCAT(SummaryDO.DeliveryOrderID)), 1, 8), 16, 10)/1000000000000000)), 0)) / ($sqlTotalValuePObyDO->TotalValueDO - SUM(SummaryDO.Discount)) * 100, 2)
         ) as PercentMarginReal
     ");
 
@@ -626,12 +637,14 @@ class SummaryService
       ");
 
     if ($partner != null) {
-      $sql->whereIn('ms_merchant_partner.PartnerID', [$partner]);
+      $arrPartner = explode(",", $partner);
+      $filterPartner = "(ms_merchant_partner.PartnerID = " . implode(" OR ms_merchant_partner.PartnerID = ", $arrPartner) . ")";
+      $sql->whereRaw("$filterPartner");
     }
 
-    $sql = $sql->groupBy('tmo.StockOrderID', 'tmod.ProductID');
+    $data = $sql->groupBy('tmo.StockOrderID', 'tmo.MerchantID', 'tmod.ProductID');
 
-    return $sql;
+    return $data;
   }
 
   public function countPO($type, $startDate, $endDate, $distributorID, $salesCode, $typePO)
@@ -683,7 +696,7 @@ class SummaryService
     return $sql;
   }
 
-  public function totalValueDO($startDate, $endDate, $distributorID, $salesCode, $typePO)
+  public function totalValueDO($startDate, $endDate, $distributorID, $salesCode, $typePO, $partner)
   {
     $sql = $this->queryDO($startDate, $endDate, $distributorID, $salesCode, $typePO)
       ->join('tx_merchant_delivery_order_detail as tmdod', function ($join) {
@@ -756,10 +769,17 @@ class SummaryService
         ) AS PurchasePrice,
         ANY_VALUE(ms_investor.InvestorName) AS InvestorName,
         ANY_VALUE(ms_stock_product.ProductLabel) AS ProductLabel
-      ")
-      ->groupBy('tmdod.DeliveryOrderDetailID');
+      ");
 
-    return $sql;
+    if ($partner != null) {
+      $arrPartner = explode(",", $partner);
+      $filterPartner = "(ms_merchant_partner.PartnerID = " . implode(" OR ms_merchant_partner.PartnerID = ", $arrPartner) . ")";
+      $sql->whereRaw("$filterPartner");
+    }
+
+    $data = $sql->groupBy('tmdod.DeliveryOrderDetailID');
+
+    return $data;
   }
 
   public function countDO($startDate, $endDate, $distributorID, $salesCode, $typePO)
