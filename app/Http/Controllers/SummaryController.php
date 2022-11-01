@@ -82,10 +82,13 @@ class SummaryController extends Controller
         $typePO = DB::table('tx_merchant_order')
             ->distinct('Type')->select('Type')->get();
 
+        $partners = DB::table('ms_partner')->where('IsActive', 1)->get();
+
         return view('summary.report.index', [
             'distributors' => $distributors,
             'sales' => $sales,
-            'typePO' => $typePO
+            'typePO' => $typePO,
+            'partners' => $partners
         ]);
     }
 
@@ -96,9 +99,9 @@ class SummaryController extends Controller
         $distributorID = $request->distributorID;
         $salesCode = $request->salesCode;
         $typePO = $request->typePO;
+        $partner = $request->partner;
 
-        $data = $summaryService->summaryReport($startDate, $endDate, $distributorID, $salesCode, $typePO);
-
+        $data = $summaryService->summaryReport($startDate, $endDate, $distributorID, $salesCode, $typePO, $partner);
         return $data;
     }
 
@@ -109,7 +112,7 @@ class SummaryController extends Controller
         $distributorID = $request->input('distributorID');
         $salesCode = $request->input('salesCode');
         $typePO = $request->input('typePO');
-
+        $partner = $request->input('partner');
 
         if ($typePO != null) {
             $filterPO = explode(",", $typePO);
@@ -127,17 +130,22 @@ class SummaryController extends Controller
         } else {
             $filterSales = $salesCode;
         }
-        $data = $summaryService->summaryReport($startDate, $endDate, $filterDistributor, $filterSales, $filterPO);
+        if ($partner != null) {
+            $filterPartner = explode(",", $partner);
+        } else {
+            $filterPartner = $partner;
+        }
+        $data = $summaryService->summaryReport($startDate, $endDate, $filterDistributor, $filterSales, $filterPO, $filterPartner);
 
-        $dataTotalValuePO = $summaryService->totalValuePO($type, $startDate, $endDate, $distributorID, $salesCode, $typePO);
+        $dataTotalValuePO = $summaryService->totalValuePO($type, $startDate, $endDate, $distributorID, $salesCode, $typePO, $partner);
         $dataCountPO = $summaryService->countPO($type, $startDate, $endDate, $distributorID, $salesCode, $typePO);
         $dataCountMerchantPO = $summaryService->countMerchantPO($type, $startDate, $endDate, $distributorID, $salesCode, $typePO);
 
-        $dataTotalValueDO = $summaryService->totalValueDO($startDate, $endDate, $distributorID, $salesCode, $typePO);
+        $dataTotalValueDO = $summaryService->totalValueDO($startDate, $endDate, $distributorID, $salesCode, $typePO, $partner);
         $dataCountDO = $summaryService->countDO($startDate, $endDate, $distributorID, $salesCode, $typePO);
         $dataCountMerchantDO = $summaryService->countMerchantDO($startDate, $endDate, $distributorID, $salesCode, $typePO);
 
-        $dataFilter = $summaryService->dataFilter($startDate, $endDate, $distributorID, $salesCode, $typePO);
+        $dataFilter = $summaryService->dataFilter($startDate, $endDate, $distributorID, $salesCode, $typePO, $partner);
 
         if ($request->ajax()) {
             if ($type == "totalValuePO" || $type == "totalValuePOallStatus" || $type == "totalValuePOcancelled") {

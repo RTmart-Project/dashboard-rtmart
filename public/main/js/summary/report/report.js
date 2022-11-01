@@ -21,9 +21,15 @@ $(document).ready(function () {
 
     let distributorID = "";
     let salesCode = "";
-    summaryReportData(startDateMonth, dateNow, distributorID, salesCode, [
-        "REGULER",
-    ]);
+    let partner = "";
+    summaryReportData(
+        startDateMonth,
+        dateNow,
+        distributorID,
+        salesCode,
+        ["REGULER"],
+        partner
+    );
     $("#type-po").val(["REGULER"]);
 
     // Setting Awal Daterangepicker
@@ -106,14 +112,24 @@ $(document).ready(function () {
         $("#sales").selectpicker("refresh");
         $("#type-po").val(["REGULER"]);
         $("#type-po").selectpicker("refresh");
+        $("#partner").val("");
+        $("#partner").selectpicker("refresh");
 
         const startDate = $("#from_date").val();
         const endDate = $("#to_date").val();
         const distributorID = $("#distributor").val();
         const salesCode = $("#sales").val();
         const typePO = $("#type-po").val();
+        const partner = $("#partner").val();
         $(".overlay").removeClass("d-none");
-        summaryReportData(startDate, endDate, distributorID, salesCode, typePO);
+        summaryReportData(
+            startDate,
+            endDate,
+            distributorID,
+            salesCode,
+            typePO,
+            partner
+        );
     });
 
     $("#filter").on("click", function () {
@@ -122,6 +138,7 @@ $(document).ready(function () {
         const distributorID = $("#distributor").val();
         const salesCode = $("#sales").val();
         const typePO = $("#type-po").val();
+        const partner = $("#partner").val();
 
         const today = new Date().toJSON().slice(0, 10).replace(/-/g, "-");
 
@@ -137,9 +154,16 @@ $(document).ready(function () {
             });
             return false;
         }
-        $(".overlay").removeClass("d-none");
 
-        summaryReportData(startDate, endDate, distributorID, salesCode, typePO);
+        $(".overlay").removeClass("d-none");
+        summaryReportData(
+            startDate,
+            endDate,
+            distributorID,
+            salesCode,
+            typePO,
+            partner
+        );
     });
 
     function createLink(
@@ -148,9 +172,10 @@ $(document).ready(function () {
         endDate,
         distributorID,
         salesCode,
-        typePO
+        typePO,
+        partner
     ) {
-        return `/summary/reportDetail/${type}?startDate=${startDate}&endDate=${endDate}&distributorID=${distributorID}&salesCode=${salesCode}&typePO=${typePO}`;
+        return `/summary/reportDetail/${type}?startDate=${startDate}&endDate=${endDate}&distributorID=${distributorID}&salesCode=${salesCode}&typePO=${typePO}&partner=${partner}`;
     }
 
     function summaryReportData(
@@ -158,7 +183,8 @@ $(document).ready(function () {
         endDate,
         distributorID,
         salesCode,
-        typePO
+        typePO,
+        partner
     ) {
         $.ajax({
             url: "/summary/report/data",
@@ -171,6 +197,7 @@ $(document).ready(function () {
                 distributorID,
                 salesCode,
                 typePO,
+                partner,
             },
             type: "post",
             success: function (res) {
@@ -181,7 +208,8 @@ $(document).ready(function () {
                     endDate,
                     distributorID,
                     salesCode,
-                    typePO
+                    typePO,
+                    partner
                 );
                 $("#total-value-po-link").prop("href", linkTotalValuePO);
 
@@ -191,7 +219,8 @@ $(document).ready(function () {
                     endDate,
                     distributorID,
                     salesCode,
-                    typePO
+                    typePO,
+                    partner
                 );
                 $("#total-value-po-all-status-link").prop(
                     "href",
@@ -204,7 +233,8 @@ $(document).ready(function () {
                     endDate,
                     distributorID,
                     salesCode,
-                    typePO
+                    typePO,
+                    partner
                 );
                 $("#total-value-po-cancelled-link").prop(
                     "href",
@@ -217,7 +247,8 @@ $(document).ready(function () {
                     endDate,
                     distributorID,
                     salesCode,
-                    typePO
+                    typePO,
+                    partner
                 );
                 $("#count-total-po-link").prop("href", linkCountPO);
 
@@ -227,7 +258,8 @@ $(document).ready(function () {
                     endDate,
                     distributorID,
                     salesCode,
-                    typePO
+                    typePO,
+                    partner
                 );
                 $("#count-merchant-po-link").prop("href", linkCountMerchantPO);
 
@@ -238,7 +270,8 @@ $(document).ready(function () {
                     endDate,
                     distributorID,
                     salesCode,
-                    typePO
+                    typePO,
+                    partner
                 );
                 $("#total-value-do-link").prop("href", linkTotalValueDO);
 
@@ -248,7 +281,8 @@ $(document).ready(function () {
                     endDate,
                     distributorID,
                     salesCode,
-                    typePO
+                    typePO,
+                    partner
                 );
                 $("#count-total-do-link").prop("href", linkCountDO);
 
@@ -258,7 +292,8 @@ $(document).ready(function () {
                     endDate,
                     distributorID,
                     salesCode,
-                    typePO
+                    typePO,
+                    partner
                 );
                 $("#count-merchant-do-link").prop("href", linkCountMerchantDO);
 
