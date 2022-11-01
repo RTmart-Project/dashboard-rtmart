@@ -111,6 +111,22 @@ $(document).ready(function () {
                     name: "StatusCrowdo.StatusName",
                 },
                 {
+                    data: "CrowdoLoanID",
+                    name: "ms_merchant_account.CrowdoLoanID",
+                },
+                {
+                    data: "CrowdoAmount",
+                    name: "ms_merchant_account.CrowdoAmount",
+                },
+                {
+                    data: "CrowdoBatch",
+                    name: "ms_merchant_account.CrowdoBatch",
+                },
+                {
+                    data: "CrowdoApprovedDate",
+                    name: "ms_merchant_account.CrowdoApprovedDate",
+                },
+                {
                     data: "StatusName",
                     name: "StatusMembership.StatusName",
                 },
@@ -161,7 +177,7 @@ $(document).ready(function () {
                         },
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-                            15, 16, 17, 18, 19, 20, 21, 22, 23,
+                            15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
                         ],
                         orthogonal: "export",
                     },
@@ -179,7 +195,7 @@ $(document).ready(function () {
                     },
                 },
                 {
-                    aTargets: [9],
+                    aTargets: [9, 20],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
@@ -195,11 +211,11 @@ $(document).ready(function () {
                     },
                 },
                 {
-                    aTargets: [25],
+                    aTargets: [29],
                     visible: roleID == "IT" ? true : false,
                 },
             ],
-            order: [20, "desc"],
+            order: [24, "desc"],
             lengthChange: false,
             responsive: true,
             autoWidth: false,
@@ -296,10 +312,35 @@ $(document).ready(function () {
             type: "get",
             url: `/merchant/membership/photo/${merchantID}`,
             success: function (res) {
+                let dataCouple = "";
+                if (
+                    res.AsIDCardCouple != null &&
+                    res.PhotoIDCardCouple != null &&
+                    res.NumberIDCardCouple != null &&
+                    res.UsernameIDCardCouple != null
+                ) {
+                    dataCouple = `<div class="m-2">
+                    <h5 class="mb-1 text-center">${res.AsIDCardCouple.toUpperCase()}</h5>
+                    <img
+                      class="rounded" width="300" height="200" style="object-fit: cover"
+                      src="${baseImg}rtsales/merchantassessment/${
+                        res.PhotoIDCardCouple
+                    }">
+                    <h6 class="my-1 text-center">${
+                        res.UsernameIDCardCouple
+                    }</h6>
+                    <h6 class="text-center">${res.NumberIDCardCouple}</h6>
+                  </div>`;
+                }
+
                 const div = `
                 <div class="m-2">
-                  <h5 class="mb-1 text-center">${res.AsIDCard.toUpperCase()}</h5>
-                  <img 
+                  <h5 class="mb-1 text-center">${
+                      res.AsIDCard == "none"
+                          ? res.UsernameIDCard
+                          : res.AsIDCard.toUpperCase()
+                  }</h5>
+                  <img
                     class="rounded" width="300" height="200" style="object-fit: cover"
                     src="${baseImg}rtsales/merchantassessment/${
                     res.PhotoIDCard
@@ -307,19 +348,10 @@ $(document).ready(function () {
                   <h6 class="my-1 text-center">${res.UsernameIDCard}</h6>
                   <h6 class="text-center">${res.NumberIDCard}</h6>
                 </div>
-                <div class="m-2">
-                  <h5 class="mb-1 text-center">${res.AsIDCardCouple.toUpperCase()}</h5>
-                  <img 
-                    class="rounded" width="300" height="200" style="object-fit: cover"
-                    src="${baseImg}rtsales/merchantassessment/${
-                    res.PhotoIDCardCouple
-                }">
-                  <h6 class="my-1 text-center">${res.UsernameIDCardCouple}</h6>
-                  <h6 class="text-center">${res.NumberIDCardCouple}</h6>
-                </div>
+                ${dataCouple}
                 <div class="m-2">
                   <h5 class="mb-1 text-center">FOTO TOKO</h5>
-                  <img 
+                  <img
                     class="rounded" width="300" height="200" style="object-fit: cover"
                     src="${baseImg}rtsales/merchantassessment/${
                     res.StorePhotoMembership
@@ -400,50 +432,125 @@ $(document).ready(function () {
         });
     });
 
-    $("#merchant-membership-table").on(
-        "click",
-        ".btn-update-crowdo",
-        function (e) {
-            e.preventDefault();
-            const merchantID = $(this).data("merchant-id");
-            const store = $(this).data("store");
-            $.confirm({
-                title: "Update Status Crowdo",
-                content: `<b>${merchantID} - ${store}</b>?
-                  <form action="/merchant/membership/updateCrowdo/${merchantID}" method="post">
-                    <input type="hidden" name="_token" value="${csrf}">
-                    <label for="note" class="m-0">Status :</label>
-                    <select class="form-control" name="status-crowdo" id="status-crowdo">
-                        <option value="" selected hidden disabled>-- Pilih Status --</option>
-                        <option value="5">Submitted</option>
-                        <option value="6">Approved</option>
-                        <option value="7">Rejected</option>
-                    </select>
-                  </form>`,
-                closeIcon: true,
-                typeAnimated: true,
-                buttons: {
-                    update: {
-                        btnClass: "btn-warning",
-                        draggable: true,
-                        dragWindowGap: 0,
-                        action: function () {
-                            let status = this.$content
-                                .find("#status-crowdo")
-                                .val();
-                            if (!status) {
-                                $.alert(
-                                    "Harap Pilih Status Crowdo",
-                                    "Update Status Crowdo"
-                                );
-                                return false;
-                            }
-                            this.$content.find("form").submit();
-                        },
-                    },
-                    batal: function () {},
-                },
-            });
-        }
-    );
+    $("table").on("click", ".btn-update-crowdo", function () {
+        const merchantID = $(this).data("merchant-id");
+        const store = $(this).data("store");
+        const statusCrowdo = $(this).data("status-crowdo");
+
+        let formCrowdo = `<form action="/merchant/membership/updateCrowdo/${merchantID}" method="post">
+                            <input type="hidden" name="_token" value="${csrf}">
+                            <div class="form-group">
+                                <label for="note" class="m-0">Status :</label>
+                                <select class="form-control" name="status-crowdo" id="status-crowdo" required>
+                                    <option value="" selected hidden disabled>-- Pilih Status --</option>
+                                    <option value="5" ${
+                                        statusCrowdo == 5 ? "selected" : ""
+                                    }>Submitted</option>
+                                    <option value="6" ${
+                                        statusCrowdo == 6 ? "selected" : ""
+                                    }>Approved</option>
+                                    <option value="7" ${
+                                        statusCrowdo == 7 ? "selected" : ""
+                                    }>Rejected</option>
+                                </select>
+                            </div>
+                            <div id="data-crowdo" class="row"></div>
+                            <div class="modal-footer justify-content-end pb-0">
+                                <button type="submit" class="btn btn-warning">Update</button>
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+                            </div>
+                        </form>`;
+
+        $("#form-crowdo").html(formCrowdo);
+        $("#form-crowdo").on("change", "#status-crowdo", function () {
+            const statusCrowdo = $(this).val();
+            let dataCrowdo = `
+                <div class="col-12 col-md-6">
+                    <div class="form-group">
+                        <label for="loan_id">Loan ID</label>
+                        <input type="text" class="form-control" name="loan_id" id="loan_id" required/>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="form-group">
+                        <label for="amount">Amount</label>
+                        <input type="number" class="form-control autonumeric" name="amount" id="amount" min="1" required/>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="form-group">
+                        <label for="batch">Batch</label>
+                        <input type="number" class="form-control" name="batch" id="batch" min="1" required/>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="form-group">
+                        <label for="approved_date">Approved Date</label>
+                        <input type="date" class="form-control" name="approved_date" id="approved_date" required/>
+                    </div>
+                </div>
+            `;
+            if (statusCrowdo == 6) {
+                $("#data-crowdo").html(dataCrowdo);
+            } else {
+                $("#data-crowdo").html("");
+            }
+        });
+        $("#store").html(`${merchantID} - ${store}`);
+        $("#modal-crowdo").modal("show");
+    });
+
+    // $("#merchant-membership-table").on(
+    //     "click",
+    //     ".btn-update-crowdo",
+    //     function (e) {
+    //         e.preventDefault();
+    //         const merchantID = $(this).data("merchant-id");
+    //         const store = $(this).data("store");
+    //         const statusCrowdo = $(this).data("status-crowdo");
+    //         $.confirm({
+    //             title: "Update Status Crowdo",
+    //             content: `<b>${merchantID} - ${store}</b>?
+    //               <form action="/merchant/membership/updateCrowdo/${merchantID}" method="post">
+    //                 <input type="hidden" name="_token" value="${csrf}">
+    //                 <label for="note" class="m-0">Status :</label>
+    //                 <select class="form-control" name="status-crowdo" id="status-crowdo">
+    //                     <option value="" selected hidden disabled>-- Pilih Status --</option>
+    //                     <option value="5" ${
+    //                         statusCrowdo == 5 ? "selected" : ""
+    //                     }>Submitted</option>
+    //                     <option value="6" ${
+    //                         statusCrowdo == 6 ? "selected" : ""
+    //                     }>Approved</option>
+    //                     <option value="7" ${
+    //                         statusCrowdo == 7 ? "selected" : ""
+    //                     }>Rejected</option>
+    //                 </select>
+    //               </form>`,
+    //             closeIcon: true,
+    //             typeAnimated: true,
+    //             buttons: {
+    //                 update: {
+    //                     btnClass: "btn-warning",
+    //                     draggable: true,
+    //                     dragWindowGap: 0,
+    //                     action: function () {
+    //                         let status = this.$content
+    //                             .find("#status-crowdo")
+    //                             .val();
+    //                         if (!status) {
+    //                             $.alert(
+    //                                 "Harap Pilih Status Crowdo",
+    //                                 "Update Status Crowdo"
+    //                             );
+    //                             return false;
+    //                         }
+    //                         this.$content.find("form").submit();
+    //                     },
+    //                 },
+    //                 batal: function () {},
+    //             },
+    //         });
+    //     }
+    // );
 });

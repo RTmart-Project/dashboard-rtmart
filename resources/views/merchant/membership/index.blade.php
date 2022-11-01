@@ -97,6 +97,10 @@
                           <th>Distributor</th>
                           <th>Sales</th>
                           <th>Status Crowdo</th>
+                          <th>Loan ID Crowdo</th>
+                          <th>Amount Crowdo</th>
+                          <th>Batch Crowdo</th>
+                          <th>Tanggal Approve Crowdo</th>
                           <th>Status Membership</th>
                           <th>Tanggal Submit</th>
                           <th>Tanggal Konfirmasi</th>
@@ -136,6 +140,22 @@
       </div>
       <div class="modal-footer justify-content-end">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modal-crowdo">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Update Status Crowdo - <span id="store"></span></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="form-crowdo">
+        
       </div>
     </div>
   </div>

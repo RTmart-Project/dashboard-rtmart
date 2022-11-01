@@ -86,15 +86,23 @@ class MerchantMembershipController extends Controller
                     }
                     return $date;
                 })
+                ->editColumn('CrowdoApprovedDate', function ($data) {
+                    if ($data->CrowdoApprovedDate !== null) {
+                        $date = date('d-M-Y', strtotime($data->CrowdoApprovedDate));
+                    } else {
+                        $date = "-";
+                    }
+                    return $date;
+                })
                 ->addColumn('Photo', function ($data) {
                     return "<button data-merchant-id='$data->MerchantID' data-store='$data->StoreName'
-                                id='survey-photo' type='button' class='btn btn-sm btn-info btn-photo'>
+                                id='survey-photo' type='button' class='btn btn-xs btn-info btn-photo'>
                                 Lihat
                             </button>";
                 })
                 ->addColumn('Action', function ($data) {
-                    return "<button class='btn btn-sm btn-warning btn-update-crowdo' 
-                                data-merchant-id='$data->MerchantID' data-store='$data->StoreName'>
+                    return "<button class='btn btn-xs btn-warning btn-update-crowdo' 
+                                data-merchant-id='$data->MerchantID' data-store='$data->StoreName' data-status-crowdo='$data->StatusCrowdo'>
                                 Update Status Crowdo
                             </button>";
                 })
@@ -165,6 +173,17 @@ class MerchantMembershipController extends Controller
     public function updateCrowdo($merchantID, Request $request)
     {
         $status = $request->input('status-crowdo');
+        $loanID = $request->input('loan_id');
+        $amount = $request->input('amount');
+        $batch = $request->input('batch');
+        $approvedDate = $request->input('approved_date');
+
+        $dataCrowdo = [
+            'CrowdoLoanID' => $loanID,
+            'CrowdoAmount' => $amount,
+            'CrowdoBatch' => $batch,
+            'CrowdoApprovedDate' => $approvedDate
+        ];
 
         $dataCouplePreneurCrowdoLog = [
             'MerchantID' => $merchantID,
@@ -174,9 +193,10 @@ class MerchantMembershipController extends Controller
         ];
 
         try {
-            $this->merchantMembershipService->updateStatusCrowdo($merchantID, $status, $dataCouplePreneurCrowdoLog);
+            $this->merchantMembershipService->updateStatusCrowdo($merchantID, $status, $dataCrowdo, $dataCouplePreneurCrowdoLog);
             return redirect()->route('merchant.membership')->with('success', 'Status Crowdo Merchant berhasil di-update');
         } catch (\Throwable $th) {
+            dd($th->getMessage());
             return redirect()->route('merchant.membership')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
         }
     }
