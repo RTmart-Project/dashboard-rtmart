@@ -62,7 +62,7 @@
                   @endforeach
                 </select>
               </div>
-              <div class="col-md-2 col-12 p-1">
+              <div class="col-md-2 col-6 p-1">
                 <select class="form-control form-control-sm selectpicker border" name="type-po" id="type-po"
                 title="Pilih Tipe PO" multiple>
                   <option value="#" disabled>-- Filter Tipe PO --</option>
@@ -71,7 +71,14 @@
                   @endforeach
                 </select>
               </div>
-              <div class="col-md-2 p-1">
+              <div class="col-md-2 col-6 p-1">
+                <select class="form-control form-control-sm selectpicker border" name="partner" id="partner" title="Filter Partner" multiple>
+                  @foreach ($partners as $partner)
+                      <option value="{{ $partner->PartnerID }}">{{ $partner->Name }}</option>
+                  @endforeach
+                </select>
+              </div>
+              <div class="col-12 d-flex justify-content-end p-1">
                 <button type="submit" id="filter" class="btn btn-sm btn-primary">Filter</button>
                 <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-1">Refresh</button>
               </div>

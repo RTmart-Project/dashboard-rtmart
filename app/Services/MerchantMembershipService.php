@@ -39,6 +39,10 @@ class MerchantMembershipService
         'ms_merchant_account.ValidationStatusMembershipCouple',
         'StatusMembership.StatusName',
         'ms_merchant_account.StatusCrowdo',
+        'ms_merchant_account.CrowdoLoanID',
+        'ms_merchant_account.CrowdoAmount',
+        'ms_merchant_account.CrowdoBatch',
+        'ms_merchant_account.CrowdoApprovedDate',
         'StatusCrowdo.StatusName AS StatusNameCrowdo',
         'ms_merchant_account.MembershipCoupleSubmitDate',
         'ms_merchant_account.MembershipCoupleConfirmDate',
@@ -88,7 +92,7 @@ class MerchantMembershipService
     return $sql;
   }
 
-  public function updateStatusCrowdo($merchantID, $status, $dataCouplePreneurCrowdoLog)
+  public function updateStatusCrowdo($merchantID, $status, $dataCrowdo, $dataCouplePreneurCrowdoLog)
   {
     $membership = DB::table('ms_merchant_account')->where('MerchantID', $merchantID)->select('ValidationStatusMembershipCouple')->first();
     $statusMembership = $membership->ValidationStatusMembershipCouple;
@@ -100,11 +104,14 @@ class MerchantMembershipService
     } else if ($status == 7) {
       $statusMembership = 2;
     }
-    $sql = DB::transaction(function () use ($merchantID, $status, $dataCouplePreneurCrowdoLog, $statusMembership, $data) {
+    $sql = DB::transaction(function () use ($merchantID, $status, $dataCouplePreneurCrowdoLog, $statusMembership, $data, $dataCrowdo) {
       DB::table('ms_merchant_account')->where('MerchantID', $merchantID)->update([
         'StatusCrowdo' => $status,
         'ValidationStatusMembershipCouple' => $statusMembership
       ]);
+      if ($status == 6) {
+        DB::table('ms_merchant_account')->where('MerchantID', $merchantID)->update($dataCrowdo);
+      }
       DB::table('ms_merchant_couple_preneur_crowdo_log')->insert($dataCouplePreneurCrowdoLog);
       if ($status == 6 || $status == 7) {
         DB::table('ms_merchant_couple_preneur_log')->insert([
