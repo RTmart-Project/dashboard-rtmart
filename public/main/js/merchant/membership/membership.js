@@ -49,12 +49,24 @@ $(document).ready(function () {
                     name: "ms_merchant_account.PhoneNumber",
                 },
                 {
+                    data: "MaritalStatusName",
+                    name: "ms_marital_status.MaritalStatusName",
+                },
+                {
                     data: "NumberIDCard",
                     name: "ms_merchant_account.NumberIDCard",
                 },
                 {
                     data: "UsernameIDCard",
                     name: "ms_merchant_account.UsernameIDCard",
+                },
+                {
+                    data: "BirthDate",
+                    name: "ms_merchant_account.BirthDate",
+                },
+                {
+                    data: "MotherName",
+                    name: "ms_merchant_account.MotherName",
                 },
                 {
                     data: "NumberIDCardCouple",
@@ -64,6 +76,11 @@ $(document).ready(function () {
                     data: "UsernameIDCardCouple",
                     name: "ms_merchant_account.UsernameIDCardCouple",
                 },
+                {
+                    data: "BirthDateCouple",
+                    name: "ms_merchant_account.BirthDateCouple",
+                },
+                // 11
                 {
                     data: "CountTrx",
                     name: "CountTrx",
@@ -101,6 +118,21 @@ $(document).ready(function () {
                 {
                     data: "DistributorName",
                     name: "ms_distributor.DistributorName",
+                },
+                {
+                    data: "StoreSize",
+                    name: "StoreSize",
+                    searchable: false,
+                    orderable: false,
+                },
+                //21
+                {
+                    data: "StoreOmzet",
+                    name: "ms_merchant_account.StoreOmzet",
+                },
+                {
+                    data: "StoreEmployees",
+                    name: "ms_merchant_account.StoreEmployees",
                 },
                 {
                     data: "Sales",
@@ -178,6 +210,7 @@ $(document).ready(function () {
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
                             15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
+                            28, 29, 30, 31, 32, 33, 34,
                         ],
                         orthogonal: "export",
                     },
@@ -185,7 +218,7 @@ $(document).ready(function () {
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [4, 6],
+                    aTargets: [5, 9],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return "'" + data;
@@ -195,7 +228,7 @@ $(document).ready(function () {
                     },
                 },
                 {
-                    aTargets: [9, 20],
+                    aTargets: [13, 22, 27],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
@@ -211,11 +244,11 @@ $(document).ready(function () {
                     },
                 },
                 {
-                    aTargets: [29],
+                    aTargets: [36],
                     visible: roleID == "IT" ? true : false,
                 },
             ],
-            order: [24, "desc"],
+            order: [31, "desc"],
             lengthChange: false,
             responsive: true,
             autoWidth: false,
@@ -320,7 +353,12 @@ $(document).ready(function () {
                     res.UsernameIDCardCouple != null
                 ) {
                     dataCouple = `<div class="m-2">
-                    <h5 class="mb-1 text-center">${res.AsIDCardCouple.toUpperCase()}</h5>
+                    <h5 class="mb-1 text-center">${
+                        res.AsIDCardCouple == "none" ||
+                        res.AsIDCardCouple == null
+                            ? res.UsernameIDCardCouple
+                            : res.AsIDCardCouple.toUpperCase()
+                    }</h5>
                     <img
                       class="rounded" width="300" height="200" style="object-fit: cover"
                       src="${baseImg}rtsales/merchantassessment/${
@@ -336,7 +374,7 @@ $(document).ready(function () {
                 const div = `
                 <div class="m-2">
                   <h5 class="mb-1 text-center">${
-                      res.AsIDCard == "none"
+                      res.AsIDCard == "none" || res.AsIDCard == null
                           ? res.UsernameIDCard
                           : res.AsIDCard.toUpperCase()
                   }</h5>
