@@ -78,6 +78,30 @@ class MerchantMembershipController extends Controller
                 ->editColumn('MembershipCoupleSubmitDate', function ($data) {
                     return date('d-M-Y H:i:s', strtotime($data->MembershipCoupleSubmitDate));
                 })
+                ->editColumn('BirthDate', function ($data) {
+                    if ($data->BirthDate !== null) {
+                        $date = date('d-M-Y', strtotime($data->BirthDate));
+                    } else {
+                        $date = "";
+                    }
+                    return $date;
+                })
+                ->editColumn('BirthDateCouple', function ($data) {
+                    if ($data->BirthDateCouple !== null) {
+                        $date = date('d-M-Y', strtotime($data->BirthDateCouple));
+                    } else {
+                        $date = "";
+                    }
+                    return $date;
+                })
+                ->addColumn('StoreSize', function ($data) {
+                    if ($data->StoreLength != null && $data->StoreWidth != null) {
+                        $storeSize = $data->StoreLength . "x" . $data->StoreWidth . "m";
+                    } else {
+                        $storeSize = "";
+                    }
+                    return $storeSize;
+                })
                 ->editColumn('MembershipCoupleConfirmDate', function ($data) {
                     if ($data->MembershipCoupleConfirmDate !== null) {
                         $date = date('d-M-Y H:i:s', strtotime($data->MembershipCoupleConfirmDate));

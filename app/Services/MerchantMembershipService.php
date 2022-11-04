@@ -16,6 +16,7 @@ class MerchantMembershipService
       ->join('ms_status_couple_preneur as StatusMembership', 'StatusMembership.StatusCouplePreneurID', 'ms_merchant_account.ValidationStatusMembershipCouple')
       ->leftJoin('ms_status_couple_preneur as StatusCrowdo', 'StatusCrowdo.StatusCouplePreneurID', 'ms_merchant_account.StatusCrowdo')
       ->leftJoin('ms_area', 'ms_area.AreaID', 'ms_merchant_account.AreaID')
+      ->leftJoin('ms_marital_status', 'ms_marital_status.MaritalStatusID', 'ms_merchant_account.MaritalStatusID')
       ->where('ms_merchant_account.IsTesting', 0)
       ->where('ms_merchant_account.ValidationStatusMembershipCouple', '!=', 0)
       ->select(
@@ -23,11 +24,19 @@ class MerchantMembershipService
         'ms_merchant_account.StoreName',
         'ms_merchant_account.OwnerFullName',
         'ms_merchant_account.PhoneNumber',
+        'ms_marital_status.MaritalStatusName',
         'ms_merchant_account.NumberIDCard',
         'ms_merchant_account.UsernameIDCard',
+        'ms_merchant_account.BirthDate',
         'ms_merchant_account.NumberIDCardCouple',
         'ms_merchant_account.UsernameIDCardCouple',
+        'ms_merchant_account.BirthDateCouple',
         'ms_distributor.DistributorName',
+        'ms_merchant_account.StoreLength',
+        'ms_merchant_account.StoreWidth',
+        DB::raw("IF(ms_merchant_account.StoreOmzet = 0 OR ISNULL(ms_merchant_account.StoreOmzet), '', ms_merchant_account.StoreOmzet) AS StoreOmzet"),
+        DB::raw("IF(ms_merchant_account.StoreEmployees = 0 OR ISNULL(ms_merchant_account.StoreEmployees), '', ms_merchant_account.StoreEmployees) AS StoreEmployees"),
+        DB::raw("IF(ms_merchant_account.MotherName = 'none' OR ISNULL(ms_merchant_account.MotherName), '', ms_merchant_account.MotherName) AS MotherName"),
         'ms_merchant_account.StoreAddress',
         'ms_area.AreaName',
         'ms_area.Subdistrict',
