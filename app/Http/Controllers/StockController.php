@@ -1366,10 +1366,14 @@ class StockController extends Controller
                 SELECT PurchaseID, Qty, DistributorID, InvestorID
                 FROM ms_stock_product
                 WHERE (PurchaseID IN (
-                    SELECT PurchaseID FROM ms_stock_purchase WHERE Type LIKE 'INBOUND' AND StatusID = 2
-                ) OR PurchaseID IN (
-                    SELECT StockMutationID FROM ms_stock_mutation
-                )) AND Qty > 0
+                        SELECT PurchaseID FROM ms_stock_purchase WHERE Type LIKE 'INBOUND' AND StatusID = 2
+                    ) OR PurchaseID IN (
+                        SELECT StockMutationID FROM ms_stock_mutation
+                    ) OR PurchaseID IN (
+                        SELECT StockOpnameID FROM ms_stock_opname
+                    )
+                )
+                AND Qty > 0
             ) AS purchase"))
             ->leftJoin('ms_distributor', 'ms_distributor.DistributorID', 'purchase.DistributorID')
             ->join('ms_investor', function ($join) {

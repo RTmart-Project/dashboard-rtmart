@@ -65,6 +65,15 @@ class MutationService
           ->get()->toArray();
         array_push($detail, $dataDetail);
       }
+    } elseif (str_contains($purchaseID, 'OPNM')) {
+      foreach ($productId as $key => $value) {
+        $dataDetail = DB::table('ms_stock_opname_detail')
+          ->where('StockOpnameID', $purchaseID)
+          ->where('ProductID', $value)
+          ->select('ProductID', 'ProductLabel', 'PurchasePrice', 'ConditionStock')
+          ->get()->toArray();
+        array_push($detail, $dataDetail);
+      }
     } else {
       foreach ($productId as $key => $value) {
         $dataDetail = DB::table('ms_stock_mutation_detail')
