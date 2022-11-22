@@ -17,6 +17,7 @@ $(document).ready(function () {
                     d.distributorId = $(
                         "#list-stock .select-filter-custom select"
                     ).val();
+                    d.enterDate = $("#list-stock #enter_date").val();
                 },
             },
             columns: [
@@ -119,9 +120,12 @@ $(document).ready(function () {
     let depo = $('meta[name="depo"]').attr("content");
     if (depo == "ALL") {
         $("div.filter-list-stock").html(`<div class="input-group">
+                        <input type="text" name="enter_date" id="enter_date" class="ml-2 form-control form-control-sm" readonly>
+                        <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
+                        <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-2">Refresh</button>
                           <div class="select-filter-custom ml-2">
                               <select>
-                                  <option value="">All</option>
+                                <option value="">All</option>
                               </select>
                           </div>
                       </div>`);
@@ -144,6 +148,33 @@ $(document).ready(function () {
 
     // Event listener saat tombol select option diklik
     $("#list-stock .select-filter-custom select").change(function () {
+        $("#list-stock .table-datatables").DataTable().ajax.reload();
+    });
+
+    // Setting Awal Daterangepicker
+    $("#list-stock #enter_date").daterangepicker({
+        singleDatePicker: true,
+        showDropdowns: true,
+        locale: {
+            format: "YYYY-MM-DD",
+        },
+    });
+
+    // Menyisipkan Placeholder Date
+    $("#list-stock #enter_date").val("");
+    $("#list-stock #enter_date").attr("placeholder", "Enter Date");
+
+    // Event Listener saat tombol refresh diklik
+    $("#list-stock #refresh").click(function () {
+        $("#list-stock #enter_date").val("");
+        $("#list-stock .table-datatables").DataTable().search("");
+        $("#list-stock .table-datatables")
+            .DataTable()
+            .ajax.reload(null, false);
+    });
+
+    // Event listener saat tombol filter diklik
+    $("#list-stock #filter").click(function () {
         $("#list-stock .table-datatables").DataTable().ajax.reload();
     });
 });

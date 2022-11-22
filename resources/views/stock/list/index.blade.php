@@ -3,6 +3,8 @@
 
 @section('css-pages')
 <meta name="depo" content="{{ Auth::user()->Depo }}">
+<!-- daterange picker -->
+<link rel="stylesheet" href="{{url('/')}}/plugins/daterangepicker/daterangepicker.css">
 <!-- Datatables -->
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
