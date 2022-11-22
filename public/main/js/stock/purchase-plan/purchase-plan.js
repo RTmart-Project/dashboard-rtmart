@@ -94,7 +94,8 @@ $(document).ready(function () {
     }
 
     // Create element for DateRange Filter
-    $("div.filter-purchase-plan").html(`<div class="input-group">
+    $("div.filter-purchase-plan").html(`
+                    <div class="input-group">
                       <input type="text" name="from_date" id="from_date" class="form-control form-control-sm" readonly>
                       <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
                       <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>

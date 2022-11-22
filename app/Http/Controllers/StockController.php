@@ -1189,11 +1189,15 @@ class StockController extends Controller
     public function getListStock(Request $request, PurchaseService $purchaseService)
     {
         $distributorId = $request->input('distributorId');
+        $enterDate = $request->input('enterDate');
 
         $sqlGetListStocks = $purchaseService->getStocks();
 
         if ($distributorId != null) {
             $sqlGetListStocks->where('ms_distributor.DistributorID', '=', $distributorId);
+        }
+        if ($enterDate != null) {
+            $sqlGetListStocks->whereDate('ms_stock_product_log.CreatedDate', '<=', $enterDate);
         }
         if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
