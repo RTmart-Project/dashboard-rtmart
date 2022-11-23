@@ -125,7 +125,7 @@ class InvoiceController extends Controller
             ->first();
 
         $deliveryOrderSelesai = DB::table('tx_merchant_delivery_order')
-            ->join('tx_merchant_delivery_order_detail', function($join) {
+            ->join('tx_merchant_delivery_order_detail', function ($join) {
                 $join->on('tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID');
                 $join->where('tx_merchant_delivery_order_detail.StatusExpedition', 'S031');
             })
