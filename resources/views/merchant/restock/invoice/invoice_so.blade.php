@@ -221,7 +221,7 @@
 				@endif
 				<tr class="total">
 					<th colspan="3" class="text-right pt">Grand Total</th>
-					<th colspan="1" class="text-right pt">{{ Helper::formatCurrency($subTotal - $merchant->DiscountPrice - $merchant->DiscountVoucher + $merchant->ServiceChargeNett, 'Rp ') }}</th>
+					<th colspan="1" class="text-right pt">{{ Helper::formatCurrency($subTotal - $merchant->DiscountPrice - $merchant->DiscountVoucher + $merchant->ServiceChargeNett + $merchant->DeliveryFee, 'Rp ') }}</th>
 				</tr>
 			</table>
 		</div>

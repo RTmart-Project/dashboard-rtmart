@@ -43,7 +43,6 @@
                 <div class="card">
                     <div class="card-body mt-2">
                         <div class="tab-content">
-
                             <div class="tab-pane active" id="merchant-otp">
                                 <div class="row">
                                     <div class="col-12">
