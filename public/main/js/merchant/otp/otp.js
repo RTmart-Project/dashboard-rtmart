@@ -24,21 +24,25 @@ $(document).ready(function () {
                 },
                 {
                     data: 'OTP',
-                    name: 'ms_verification.OTP'
+                    name: 'OTP',
+                    searchable: false
                 },
                 {
                     data: 'IsVerified',
-                    name: 'ms_verification.IsVerified'
+                    name: 'IsVerified',
+                    searchable: false
                 },
                 {
                     data: 'SendOn',
-                    name: 'ms_verification_log.SendOn',
-                    type: 'date'
+                    name: 'SendOn',
+                    type: 'date',
+                    searchable: false
                 },
                 {
                     data: 'ReceiveOn',
-                    name: 'ms_verification_log.ReceiveOn',
-                    type: 'date'
+                    name: 'ReceiveOn',
+                    type: 'date',
+                    searchable: false
                 }
             ],
             buttons: [{
@@ -65,15 +69,17 @@ $(document).ready(function () {
     }
 
     // Create element for DateRange Filter
-    $("div.filter-merchant-otp").html(`<div class="input-group">
-                            <input type="text" name="from_date" id="from_date" class="form-control form-control-sm"
-                                readonly>
-                            <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm"
-                                readonly>
-                            <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
-                            <button type="button" name="refresh" id="refresh"
-                                class="btn btn-sm btn-warning ml-2">Refresh</button>
-                        </div>`);
+    $("div.filter-merchant-otp").html(
+        `<div class="input-group">
+            <input type="text" name="from_date" id="from_date" class="form-control form-control-sm"
+                readonly>
+            <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm"
+                readonly>
+            <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
+            <button type="button" name="refresh" id="refresh"
+                class="btn btn-sm btn-warning ml-2">Refresh</button>
+        </div>`
+    );
 
     // Setting Awal Daterangepicker
     $('#merchant-otp #from_date').daterangepicker({
