@@ -157,7 +157,6 @@ class SummaryService
             WHERE DistributorID = a.DistributorID AND StatusOrderID = 'S023'
             AND DATE(CreatedDate) BETWEEN '$startDate' AND b.DateSummary
           ) AS Voucher,
-
           (
             SELECT IFNULL(SUM(tx_merchant_delivery_order_detail.Qty * tx_merchant_delivery_order_detail.Price), 0)
             FROM tx_merchant_delivery_order
@@ -170,7 +169,6 @@ class SummaryService
               AND tx_merchant_order.DistributorID = a.DistributorID
               AND DATE(tx_merchant_delivery_order.CreatedDate) BETWEEN '$startDate' AND b.DateSummary
           ) AS DeliveryOrder,
-
           (
             SELECT IFNULL(SUM(PaymentNominal), 0)
             FROM tx_merchant_delivery_order
