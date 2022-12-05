@@ -257,7 +257,7 @@
                             <th class="text-center align-middle" rowspan="9">Ciracas</th>
                           </tr>
                           <tr id="purchase-order-ciracas-exclude-batal" style="background-color: rgb(219,238,243);">
-                            <th>Purchase Order (Dlm Proses)</th>
+                            <th>Purchase Order (Kecuali Batal)</th>
                           </tr>
                           <tr id="purchase-order-ciracas" style="background-color: rgb(219,238,243);">
                             <th>Purchase Order (Dlm Proses)</th>

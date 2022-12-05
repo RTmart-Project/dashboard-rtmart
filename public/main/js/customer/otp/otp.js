@@ -24,21 +24,25 @@ $(document).ready(function () {
                 },
                 {
                     data: 'OTP',
-                    name: 'ms_verification.OTP'
+                    name: 'OTP',
+                    searchable: false
                 },
                 {
                     data: 'IsVerified',
-                    name: 'ms_verification.IsVerified'
+                    name: 'IsVerified',
+                    searchable: false
                 },
                 {
                     data: 'SendOn',
-                    name: 'ms_verification_log.SendOn',
-                    type: 'date'
+                    name: 'SendOn',
+                    type: 'date',
+                    searchable: false
                 },
                 {
                     data: 'ReceiveOn',
-                    name: 'ms_verification_log.ReceiveOn',
-                    type: 'date'
+                    name: 'ReceiveOn',
+                    type: 'date',
+                    searchable: false
                 }
             ],
             buttons: [{

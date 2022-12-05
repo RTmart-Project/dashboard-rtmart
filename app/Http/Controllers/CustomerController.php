@@ -116,7 +116,9 @@ class CustomerController extends Controller
         $sqlAllAccount = DB::table('ms_verification')
             ->join('ms_verification_log', 'ms_verification_log.PhoneNumber', '=', 'ms_verification.PhoneNumber')
             ->where('ms_verification.Type', '=', 'CUSTOMER')
-            ->select(['ms_verification.PhoneNumber', 'ms_verification.OTP', 'ms_verification.IsVerified', 'ms_verification_log.SendOn', 'ms_verification_log.ReceiveOn']);
+            ->selectRaw("ms_verification.PhoneNumber, ANY_VALUE(ms_verification.OTP) AS OTP, 
+            ANY_VALUE(ms_verification.IsVerified) AS IsVerified, ANY_VALUE(MAX(ms_verification_log.SendOn)) AS SendOn, ANY_VALUE(MAX(ms_verification_log.ReceiveOn)) AS ReceiveOn")
+            ->groupBy("ms_verification.PhoneNumber");
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
         if ($fromDate != '' && $toDate != '') {
