@@ -34,16 +34,18 @@ class BannerSliderService
 
   public function targetBannerSlider()
   {
-    $sql = DB::table('ms_promo')->select('PromoTarget')->distinct()->get();
+    $sql = DB::table('ms_promo_target')->select('PromoTarget')->get();
     return $sql;
   }
 
   public function listTargetIDBannerSlider($target)
   {
     if ($target === "MERCHANT") {
-      $sql = DB::table('ms_merchant_account')->where('IsTesting', 0)->select('MerchantID', 'StoreName')->get();
+      $sql = DB::table('ms_merchant_account')->select('MerchantID', 'StoreName')->where('IsTesting', 0)->get();
+    } elseif ($target === "MERCHANT_GROUP") {
+      $sql = DB::table('ms_distributor')->select('DistributorID', 'DistributorName')->where('Depo', '!=', '')->get();
     } else {
-      $sql = DB::table('ms_customer_account')->where('IsTesting', 0)->select('CustomerID', 'FullName')->get();
+      $sql = DB::table('ms_customer_account')->select('CustomerID', 'FullName')->where('IsTesting', 0)->get();
     }
     return $sql;
   }

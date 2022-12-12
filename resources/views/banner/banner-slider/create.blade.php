@@ -151,7 +151,7 @@
   $("#target").on("change", function () {
     const target = $(this).val();
     
-    if (target === "MERCHANT" || target === "CUSTOMER") {
+    if (target === "MERCHANT" || target === "MERCHANT_GROUP" || target === "CUSTOMER") {
       $("#target_id").val("");
       $("#target_id").selectpicker("refresh");
       $.ajax({
@@ -163,6 +163,11 @@
             $("#target_id option").remove();
             $.each(response, function (index, value) {
               option += `<option value="${value.MerchantID}">${value.MerchantID} - ${value.StoreName}</option>`;
+            });
+          } else if (target === "MERCHANT_GROUP") {
+            $("#target_id option").remove();
+            $.each(response, function (index, value) {
+              option += `<option value="${value.DistributorID}">${value.DistributorName}</option>`;
             });
           } else {
             $("#target_id option").remove();
