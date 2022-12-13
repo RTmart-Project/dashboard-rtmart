@@ -86,9 +86,9 @@ class BannerSliderController extends Controller
             'title' => 'required|min:5',
             'start_date' => 'required|before_or_equal:end_date',
             'end_date' => 'required|after_or_equal:start_date',
-            'target' => 'required|string|exists:ms_promo,PromoTarget',
+            'target' => 'required|string|exists:ms_promo_target,PromoTarget',
             'banner_image' => 'required|image',
-            'description' => 'required|string',
+            'description' => 'string',
         ]);
 
         $promoID = $this->bannerSliderService->generatePromoID();
@@ -118,6 +118,26 @@ class BannerSliderController extends Controller
                 'ClassActivityPage' => $activityButtonPage,
                 'ActivityButtonText' => $activityButtonText
             ];
+        } elseif ($target === "MERCHANT_GROUP") {
+            $dataPromo = [];
+            $targets = array_map(function () {
+                return func_get_args();
+            }, $targetID);
+            foreach ($targets as $key => $value) {
+                $value = array_combine(['SourceID'], $value);
+                $value += ['PromoID' => $promoID];
+                $value += ['PromoTitle' => $title];
+                $value += ['PromoDesc' => $description];
+                $value += ['PromoImage' => $promoImage];
+                $value += ['PromoStartDate' => $startDate];
+                $value += ['PromoEndDate' => $endDate];
+                $value += ['PromoStatus' => 1];
+                $value += ['PromoTarget' => $target];
+                $value += ['PromoExpiryDate' => $endDate];
+                $value += ['ClassActivityPage' => $activityButtonPage];
+                $value += ['ActivityButtonText' => $activityButtonText];
+                array_push($dataPromo, $value);
+            }
         } else {
             $dataPromo = [];
             $targets = array_map(function () {
@@ -151,16 +171,23 @@ class BannerSliderController extends Controller
     public function edit($promoId)
     {
         $sql = DB::table('ms_promo')
-            ->select('PromoID', 'PromoTitle', 'PromoDesc', 'PromoImage', 'PromoStartDate', 'PromoEndDate', 'PromoStatus', 'PromoTarget', 'PromoExpiryDate', 'ClassActivityPage', 'ActivityButtonText')
+            ->select('PromoID', 'PromoTitle', 'PromoDesc', 'PromoImage', 'PromoStartDate', 'PromoEndDate', 'PromoStatus', 'SourceID', 'PromoTarget', 'PromoExpiryDate', 'ClassActivityPage', 'ActivityButtonText')
             ->where('PromoID', $promoId)->first();
 
+        // $targetID = DB::table('ms_promo')
+        //     ->where('PromoID', $promoId)
+        //     ->select('TargetID')->get();
         $targetID = DB::table('ms_promo')
-            ->where('PromoID', $promoId)
-            ->select('TargetID')->get();
+            ->selectRaw("CASE
+                            WHEN PromoTarget = 'MERCHANT' OR PromoTarget = 'CUSTOMER' THEN TargetID
+                            WHEN PromoTarget = 'MERCHANT_GROUP' THEN SourceID
+                        END AS TargetID")
+            ->where('PromoID', $promoId)->get();
 
         $listTargetID = $this->bannerSliderService->listTargetIDBannerSlider($sql->PromoTarget);
 
-        $promoTarget = DB::table('ms_promo')->selectRaw('DISTINCT(PromoTarget)')->get()->toArray();
+        $promoTarget = DB::table('ms_promo_target')->select('PromoTarget')->get()->toArray();
+        // $promoTarget = DB::table('ms_promo')->selectRaw('DISTINCT(PromoTarget)')->get()->toArray();
         $promoStatus = DB::table('ms_promo')->select('PromoStatus')->distinct()->get()->toArray();
 
         return view('banner.banner-slider.edit', [
@@ -209,7 +236,7 @@ class BannerSliderController extends Controller
             $res['PromoImage'] = $temp->PromoImage;
         }
 
-        if ($request->target === "MERCHANT_GLOBAL" || $request->target === "CUSTOMER_GLOBAL") {
+        if ($target === "MERCHANT_GLOBAL" || $target === "CUSTOMER_GLOBAL") {
             $data = $res;
         } else {
             $data = [];
@@ -218,6 +245,29 @@ class BannerSliderController extends Controller
             }, $res['TargetID']);
             foreach ($targets as $key => $value) {
                 $value = array_combine(['TargetID'], $value);
+                $value += ['PromoID' => $promoId];
+                $value += ['PromoTitle' => $res['PromoTitle']];
+                $value += ['PromoDesc' => $res['PromoDesc']];
+                $value += ['PromoImage' => $res['PromoImage']];
+                $value += ['PromoStartDate' => $res['PromoStartDate']];
+                $value += ['PromoEndDate' => $res['PromoEndDate']];
+                $value += ['PromoStatus' => $res['PromoStatus']];
+                $value += ['PromoTarget' => $res['PromoTarget']];
+                $value += ['PromoEndDate' => $res['PromoEndDate']];
+                $value += ['PromoExpiryDate' => $res['PromoEndDate']];
+                $value += ['ClassActivityPage' => $res['ClassActivityPage']];
+                $value += ['ActivityButtonText' => $res['ActivityButtonText']];
+                array_push($data, $value);
+            }
+        }
+
+        if ($target === "MERCHANT_GROUP") {
+            $data = [];
+            $targets = array_map(function () {
+                return func_get_args();
+            }, $res['TargetID']);
+            foreach ($targets as $key => $value) {
+                $value = array_combine(['SourceID'], $value);
                 $value += ['PromoID' => $promoId];
                 $value += ['PromoTitle' => $res['PromoTitle']];
                 $value += ['PromoDesc' => $res['PromoDesc']];

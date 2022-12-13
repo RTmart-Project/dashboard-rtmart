@@ -50,7 +50,8 @@
                                 <div class="col-md-4 col-12">
                                     <div class="form-group">
                                         <label>Promo ID</label>
-                                        <input type="text" class="form-control" readonly value="{{ $targets->PromoID }}">
+                                        <input type="text" class="form-control" readonly
+                                            value="{{ $targets->PromoID }}">
                                     </div>
                                 </div>
                                 <div class="col-md-4 col-12">
@@ -71,8 +72,8 @@
                                             class="form-control selectpicker border 
                                             @if ($errors->has('PromoStatus')) is-invalid @endif">
                                             @foreach ($promoStatus as $value)
-                                            <option value="{{$value->PromoStatus}}" 
-                                                {{$value->PromoStatus == $targets->PromoStatus ? 'selected' : ''}}>
+                                            <option value="{{$value->PromoStatus}}" {{$value->PromoStatus ==
+                                                $targets->PromoStatus ? 'selected' : ''}}>
                                                 {{ $value->PromoStatus == 1 ? 'AKTIF' : 'TIDAK AKTIF'}}
                                             </option>
                                             @endforeach
@@ -95,30 +96,42 @@
                                         <span class="error invalid-feedback">{{ $errors->first('target') }}</span>
                                         @endif
                                         <select name="target_id[]" id="target_id" title="Pilih Target ID"
-                                            data-live-search="true" multiple
-                                            class="form-control selectpicker border mt-2 target_id 
-                                                {{ $targets->PromoTarget == "MERCHANT" || $targets->PromoTarget == "CUSTOMER" ? '' : 'd-none' }}">
-                                        @if ($targets->PromoTarget == "MERCHANT")
+                                            data-live-search="true" multiple class="form-control selectpicker border mt-2 target_id 
+                                                {{ $targets->PromoTarget === "MERCHANT" || 
+                                                $targets->PromoTarget === "MERCHANT_GROUP" || 
+                                                $targets->PromoTarget === "CUSTOMER" ? '' : 'd-none' }}">
+                                            @if ($targets->PromoTarget === "MERCHANT")
                                             @foreach ($listTargetID as $item)
-                                                <option value="{{ $item->MerchantID }}" 
-                                                    @foreach ($targetID as $target)
-                                                        {{ collect($target->TargetID)->contains($item->MerchantID) ? 'selected' : '' }}
-                                                    @endforeach
-                                                    >
-                                                    {{ $item->MerchantID }} - {{ $item->StoreName }}
-                                                </option>
+                                            <option value="{{ $item->MerchantID }}" @foreach ($targetID as $target) {{
+                                                collect($target->TargetID)->contains($item->MerchantID) ? 'selected' :
+                                                '' }}
+                                                @endforeach>
+                                                {{ $item->MerchantID }} - {{ $item->StoreName }}
+                                            </option>
                                             @endforeach
-                                        @elseif ($targets->PromoTarget == "CUSTOMER")
+
+                                            @elseif ($targets->PromoTarget === "MERCHANT_GROUP")
                                             @foreach ($listTargetID as $item)
-                                                <option value="{{ $item->CustomerID }}" 
-                                                    @foreach ($targetID as $target)
-                                                        {{ collect($target->TargetID)->contains($item->CustomerID) ? 'selected' : '' }}
-                                                    @endforeach
-                                                    >
-                                                    {{ $item->CustomerID }} - {{ $item->FullName }}
-                                                </option>
+                                            <option value="{{ $item->DistributorID }}" @foreach ($targetID as $target) {{
+                                                collect($target->TargetID)->contains($item->DistributorID) ? 'selected' :
+                                                '' }}
+                                                @endforeach
+                                                >
+                                                {{ $item->DistributorID }} - {{ $item->DistributorName }}
+                                            </option>
                                             @endforeach
-                                        @endif
+
+                                            @elseif ($targets->PromoTarget === "CUSTOMER")
+                                            @foreach ($listTargetID as $item)
+                                            <option value="{{ $item->CustomerID }}" @foreach ($targetID as $target) {{
+                                                collect($target->TargetID)->contains($item->CustomerID) ? 'selected' :
+                                                '' }}
+                                                @endforeach
+                                                >
+                                                {{ $item->CustomerID }} - {{ $item->FullName }}
+                                            </option>
+                                            @endforeach
+                                            @endif
                                         </select>
                                     </div>
                                 </div>
@@ -204,7 +217,7 @@
     $("#target").on("change", function () {
     const target = $(this).val();
     
-    if (target === "MERCHANT" || target === "CUSTOMER") {
+    if (target === "MERCHANT" || target === "MERCHANT_GROUP" || target === "CUSTOMER") {
       $("#target_id").val("");
       $("#target_id").selectpicker("refresh");
       $.ajax({
@@ -216,6 +229,11 @@
             $("#target_id option").remove();
             $.each(response, function (index, value) {
               option += `<option value="${value.MerchantID}">${value.MerchantID} - ${value.StoreName}</option>`;
+            });
+          } else if (target === "MERCHANT_GROUP") {
+            $("#target_id option").remove();
+            $.each(response, function (index, value) {
+              option += `<option value="${value.DistributorID}">${value.DistributorID} - ${value.DistributorName}</option>`;
             });
           } else {
             $("#target_id option").remove();
