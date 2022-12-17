@@ -100,7 +100,7 @@
                                     <div class="form-group">
                                         <label for="grade">Grade</label>
                                         <select class="form-control selectpicker border @if($errors->has('grade')) is-invalid @endif"
-                                            name="grade" id="grade" required title="Pilih Grade">
+                                            name="grade" id="grade" title="Pilih Grade">
                                             @foreach ($grade as $value)
                                                 <option value="{{ $value->GradeID }}" {{ ($merchantById->GradeID) == ($value->GradeID) ? 'selected' : '' }}>{{ $value->Grade }}</option>
                                             @endforeach
@@ -110,13 +110,12 @@
                                         @endif
                                     </div>
                                 </div>
-                                
                                 <div class="col-md-4 col-12">
                                     <div class="form-group">
                                         <label for="latitude">Latitude</label>
                                         <input type="text" name="latitude"
                                             class="form-control @if($errors->has('latitude')) is-invalid @endif" id="latitude" required
-                                            placeholder="Masukkan Kode Referral" value="{{ $merchantById->Latitude }}" autocomplete="off">
+                                            placeholder="Masukkan Latitude" value="{{ $merchantById->Latitude }}" autocomplete="off">
                                         @if($errors->has('latitude'))
                                         <span class="error invalid-feedback">{{ $errors->first('latitude') }}</span>
                                         @endif
@@ -127,14 +126,14 @@
                                         <label for="longitude">Longitude</label>
                                         <input type="text" name="longitude"
                                             class="form-control @if($errors->has('longitude')) is-invalid @endif" id="longitude" required
-                                            placeholder="Masukkan Kode Referral" value="{{ $merchantById->Longitude }}" autocomplete="off">
+                                            placeholder="Masukkan Longitude" value="{{ $merchantById->Longitude }}" autocomplete="off">
                                         @if($errors->has('longitude'))
                                         <span class="error invalid-feedback">{{ $errors->first('longitude') }}</span>
                                         @endif
                                     </div>
                                 </div>
 
-                                @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "FI")
+                                @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "HL" || Auth::user()->RoleID == "FI")
                                 <div class="col-md-4 col-12">
                                     <div class="form-group">
                                         <label for="referral_code">Kode Referral</label>

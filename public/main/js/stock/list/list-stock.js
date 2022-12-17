@@ -14,9 +14,7 @@ $(document).ready(function () {
             ajax: {
                 url: "/stock/list/get",
                 data: function (d) {
-                    d.distributorId = $(
-                        "#list-stock .select-filter-custom select"
-                    ).val();
+                    d.distributorId = $("#list-stock .select-filter-custom select").val();
                     d.enterDate = $("#list-stock #enter_date").val();
                 },
             },
