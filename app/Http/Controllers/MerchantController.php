@@ -316,19 +316,19 @@ class MerchantController extends Controller
     public function updateAccount(Request $request, $merchantId)
     {
         $request->validate([
-            'store_name' => 'required|string',
-            'owner_name' => 'required|string',
+            'store_name' => 'string',
+            'owner_name' => 'string',
             'phone_number' => [
-                'required',
+                // 'required',
                 'numeric',
                 Rule::unique('ms_merchant_account', 'PhoneNumber')->ignore($merchantId, 'MerchantID')
             ],
-            'distributor' => 'required|exists:ms_distributor,DistributorID',
-            'grade' => 'required|exists:ms_distributor_grade,GradeID',
+            'distributor' => 'exists:ms_distributor,DistributorID',
+            'grade' => 'exists:ms_distributor_grade,GradeID',
             'address' => 'max:500',
             'referral_code' => 'string|nullable',
-            'latitude' => 'required',
-            'longitude' => 'required'
+            // 'latitude' => 'required',
+            // 'longitude' => 'required'
         ]);
 
         $merchantGrade = DB::table('ms_distributor_merchant_grade')
@@ -1412,11 +1412,7 @@ class MerchantController extends Controller
                     return $ket;
                 })
                 ->addColumn('Notes', function ($data) {
-                    // if ($data->TotalPriceNotInStock > 0) {
-                    //     $notes = "Terdapat produk yg tidak tersedia di list stock.";
-                    // } else {
                     $notes = "";
-                    // }
                     return $notes;
                 })
                 ->editColumn('Grade', function ($data) {
@@ -1427,14 +1423,6 @@ class MerchantController extends Controller
                     }
                     return $grade;
                 })
-                // ->editColumn('Partner', function ($data) {
-                //     if ($data->Partner != null) {
-                //         $partner = '<a class="badge badge-info">' . $data->Partner . '</a>';
-                //     } else {
-                //         $partner = '';
-                //     }
-                //     return $partner;
-                // })
                 ->addColumn('Invoice', function ($data) {
                     if ($data->StatusOrderID == "S009") {
                         $invoice = "";

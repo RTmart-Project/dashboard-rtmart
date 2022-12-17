@@ -174,9 +174,6 @@ class BannerSliderController extends Controller
             ->select('PromoID', 'PromoTitle', 'PromoDesc', 'PromoImage', 'PromoStartDate', 'PromoEndDate', 'PromoStatus', 'SourceID', 'PromoTarget', 'PromoExpiryDate', 'ClassActivityPage', 'ActivityButtonText')
             ->where('PromoID', $promoId)->first();
 
-        // $targetID = DB::table('ms_promo')
-        //     ->where('PromoID', $promoId)
-        //     ->select('TargetID')->get();
         $targetID = DB::table('ms_promo')
             ->selectRaw("CASE
                             WHEN PromoTarget = 'MERCHANT' OR PromoTarget = 'CUSTOMER' THEN TargetID
@@ -187,7 +184,6 @@ class BannerSliderController extends Controller
         $listTargetID = $this->bannerSliderService->listTargetIDBannerSlider($sql->PromoTarget);
 
         $promoTarget = DB::table('ms_promo_target')->select('PromoTarget')->get()->toArray();
-        // $promoTarget = DB::table('ms_promo')->selectRaw('DISTINCT(PromoTarget)')->get()->toArray();
         $promoStatus = DB::table('ms_promo')->select('PromoStatus')->distinct()->get()->toArray();
 
         return view('banner.banner-slider.edit', [
