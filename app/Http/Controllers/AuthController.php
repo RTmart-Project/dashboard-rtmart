@@ -254,7 +254,7 @@ class AuthController extends Controller
         $data = [
             'UserID' => $newUserId,
             'Email' => $request->input('email'),
-            'Name' => $request->input('name'),
+            'Name' => ucwords($request->input('name')),
             'PhoneNumber' => $request->input('phonenumber'),
             'RoleID' => $request->input('role_id'),
             'Depo' => $request->input('depo'),
@@ -263,7 +263,6 @@ class AuthController extends Controller
             'LastDate' => $currentTime,
             'IsTesting' => 0
         ];
-
         $data = array_merge($data, $outputAccess);
 
         $createUser = DB::table('ms_user')->insert($data);

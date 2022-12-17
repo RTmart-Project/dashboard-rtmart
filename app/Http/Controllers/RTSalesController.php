@@ -71,8 +71,8 @@ class RTSalesController extends Controller
             'product_group' => 'required',
             'product_group.*' => 'exists:ms_product_group,ProductGroupID',
             'work_status' => 'required|exists:ms_sales_work_status,SalesWorkStatusID',
-            'phone_number' => 'required|digits_between:10,13',
-            'email' => 'required|email:rfc'
+            'phone_number' => 'required|digits_between:10,13|unique:ms_sales,PhoneNumber',
+            'email' => 'required|email:rfc|unique:ms_sales,Email'
             // 'password' => 'required|string'
         ]);
 
@@ -99,7 +99,7 @@ class RTSalesController extends Controller
         }
 
         $data = [
-            'SalesName' => $request->input('sales_name'),
+            'SalesName' => ucwords($request->input('sales_name')),
             'SalesCode' => $newSalesCode,
             'SalesLevel' => $request->input('sales_level'),
             'Team' => $request->input('team'),
@@ -109,6 +109,7 @@ class RTSalesController extends Controller
             'Email' => $request->input('email'),
             'Password' => $newSalesCode . 'bisa'
         ];
+
         $productGroupId = $request->input('product_group');
         $productGroup = array_map(function () {
             return func_get_args();

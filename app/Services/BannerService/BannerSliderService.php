@@ -12,7 +12,11 @@ class BannerSliderService
       ->selectRaw("ANY_VALUE(ID) AS ID, ANY_VALUE(PromoID) AS PromoID, ANY_VALUE(PromoTitle) AS PromoTitle, 
       ANY_VALUE(PromoImage) AS PromoImage, ANY_VALUE(PromoStartDate) AS PromoStartDate, 
       ANY_VALUE(PromoEndDate) AS PromoEndDate, ANY_VALUE(PromoStatus) AS PromoStatus, 
-      ANY_VALUE(PromoTarget) AS PromoTarget, GROUP_CONCAT(TargetID SEPARATOR ', ') AS TargetID, 
+      CASE
+        WHEN ANY_VALUE(PromoTarget) = 'MERCHANT' OR ANY_VALUE(PromoTarget) = 'CUSTOMER' THEN GROUP_CONCAT(TargetID SEPARATOR ', ')
+        WHEN ANY_VALUE(PromoTarget) = 'MERCHANT_GROUP' THEN GROUP_CONCAT(SourceID SEPARATOR ', ')
+      END AS TargetID,
+      ANY_VALUE(PromoTarget) AS PromoTarget,
       ANY_VALUE(PromoExpiryDate) AS PromoExpiryDate, ANY_VALUE(ClassActivityPage) AS ClassActivityPage, 
       ANY_VALUE(ActivityButtonText) AS ActivityButtonText")
       ->groupBy('PromoID');

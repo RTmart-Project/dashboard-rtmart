@@ -895,7 +895,7 @@ class SummaryService
       ->where('tx_merchant_delivery_order.StatusDO', 'S025')
       ->whereDate('tx_merchant_delivery_order.CreatedDate', '>=', $startDate)
       ->whereDate('tx_merchant_delivery_order.CreatedDate', '<=', $endDate)
-      ->whereIn('tmo.DistributorID', ['D-2004-000001', 'D-2004-000005', 'D-2004-000006'])
+      ->whereIn('tmo.DistributorID', ['D-2004-000001', 'D-2004-000002', 'D-2004-000005', 'D-2004-000006'])
       ->selectRaw("
         'Total' AS DistributorID,
         '<b>Total</b>' AS DistributorName,
@@ -931,7 +931,7 @@ class SummaryService
       ->where('tx_merchant_delivery_order.StatusDO', 'S025')
       ->whereDate('tx_merchant_delivery_order.CreatedDate', '>=', $startDate)
       ->whereDate('tx_merchant_delivery_order.CreatedDate', '<=', $endDate)
-      ->whereIn('tmo.DistributorID', ['D-2004-000001', 'D-2004-000005', 'D-2004-000006'])
+      ->whereIn('tmo.DistributorID', ['D-2004-000001', 'D-2004-000002', 'D-2004-000005', 'D-2004-000006'])
       ->selectRaw("
         tmo.DistributorID,
         ms_distributor.DistributorName,
