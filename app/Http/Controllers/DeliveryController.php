@@ -42,7 +42,7 @@ class DeliveryController extends Controller
     {
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
-        $checkboxFilter = $request->checkFilter;
+        // $checkboxFilter = $request->checkFilter;
         $urutanDO = $request->input('urutanDO');
 
         $sqlDeliveryRequest = $deliveryOrderService->getDeliveryRequest();
@@ -55,9 +55,9 @@ class DeliveryController extends Controller
             $sqlDeliveryRequest->whereDate('tmdo.CreatedDate', '>=', $fromDate)
                 ->whereDate('tmdo.CreatedDate', '<=', $toDate);
         }
-        if ($checkboxFilter != "") {
-            $sqlDeliveryRequest->whereIn('ms_area.Subdistrict', $checkboxFilter);
-        }
+        // if ($checkboxFilter != "") {
+        //     $sqlDeliveryRequest->whereIn('ms_area.Subdistrict', $checkboxFilter);
+        // }
         if ($urutanDO != null) {
             $sqlDeliveryRequest->whereRaw("(SELECT CONCAT('DO ke-', COUNT(*)) FROM tx_merchant_delivery_order
                 WHERE tx_merchant_delivery_order.CreatedDate <= tmdo.CreatedDate
