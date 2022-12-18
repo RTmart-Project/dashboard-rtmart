@@ -40,7 +40,7 @@
                 <!-- your steps here -->
                 <div class="step" data-target="#do-part">
                   <button type="button" class="step-trigger p-2" role="tab" aria-controls="do-part"
-                  id="do-part-trigger">
+                    id="do-part-trigger">
                     @if (Auth::user()->RoleID != "HL")
                     <span class="bs-stepper-circle">1</span>
                     <span class="bs-stepper-label">Pilih Area & Kiriman</span>
@@ -82,7 +82,8 @@
                   @endif
                   <div class="card-body p-0 pt-2">
                     <div class="row">
-                      <div class="col-5 col-sm-4 col-md-3 col-xl-2">
+                      {{-- Area --}}
+                      {{-- <div class="col-5 col-sm-4 col-md-3 col-xl-2">
                         <input class="form-control form-control-sm mb-2" type="search" placeholder="Cari Kecamatan"
                           aria-label="Search" id="search-subdistrict">
                         <div class="card-wrapper">
@@ -113,8 +114,8 @@
                           </div>
                           @endforeach
                         </div>
-                      </div>
-                      <div class="col-7 col-sm-8 col-md-9 col-xl-10">
+                      </div> --}}
+                      <div class="col-12 col-sm-12 col-md-12 col-xl-12">
                         <div class="tab-content">
                           <!-- All -->
                           <div class="tab-pane active" id="delivery-request">
@@ -131,7 +132,7 @@
                                       <th>Stock Order ID</th>
                                       <th>Nama Toko</th>
                                       <th>No. Telp</th>
-                                      <th>Area</th>
+                                      {{-- <th>Area</th> --}}
                                       <th>Distributor</th>
                                       <th>Sales</th>
                                       <th>Produk</th>
@@ -172,7 +173,8 @@
                     <div class="modal-dialog" role="document">
                       <div class="modal-content">
                         <div class="modal-header">
-                          <h6 class="modal-title" id="modalValidasiLabel"><i class="fas fa-check-square"></i> Validasi</h6>
+                          <h6 class="modal-title" id="modalValidasiLabel"><i class="fas fa-check-square"></i> Validasi
+                          </h6>
                           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                           </button>
@@ -213,7 +215,7 @@
                         </div>
                         <div class="modal-footer">
                           <button type="button" class="btn btn-sm btn-outline-secondary" data-target="#modalValidasi"
-                          data-toggle="modal" data-dismiss="modal">Kembali</button>
+                            data-toggle="modal" data-dismiss="modal">Kembali</button>
                           <button type="button" class="btn btn-sm btn-success" data-target="#modalKirimBarang2"
                             data-toggle="modal" data-dismiss="modal">Benar</button>
                         </div>
@@ -347,7 +349,7 @@
         .indexOf(m[3].toUpperCase()) >= 0;
   };
   // Search Subdistrict
-  $('#search-subdistrict').keyup(function (){
+  /*$('#search-subdistrict').keyup(function (){
       $('.card').removeClass('d-none');
       $('.subdistrict').removeClass('d-none');
       $('.subdistrict').removeClass('d-flex');
@@ -362,7 +364,7 @@
           $(this).addClass('d-none'); 
         }
       });
-  });   
+  });*/
 
   $('#delivery-order-result').on('change', '#send_by', function () {
     let valueDistributor = $(this).val();

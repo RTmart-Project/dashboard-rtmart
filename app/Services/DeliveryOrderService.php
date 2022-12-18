@@ -299,7 +299,7 @@ class DeliveryOrderService
       })
       ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
-      ->leftJoin('ms_area', 'ms_area.AreaID', 'ms_merchant_account.AreaID')
+      // ->leftJoin('ms_area', 'ms_area.AreaID', 'ms_merchant_account.AreaID')
       ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tx_merchant_order.SalesCode')
       ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'ms_merchant_account.MerchantID')
       ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', 'ms_distributor_merchant_grade.GradeID')
@@ -324,8 +324,7 @@ class DeliveryOrderService
         ANY_VALUE(ms_merchant_account.Partner) AS Partner,
         ANY_VALUE(IFNULL(ms_distributor_grade.Grade, 'Retail')) AS Grade,
         ANY_VALUE(tx_merchant_order.OrderLatitude) AS OrderLatitude,
-        ANY_VALUE(tx_merchant_order.OrderLongitude) AS OrderLongitude,
-        ANY_VALUE(CONCAT(ms_area.AreaName, ', ', ms_area.Subdistrict)) AS Area
+        ANY_VALUE(tx_merchant_order.OrderLongitude) AS OrderLongitude
       ")
       ->groupBy('tmdo.DeliveryOrderID');
 
