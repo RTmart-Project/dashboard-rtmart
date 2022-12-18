@@ -30,7 +30,7 @@ class DeliveryController extends Controller
     public function request(DeliveryOrderService $deliveryOrderService, DriverService $driverService, VehicleService $vehicleService)
     {
         return view('delivery.request.index', [
-            'areas' => $deliveryOrderService->getArea(),
+            // 'areas' => $deliveryOrderService->getArea(),
             'vehicles' => $vehicleService->getVehicles()->get(),
             'drivers' => $driverService->getDrivers()->get(),
             'helpers' => $driverService->getHelpers()->get()
@@ -97,10 +97,10 @@ class DeliveryController extends Controller
                     // }
                     return $checkbox;
                 })
-                ->filterColumn('Area', function ($query, $keyword) {
-                    $sql = "CONCAT(ms_area.AreaName, ', ', ms_area.Subdistrict) like ?";
-                    $query->whereRaw($sql, ["%{$keyword}%"]);
-                })
+                // ->filterColumn('Area', function ($query, $keyword) {
+                //     $sql = "CONCAT(ms_area.AreaName, ', ', ms_area.Subdistrict) like ?";
+                //     $query->whereRaw($sql, ["%{$keyword}%"]);
+                // })
                 ->filterColumn('tmdo.CreatedDate', function ($query, $keyword) {
                     $query->whereRaw("DATE_FORMAT(tmdo.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
                 })

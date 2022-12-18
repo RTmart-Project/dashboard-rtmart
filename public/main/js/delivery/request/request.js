@@ -50,7 +50,7 @@ $(document).ready(function () {
                 {
                     data: "Checkbox",
                     orderable: false,
-                    searchable: false,
+                    searchable: false
                 },
                 {
                     data: "DeliveryOrderID",
@@ -78,10 +78,10 @@ $(document).ready(function () {
                     data: "PhoneNumber",
                     name: "PhoneNumber",
                 },
-                {
-                    data: "Area",
-                    name: "Area",
-                },
+                // {
+                //     data: "Area",
+                //     name: "Area"
+                // },
                 {
                     data: "DistributorName",
                     name: "DistributorName",
