@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    let checkboxFilter = [];
+    // let checkboxFilter = [];
     let csrf = $('meta[name="csrf_token"]').attr("content");
     let roleID = $('meta[name="role-id"]').attr("content");
 
@@ -35,7 +35,7 @@ $(document).ready(function () {
                 data: function (d) {
                     d.fromDate = $("#delivery-request #from_date").val();
                     d.toDate = $("#delivery-request #to_date").val();
-                    d.checkFilter = checkboxFilter;
+                    // d.checkFilter = checkboxFilter;
                     d.urutanDO = $(
                         "#delivery-request .select-filter-custom select"
                     ).val();
