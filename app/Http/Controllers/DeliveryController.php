@@ -30,7 +30,7 @@ class DeliveryController extends Controller
     public function request(DeliveryOrderService $deliveryOrderService, DriverService $driverService, VehicleService $vehicleService)
     {
         return view('delivery.request.index', [
-            'areas' => $deliveryOrderService->getArea(),
+            // 'areas' => $deliveryOrderService->getArea(),
             'vehicles' => $vehicleService->getVehicles()->get(),
             'drivers' => $driverService->getDrivers()->get(),
             'helpers' => $driverService->getHelpers()->get()
@@ -42,7 +42,7 @@ class DeliveryController extends Controller
     {
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
-        $checkboxFilter = $request->checkFilter;
+        // $checkboxFilter = $request->checkFilter;
         $urutanDO = $request->input('urutanDO');
 
         $sqlDeliveryRequest = $deliveryOrderService->getDeliveryRequest();
@@ -55,9 +55,9 @@ class DeliveryController extends Controller
             $sqlDeliveryRequest->whereDate('tmdo.CreatedDate', '>=', $fromDate)
                 ->whereDate('tmdo.CreatedDate', '<=', $toDate);
         }
-        if ($checkboxFilter != "") {
-            $sqlDeliveryRequest->whereIn('ms_area.Subdistrict', $checkboxFilter);
-        }
+        // if ($checkboxFilter != "") {
+        //     $sqlDeliveryRequest->whereIn('ms_area.Subdistrict', $checkboxFilter);
+        // }
         if ($urutanDO != null) {
             $sqlDeliveryRequest->whereRaw("(SELECT CONCAT('DO ke-', COUNT(*)) FROM tx_merchant_delivery_order
                 WHERE tx_merchant_delivery_order.CreatedDate <= tmdo.CreatedDate
@@ -97,10 +97,10 @@ class DeliveryController extends Controller
                     // }
                     return $checkbox;
                 })
-                ->filterColumn('Area', function ($query, $keyword) {
-                    $sql = "CONCAT(ms_area.AreaName, ', ', ms_area.Subdistrict) like ?";
-                    $query->whereRaw($sql, ["%{$keyword}%"]);
-                })
+                // ->filterColumn('Area', function ($query, $keyword) {
+                //     $sql = "CONCAT(ms_area.AreaName, ', ', ms_area.Subdistrict) like ?";
+                //     $query->whereRaw($sql, ["%{$keyword}%"]);
+                // })
                 ->filterColumn('tmdo.CreatedDate', function ($query, $keyword) {
                     $query->whereRaw("DATE_FORMAT(tmdo.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
                 })
