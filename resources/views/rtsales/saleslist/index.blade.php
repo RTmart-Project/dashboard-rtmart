@@ -59,6 +59,8 @@
                           <th>Status</th>
                           <th>Product Group</th>
                           <th>Is Active</th>
+                          <th>Tanggal Bergabung</th>
+                          <th>Tanggal Resign</th>
                           <th>Action</th>
                         </tr>
                       </thead>

@@ -188,8 +188,8 @@ $(document).ready(function () {
                     </select>
                     <label class="mt-2 mb-0">Aktif:</label>
                     <select class="form-control" name="is_active">
-                        <option value="1" ${isActive == 1 ? "selected" : ""}>Ya</option>
-                        <option value="0" ${isActive == 0 ? "selected" : ""}>Tidak</option>
+                        <option value="1" ${isActive == 1 ? "selected" : ""}>Aktif</option>
+                        <option value="0" ${isActive == 0 ? "selected" : ""}>Non Aktif</option>
                     </select>
                 </form>`,
             closeIcon: true,
