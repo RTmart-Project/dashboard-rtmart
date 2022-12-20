@@ -70,6 +70,7 @@
                                                     <th>Harga Jual</th>
                                                     <th>Grade</th>
                                                     <th>PreOrder</th>
+                                                    <th>Status</th>
                                                     <th class="{{ Auth::user()->RoleID == " AD" ? 'd-none' : '' }}">
                                                         Action</th>
                                                 </tr>

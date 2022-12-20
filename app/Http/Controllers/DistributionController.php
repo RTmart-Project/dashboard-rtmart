@@ -2398,7 +2398,7 @@ class DistributionController extends Controller
             ->join('ms_product_category', 'ms_product_category.ProductCategoryID', '=', 'ms_product.ProductCategoryID')
             ->join('ms_product_type', 'ms_product_type.ProductTypeID', '=', 'ms_product.ProductTypeID')
             ->join('ms_product_uom', 'ms_product_uom.ProductUOMID', '=', 'ms_product.ProductUOMID')
-            ->select('ms_distributor_product_price.DistributorID', 'ms_distributor.DistributorName', 'ms_distributor_product_price.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product_category.ProductCategoryName', 'ms_product_type.ProductTypeName', 'ms_product_uom.ProductUOMName', 'ms_product.ProductUOMDesc', 'ms_distributor_product_price.Price', 'ms_distributor_product_price.GradeID', 'ms_distributor_grade.Grade', 'ms_distributor_product_price.IsPreOrder', 'ms_product.Price as ProductPrice');
+            ->select('ms_distributor_product_price.DistributorID', 'ms_distributor.DistributorName', 'ms_distributor_product_price.ProductID', 'ms_distributor_product_price.IsActive', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product_category.ProductCategoryName', 'ms_product_type.ProductTypeName', 'ms_product_uom.ProductUOMName', 'ms_product.ProductUOMDesc', 'ms_distributor_product_price.Price', 'ms_distributor_product_price.GradeID', 'ms_distributor_grade.Grade', 'ms_distributor_product_price.IsPreOrder', 'ms_product.Price as ProductPrice');
 
         if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
@@ -2439,9 +2439,18 @@ class DistributionController extends Controller
                     }
                     return $preOrder;
                 })
+                ->editColumn('IsActive', function ($data) {
+                    if ($data->IsActive == 1) {
+                        $isActive = "Aktif";
+                    } else {
+                        $isActive = "Non Aktif";
+                    }
+                    return $isActive;
+                })
                 ->addColumn('Action', function ($data) {
                     if (Auth::user()->RoleID != "AD") {
-                        $actionBtn = '<a href="#" data-distributor-id="' . $data->DistributorID . '" data-product-id="' . $data->ProductID . '" data-grade-id="' . $data->GradeID . '" data-product-name="' . $data->ProductName . '" data-grade-name="' . $data->Grade . '" data-price="' . $data->Price . '" data-pre-order="' . $data->IsPreOrder . '" class="btn-edit btn btn-sm btn-warning mr-1">Edit</a>
+                        $actionBtn = '<a href="#" data-distributor-id="' . $data->DistributorID . '" data-product-id="' . $data->ProductID . '" data-grade-id="' . $data->GradeID . '" data-product-name="' . $data->ProductName . '" data-grade-name="' . $data->Grade . '" data-price="' . $data->Price . '" data-pre-order="' . $data->IsPreOrder . '" 
+                        data-is-active="' . $data->IsActive . '" class="btn-edit btn btn-sm btn-warning mr-1">Edit</a>
                         <a data-distributor-id="' . $data->DistributorID . '" data-product-id="' . $data->ProductID . '" data-grade-id="' . $data->GradeID . '" data-product-name="' . $data->ProductName . '" data-grade-name="' . $data->Grade . '" href="#" class="btn-delete btn btn-sm btn-danger">Delete</a>';
                     } else {
                         $actionBtn = '';
@@ -2620,13 +2629,24 @@ class DistributionController extends Controller
 
         try {
             DB::transaction(function () use ($distributorId, $productId, $gradeId, $request, $data) {
-                DB::table('ms_distributor_product_price')
+                $update = DB::table('ms_distributor_product_price')
                     ->where('DistributorID', '=', $distributorId)
-                    ->where('ProductID', '=', $productId)
-                    ->where('GradeID', '=', $gradeId)
+                    ->where('ProductID', '=', $productId);
+                // DB::table('ms_distributor_product_price')
+                //     ->where('DistributorID', '=', $distributorId)
+                //     ->where('ProductID', '=', $productId)
+                //     ->where('GradeID', '=', $gradeId)
+                //     ->update([
+                //         'Price' => $request->input('price'),
+                //         'IsPreOrder' => $request->input('is_pre_order'),
+                //     ]);
+                $update->update([
+                    'IsActive' => $request->input('is_active')
+                ]);
+                $update->where('GradeID', '=', $gradeId)
                     ->update([
                         'Price' => $request->input('price'),
-                        'IsPreOrder' => $request->input('is_pre_order')
+                        'IsPreOrder' => $request->input('is_pre_order'),
                     ]);
                 DB::table('ms_product_price_log')->insert($data);
             });

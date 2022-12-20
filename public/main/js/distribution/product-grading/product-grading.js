@@ -71,6 +71,10 @@ $(document).ready(function () {
                     name: "ms_distributor_product_price.IsPreOrder",
                 },
                 {
+                    data: "IsActive",
+                    name: "ms_distributor_product_price.IsActive"
+                },
+                {
                     data: "Action",
                     name: "Action",
                     orderable: false,
@@ -169,6 +173,7 @@ $(document).ready(function () {
         const gradeId = $(this).data("grade-id");
         const priceProduct = $(this).data("price");
         const isPreOrder = $(this).data("pre-order");
+        const isActive = $(this).data("is-active");
         $.confirm({
             title: "Edit Produk",
             content: `Ubah produk <b>${productName}</b> grade <b>${gradeName}</b><br>
@@ -178,12 +183,13 @@ $(document).ready(function () {
                     <input type="number" class="form-control price" value="${priceProduct}" name="price" autocomplete="off">
                     <label class="mt-2 mb-0">Pre Order:</label>
                     <select class="form-control" name="is_pre_order">
-                        <option value="1" ${
-                            isPreOrder == 1 ? "selected" : ""
-                        }>Ya</option>
-                        <option value="0" ${
-                            isPreOrder == 0 ? "selected" : ""
-                        }>Tidak</option>
+                        <option value="1" ${isPreOrder == 1 ? "selected" : ""}>Ya</option>
+                        <option value="0" ${isPreOrder == 0 ? "selected" : ""}>Tidak</option>
+                    </select>
+                    <label class="mt-2 mb-0">Aktif:</label>
+                    <select class="form-control" name="is_active">
+                        <option value="1" ${isActive == 1 ? "selected" : ""}>Ya</option>
+                        <option value="0" ${isActive == 0 ? "selected" : ""}>Tidak</option>
                     </select>
                 </form>`,
             closeIcon: true,
@@ -204,7 +210,7 @@ $(document).ready(function () {
                         this.$content.find("form").submit();
                     },
                 },
-                tidak: function () {},
+                tidak: function () { },
             },
         });
     });
@@ -236,7 +242,7 @@ $(document).ready(function () {
                             gradeId;
                     },
                 },
-                tidak: function () {},
+                tidak: function () { },
             },
         });
     });
