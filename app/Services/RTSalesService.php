@@ -23,6 +23,8 @@ class RTSalesService
         ms_sales.PhoneNumber,
         ms_sales.Password,
         ms_sales.IsActive,
+        ms_sales.JoinDate,
+        ms_sales.ResignDate,
         ms_sales_work_status.SalesWorkStatusName,
         GROUP_CONCAT(ms_product_group.ProductGroupName) AS ProductGroupName,
         CONCAT(ms_sales.TeamBy, ' ', ANY_VALUE(ms_team_name.TeamName)) AS Team

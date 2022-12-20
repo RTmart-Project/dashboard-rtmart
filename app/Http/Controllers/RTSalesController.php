@@ -107,7 +107,8 @@ class RTSalesController extends Controller
             'SalesWorkStatus' => $request->input('work_status'),
             'PhoneNumber' => $request->input('phone_number'),
             'Email' => $request->input('email'),
-            'Password' => $newSalesCode . 'bisa'
+            'Password' => $newSalesCode . 'bisa',
+            'JoinDate' => date('Y-m-d')
         ];
 
         $productGroupId = $request->input('product_group');
@@ -169,18 +170,16 @@ class RTSalesController extends Controller
 
     public function updateSales(Request $request, $salesCode)
     {
+
         $request->validate([
-            'sales_name' => 'string|required',
-            'sales_level' => 'required|numeric',
-            'team' => 'required|exists:ms_team_name,TeamCode',
-            'team_by' => 'required',
-            'product_group' => 'required',
+            'sales_name' => 'string',
+            'sales_level' => 'numeric',
+            'team' => 'exists:ms_team_name,TeamCode',
             'product_group.*' => 'exists:ms_product_group,ProductGroupID',
-            'work_status' => 'required|exists:ms_sales_work_status,SalesWorkStatusID',
-            'phone_number' => 'required|digits_between:10,13',
-            'email' => 'required|email:rfc',
-            'password' => 'required|string',
-            'is_active' => 'required'
+            'work_status' => 'exists:ms_sales_work_status,SalesWorkStatusID',
+            'phone_number' => 'digits_between:10,13',
+            'email' => 'email:rfc',
+            'password' => 'string',
         ]);
 
         $data = [
@@ -194,6 +193,14 @@ class RTSalesController extends Controller
             'Password' => $request->input('password'),
             'IsActive' => $request->input('is_active')
         ];
+
+        if ($request->is_active == 0) {
+            $data['ResignDate'] = date('Y-m-d');
+        } else {
+            $data['ResignDate'] = NULL;
+            $data['JoinDate'] = date('Y-m-d');
+        }
+
         $productGroupId = $request->input('product_group');
         $productGroup = array_map(function () {
             return func_get_args();

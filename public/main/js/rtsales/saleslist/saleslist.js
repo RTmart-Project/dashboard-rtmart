@@ -53,6 +53,14 @@ $(document).ready(function () {
                     name: "ms_sales.IsActive",
                 },
                 {
+                    data: "JoinDate",
+                    name: "ms_sales.JoinDate",
+                },
+                {
+                    data: "ResignDate",
+                    name: "ms_sales.ResignDate",
+                },
+                {
                     data: "Action",
                     name: "Action",
                     orderable: false,
