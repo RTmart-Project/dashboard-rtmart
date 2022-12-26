@@ -32,10 +32,6 @@ $(document).ready(function () {
                     name: "Team",
                 },
                 {
-                    data: "Email",
-                    name: "ms_sales.Email",
-                },
-                {
                     data: "PhoneNumber",
                     name: "ms_sales.PhoneNumber",
                 },

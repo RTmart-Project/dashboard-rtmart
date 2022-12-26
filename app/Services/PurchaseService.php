@@ -458,26 +458,6 @@ class PurchaseService
 
   public function getStocks()
   {
-    // $sql = DB::table('ms_stock_product')
-    //   ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_stock_product.DistributorID')
-    //   ->join('ms_product', 'ms_product.ProductID', 'ms_stock_product.ProductID')
-    //   ->leftJoin('ms_investor', 'ms_investor.InvestorID', 'ms_stock_product.InvestorID')
-    //   ->selectRaw("
-    //     ANY_VALUE(ms_distributor.DistributorID) AS DistributorID,
-    //     ANY_VALUE(ms_distributor.DistributorName) AS DistributorName,
-    //     ANY_VALUE(ms_product.ProductName) AS ProductName,
-    //     ANY_VALUE(ms_product.ProductImage) AS ProductImage,
-    //     ms_stock_product.InvestorID,
-    //     ms_investor.InvestorName,
-    //     ms_stock_product.ProductID,
-    //     ms_stock_product.ProductLabel,
-    //     SUM(CASE WHEN ms_stock_product.ConditionStock = 'GOOD STOCK' THEN ms_stock_product.Qty ELSE 0 END) AS GoodStock,
-    //     SUM(CASE WHEN ms_stock_product.ConditionStock = 'BAD STOCK' THEN ms_stock_product.Qty ELSE 0 END) AS BadStock,
-    //     SUM(CASE WHEN ms_stock_product.ConditionStock = 'GOOD STOCK' THEN ms_stock_product.Qty * ms_stock_product.PurchasePrice ELSE 0 END) AS NominalGoodStock,
-    //     SUM(CASE WHEN ms_stock_product.ConditionStock = 'BAD STOCK' THEN ms_stock_product.Qty * ms_stock_product.PurchasePrice ELSE 0 END) AS NominalBadStock
-    //   ")
-    //   ->groupBy('ms_stock_product.DistributorID', 'ms_stock_product.InvestorID', 'ms_stock_product.ProductID', 'ms_stock_product.ProductLabel');
-
     $sql = DB::table('ms_stock_product_log')
       ->join("ms_stock_product", "ms_stock_product_log.StockProductID", "ms_stock_product.StockProductID")
       ->join("ms_investor", "ms_investor.InvestorID", "ms_stock_product.InvestorID")

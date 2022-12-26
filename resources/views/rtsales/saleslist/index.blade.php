@@ -54,7 +54,7 @@
                           <th>Sales Code</th>
                           <th>Sales Level</th>
                           <th>Team</th>
-                          <th>Email</th>
+                          {{-- <th>Email</th> --}}
                           <th>Phone</th>
                           <th>Status</th>
                           <th>Product Group</th>

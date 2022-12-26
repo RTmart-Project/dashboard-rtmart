@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\RTSalesService;
 use Illuminate\Http\Request;
+use App\Services\RTSalesService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 
 class RTSalesController extends Controller
@@ -17,6 +18,11 @@ class RTSalesController extends Controller
     public function getDataSales(Request $request, RTSalesService $rTSalesService)
     {
         $data = $rTSalesService->salesLists();
+        $depoUser = Auth::user()->Depo;
+
+        if ($depoUser != "ALL") {
+            $data->where('ms_sales.Team', $depoUser);
+        }
 
         // Return Data Using DataTables with Ajax
         if ($request->ajax()) {
@@ -264,7 +270,7 @@ class RTSalesController extends Controller
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
 
-        $data = $rTSalesService->callReportData($fromDate, $toDate)->get();
+        $data = $rTSalesService->callReportData($fromDate, $toDate);
 
         // Return Data Using DataTables with Ajax
         if ($request->ajax()) {
@@ -384,12 +390,18 @@ class RTSalesController extends Controller
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
         $distributorID = $request->input('distributorID');
+        $depoUser = Auth::user()->Depo;
 
         $sqlStoreList = $rTSalesService->storeLists();
 
         if ($fromDate != '' && $toDate != '') {
             $sqlStoreList->whereDate('ms_store.CreatedDate', '>=', $fromDate)
                 ->whereDate('ms_store.CreatedDate', '<=', $toDate);
+        }
+
+        if ($depoUser != "ALL") {
+            $depoUser = Auth::user()->Depo;
+            $sqlStoreList->where('ms_distributor.Depo', '=', $depoUser);
         }
 
         if ($distributorID != '') {
@@ -580,9 +592,7 @@ class RTSalesController extends Controller
         $startDate = $request->input('startDate');
         $endDate = $request->input('endDate');
 
-        $sql = $rTSalesService->callPlanData($visitDayName, $startDate, $endDate);
-
-        $data = $sql;
+        $data = $rTSalesService->callPlanData($visitDayName, $startDate, $endDate);
 
         if ($request->ajax()) {
             return Datatables::of($data)

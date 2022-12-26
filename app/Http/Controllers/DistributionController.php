@@ -2632,14 +2632,6 @@ class DistributionController extends Controller
                 $update = DB::table('ms_distributor_product_price')
                     ->where('DistributorID', '=', $distributorId)
                     ->where('ProductID', '=', $productId);
-                // DB::table('ms_distributor_product_price')
-                //     ->where('DistributorID', '=', $distributorId)
-                //     ->where('ProductID', '=', $productId)
-                //     ->where('GradeID', '=', $gradeId)
-                //     ->update([
-                //         'Price' => $request->input('price'),
-                //         'IsPreOrder' => $request->input('is_pre_order'),
-                //     ]);
                 $update->update([
                     'IsActive' => $request->input('is_active')
                 ]);
@@ -2704,6 +2696,7 @@ class DistributionController extends Controller
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
         $distributorId = $request->input('distributorId');
+        $depoUser = Auth::user()->Depo;
 
         // Get data account, jika tanggal filter kosong tampilkan semua data.
         $sqlAllAccount = DB::table('ms_merchant_account')
@@ -2720,7 +2713,7 @@ class DistributionController extends Controller
                 ->whereDate('ms_merchant_account.CreatedDate', '<=', $toDate);
         }
 
-        if (Auth::user()->Depo != "ALL") {
+        if ($depoUser != "ALL") {
             $depoUser = Auth::user()->Depo;
             $sqlAllAccount->where('ms_distributor.Depo', '=', $depoUser);
         }

@@ -19,7 +19,6 @@ class RTSalesService
         ms_sales.SalesName,
         ms_sales.SalesCode,
         ms_sales.SalesLevel,
-        ms_sales.Email,
         ms_sales.PhoneNumber,
         ms_sales.Password,
         ms_sales.IsActive,
@@ -108,7 +107,7 @@ class RTSalesService
 
     if (Auth::user()->Depo != "ALL") {
       $depoUser = Auth::user()->Depo;
-      $sql->where('msales.Depo', '=', $depoUser);
+      $sql->where('msales.Team', '=', $depoUser);
     }
 
     return $sql;
@@ -120,22 +119,16 @@ class RTSalesService
     $endDate = new DateTime($toDate) ?? new DateTime();
     $startDateFormat = $startDate->format('Y-m-d');
     $endDateFormat = $endDate->format('Y-m-d');
-
-    // if (Auth::user()->Depo != "ALL") {
-    //   $depoUser = Auth::user()->Depo;
-    // } else {
-    //   $depoUser = "";
-    // }
+    $userDepo = Auth::user()->Depo;
 
     $data = DB::table('ms_visit_survey')
       ->select('ms_visit_survey.VisitSurveyID', 'ms_visit_survey.CreatedDate', 'ms_sales.SalesCode', 'ms_sales.SalesName', 'ms_visit_plan_result.StoreID', 'ms_store.StoreName', 'ms_store.PhoneNumber', 'ms_visit_survey.ProductID', 'ms_product.ProductName', 'ms_visit_survey.PurchasePrice', 'ms_visit_survey.SellingPrice', 'ms_visit_survey.Supplier', 'ms_visit_survey.IsValid', 'ms_team_name.TeamName')
       ->leftJoin('ms_visit_plan_result', 'ms_visit_survey.VisitResultID', 'ms_visit_plan_result.VisitResultID')
       ->join('ms_product', 'ms_visit_survey.ProductID', 'ms_product.ProductID')
-      ->join('ms_sales', function ($join) {
+      ->join('ms_sales', function ($join) use ($userDepo) {
         $join->on('ms_visit_plan_result.SalesCode', 'ms_sales.SalesCode');
-        if (Auth::user()->Depo != "ALL") {
-          $depoUser = Auth::user()->Depo;
-          $join->where('ms_sales.Depo', '=', $depoUser);
+        if ($userDepo != "ALL") {
+          $join->where('ms_sales.Team', '=', $userDepo);
         }
       })
       ->join('ms_team_name', 'ms_team_name.TeamCode', 'ms_sales.Team')

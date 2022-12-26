@@ -116,7 +116,7 @@ $(document).ready(function () {
 
     // Create element for Filter
     let depo = $('meta[name="depo"]').attr("content");
-    if (depo == "ALL") {
+    if (depo == "ALL" || depo == "REG1" || depo == "REG2") {
         $("div.filter-list-stock").html(`<div class="input-group">
                         <input type="text" name="enter_date" id="enter_date" class="ml-2 form-control form-control-sm" readonly>
                         <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
@@ -128,7 +128,6 @@ $(document).ready(function () {
                           </div>
                       </div>`);
     }
-
     // Load Distributor ID and Name for filter
     $.ajax({
         type: "get",

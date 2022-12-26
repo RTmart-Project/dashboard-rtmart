@@ -1190,6 +1190,7 @@ class StockController extends Controller
     {
         $distributorId = $request->input('distributorId');
         $enterDate = $request->input('enterDate');
+        $depoUser = Auth::user()->Depo;
 
         $sqlGetListStocks = $purchaseService->getStocks();
 
@@ -1199,9 +1200,14 @@ class StockController extends Controller
         if ($enterDate != null) {
             $sqlGetListStocks->whereDate('ms_stock_product_log.CreatedDate', '<=', $enterDate);
         }
-        if (Auth::user()->Depo != "ALL") {
-            $depoUser = Auth::user()->Depo;
+        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
             $sqlGetListStocks->where('ms_distributor.Depo', '=', $depoUser);
+        }
+        if ($depoUser == "REG1") {
+            $sqlGetListStocks->whereIn('ms_distributor.Depo', ['SMG', 'YYK']);
+        } 
+        if ($depoUser == "REG2") {
+            $sqlGetListStocks->whereIn('ms_distributor.Depo', ['CRS', 'CKG', 'BDG']);
         }
         if (Auth::user()->InvestorID != null) {
             $investorUser = Auth::user()->InvestorID;
@@ -1210,7 +1216,6 @@ class StockController extends Controller
 
         // Get data response
         $data = $sqlGetListStocks;
-
         // Return Data Using DataTables with Ajax
         if ($request->ajax()) {
             return Datatables::of($data)
