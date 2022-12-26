@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\SummaryService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use stdClass;
+use Illuminate\Http\Request;
+use App\Services\SummaryService;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 
 class SummaryController extends Controller
@@ -72,12 +73,19 @@ class SummaryController extends Controller
         $distributors = DB::table('ms_distributor')
             ->where('IsActive', '=', 1)
             ->whereNotNull('Email')
-            ->select('DistributorID', 'DistributorName')
-            ->get();
+            ->select('DistributorID', 'DistributorName');
+        if (Auth::user()->Depo != "ALL") {
+            $distributors->where('Depo', Auth::user()->Depo);
+        }
+        $distributors = $distributors->get();
 
         $sales = DB::table('ms_sales')
-            // ->where('IsActive', 1)
-            ->select('SalesCode', 'SalesName')->get();
+            ->where('IsActive', 1)
+            ->select('SalesCode', 'SalesName');
+        if (Auth::user()->Depo != "ALL") {
+            $sales->where('Team', Auth::user()->Depo);
+        }
+        $sales = $sales->get();
 
         $typePO = DB::table('tx_merchant_order')
             ->distinct('Type')->select('Type')->get();

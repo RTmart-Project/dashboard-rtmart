@@ -28,8 +28,7 @@ class DistributorController extends Controller
         $toDate = $request->input('toDate');
 
         $sqlAllAccount = DB::table('ms_distributor')
-            ->where('IsActive', '=', 1)
-            ->where('Email', '!=', NULL)
+            ->where('IsActive', 1)
             ->select('DistributorID', 'DistributorName', 'Email', 'Address', 'CreatedDate')
             ->orderByDesc('CreatedDate');
 
@@ -38,13 +37,19 @@ class DistributorController extends Controller
                 ->whereDate('CreatedDate', '<=', $toDate);
         }
 
-        if (Auth::user()->Depo != "ALL") {
-            $depoUser = Auth::user()->Depo;
+        $depoUser = Auth::user()->Depo;
+        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
             $sqlAllAccount->where('ms_distributor.Depo', '=', $depoUser);
         }
+        if ($depoUser == "REG1") {
+            $sqlAllAccount->whereIn('ms_distributor.Depo', ['SMG', 'YYK']);
+        }
+        if ($depoUser == "REG2") {
+            $sqlAllAccount->whereIn('ms_distributor.Depo', ['CRS', 'CKG', 'BDG']);
+        }
+
 
         $data = $sqlAllAccount->get();
-
         if ($request->ajax()) {
             return Datatables::of($data)
                 ->editColumn('CreatedDate', function ($data) {
@@ -55,11 +60,7 @@ class DistributorController extends Controller
                     return $productBtn;
                 })
                 ->addColumn('Action', function ($data) {
-                    // if (Auth::user()->RoleID != "HL") {
                     $actionBtn = '<a href="/distributor/account/edit/' . $data->DistributorID . '" class="btn-sm btn-warning">Edit</a>';
-                    // } else {
-                    //     $actionBtn = '';
-                    // }
 
                     return $actionBtn;
                 })
