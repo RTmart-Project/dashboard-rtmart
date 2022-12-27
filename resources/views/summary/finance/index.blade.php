@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
 <link rel="stylesheet" href="{{url('/')}}/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
 <meta name="csrf_token" content="{{ csrf_token() }}">
+<meta name="depo" content="{{ Auth::user()->Depo }}">
 @endsection
 
 @section('header-menu', 'Summary')
@@ -181,7 +182,6 @@
             </div>
 
             <div class="tab-content">
-
               <div class="tab-pane active" id="summary">
                 <div class="row">
                   <div class="col-12">
@@ -194,6 +194,7 @@
                           </tr>
                         </thead>
                         <tbody>
+                          @if (Auth::user()->Depo == "ALL" || Auth::user()->Depo == "REG2")
                           {{-- CAKUNG --}}
                           <tr style="background-color: rgb(216,216,216);">
                             <th class="text-center align-middle" rowspan="9">Cakung</th>
@@ -222,6 +223,7 @@
                           <tr id="ending-inventory-cakung" style="background-color: rgb(216,216,216);">
                             <th>Ending Inventory</th>
                           </tr>
+                          {{-- End of CAKUNG --}}
 
                           {{-- BANDUNG --}}
                           <tr style="background-color: rgb(252,213,180);">
@@ -251,6 +253,7 @@
                           <tr id="ending-inventory-bandung" style="background-color: rgb(252,213,180);">
                             <th>Ending Inventory</th>
                           </tr>
+                          {{-- End of Bandung --}}
 
                           {{-- CIRACAS --}}
                           <tr style="background-color: rgb(219,238,243);">
@@ -280,7 +283,70 @@
                           <tr id="ending-inventory-ciracas" style="background-color: rgb(219,238,243);">
                             <th>Ending Inventory</th>
                           </tr>
+                          {{-- End of CIRACAS --}}
+                          @endif
+                          @if (Auth::user()->Depo == "ALL" || Auth::user()->Depo == "REG1")
+                          {{-- SEMARANG --}}
+                          <tr style="background-color: rgb(252,213,180);">
+                            <th class="text-center align-middle" rowspan="9">Semarang</th>
+                          </tr>
+                          <tr id="purchase-order-semarang-exclude-batal" style="background-color: rgb(252,213,180);">
+                            <th>Purchase Order (Kecuali Batal)</th>
+                          </tr>
+                          <tr id="purchase-order-semarang" style="background-color: rgb(252,213,180);">
+                            <th>Purchase Order (Dlm Proses)</th>
+                          </tr>
+                          <tr id="purchasing-semarang" style="background-color: rgb(252,213,180);">
+                            <th>Purchasing</th>
+                          </tr>
+                          <tr id="voucher-semarang" style="background-color: rgb(252,213,180);">
+                            <th>Voucher</th>
+                          </tr>
+                          <tr id="delivery-order-semarang" style="background-color: rgb(252,213,180);">
+                            <th>Delivery Order (Selesai)</th>
+                          </tr>
+                          <tr id="bill-real-semarang" style="background-color: rgb(252,213,180);">
+                            <th>Paid Bill</th>
+                          </tr>
+                          <tr id="bill-target-semarang" style="background-color: rgb(252,213,180);">
+                            <th>Bill Target</th>
+                          </tr>
+                          <tr id="ending-inventory-semarang" style="background-color: rgb(252,213,180);">
+                            <th>Ending Inventory</th>
+                          </tr>
+                          {{-- End of SEMARANG --}}
 
+                          {{-- YOGYAKARTA --}}
+                          <tr style="background-color: rgb(219,238,243);">
+                            <th class="text-center align-middle" rowspan="9">Yogyakarta</th>
+                          </tr>
+                          <tr id="purchase-order-yogyakarta-exclude-batal" style="background-color: rgb(219,238,243);">
+                            <th>Purchase Order (Kecuali Batal)</th>
+                          </tr>
+                          <tr id="purchase-order-yogyakarta" style="background-color: rgb(219,238,243);">
+                            <th>Purchase Order (Dlm Proses)</th>
+                          </tr>
+                          <tr id="purchasing-yogyakarta" style="background-color: rgb(219,238,243);">
+                            <th>Purchasing</th>
+                          </tr>
+                          <tr id="voucher-yogyakarta" style="background-color: rgb(219,238,243);">
+                            <th>Voucher</th>
+                          </tr>
+                          <tr id="delivery-order-yogyakarta" style="background-color: rgb(219,238,243);">
+                            <th>Delivery Order (Selesai)</th>
+                          </tr>
+                          <tr id="bill-real-yogyakarta" style="background-color: rgb(219,238,243);">
+                            <th>Paid Bill</th>
+                          </tr>
+                          <tr id="bill-target-yogyakarta" style="background-color: rgb(219,238,243);">
+                            <th>Bill Target</th>
+                          </tr>
+                          <tr id="ending-inventory-yogyakarta" style="background-color: rgb(219,238,243);">
+                            <th>Ending Inventory</th>
+                          </tr>
+                          {{-- End of YOGYAKARTA --}}
+                          @endif
+                          @if (Auth::user()->Depo == "ALL" || Auth::user()->Depo == "REG1" || Auth::user()->Depo == "REG2")
                           {{-- GRAND TOTAL --}}
                           <tr style="background-color: rgb(255,255,0);">
                             <th class="text-center align-middle" rowspan="9">Grand Total</th>
@@ -309,13 +375,14 @@
                           <tr id="ending-inventory-grand-total" style="background-color: rgb(255,255,0);">
                             <th>Ending Inventory</th>
                           </tr>
+                          {{-- End of GRAND TOTAL --}}
+                          @endif
                         </tbody>
                       </table>
                     </div>
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
         </div>
@@ -337,6 +404,7 @@
   });
 
   let csrf = $('meta[name="csrf_token"]').attr("content");
+  let depo = $('meta[name="depo"]').attr("content");
 
   getSummary();
 

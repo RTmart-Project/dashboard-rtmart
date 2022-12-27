@@ -142,6 +142,7 @@ class DistributionController extends Controller
         $fromShipmentDate = $request->input('fromShipmentDate');
         $toShipmentDate = $request->input('toShipmentDate');
         $paymentMethodId = $request->input('paymentMethodId');
+        $depoUser = Auth::user()->Depo;
 
         $sqlGetRestock = DB::table('tx_merchant_order')
             ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
@@ -158,9 +159,14 @@ class DistributionController extends Controller
             ->where('tx_merchant_order.StatusOrderID', '=', $statusOrder)
             ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'ms_distributor.DistributorName', 'tx_merchant_order.ShipmentDate', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CancelReasonNote', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order.SalesCode as ReferralCode', 'ms_sales.SalesName', 'ms_distributor_grade.Grade', 'tx_merchant_order.IsValid', 'tx_merchant_order.ValidationNotes', 'ms_price_submission.StatusPriceSubmission');
 
-        if (Auth::user()->Depo != "ALL") {
-            $depoUser = Auth::user()->Depo;
-            $sqlGetRestock->where('ms_distributor.Depo', '=', $depoUser);
+        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
+            $sqlGetRestock->where('ms_distributor.Depo', $depoUser);
+        }
+        if ($depoUser == "REG1") {
+            $sqlGetRestock->whereIn('ms_distributor.Depo', ['SMG', 'YYK']);
+        }
+        if ($depoUser == "REG2") {
+            $sqlGetRestock->whereIn('ms_distributor.Depo', ['CRS', 'CKG', 'BDG']);
         }
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
@@ -268,6 +274,7 @@ class DistributionController extends Controller
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
         $filterBy = $request->input('filterBy');
+        $depoUser = Auth::user()->Depo;
 
         $startDate = new DateTime($fromDate) ?? new DateTime();
         $endDate = new DateTime($toDate) ?? new DateTime();
@@ -362,9 +369,15 @@ class DistributionController extends Controller
                 ->whereDate('tmdo.CreatedDate', '<=', $endDateFormat);
         }
 
-        if (Auth::user()->Depo != "ALL") {
+        if (Auth::user()->Depo != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
             $depoUser = Auth::user()->Depo;
             $sqlAllRestockAndDO->where('ms_distributor.Depo', '=', $depoUser);
+        }
+        if ($depoUser == "REG1") {
+            $sqlAllRestockAndDO->whereIn('ms_distributor.Depo', ['SMG', 'YYK']);
+        }
+        if ($depoUser == "REG2") {
+            $sqlAllRestockAndDO->whereIn('ms_distributor.Depo', ['CRS', 'CKG', 'BDG']);
         }
 
         // Get data response

@@ -70,20 +70,34 @@ class SummaryController extends Controller
 
     public function summaryReport()
     {
+        $depoUser = Auth::user()->Depo;
+
         $distributors = DB::table('ms_distributor')
             ->where('IsActive', '=', 1)
             ->whereNotNull('Email')
             ->select('DistributorID', 'DistributorName');
-        if (Auth::user()->Depo != "ALL") {
-            $distributors->where('Depo', Auth::user()->Depo);
+        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
+            $distributors->where('Depo', $depoUser);
+        }
+        if ($depoUser == "REG1") {
+            $distributors->whereIn('Depo', ['SMG', 'YYK']);
+        }
+        if ($depoUser == "REG2") {
+            $distributors->whereIn('Depo', ['CRS', 'CKG', 'BDG']);
         }
         $distributors = $distributors->get();
 
         $sales = DB::table('ms_sales')
             ->where('IsActive', 1)
             ->select('SalesCode', 'SalesName');
-        if (Auth::user()->Depo != "ALL") {
-            $sales->where('Team', Auth::user()->Depo);
+        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
+            $sales->where('Team', $depoUser);
+        }
+        if ($depoUser == "REG1") {
+            $sales->whereIn('Team', ['SMG', 'YYK']);
+        }
+        if ($depoUser == "REG2") {
+            $sales->whereIn('Team', ['CRS', 'CKG', 'BDG']);
         }
         $sales = $sales->get();
 
@@ -416,15 +430,35 @@ class SummaryController extends Controller
 
     public function summaryMerchant()
     {
+        $depoUser = Auth::user()->Depo;
         $distributors = DB::table('ms_distributor')
             ->where('IsActive', '=', 1)
             ->whereNotNull('Email')
-            ->select('DistributorID', 'DistributorName')
-            ->get();
+            ->select('DistributorID', 'DistributorName');
+        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
+            $distributors->where('Depo', $depoUser);
+        }
+        if ($depoUser == "REG1") {
+            $distributors->whereIn('Depo', ['SMG', 'YYK']);
+        }
+        if ($depoUser == "REG2") {
+            $distributors->whereIn('Depo', ['CRS', 'CKG', 'BDG']);
+        }
+        $distributors = $distributors->get();
 
         $sales = DB::table('ms_sales')
-            // ->where('IsActive', 1)
-            ->select('SalesCode', 'SalesName')->get();
+            ->where('IsActive', 1)
+            ->select('SalesCode', 'SalesName');
+        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
+            $sales->where('Team', $depoUser);
+        }
+        if ($depoUser == "REG1") {
+            $sales->whereIn('Team', ['SMG', 'YYK']);
+        }
+        if ($depoUser == "REG2") {
+            $sales->whereIn('Team', ['CRS', 'CKG', 'BDG']);
+        }
+        $sales = $sales->get();
 
         return view('summary.merchant.index', [
             'distributors' => $distributors,

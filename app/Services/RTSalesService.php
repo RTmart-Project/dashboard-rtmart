@@ -178,7 +178,13 @@ class RTSalesService
     $sql = DB::table('ms_visit_plan')
       ->join('ms_store', 'ms_store.StoreID', 'ms_visit_plan.StoreID')
       ->leftJoin('ms_visit_plan_sort', 'ms_visit_plan_sort.VisitPlanID', 'ms_visit_plan.VisitPlanID')
-      ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_visit_plan.SalesCode')
+      // ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_visit_plan.SalesCode')
+      ->join('ms_sales', function ($join) {
+        $join->on('ms_sales.SalesCode', 'ms_visit_plan.SalesCode');
+        if (Auth::user()->Depo != "ALL") {
+          $join->where('ms_sales.Team', Auth::user()->Depo);
+        }
+      })
       ->leftJoin('ms_merchant_partner', 'ms_merchant_partner.MerchantID', 'ms_store.MerchantID')
       ->leftJoin('ms_partner', 'ms_partner.PartnerID', 'ms_merchant_partner.PartnerID')
       ->selectRaw("
