@@ -1,5 +1,5 @@
+// CAKUNG
 function getSummaryCakung(startDate = null, endDate = null) {
-    // CAKUNG
     $.ajax({
         url: "/summary/get",
         headers: {
@@ -61,8 +61,8 @@ function getSummaryCakung(startDate = null, endDate = null) {
     });
 }
 
+// BANDUNG
 function getSummaryBandung(startDate = null, endDate = null) {
-    // BANDUNG
     $.ajax({
         url: "/summary/get",
         headers: {
@@ -124,8 +124,8 @@ function getSummaryBandung(startDate = null, endDate = null) {
     });
 }
 
+// CIRACAS
 function getSummaryCiracas(startDate = null, endDate = null) {
-    // CIRACAS
     $.ajax({
         url: "/summary/get",
         headers: {
@@ -187,8 +187,134 @@ function getSummaryCiracas(startDate = null, endDate = null) {
     });
 }
 
+// Semarang
+function getSummarySemarang(startDate = null, endDate = null) {
+    $.ajax({
+        url: "/summary/get",
+        headers: {
+            "X-CSRF-TOKEN": csrf,
+        },
+        data: {
+            distributorID: "D-2004-000002",
+            startDate,
+            endDate,
+        },
+        type: "POST",
+        success: function (data) {
+            let purchaseOrderSemarangExcludeBatal = "";
+            let purchaseOrderSemarang = "";
+            let purchasingSemarang = "";
+            let voucherSemarang = "";
+            let deliveryOrderSemarang = "";
+            let billRealSemarang = "";
+            let billTargetSemarang = "";
+            let endingInventorySemarang = "";
+            for (const item of data) {
+                purchaseOrderSemarangExcludeBatal += `<td class="text-right align-middle p-2 data">${thousands_separators(
+                    item.PurchaseOrderExcludeBatal
+                )}</td>`;
+                purchaseOrderSemarang += `<td class="text-right align-middle p-2 data">${thousands_separators(
+                    item.PurchaseOrder
+                )}</td>`;
+                purchasingSemarang += `<td class="text-right align-middle p-2 data">${thousands_separators(
+                    item.Purchasing
+                )}</td>`;
+                voucherSemarang += `<td class="text-right align-middle p-2 data">${thousands_separators(
+                    item.Voucher
+                )}</td>`;
+                deliveryOrderSemarang += `<td class="text-right align-middle p-2 data">${thousands_separators(
+                    item.DeliveryOrder
+                )}</td>`;
+                billRealSemarang += `<td class="text-right align-middle p-2 data">${thousands_separators(
+                    item.BillReal
+                )}</td>`;
+                billTargetSemarang += `<td class="text-right align-middle p-2 data">${thousands_separators(
+                    item.BillTarget
+                )}</td>`;
+                endingInventorySemarang += `<td class="text-right align-middle p-2 data">${thousands_separators(
+                    item.EndingInventory
+                )}</td>`;
+            }
+            $("#purchase-order-semarang-exclude-batal").append(
+                purchaseOrderSemarangExcludeBatal
+            );
+            $("#purchase-order-semarang").append(purchaseOrderSemarang);
+            $("#purchasing-semarang").append(purchasingSemarang);
+            $("#voucher-semarang").append(voucherSemarang);
+            $("#delivery-order-semarang").append(deliveryOrderSemarang);
+            $("#bill-real-semarang").append(billRealSemarang);
+            $("#bill-target-semarang").append(billTargetSemarang);
+            $("#ending-inventory-semarang").append(endingInventorySemarang);
+            $("#purchase-order-semarang-exclude-batal .loader-semarang").remove();
+        },
+    });
+}
+
+// Yogyakarta
+function getSummaryYogyakarta(startDate = null, endDate = null) {
+    $.ajax({
+        url: "/summary/get",
+        headers: {
+            "X-CSRF-TOKEN": csrf,
+        },
+        data: {
+            distributorID: "D-2212-000001",
+            startDate,
+            endDate,
+        },
+        type: "POST",
+        success: function (data) {
+            let purchaseOrderYogyakartaExcludeBatal = "";
+            let purchaseOrderYogyakarta = "";
+            let purchasingYogyakarta = "";
+            let voucherYogyakarta = "";
+            let deliveryOrderYogyakarta = "";
+            let billRealYogyakarta = "";
+            let billTargetYogyakarta = "";
+            let endingInventoryYogyakarta = "";
+            for (const item of data) {
+                purchaseOrderYogyakartaExcludeBatal += `<td class="text-right align-middle p-2 data">${thousands_separators(
+                    item.PurchaseOrderExcludeBatal
+                )}</td>`;
+                purchaseOrderYogyakarta += `<td class="text-right align-middle p-2 data">${thousands_separators(
+                    item.PurchaseOrder
+                )}</td>`;
+                purchasingYogyakarta += `<td class="text-right align-middle p-2 data">${thousands_separators(
+                    item.Purchasing
+                )}</td>`;
+                voucherYogyakarta += `<td class="text-right align-middle p-2 data">${thousands_separators(
+                    item.Voucher
+                )}</td>`;
+                deliveryOrderYogyakarta += `<td class="text-right align-middle p-2 data">${thousands_separators(
+                    item.DeliveryOrder
+                )}</td>`;
+                billRealYogyakarta += `<td class="text-right align-middle p-2 data">${thousands_separators(
+                    item.BillReal
+                )}</td>`;
+                billTargetYogyakarta += `<td class="text-right align-middle p-2 data">${thousands_separators(
+                    item.BillTarget
+                )}</td>`;
+                endingInventoryYogyakarta += `<td class="text-right align-middle p-2 data">${thousands_separators(
+                    item.EndingInventory
+                )}</td>`;
+            }
+            $("#purchase-order-yogyakarta-exclude-batal").append(
+                purchaseOrderYogyakartaExcludeBatal
+            );
+            $("#purchase-order-yogyakarta").append(purchaseOrderYogyakarta);
+            $("#purchasing-yogyakarta").append(purchasingYogyakarta);
+            $("#voucher-yogyakarta").append(voucherYogyakarta);
+            $("#delivery-order-yogyakarta").append(deliveryOrderYogyakarta);
+            $("#bill-real-yogyakarta").append(billRealYogyakarta);
+            $("#bill-target-yogyakarta").append(billTargetYogyakarta);
+            $("#ending-inventory-yogyakarta").append(endingInventoryYogyakarta);
+            $("#purchase-order-yogyakarta-exclude-batal .loader-yogyakarta").remove();
+        },
+    });
+}
+
+// GRAND TOTAL
 function getSummaryGrandTotal(startDate = null, endDate = null) {
-    // GRAND TOTAL
     $.ajax({
         url: "/summary/get",
         headers: {
@@ -288,10 +414,17 @@ function getSummary(startDate = null, endDate = null) {
                 loaderGrandTotal
             );
 
-            getSummaryCakung(startDate, endDate);
-            getSummaryBandung(startDate, endDate);
-            getSummaryCiracas(startDate, endDate);
-            getSummaryGrandTotal(startDate, endDate);
+            if (depo == "ALL" || depo == "REG1") {
+                getSummarySemarang(startDate, endDate);
+                getSummaryYogyakarta(startDate, endDate);
+                getSummaryGrandTotal(startDate, endDate);
+            }
+            if (depo == "ALL" || depo == "REG2") {
+                getSummaryCakung(startDate, endDate);
+                getSummaryBandung(startDate, endDate);
+                getSummaryCiracas(startDate, endDate);
+                getSummaryGrandTotal(startDate, endDate);
+            }
         },
     });
 }

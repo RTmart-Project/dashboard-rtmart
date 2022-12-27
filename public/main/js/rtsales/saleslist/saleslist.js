@@ -3,6 +3,8 @@ $(document).ready(function () {
     dataTablesSalesList();
 
     function dataTablesSalesList() {
+        let roleID = $('meta[name="role-id"]').attr("content");
+        
         $("#sales-list .table-datatables").DataTable({
             dom:
                 "<'row'<'col-sm-12 col-md-5'tl><'col-sm-12 col-md-2'l><'col-sm-12 col-md-4'f><'col-sm-12 col-md-1'B>>" +
@@ -83,6 +85,12 @@ $(document).ready(function () {
                         orthogonal: "export",
                     },
                 },
+            ],
+            aoColumnDefs: [
+                {
+                    aTargets: [10],
+                    visible: roleID == "IT" ? true : false
+                }
             ],
             lengthChange: false,
             responsive: true,

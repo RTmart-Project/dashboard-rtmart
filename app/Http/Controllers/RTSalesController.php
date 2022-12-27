@@ -20,8 +20,14 @@ class RTSalesController extends Controller
         $data = $rTSalesService->salesLists();
         $depoUser = Auth::user()->Depo;
 
-        if ($depoUser != "ALL") {
+        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
             $data->where('ms_sales.Team', $depoUser);
+        }
+        if ($depoUser === "REG1") {
+            $data->whereIn('ms_sales.Team', ['SMG', 'YYK']);
+        }
+        if ($depoUser === "REG2") {
+            $data->whereIn('ms_sales.Team', ['CRS', 'CKG', 'BDG']);
         }
 
         // Return Data Using DataTables with Ajax
@@ -37,7 +43,7 @@ class RTSalesController extends Controller
                 })
                 ->addColumn('Action', function ($data) {
                     $btn = '<a class="btn btn-xs btn-warning" href="/rtsales/saleslist/edit/' . $data->SalesCode . '">Ubah</a>
-                            <a class="btn btn-xs btn-danger delete-sales" href="#" data-sales-name="' . $data->SalesName . '" data-sales-code="' . $data->SalesCode . '">Hapus</a>';
+                                <a class="btn btn-xs btn-danger delete-sales" href="#" data-sales-name="' . $data->SalesName . '" data-sales-code="' . $data->SalesCode . '">Hapus</a>';
                     return $btn;
                 })
                 ->filterColumn('Team', function ($query, $keyword) {
@@ -78,7 +84,7 @@ class RTSalesController extends Controller
             'product_group.*' => 'exists:ms_product_group,ProductGroupID',
             'work_status' => 'required|exists:ms_sales_work_status,SalesWorkStatusID',
             'phone_number' => 'required|digits_between:10,13|unique:ms_sales,PhoneNumber',
-            'email' => 'required|email:rfc|unique:ms_sales,Email'
+            // 'email' => 'required|email:rfc|unique:ms_sales,Email'
             // 'password' => 'required|string'
         ]);
 
@@ -112,7 +118,7 @@ class RTSalesController extends Controller
             'TeamBy' => $request->input('team_by'),
             'SalesWorkStatus' => $request->input('work_status'),
             'PhoneNumber' => $request->input('phone_number'),
-            'Email' => $request->input('email'),
+            // 'Email' => $request->input('email'),
             'Password' => $newSalesCode . 'bisa',
             'JoinDate' => date('Y-m-d')
         ];

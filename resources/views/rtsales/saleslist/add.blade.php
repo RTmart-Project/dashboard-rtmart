@@ -105,7 +105,7 @@
                     @endif
                   </div>
                 </div>
-                <div class="col-md-6 col-12">
+                {{-- <div class="col-md-6 col-12">
                   <div class="form-group">
                     <label for="email">Email</label>
                     <input type="email" name="email"
@@ -115,7 +115,7 @@
                     <span class="error invalid-feedback">{{ $errors->first('email') }}</span>
                     @endif
                   </div>
-                </div>
+                </div> --}}
                 <div class="col-md-6 col-12">
                   <div class="form-group">
                     <label for="phone_number">Nomor Telepon</label>
