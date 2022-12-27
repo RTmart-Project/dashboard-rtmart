@@ -122,8 +122,9 @@ class SummaryController extends Controller
         $salesCode = $request->salesCode;
         $typePO = $request->typePO;
         $partner = $request->partner;
-
+        // dd($distributorID);
         $data = $summaryService->summaryReport($startDate, $endDate, $distributorID, $salesCode, $typePO, $partner);
+
         return $data;
     }
 
@@ -135,23 +136,34 @@ class SummaryController extends Controller
         $salesCode = $request->input('salesCode');
         $typePO = $request->input('typePO');
         $partner = $request->input('partner');
+        $userDepo = Auth::user()->Depo;
+
+        if ($userDepo == "REG1" && !$distributorID) {
+            $distributorID = "D-2004-000002,D-2212-000001";
+        }
+        if ($userDepo == "REG2" && !$distributorID) {
+            $distributorID = "D-2004-000006,D-2004-000005,D-2004-000001";
+        }
 
         if ($typePO != null) {
             $filterPO = explode(",", $typePO);
         } else {
             $filterPO = $typePO;
         }
+
         if ($distributorID != null) {
             $filterDistributor = explode(",", $distributorID);
         } else {
             $filterDistributor = $distributorID;
         }
+
         if ($salesCode != null) {
 
             $filterSales = explode(",", $salesCode);
         } else {
             $filterSales = $salesCode;
         }
+
         if ($partner != null) {
             $filterPartner = explode(",", $partner);
         } else {
@@ -474,6 +486,14 @@ class SummaryController extends Controller
         $distributorID = $request->input('distributorID');
         $salesCode = $request->input('salesCode');
         $marginStatus = $request->input('marginStatus');
+        $userDepo = Auth::user()->Depo;
+
+        if ($userDepo == "REG1" && !$distributorID) {
+            $distributorID = ["D-2004-000002", "D-2212-000001"];
+        }
+        if ($userDepo == "REG2" && !$distributorID) {
+            $distributorID = ["D-2004-000006", "D-2004-000005", "D-2004-000001"];
+        }
 
         $sqlMain = $summaryService->dataSummaryMerchant($startDate, $endDate, $filterBy, $distributorID, $salesCode, $marginStatus);
 
