@@ -122,7 +122,7 @@ class SummaryController extends Controller
         $salesCode = $request->salesCode;
         $typePO = $request->typePO;
         $partner = $request->partner;
-        // dd($distributorID);
+
         $data = $summaryService->summaryReport($startDate, $endDate, $distributorID, $salesCode, $typePO, $partner);
 
         return $data;
