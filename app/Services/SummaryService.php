@@ -260,13 +260,13 @@ class SummaryService
       ->whereRaw("DATE(tmo.CreatedDate) <= '$endDate'")
       ->whereRaw("tmo.StatusOrderID IN ('S009', 'S010', 'S023')");
 
-    if ($userDepo == "ALL") {
+    if ($userDepo == "ALL" && !$distributorID) {
       $distributorID = ['D-2004-000002', 'D-2212-000001', 'D-2004-000006', 'D-2004-000005', 'D-2004-000001'];
     }
-    if ($userDepo == "REG1") {
+    if ($userDepo == "REG1" && !$distributorID) {
       $distributorID = ['D-2004-000002', 'D-2212-000001'];
     }
-    if ($userDepo == "REG2") {
+    if ($userDepo == "REG2" && !$distributorID) {
       $distributorID = ['D-2004-000006', 'D-2004-000005', 'D-2004-000001'];
     }
 
