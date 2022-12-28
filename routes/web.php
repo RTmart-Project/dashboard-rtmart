@@ -41,14 +41,14 @@ Route::group(['middleware' => ['auth']], function () {
     // Home
     Route::get('/home', [HomeController::class, 'home'])->name('home');
 
-    Route::group(['prefix' => 'price-submission', 'middleware' => ['checkRoleUser:IT,BM,CEO,FI']], function () {
+    Route::group(['prefix' => 'price-submission', 'middleware' => ['checkRoleUser:IT,BM,CEO,FI,SM']], function () {
         Route::get('/', [DistributionController::class, 'priceSubmission'])->name('priceSubmission');
         Route::get('/get/{statusPriceSubmission}', [DistributionController::class, 'getPriceSubmission'])->name('getPriceSubmission');
         Route::get('/detail/{priceSubmissionID}', [DistributionController::class, 'detailPriceSubmission'])->name('detailPriceSubmission');
         Route::post('/confirm/{priceSubmissionID}/{status}', [DistributionController::class, 'confirmPriceSubmission'])->name('confirmPriceSubmission');
     });
 
-    Route::group(['prefix' => 'summary', 'middleware' => ['checkRoleUser:IT,FI,BM,CEO,HL']], function () {
+    Route::group(['prefix' => 'summary', 'middleware' => ['checkRoleUser:IT,FI,BM,CEO,HL,SM']], function () {
         Route::get('/finance', [SummaryController::class, 'summary'])->name('summary.summary');
         Route::post('/get', [SummaryController::class, 'getSummary'])->name('summary.dataSummary');
         Route::get('/report', [SummaryController::class, 'summaryReport'])->name('summary.report');
@@ -65,13 +65,13 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::group(['prefix' => 'distribution'], function () {
         // Distribution
-        Route::group(['prefix' => 'validation', 'middlewate' => ['checkRoleUser:IT,AH']], function () {
+        Route::group(['prefix' => 'validation', 'middlewate' => ['checkRoleUser:IT,AH,SM']], function () {
             Route::get('/', [DistributionController::class, 'validationRestock'])->name('distribution.validationRestock');
             Route::get('/get', [DistributionController::class, 'getValidationRestock'])->name('distribution.getValidationRestock');
             Route::get('/detail/{stockOrderID}', [DistributionController::class, 'validationDetail'])->name('distribution.validationDetail');
             Route::post('/update/{stockOrderID}', [DistributionController::class, 'updateValidationRestock'])->name('distribution.updateValidationRestock');
         });
-        Route::group(['prefix' => 'restock', 'middleware' => ['checkRoleUser:IT,AD,RBTAD,BM,CEO,FI,AH,DMO,HL']], function () {
+        Route::group(['prefix' => 'restock', 'middleware' => ['checkRoleUser:IT,AD,RBTAD,BM,CEO,FI,AH,DMO,HL,SM']], function () {
             Route::get('/', [DistributionController::class, 'restock'])->name('distribution.restock');
             Route::post('/get/allRestockAndDO', [DistributionController::class, 'getAllRestockAndDO'])->name('distribution.getAllRestockAndDO');
             Route::get('/get/{statusOrder}', [DistributionController::class, 'getRestockByStatus'])->name('distribution.getRestockByStatus');
@@ -84,22 +84,22 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/reject/request/{deliveryOrderId}', [DistributionController::class, 'rejectRequestDO'])->name('distribution.rejectRequestDO');
             Route::post('/confirm/request/{deliveryOrderId}/{depoChannel}', [DistributionController::class, 'confirmRequestDO'])->name('distribution.confirmRequestDO');
         });
-        Route::get('/restock/price-submission/create/{stockOrderID}', [DistributionController::class, 'createPriceSubmission'])->middleware('checkRoleUser:IT,BM,CEO')->name('distribution.createPriceSubmission');
-        Route::post('/restock/price-submission/store/{stockOrderID}', [DistributionController::class, 'storePriceSubmission'])->middleware('checkRoleUser:IT,BM,CEO')->name('distribution.storePriceSubmission');
+        Route::get('/restock/price-submission/create/{stockOrderID}', [DistributionController::class, 'createPriceSubmission'])->middleware('checkRoleUser:IT,BM,CEO,SM')->name('distribution.createPriceSubmission');
+        Route::post('/restock/price-submission/store/{stockOrderID}', [DistributionController::class, 'storePriceSubmission'])->middleware('checkRoleUser:IT,BM,CEO,SM')->name('distribution.storePriceSubmission');
 
-        Route::group(['prefix' => 'bill', 'middleware' => ['checkRoleUser:IT,AD,RBTAD,BM,CEO,FI,AH,HL,DMO,DRV']], function () {
+        Route::group(['prefix' => 'bill', 'middleware' => ['checkRoleUser:IT,AD,RBTAD,BM,CEO,FI,AH,HL,DMO,DRV,SM']], function () {
             Route::get('/', [DistributionController::class, 'billPayLater'])->name('distribution.billPayLater');
             Route::get('/get', [DistributionController::class, 'getBillPayLater'])->name('distribution.getBillPayLater');
             Route::post('/update/{deliveryOrderID}', [DistributionController::class, 'updateBillPayLater'])->name('distribution.updateBillPayLater');
         });
-        Route::group(['prefix' => 'settlement', 'middlewate' => ['checkRoleUser:IT,AD,BM,CEO,FI,HL']], function () {
+        Route::group(['prefix' => 'settlement', 'middlewate' => ['checkRoleUser:IT,AD,BM,CEO,FI,HL,SM']], function () {
             Route::get('/', [SettlementController::class, 'index'])->name('distribution.settlement');
             Route::post('/data', [SettlementController::class, 'getDataSettlement'])->name('distribution.getSettlement');
             Route::post('/summary', [SettlementController::class, 'summarySettlement'])->name('distribution.summarySettlement');
             Route::post('/update/{deliveryOrderID}', [SettlementController::class, 'updateSettlement'])->name('distribution.updateSettlement');
             Route::get('/confirm/{deliveryOrderID}/{status}', [SettlementController::class, 'confirmSettlement'])->name('distribution.confirmSettlement');
         });
-        Route::group(['prefix' => 'product', 'middleware' => ['checkRoleUser:IT,AD,RBTAD,BM,CEO,FI,AH,DMO,HL']], function () {
+        Route::group(['prefix' => 'product', 'middleware' => ['checkRoleUser:IT,AD,RBTAD,BM,CEO,FI,AH,DMO,HL,SM']], function () {
             Route::get('/', [DistributionController::class, 'product'])->name('distribution.product');
             Route::get('/get', [DistributionController::class, 'getProduct'])->name('distribution.getProduct');
             Route::group(['middleware' => ['checkRoleUser:IT,FI,AH,BM,CEO,RBTAD']], function () {
@@ -110,7 +110,7 @@ Route::group(['middleware' => ['auth']], function () {
                 Route::get('/delete/{distributorId}/{productId}/{gradeId}', [DistributionController::class, 'deleteProduct'])->name('distribution.deleteProduct');
             });
         });
-        Route::group(['prefix' => 'merchant', 'middleware' => ['checkRoleUser:IT,AD,RBTAD,BM,CEO,FI,AH,DMO']], function () {
+        Route::group(['prefix' => 'merchant', 'middleware' => ['checkRoleUser:IT,AD,RBTAD,BM,CEO,FI,AH,DMO,SM']], function () {
             Route::get('/', [DistributionController::class, 'merchant'])->name('distribution.merchant');
             Route::get('/get', [DistributionController::class, 'getMerchant'])->name('distribution.getMerchant');
             Route::post('/grade/update/{merchantId}', [DistributionController::class, 'updateGrade'])->name('distribution.updateGrade');
@@ -124,7 +124,7 @@ Route::group(['middleware' => ['auth']], function () {
         });
     });
 
-    Route::group(['prefix' => 'delivery', 'middleware' => ['checkRoleUser:IT,AD,BM,CEO,FI,AH,RBTAD,HL,DRV']], function () {
+    Route::group(['prefix' => 'delivery', 'middleware' => ['checkRoleUser:IT,AD,BM,CEO,FI,AH,RBTAD,HL,DRV,SM']], function () {
         Route::group(['prefix' => 'request'], function () {
             Route::get('/', [DeliveryController::class, 'request'])->name('delivery.request');
             Route::post('/get', [DeliveryController::class, 'getRequest'])->name('delivery.getRequest');
@@ -193,7 +193,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/update/invoice/{purchaseID}', [StockController::class, 'updateInvoice'])->name('stock.updateInvoicePurchase');
         });
 
-        Route::group(['prefix' => 'list', 'middleware' => ['checkRoleUser:IT,FI,AD,BM,CEO,INVTR,HL']], function () {
+        Route::group(['prefix' => 'list', 'middleware' => ['checkRoleUser:IT,FI,AD,BM,CEO,INVTR,HL,SM']], function () {
             Route::get('/', [StockController::class, 'listStock'])->name('stock.listStock');
             Route::get('/get', [StockController::class, 'getListStock'])->name('stock.getListStock');
             Route::get('/detail/{distributorID}/{investorID}/{productID}/{label}', [StockController::class, 'detailStock'])->name('stock.detailStock');
@@ -220,7 +220,7 @@ Route::group(['middleware' => ['auth']], function () {
         });
     });
 
-    Route::group(['prefix' => 'rtsales', 'middleware' => ['checkRoleUser:IT,FI,BM,CEO,DMO']], function () {
+    Route::group(['prefix' => 'rtsales', 'middleware' => ['checkRoleUser:IT,FI,BM,CEO,DMO,SM']], function () {
         Route::get('/summary', [RTSalesController::class, 'summary'])->name('rtsales.summary');
 
         Route::group(['prefix' => 'callplan'], function () {
@@ -323,15 +323,15 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/ppob/merchant/get', [PpobController::class, 'getActiveMerchant'])->name('ppob.activeMerchant');
     });
 
-    Route::group(['middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,HR,AD,HL,DMO,RBTAD']], function () {
+    Route::group(['middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,HR,AD,HL,DMO,RBTAD,SM']], function () {
         Route::post('/merchant/restock/get', [MerchantController::class, 'getRestocks'])->name('merchant.getRestocks');
         Route::post('/merchant/restock/product/get', [MerchantController::class, 'getRestockProduct'])->name('merchant.getRestockProduct');
     });
 
-    Route::group(['middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,RBTAD,HL']], function () {
+    Route::group(['middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,RBTAD,HL,SM']], function () {
         // Distributor
         Route::get('/distributor/account', [DistributorController::class, 'account'])->name('distributor.account');
-        Route::get('/distributor/account/get', [DistributorController::class, 'getAccounts'])->withoutMiddleware('checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,RBTAD')->name('distributor.getAccounts');
+        Route::get('/distributor/account/get', [DistributorController::class, 'getAccounts'])->withoutMiddleware('checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,RBTAD,SM')->name('distributor.getAccounts');
         Route::get('/distributor/account/edit/{distributorId}', [DistributorController::class, 'editAccount'])->name('distributor.editAccount');
         Route::post('/distributor/account/update/{distributorId}', [DistributorController::class, 'updateAccount'])->name('distributor.updateAccount');
         Route::get('/distributor/account/product/{distributorId}', [DistributorController::class, 'productDetails'])->name('distributor.productDetails');
@@ -342,7 +342,7 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     // Merchant
-    Route::group(['middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,HL,RBTAD']], function () {
+    Route::group(['middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,HL,RBTAD,SM']], function () {
         Route::get('/merchant/account', [MerchantController::class, 'account'])->name('merchant.account');
         Route::get('/merchant/account/get', [MerchantController::class, 'getAccounts'])->name('merchant.getAccounts');
         Route::post('/merchant/account/update-block/{merchantID}', [MerchantController::class, 'updateBlock'])->name('merchant.updateBlock');

@@ -68,7 +68,6 @@
           @endif
           <div class="card-body mt-2">
             <div class="tab-content">
-
               <div class="tab-pane active" id="monthly-report">
                 <div class="row">
                   <div class="col-12">

@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\SummaryService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use stdClass;
+use Illuminate\Http\Request;
+use App\Services\SummaryService;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
 
 class SummaryController extends Controller
@@ -69,15 +70,36 @@ class SummaryController extends Controller
 
     public function summaryReport()
     {
+        $depoUser = Auth::user()->Depo;
+
         $distributors = DB::table('ms_distributor')
             ->where('IsActive', '=', 1)
             ->whereNotNull('Email')
-            ->select('DistributorID', 'DistributorName')
-            ->get();
+            ->select('DistributorID', 'DistributorName');
+        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
+            $distributors->where('Depo', $depoUser);
+        }
+        if ($depoUser == "REG1") {
+            $distributors->whereIn('Depo', ['SMG', 'YYK']);
+        }
+        if ($depoUser == "REG2") {
+            $distributors->whereIn('Depo', ['CRS', 'CKG', 'BDG']);
+        }
+        $distributors = $distributors->get();
 
         $sales = DB::table('ms_sales')
-            // ->where('IsActive', 1)
-            ->select('SalesCode', 'SalesName')->get();
+            ->where('IsActive', 1)
+            ->select('SalesCode', 'SalesName');
+        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
+            $sales->where('Team', $depoUser);
+        }
+        if ($depoUser == "REG1") {
+            $sales->whereIn('Team', ['SMG', 'YYK']);
+        }
+        if ($depoUser == "REG2") {
+            $sales->whereIn('Team', ['CRS', 'CKG', 'BDG']);
+        }
+        $sales = $sales->get();
 
         $typePO = DB::table('tx_merchant_order')
             ->distinct('Type')->select('Type')->get();
@@ -100,8 +122,9 @@ class SummaryController extends Controller
         $salesCode = $request->salesCode;
         $typePO = $request->typePO;
         $partner = $request->partner;
-
+        // dd($distributorID);
         $data = $summaryService->summaryReport($startDate, $endDate, $distributorID, $salesCode, $typePO, $partner);
+
         return $data;
     }
 
@@ -113,23 +136,34 @@ class SummaryController extends Controller
         $salesCode = $request->input('salesCode');
         $typePO = $request->input('typePO');
         $partner = $request->input('partner');
+        $userDepo = Auth::user()->Depo;
+
+        if ($userDepo == "REG1" && !$distributorID) {
+            $distributorID = "D-2004-000002,D-2212-000001";
+        }
+        if ($userDepo == "REG2" && !$distributorID) {
+            $distributorID = "D-2004-000006,D-2004-000005,D-2004-000001";
+        }
 
         if ($typePO != null) {
             $filterPO = explode(",", $typePO);
         } else {
             $filterPO = $typePO;
         }
+
         if ($distributorID != null) {
             $filterDistributor = explode(",", $distributorID);
         } else {
             $filterDistributor = $distributorID;
         }
+
         if ($salesCode != null) {
 
             $filterSales = explode(",", $salesCode);
         } else {
             $filterSales = $salesCode;
         }
+
         if ($partner != null) {
             $filterPartner = explode(",", $partner);
         } else {
@@ -408,15 +442,35 @@ class SummaryController extends Controller
 
     public function summaryMerchant()
     {
+        $depoUser = Auth::user()->Depo;
         $distributors = DB::table('ms_distributor')
             ->where('IsActive', '=', 1)
             ->whereNotNull('Email')
-            ->select('DistributorID', 'DistributorName')
-            ->get();
+            ->select('DistributorID', 'DistributorName');
+        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
+            $distributors->where('Depo', $depoUser);
+        }
+        if ($depoUser == "REG1") {
+            $distributors->whereIn('Depo', ['SMG', 'YYK']);
+        }
+        if ($depoUser == "REG2") {
+            $distributors->whereIn('Depo', ['CRS', 'CKG', 'BDG']);
+        }
+        $distributors = $distributors->get();
 
         $sales = DB::table('ms_sales')
-            // ->where('IsActive', 1)
-            ->select('SalesCode', 'SalesName')->get();
+            ->where('IsActive', 1)
+            ->select('SalesCode', 'SalesName');
+        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
+            $sales->where('Team', $depoUser);
+        }
+        if ($depoUser == "REG1") {
+            $sales->whereIn('Team', ['SMG', 'YYK']);
+        }
+        if ($depoUser == "REG2") {
+            $sales->whereIn('Team', ['CRS', 'CKG', 'BDG']);
+        }
+        $sales = $sales->get();
 
         return view('summary.merchant.index', [
             'distributors' => $distributors,
@@ -432,6 +486,14 @@ class SummaryController extends Controller
         $distributorID = $request->input('distributorID');
         $salesCode = $request->input('salesCode');
         $marginStatus = $request->input('marginStatus');
+        $userDepo = Auth::user()->Depo;
+
+        if ($userDepo == "REG1" && !$distributorID) {
+            $distributorID = ["D-2004-000002", "D-2212-000001"];
+        }
+        if ($userDepo == "REG2" && !$distributorID) {
+            $distributorID = ["D-2004-000006", "D-2004-000005", "D-2004-000001"];
+        }
 
         $sqlMain = $summaryService->dataSummaryMerchant($startDate, $endDate, $filterBy, $distributorID, $salesCode, $marginStatus);
 

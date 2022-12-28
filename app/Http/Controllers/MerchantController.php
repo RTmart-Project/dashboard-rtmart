@@ -26,7 +26,7 @@ class MerchantController extends Controller
 
     public function account()
     {
-        function countMerchantAccount($distributorId = "all", $thisYear = null, $thisMonth = null, $thisDay = null)
+        function countMerchantAccount($distributorId = "ALL", $thisYear = null, $thisMonth = null, $thisDay = null)
         {
             $merchantAccount = DB::table('ms_merchant_account')
                 ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
@@ -43,7 +43,7 @@ class MerchantController extends Controller
                     ->whereMonth('ms_merchant_account.CreatedDate', '=', $thisMonth)
                     ->whereDay('ms_merchant_account.CreatedDate', '=', $thisDay);
             }
-            if ($distributorId != "all") {
+            if ($distributorId != "ALL") {
                 $merchantAccount->where('ms_merchant_account.DistributorID', '=', $distributorId);
             }
             if (Auth::user()->Depo != "ALL") {
@@ -60,8 +60,8 @@ class MerchantController extends Controller
 
         return view('merchant.account.index', [
             'countTotalMerchant' => countMerchantAccount(),
-            'countNewMerchantThisMonth' => countMerchantAccount("all", $thisYear, $thisMonth),
-            'countNewMerchantThisDay' => countMerchantAccount("all", $thisYear, $thisMonth, $thisDay),
+            'countNewMerchantThisMonth' => countMerchantAccount("ALL", $thisYear, $thisMonth),
+            'countNewMerchantThisDay' => countMerchantAccount("ALL", $thisYear, $thisMonth, $thisDay),
             'countTotalMerchantBandung' => countMerchantAccount("D-2004-000005"),
             'countNewMerchantBandungThisMonth' => countMerchantAccount("D-2004-000005", $thisYear, $thisMonth),
             'countNewMerchantBandungThisDay' => countMerchantAccount("D-2004-000005", $thisYear, $thisMonth, $thisDay),

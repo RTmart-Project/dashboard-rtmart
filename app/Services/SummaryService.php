@@ -2,8 +2,9 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\DB;
 use stdClass;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class SummaryService
 {
@@ -244,6 +245,8 @@ class SummaryService
 
   public function summaryReport($startDate, $endDate, $distributorID, $salesCode, $typePO, $partner)
   {
+    $userDepo = Auth::user()->Depo;
+
     // Summary Purchase Order
     $sqlMainPO = DB::table('tx_merchant_order as tmo')
       ->join('ms_merchant_account', function ($join) {
@@ -256,6 +259,16 @@ class SummaryService
       ->whereRaw("DATE(tmo.CreatedDate) >= '$startDate'")
       ->whereRaw("DATE(tmo.CreatedDate) <= '$endDate'")
       ->whereRaw("tmo.StatusOrderID IN ('S009', 'S010', 'S023')");
+
+    if ($userDepo == "ALL") {
+      $distributorID = ['D-2004-000002', 'D-2212-000001', 'D-2004-000006', 'D-2004-000005', 'D-2004-000001'];
+    }
+    if ($userDepo == "REG1") {
+      $distributorID = ['D-2004-000002', 'D-2212-000001'];
+    }
+    if ($userDepo == "REG2") {
+      $distributorID = ['D-2004-000006', 'D-2004-000005', 'D-2004-000001'];
+    }
 
     $filterDistributor = "";
     if ($distributorID != null) {
@@ -409,6 +422,7 @@ class SummaryService
         ) as PercentMarginEstimasi
     ");
 
+    // return $sqlPO;
     $dataPO = $sqlPO->first();
 
     // Summary Delivery Order
@@ -420,8 +434,6 @@ class SummaryService
       })
       ->leftJoin('ms_merchant_partner', 'ms_merchant_partner.MerchantID', 'tmo.MerchantID')
       ->select('tmdo.DeliveryOrderID', 'tmo.MerchantID', 'tmdo.Discount')
-      ->whereRaw("DATE(tmdo.CreatedDate) >= '$startDate'")
-      ->whereRaw("DATE(tmdo.CreatedDate) <= '$endDate'")
       ->whereRaw("tmdo.StatusDO IN ('S025')");
 
     if ($distributorID != null) {
@@ -875,6 +887,8 @@ class SummaryService
   {
     $typePOin = "";
     $filterTypePO = "";
+    $userDepo = Auth::user()->Depo;
+
     if ($typePO != null) {
       $typePOin = "'" . implode("', '", $typePO) . "'";
       $filterTypePO = "AND tx_merchant_order.Type IN ($typePOin)";
@@ -882,11 +896,22 @@ class SummaryService
 
     $grandTotal = DB::table('tx_merchant_delivery_order')
       ->join('tx_merchant_order as tmo', 'tmo.StockOrderID', 'tx_merchant_delivery_order.StockOrderID')
-      ->join('ms_merchant_account', function ($join) {
+      ->join('ms_merchant_account', function ($join) use ($userDepo) {
         $join->on('ms_merchant_account.MerchantID', 'tmo.MerchantID');
         $join->whereRaw("ms_merchant_account.IsTesting = 0 AND (ms_merchant_account.Partner != 'TRADING' OR ms_merchant_account.Partner IS NULL)");
       })
-      ->join('ms_distributor', 'ms_distributor.DistributorID', 'tmo.DistributorID')
+      ->join('ms_distributor', function ($join) use ($userDepo) {
+        $join->on('ms_distributor.DistributorID', 'tmo.DistributorID');
+        if ($userDepo == 'ALL') {
+          $join->whereIn('ms_distributor.DistributorID', ['D-2004-000002', 'D-2212-000001', 'D-2004-000006', 'D-2004-000005', 'D-2004-000001']);
+        }
+        if ($userDepo == 'REG1') {
+          $join->whereIn('ms_distributor.DistributorID', ['D-2004-000002', 'D-2212-000001']);
+        }
+        if ($userDepo == 'REG2') {
+          $join->whereIn('ms_distributor.DistributorID', ['D-2004-000006', 'D-2004-000005', 'D-2004-000001']);
+        }
+      })
       ->join('tx_merchant_delivery_order_detail', function ($join) {
         $join->on('tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID');
         $join->where('tx_merchant_delivery_order_detail.StatusExpedition', 'S031');
@@ -895,7 +920,6 @@ class SummaryService
       ->where('tx_merchant_delivery_order.StatusDO', 'S025')
       ->whereDate('tx_merchant_delivery_order.CreatedDate', '>=', $startDate)
       ->whereDate('tx_merchant_delivery_order.CreatedDate', '<=', $endDate)
-      ->whereIn('tmo.DistributorID', ['D-2004-000001', 'D-2004-000002', 'D-2004-000005', 'D-2004-000006'])
       ->selectRaw("
         'Total' AS DistributorID,
         '<b>Total</b>' AS DistributorName,
@@ -922,7 +946,18 @@ class SummaryService
         $join->on('ms_merchant_account.MerchantID', 'tmo.MerchantID');
         $join->whereRaw("ms_merchant_account.IsTesting = 0 AND (ms_merchant_account.Partner != 'TRADING' OR ms_merchant_account.Partner IS NULL)");
       })
-      ->join('ms_distributor', 'ms_distributor.DistributorID', 'tmo.DistributorID')
+      ->join('ms_distributor', function ($join) use ($userDepo) {
+        $join->on('ms_distributor.DistributorID', 'tmo.DistributorID');
+        if ($userDepo == 'ALL') {
+          $join->whereIn('ms_distributor.DistributorID', ['D-2004-000002', 'D-2212-000001', 'D-2004-000006', 'D-2004-000005', 'D-2004-000001']);
+        }
+        if ($userDepo == 'REG1') {
+          $join->whereIn('ms_distributor.DistributorID', ['D-2004-000002', 'D-2212-000001']);
+        }
+        if ($userDepo == 'REG2') {
+          $join->whereIn('ms_distributor.DistributorID', ['D-2004-000006', 'D-2004-000005', 'D-2004-000001']);
+        }
+      })
       ->join('tx_merchant_delivery_order_detail', function ($join) {
         $join->on('tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID');
         $join->where('tx_merchant_delivery_order_detail.StatusExpedition', 'S031');
@@ -931,7 +966,6 @@ class SummaryService
       ->where('tx_merchant_delivery_order.StatusDO', 'S025')
       ->whereDate('tx_merchant_delivery_order.CreatedDate', '>=', $startDate)
       ->whereDate('tx_merchant_delivery_order.CreatedDate', '<=', $endDate)
-      ->whereIn('tmo.DistributorID', ['D-2004-000001', 'D-2004-000002', 'D-2004-000005', 'D-2004-000006'])
       ->selectRaw("
         tmo.DistributorID,
         ms_distributor.DistributorName,
