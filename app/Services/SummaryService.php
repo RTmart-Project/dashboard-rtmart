@@ -245,7 +245,7 @@ class SummaryService
 
   public function summaryReport($startDate, $endDate, $distributorID, $salesCode, $typePO, $partner)
   {
-    $userDepo = Auth::user()->Depo;
+    // $userDepo = Auth::user()->Depo;
 
     // Summary Purchase Order
     $sqlMainPO = DB::table('tx_merchant_order as tmo')
@@ -260,15 +260,15 @@ class SummaryService
       ->whereRaw("DATE(tmo.CreatedDate) <= '$endDate'")
       ->whereRaw("tmo.StatusOrderID IN ('S009', 'S010', 'S023')");
 
-    if ($userDepo == "ALL" && !$distributorID) {
-      $distributorID = ['D-2004-000002', 'D-2212-000001', 'D-2004-000006', 'D-2004-000005', 'D-2004-000001'];
-    }
-    if ($userDepo == "REG1" && !$distributorID) {
-      $distributorID = ['D-2004-000002', 'D-2212-000001'];
-    }
-    if ($userDepo == "REG2" && !$distributorID) {
-      $distributorID = ['D-2004-000006', 'D-2004-000005', 'D-2004-000001'];
-    }
+    // if ($userDepo == "ALL" && !$distributorID) {
+    //   $distributorID = ['D-2004-000002', 'D-2212-000001', 'D-2004-000006', 'D-2004-000005', 'D-2004-000001'];
+    // }
+    // if ($userDepo == "REG1" && !$distributorID) {
+    //   $distributorID = ['D-2004-000002', 'D-2212-000001'];
+    // }
+    // if ($userDepo == "REG2" && !$distributorID) {
+    //   $distributorID = ['D-2004-000006', 'D-2004-000005', 'D-2004-000001'];
+    // }
 
     $filterDistributor = "";
     if ($distributorID != null) {
@@ -422,7 +422,6 @@ class SummaryService
         ) as PercentMarginEstimasi
     ");
 
-    // return $sqlPO;
     $dataPO = $sqlPO->first();
 
     // Summary Delivery Order
@@ -434,6 +433,8 @@ class SummaryService
       })
       ->leftJoin('ms_merchant_partner', 'ms_merchant_partner.MerchantID', 'tmo.MerchantID')
       ->select('tmdo.DeliveryOrderID', 'tmo.MerchantID', 'tmdo.Discount')
+      ->whereRaw("DATE(tmdo.CreatedDate) >= '$startDate'")
+      ->whereRaw("DATE(tmdo.CreatedDate) <= '$endDate'")
       ->whereRaw("tmdo.StatusDO IN ('S025')");
 
     if ($distributorID != null) {
