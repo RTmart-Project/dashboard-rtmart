@@ -76,15 +76,19 @@ class SummaryController extends Controller
             ->where('IsActive', '=', 1)
             ->whereNotNull('Email')
             ->select('DistributorID', 'DistributorName');
-        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
+
+        if ($depoUser != "ALL") {
             $distributors->where('Depo', $depoUser);
         }
-        if ($depoUser == "REG1") {
-            $distributors->whereIn('Depo', ['SMG', 'YYK']);
-        }
-        if ($depoUser == "REG2") {
-            $distributors->whereIn('Depo', ['CRS', 'CKG', 'BDG']);
-        }
+        // if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
+        //     $distributors->where('Depo', $depoUser);
+        // }
+        // if ($depoUser == "REG1") {
+        //     $distributors->whereIn('Depo', ['SMG', 'YYK']);
+        // }
+        // if ($depoUser == "REG2") {
+        //     $distributors->whereIn('Depo', ['CRS', 'CKG', 'BDG']);
+        // }
         $distributors = $distributors->get();
 
         $sales = DB::table('ms_sales')
@@ -122,6 +126,18 @@ class SummaryController extends Controller
         $salesCode = $request->salesCode;
         $typePO = $request->typePO;
         $partner = $request->partner;
+        // $userDepo = Auth::user()->Depo;
+
+        // if ($userDepo == "ALL" && $userDepo != "REG1" && $userDepo != "REG2" && !$distributorID) {
+        //     // $distributorID = ['D-2004-000002', 'D-2212-000001', 'D-2004-000006', 'D-2004-000005', 'D-2004-000001'];
+        //     $distributorID = ['D-2004-000006', 'D-2004-000005', 'D-2004-000001'];
+        // }
+        // if ($userDepo == "REG1" && !$distributorID) {
+        //     $distributorID = ['D-2004-000002', 'D-2212-000001'];
+        // }
+        // if ($userDepo == "REG2" && !$distributorID) {
+        //     $distributorID = ['D-2004-000006', 'D-2004-000005', 'D-2004-000001'];
+        // }
 
         $data = $summaryService->summaryReport($startDate, $endDate, $distributorID, $salesCode, $typePO, $partner);
 
