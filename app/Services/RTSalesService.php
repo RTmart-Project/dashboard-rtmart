@@ -45,22 +45,10 @@ class RTSalesService
 
     return $sql;
   }
-
-  public function getDistributorFromStore()
-  {
-    $sql = DB::table('ms_store')
-      ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', 'ms_store.MerchantID')
-      ->leftJoin('ms_distributor', 'ms_distributor.DistributorID', 'ms_merchant_account.DistributorID')
-      ->whereNotNull('ms_store.MerchantID')
-      ->distinct()
-      ->select('ms_distributor.DistributorID', 'ms_distributor.DistributorName')
-      ->orderBy('ms_distributor.DistributorName');
-
-    return $sql;
-  }
-
+  
   public function callReportData($fromDate = null, $toDate = null)
   {
+    $depoUser = Auth::user()->Depo;
     $startDate = new DateTime($fromDate) ?? new DateTime();
     $endDate = new DateTime($toDate) ?? new DateTime();
     $startDateFormat = $startDate->format('Y-m-d');
@@ -105,9 +93,14 @@ class RTSalesService
             ")
       ->groupBy('msales.SalesCode', 'msales.SalesName', 'msales.TeamBy', 'msales.Team');
 
-    if (Auth::user()->Depo != "ALL") {
-      $depoUser = Auth::user()->Depo;
-      $sql->where('msales.Team', '=', $depoUser);
+    if ($depoUser != "ALL" && $depoUser == "REG1" && $depoUser == "REG2") {
+      $sql->where('msales.Team', $depoUser);
+    }
+    if ($depoUser == "REG1") {
+      $sql->whereIn('msales.Team', ['SMG', 'YYK']);
+    }
+    if ($depoUser == "REG2") {
+      $sql->whereIn('msales.Team', ['CRS', 'CKG', 'BDG']);
     }
 
     return $sql;
@@ -119,16 +112,22 @@ class RTSalesService
     $endDate = new DateTime($toDate) ?? new DateTime();
     $startDateFormat = $startDate->format('Y-m-d');
     $endDateFormat = $endDate->format('Y-m-d');
-    $userDepo = Auth::user()->Depo;
+    $depoUser = Auth::user()->Depo;
 
     $data = DB::table('ms_visit_survey')
       ->select('ms_visit_survey.VisitSurveyID', 'ms_visit_survey.CreatedDate', 'ms_sales.SalesCode', 'ms_sales.SalesName', 'ms_visit_plan_result.StoreID', 'ms_store.StoreName', 'ms_store.PhoneNumber', 'ms_visit_survey.ProductID', 'ms_product.ProductName', 'ms_visit_survey.PurchasePrice', 'ms_visit_survey.SellingPrice', 'ms_visit_survey.Supplier', 'ms_visit_survey.IsValid', 'ms_team_name.TeamName')
       ->leftJoin('ms_visit_plan_result', 'ms_visit_survey.VisitResultID', 'ms_visit_plan_result.VisitResultID')
       ->join('ms_product', 'ms_visit_survey.ProductID', 'ms_product.ProductID')
-      ->join('ms_sales', function ($join) use ($userDepo) {
+      ->join('ms_sales', function ($join) use ($depoUser) {
         $join->on('ms_visit_plan_result.SalesCode', 'ms_sales.SalesCode');
-        if ($userDepo != "ALL") {
-          $join->where('ms_sales.Team', '=', $userDepo);
+        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
+          $join->where('ms_sales.Team', $depoUser);
+        }
+        if ($depoUser == "REG1") {
+          $join->whereIn('ms_sales.Team', ['SMG', 'YYK']);
+        }
+        if ($depoUser == "REG2") {
+          $join->whereIn('ms_sales.Team', ['CRS', 'CKG', 'BDG']);
         }
       })
       ->join('ms_team_name', 'ms_team_name.TeamCode', 'ms_sales.Team')
@@ -175,14 +174,22 @@ class RTSalesService
 
   public function callPlanData($visitDayName, $startDate, $endDate)
   {
+    $depoUser = Auth::user()->Depo;
+
     $sql = DB::table('ms_visit_plan')
       ->join('ms_store', 'ms_store.StoreID', 'ms_visit_plan.StoreID')
       ->leftJoin('ms_visit_plan_sort', 'ms_visit_plan_sort.VisitPlanID', 'ms_visit_plan.VisitPlanID')
       // ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_visit_plan.SalesCode')
-      ->join('ms_sales', function ($join) {
+      ->join('ms_sales', function ($join) use ($depoUser) {
         $join->on('ms_sales.SalesCode', 'ms_visit_plan.SalesCode');
-        if (Auth::user()->Depo != "ALL") {
-          $join->where('ms_sales.Team', Auth::user()->Depo);
+        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
+          $join->where('ms_sales.Team', $depoUser);
+        }
+        if ($depoUser == "REG1") {
+          $join->whereIn('ms_sales.Team', ['SMG', 'YYK']);
+        }
+        if ($depoUser == "REG2") {
+          $join->whereIn('ms_sales.Team', ['CRS', 'CKG', 'BDG']);
         }
       })
       ->leftJoin('ms_merchant_partner', 'ms_merchant_partner.MerchantID', 'ms_store.MerchantID')

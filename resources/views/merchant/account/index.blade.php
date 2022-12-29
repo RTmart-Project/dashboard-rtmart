@@ -11,7 +11,8 @@
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
 <!-- Main -->
-{{-- <link rel="stylesheet" href="{{url('/')}}/main/css/custom/select-filter.css"> --}}
+{{--
+<link rel="stylesheet" href="{{url('/')}}/main/css/custom/select-filter.css"> --}}
 @endsection
 
 @section('header-menu', 'Data Akun Merchant')
@@ -82,10 +83,13 @@
                     <div class="card-header">
                         <h3 class="card-title">Total Merchant per Distributor</h3>
                         <div class="card-tools">
-                            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i></button>
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i
+                                    class="fas fa-plus"></i></button>
                         </div>
                     </div>
                     <div class="card-body">
+                        @if (Auth::user()->Depo == "ALL" || Auth::user()->Depo == "REG2")
+                        {{-- Bandung --}}
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="info-box">
@@ -100,28 +104,34 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="info-box">
-                                    <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-store"></i></span>
+                                    <span class="info-box-icon bg-danger elevation-1"><i
+                                            class="fas fa-store"></i></span>
                                     <div class="info-box-content">
                                         <span class="info-box-text">Bulan Ini (RTmart Bandung)</span>
                                         <span class="info-box-number">
-                                            {{Helper::formatCurrency($countNewMerchantBandungThisMonth, '+', ' Merchant')}}
+                                            {{Helper::formatCurrency($countNewMerchantBandungThisMonth, '+', '
+                                            Merchant')}}
                                         </span>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="info-box">
-                                    <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-store"></i></span>
+                                    <span class="info-box-icon bg-warning elevation-1"><i
+                                            class="fas fa-store"></i></span>
                                     <div class="info-box-content">
                                         <span class="info-box-text">Hari Ini (RTmart Bandung)</span>
                                         <span class="info-box-number">
-                                            {{Helper::formatCurrency($countNewMerchantBandungThisDay, '+', ' Merchant')}}
+                                            {{Helper::formatCurrency($countNewMerchantBandungThisDay, '+', '
+                                            Merchant')}}
                                         </span>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                
+                        {{-- End Of Bandung --}}
+
+                        {{-- Cakung --}}
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="info-box">
@@ -136,18 +146,21 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="info-box">
-                                    <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-store"></i></span>
+                                    <span class="info-box-icon bg-danger elevation-1"><i
+                                            class="fas fa-store"></i></span>
                                     <div class="info-box-content">
                                         <span class="info-box-text">Bulan Ini (RTmart Cakung)</span>
                                         <span class="info-box-number">
-                                            {{Helper::formatCurrency($countNewMerchantCakungThisMonth, '+', ' Merchant')}}
+                                            {{Helper::formatCurrency($countNewMerchantCakungThisMonth, '+', '
+                                            Merchant')}}
                                         </span>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="info-box">
-                                    <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-store"></i></span>
+                                    <span class="info-box-icon bg-warning elevation-1"><i
+                                            class="fas fa-store"></i></span>
                                     <div class="info-box-content">
                                         <span class="info-box-text">Hari Ini (RTmart Cakung)</span>
                                         <span class="info-box-number">
@@ -157,7 +170,9 @@
                                 </div>
                             </div>
                         </div>
-                
+                        {{-- End Of Cakung --}}
+
+                        {{-- Ciracas --}}
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="info-box">
@@ -172,28 +187,36 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="info-box">
-                                    <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-store"></i></span>
+                                    <span class="info-box-icon bg-danger elevation-1"><i
+                                            class="fas fa-store"></i></span>
                                     <div class="info-box-content">
                                         <span class="info-box-text">Bulan Ini (RTmart Ciracas)</span>
                                         <span class="info-box-number">
-                                            {{Helper::formatCurrency($countNewMerchantCiracasThisMonth, '+', ' Merchant')}}
+                                            {{Helper::formatCurrency($countNewMerchantCiracasThisMonth, '+', '
+                                            Merchant')}}
                                         </span>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="info-box">
-                                    <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-store"></i></span>
+                                    <span class="info-box-icon bg-warning elevation-1"><i
+                                            class="fas fa-store"></i></span>
                                     <div class="info-box-content">
                                         <span class="info-box-text">Hari Ini (RTmart Ciracas)</span>
                                         <span class="info-box-number">
-                                            {{Helper::formatCurrency($countNewMerchantCiracasThisDay, '+', ' Merchant')}}
+                                            {{Helper::formatCurrency($countNewMerchantCiracasThisDay, '+', '
+                                            Merchant')}}
                                         </span>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        {{-- End Of Ciracas --}}
+                        @endif
 
+                        @if (Auth::user()->Depo == "ALL" || Auth::user()->Depo == "REG1")
+                        {{-- Semarang --}}
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="info-box">
@@ -208,32 +231,80 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="info-box">
-                                    <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-store"></i></span>
+                                    <span class="info-box-icon bg-danger elevation-1"><i
+                                            class="fas fa-store"></i></span>
                                     <div class="info-box-content">
                                         <span class="info-box-text">Bulan Ini (RTmart Semarang)</span>
                                         <span class="info-box-number">
-                                            {{Helper::formatCurrency($countNewMerchantSemarangThisMonth, '+', ' Merchant')}}
+                                            {{Helper::formatCurrency($countNewMerchantSemarangThisMonth, '+', '
+                                            Merchant')}}
                                         </span>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="info-box">
-                                    <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-store"></i></span>
+                                    <span class="info-box-icon bg-warning elevation-1"><i
+                                            class="fas fa-store"></i></span>
                                     <div class="info-box-content">
                                         <span class="info-box-text">Hari Ini (RTmart Semarang)</span>
                                         <span class="info-box-number">
-                                            {{Helper::formatCurrency($countNewMerchantSemarangThisDay, '+', ' Merchant')}}
+                                            {{Helper::formatCurrency($countNewMerchantSemarangThisDay, '+', '
+                                            Merchant')}}
                                         </span>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        {{-- End Of Semarang --}}
+
+                        {{-- Yogyakarta --}}
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="info-box">
+                                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-store"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Total Merchant (RTmart Yogyakarta)</span>
+                                        <span class="info-box-number">
+                                            {{Helper::formatCurrency($countTotalMerchantYogyakarta, '')}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-box">
+                                    <span class="info-box-icon bg-danger elevation-1"><i
+                                            class="fas fa-store"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Bulan Ini (RTmart Yogyakarta)</span>
+                                        <span class="info-box-number">
+                                            {{Helper::formatCurrency($countNewMerchantYogyakartaThisMonth, '+', '
+                                            Merchant')}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-box">
+                                    <span class="info-box-icon bg-warning elevation-1"><i
+                                            class="fas fa-store"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Hari Ini (RTmart Yogyakarta)</span>
+                                        <span class="info-box-number">
+                                            {{Helper::formatCurrency($countNewMerchantYogyakartaThisDay, '+', '
+                                            Merchant')}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {{-- End Of Yogyakarta --}}
+                        @endif
                     </div>
-                  <!-- /.card-body -->
+                    <!-- /.card-body -->
                 </div>
                 <!-- /.card -->
-              </div>
+            </div>
         </div>
 
         <!-- Table -->
@@ -318,7 +389,7 @@
 <script src="{{url('/')}}/main/js/merchant/account/account.js"></script>
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
 <script>
-// Recall Responsive DataTables
+    // Recall Responsive DataTables
 $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
     $('.table-datatables:visible').each(function(e) {
         $(this).DataTable().columns.adjust().responsive.recalc();

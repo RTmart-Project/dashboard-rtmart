@@ -35,6 +35,7 @@ class SettlementController extends Controller
         $toDate = $request->input('toDate');
         $distributor = $request->input('distributor');
         $filterBy = $request->input('filterBy');
+        $depoUser = Auth::user()->Depo;
 
         $sql = $this->settlementService->dataSettlement();
 
@@ -50,9 +51,14 @@ class SettlementController extends Controller
             $sql->whereIn('tx_merchant_order.DistributorID', $distributor);
         }
 
-        if (Auth::user()->Depo != "ALL") {
-            $depoUser = Auth::user()->Depo;
-            $sql->where('ms_distributor.Depo', '=', $depoUser);
+        if ($depoUser != "ALL" && $depoUser == "REG1" && $depoUser == "REG2") {
+            $sql->where('ms_distributor.Depo', $depoUser);
+        }
+        if ($depoUser == "REG1") {
+            $sql->whereIn('ms_distributor.Depo', ['SMG', 'YYK']);
+        }
+        if ($depoUser == "REG2") {
+            $sql->whereIn('ms_distributor.Depo', ['CRS', 'CKG', 'BDG']);
         }
 
         $data = $sql;

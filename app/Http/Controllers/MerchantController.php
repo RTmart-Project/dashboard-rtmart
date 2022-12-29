@@ -28,6 +28,8 @@ class MerchantController extends Controller
     {
         function countMerchantAccount($distributorId = "ALL", $thisYear = null, $thisMonth = null, $thisDay = null)
         {
+            $depoUser = Auth::user()->Depo;
+
             $merchantAccount = DB::table('ms_merchant_account')
                 ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
                 ->where('ms_merchant_account.IsTesting', 0)
@@ -44,11 +46,16 @@ class MerchantController extends Controller
                     ->whereDay('ms_merchant_account.CreatedDate', '=', $thisDay);
             }
             if ($distributorId != "ALL") {
-                $merchantAccount->where('ms_merchant_account.DistributorID', '=', $distributorId);
+                $merchantAccount->where('ms_merchant_account.DistributorID', $distributorId);
             }
-            if (Auth::user()->Depo != "ALL") {
-                $depoUser = Auth::user()->Depo;
-                $merchantAccount->where('ms_distributor.Depo', '=', $depoUser);
+            if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
+                $merchantAccount->where('ms_distributor.Depo', $depoUser);
+            }
+            if ($depoUser == "REG1") {
+                $merchantAccount->whereIn('ms_distributor.Depo', ['SMG', 'YYK']);
+            }
+            if ($depoUser == "REG2") {
+                $merchantAccount->whereIn('ms_distributor.Depo', ['CRS', 'CKG', 'BDG']);
             }
 
             return $merchantAccount->count();
@@ -73,7 +80,10 @@ class MerchantController extends Controller
             'countNewMerchantCiracasThisDay' => countMerchantAccount("D-2004-000006", $thisYear, $thisMonth, $thisDay),
             'countTotalMerchantSemarang' => countMerchantAccount("D-2004-000002"),
             'countNewMerchantSemarangThisMonth' => countMerchantAccount("D-2004-000002", $thisYear, $thisMonth),
-            'countNewMerchantSemarangThisDay' => countMerchantAccount("D-2004-000002", $thisYear, $thisMonth, $thisDay)
+            'countNewMerchantSemarangThisDay' => countMerchantAccount("D-2004-000002", $thisYear, $thisMonth, $thisDay),
+            'countTotalMerchantYogyakarta' => countMerchantAccount("D-2212-000001"),
+            'countNewMerchantYogyakartaThisMonth' => countMerchantAccount("D-2212-000001", $thisYear, $thisMonth),
+            'countNewMerchantYogyakartaThisDay' => countMerchantAccount("D-2212-000001", $thisYear, $thisMonth, $thisDay)
         ]);
     }
 
@@ -84,6 +94,7 @@ class MerchantController extends Controller
         $distributorId = $request->input('distributorId');
         $filterAssessment = $request->input('filterAssessment');
         $filterBlock = $request->input('filterBlock');
+        $depoUser = Auth::user()->Depo;
 
         // Get data account, jika tanggal filter kosong tampilkan semua data.
         $sqlAllAccount = DB::table('ms_merchant_account')
@@ -142,9 +153,14 @@ class MerchantController extends Controller
             $sqlAllAccount->where('ms_merchant_account.IsBlocked', 0);
         }
 
-        if (Auth::user()->Depo != "ALL") {
-            $depoUser = Auth::user()->Depo;
-            $sqlAllAccount->where('ms_distributor.Depo', '=', $depoUser);
+        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
+            $sqlAllAccount->where('ms_distributor.Depo', $depoUser);
+        }
+        if ($depoUser == "REG1") {
+            $sqlAllAccount->whereIn('ms_distributor.Depo', ['SMG', 'YYK']);
+        }
+        if ($depoUser == "REG2") {
+            $sqlAllAccount->whereIn('ms_distributor.Depo', ['CRS', 'CKG', 'BDG']);
         }
 
         // Get data response
@@ -1490,6 +1506,7 @@ class MerchantController extends Controller
         $toDate = $request->input('toDate');
         $filterAssessment = $request->input('filterAssessment');
         $filterValid = $request->input('filterValid');
+        $depoUser = Auth::user()->Depo;
 
         $startDate = new DateTime($fromDate) ?? new DateTime();
         $endDate = new DateTime($toDate) ?? new DateTime();
@@ -1544,12 +1561,17 @@ class MerchantController extends Controller
             ");
 
         if ($paymentMethodId != null) {
-            $sqlAllAccount->where('RestockProduct.PaymentMethodID', '=', $paymentMethodId);
+            $sqlAllAccount->where('RestockProduct.PaymentMethodID', $paymentMethodId);
         }
 
-        if (Auth::user()->Depo != "ALL") {
-            $depoUser = Auth::user()->Depo;
-            $sqlAllAccount->where('RestockProduct.Depo', '=', $depoUser);
+        if ($depoUser != "ALL" && $depoUser == "REG1" && $depoUser == "REG2") {
+            $sqlAllAccount->where('RestockProduct.Depo', $depoUser);
+        }
+        if ($depoUser == "REG1") {
+            $sqlAllAccount->whereIn('RestockProduct.Depo', ['SMG', 'YYK']);
+        }
+        if ($depoUser == "REG2") {
+            $sqlAllAccount->whereIn('RestockProduct.Depo', ['CRS', 'CKG', 'BDG']);
         }
 
         if ($filterAssessment == "already-assessed") {
