@@ -215,10 +215,10 @@ $(document).ready(function () {
     // Load Distributor ID and Name for filter
     $.ajax({
         type: "get",
-        url: "/rtsales/store/getDistributor",
+        url: "/distributor/account/get",
         success: function (data) {
             let option;
-            const dataDistributor = data;
+            const dataDistributor = data.data;
             for (const item of dataDistributor) {
                 option += `<option value="${item.DistributorID}">${item.DistributorName}</option>`;
             }

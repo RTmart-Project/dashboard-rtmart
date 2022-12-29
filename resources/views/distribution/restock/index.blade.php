@@ -107,7 +107,7 @@
                                 </div>
                             </div> --}}
 
-                            <!-- Semua Data -->
+                            <!-- Restock All Product -->
                             <div class="tab-pane active" id="restock-all-product">
                                 <div class="row">
                                     <div class="col-12">

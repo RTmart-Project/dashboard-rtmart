@@ -224,7 +224,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/summary', [RTSalesController::class, 'summary'])->name('rtsales.summary');
 
         Route::group(['prefix' => 'callplan'], function () {
-            Route::post('/', [RTSalesController::class, 'callplan'])->name('rtsales.callPlan');
+            Route::get('/', [RTSalesController::class, 'callplan'])->name('rtsales.callPlan');
             Route::get('/index', [RTSalesController::class, 'callplanIndex'])->name('rtsales.callPlanIndex');
         });
 
@@ -257,7 +257,6 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/edit/{storeID}', [RTSalesController::class, 'editStore'])->name('rtsales.editStore');
             Route::post('/update/{storeID}', [RTSalesController::class, 'updateStore'])->name('rtsales.updateStore');
             Route::get('/delete/{storeID}', [RTSalesController::class, 'deleteStore'])->name('rtsales.deleteStore');
-            Route::get('/getDistributor', [RTSalesController::class, 'getDistributorFromStore'])->name('rtsales.getDistributorFromStore');
         });
     });
 
