@@ -1698,7 +1698,7 @@ class DistributionController extends Controller
         $userDepo = Auth::user()->Depo;
 
         $sql = DB::table('ms_price_submission')
-            ->join('tx_merchant_order as tmo', 'tmo.StockOrderID', 'ms_price_submission.StockOrderID')
+            ->join('tx_merchant_order AS tmo', 'tmo.StockOrderID', 'ms_price_submission.StockOrderID')
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'ms_price_submission.StatusPriceSubmission')
             ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tmo.MerchantID')
             ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'tmo.MerchantID')
@@ -1706,6 +1706,7 @@ class DistributionController extends Controller
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tmo.DistributorID')
             ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'tmo.SalesCode')
             ->where('ms_price_submission.StatusPriceSubmission', $statusPriceSubmission)
+            ->whereIn('tmo.StatusOrderID', ['S009', 'S010', 'S023'])
             ->selectRaw("
                 ms_price_submission.PriceSubmissionID,
                 tmo.StockOrderID,
@@ -1990,6 +1991,7 @@ class DistributionController extends Controller
     public function confirmPriceSubmission($priceSubmissionID, $status, Request $request)
     {
         $note = $request->input('note');
+
         if ($status === "approve") {
             $statusPriceSubmission = 'S040';
         } else {
