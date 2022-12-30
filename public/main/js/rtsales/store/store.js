@@ -3,6 +3,8 @@ $(document).ready(function () {
     dataTablesStoreList();
 
     function dataTablesStoreList() {
+        let roleID = $('meta[name="role-id"]').attr("content");
+        let depoUser = $('meta[name="depoUser"]').attr("content");
         $("#store-list .table-datatables").DataTable({
             dom:
                 "<'row'<'col-sm-12 col-md-9'<'filter-store-list'>tl><l><'col-sm-12 col-md-2'f><'col-sm-12 col-md-1'B>>" +
@@ -105,6 +107,12 @@ $(document).ready(function () {
                         orthogonal: "export",
                     },
                 },
+            ],
+            aoColumnDefs: [
+                {
+                    aTargets: [14],
+                    visible: roleID == "IT" ? true : false
+                }
             ],
             order: [0, "desc"],
             lengthChange: false,
@@ -249,7 +257,7 @@ $(document).ready(function () {
                         window.location = "/rtsales/store/delete/" + storeID;
                     },
                 },
-                tidak: function () {},
+                tidak: function () { },
             },
         });
     });

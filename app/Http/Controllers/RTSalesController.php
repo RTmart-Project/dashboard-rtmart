@@ -395,7 +395,7 @@ class RTSalesController extends Controller
                 ->whereDate('ms_store.CreatedDate', '<=', $toDate);
         }
 
-        if ($depoUser != "ALL" && $depoUser == "REG1" && $depoUser == "REG2") {
+        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
             $sqlStoreList->where('ms_distributor.Depo', $depoUser);
         }
         if ($depoUser == "REG1") {
