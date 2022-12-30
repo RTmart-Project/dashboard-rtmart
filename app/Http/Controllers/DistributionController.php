@@ -36,11 +36,17 @@ class DistributionController extends Controller
     {
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
+        $userDepo = Auth::user()->Depo;
 
         $sqlGetValidation = $restockService->getRestokValidation();
-        if (Auth::user()->Depo != "ALL") {
-            $depoUser = Auth::user()->Depo;
-            $sqlGetValidation->where('ms_distributor.Depo', '=', $depoUser);
+        if ($userDepo != "ALL" && $userDepo != "REG1" && $userDepo != "REG2") {
+            $sqlGetValidation->where('ms_distributor.Depo', '=', $userDepo);
+        }
+        if ($userDepo == "REG1") {
+            $sqlGetValidation->whereIn('ms_distributor.Depo', ['SMG', 'YYK']);
+        }
+        if ($userDepo == "REG2") {
+            $sqlGetValidation->whereIn('ms_distributor.Depo', ['CRS', 'CKG', 'BDG']);
         }
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
@@ -369,9 +375,8 @@ class DistributionController extends Controller
                 ->whereDate('tmdo.CreatedDate', '<=', $endDateFormat);
         }
 
-        if (Auth::user()->Depo != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
-            $depoUser = Auth::user()->Depo;
-            $sqlAllRestockAndDO->where('ms_distributor.Depo', '=', $depoUser);
+        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
+            $sqlAllRestockAndDO->where('ms_distributor.Depo', $depoUser);
         }
         if ($depoUser == "REG1") {
             $sqlAllRestockAndDO->whereIn('ms_distributor.Depo', ['SMG', 'YYK']);
@@ -1690,6 +1695,7 @@ class DistributionController extends Controller
     {
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
+        $userDepo = Auth::user()->Depo;
 
         $sql = DB::table('ms_price_submission')
             ->join('tx_merchant_order as tmo', 'tmo.StockOrderID', 'ms_price_submission.StockOrderID')
@@ -1787,6 +1793,16 @@ class DistributionController extends Controller
                     WHERE tx_merchant_order_detail.StockOrderID = ms_price_submission.StockOrderID
                 ) AS CostLogistic
             ");
+
+        if ($userDepo == "ALL") {
+            $sql->whereIn('ms_merchant_account.DistributorID', ['D-2004-000002', 'D-2212-000001', 'D-2004-000006', 'D-2004-000005', 'D-2004-000001']);
+        }
+        if ($userDepo == "REG1") {
+            $sql->whereIn('ms_merchant_account.DistributorID', ['D-2004-000002', 'D-2212-000001']);
+        }
+        if ($userDepo == "REG2") {
+            $sql->whereIn('ms_merchant_account.DistributorID', ['D-2004-000006', 'D-2004-000005', 'D-2004-000001']);
+        }
 
         if ($fromDate != '' && $toDate != '') {
             $sql->whereDate('tmo.CreatedDate', '>=', $fromDate)
@@ -2212,17 +2228,25 @@ class DistributionController extends Controller
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
         $filterIsPaid = $request->input('filterIsPaid');
+        $depoUser = Auth::user()->Depo;
 
         $sqlbillPayLater = $payLaterService->billPayLaterGet();
 
-        if (Auth::user()->Depo != "ALL") {
-            $depoUser = Auth::user()->Depo;
-            $sqlbillPayLater->where('ms_distributor.Depo', '=', $depoUser);
+        if ($depoUser != "ALL" && $depoUser == "REG1" && $depoUser == "REG2") {
+            $sqlbillPayLater->where('ms_distributor.Depo', $depoUser);
         }
+        if ($depoUser == "REG1") {
+            $sqlbillPayLater->whereIn('ms_distributor.Depo', ['SMG', 'YYK']);
+        }
+        if ($depoUser == "REG2") {
+            $sqlbillPayLater->whereIn('ms_distributor.Depo', ['CRS', 'CKG', 'BDG']);
+        }
+
         if ($fromDate != '' && $toDate != '') {
             $sqlbillPayLater->whereDate('tx_merchant_delivery_order_log.ProcessTime', '>=', $fromDate)
                 ->whereDate('tx_merchant_delivery_order_log.ProcessTime', '<=', $toDate);
         }
+
         if ($filterIsPaid == "paid") {
             $sqlbillPayLater->where('tmdo.IsPaid', 1);
         } elseif ($filterIsPaid == "unpaid") {
@@ -2403,6 +2427,7 @@ class DistributionController extends Controller
     public function getProduct(Request $request)
     {
         $distributorId = $request->input('distributorId');
+        $depoUser = Auth::user()->Depo;
 
         $distributorProducts = DB::table('ms_distributor_product_price')
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_distributor_product_price.DistributorID')
@@ -2413,9 +2438,14 @@ class DistributionController extends Controller
             ->join('ms_product_uom', 'ms_product_uom.ProductUOMID', '=', 'ms_product.ProductUOMID')
             ->select('ms_distributor_product_price.DistributorID', 'ms_distributor.DistributorName', 'ms_distributor_product_price.ProductID', 'ms_distributor_product_price.IsActive', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product_category.ProductCategoryName', 'ms_product_type.ProductTypeName', 'ms_product_uom.ProductUOMName', 'ms_product.ProductUOMDesc', 'ms_distributor_product_price.Price', 'ms_distributor_product_price.GradeID', 'ms_distributor_grade.Grade', 'ms_distributor_product_price.IsPreOrder', 'ms_product.Price as ProductPrice');
 
-        if (Auth::user()->Depo != "ALL") {
-            $depoUser = Auth::user()->Depo;
+        if ($depoUser != "ALL" && $depoUser == "REG1" && $depoUser == "REG2") {
             $distributorProducts->where('ms_distributor.Depo', '=', $depoUser);
+        }
+        if ($depoUser == "REG1") {
+            $distributorProducts->whereIn('ms_distributor.Depo', ['SMG', 'YYK']);
+        }
+        if ($depoUser == "REG2") {
+            $distributorProducts->whereIn('ms_distributor.Depo', ['CRS', 'CKG', 'BDG']);
         }
 
         if ($distributorId != null) {
@@ -2461,7 +2491,10 @@ class DistributionController extends Controller
                     return $isActive;
                 })
                 ->addColumn('Action', function ($data) {
-                    if (Auth::user()->RoleID != "AD") {
+                    if (
+                        Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" ||
+                        Auth::user()->RoleID == "BM"
+                    ) {
                         $actionBtn = '<a href="#" data-distributor-id="' . $data->DistributorID . '" data-product-id="' . $data->ProductID . '" data-grade-id="' . $data->GradeID . '" data-product-name="' . $data->ProductName . '" data-grade-name="' . $data->Grade . '" data-price="' . $data->Price . '" data-pre-order="' . $data->IsPreOrder . '" 
                         data-is-active="' . $data->IsActive . '" class="btn-edit btn btn-sm btn-warning mr-1">Edit</a>
                         <a data-distributor-id="' . $data->DistributorID . '" data-product-id="' . $data->ProductID . '" data-grade-id="' . $data->GradeID . '" data-product-name="' . $data->ProductName . '" data-grade-name="' . $data->Grade . '" href="#" class="btn-delete btn btn-sm btn-danger">Delete</a>';
@@ -2726,9 +2759,14 @@ class DistributionController extends Controller
                 ->whereDate('ms_merchant_account.CreatedDate', '<=', $toDate);
         }
 
-        if ($depoUser != "ALL") {
-            $depoUser = Auth::user()->Depo;
+        if ($depoUser != "ALL" && $depoUser == "REG1" && $depoUser == "REG2") {
             $sqlAllAccount->where('ms_distributor.Depo', '=', $depoUser);
+        }
+        if ($depoUser == "REG1") {
+            $sqlAllAccount->whereIn('ms_distributor.Depo', ['SMG', 'YYK']);
+        }
+        if ($depoUser == "REG2") {
+            $sqlAllAccount->whereIn('ms_distributor.Depo', ['CRS', 'CKG', 'BDG']);
         }
 
         if ($distributorId != null) {

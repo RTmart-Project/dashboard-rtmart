@@ -319,7 +319,6 @@ class RTSalesController extends Controller
         $filterValid = $request->input('filterValid');
 
         $data = $rTSalesService->surveyReportData($fromDate, $toDate, $filterValid);
-
         // Return Data Using DataTables with Ajax
         if ($request->ajax()) {
             return Datatables::of($data)
@@ -382,15 +381,6 @@ class RTSalesController extends Controller
         return view('rtsales.storeList.index');
     }
 
-    public function getDistributorFromStore(Request $request, RTSalesService $rTSalesService)
-    {
-        $data = $rTSalesService->getDistributorFromStore()->get();
-
-        if ($request->ajax()) {
-            return response($data);
-        }
-    }
-
     public function getStoreList(Request $request, RTSalesService $rTSalesService)
     {
         $fromDate = $request->input('fromDate');
@@ -405,9 +395,14 @@ class RTSalesController extends Controller
                 ->whereDate('ms_store.CreatedDate', '<=', $toDate);
         }
 
-        if ($depoUser != "ALL") {
-            $depoUser = Auth::user()->Depo;
-            $sqlStoreList->where('ms_distributor.Depo', '=', $depoUser);
+        if ($depoUser != "ALL" && $depoUser == "REG1" && $depoUser == "REG2") {
+            $sqlStoreList->where('ms_distributor.Depo', $depoUser);
+        }
+        if ($depoUser == "REG1") {
+            $sqlStoreList->whereIn('ms_distributor.Depo', ['SMG', 'YYK']);
+        }
+        if ($depoUser == "REG2") {
+            $sqlStoreList->whereIn('ms_distributor.Depo', ['CRS', 'CKG', 'BDG']);
         }
 
         if ($distributorID != '') {
@@ -597,9 +592,8 @@ class RTSalesController extends Controller
         $visitDayName = $request->input('visitDayName');
         $startDate = $request->input('startDate');
         $endDate = $request->input('endDate');
-
+        
         $data = $rTSalesService->callPlanData($visitDayName, $startDate, $endDate);
-
         if ($request->ajax()) {
             return Datatables::of($data)
                 ->addColumn('Sales', function ($data) {

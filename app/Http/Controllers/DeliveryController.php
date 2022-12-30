@@ -348,13 +348,21 @@ class DeliveryController extends Controller
     {
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
+        $depoUser = Auth::user()->Depo;
 
         $sqlExpedition = $deliveryOrderService->expeditions()->whereRaw("expd.StatusExpedition IN ($status)");
 
-        if (Auth::user()->Depo != "ALL") {
+        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
             $depoUser = Auth::user()->Depo;
-            $sqlExpedition->where('ms_distributor.Depo', '=', $depoUser);
+            $sqlExpedition->where('ms_distributor.Depo', $depoUser);
         }
+        if ($depoUser === "REG1") {
+            $sqlExpedition->whereIn('ms_distributor.Depo', ['SMG', 'YYK']);
+        }
+        if ($depoUser === "REG2") {
+            $sqlExpedition->whereIn('ms_distributor.Depo', ['CRS', 'CKG', 'BDG']);
+        }
+
         if ($fromDate != '' && $toDate != '') {
             $sqlExpedition->whereDate('expd.CreatedDate', '>=', $fromDate)
                 ->whereDate('expd.CreatedDate', '<=', $toDate);
@@ -428,12 +436,19 @@ class DeliveryController extends Controller
     {
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
+        $depoUser = Auth::user()->Depo;
 
         $sqlExpeditionAllProduct = $deliveryOrderService->expeditionsAllProduct()->whereRaw("tx_merchant_expedition.StatusExpedition IN ($status)");
-        if (Auth::user()->Depo != "ALL") {
-            $depoUser = Auth::user()->Depo;
-            $sqlExpeditionAllProduct->where('ms_distributor.Depo', '=', $depoUser);
+        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
+            $sqlExpeditionAllProduct->where('ms_distributor.Depo', $depoUser);
         }
+        if ($depoUser === "REG1") {
+            $sqlExpeditionAllProduct->whereIn('ms_distributor.Depo', ['SMG', 'YYK']);
+        }
+        if ($depoUser === "REG2") {
+            $sqlExpeditionAllProduct->whereIn('ms_distributor.Depo', ['CRS', 'CKG', 'BDG']);
+        }
+
         if ($fromDate != '' && $toDate != '') {
             $sqlExpeditionAllProduct->whereDate('tx_merchant_expedition.CreatedDate', '>=', $fromDate)
                 ->whereDate('tx_merchant_expedition.CreatedDate', '<=', $toDate);

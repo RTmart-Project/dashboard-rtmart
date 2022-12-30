@@ -71,8 +71,12 @@
                                                     <th>Grade</th>
                                                     <th>PreOrder</th>
                                                     <th>Status</th>
-                                                    <th class="{{ Auth::user()->RoleID == "AD" ? 'd-none' : '' }}">
-                                                        Action</th>
+                                                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" ||
+                                                    Auth::user()->RoleID == "BM")
+                                                    <th>Action</th>
+                                                    @endif
+                                                    {{-- <th class="{{ Auth::user()->RoleID == " AD" ? 'd-none' : '' }}">
+                                                        Action</th> --}}
                                                 </tr>
                                             </thead>
                                             <tbody>
