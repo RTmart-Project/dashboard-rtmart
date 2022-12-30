@@ -3,6 +3,7 @@
 
 @section('css-pages')
 <meta name="depo" content="{{ Auth::user()->Depo }}">
+<meta name="role-id" content="{{ Auth::user()->RoleID }}">
 <link rel="stylesheet" href="{{url('/')}}/plugins/daterangepicker/daterangepicker.css">
 <!-- Datatables -->
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
@@ -41,7 +42,7 @@
     <div class="row">
       <div class="col-12">
         <div class="card">
-          @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI")
+          @if (Auth::user()->RoleID == "IT")
           <div class="card-header">
             <a href="{{ route('rtsales.createStore') }}" class="btn btn-sm btn-success"><i class="fas fa-plus"></i> Tambah Store</a>
           </div>

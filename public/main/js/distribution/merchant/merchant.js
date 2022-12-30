@@ -255,7 +255,6 @@ $(document).ready(function () {
                 option
             );
             customDropdownFilter.createCustomDropdowns();
-            // $('#distributor-merchant .select-filter-custom select').val("All").change();
         },
     });
 
