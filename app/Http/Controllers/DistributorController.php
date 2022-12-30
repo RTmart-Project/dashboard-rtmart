@@ -39,7 +39,7 @@ class DistributorController extends Controller
         }
 
         if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
-            $sqlAllAccount->where('ms_distributor.Depo', '=', $depoUser);
+            $sqlAllAccount->where('ms_distributor.Depo', $depoUser);
         }
         if ($depoUser == "REG1") {
             $sqlAllAccount->whereIn('ms_distributor.Depo', ['SMG', 'YYK']);
@@ -61,7 +61,6 @@ class DistributorController extends Controller
                 })
                 ->addColumn('Action', function ($data) {
                     $actionBtn = '<a href="/distributor/account/edit/' . $data->DistributorID . '" class="btn-sm btn-warning">Edit</a>';
-
                     return $actionBtn;
                 })
                 ->rawColumns(['CreatedDate', 'Product', 'Action'])

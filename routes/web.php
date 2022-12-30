@@ -48,7 +48,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/confirm/{priceSubmissionID}/{status}', [DistributionController::class, 'confirmPriceSubmission'])->name('confirmPriceSubmission');
     });
 
-    Route::group(['prefix' => 'summary', 'middleware' => ['checkRoleUser:IT,FI,BM,CEO,HL,SM']], function () {
+    Route::group(['prefix' => 'summary', 'middleware' => ['checkRoleUser:IT,FI,BM,CEO,HL,SM,SV']], function () {
         Route::get('/finance', [SummaryController::class, 'summary'])->name('summary.summary');
         Route::post('/get', [SummaryController::class, 'getSummary'])->name('summary.dataSummary');
         Route::get('/report', [SummaryController::class, 'summaryReport'])->name('summary.report');
@@ -193,7 +193,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::post('/update/invoice/{purchaseID}', [StockController::class, 'updateInvoice'])->name('stock.updateInvoicePurchase');
         });
 
-        Route::group(['prefix' => 'list', 'middleware' => ['checkRoleUser:IT,FI,AD,BM,CEO,INVTR,HL,SM']], function () {
+        Route::group(['prefix' => 'list', 'middleware' => ['checkRoleUser:IT,FI,AD,BM,CEO,INVTR,HL,SM,SV']], function () {
             Route::get('/', [StockController::class, 'listStock'])->name('stock.listStock');
             Route::get('/get', [StockController::class, 'getListStock'])->name('stock.getListStock');
             Route::get('/detail/{distributorID}/{investorID}/{productID}/{label}', [StockController::class, 'detailStock'])->name('stock.detailStock');
@@ -220,7 +220,7 @@ Route::group(['middleware' => ['auth']], function () {
         });
     });
 
-    Route::group(['prefix' => 'rtsales', 'middleware' => ['checkRoleUser:IT,FI,BM,CEO,DMO,SM']], function () {
+    Route::group(['prefix' => 'rtsales', 'middleware' => ['checkRoleUser:IT,FI,BM,CEO,DMO,SM,SV']], function () {
         Route::get('/summary', [RTSalesController::class, 'summary'])->name('rtsales.summary');
 
         Route::group(['prefix' => 'callplan'], function () {
@@ -327,7 +327,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/merchant/restock/product/get', [MerchantController::class, 'getRestockProduct'])->name('merchant.getRestockProduct');
     });
 
-    Route::group(['middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,RBTAD,HL,SM']], function () {
+    Route::group(['middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,RBTAD,HL,SM,SV']], function () {
         // Distributor
         Route::get('/distributor/account', [DistributorController::class, 'account'])->name('distributor.account');
         Route::get('/distributor/account/get', [DistributorController::class, 'getAccounts'])->withoutMiddleware('checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,RBTAD,SM')->name('distributor.getAccounts');

@@ -14,20 +14,20 @@
 @section('content')
 <!-- Content Header (Page header) -->
 <div class="content-header">
-    <div class="container-fluid">
-        <div class="row">
-            <!-- left -->
-            <div class="col-sm-6">
-                <h1 class="m-0"></h1>
-            </div>
-            <!-- Right -->
-            <div class="col-sm-6">
-                <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"></li>
-                </ol>
-            </div>
-        </div>
+  <div class="container-fluid">
+    <div class="row">
+      <!-- left -->
+      <div class="col-sm-6">
+        <h1 class="m-0"></h1>
+      </div>
+      <!-- Right -->
+      <div class="col-sm-6">
+        <ol class="breadcrumb float-sm-right">
+          <li class="breadcrumb-item"></li>
+        </ol>
+      </div>
     </div>
+  </div>
 </div>
 <!-- /.content-header -->
 
@@ -38,11 +38,13 @@
     <div class="row">
       <div class="col-12">
         <div class="card">
+          @if (Auth::user()->RoleID == "IT")
           <div class="card-header">
             <a href="{{ route('rtsales.addSales') }}" class="btn btn-sm btn-success">
               <i class="fas fa-plus"></i> Tambah Sales
             </a>
           </div>
+          @endif
           <div class="card-body">
             <div class="tab-content">
               <div class="tab-pane active" id="sales-list">
