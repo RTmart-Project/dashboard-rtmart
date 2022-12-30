@@ -224,7 +224,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/summary', [RTSalesController::class, 'summary'])->name('rtsales.summary');
 
         Route::group(['prefix' => 'callplan'], function () {
-            Route::get('/', [RTSalesController::class, 'callplan'])->name('rtsales.callPlan');
+            Route::post('/', [RTSalesController::class, 'callplan'])->name('rtsales.callPlan');
             Route::get('/index', [RTSalesController::class, 'callplanIndex'])->name('rtsales.callPlanIndex');
         });
 

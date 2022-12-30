@@ -41,10 +41,12 @@ $(document).ready(function () {
                 {
                     data: "DriverName",
                     name: "DriverName",
+                    searchable: false,
                 },
                 {
                     name: "HelperName",
                     data: "HelperName",
+                    searchable: false,
                 },
                 {
                     data: "VehicleName",
@@ -58,6 +60,7 @@ $(document).ready(function () {
                     data: "StatusExpeditionReal",
                     name: "StatusExpeditionReal",
                     orderable: false,
+                    searchable: false,
                 },
                 {
                     data: "StockOrderID",
