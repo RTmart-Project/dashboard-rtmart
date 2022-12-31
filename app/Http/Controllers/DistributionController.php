@@ -2440,7 +2440,7 @@ class DistributionController extends Controller
             ->join('ms_product_uom', 'ms_product_uom.ProductUOMID', '=', 'ms_product.ProductUOMID')
             ->select('ms_distributor_product_price.DistributorID', 'ms_distributor.DistributorName', 'ms_distributor_product_price.ProductID', 'ms_distributor_product_price.IsActive', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product_category.ProductCategoryName', 'ms_product_type.ProductTypeName', 'ms_product_uom.ProductUOMName', 'ms_product.ProductUOMDesc', 'ms_distributor_product_price.Price', 'ms_distributor_product_price.GradeID', 'ms_distributor_grade.Grade', 'ms_distributor_product_price.IsPreOrder', 'ms_product.Price as ProductPrice');
 
-        if ($depoUser != "ALL" && $depoUser == "REG1" && $depoUser == "REG2") {
+        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
             $distributorProducts->where('ms_distributor.Depo', '=', $depoUser);
         }
         if ($depoUser == "REG1") {

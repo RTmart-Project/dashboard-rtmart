@@ -92,10 +92,9 @@
             @endif
 
             @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID == "RBTAD") ||
-            (Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO") || (Auth::user()->RoleID == "FI") ||
-            (Auth::user()->RoleID == "AH") ||
-            (Auth::user()->RoleID == "DMO") || Auth::user()->RoleID == "HL" || Auth::user()->RoleID == "DRV" ||
-            Auth::user()->RoleID == "SM" )
+            (Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO") || Auth::user()->RoleID == "FI" ||
+            (Auth::user()->RoleID == "AH") || Auth::user()->RoleID == "DMO" || Auth::user()->RoleID == "HL" ||
+            Auth::user()->RoleID == "DRV" || Auth::user()->RoleID == "SM" || Auth::user()->RoleID == "SV")
             <li class="nav-item {{ Request::is('distribution*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('distribution*') ? 'active' : '' }}">
                     <i class="nav-icon fas fa-boxes"></i>
@@ -149,11 +148,11 @@
                         </a>
                     </li>
                     @endif
-                    @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || (Auth::user()->RoleID ==
-                    "RBTAD") ||
+                    @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "AD") || 
+                    (Auth::user()->RoleID == "RBTAD") ||
                     (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" || (Auth::user()->RoleID == "FI") ||
-                    (Auth::user()->RoleID == "AH") ||
-                    (Auth::user()->RoleID == "DMO") || Auth::user()->RoleID == "HL" || Auth::user()->RoleID == "SM")
+                    Auth::user()->RoleID == "AH" || (Auth::user()->RoleID == "DMO") || Auth::user()->RoleID == "HL" || 
+                    Auth::user()->RoleID == "SM" || Auth::user()->RoleID == "SV")
                     <li class="nav-item">
                         <a href="{{ route('distribution.product') }}"
                             class="nav-link {{ Request::is('distribution/product*') ? 'active' : '' }}">
