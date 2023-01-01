@@ -2531,40 +2531,6 @@ class DistributionController extends Controller
             'distributor' => $getDistributor,
             'productGroup' => $productGroup
         ]);
-
-        // if (Auth::user()->RoleID == "AD") {
-        //     $distributorName = DB::table('ms_distributor')
-        //         ->where('Depo', '=', Auth::user()->Depo)
-        //         ->select('DistributorID', 'DistributorName')
-        //         ->first();
-
-        //     $productNotInDistributor = DB::table('ms_product')
-        //         ->leftJoin('ms_product_category', 'ms_product_category.ProductCategoryID', '=', 'ms_product.ProductCategoryID')
-        //         ->leftJoin('ms_product_uom', 'ms_product_uom.ProductUOMID', '=', 'ms_product.ProductUOMID')
-        //         ->leftJoin('ms_distributor_product_price', 'ms_distributor_product_price.ProductID', '=', 'ms_product.ProductID')
-        //         ->whereNotIn('ms_product.ProductID', function ($query) use ($distributorName) {
-        //             $query->select('ms_distributor_product_price.ProductID')->from('ms_distributor_product_price')->where('ms_distributor_product_price.DistributorID', '=', $distributorName->DistributorID);
-        //         })
-        //         ->select('ms_product.ProductID', 'ms_product.ProductName', 'ms_product.ProductUOMDesc', 'ms_product_category.ProductCategoryName', 'ms_product_uom.ProductUOMName')
-        //         ->distinct()
-        //         ->get();
-
-        //     $gradeDistributor = DB::table('ms_distributor_grade')
-        //         ->where('ms_distributor_grade.DistributorID', '=', $distributorName->DistributorID)
-        //         ->select('ms_distributor_grade.GradeID', 'ms_distributor_grade.Grade')
-        //         ->get();
-
-        //     return view('distribution.product.new', [
-        //         'distributor' => $getDistributor,
-        //         'depo' => $distributorName,
-        //         'productNotInDistributor' => $productNotInDistributor,
-        //         'gradeDistributor' => $gradeDistributor
-        //     ]);
-        // } else {
-        // return view('distribution.product.new', [
-        //     'distributor' => $getDistributor
-        // ]);
-        // }
     }
 
     public function ajaxGetProduct($distributorId)

@@ -41,14 +41,15 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    @if (Auth::user()->RoleID == "IT" || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "BM"))
+                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || (Auth::user()->RoleID == "AH")
+                    || Auth::user()->RoleID == "BM")
                     <div class="card-header">
-                        <a href="{{ route('distribution.addProduct') }}" class="btn btn-sm btn-success"><i class="fas fa-plus"></i> Tambah Produk</a>
+                        <a href="{{ route('distributor.addDistributor') }}" class="btn btn-sm btn-success"><i
+                                class="fas fa-plus"></i> Tambah Distributor</a>
                     </div>
                     @endif
                     <div class="card-body mt-2">
                         <div class="tab-content">
-
                             <div class="tab-pane active" id="distributor-account">
                                 <div class="row">
                                     <div class="col-12">
@@ -70,7 +71,6 @@
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
