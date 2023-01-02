@@ -42,26 +42,32 @@ $(document).ready(function () {
                 {
                     data: "TargetCall",
                     name: "TargetCall",
+                    searchable: false
                 },
                 {
                     data: "Actual",
                     name: "Actual",
+                    searchable: false
                 },
                 {
                     data: "Duration",
                     name: "Duration",
+                    searchable: false
                 },
                 {
                     data: "CheckIn",
                     name: "CheckIn",
+                    searchable: false
                 },
                 {
                     data: "CheckOut",
                     name: "CheckOut",
+                    searchable: false
                 },
                 {
                     data: "Omzet",
                     name: "Omzet",
+                    searchable: false
                 },
             ],
             buttons: [
