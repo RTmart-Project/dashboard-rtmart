@@ -84,8 +84,6 @@ class RTSalesController extends Controller
             'product_group.*' => 'exists:ms_product_group,ProductGroupID',
             'work_status' => 'required|exists:ms_sales_work_status,SalesWorkStatusID',
             'phone_number' => 'required|digits_between:10,13|unique:ms_sales,PhoneNumber',
-            // 'email' => 'required|email:rfc|unique:ms_sales,Email'
-            // 'password' => 'required|string'
         ]);
 
         $prefixSalesCode = $request->input('prefix_sales_code');
@@ -302,6 +300,14 @@ class RTSalesController extends Controller
                         $date = '';
                     }
                     return $date;
+                })
+                ->filterColumn('Sales', function ($data, $keyword) {
+                    $sql = "CONCAT(msales.SalesCode, ' ', msales.SalesName) like ?";
+                    $data->whereRaw($sql, ["%$keyword%"]);
+                })
+                ->filterColumn('Tim', function ($data, $keyword) {
+                    $sql = "CONCAT(msales.TeamBy, ' ', ms_team_name.TeamName) like ?";
+                    $data->whereRaw($sql, ["%$keyword%"]);
                 })
                 ->make(true);
         }
@@ -592,7 +598,7 @@ class RTSalesController extends Controller
         $visitDayName = $request->input('visitDayName');
         $startDate = $request->input('startDate');
         $endDate = $request->input('endDate');
-        
+
         $data = $rTSalesService->callPlanData($visitDayName, $startDate, $endDate);
         if ($request->ajax()) {
             return Datatables::of($data)

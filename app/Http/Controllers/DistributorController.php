@@ -68,6 +68,27 @@ class DistributorController extends Controller
         }
     }
 
+    public function addDistributor()
+    {
+        $depo = DB::table('ms_distributor')
+            ->select('Depo', 'DistributorName')
+            ->where('Depo', '!=', '')
+            ->get();
+
+        return view('distributor.account.create', ['depo' => $depo]);
+    }
+
+    public function insertDistributor(Request $request)
+    {
+        $request->validate([
+            'distributorname' => 'required|string',
+            'email' => 'required|string|email|unique:ms_distributor,Email',
+            'phonenumber' => 'required|numeric|unique:ms_distributor,PhoneNumber',
+            'depo' => 'required',
+            'password' => 'required|string',
+        ]);
+    }
+
     public function editAccount($distributorId)
     {
         $distributorById = DB::table('ms_distributor')
