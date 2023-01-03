@@ -412,6 +412,12 @@ class DeliveryController extends Controller
                     $btn = '<a class="btn btn-sm btn-secondary" href="/delivery/' . $link . '/detail/' . $data->MerchantExpeditionID . '">Lihat</a>';
                     return $btn;
                 })
+                ->filterColumn('MerchantID', function ($query, $keyword) {
+                    $query->whereRaw("ms_merchant_account.MerchantID like ?", ["%$keyword%"]);
+                })
+                ->filterColumn('StoreName', function ($query, $keyword) {
+                    $query->whereRaw("ms_merchant_account.StoreName like ?", ["%$keyword%"]);
+                })
                 ->filterColumn('expd.CreatedDate', function ($query, $keyword) {
                     $query->whereRaw("DATE_FORMAT(expd.CreatedDate,'%d %b %Y %H:%i') like ?", ["%$keyword%"]);
                 })
