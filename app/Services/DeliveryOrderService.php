@@ -533,10 +533,13 @@ class DeliveryOrderService
       ->join('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderDetailID', 'tx_merchant_expedition_detail.DeliveryOrderDetailID')
       ->join('tx_merchant_delivery_order', 'tx_merchant_delivery_order.DeliveryOrderID', 'tx_merchant_delivery_order_detail.DeliveryOrderID')
       ->join('tx_merchant_order', 'tx_merchant_order.StockOrderID', 'tx_merchant_delivery_order.StockOrderID')
+      ->join('ms_merchant_account', 'tx_merchant_order.MerchantID', 'ms_merchant_account.MerchantID')
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
       ->distinct()
       ->selectRaw("
         expd.MerchantExpeditionID,
+        ANY_VALUE(ms_merchant_account.MerchantID) AS MerchantID,
+        ANY_VALUE(ms_merchant_account.StoreName) AS StoreName,
         expd.StatusExpedition,
         expd.CreatedDate,
         expd.PhoneNumberValidation,

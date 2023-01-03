@@ -34,6 +34,8 @@
                       <thead>
                         <tr>
                           <th>Ekspedisi ID</th>
+                          <th>Merchant ID</th>
+                          <th>Nama Toko</th>
                           <th>Distributor</th>
                           <th>Tanggal Kirim</th>
                           <th>Jumlah DO</th>

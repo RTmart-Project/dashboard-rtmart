@@ -24,6 +24,14 @@ $(document).ready(function () {
                     name: "expd.MerchantExpeditionID",
                 },
                 {
+                    data: "MerchantID",
+                    name: "MerchantID",
+                },
+                {
+                    data: "StoreName",
+                    name: "StoreName",
+                },
+                {
                     data: "DistributorName",
                     name: "ms_distributor.DistributorName",
                 },
