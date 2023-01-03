@@ -189,28 +189,26 @@ $(document).ready(function () {
 
         // Create element for DateRange Filter
         $("div.filter-settlement").html(`
-          <div class="input-group">
-              <input type="text" name="from_date" id="from_date" class="form-control form-control-sm" readonly>
-              <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
-              ${
-                  roleID != "AD"
-                      ? `<select class="form-control form-control-sm ml-2 selectpicker border" id="filter_distributor"
-                            title="Pilih Depo" multiple name="distributor">
-                        </select>`
-                      : ``
-              }
-              
-              <div class="dropdown">
-                  <button class="btn btn-primary btn-sm dropdown-toggle ml-2" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      Filter
-                  </button>
-                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                      <a class="dropdown-item" id="filter-tanggal-kirim">Tanggal Kirim</a>
-                      <a class="dropdown-item" id="filter-tanggal-selesai">Tanggal Selesai</a>
-                  </div>
-              </div>
-              <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-2">Refresh</button>
-          </div>`);
+            <div class="input-group">
+                <input type="text" name="from_date" id="from_date" class="form-control form-control-sm" readonly>
+                <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
+                ${roleID != "AD"
+                    ? `<select class="form-control form-control-sm ml-2 selectpicker border" id="filter_distributor"
+                                title="Pilih Depo" multiple name="distributor">
+                            </select>`
+                    : ``
+                }
+                <div class="dropdown">
+                    <button class="btn btn-primary btn-sm dropdown-toggle ml-2" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Filter
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <a class="dropdown-item" id="filter-tanggal-kirim">Tanggal Kirim</a>
+                        <a class="dropdown-item" id="filter-tanggal-selesai">Tanggal Selesai</a>
+                    </div>
+                </div>
+                <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-2">Refresh</button>
+            </div>`);
 
         // Load Distributor ID and Name for filter
         $.ajax({
@@ -520,7 +518,7 @@ $(document).ready(function () {
                             "/approve";
                     },
                 },
-                tidak: function () {},
+                tidak: function () { },
             },
         });
     });
@@ -546,7 +544,7 @@ $(document).ready(function () {
                             "/reject";
                     },
                 },
-                tidak: function () {},
+                tidak: function () { },
             },
         });
     });
