@@ -36,6 +36,7 @@ class SettlementController extends Controller
         $distributor = $request->input('distributor');
         $filterBy = $request->input('filterBy');
         $depoUser = Auth::user()->Depo;
+        // $regionalUser = Auth::user()->Regional;
 
         $sql = $this->settlementService->dataSettlement();
 
@@ -51,15 +52,12 @@ class SettlementController extends Controller
             $sql->whereIn('tx_merchant_order.DistributorID', $distributor);
         }
 
-        if ($depoUser != "ALL" && $depoUser == "REG1" && $depoUser == "REG2") {
+        if ($depoUser != "ALL") {
             $sql->where('ms_distributor.Depo', $depoUser);
         }
-        if ($depoUser == "REG1") {
-            $sql->whereIn('ms_distributor.Depo', ['SMG', 'YYK']);
-        }
-        if ($depoUser == "REG2") {
-            $sql->whereIn('ms_distributor.Depo', ['CRS', 'CKG', 'BDG']);
-        }
+        // if ($regionalUser != NULL) {
+        //     $sql->where('ms_distributor.Regional', $regionalUser);
+        // }
 
         $data = $sql;
 
