@@ -13,6 +13,7 @@ $(document).ready(function () {
         filterBy = ""
     ) {
         let roleID = $('meta[name="role-id"]').attr("content");
+        let depo = $('meta[name="depo"]').attr("content");
         $.ajaxSetup({
             headers: {
                 "X-CSRF-TOKEN": $('meta[name="csrf_token"]').attr("content"),
@@ -192,12 +193,12 @@ $(document).ready(function () {
             <div class="input-group">
                 <input type="text" name="from_date" id="from_date" class="form-control form-control-sm" readonly>
                 <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
-                ${roleID != "AD"
-                    ? `<select class="form-control form-control-sm ml-2 selectpicker border" id="filter_distributor"
+                ${depo == "ALL"
+                ? `<select class="form-control form-control-sm ml-2 selectpicker border" id="filter_distributor"
                                 title="Pilih Depo" multiple name="distributor">
                             </select>`
-                    : ``
-                }
+                : ``
+            }
                 <div class="dropdown">
                     <button class="btn btn-primary btn-sm dropdown-toggle ml-2" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Filter
@@ -356,10 +357,14 @@ $(document).ready(function () {
 
     // Event listener saat tombol filter diklik
     $("#settlement").on("click", "#filter-tanggal-kirim", function () {
-        const filterBy = "CreatedDate";
-        const startDate = $("#settlement #from_date").val();
-        const endDate = $("#settlement #to_date").val();
-        const distributor = $("#settlement #filter_distributor").val();
+        let filterBy = "CreatedDate";
+        let startDate = $("#settlement #from_date").val();
+        let endDate = $("#settlement #to_date").val();
+        if (startDate == '' || endDate == '') {
+            startDate = new Date().toISOString().slice(0, 10);
+            endDate = new Date().toISOString().slice(0, 10);
+        }
+        let distributor = $("#settlement #filter_distributor").val();
         $("#settlement .table-datatables").DataTable().destroy();
         dataTablesSettlement(startDate, endDate, distributor, filterBy);
         summarySettlement(startDate, endDate, distributor, filterBy);

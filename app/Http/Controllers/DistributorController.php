@@ -27,6 +27,7 @@ class DistributorController extends Controller
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
         $depoUser = Auth::user()->Depo;
+        $regionalUser = Auth::user()->Regional;
 
         $sqlAllAccount = DB::table('ms_distributor')
             ->where('IsActive', 1)
@@ -38,14 +39,11 @@ class DistributorController extends Controller
                 ->whereDate('CreatedDate', '<=', $toDate);
         }
 
-        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
+        if ($depoUser != "ALL") {
             $sqlAllAccount->where('ms_distributor.Depo', $depoUser);
         }
-        if ($depoUser == "REG1") {
-            $sqlAllAccount->whereIn('ms_distributor.Depo', ['SMG', 'YYK']);
-        }
-        if ($depoUser == "REG2") {
-            $sqlAllAccount->whereIn('ms_distributor.Depo', ['CRS', 'CKG', 'BDG']);
+        if ($regionalUser != NULL) {
+            $sqlAllAccount->where('ms_distributor.Regional', $regionalUser);
         }
 
 

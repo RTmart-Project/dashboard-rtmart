@@ -3,6 +3,7 @@
 
 @section('css-pages')
 <meta name="role-id" content="{{ Auth::user()->RoleID }}">
+<meta name="depo" content="{{ Auth::user()->Depo }}">
 <meta name="csrf_token" content="{{ csrf_token() }}">
 <!-- daterange picker -->
 <link rel="stylesheet" href="{{url('/')}}/plugins/daterangepicker/daterangepicker.css">
@@ -77,6 +78,7 @@
             </div>
         </div>
 
+        @if (Auth::user()->Depo == "ALL" || Auth::user()->Regional != NULL)
         <div class="row">
             <div class="col-md-12 col-12">
                 <div class="card card-outline collapsed-card">
@@ -88,7 +90,7 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        @if (Auth::user()->Depo == "ALL" || Auth::user()->Depo == "REG2")
+                        @if ((Auth::user()->Depo == "ALL" && Auth::user()->Regional == NULL) || Auth::user()->Regional == "REGIONAL2")
                         {{-- Bandung --}}
                         <div class="row">
                             <div class="col-md-4">
@@ -215,7 +217,7 @@
                         {{-- End Of Ciracas --}}
                         @endif
 
-                        @if (Auth::user()->Depo == "ALL" || Auth::user()->Depo == "REG1")
+                        @if ((Auth::user()->Depo == "ALL" && Auth::user()->Regional == NULL) || Auth::user()->Regional == "REGIONAL1")
                         {{-- Semarang --}}
                         <div class="row">
                             <div class="col-md-4">
@@ -306,6 +308,7 @@
                 <!-- /.card -->
             </div>
         </div>
+        @endif
 
         <!-- Table -->
         <div class="row">

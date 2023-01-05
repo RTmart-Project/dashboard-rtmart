@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="{{url('/')}}/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
 <meta name="csrf_token" content="{{ csrf_token() }}">
 <meta name="depo" content="{{ Auth::user()->Depo }}">
+<meta name="regional" content="{{ Auth::user()->Regional }}">
 @endsection
 
 @section('header-menu', 'Summary')
@@ -194,7 +195,8 @@
                           </tr>
                         </thead>
                         <tbody>
-                          @if (Auth::user()->Depo == "ALL" || Auth::user()->Depo == "REG2")
+                          @if ((Auth::user()->Depo == "ALL" && Auth::user()->Regional == NULL) ||
+                          Auth::user()->Depo == "ALL" && Auth::user()->Regional == "REGIONAL2")
                           {{-- CAKUNG --}}
                           <tr style="background-color: rgb(216,216,216);">
                             <th class="text-center align-middle" rowspan="9">Cakung</th>
@@ -285,7 +287,8 @@
                           </tr>
                           {{-- End of CIRACAS --}}
                           @endif
-                          @if (Auth::user()->Depo == "ALL" || Auth::user()->Depo == "REG1")
+                          @if ((Auth::user()->Depo == "ALL" && Auth::user()->Regional == NULL) ||
+                          Auth::user()->Depo == "ALL" && Auth::user()->Regional == "REGIONAL1")
                           {{-- SEMARANG --}}
                           <tr style="background-color: rgb(252,213,180);">
                             <th class="text-center align-middle" rowspan="9">Semarang</th>
@@ -346,7 +349,9 @@
                           </tr>
                           {{-- End of YOGYAKARTA --}}
                           @endif
-                          @if (Auth::user()->Depo == "ALL" || Auth::user()->Depo == "REG1" || Auth::user()->Depo == "REG2")
+                          @if ((Auth::user()->Depo == "ALL" && Auth::user()->Regional == NULL) ||
+                          (Auth::user()->Depo == "ALL" && Auth::user()->Regional == "REGIONAL2") ||
+                          (Auth::user()->Depo == "ALL" && Auth::user()->Regional == "REGIONAL1"))
                           {{-- GRAND TOTAL --}}
                           <tr style="background-color: rgb(255,255,0);">
                             <th class="text-center align-middle" rowspan="9">Grand Total</th>
@@ -405,6 +410,7 @@
 
   let csrf = $('meta[name="csrf_token"]').attr("content");
   let depo = $('meta[name="depo"]').attr("content");
+  let regional = $('meta[name="regional"]').attr("content");
 
   getSummary();
 
@@ -457,7 +463,4 @@
   })
 </script>
 <script src="{{url('/')}}/plugins/freeze-table/freeze-table.js"></script>
-<script>
-  // $(".summary-table").freezeTable();
-</script>
 @endsection

@@ -71,34 +71,34 @@ class SummaryController extends Controller
     public function summaryReport()
     {
         $depoUser = Auth::user()->Depo;
+        $regionalUser = Auth::user()->Regional;
 
         $distributors = DB::table('ms_distributor')
             ->where('IsActive', '=', 1)
             ->select('DistributorID', 'DistributorName');
 
-        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
+        if ($depoUser != "ALL") {
             $distributors->where('Depo', $depoUser);
         }
-        if ($depoUser == "REG1") {
-            $distributors->whereIn('Depo', ['SMG', 'YYK']);
+        if ($regionalUser != NULL && $depoUser == "ALL") {
+            $distributors->where('Regional', $regionalUser);
         }
-        if ($depoUser == "REG2") {
-            $distributors->whereIn('Depo', ['CRS', 'CKG', 'BDG']);
-        }
+
         $distributors = $distributors->get();
 
         $sales = DB::table('ms_sales')
             ->where('IsActive', 1)
             ->select('SalesCode', 'SalesName');
-        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
+        if ($depoUser != "ALL") {
             $sales->where('Team', $depoUser);
         }
-        if ($depoUser == "REG1") {
-            $sales->whereIn('Team', ['SMG', 'YYK']);
+        if ($regionalUser == "REGIONAL1" && $depoUser == "ALL") {
+            $sales->whereRaw("Team IN ('SMG', 'YYK', 'UNR')");
         }
-        if ($depoUser == "REG2") {
-            $sales->whereIn('Team', ['CRS', 'CKG', 'BDG']);
+        if ($regionalUser == "REGIONAL2" && $depoUser == "ALL") {
+            $sales->whereRaw("Team IN ('CRS', 'CKG', 'BDG')");
         }
+
         $sales = $sales->get();
 
         $typePO = DB::table('tx_merchant_order')

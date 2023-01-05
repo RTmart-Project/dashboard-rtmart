@@ -297,7 +297,12 @@ $(document).ready(function () {
             for (const item of dataDistributor) {
                 option += `<option value="${item.DistributorID}">${item.DistributorName}</option>`;
             }
-            $("#merchant-account .filter-depo select").append(option);
+            // $("#merchant-account .filter-depo select").append(option);
+            if (dataDistributor.length > 1) {
+                $("#merchant-account .filter-depo select").append(option);
+            } else {
+                $(".filter-depo").remove();
+            }
             // customDropdownFilter.createCustomDropdowns();
             // $('#merchant-account .select-filter-custom select').val("All").change();
         },
