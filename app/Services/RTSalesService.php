@@ -45,10 +45,11 @@ class RTSalesService
 
     return $sql;
   }
-  
+
   public function callReportData($fromDate = null, $toDate = null)
   {
     $depoUser = Auth::user()->Depo;
+    $regionalUser = Auth::user()->Regional;
     $startDate = new DateTime($fromDate) ?? new DateTime();
     $endDate = new DateTime($toDate) ?? new DateTime();
     $startDateFormat = $startDate->format('Y-m-d');
@@ -93,14 +94,14 @@ class RTSalesService
             ")
       ->groupBy('msales.SalesCode', 'msales.SalesName', 'msales.TeamBy', 'msales.Team');
 
-    if ($depoUser != "ALL" && $depoUser == "REG1" && $depoUser == "REG2") {
+    if ($depoUser != "ALL") {
       $sql->where('msales.Team', $depoUser);
     }
-    if ($depoUser == "REG1") {
-      $sql->whereIn('msales.Team', ['SMG', 'YYK']);
+    if ($regionalUser == "REGIONAL1" && $depoUser == "ALL") {
+      $sql->whereRaw("msales.Team IN ('SMG', 'YYK', 'UNR')");
     }
-    if ($depoUser == "REG2") {
-      $sql->whereIn('msales.Team', ['CRS', 'CKG', 'BDG']);
+    if ($regionalUser == "REGIONAL2" && $depoUser == "ALL") {
+      $sql->whereRaw("msales.Team IN ('CRS', 'CKG', 'BDG')");
     }
 
     return $sql;
@@ -113,28 +114,28 @@ class RTSalesService
     $startDateFormat = $startDate->format('Y-m-d');
     $endDateFormat = $endDate->format('Y-m-d');
     $depoUser = Auth::user()->Depo;
+    $regionalUser = Auth::user()->Regional;
 
     $data = DB::table('ms_visit_survey')
       ->select('ms_visit_survey.VisitSurveyID', 'ms_visit_survey.CreatedDate', 'ms_sales.SalesCode', 'ms_sales.SalesName', 'ms_visit_plan_result.StoreID', 'ms_store.StoreName', 'ms_store.PhoneNumber', 'ms_visit_survey.ProductID', 'ms_product.ProductName', 'ms_visit_survey.PurchasePrice', 'ms_visit_survey.SellingPrice', 'ms_visit_survey.Supplier', 'ms_visit_survey.IsValid', 'ms_team_name.TeamName')
       ->leftJoin('ms_visit_plan_result', 'ms_visit_survey.VisitResultID', 'ms_visit_plan_result.VisitResultID')
       ->join('ms_product', 'ms_visit_survey.ProductID', 'ms_product.ProductID')
-      ->join('ms_sales', function ($join) use ($depoUser) {
-        $join->on('ms_visit_plan_result.SalesCode', 'ms_sales.SalesCode');
-        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
-          $join->where('ms_sales.Team', $depoUser);
-        }
-        if ($depoUser == "REG1") {
-          $join->whereIn('ms_sales.Team', ['SMG', 'YYK']);
-        }
-        if ($depoUser == "REG2") {
-          $join->whereIn('ms_sales.Team', ['CRS', 'CKG', 'BDG']);
-        }
-      })
+      ->join('ms_sales', 'ms_visit_plan_result.SalesCode', 'ms_sales.SalesCode')
       ->join('ms_team_name', 'ms_team_name.TeamCode', 'ms_sales.Team')
       ->join('ms_store', 'ms_visit_plan_result.StoreID', 'ms_store.StoreID')
       ->where('ms_sales.IsActive', 1)
       ->whereDate('ms_visit_survey.CreatedDate', '>=', $startDateFormat)
       ->whereDate('ms_visit_survey.CreatedDate', '<=', $endDateFormat);
+
+    if ($depoUser != "ALL") {
+      $data->where('ms_sales.Team', $depoUser);
+    }
+    if ($regionalUser == "REGIONAL1" && $depoUser == "ALL") {
+      $data->whereRaw("ms_sales.Team IN ('SMG', 'YYK', 'UNR')");
+    }
+    if ($regionalUser == "REGIONAL2" && $depoUser == "ALL") {
+      $data->whereRaw("ms_sales.Team IN ('CRS', 'CKG', 'BDG')");
+    }
 
     if ($filterValid == "valid") {
       $data->where('ms_visit_survey.IsValid', 1);
@@ -175,24 +176,15 @@ class RTSalesService
   public function callPlanData($visitDayName, $startDate, $endDate)
   {
     $depoUser = Auth::user()->Depo;
+    $regionalUser = Auth::user()->Regional;
 
     $sql = DB::table('ms_visit_plan')
       ->join('ms_store', 'ms_store.StoreID', 'ms_visit_plan.StoreID')
       ->leftJoin('ms_visit_plan_sort', 'ms_visit_plan_sort.VisitPlanID', 'ms_visit_plan.VisitPlanID')
-      ->join('ms_sales', function ($join) use ($depoUser) {
-        $join->on('ms_sales.SalesCode', 'ms_visit_plan.SalesCode');
-        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
-          $join->where('ms_sales.Team', $depoUser);
-        }
-        if ($depoUser == "REG1") {
-          $join->whereIn('ms_sales.Team', ['SMG', 'YYK']);
-        }
-        if ($depoUser == "REG2") {
-          $join->whereIn('ms_sales.Team', ['CRS', 'CKG', 'BDG']);
-        }
-      })
+      ->join('ms_sales', 'ms_visit_plan.SalesCode', 'ms_sales.SalesCode')
       ->leftJoin('ms_merchant_partner', 'ms_merchant_partner.MerchantID', 'ms_store.MerchantID')
       ->leftJoin('ms_partner', 'ms_partner.PartnerID', 'ms_merchant_partner.PartnerID')
+      ->where('ms_sales.IsActive', 1)
       ->selectRaw("
         ms_visit_plan.VisitDayName AS VisitDayName,
         ms_visit_plan.SalesCode AS SalesCode,
@@ -231,6 +223,16 @@ class RTSalesService
       ->whereIn('ms_visit_plan.VisitDayName', $visitDayName)
       ->orderByRaw("ANY_VALUE(ms_visit_plan.Sorting) DESC")
       ->groupBy('ms_visit_plan.VisitDayName', 'ms_visit_plan.SalesCode', 'ms_visit_plan.StoreID');
+
+    if ($depoUser != "ALL") {
+      $sql->where('ms_sales.Team', $depoUser);
+    }
+    if ($regionalUser == "REGIONAL1" && $depoUser == "ALL") {
+      $sql->whereRaw("ms_sales.Team IN ('SMG', 'YYK', 'UNR')");
+    }
+    if ($regionalUser == "REGIONAL2" && $depoUser == "ALL") {
+      $sql->whereRaw("ms_sales.Team IN ('CRS', 'CKG', 'BDG')");
+    }
 
     return $sql;
   }

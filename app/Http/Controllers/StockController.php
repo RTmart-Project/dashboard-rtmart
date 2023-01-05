@@ -1191,6 +1191,7 @@ class StockController extends Controller
         $distributorId = $request->input('distributorId');
         $enterDate = $request->input('enterDate');
         $depoUser = Auth::user()->Depo;
+        $regionalUser = Auth::user()->Regional;
 
         $sqlGetListStocks = $purchaseService->getStocks();
 
@@ -1200,15 +1201,14 @@ class StockController extends Controller
         if ($enterDate != null) {
             $sqlGetListStocks->whereDate('ms_stock_product_log.CreatedDate', '<=', $enterDate);
         }
-        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
-            $sqlGetListStocks->where('ms_distributor.Depo', '=', $depoUser);
+
+        if ($depoUser != "ALL") {
+            $sqlGetListStocks->where('ms_distributor.Depo', $depoUser);
         }
-        if ($depoUser == "REG1") {
-            $sqlGetListStocks->whereIn('ms_distributor.Depo', ['SMG', 'YYK']);
-        } 
-        if ($depoUser == "REG2") {
-            $sqlGetListStocks->whereIn('ms_distributor.Depo', ['CRS', 'CKG', 'BDG']);
+        if ($regionalUser != NULL && $depoUser == "ALL") {
+            $sqlGetListStocks->where('ms_distributor.Regional', $regionalUser);
         }
+
         if (Auth::user()->InvestorID != null) {
             $investorUser = Auth::user()->InvestorID;
             $sqlGetListStocks->where('ms_stock_product.InvestorID', $investorUser);

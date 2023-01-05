@@ -49,7 +49,7 @@
                                         <label for="distributorname">Nama Distributor</label>
                                         <input type="text" name="distributorname"
                                             class="form-control @if($errors->has('name')) is-invalid @endif" id="distributorname"
-                                            placeholder="Masukkan Nama Distributor" required>
+                                            placeholder="Masukkan Nama Distributor">
                                         @if($errors->has('distributorname'))
                                         <span class="error invalid-feedback">{{ $errors->first('distributorname') }}</span>
                                         @endif
@@ -75,7 +75,7 @@
                                         <input type="number" name="phonenumber"
                                             class="form-control @if($errors->has('phonenumber')) is-invalid @endif"
                                             id="phonenumber" placeholder="Masukkan Nomor Telepon Pengguna"
-                                            value="{{ old('phonenumber') }}" required>
+                                            value="{{ old('phonenumber') }}">
                                         @if($errors->has('phonenumber'))
                                         <span class="error invalid-feedback">{{ $errors->first('phonenumber') }}</span>
                                         @endif
@@ -86,7 +86,7 @@
                                         <label for="depo">Depo</label>
                                         <select
                                             class="form-control selectpicker border @if($errors->has('depo')) is-invalid @endif"
-                                            name="depo" id="depo" data-live-search="true" title="Pilih Depo" required>
+                                            name="depo" id="depo" data-live-search="true" title="Pilih Depo">
                                             @foreach ($depo as $item)
                                             <option value="{{ $item->Depo }}" {{ (old('depo')==$item->Depo) ? 'selected'
                                                 : '' }}>

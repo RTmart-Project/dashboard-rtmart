@@ -54,7 +54,7 @@
                     <label for="sales_name">Nama Sales</label>
                     <input type="text" name="sales_name" class="form-control 
                     @if($errors->has('sales_name')) is-invalid @endif" id="sales_name"
-                        placeholder="Masukkan Nama Sales" value="{{ $sales->SalesName }}" required>
+                        placeholder="Masukkan Nama Sales" value="{{ $sales->SalesName }}">
                     @if($errors->has('sales_name'))
                     <span class="error invalid-feedback">{{ $errors->first('sales_name') }}</span>
                     @endif
@@ -102,17 +102,6 @@
                 </div>
                 <div class="col-md-6 col-12">
                   <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" name="email"
-                        class="form-control @if($errors->has('email')) is-invalid @endif" id="email"
-                        placeholder="Masukkan Email" value="{{ $sales->Email }}">
-                    @if($errors->has('email'))
-                    <span class="error invalid-feedback">{{ $errors->first('email') }}</span>
-                    @endif
-                  </div>
-                </div>
-                <div class="col-md-6 col-12">
-                  <div class="form-group">
                     <label for="phone_number">Nomor Telepon</label>
                     <input type="number" name="phone_number" class="form-control 
                     @if($errors->has('phone_number')) is-invalid @endif" id="phone_number"
@@ -127,7 +116,7 @@
                     <label for="work_status">Work Status</label>
                     <select class="form-control selectpicker border
                       @if($errors->has('work_status')) is-invalid @endif"
-                      name="work_status" id="work_status" title="Pilih Work Status" required>
+                      name="work_status" id="work_status" title="Pilih Work Status">
                       @foreach ($workStatus as $value)
                         <option value="{{ $value->SalesWorkStatusID }}"
                           {{ ($sales->SalesWorkStatus) == ($value->SalesWorkStatusID) ? 'selected' : '' }}>
@@ -157,17 +146,6 @@
                     </select>
                     @if($errors->has('product_group'))
                         <span class="error invalid-feedback">{{ $errors->first('product_group') }}</span>
-                    @endif
-                  </div>
-                </div>
-                <div class="col-md-6 col-12">
-                  <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="text" name="password"
-                        class="form-control @if($errors->has('password')) is-invalid @endif" id="password"
-                        placeholder="Masukkan Password" value="{{ $sales->Password }}">
-                    @if($errors->has('password'))
-                    <span class="error invalid-feedback">{{ $errors->first('password') }}</span>
                     @endif
                   </div>
                 </div>

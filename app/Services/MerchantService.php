@@ -11,6 +11,9 @@ class MerchantService
 
     public function merchantRestock()
     {
+        $depoUser = Auth::user()->Depo;
+        $regionalUser = Auth::user()->Regional;
+
         $sqlMain = DB::table('tx_merchant_order')
             ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
             ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'tx_merchant_order.MerchantID')
@@ -38,7 +41,6 @@ class MerchantService
                 ANY_VALUE(tx_merchant_order.NettPrice) AS NettPrice,
                 ANY_VALUE(tx_merchant_order.StatusOrderID) AS StatusOrderID,
                 ANY_VALUE(ms_merchant_account.StoreName) AS StoreName,
-                -- ANY_VALUE(ms_merchant_account.Partner) AS Partner,
                 GROUP_CONCAT(ms_partner.Name SEPARATOR ', ') AS Partners,
                 ANY_VALUE(ms_merchant_account.PhoneNumber) AS PhoneNumber,
                 ANY_VALUE(ms_distributor.DistributorName) AS DistributorName,
@@ -58,8 +60,16 @@ class MerchantService
                 ANY_VALUE(tx_merchant_order.IsValid) AS IsValid,
                 ANY_VALUE(tx_merchant_order.ValidationNotes) AS ValidationNotes
             ")
-            ->groupBy('tx_merchant_order.StockOrderID')
-            ->toSql();
+            ->groupBy('tx_merchant_order.StockOrderID');
+        // ->toSql();
+        if ($depoUser != "ALL") {
+            $sqlMain->whereRaw("ms_distributor.Depo = '$depoUser'");
+        }
+        if ($regionalUser != NULL && $depoUser == "ALL") {
+            $sqlMain->whereRaw("ms_distributor.Regional = '$regionalUser'");
+        }
+
+        $sqlMain = $sqlMain->toSql();
 
         $sql = DB::table(DB::raw("($sqlMain) AS Restock"))
             ->selectRaw("
@@ -133,16 +143,19 @@ class MerchantService
 
     public function merchantRestockAllProduct()
     {
+        $depoUser = Auth::user()->Depo;
+        $regionalUser = Auth::user()->Regional;
+
         $sql = DB::table('tx_merchant_order')
-            ->join('tx_merchant_order_detail', 'tx_merchant_order_detail.StockOrderID', '=', 'tx_merchant_order.StockOrderID')
+            ->join('tx_merchant_order_detail', 'tx_merchant_order_detail.StockOrderID', 'tx_merchant_order.StockOrderID')
             ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'tx_merchant_order.MerchantID')
             ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', 'ms_distributor_merchant_grade.GradeID')
-            ->join('ms_product', 'ms_product.ProductID', '=', 'tx_merchant_order_detail.ProductID')
-            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
-            ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tx_merchant_order.DistributorID')
-            ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_order.StatusOrderID')
-            ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
-            ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'tx_merchant_order.SalesCode')
+            ->join('ms_product', 'ms_product.ProductID', 'tx_merchant_order_detail.ProductID')
+            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
+            ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tx_merchant_order.StatusOrderID')
+            ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', 'tx_merchant_order.PaymentMethodID')
+            ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tx_merchant_order.SalesCode')
             ->leftJoin('ms_merchant_assessment', function ($join) {
                 $join->on('ms_merchant_assessment.MerchantID', 'tx_merchant_order.MerchantID');
                 $join->whereRaw("ms_merchant_assessment.IsActive = 1");
@@ -163,7 +176,6 @@ class MerchantService
                 ANY_VALUE(tx_merchant_order.DeliveryFee) AS DeliveryFee,
                 ANY_VALUE(tx_merchant_order.StatusOrderID) AS StatusOrderID,
                 ANY_VALUE(ms_merchant_account.StoreName) AS StoreName,
-                -- ANY_VALUE(ms_merchant_account.Partner) AS Partner,
                 GROUP_CONCAT(ms_partner.Name SEPARATOR ', ') AS Partners,
                 ANY_VALUE(ms_merchant_account.PhoneNumber) AS PhoneNumber,
                 ANY_VALUE(ms_distributor.DistributorName) AS DistributorName,
@@ -190,6 +202,13 @@ class MerchantService
                 ANY_VALUE(ms_product.Price) AS MsProductPrice
             ")
             ->groupBy('tx_merchant_order.StockOrderID', 'tx_merchant_order_detail.ProductID');
+
+        if ($depoUser != "ALL") {
+            $sql->whereRaw("ms_distributor.Depo = '$depoUser'");
+        }
+        if ($regionalUser != NULL && $depoUser == "ALL") {
+            $sql->whereRaw("ms_distributor.Regional = '$regionalUser'");
+        }
 
         return $sql;
     }
