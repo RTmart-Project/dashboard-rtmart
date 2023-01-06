@@ -46,14 +46,16 @@
               <div class="col-md-2 col-6 p-1">
                 <input type="text" name="to_date" id="to_date" class="form-control form-control-sm" readonly>
               </div>
+              @if (count($distributors) > 1)
               <div class="col-md-2 col-6 p-1">
                 <select class="form-control form-control-sm selectpicker border" name="distributor" id="distributor"
                   title="Pilih Depo" multiple data-live-search="true">
                   @foreach ($distributors as $distributor)
-                    <option value="{{ $distributor->DistributorID }}">{{ $distributor->DistributorName }}</option>
+                  <option value="{{ $distributor->DistributorID }}">{{ $distributor->DistributorName }}</option>
                   @endforeach
                 </select>
               </div>
+              @endif
               <div class="col-md-2 col-6 p-1">
                 <select class="form-control form-control-sm selectpicker border" name="sales" id="sales"
                   title="Pilih Sales" multiple data-live-search="true">
@@ -64,17 +66,18 @@
               </div>
               <div class="col-md-2 col-6 p-1">
                 <select class="form-control form-control-sm selectpicker border" name="type-po" id="type-po"
-                title="Pilih Tipe PO" multiple>
+                  title="Pilih Tipe PO" multiple>
                   <option value="#" disabled>-- Filter Tipe PO --</option>
                   @foreach ($typePO as $item)
-                    <option value="{{ $item->Type }}">{{ $item->Type }}</option>
+                  <option value="{{ $item->Type }}">{{ $item->Type }}</option>
                   @endforeach
                 </select>
               </div>
               <div class="col-md-2 col-6 p-1">
-                <select class="form-control form-control-sm selectpicker border" name="partner" id="partner" title="Filter Partner" multiple>
+                <select class="form-control form-control-sm selectpicker border" name="partner" id="partner"
+                  title="Filter Partner" multiple>
                   @foreach ($partners as $partner)
-                      <option value="{{ $partner->PartnerID }}">{{ $partner->Name }}</option>
+                  <option value="{{ $partner->PartnerID }}">{{ $partner->Name }}</option>
                   @endforeach
                 </select>
               </div>
@@ -86,14 +89,17 @@
           </div>
         </div>
 
-        <div class="position-absolute overlay"><h3>loading <i class="fas fa-spinner fa-spin"></i></h3></div>
+        <div class="position-absolute overlay">
+          <h3>loading <i class="fas fa-spinner fa-spin"></i></h3>
+        </div>
         <h5 class="mb-2">PO Summary</h5>
         <div class="row">
           <div class="col-md-4 col-6">
             <div class="info-box">
               <span class="info-box-icon bg-success elevation-1"><i class="fas fa-shopping-cart"></i></span>
               <div class="info-box-content">
-                <span class="info-box-text no-wrap h6 mb-2"><a id="total-value-po-all-status-link" target="_blank">Total PO (Semua Status)</a></span>
+                <span class="info-box-text no-wrap h6 mb-2"><a id="total-value-po-all-status-link" target="_blank">Total
+                    PO (Semua Status)</a></span>
                 <span class="info-box-number h6 m-0" id="total-value-po-all-status"></span>
                 <span class="m-0" id="count-merchant-po-all-status"></span>
               </div>
@@ -103,7 +109,8 @@
             <div class="info-box">
               <span class="info-box-icon bg-success elevation-1"><i class="fas fa-shopping-cart"></i></span>
               <div class="info-box-content">
-                <span class="info-box-text no-wrap h6 mb-2"><a id="total-value-po-link" target="_blank">Total PO (Belum di Kirim)</a></span>
+                <span class="info-box-text no-wrap h6 mb-2"><a id="total-value-po-link" target="_blank">Total PO (Belum
+                    di Kirim)</a></span>
                 <span class="info-box-number h6 m-0" id="total-value-po"></span>
                 <span class="m-0" id="count-merchant-po"></span>
               </div>
@@ -113,7 +120,8 @@
             <div class="info-box">
               <span class="info-box-icon bg-success elevation-1"><i class="fas fa-shopping-cart"></i></span>
               <div class="info-box-content">
-                <span class="info-box-text no-wrap h6 mb-2"><a id="total-value-po-cancelled-link" target="_blank">Total PO (Dibatalkan)</a></span>
+                <span class="info-box-text no-wrap h6 mb-2"><a id="total-value-po-cancelled-link" target="_blank">Total
+                    PO (Dibatalkan)</a></span>
                 <span class="info-box-number h6 m-0" id="total-value-po-cancelled"></span>
                 <span class="m-0" id="count-merchant-po-cancelled"></span>
               </div>
@@ -123,7 +131,8 @@
             <div class="info-box">
               <span class="info-box-icon bg-success elevation-1"><i class="fas fa-shopping-cart"></i></span>
               <div class="info-box-content">
-                <span class="info-box-text no-wrap h6 mb-2"><a id="count-total-po-link" target="_blank">Jumlah PO</a></span>
+                <span class="info-box-text no-wrap h6 mb-2"><a id="count-total-po-link" target="_blank">Jumlah
+                    PO</a></span>
                 <span class="info-box-number h6 m-0" id="count-total-po"></span>
               </div>
             </div>
@@ -132,7 +141,8 @@
             <div class="info-box">
               <span class="info-box-icon bg-success elevation-1"><i class="fas fa-store"></i></span>
               <div class="info-box-content">
-                <span class="info-box-text no-wrap h6 mb-2"><a id="count-merchant-po-link" target="_blank">Jumlah Toko</a></span>
+                <span class="info-box-text no-wrap h6 mb-2"><a id="count-merchant-po-link" target="_blank">Jumlah
+                    Toko</a></span>
                 <span class="info-box-number h6 m-0" id="count-merchant-po"></span>
               </div>
             </div>
@@ -181,7 +191,8 @@
             <div class="info-box">
               <span class="info-box-icon bg-info elevation-1"><i class="fas fa-truck"></i></span>
               <div class="info-box-content">
-                <span class="info-box-text no-wrap h6 mb-2"><a id="total-value-do-link" target="_blank">Total DO (Selesai)</a></span>
+                <span class="info-box-text no-wrap h6 mb-2"><a id="total-value-do-link" target="_blank">Total DO
+                    (Selesai)</a></span>
                 <span class="info-box-number h6 m-0" id="total-value-do"></span>
                 <span class="m-0" id="count-merchant-do"></span>
               </div>
@@ -210,7 +221,8 @@
             <div class="info-box">
               <span class="info-box-icon bg-info elevation-1"><i class="fas fa-truck"></i></span>
               <div class="info-box-content">
-                <span class="info-box-text no-wrap h6 mb-2"><a id="count-total-do-link" target="_blank">Jumlah DO</a></span>
+                <span class="info-box-text no-wrap h6 mb-2"><a id="count-total-do-link" target="_blank">Jumlah
+                    DO</a></span>
                 <span class="info-box-number h6 m-0" id="count-total-do"></span>
               </div>
             </div>
@@ -219,7 +231,8 @@
             <div class="info-box">
               <span class="info-box-icon bg-info elevation-1"><i class="fas fa-store"></i></span>
               <div class="info-box-content">
-                <span class="info-box-text no-wrap h6 mb-2"><a id="count-merchant-do-link" target="_blank">Jumlah Toko</a></span>
+                <span class="info-box-text no-wrap h6 mb-2"><a id="count-merchant-do-link" target="_blank">Jumlah
+                    Toko</a></span>
                 <span class="info-box-number h6 m-0" id="count-merchant-do"></span>
               </div>
             </div>
@@ -252,7 +265,7 @@
             </div>
           </div>
         </div>
-        
+
       </div>
     </div>
   </div>
