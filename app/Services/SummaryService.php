@@ -877,6 +877,7 @@ class SummaryService
     $typePOin = "";
     $filterTypePO = "";
     $userDepo = Auth::user()->Depo;
+    $regionalUser = Auth::user()->Regional;
 
     if ($typePO != null) {
       $typePOin = "'" . implode("', '", $typePO) . "'";
@@ -885,20 +886,17 @@ class SummaryService
 
     $grandTotal = DB::table('tx_merchant_delivery_order')
       ->join('tx_merchant_order as tmo', 'tmo.StockOrderID', 'tx_merchant_delivery_order.StockOrderID')
-      ->join('ms_merchant_account', function ($join) use ($userDepo) {
+      ->join('ms_merchant_account', function ($join) {
         $join->on('ms_merchant_account.MerchantID', 'tmo.MerchantID');
         $join->whereRaw("ms_merchant_account.IsTesting = 0 AND (ms_merchant_account.Partner != 'TRADING' OR ms_merchant_account.Partner IS NULL)");
       })
-      ->join('ms_distributor', function ($join) use ($userDepo) {
+      ->join('ms_distributor', function ($join) use ($userDepo, $regionalUser) {
         $join->on('ms_distributor.DistributorID', 'tmo.DistributorID');
-        if ($userDepo == 'ALL') {
-          $join->whereIn('ms_distributor.DistributorID', ['D-2004-000002', 'D-2212-000001', 'D-2004-000006', 'D-2004-000005', 'D-2004-000001']);
-        }
-        if ($userDepo == 'REG1') {
-          $join->whereIn('ms_distributor.DistributorID', ['D-2004-000002', 'D-2212-000001']);
-        }
-        if ($userDepo == 'REG2') {
-          $join->whereIn('ms_distributor.DistributorID', ['D-2004-000006', 'D-2004-000005', 'D-2004-000001']);
+        // if ($userDepo == 'ALL') {
+        //   $join->whereIn('ms_distributor.DistributorID', ['D-2004-000002', 'D-2212-000001', 'D-2004-000006', 'D-2004-000005', 'D-2004-000001']);
+        // }
+        if ($regionalUser != NULL && $userDepo == "ALL") {
+          $join->whereIn('ms_distributor.Regional', $regionalUser);
         }
       })
       ->join('tx_merchant_delivery_order_detail', function ($join) {
@@ -935,16 +933,13 @@ class SummaryService
         $join->on('ms_merchant_account.MerchantID', 'tmo.MerchantID');
         $join->whereRaw("ms_merchant_account.IsTesting = 0 AND (ms_merchant_account.Partner != 'TRADING' OR ms_merchant_account.Partner IS NULL)");
       })
-      ->join('ms_distributor', function ($join) use ($userDepo) {
+      ->join('ms_distributor', function ($join) use ($userDepo, $regionalUser) {
         $join->on('ms_distributor.DistributorID', 'tmo.DistributorID');
-        if ($userDepo == 'ALL') {
-          $join->whereIn('ms_distributor.DistributorID', ['D-2004-000002', 'D-2212-000001', 'D-2004-000006', 'D-2004-000005', 'D-2004-000001']);
-        }
-        if ($userDepo == 'REG1') {
-          $join->whereIn('ms_distributor.DistributorID', ['D-2004-000002', 'D-2212-000001']);
-        }
-        if ($userDepo == 'REG2') {
-          $join->whereIn('ms_distributor.DistributorID', ['D-2004-000006', 'D-2004-000005', 'D-2004-000001']);
+        // if ($userDepo == 'ALL') {
+        //   $join->whereIn('ms_distributor.DistributorID', ['D-2004-000002', 'D-2212-000001', 'D-2004-000006', 'D-2004-000005', 'D-2004-000001']);
+        // }
+        if ($regionalUser != NULL && $userDepo == "ALL") {
+          $join->whereIn('ms_distributor.Regional', $regionalUser);
         }
       })
       ->join('tx_merchant_delivery_order_detail', function ($join) {

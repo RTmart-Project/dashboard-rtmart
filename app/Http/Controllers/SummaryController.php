@@ -74,7 +74,7 @@ class SummaryController extends Controller
         $regionalUser = Auth::user()->Regional;
 
         $distributors = DB::table('ms_distributor')
-            ->where('IsActive', '=', 1)
+            ->where('IsActive', 1)
             ->select('DistributorID', 'DistributorName');
 
         if ($depoUser != "ALL") {
@@ -123,14 +123,15 @@ class SummaryController extends Controller
         $typePO = $request->typePO;
         $partner = $request->partner;
         $userDepo = Auth::user()->Depo;
+        $regionalUser = Auth::user()->Regional;
 
         if ($userDepo == "ALL" && !$distributorID) {
             $distributorID = ['D-2004-000002', 'D-2212-000001', 'D-2004-000006', 'D-2004-000005', 'D-2004-000001'];
         }
-        if ($userDepo == "REG1" && !$distributorID) {
+        if ($regionalUser == "REGIONAL1" && !$distributorID) {
             $distributorID = ['D-2004-000002', 'D-2212-000001'];
         }
-        if ($userDepo == "REG2" && !$distributorID) {
+        if ($regionalUser == "REGIONAL2" && !$distributorID) {
             $distributorID = ['D-2004-000006', 'D-2004-000005', 'D-2004-000001'];
         }
 
@@ -148,11 +149,12 @@ class SummaryController extends Controller
         $typePO = $request->input('typePO');
         $partner = $request->input('partner');
         $userDepo = Auth::user()->Depo;
+        $regionalUser = Auth::user()->Regional;
 
-        if ($userDepo == "REG1" && !$distributorID) {
+        if ($regionalUser == "REGIONAL1" && !$distributorID) {
             $distributorID = "D-2004-000002,D-2212-000001";
         }
-        if ($userDepo == "REG2" && !$distributorID) {
+        if ($regionalUser == "REGIONAL2" && !$distributorID) {
             $distributorID = "D-2004-000006,D-2004-000005,D-2004-000001";
         }
 
@@ -454,17 +456,19 @@ class SummaryController extends Controller
     public function summaryMerchant()
     {
         $depoUser = Auth::user()->Depo;
+        $regionalUser = Auth::user()->Regional;
+
         $distributors = DB::table('ms_distributor')
             ->where('IsActive', '=', 1)
             ->whereNotNull('Email')
             ->select('DistributorID', 'DistributorName');
-        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
+        if ($depoUser != "ALL") {
             $distributors->where('Depo', $depoUser);
         }
-        if ($depoUser == "REG1") {
-            $distributors->whereIn('Depo', ['SMG', 'YYK']);
+        if ($regionalUser == "REGIONAL1" && $depoUser == "ALL") {
+            $distributors->whereIn('Depo', ['SMG', 'YYK', 'UNR']);
         }
-        if ($depoUser == "REG2") {
+        if ($regionalUser == "REGIONAL2" && $depoUser == "ALL") {
             $distributors->whereIn('Depo', ['CRS', 'CKG', 'BDG']);
         }
         $distributors = $distributors->get();
@@ -472,13 +476,13 @@ class SummaryController extends Controller
         $sales = DB::table('ms_sales')
             ->where('IsActive', 1)
             ->select('SalesCode', 'SalesName');
-        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
+        if ($depoUser != "ALL") {
             $sales->where('Team', $depoUser);
         }
-        if ($depoUser == "REG1") {
-            $sales->whereIn('Team', ['SMG', 'YYK']);
+        if ($regionalUser == "REGIONAL1" && $depoUser == "ALL") {
+            $sales->whereIn('Team', ['SMG', 'YYK', 'UNR']);
         }
-        if ($depoUser == "REG2") {
+        if ($regionalUser == "REGIONAL2" && $depoUser == "ALL") {
             $sales->whereIn('Team', ['CRS', 'CKG', 'BDG']);
         }
         $sales = $sales->get();
@@ -498,11 +502,12 @@ class SummaryController extends Controller
         $salesCode = $request->input('salesCode');
         $marginStatus = $request->input('marginStatus');
         $userDepo = Auth::user()->Depo;
+        $regionalUser = Auth::user()->Regional;
 
-        if ($userDepo == "REG1" && !$distributorID) {
+        if ($userDepo == "REGIONAL1" && !$distributorID) {
             $distributorID = ["D-2004-000002", "D-2212-000001"];
         }
-        if ($userDepo == "REG2" && !$distributorID) {
+        if ($userDepo == "REGIONAL2" && !$distributorID) {
             $distributorID = ["D-2004-000006", "D-2004-000005", "D-2004-000001"];
         }
 
