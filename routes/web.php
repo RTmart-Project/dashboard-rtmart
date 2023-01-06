@@ -102,7 +102,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::group(['prefix' => 'product', 'middleware' => ['checkRoleUser:IT,AD,RBTAD,BM,CEO,FI,AH,DMO,HL,SM,SV']], function () {
             Route::get('/', [DistributionController::class, 'product'])->name('distribution.product');
             Route::get('/get', [DistributionController::class, 'getProduct'])->name('distribution.getProduct');
-            Route::group(['middleware' => ['checkRoleUser:IT,FI,AH,BM,CEO,RBTAD']], function () {
+            Route::group(['middleware' => ['checkRoleUser:IT,FI,AH,BM,CEO,RBTAD,AD']], function () {
                 Route::get('/add', [DistributionController::class, 'addProduct'])->name('distribution.addProduct');
                 Route::get('/ajax/get/{distributorId}', [DistributionController::class, 'ajaxGetProduct'])->name('distribution.ajaxGetProduct');
                 Route::post('/insert', [DistributionController::class, 'insertProduct'])->name('distribution.insertProduct');
@@ -328,7 +328,7 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     // Distributor
-    Route::group(['middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,RBTAD,HL,SM,SV']], function () {
+    Route::group(['middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,RBTAD,HL,SM,SV,AD']], function () {
         Route::get('/distributor/account', [DistributorController::class, 'account'])->name('distributor.account');
         Route::get('/distributor/account/get', [DistributorController::class, 'getAccounts'])->withoutMiddleware('checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,RBTAD,SM')->name('distributor.getAccounts');
         Route::get('/distributor/account/add', [DistributorController::class, 'addDistributor'])->name('distributor.addDistributor');

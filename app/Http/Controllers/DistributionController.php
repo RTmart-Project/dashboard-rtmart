@@ -1691,6 +1691,12 @@ class DistributionController extends Controller
         $toDate = $request->input('toDate');
         $userDepo = Auth::user()->Depo;
         $regionalUser = Auth::user()->Regional;
+        $filterStatusPS = [];
+        if ($statusPriceSubmission == 'S040' || $statusPriceSubmission == 'S041') {
+            array_push($filterStatusPS, 'S009', 'S010', 'S023', 'S011', 'S012', 'S018');
+        } else {
+            array_push($filterStatusPS, 'S009', 'S010', 'S023');
+        }
 
         $sql = DB::table('ms_price_submission')
             ->join('tx_merchant_order AS tmo', 'tmo.StockOrderID', 'ms_price_submission.StockOrderID')
@@ -1701,7 +1707,8 @@ class DistributionController extends Controller
             ->join('ms_distributor', 'ms_distributor.DistributorID', 'tmo.DistributorID')
             ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tmo.SalesCode')
             ->where('ms_price_submission.StatusPriceSubmission', $statusPriceSubmission)
-            ->whereIn('tmo.StatusOrderID', ['S009', 'S010', 'S023'])
+            ->whereIn('tmo.StatusOrderID', $filterStatusPS)
+            // ->whereIn('tmo.StatusOrderID', ['S009', 'S010', 'S023'])
             ->selectRaw("
                 ms_price_submission.PriceSubmissionID,
                 tmo.StockOrderID,
@@ -2484,7 +2491,7 @@ class DistributionController extends Controller
                 ->addColumn('Action', function ($data) {
                     if (
                         Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" ||
-                        Auth::user()->RoleID == "BM"
+                        Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "AD"
                     ) {
                         $actionBtn = '<a href="#" data-distributor-id="' . $data->DistributorID . '" data-product-id="' . $data->ProductID . '" data-grade-id="' . $data->GradeID . '" data-product-name="' . $data->ProductName . '" data-grade-name="' . $data->Grade . '" data-price="' . $data->Price . '" data-pre-order="' . $data->IsPreOrder . '" 
                         data-is-active="' . $data->IsActive . '" class="btn-edit btn btn-sm btn-warning mr-1">Edit</a>
@@ -2636,12 +2643,13 @@ class DistributionController extends Controller
                     ->where('DistributorID', '=', $distributorId)
                     ->where('ProductID', '=', $productId);
                 $update->update([
+                    'IsPreOrder' => $request->input('is_pre_order'),
                     'IsActive' => $request->input('is_active')
                 ]);
                 $update->where('GradeID', '=', $gradeId)
                     ->update([
                         'Price' => $request->input('price'),
-                        'IsPreOrder' => $request->input('is_pre_order'),
+                        // 'IsPreOrder' => $request->input('is_pre_order'),
                     ]);
                 DB::table('ms_product_price_log')->insert($data);
             });
