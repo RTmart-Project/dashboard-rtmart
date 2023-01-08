@@ -42,7 +42,7 @@ class DistributorController extends Controller
         if ($depoUser != "ALL") {
             $sqlAllAccount->where('ms_distributor.Depo', $depoUser);
         }
-        if ($regionalUser != NULL) {
+        if ($regionalUser != NULL && $depoUser == "ALL") {
             $sqlAllAccount->where('ms_distributor.Regional', $regionalUser);
         }
 

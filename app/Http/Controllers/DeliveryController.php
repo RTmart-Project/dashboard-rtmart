@@ -449,7 +449,7 @@ class DeliveryController extends Controller
         if ($depoUser != "ALL") {
             $sqlExpeditionAllProduct->where('ms_distributor.Depo', $depoUser);
         }
-        if ($regionalUser != NULL) {
+        if ($regionalUser != NULL && $depoUser == "ALL") {
             $sqlExpeditionAllProduct->where('ms_distributor.Regional', $regionalUser);
         }
 

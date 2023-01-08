@@ -78,7 +78,7 @@
             </div>
         </div>
 
-        @if (Auth::user()->Depo == "ALL" || Auth::user()->Regional != NULL)
+        @if (Auth::user()->Depo == "ALL")
         <div class="row">
             <div class="col-md-12 col-12">
                 <div class="card card-outline collapsed-card">
@@ -90,7 +90,8 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        @if ((Auth::user()->Depo == "ALL" && Auth::user()->Regional == NULL) || Auth::user()->Regional == "REGIONAL2")
+                        @if ((Auth::user()->Depo == "ALL" && Auth::user()->Regional == NULL) ||
+                        (Auth::user()->Depo == "ALL" && Auth::user()->Regional == "REGIONAL2"))
                         {{-- Bandung --}}
                         <div class="row">
                             <div class="col-md-4">
@@ -217,7 +218,8 @@
                         {{-- End Of Ciracas --}}
                         @endif
 
-                        @if ((Auth::user()->Depo == "ALL" && Auth::user()->Regional == NULL) || Auth::user()->Regional == "REGIONAL1")
+                        @if ((Auth::user()->Depo == "ALL" && Auth::user()->Regional == NULL) ||
+                        (Auth::user()->Depo == "ALL" && Auth::user()->Regional == "REGIONAL1"))
                         {{-- Semarang --}}
                         <div class="row">
                             <div class="col-md-4">

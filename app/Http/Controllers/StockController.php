@@ -1196,7 +1196,7 @@ class StockController extends Controller
         $sqlGetListStocks = $purchaseService->getStocks();
 
         if ($distributorId != null) {
-            $sqlGetListStocks->where('ms_distributor.DistributorID', '=', $distributorId);
+            $sqlGetListStocks->where('ms_distributor.DistributorID', $distributorId);
         }
         if ($enterDate != null) {
             $sqlGetListStocks->whereDate('ms_stock_product_log.CreatedDate', '<=', $enterDate);

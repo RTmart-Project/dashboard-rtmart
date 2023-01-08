@@ -417,6 +417,7 @@ class PurchaseService
           SUM(IF(ms_stock_product.ConditionStock = 'BAD STOCK', ms_stock_product_log.QtyAction, 0)) AS BadStock,
           SUM(IF(ms_stock_product.ConditionStock = 'BAD STOCK', ms_stock_product_log.QtyAction * ms_stock_product_log.PurchasePrice, 0)) AS NominalBadStock
         ")
+      ->where('ms_distributor.IsActive', 1)
       ->groupBy("ms_stock_product.DistributorID", "ms_stock_product.InvestorID", "ms_stock_product_log.ProductID", "ms_stock_product.ProductLabel");
     return $sql;
   }

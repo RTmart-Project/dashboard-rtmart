@@ -52,7 +52,7 @@ class MerchantController extends Controller
             if ($depoUser != "ALL") {
                 $merchantAccount->where('ms_distributor.Depo', $depoUser);
             }
-            if ($regionalUser != NULL) {
+            if ($regionalUser != NULL && $depoUser == "ALL") {
                 $merchantAccount->where('ms_distributor.Regional', $regionalUser);
             }
 
@@ -126,8 +126,8 @@ class MerchantController extends Controller
                 ANY_VALUE(ms_merchant_assessment.IsActive) AS IsActive,
                 ANY_VALUE(ms_sales.SalesName) AS SalesName,
                 ms_merchant_account.IsBlocked,
-                ms_merchant_account.BlockedMessage
-            ")
+                ms_merchant_account.BlockedMessage")
+            ->where('ms_distributor.IsActive', 1)
             ->groupBy('ms_merchant_account.MerchantID');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
@@ -155,7 +155,7 @@ class MerchantController extends Controller
         if ($depoUser != "ALL") {
             $sqlAllAccount->where('ms_distributor.Depo', $depoUser);
         }
-        if ($regionalUser != NULL) {
+        if ($regionalUser != NULL && $depoUser == "ALL") {
             $sqlAllAccount->where('ms_distributor.Regional', $regionalUser);
         }
 
