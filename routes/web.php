@@ -24,7 +24,6 @@ use App\Http\Controllers\StockController;
 use App\Http\Controllers\StockPromoController;
 use App\Http\Controllers\SummaryController;
 use App\Http\Controllers\VoucherController;
-use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------

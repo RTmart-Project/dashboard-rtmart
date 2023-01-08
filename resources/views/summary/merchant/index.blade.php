@@ -55,6 +55,7 @@
               <div class="col-md-2 col-6 p-1">
                 <input type="text" name="to_date" id="to_date" class="form-control form-control-sm" readonly>
               </div>
+              @if (count($distributors) > 1)
               <div class="col-md-3 col-6 p-1">
                 <select class="form-control form-control-sm selectpicker border" name="distributor" id="distributor"
                   title="Filter Depo" multiple data-live-search="true">
@@ -63,6 +64,7 @@
                   @endforeach
                 </select>
               </div>
+              @endif
               <div class="col-md-3 col-6 p-1">
                 <select class="form-control form-control-sm selectpicker border" name="sales" id="sales"
                   title="Filter Sales" multiple data-live-search="true">

@@ -36,14 +36,14 @@ class DistributionController extends Controller
     {
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
-        $userDepo = Auth::user()->Depo;
+        $depoUser = Auth::user()->Depo;
         $regionalUser = Auth::user()->Regional;
 
         $sqlGetValidation = $restockService->getRestokValidation();
-        if ($userDepo != "ALL") {
-            $sqlGetValidation->where('ms_distributor.Depo', $userDepo);
+        if ($depoUser != "ALL") {
+            $sqlGetValidation->where('ms_distributor.Depo', $depoUser);
         }
-        if ($regionalUser != NULL) {
+        if ($regionalUser != NULL && $depoUser == "ALL") {
             $sqlGetValidation->where('ms_distributor.Regional', $regionalUser);
         }
 
@@ -167,7 +167,7 @@ class DistributionController extends Controller
         if ($depoUser != "ALL") {
             $sqlGetRestock->where('ms_distributor.Depo', $depoUser);
         }
-        if ($regionalUser != NULL) {
+        if ($regionalUser != NULL && $depoUser == "ALL") {
             $sqlGetRestock->where('ms_distributor.Regional', $regionalUser);
         }
 
@@ -375,7 +375,7 @@ class DistributionController extends Controller
         if ($depoUser != "ALL") {
             $sqlAllRestockAndDO->where('ms_distributor.Depo', $depoUser);
         }
-        if ($regionalUser != NULL) {
+        if ($regionalUser != NULL && $depoUser == "ALL") {
             $sqlAllRestockAndDO->where('ms_distributor.Regional', $regionalUser);
         }
 
@@ -1689,7 +1689,7 @@ class DistributionController extends Controller
     {
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
-        $userDepo = Auth::user()->Depo;
+        $depoUser = Auth::user()->Depo;
         $regionalUser = Auth::user()->Regional;
         $filterStatusPS = [];
         if ($statusPriceSubmission == 'S040' || $statusPriceSubmission == 'S041') {
@@ -1797,10 +1797,13 @@ class DistributionController extends Controller
                 ) AS CostLogistic
             ");
 
-        if ($userDepo == "ALL") {
-            $sql->whereIn('ms_merchant_account.DistributorID', ['D-2004-000002', 'D-2212-000001', 'D-2004-000006', 'D-2004-000005', 'D-2004-000001']);
+        // if ($depoUser == "ALL") {
+        //     $sql->whereIn('ms_merchant_account.DistributorID', ['D-2004-000002', 'D-2212-000001', 'D-2004-000006', 'D-2004-000005', 'D-2004-000001']);
+        // }
+        if ($depoUser != "ALL") {
+            $sql->where('ms_distributor.Depo', $depoUser);
         }
-        if ($regionalUser != NULL) {
+        if ($regionalUser != NULL && $depoUser == "ALL") {
             $sql->where('ms_distributor.Regional', $regionalUser);
         }
 
@@ -2237,7 +2240,7 @@ class DistributionController extends Controller
         if ($depoUser != "ALL") {
             $sqlbillPayLater->where('ms_distributor.Depo', $depoUser);
         }
-        if ($regionalUser != NULL) {
+        if ($regionalUser != NULL && $depoUser == "ALL") {
             $sqlbillPayLater->where('ms_distributor.Regional', $regionalUser);
         }
 
@@ -2442,7 +2445,7 @@ class DistributionController extends Controller
         if ($depoUser != "ALL") {
             $distributorProducts->where('ms_distributor.Depo', $depoUser);
         }
-        if ($regionalUser != NULL) {
+        if ($regionalUser != NULL && $depoUser == "ALL") {
             $distributorProducts->where('ms_distributor.Regional', $regionalUser);
         }
 
@@ -2728,7 +2731,7 @@ class DistributionController extends Controller
         if ($depoUser != "ALL") {
             $sqlAllAccount->where('ms_distributor.Depo', $depoUser);
         }
-        if ($regionalUser != NULL) {
+        if ($regionalUser != NULL && $depoUser == "ALL") {
             $sqlAllAccount->where('ms_distributor.Regional', $regionalUser);
         }
 

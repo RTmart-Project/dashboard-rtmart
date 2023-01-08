@@ -402,7 +402,7 @@ class RTSalesController extends Controller
         }
 
         if ($depoUser != "ALL") {
-            $sqlStoreList->where('ms_distributor.Depo', '=', $depoUser);
+            $sqlStoreList->where('ms_distributor.Depo', $depoUser);
         }
         if ($regionalUser != NULL && $depoUser == "ALL") {
             $sqlStoreList->where('ms_distributor.Regional', $regionalUser);

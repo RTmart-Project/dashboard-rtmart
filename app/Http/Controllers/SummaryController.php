@@ -122,16 +122,16 @@ class SummaryController extends Controller
         $salesCode = $request->salesCode;
         $typePO = $request->typePO;
         $partner = $request->partner;
-        $userDepo = Auth::user()->Depo;
+        $depoUser = Auth::user()->Depo;
         $regionalUser = Auth::user()->Regional;
 
-        if ($userDepo == "ALL" && !$distributorID) {
+        if ($depoUser == "ALL" && !$regionalUser && !$distributorID) {
             $distributorID = ['D-2004-000002', 'D-2212-000001', 'D-2004-000006', 'D-2004-000005', 'D-2004-000001'];
         }
-        if ($regionalUser == "REGIONAL1" && !$distributorID) {
+        if (($regionalUser == "REGIONAL1" && $depoUser == "ALL") && !$distributorID) {
             $distributorID = ['D-2004-000002', 'D-2212-000001'];
         }
-        if ($regionalUser == "REGIONAL2" && !$distributorID) {
+        if (($regionalUser == "REGIONAL2" && $depoUser == "ALL") && !$distributorID) {
             $distributorID = ['D-2004-000006', 'D-2004-000005', 'D-2004-000001'];
         }
 
@@ -148,13 +148,16 @@ class SummaryController extends Controller
         $salesCode = $request->input('salesCode');
         $typePO = $request->input('typePO');
         $partner = $request->input('partner');
-        $userDepo = Auth::user()->Depo;
+        $depoUser = Auth::user()->Depo;
         $regionalUser = Auth::user()->Regional;
 
-        if ($regionalUser == "REGIONAL1" && !$distributorID) {
+        if ($depoUser == "ALL" && !$regionalUser && !$distributorID) {
+            $distributorID = "D-2004-000002,D-2212-000001,D-2004-000006,D-2004-000005,D-2004-000001";
+        }
+        if ($regionalUser == "REGIONAL1" && $depoUser == "ALL" && !$distributorID) {
             $distributorID = "D-2004-000002,D-2212-000001";
         }
-        if ($regionalUser == "REGIONAL2" && !$distributorID) {
+        if ($regionalUser == "REGIONAL2" && $depoUser == "ALL" && !$distributorID) {
             $distributorID = "D-2004-000006,D-2004-000005,D-2004-000001";
         }
 
@@ -171,7 +174,6 @@ class SummaryController extends Controller
         }
 
         if ($salesCode != null) {
-
             $filterSales = explode(",", $salesCode);
         } else {
             $filterSales = $salesCode;
@@ -462,6 +464,7 @@ class SummaryController extends Controller
             ->where('IsActive', '=', 1)
             ->whereNotNull('Email')
             ->select('DistributorID', 'DistributorName');
+
         if ($depoUser != "ALL") {
             $distributors->where('Depo', $depoUser);
         }
@@ -501,13 +504,13 @@ class SummaryController extends Controller
         $distributorID = $request->input('distributorID');
         $salesCode = $request->input('salesCode');
         $marginStatus = $request->input('marginStatus');
-        $userDepo = Auth::user()->Depo;
         $regionalUser = Auth::user()->Regional;
+        $depoUser = Auth::user()->Depo;
 
-        if ($userDepo == "REGIONAL1" && !$distributorID) {
+        if (($regionalUser == "REGIONAL1" && $depoUser == "ALL") && !$distributorID) {
             $distributorID = ["D-2004-000002", "D-2212-000001"];
         }
-        if ($userDepo == "REGIONAL2" && !$distributorID) {
+        if (($regionalUser == "REGIONAL2" && $depoUser == "ALL") && !$distributorID) {
             $distributorID = ["D-2004-000006", "D-2004-000005", "D-2004-000001"];
         }
 
