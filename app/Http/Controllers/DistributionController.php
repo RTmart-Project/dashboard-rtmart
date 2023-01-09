@@ -2757,15 +2757,16 @@ class DistributionController extends Controller
                     return $grade;
                 })
                 ->addColumn('Action', function ($data) {
-                    if (Auth::user()->RoleID != "AD") {
+                    if (Auth::user()->RoleID == "IT") {
                         $ubahGrade = '<a href="#" data-distributor-id="' . $data->DistributorID . '" data-merchant-id="' . $data->MerchantID . '" 
                             data-store-name="' . $data->StoreName . '" data-owner-name="' . $data->OwnerFullName . '" data-grade-id="' . $data->GradeID . '" 
                             class="btn btn-xs btn-warning edit-grade mb-1">Ubah Grade</a>';
+                        $actionBtn = '<a href="/distribution/merchant/specialprice/' . $data->MerchantID . '" class="btn btn-xs btn-secondary mb-1">Special Price</a>';
                     } else {
                         $ubahGrade = '';
+                        $actionBtn = '';
                     }
 
-                    $actionBtn = '<a href="/distribution/merchant/specialprice/' . $data->MerchantID . '" class="btn btn-xs btn-secondary mb-1">Special Price</a>';
 
                     return $ubahGrade . $actionBtn;
                 })
