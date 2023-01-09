@@ -77,7 +77,7 @@
             </div>
         </div>
 
-        @if (Auth::user()->Depo == "ALL" || Auth::user()->Regional != NULL)
+        @if (Auth::user()->Depo == "ALL")
         <div class="row">
             <div class="col-md-12 col-12">
                 <div class="card card-outline collapsed-card">
