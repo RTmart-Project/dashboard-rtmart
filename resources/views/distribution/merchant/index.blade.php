@@ -68,7 +68,9 @@
                                                     <th style="width: 35%">Alamat</th>
                                                     <th>Kode Sales</th>
                                                     <th>Nama Sales</th>
+                                                    @if (Auth::user()->RoleID == "IT")
                                                     <th>Action</th>
+                                                    @endif
                                                 </tr>
                                             </thead>
                                             <tbody>

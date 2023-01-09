@@ -3,6 +3,7 @@
 
 @section('css-pages')
 <meta name="depo" content="{{ Auth::user()->Depo }}">
+<meta name="regional" content="{{ Auth::user()->Regional }}">
 <!-- daterange picker -->
 <link rel="stylesheet" href="{{url('/')}}/plugins/daterangepicker/daterangepicker.css">
 <!-- Datatables -->

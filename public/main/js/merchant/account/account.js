@@ -171,29 +171,27 @@ $(document).ready(function () {
                                     class="btn btn-sm btn-warning ml-2">Refresh</button>
                                 </div>
                             </div>
-                            <div class="col-12 col-md-6 d-flex justify-content-center" style="gap: 3px;">
-                                <div class="filter-depo mr-1">
-                                    <select class="form-control form-control-sm">
-                                        <option value="" selected hidden disabled>Filter Depo</option>
-                                        <option value="">All</option>
-                                    </select>
-                                </div>
-                                <div class="filter-assessment ml-1">
-                                    <select class="form-control form-control-sm">
-                                        <option value="" selected hidden disabled>Filter Assessment</option>
-                                        <option value="">All</option>
-                                        <option value="already-assessed">Sudah Assessment</option>
-                                        <option value="not-assessed">Belum Assessment</option>
-                                    </select>
-                                </div>
-                                <div class="filter-block ml-1">
-                                    <select class="form-control form-control-sm">
-                                        <option value="" selected hidden disabled>Filter Block</option>
-                                        <option value="">All</option>
-                                        <option value="blocked">Blocked</option>
-                                        <option value="unblocked">Not Blocked</option>
-                                    </select>
-                                </div>
+                            <div class="filter-depo mr-1">
+                                <select class="form-control form-control-sm">
+                                    <option value="" selected hidden disabled>Filter Depo</option>
+                                    <option value="">All</option>
+                                </select>
+                            </div>
+                            <div class="filter-assessment ml-1">
+                                <select class="form-control form-control-sm">
+                                    <option value="" selected hidden disabled>Filter Assessment</option>
+                                    <option value="">All</option>
+                                    <option value="already-assessed">Sudah Assessment</option>
+                                    <option value="not-assessed">Belum Assessment</option>
+                                </select>
+                            </div>
+                            <div class="filter-block ml-1">
+                                <select class="form-control form-control-sm">
+                                    <option value="" selected hidden disabled>Filter Block</option>
+                                    <option value="">All</option>
+                                    <option value="blocked">Blocked</option>
+                                    <option value="unblocked">Not Blocked</option>
+                                </select>
                             </div>
                         </div>`);
 
@@ -297,7 +295,12 @@ $(document).ready(function () {
             for (const item of dataDistributor) {
                 option += `<option value="${item.DistributorID}">${item.DistributorName}</option>`;
             }
-            $("#merchant-account .filter-depo select").append(option);
+            // $("#merchant-account .filter-depo select").append(option);
+            if (dataDistributor.length > 1) {
+                $("#merchant-account .filter-depo select").append(option);
+            } else {
+                $(".filter-depo").remove();
+            }
             // customDropdownFilter.createCustomDropdowns();
             // $('#merchant-account .select-filter-custom select').val("All").change();
         },

@@ -414,12 +414,20 @@ function getSummary(startDate = null, endDate = null) {
                 loaderGrandTotal
             );
 
-            if (depo == "ALL" || depo == "REG1") {
+            if (depo == "ALL" && !regional) {
+                getSummarySemarang(startDate, endDate);
+                getSummaryYogyakarta(startDate, endDate);
+                getSummaryCakung(startDate, endDate);
+                getSummaryBandung(startDate, endDate);
+                getSummaryCiracas(startDate, endDate);
+                getSummaryGrandTotal(startDate, endDate);
+            }
+            if (depo == "ALL" && regional == "REGIONAL1") {
                 getSummarySemarang(startDate, endDate);
                 getSummaryYogyakarta(startDate, endDate);
                 getSummaryGrandTotal(startDate, endDate);
             }
-            if (depo == "ALL" || depo == "REG2") {
+            if (depo == "ALL" && regional == "REGIONAL2") {
                 getSummaryCakung(startDate, endDate);
                 getSummaryBandung(startDate, endDate);
                 getSummaryCiracas(startDate, endDate);

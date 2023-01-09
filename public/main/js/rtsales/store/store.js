@@ -230,7 +230,13 @@ $(document).ready(function () {
             for (const item of dataDistributor) {
                 option += `<option value="${item.DistributorID}">${item.DistributorName}</option>`;
             }
-            $("#store-list .filter-distributor select").append(option);
+            if (dataDistributor.length > 1) {
+                $("#store-list .filter-distributor select").append(option);
+                // $("#merchant-account .filter-depo select").append(option);
+            } else {
+                $("#store-list .filter-distributor").remove();
+            }
+            // $("#store-list .filter-distributor select").append(option);
         },
     });
 

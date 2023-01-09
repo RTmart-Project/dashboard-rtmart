@@ -44,20 +44,23 @@ class DeliveryController extends Controller
         $toDate = $request->input('toDate');
         // $checkboxFilter = $request->checkFilter;
         $urutanDO = $request->input('urutanDO');
+        $depoUser = Auth::user()->Depo;
+        $regionalUser = Auth::user()->Regional;
 
         $sqlDeliveryRequest = $deliveryOrderService->getDeliveryRequest();
 
-        if (Auth::user()->Depo != "ALL") {
-            $depoUser = Auth::user()->Depo;
-            $sqlDeliveryRequest->where('ms_distributor.Depo', '=', $depoUser);
+        if ($depoUser != "ALL") {
+            $sqlDeliveryRequest->where('ms_distributor.Depo', $depoUser);
         }
+        if ($regionalUser != NULL && $depoUser == "ALL") {
+            $sqlDeliveryRequest->where('ms_distributor.Regional', $regionalUser);
+        }
+
         if ($fromDate != '' && $toDate != '') {
             $sqlDeliveryRequest->whereDate('tmdo.CreatedDate', '>=', $fromDate)
                 ->whereDate('tmdo.CreatedDate', '<=', $toDate);
         }
-        // if ($checkboxFilter != "") {
-        //     $sqlDeliveryRequest->whereIn('ms_area.Subdistrict', $checkboxFilter);
-        // }
+
         if ($urutanDO != null) {
             $sqlDeliveryRequest->whereRaw("(SELECT CONCAT('DO ke-', COUNT(*)) FROM tx_merchant_delivery_order
                 WHERE tx_merchant_delivery_order.CreatedDate <= tmdo.CreatedDate
@@ -349,18 +352,15 @@ class DeliveryController extends Controller
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
         $depoUser = Auth::user()->Depo;
+        $regionalUser = Auth::user()->Regional;
 
         $sqlExpedition = $deliveryOrderService->expeditions()->whereRaw("expd.StatusExpedition IN ($status)");
 
-        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
-            $depoUser = Auth::user()->Depo;
+        if ($depoUser != "ALL") {
             $sqlExpedition->where('ms_distributor.Depo', $depoUser);
         }
-        if ($depoUser === "REG1") {
-            $sqlExpedition->whereIn('ms_distributor.Depo', ['SMG', 'YYK']);
-        }
-        if ($depoUser === "REG2") {
-            $sqlExpedition->whereIn('ms_distributor.Depo', ['CRS', 'CKG', 'BDG']);
+        if ($regionalUser != NULL && $depoUser == "ALL") {
+            $sqlExpedition->where('ms_distributor.Regional', $regionalUser);
         }
 
         if ($fromDate != '' && $toDate != '') {
@@ -443,16 +443,14 @@ class DeliveryController extends Controller
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
         $depoUser = Auth::user()->Depo;
+        $regionalUser = Auth::user()->Regional;
 
         $sqlExpeditionAllProduct = $deliveryOrderService->expeditionsAllProduct()->whereRaw("tx_merchant_expedition.StatusExpedition IN ($status)");
-        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
+        if ($depoUser != "ALL") {
             $sqlExpeditionAllProduct->where('ms_distributor.Depo', $depoUser);
         }
-        if ($depoUser === "REG1") {
-            $sqlExpeditionAllProduct->whereIn('ms_distributor.Depo', ['SMG', 'YYK']);
-        }
-        if ($depoUser === "REG2") {
-            $sqlExpeditionAllProduct->whereIn('ms_distributor.Depo', ['CRS', 'CKG', 'BDG']);
+        if ($regionalUser != NULL && $depoUser == "ALL") {
+            $sqlExpeditionAllProduct->where('ms_distributor.Regional', $regionalUser);
         }
 
         if ($fromDate != '' && $toDate != '') {

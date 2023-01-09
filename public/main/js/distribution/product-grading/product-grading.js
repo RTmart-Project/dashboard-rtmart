@@ -126,7 +126,7 @@ $(document).ready(function () {
 
     // Create element for Filter
     let depo = $('meta[name="depo"]').attr("content");
-    if (depo == "ALL" || depo == "REG1" || depo == "REG2") {
+    if (depo == "ALL") {
         $("div.filter-product-grading").html(`<div class="input-group">
                           <div class="select-filter-custom ml-2">
                               <select>

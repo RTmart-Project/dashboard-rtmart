@@ -876,7 +876,8 @@ class SummaryService
   {
     $typePOin = "";
     $filterTypePO = "";
-    $userDepo = Auth::user()->Depo;
+    $depoUser = Auth::user()->Depo;
+    $regionalUser = Auth::user()->Regional;
 
     if ($typePO != null) {
       $typePOin = "'" . implode("', '", $typePO) . "'";
@@ -885,20 +886,17 @@ class SummaryService
 
     $grandTotal = DB::table('tx_merchant_delivery_order')
       ->join('tx_merchant_order as tmo', 'tmo.StockOrderID', 'tx_merchant_delivery_order.StockOrderID')
-      ->join('ms_merchant_account', function ($join) use ($userDepo) {
+      ->join('ms_merchant_account', function ($join) {
         $join->on('ms_merchant_account.MerchantID', 'tmo.MerchantID');
         $join->whereRaw("ms_merchant_account.IsTesting = 0 AND (ms_merchant_account.Partner != 'TRADING' OR ms_merchant_account.Partner IS NULL)");
       })
-      ->join('ms_distributor', function ($join) use ($userDepo) {
+      ->join('ms_distributor', function ($join) use ($depoUser, $regionalUser) {
         $join->on('ms_distributor.DistributorID', 'tmo.DistributorID');
-        if ($userDepo == 'ALL') {
-          $join->whereIn('ms_distributor.DistributorID', ['D-2004-000002', 'D-2212-000001', 'D-2004-000006', 'D-2004-000005', 'D-2004-000001']);
+        if ($depoUser != 'ALL') {
+          $join->where('ms_distributor.depo', $depoUser);
         }
-        if ($userDepo == 'REG1') {
-          $join->whereIn('ms_distributor.DistributorID', ['D-2004-000002', 'D-2212-000001']);
-        }
-        if ($userDepo == 'REG2') {
-          $join->whereIn('ms_distributor.DistributorID', ['D-2004-000006', 'D-2004-000005', 'D-2004-000001']);
+        if ($regionalUser != NULL && $depoUser == "ALL") {
+          $join->where('ms_distributor.Regional', $regionalUser);
         }
       })
       ->join('tx_merchant_delivery_order_detail', function ($join) {
@@ -935,16 +933,13 @@ class SummaryService
         $join->on('ms_merchant_account.MerchantID', 'tmo.MerchantID');
         $join->whereRaw("ms_merchant_account.IsTesting = 0 AND (ms_merchant_account.Partner != 'TRADING' OR ms_merchant_account.Partner IS NULL)");
       })
-      ->join('ms_distributor', function ($join) use ($userDepo) {
+      ->join('ms_distributor', function ($join) use ($depoUser, $regionalUser) {
         $join->on('ms_distributor.DistributorID', 'tmo.DistributorID');
-        if ($userDepo == 'ALL') {
-          $join->whereIn('ms_distributor.DistributorID', ['D-2004-000002', 'D-2212-000001', 'D-2004-000006', 'D-2004-000005', 'D-2004-000001']);
+        if ($depoUser != 'ALL') {
+          $join->where('ms_distributor.depo', $depoUser);
         }
-        if ($userDepo == 'REG1') {
-          $join->whereIn('ms_distributor.DistributorID', ['D-2004-000002', 'D-2212-000001']);
-        }
-        if ($userDepo == 'REG2') {
-          $join->whereIn('ms_distributor.DistributorID', ['D-2004-000006', 'D-2004-000005', 'D-2004-000001']);
+        if ($regionalUser != NULL && $depoUser == "ALL") {
+          $join->where('ms_distributor.Regional', $regionalUser);
         }
       })
       ->join('tx_merchant_delivery_order_detail', function ($join) {
@@ -983,6 +978,8 @@ class SummaryService
 
   public function dataSummaryMerchant($startDate, $endDate, $filterBy, $distributorID, $salesCode, $marginStatus)
   {
+    $depoUser = Auth::user()->Depo;
+
     $subSql = DB::table('tx_merchant_order')
       ->selectRaw("
                 tx_merchant_order.StockOrderID,
@@ -999,6 +996,7 @@ class SummaryService
                 IFNULL(tx_merchant_delivery_order.Discount, 0) AS DiscountDO,
                 ABS(IFNULL(SUM((ms_stock_product_log.SellingPrice - ms_stock_product_log.PurchasePrice) * ms_stock_product_log.QtyAction), 0)) AS GrossMargin,
                 ABS(IFNULL(SUM((ms_stock_product_log.SellingPrice - ms_stock_product_log.PurchasePrice) * ms_stock_product_log.QtyAction), 0)) - IFNULL(tx_merchant_delivery_order.Discount, 0) AS NettMargin")
+
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
       ->join('ms_merchant_account', function ($join) {
         $join->on('ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID');
@@ -1032,6 +1030,10 @@ class SummaryService
     if ($salesCode) {
       $stringSalesCode = "'" . implode("', '", $salesCode) . "'";
       $subSql->whereRaw("tx_merchant_order.SalesCode IN ($stringSalesCode)");
+    }
+
+    if ($depoUser != "ALL" && !$distributorID) {
+      $subSql->whereRaw("ms_distributor.Depo = '$depoUser'");
     }
 
     $sql = $subSql->groupBy(['tx_merchant_order.StockOrderID', 'tx_merchant_delivery_order.DeliveryOrderID'])->toSql();

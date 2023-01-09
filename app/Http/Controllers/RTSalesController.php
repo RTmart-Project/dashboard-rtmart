@@ -17,17 +17,18 @@ class RTSalesController extends Controller
 
     public function getDataSales(Request $request, RTSalesService $rTSalesService)
     {
-        $data = $rTSalesService->salesLists();
         $depoUser = Auth::user()->Depo;
+        $regionalUser = Auth::user()->Regional;
+        $data = $rTSalesService->salesLists();
 
-        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
+        if ($depoUser != "ALL") {
             $data->where('ms_sales.Team', $depoUser);
         }
-        if ($depoUser === "REG1") {
-            $data->whereIn('ms_sales.Team', ['SMG', 'YYK']);
+        if ($regionalUser == "REGIONAL1" && $depoUser == "ALL") {
+            $data->whereRaw("ms_sales.Team IN ('SMG', 'YYK', 'UNR')");
         }
-        if ($depoUser === "REG2") {
-            $data->whereIn('ms_sales.Team', ['CRS', 'CKG', 'BDG']);
+        if ($regionalUser == "REGIONAL2" && $depoUser == "ALL") {
+            $data->whereRaw("ms_sales.Team IN ('CRS', 'CKG', 'BDG')");
         }
 
         // Return Data Using DataTables with Ajax
@@ -187,9 +188,8 @@ class RTSalesController extends Controller
             'team' => 'exists:ms_team_name,TeamCode',
             'product_group.*' => 'exists:ms_product_group,ProductGroupID',
             'work_status' => 'exists:ms_sales_work_status,SalesWorkStatusID',
-            'phone_number' => 'digits_between:10,13',
+            // 'phone_number' => 'digits_between:10,13',
             'email' => 'email:rfc',
-            'password' => 'string',
         ]);
 
         $data = [
@@ -199,8 +199,8 @@ class RTSalesController extends Controller
             'TeamBy' => $request->input('team_by'),
             'SalesWorkStatus' => $request->input('work_status'),
             'PhoneNumber' => $request->input('phone_number'),
-            'Email' => $request->input('email'),
-            'Password' => $request->input('password'),
+            // 'Email' => $request->input('email'),
+            // 'Password' => $request->input('password'),
             'IsActive' => $request->input('is_active')
         ];
 
@@ -208,7 +208,6 @@ class RTSalesController extends Controller
             $data['ResignDate'] = date('Y-m-d');
         } else {
             $data['ResignDate'] = NULL;
-            $data['JoinDate'] = date('Y-m-d');
         }
 
         $productGroupId = $request->input('product_group');
@@ -222,10 +221,10 @@ class RTSalesController extends Controller
         try {
             DB::transaction(function () use ($salesCode, $data, $productGroup) {
                 DB::table('ms_sales')
-                    ->where('SalesCode', '=', $salesCode)
+                    ->where('SalesCode', $salesCode)
                     ->update($data);
                 DB::table('ms_sales_product_group')
-                    ->where('SalesCode', '=', $salesCode)
+                    ->where('SalesCode', $salesCode)
                     ->delete();
                 foreach ($productGroup as &$value) {
                     $value = array_combine(['ProductGroupID', 'SalesCode'], $value);
@@ -393,6 +392,7 @@ class RTSalesController extends Controller
         $toDate = $request->input('toDate');
         $distributorID = $request->input('distributorID');
         $depoUser = Auth::user()->Depo;
+        $regionalUser = Auth::user()->Regional;
 
         $sqlStoreList = $rTSalesService->storeLists();
 
@@ -401,14 +401,11 @@ class RTSalesController extends Controller
                 ->whereDate('ms_store.CreatedDate', '<=', $toDate);
         }
 
-        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
+        if ($depoUser != "ALL") {
             $sqlStoreList->where('ms_distributor.Depo', $depoUser);
         }
-        if ($depoUser == "REG1") {
-            $sqlStoreList->whereIn('ms_distributor.Depo', ['SMG', 'YYK']);
-        }
-        if ($depoUser == "REG2") {
-            $sqlStoreList->whereIn('ms_distributor.Depo', ['CRS', 'CKG', 'BDG']);
+        if ($regionalUser != NULL && $depoUser == "ALL") {
+            $sqlStoreList->where('ms_distributor.Regional', $regionalUser);
         }
 
         if ($distributorID != '') {

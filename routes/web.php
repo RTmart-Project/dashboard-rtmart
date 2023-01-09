@@ -24,7 +24,6 @@ use App\Http\Controllers\StockController;
 use App\Http\Controllers\StockPromoController;
 use App\Http\Controllers\SummaryController;
 use App\Http\Controllers\VoucherController;
-use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -63,8 +62,8 @@ Route::group(['middleware' => ['auth']], function () {
         });
     });
 
+    // Distribution
     Route::group(['prefix' => 'distribution'], function () {
-        // Distribution
         Route::group(['prefix' => 'validation', 'middlewate' => ['checkRoleUser:IT,AH,SM']], function () {
             Route::get('/', [DistributionController::class, 'validationRestock'])->name('distribution.validationRestock');
             Route::get('/get', [DistributionController::class, 'getValidationRestock'])->name('distribution.getValidationRestock');
@@ -102,7 +101,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::group(['prefix' => 'product', 'middleware' => ['checkRoleUser:IT,AD,RBTAD,BM,CEO,FI,AH,DMO,HL,SM,SV']], function () {
             Route::get('/', [DistributionController::class, 'product'])->name('distribution.product');
             Route::get('/get', [DistributionController::class, 'getProduct'])->name('distribution.getProduct');
-            Route::group(['middleware' => ['checkRoleUser:IT,FI,AH,BM,CEO,RBTAD']], function () {
+            Route::group(['middleware' => ['checkRoleUser:IT,FI,AH,BM,CEO,RBTAD,AD']], function () {
                 Route::get('/add', [DistributionController::class, 'addProduct'])->name('distribution.addProduct');
                 Route::get('/ajax/get/{distributorId}', [DistributionController::class, 'ajaxGetProduct'])->name('distribution.ajaxGetProduct');
                 Route::post('/insert', [DistributionController::class, 'insertProduct'])->name('distribution.insertProduct');
@@ -327,8 +326,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/merchant/restock/product/get', [MerchantController::class, 'getRestockProduct'])->name('merchant.getRestockProduct');
     });
 
-    Route::group(['middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,RBTAD,HL,SM,SV']], function () {
-        // Distributor
+    // Distributor
+    Route::group(['middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,RBTAD,HL,SM,SV,AD']], function () {
         Route::get('/distributor/account', [DistributorController::class, 'account'])->name('distributor.account');
         Route::get('/distributor/account/get', [DistributorController::class, 'getAccounts'])->withoutMiddleware('checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,RBTAD,SM')->name('distributor.getAccounts');
         Route::get('/distributor/account/add', [DistributorController::class, 'addDistributor'])->name('distributor.addDistributor');
@@ -343,7 +342,7 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     // Merchant
-    Route::group(['middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,HL,RBTAD,SM']], function () {
+    Route::group(['middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,HL,RBTAD,SM,AD']], function () {
         Route::get('/merchant/account', [MerchantController::class, 'account'])->name('merchant.account');
         Route::get('/merchant/account/get', [MerchantController::class, 'getAccounts'])->name('merchant.getAccounts');
         Route::post('/merchant/account/update-block/{merchantID}', [MerchantController::class, 'updateBlock'])->name('merchant.updateBlock');
@@ -445,8 +444,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/voucher/log/get', [VoucherController::class, 'getLog'])->name('voucher.getLog');
     });
 
+    // Monthly Report
     Route::group(['middleware' => ['checkRoleUser:IT,BM,CEO']], function () {
-        // Monthly Report
         Route::group(['prefix' => 'setting/monthly-report'], function () {
             Route::get('/', [MonthlyReportController::class, 'setting'])->name('setting.monthlyReport');
             Route::post('/getOneData', [MonthlyReportController::class, 'getOneData'])->name('monthlyReport.getOneData');
@@ -506,8 +505,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/logout', [AuthController::class, 'logout'])->name('auth.logout');
 });
 
+// Login
 Route::group(['middleware' => ['guest']], function () {
-    // Login
     Route::get('/', [AuthController::class, 'login'])->name('auth.login');
     Route::post('/', [AuthController::class, 'validateLogin'])->name('auth.validateLogin');
 

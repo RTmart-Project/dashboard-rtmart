@@ -77,6 +77,7 @@
             </div>
         </div>
 
+        @if (Auth::user()->Depo == "ALL")
         <div class="row">
             <div class="col-md-12 col-12">
                 <div class="card card-outline collapsed-card">
@@ -88,6 +89,8 @@
                         </div>
                     </div>
                     <div class="card-body">
+                        @if ((Auth::user()->Depo == "ALL" && Auth::user()->Regional == NULL) || Auth::user()->Regional == "REGIONAL2")
+                        {{-- Bandung --}}
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="info-box">
@@ -127,7 +130,9 @@
                                 </div>
                             </div>
                         </div>
+                        {{-- End Of Bandung --}}
 
+                        {{-- Cakung --}}
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="info-box">
@@ -167,7 +172,9 @@
                                 </div>
                             </div>
                         </div>
+                        {{-- End Of Cakung --}}
 
+                        {{-- Ciracas --}}
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="info-box">
@@ -207,7 +214,11 @@
                                 </div>
                             </div>
                         </div>
+                        {{-- End Of Ciracas --}}
+                        @endif
 
+                        @if ((Auth::user()->Depo == "ALL" && Auth::user()->Regional == NULL) || Auth::user()->Regional == "REGIONAL1")
+                        {{-- Semarang --}}
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="info-box">
@@ -247,12 +258,57 @@
                                 </div>
                             </div>
                         </div>
+                        {{-- End Of Semarang --}}
+
+                        {{-- Yogyakarta --}}
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="info-box">
+                                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-cubes"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Total Merchant Restock (RTmart Yogyakarta)</span>
+                                        <span class="info-box-number">
+                                            {{Helper::formatCurrency($countTotalRestockYogyakarta, '')}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-box">
+                                    <span class="info-box-icon bg-danger elevation-1"><i
+                                            class="fas fa-cubes"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Merchant Restock Bulan Ini (RTmart Yogyakarta)</span>
+                                        <span class="info-box-number">
+                                            {{Helper::formatCurrency($countRestockYogyakartaThisMonth, '+', ' Merchant
+                                            Restock')}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="info-box">
+                                    <span class="info-box-icon bg-warning elevation-1"><i
+                                            class="fas fa-cubes"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Merchant Restock Hari Ini (RTmart Yogyakarta)</span>
+                                        <span class="info-box-number">
+                                            {{Helper::formatCurrency($countRestockYogyakartaThisDay, '+', ' Merchant
+                                            Restock')}}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {{-- End Of Yogyakarta --}}
+                        @endif
                     </div>
                     <!-- /.card-body -->
                 </div>
                 <!-- /.card -->
             </div>
         </div>
+        @endif
 
         <!-- Table -->
         <div class="row">

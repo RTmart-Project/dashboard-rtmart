@@ -2,7 +2,7 @@
 @section('title', 'Dashboard - Settlement')
 
 @section('css-pages')
-<meta name="role-id" content="{{ Auth::user()->RoleID }}">
+<meta name="depo" content="{{ Auth::user()->Depo }}">
 <meta name="csrf_token" content="{{ csrf_token() }}">
 <!-- daterange picker -->
 <link rel="stylesheet" href="{{url('/')}}/plugins/daterangepicker/daterangepicker.css">

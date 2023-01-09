@@ -36,7 +36,7 @@ class SettlementController extends Controller
         $distributor = $request->input('distributor');
         $filterBy = $request->input('filterBy');
         $depoUser = Auth::user()->Depo;
-        // $regionalUser = Auth::user()->Regional;
+        $regionalUser = Auth::user()->Regional;
 
         $sql = $this->settlementService->dataSettlement();
 
@@ -55,9 +55,9 @@ class SettlementController extends Controller
         if ($depoUser != "ALL") {
             $sql->where('ms_distributor.Depo', $depoUser);
         }
-        // if ($regionalUser != NULL) {
-        //     $sql->where('ms_distributor.Regional', $regionalUser);
-        // }
+        if ($regionalUser != NULL && $depoUser == "ALL") {
+            $sql->where('ms_distributor.Regional', $regionalUser);
+        }
 
         $data = $sql;
 

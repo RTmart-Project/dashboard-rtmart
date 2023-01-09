@@ -62,11 +62,15 @@ class SettlementService
         tx_merchant_delivery_order_payment_log.CreatedDate AS SettlementDate,
         tx_merchant_delivery_order_payment_log.ActionBy
       ");
+
     return $sql;
   }
 
   public function summaryDataSettlemnet($startDateFormat, $endDateFormat, $distributor, $filterBy)
   {
+    $depoUser = Auth::user()->Depo;
+    $regionalUser = Auth::user()->Regional;
+
     $settlement = DB::table('tx_merchant_delivery_order as tmdo')
       ->join('tx_merchant_order', function ($join) {
         $join->on('tx_merchant_order.StockOrderID', 'tmdo.StockOrderID');
@@ -105,9 +109,11 @@ class SettlementService
       $settlement->whereRaw("tx_merchant_order.DistributorID IN ($stringDistributorID)");
     }
 
-    if (Auth::user()->Depo != "ALL") {
-      $depoUser = Auth::user()->Depo;
+    if ($depoUser != "ALL") {
       $settlement->whereRaw("ms_distributor.Depo = '$depoUser'");
+    }
+    if ($regionalUser != NULL && $depoUser == "ALL") {
+      $settlement->whereRaw("ms_distributor.Regional = '$regionalUser'");
     }
 
     $data = $settlement->toSql();

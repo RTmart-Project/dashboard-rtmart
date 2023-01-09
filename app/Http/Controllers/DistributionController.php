@@ -36,17 +36,15 @@ class DistributionController extends Controller
     {
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
-        $userDepo = Auth::user()->Depo;
+        $depoUser = Auth::user()->Depo;
+        $regionalUser = Auth::user()->Regional;
 
         $sqlGetValidation = $restockService->getRestokValidation();
-        if ($userDepo != "ALL" && $userDepo != "REG1" && $userDepo != "REG2") {
-            $sqlGetValidation->where('ms_distributor.Depo', '=', $userDepo);
+        if ($depoUser != "ALL") {
+            $sqlGetValidation->where('ms_distributor.Depo', $depoUser);
         }
-        if ($userDepo == "REG1") {
-            $sqlGetValidation->whereIn('ms_distributor.Depo', ['SMG', 'YYK']);
-        }
-        if ($userDepo == "REG2") {
-            $sqlGetValidation->whereIn('ms_distributor.Depo', ['CRS', 'CKG', 'BDG']);
+        if ($regionalUser != NULL && $depoUser == "ALL") {
+            $sqlGetValidation->where('ms_distributor.Regional', $regionalUser);
         }
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
@@ -149,30 +147,28 @@ class DistributionController extends Controller
         $toShipmentDate = $request->input('toShipmentDate');
         $paymentMethodId = $request->input('paymentMethodId');
         $depoUser = Auth::user()->Depo;
+        $regionalUser = Auth::user()->Regional;
 
         $sqlGetRestock = DB::table('tx_merchant_order')
-            ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
+            ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
             ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'tx_merchant_order.MerchantID')
             ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', 'ms_distributor_merchant_grade.GradeID')
-            ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tx_merchant_order.DistributorID')
-            ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
-            ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'tx_merchant_order.SalesCode')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
+            ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', 'tx_merchant_order.PaymentMethodID')
+            ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tx_merchant_order.SalesCode')
             ->leftJoin('ms_price_submission', function ($join) {
                 $join->on('ms_price_submission.StockOrderID', 'tx_merchant_order.StockOrderID');
                 $join->where('ms_price_submission.StatusPriceSubmission', '!=', 'S041');
             })
             ->where('ms_merchant_account.IsTesting', 0)
-            ->where('tx_merchant_order.StatusOrderID', '=', $statusOrder)
+            ->where('tx_merchant_order.StatusOrderID', $statusOrder)
             ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'ms_distributor.DistributorName', 'tx_merchant_order.ShipmentDate', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CancelReasonNote', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order.SalesCode as ReferralCode', 'ms_sales.SalesName', 'ms_distributor_grade.Grade', 'tx_merchant_order.IsValid', 'tx_merchant_order.ValidationNotes', 'ms_price_submission.StatusPriceSubmission');
 
-        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
+        if ($depoUser != "ALL") {
             $sqlGetRestock->where('ms_distributor.Depo', $depoUser);
         }
-        if ($depoUser == "REG1") {
-            $sqlGetRestock->whereIn('ms_distributor.Depo', ['SMG', 'YYK']);
-        }
-        if ($depoUser == "REG2") {
-            $sqlGetRestock->whereIn('ms_distributor.Depo', ['CRS', 'CKG', 'BDG']);
+        if ($regionalUser != NULL && $depoUser == "ALL") {
+            $sqlGetRestock->where('ms_distributor.Regional', $regionalUser);
         }
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
@@ -281,6 +277,7 @@ class DistributionController extends Controller
         $toDate = $request->input('toDate');
         $filterBy = $request->input('filterBy');
         $depoUser = Auth::user()->Depo;
+        $regionalUser = Auth::user()->Regional;
 
         $startDate = new DateTime($fromDate) ?? new DateTime();
         $endDate = new DateTime($toDate) ?? new DateTime();
@@ -375,14 +372,11 @@ class DistributionController extends Controller
                 ->whereDate('tmdo.CreatedDate', '<=', $endDateFormat);
         }
 
-        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
+        if ($depoUser != "ALL") {
             $sqlAllRestockAndDO->where('ms_distributor.Depo', $depoUser);
         }
-        if ($depoUser == "REG1") {
-            $sqlAllRestockAndDO->whereIn('ms_distributor.Depo', ['SMG', 'YYK']);
-        }
-        if ($depoUser == "REG2") {
-            $sqlAllRestockAndDO->whereIn('ms_distributor.Depo', ['CRS', 'CKG', 'BDG']);
+        if ($regionalUser != NULL && $depoUser == "ALL") {
+            $sqlAllRestockAndDO->where('ms_distributor.Regional', $regionalUser);
         }
 
         // Get data response
@@ -1695,7 +1689,14 @@ class DistributionController extends Controller
     {
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
-        $userDepo = Auth::user()->Depo;
+        $depoUser = Auth::user()->Depo;
+        $regionalUser = Auth::user()->Regional;
+        $filterStatusPS = [];
+        if ($statusPriceSubmission == 'S040' || $statusPriceSubmission == 'S041') {
+            array_push($filterStatusPS, 'S009', 'S010', 'S023', 'S011', 'S012', 'S018');
+        } else {
+            array_push($filterStatusPS, 'S009', 'S010', 'S023');
+        }
 
         $sql = DB::table('ms_price_submission')
             ->join('tx_merchant_order AS tmo', 'tmo.StockOrderID', 'ms_price_submission.StockOrderID')
@@ -1703,10 +1704,11 @@ class DistributionController extends Controller
             ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tmo.MerchantID')
             ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'tmo.MerchantID')
             ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', 'ms_distributor_merchant_grade.GradeID')
-            ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tmo.DistributorID')
-            ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'tmo.SalesCode')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', 'tmo.DistributorID')
+            ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tmo.SalesCode')
             ->where('ms_price_submission.StatusPriceSubmission', $statusPriceSubmission)
-            ->whereIn('tmo.StatusOrderID', ['S009', 'S010', 'S023'])
+            ->whereIn('tmo.StatusOrderID', $filterStatusPS)
+            // ->whereIn('tmo.StatusOrderID', ['S009', 'S010', 'S023'])
             ->selectRaw("
                 ms_price_submission.PriceSubmissionID,
                 tmo.StockOrderID,
@@ -1795,14 +1797,14 @@ class DistributionController extends Controller
                 ) AS CostLogistic
             ");
 
-        if ($userDepo == "ALL") {
-            $sql->whereIn('ms_merchant_account.DistributorID', ['D-2004-000002', 'D-2212-000001', 'D-2004-000006', 'D-2004-000005', 'D-2004-000001']);
+        // if ($depoUser == "ALL") {
+        //     $sql->whereIn('ms_merchant_account.DistributorID', ['D-2004-000002', 'D-2212-000001', 'D-2004-000006', 'D-2004-000005', 'D-2004-000001']);
+        // }
+        if ($depoUser != "ALL") {
+            $sql->where('ms_distributor.Depo', $depoUser);
         }
-        if ($userDepo == "REG1") {
-            $sql->whereIn('ms_merchant_account.DistributorID', ['D-2004-000002', 'D-2212-000001']);
-        }
-        if ($userDepo == "REG2") {
-            $sql->whereIn('ms_merchant_account.DistributorID', ['D-2004-000006', 'D-2004-000005', 'D-2004-000001']);
+        if ($regionalUser != NULL && $depoUser == "ALL") {
+            $sql->where('ms_distributor.Regional', $regionalUser);
         }
 
         if ($fromDate != '' && $toDate != '') {
@@ -2231,17 +2233,15 @@ class DistributionController extends Controller
         $toDate = $request->input('toDate');
         $filterIsPaid = $request->input('filterIsPaid');
         $depoUser = Auth::user()->Depo;
+        $regionalUser = Auth::user()->Regional;
 
         $sqlbillPayLater = $payLaterService->billPayLaterGet();
 
-        if ($depoUser != "ALL" && $depoUser == "REG1" && $depoUser == "REG2") {
+        if ($depoUser != "ALL") {
             $sqlbillPayLater->where('ms_distributor.Depo', $depoUser);
         }
-        if ($depoUser == "REG1") {
-            $sqlbillPayLater->whereIn('ms_distributor.Depo', ['SMG', 'YYK']);
-        }
-        if ($depoUser == "REG2") {
-            $sqlbillPayLater->whereIn('ms_distributor.Depo', ['CRS', 'CKG', 'BDG']);
+        if ($regionalUser != NULL && $depoUser == "ALL") {
+            $sqlbillPayLater->where('ms_distributor.Regional', $regionalUser);
         }
 
         if ($fromDate != '' && $toDate != '') {
@@ -2430,28 +2430,27 @@ class DistributionController extends Controller
     {
         $distributorId = $request->input('distributorId');
         $depoUser = Auth::user()->Depo;
+        $regionalUser = Auth::user()->Regional;
 
         $distributorProducts = DB::table('ms_distributor_product_price')
-            ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_distributor_product_price.DistributorID')
-            ->leftJoin('ms_product', 'ms_product.ProductID', '=', 'ms_distributor_product_price.ProductID')
-            ->join('ms_distributor_grade', 'ms_distributor_grade.GradeID', '=', 'ms_distributor_product_price.GradeID')
-            ->join('ms_product_category', 'ms_product_category.ProductCategoryID', '=', 'ms_product.ProductCategoryID')
-            ->join('ms_product_type', 'ms_product_type.ProductTypeID', '=', 'ms_product.ProductTypeID')
-            ->join('ms_product_uom', 'ms_product_uom.ProductUOMID', '=', 'ms_product.ProductUOMID')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_distributor_product_price.DistributorID')
+            ->leftJoin('ms_product', 'ms_product.ProductID', 'ms_distributor_product_price.ProductID')
+            ->join('ms_distributor_grade', 'ms_distributor_grade.GradeID', 'ms_distributor_product_price.GradeID')
+            ->join('ms_product_category', 'ms_product_category.ProductCategoryID', 'ms_product.ProductCategoryID')
+            ->join('ms_product_type', 'ms_product_type.ProductTypeID', 'ms_product.ProductTypeID')
+            ->join('ms_product_uom', 'ms_product_uom.ProductUOMID', 'ms_product.ProductUOMID')
+            ->where('ms_distributor.IsActive', 1)
             ->select('ms_distributor_product_price.DistributorID', 'ms_distributor.DistributorName', 'ms_distributor_product_price.ProductID', 'ms_distributor_product_price.IsActive', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product_category.ProductCategoryName', 'ms_product_type.ProductTypeName', 'ms_product_uom.ProductUOMName', 'ms_product.ProductUOMDesc', 'ms_distributor_product_price.Price', 'ms_distributor_product_price.GradeID', 'ms_distributor_grade.Grade', 'ms_distributor_product_price.IsPreOrder', 'ms_product.Price as ProductPrice');
 
-        if ($depoUser != "ALL" && $depoUser != "REG1" && $depoUser != "REG2") {
-            $distributorProducts->where('ms_distributor.Depo', '=', $depoUser);
+        if ($depoUser != "ALL") {
+            $distributorProducts->where('ms_distributor.Depo', $depoUser);
         }
-        if ($depoUser == "REG1") {
-            $distributorProducts->whereIn('ms_distributor.Depo', ['SMG', 'YYK']);
-        }
-        if ($depoUser == "REG2") {
-            $distributorProducts->whereIn('ms_distributor.Depo', ['CRS', 'CKG', 'BDG']);
+        if ($regionalUser != NULL && $depoUser == "ALL") {
+            $distributorProducts->where('ms_distributor.Regional', $regionalUser);
         }
 
         if ($distributorId != null) {
-            $distributorProducts->where('ms_distributor.DistributorID', '=', $distributorId);
+            $distributorProducts->where('ms_distributor.DistributorID', $distributorId);
         }
 
         $data = $distributorProducts;
@@ -2495,7 +2494,7 @@ class DistributionController extends Controller
                 ->addColumn('Action', function ($data) {
                     if (
                         Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" ||
-                        Auth::user()->RoleID == "BM"
+                        Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "AD"
                     ) {
                         $actionBtn = '<a href="#" data-distributor-id="' . $data->DistributorID . '" data-product-id="' . $data->ProductID . '" data-grade-id="' . $data->GradeID . '" data-product-name="' . $data->ProductName . '" data-grade-name="' . $data->Grade . '" data-price="' . $data->Price . '" data-pre-order="' . $data->IsPreOrder . '" 
                         data-is-active="' . $data->IsActive . '" class="btn-edit btn btn-sm btn-warning mr-1">Edit</a>
@@ -2647,12 +2646,13 @@ class DistributionController extends Controller
                     ->where('DistributorID', '=', $distributorId)
                     ->where('ProductID', '=', $productId);
                 $update->update([
+                    'IsPreOrder' => $request->input('is_pre_order'),
                     'IsActive' => $request->input('is_active')
                 ]);
                 $update->where('GradeID', '=', $gradeId)
                     ->update([
                         'Price' => $request->input('price'),
-                        'IsPreOrder' => $request->input('is_pre_order'),
+                        // 'IsPreOrder' => $request->input('is_pre_order'),
                     ]);
                 DB::table('ms_product_price_log')->insert($data);
             });
@@ -2711,13 +2711,14 @@ class DistributionController extends Controller
         $toDate = $request->input('toDate');
         $distributorId = $request->input('distributorId');
         $depoUser = Auth::user()->Depo;
+        $regionalUser = Auth::user()->Regional;
 
         // Get data account, jika tanggal filter kosong tampilkan semua data.
         $sqlAllAccount = DB::table('ms_merchant_account')
             ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
-            ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
-            ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', '=', 'ms_merchant_account.MerchantID')
-            ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', '=', 'ms_distributor_merchant_grade.GradeID')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_merchant_account.DistributorID')
+            ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'ms_merchant_account.MerchantID')
+            ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', 'ms_distributor_merchant_grade.GradeID')
             ->where('ms_merchant_account.IsTesting', 0)
             ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.DistributorID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.CreatedDate', 'ms_merchant_account.Latitude', 'ms_merchant_account.Longitude', 'ms_merchant_account.StoreAddress', 'ms_merchant_account.ReferralCode', 'ms_distributor.DistributorName', 'ms_distributor_grade.Grade', 'ms_distributor_merchant_grade.GradeID', 'ms_merchant_account.Partner', 'ms_sales.SalesName');
 
@@ -2727,18 +2728,15 @@ class DistributionController extends Controller
                 ->whereDate('ms_merchant_account.CreatedDate', '<=', $toDate);
         }
 
-        if ($depoUser != "ALL" && $depoUser == "REG1" && $depoUser == "REG2") {
-            $sqlAllAccount->where('ms_distributor.Depo', '=', $depoUser);
+        if ($depoUser != "ALL") {
+            $sqlAllAccount->where('ms_distributor.Depo', $depoUser);
         }
-        if ($depoUser == "REG1") {
-            $sqlAllAccount->whereIn('ms_distributor.Depo', ['SMG', 'YYK']);
-        }
-        if ($depoUser == "REG2") {
-            $sqlAllAccount->whereIn('ms_distributor.Depo', ['CRS', 'CKG', 'BDG']);
+        if ($regionalUser != NULL && $depoUser == "ALL") {
+            $sqlAllAccount->where('ms_distributor.Regional', $regionalUser);
         }
 
-        if ($distributorId != null) {
-            $sqlAllAccount->where('ms_merchant_account.DistributorID', '=', $distributorId);
+        if ($distributorId != NULL) {
+            $sqlAllAccount->where('ms_merchant_account.DistributorID', $distributorId);
         }
 
         // Get data response
@@ -2759,15 +2757,16 @@ class DistributionController extends Controller
                     return $grade;
                 })
                 ->addColumn('Action', function ($data) {
-                    if (Auth::user()->RoleID != "AD") {
+                    if (Auth::user()->RoleID == "IT") {
                         $ubahGrade = '<a href="#" data-distributor-id="' . $data->DistributorID . '" data-merchant-id="' . $data->MerchantID . '" 
                             data-store-name="' . $data->StoreName . '" data-owner-name="' . $data->OwnerFullName . '" data-grade-id="' . $data->GradeID . '" 
                             class="btn btn-xs btn-warning edit-grade mb-1">Ubah Grade</a>';
+                        $actionBtn = '<a href="/distribution/merchant/specialprice/' . $data->MerchantID . '" class="btn btn-xs btn-secondary mb-1">Special Price</a>';
                     } else {
                         $ubahGrade = '';
+                        $actionBtn = '';
                     }
 
-                    $actionBtn = '<a href="/distribution/merchant/specialprice/' . $data->MerchantID . '" class="btn btn-xs btn-secondary mb-1">Special Price</a>';
 
                     return $ubahGrade . $actionBtn;
                 })
