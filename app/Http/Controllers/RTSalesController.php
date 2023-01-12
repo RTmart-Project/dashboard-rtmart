@@ -19,6 +19,8 @@ class RTSalesController extends Controller
     {
         $depoUser = Auth::user()->Depo;
         $regionalUser = Auth::user()->Regional;
+        $team = $request->input('team');
+
         $data = $rTSalesService->salesLists();
 
         if ($depoUser != "ALL") {
@@ -29,6 +31,10 @@ class RTSalesController extends Controller
         }
         if ($regionalUser == "REGIONAL2" && $depoUser == "ALL") {
             $data->whereRaw("ms_sales.Team IN ('CRS', 'CKG', 'BDG')");
+        }
+
+        if ($team) {
+            $data->where('ms_sales.Team', $team);
         }
 
         // Return Data Using DataTables with Ajax
@@ -53,6 +59,23 @@ class RTSalesController extends Controller
                 })
                 ->rawColumns(['IsActive', 'Action'])
                 ->make(true);
+        }
+    }
+
+    public function getTeam(Request $request)
+    {
+        $depoUser = Auth::user()->Depo;
+
+        $data = DB::table('ms_team_name')->select('TeamCode', 'TeamName');
+
+        if ($depoUser != "ALL") {
+            $data->where('TeamCode', $depoUser);
+        }
+
+        $data->get();
+
+        if ($request->ajax()) {
+            return Datatables::of($data)->make(true);
         }
     }
 
