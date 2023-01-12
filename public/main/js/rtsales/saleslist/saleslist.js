@@ -4,10 +4,10 @@ $(document).ready(function () {
 
     function dataTablesSalesList() {
         let roleID = $('meta[name="role-id"]').attr("content");
-        
+
         $("#sales-list .table-datatables").DataTable({
             dom:
-                "<'row'<'col-sm-12 col-md-5'tl><'col-sm-12 col-md-2'l><'col-sm-12 col-md-4'f><'col-sm-12 col-md-1'B>>" +
+                "<'row'<'col-sm-12 col-md-5'<'filter-sales-list'>tl><'col-sm-12 col-md-2'l><'col-sm-12 col-md-4'f><'col-sm-12 col-md-1'B>>" +
                 "<'row'<'col-sm-12'tr>>" +
                 "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
             processing: true,
@@ -15,6 +15,9 @@ $(document).ready(function () {
             stateServe: true,
             ajax: {
                 url: "/rtsales/saleslist/get",
+                data: function (d) {
+                    d.team = $("#sales-list .filter-team select").val();
+                },
             },
             columns: [
                 {
@@ -98,6 +101,44 @@ $(document).ready(function () {
         });
     }
 
+    // Create element for DateRange Filter
+    $("div.filter-sales-list").html(`
+                    <div class="row">
+                        <div class="col-12 col-md-8">
+                            <div class="input-group">
+                                <div class="filter-team ml-2">
+                                    <select class="form-control form-control-sm">
+                                    <option selected disabled hidden>Filter Team</option>
+                                    <option value="">Semua</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`);
+
+    // Load Team Code for filter
+    $.ajax({
+        type: "get",
+        url: "/rtsales/team/get",
+        success: function (data) {
+            let option;
+            const salesTeam = data.data;
+            for (const item of salesTeam) {
+                option += `<option value="${item.TeamCode}">${item.TeamName}</option>`;
+            }
+            if (salesTeam.length > 1) {
+                $("#sales-list .filter-team select").append(option);
+            } else {
+                $("#sales-list .filter-team select").remove();
+            }
+        },
+    });
+
+    // Event listener saat tombol select option diklik
+    $("#sales-list .filter-team select").change(function () {
+        $("#sales-list .table-datatables").DataTable().ajax.reload();
+    });
+
     $("#sales-list table").on("click", ".delete-sales", function (e) {
         e.preventDefault();
         const salesName = $(this).data("sales-name");
@@ -116,7 +157,7 @@ $(document).ready(function () {
                             "/rtsales/saleslist/delete/" + salesCode;
                     },
                 },
-                cancel: function () {},
+                cancel: function () { },
             },
         });
     });

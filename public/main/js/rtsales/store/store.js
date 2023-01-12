@@ -4,7 +4,7 @@ $(document).ready(function () {
 
     function dataTablesStoreList() {
         let roleID = $('meta[name="role-id"]').attr("content");
-        let depoUser = $('meta[name="depoUser"]').attr("content");
+
         $("#store-list .table-datatables").DataTable({
             dom:
                 "<'row'<'col-sm-12 col-md-9'<'filter-store-list'>tl><l><'col-sm-12 col-md-2'f><'col-sm-12 col-md-1'B>>" +
@@ -18,9 +18,7 @@ $(document).ready(function () {
                 data: function (d) {
                     d.fromDate = $("#store-list #from_date").val();
                     d.toDate = $("#store-list #to_date").val();
-                    d.distributorID = $(
-                        "#store-list .filter-distributor select"
-                    ).val();
+                    d.distributorID = $("#store-list .filter-distributor select").val();
                 },
             },
             columns: [

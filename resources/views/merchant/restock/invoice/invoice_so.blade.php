@@ -131,7 +131,6 @@
 								<img src="{{ url('/') }}/dist/img/rtmart.png" alt="Company logo"
 									style="width: 100%; max-width: 220px" />
 							</td>
-
 							<td>
 								@if ($merchant->StatusOrderID == "S012" || $merchant->StatusOrderID == "S018")
 								<b>INVOICE</b>
@@ -152,12 +151,14 @@
 					<table>
 						<tr>
 							<td>
-								{{ $merchant->MerchantID }} <br>
-								{{ $merchant->StoreName }} <br>
-								{{ $merchant->OwnerFullName }} <br>
-								{{ $merchant->PhoneNumber }}
+								Merchant ID : <b> {{ $merchant->MerchantID }} </b> <br>
+								Nama Toko : <b> {{ $merchant->StoreName }} </b> <br>
+								Nama Pemilik : <b> {{ $merchant->OwnerFullName }} </b> <br>
+								No HP Pemilik : <b> {{ $merchant->PhoneNumber }} </b> <br>
+								@if ($merchant->SalesName)
+								Sales : <b> {{ $merchant->SalesName }} </b>
+								@endif
 							</td>
-
 							<td class="responsive-td">
 								{{ $merchant->StoreAddress }}
 							</td>
@@ -237,8 +238,10 @@
 			@endif
 			<tr class="total">
 				<th colspan="3" class="text-right pt">Grand Total</th>
-				<th colspan="1" class="text-right pt">{{ Helper::formatCurrency($subTotal - $merchant->DiscountPrice -
-					$merchant->DiscountVoucher + $merchant->ServiceChargeNett + $merchant->DeliveryFee, 'Rp ') }}</th>
+				<th colspan="1" class="text-right pt">
+					{{ Helper::formatCurrency($subTotal - $merchant->DiscountPrice - $merchant->DiscountVoucher +
+					$merchant->ServiceChargeNett + $merchant->DeliveryFee, 'Rp ') }}
+				</th>
 			</tr>
 		</table>
 	</div>
