@@ -90,22 +90,6 @@
                       </table>
                     </div>
                   </div>
-                  {{-- <div class="mt-5 pb-4 row justify-content-center">
-                    <div class="col-6 text-center">
-                      <h5>Pihak Toko</h5>
-                    </div>
-                    <div class="col-6 text-center">
-                      <h5>Nama Driver</h5>
-                    </div>
-                  </div>
-                  <div class="mt-5 row justify-content-center">
-                    <div class="col-6 text-center">
-                      <h5>(.............................)</h5>
-                    </div>
-                    <div class="col-6 text-center">
-                      <h5>(.............................)</h5>
-                    </div>
-                  </div> --}}
                 </div>
               </div>
             </div>

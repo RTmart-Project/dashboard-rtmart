@@ -10,17 +10,19 @@ class InvoiceController extends Controller
     public function invoiceSO($stockOrderId)
     {
         $merchant = DB::table('tx_merchant_order')
-            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
-            ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_order.StatusOrderID')
-            ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
-            ->where('tx_merchant_order.StockOrderID', '=', $stockOrderId)
-            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_status_order.StatusOrder', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.Type')
+            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
+            ->leftJoin('ms_sales', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesCode')
+            ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tx_merchant_order.StatusOrderID')
+            ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', 'tx_merchant_order.PaymentMethodID')
+            ->where('tx_merchant_order.StockOrderID', $stockOrderId)
+            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_status_order.StatusOrder', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.Type', 'ms_sales.SalesName')
             ->first();
 
         $stockOrderById = DB::table('tx_merchant_order_detail')
-            ->leftJoin('ms_product', 'ms_product.ProductID', '=', 'tx_merchant_order_detail.ProductID')
-            ->where('StockOrderID', '=', $stockOrderId)
-            ->select('tx_merchant_order_detail.*', 'ms_product.ProductName')->get();
+            ->leftJoin('ms_product', 'ms_product.ProductID', 'tx_merchant_order_detail.ProductID')
+            ->where('StockOrderID', $stockOrderId)
+            ->select('tx_merchant_order_detail.*', 'ms_product.ProductName')
+            ->get();
 
         $subTotal = 0;
         foreach ($stockOrderById as $key => $value) {
@@ -111,10 +113,10 @@ class InvoiceController extends Controller
     public function invoiceDOselesai($stockOrderId)
     {
         $merchant = DB::table('tx_merchant_order')
-            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
-            ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_order.StatusOrderID')
-            ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
-            ->where('tx_merchant_order.StockOrderID', '=', $stockOrderId)
+            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
+            ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tx_merchant_order.StatusOrderID')
+            ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', 'tx_merchant_order.PaymentMethodID')
+            ->where('tx_merchant_order.StockOrderID', $stockOrderId)
             ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_status_order.StatusOrder', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order.StatusOrderID')
             ->first();
 
