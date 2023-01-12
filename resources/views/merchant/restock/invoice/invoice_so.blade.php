@@ -151,12 +151,12 @@
 					<table>
 						<tr>
 							<td>
-								Merchant ID : <b> {{ $merchant->MerchantID }} </b> <br>
+								ID Toko : <b> {{ $merchant->MerchantID }} </b> <br>
 								Nama Toko : <b> {{ $merchant->StoreName }} </b> <br>
 								Nama Pemilik : <b> {{ $merchant->OwnerFullName }} </b> <br>
 								No HP Pemilik : <b> {{ $merchant->PhoneNumber }} </b> <br>
 								@if ($merchant->SalesName)
-								Sales : <b> {{ $merchant->SalesName }} </b>
+								Nama Sales : <b> {{ $merchant->SalesName }} </b>
 								@endif
 							</td>
 							<td class="responsive-td">
