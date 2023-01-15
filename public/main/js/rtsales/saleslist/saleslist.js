@@ -56,10 +56,12 @@ $(document).ready(function () {
                 {
                     data: "JoinDate",
                     name: "ms_sales.JoinDate",
+                    orderable: true,
                 },
                 {
                     data: "ResignDate",
                     name: "ms_sales.ResignDate",
+                    orderable: true,
                 },
                 {
                     data: "Action",

@@ -110,6 +110,4 @@
 <script src="{{url('/')}}/main/js/custom/select-filter.js"></script>
 <script src="{{url('/')}}/main/js/rtsales/store/store.js"></script>
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
-<script>
-</script>
 @endsection

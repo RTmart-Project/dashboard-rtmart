@@ -12,10 +12,12 @@ $(document).ready(function () {
         weekday: "long",
     });
 
-    callPlanData([dayNameNow], startDateMonth, dateNow);
+    const filterTeam = $('#filter_team').val();
+
+    callPlanData([dayNameNow], startDateMonth, dateNow, filterTeam);
     $("#call-plan #visit_day").val([dayNameNow]);
 
-    function callPlanData(visitDayName, startDate, endDate) {
+    function callPlanData(visitDayName, startDate, endDate, filterTeam) {
         $.ajaxSetup({
             headers: {
                 "X-CSRF-TOKEN": csrf,
@@ -36,6 +38,7 @@ $(document).ready(function () {
                     visitDayName: visitDayName,
                     startDate: startDate,
                     endDate: endDate,
+                    filterTeam: filterTeam,
                 },
             },
             columns: [
@@ -230,9 +233,10 @@ $(document).ready(function () {
         const visitDay = $("#visit_day").val();
         const startDate = $("#from_date").val();
         const endDate = $("#to_date").val();
+        const filterTeam = $("#filter_team").val();
 
         $("#call-plan-table .table-datatables").DataTable().destroy();
-        callPlanData(visitDay, startDate, endDate);
+        callPlanData(visitDay, startDate, endDate, filterTeam);
     });
 
     $("#refresh").on("click", function () {

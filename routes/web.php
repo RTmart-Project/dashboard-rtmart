@@ -40,6 +40,7 @@ Route::group(['middleware' => ['auth']], function () {
     // Home
     Route::get('/home', [HomeController::class, 'home'])->name('home');
 
+    // Price Submission
     Route::group(['prefix' => 'price-submission', 'middleware' => ['checkRoleUser:IT,BM,CEO,FI,SM']], function () {
         Route::get('/', [DistributionController::class, 'priceSubmission'])->name('priceSubmission');
         Route::get('/get/{statusPriceSubmission}', [DistributionController::class, 'getPriceSubmission'])->name('getPriceSubmission');
@@ -47,6 +48,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/confirm/{priceSubmissionID}/{status}', [DistributionController::class, 'confirmPriceSubmission'])->name('confirmPriceSubmission');
     });
 
+    // Summary
     Route::group(['prefix' => 'summary', 'middleware' => ['checkRoleUser:IT,FI,BM,CEO,HL,SM,SV']], function () {
         Route::get('/finance', [SummaryController::class, 'summary'])->name('summary.summary');
         Route::post('/get', [SummaryController::class, 'getSummary'])->name('summary.dataSummary');
@@ -123,6 +125,7 @@ Route::group(['middleware' => ['auth']], function () {
         });
     });
 
+    // Delivery
     Route::group(['prefix' => 'delivery', 'middleware' => ['checkRoleUser:IT,AD,BM,CEO,FI,AH,RBTAD,HL,DRV,SM']], function () {
         Route::group(['prefix' => 'request'], function () {
             Route::get('/', [DeliveryController::class, 'request'])->name('delivery.request');
@@ -149,11 +152,13 @@ Route::group(['middleware' => ['auth']], function () {
         });
     });
 
+    // Monthly Report
     Route::group(['prefix' => 'monthly-report', 'middleware' => ['checkRoleUser:IT,FI']], function () {
         Route::get('/', [MonthlyReportController::class, 'index'])->name('monthlyReport');
         Route::post('/', [MonthlyReportController::class, 'index'])->name('monthlyReport.post');
     });
 
+    // Stock
     Route::prefix('stock')->group(function () {
         Route::group(['prefix' => 'opname', 'middleware' => ['checkRoleUser:IT,FI,BM,CEO,INVTR,HL']], function () {
             Route::get('/', [StockController::class, 'opname'])->name('stock.opname');
@@ -219,6 +224,7 @@ Route::group(['middleware' => ['auth']], function () {
         });
     });
 
+    // RT Sales
     Route::group(['prefix' => 'rtsales', 'middleware' => ['checkRoleUser:IT,FI,BM,CEO,DMO,SM,SV']], function () {
         Route::get('/summary', [RTSalesController::class, 'summary'])->name('rtsales.summary');
         Route::get('/team/get', [RTSalesController::class, 'getTeam'])->name('rtsales.team');
@@ -310,8 +316,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/update/{brand}', [ProductController::class, 'updateBrand'])->name('product.updateBrand');
     });
 
+    // PPOB
     Route::group(['prefix', 'middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,DMO']], function () {
-        // PPOB
         Route::get('/ppob/topup', [PpobController::class, 'topup'])->name('ppob.topup');
         Route::get('/ppob/topup/get', [PpobController::class, 'getTopups'])->name('ppob.getTopups');
         Route::get('/ppob/topup/get/{topupStatus}', [PpobController::class, 'getTopupByStatus'])->name('ppob.getTopupByStatus');
@@ -432,8 +438,8 @@ Route::group(['middleware' => ['auth']], function () {
         });
     });
 
+    // Voucher
     Route::group(['middleware' => ['checkRoleUser:IT,RBTAD']], function () {
-        // Voucher
         Route::get('/voucher/list', [VoucherController::class, 'list'])->name('voucher.list');
         Route::get('/voucher/list/get', [VoucherController::class, 'getList'])->name('voucher.getList');
         Route::get('/voucher/list/detail/{voucherCode}', [VoucherController::class, 'detail'])->name('voucher.detail');
@@ -517,4 +523,3 @@ Route::group(['middleware' => ['guest']], function () {
 
 Route::get('/restock/invoice/{stockOrderId}', [InvoiceController::class, 'invoiceSO'])->name('restock.invoice');
 Route::get('/restock/deliveryOrder/invoice/{deliveryOrderId}', [InvoiceController::class, 'invoiceDO'])->name('restockDeliveryOrder.invoice');
-Route::get('/restock/invoice/completed/{stockOrderId}', [InvoiceController::class, 'invoiceDOselesai'])->name('deliveryOrderSelesai.invoice');
