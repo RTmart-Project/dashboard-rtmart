@@ -291,23 +291,13 @@ class MerchantController extends Controller
             ->where('ms_merchant_account.MerchantID', '=', $merchantId)
             ->first();
 
-        $distributorSql = DB::table('ms_distributor')
-            ->select('DistributorID', 'DistributorName');
+        $distributor = DB::table('ms_distributor')->select('DistributorID', 'DistributorName')->where('IsActive', 1)->get();
 
-        $sales = DB::table('ms_sales')
-            ->where('IsActive', 1)
-            ->select('SalesCode', 'SalesName')->get();
+        $sales = DB::table('ms_sales')->select('SalesCode', 'SalesName')->where('IsActive', 1)->get();
 
         $partners  = DB::table('ms_partner')->where('IsActive', 1)->get();
 
         $merchantPartner = DB::table('ms_merchant_partner')->where('MerchantID', $merchantId)->get();
-
-        if (Auth::user()->Depo != "ALL") {
-            $depoUser = Auth::user()->Depo;
-            $distributorSql->where('ms_distributor.Depo', '=', $depoUser);
-        }
-
-        $distributor = $distributorSql->get();
 
         $grade = DB::table('ms_merchant_account')
             ->join('ms_distributor_grade', 'ms_distributor_grade.DistributorID', '=', 'ms_merchant_account.DistributorID')
@@ -331,7 +321,6 @@ class MerchantController extends Controller
             'store_name' => 'string',
             'owner_name' => 'string',
             'phone_number' => [
-                // 'required',
                 'numeric',
                 Rule::unique('ms_merchant_account', 'PhoneNumber')->ignore($merchantId, 'MerchantID')
             ],
@@ -339,17 +328,17 @@ class MerchantController extends Controller
             'grade' => 'exists:ms_distributor_grade,GradeID',
             'address' => 'max:500',
             'referral_code' => 'string|nullable',
-            // 'latitude' => 'required',
-            // 'longitude' => 'required'
         ]);
 
         $merchantGrade = DB::table('ms_distributor_merchant_grade')
-            ->where('MerchantID', '=', $merchantId)
-            ->select('MerchantID')->first();
+            ->where('MerchantID', $merchantId)
+            ->select('MerchantID')
+            ->first();
 
         $merchant = DB::table('ms_merchant_account')
-            ->where('MerchantID', '=', $merchantId)
-            ->select('ReferralCode', 'IsBlocked')->first();
+            ->where('MerchantID', $merchantId)
+            ->select('ReferralCode', 'IsBlocked')
+            ->first();
 
         $user = Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo;
         $referralCode = $request->input('referral_code');
@@ -393,11 +382,11 @@ class MerchantController extends Controller
         try {
             DB::transaction(function () use ($merchantId, $merchantGrade, $data, $dataGrade, $merchant, $referralCode, $user, $arrayMerchantPartner) {
                 DB::table('ms_merchant_account')
-                    ->where('MerchantID', '=', $merchantId)
+                    ->where('MerchantID', $merchantId)
                     ->update($data);
                 if ($merchantGrade) {
                     DB::table('ms_distributor_merchant_grade')
-                        ->where('MerchantID', '=', $merchantId)
+                        ->where('MerchantID', $merchantId)
                         ->update($dataGrade);
                 } else {
                     DB::table('ms_distributor_merchant_grade')
@@ -1150,9 +1139,9 @@ class MerchantController extends Controller
     public function getPowerMerchant(Request $request)
     {
         $sqlPowerMerchant = DB::table('ms_merchant_account')
-            ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
-            ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', '=', 'ms_merchant_account.MerchantID')
-            ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', '=', 'ms_distributor_merchant_grade.GradeID')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_merchant_account.DistributorID')
+            ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'ms_merchant_account.MerchantID')
+            ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', 'ms_distributor_merchant_grade.GradeID')
             ->where('ms_merchant_account.IsTesting', 0)
             ->where('ms_merchant_account.IsPowerMerchant', 1)
             ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'ms_distributor.DistributorName', 'ms_distributor_grade.Grade');
@@ -1350,7 +1339,6 @@ class MerchantController extends Controller
         $paymentMethodId = $request->input('paymentMethodId');
         $filterAssessment = $request->input('filterAssessment');
         $filterValid = $request->input('filterValid');
-        $depoUser = Auth::user()->Depo;
 
         $startDate = new DateTime($fromDate) ?? new DateTime();
         $endDate = new DateTime($toDate) ?? new DateTime();
@@ -1362,11 +1350,8 @@ class MerchantController extends Controller
             ->whereDate('Restock.CreatedDate', '<=', $endDateFormat);
 
         if ($paymentMethodId != null) {
-            $sqlAllAccount->where('Restock.PaymentMethodID', '=', $paymentMethodId);
+            $sqlAllAccount->where('Restock.PaymentMethodID', $paymentMethodId);
         }
-        // if ($depoUser != "ALL") {
-        //     $sqlAllAccount->where('Restock.Depo', $depoUser);
-        // }
 
         if ($filterAssessment == "already-assessed") {
             $sqlAllAccount->whereNotNull('Restock.NumberIDCard');
@@ -1597,14 +1582,6 @@ class MerchantController extends Controller
                     }
                     return $grade;
                 })
-                // ->editColumn('Partner', function ($data) {
-                //     if ($data->Partner != null) {
-                //         $partner = '<a class="badge badge-info">' . $data->Partner . '</a>';
-                //     } else {
-                //         $partner = '';
-                //     }
-                //     return $partner;
-                // })
                 ->editColumn('Ket', function ($data) {
                     if ($data->NumberIDCard != null) {
                         if ($data->IsDownload == 1) {

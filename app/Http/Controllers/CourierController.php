@@ -67,6 +67,7 @@ class CourierController extends Controller
     {
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
+        $depoUser = Auth::user()->Depo;
 
         $sqlCourierOrder = $this->courierService->orderByStatus($courierStatus);
 
@@ -74,9 +75,8 @@ class CourierController extends Controller
             $sqlCourierOrder->whereDate('tx_product_order.CreatedDate', '>=', $fromDate)
                 ->whereDate('tx_product_order.CreatedDate', '<=', $toDate);
         }
-        if (Auth::user()->Depo != "ALL") {
-            $depoUser = Auth::user()->Depo;
-            $sqlCourierOrder->where('ms_distributor.Depo', '=', $depoUser);
+        if ($depoUser != "ALL") {
+            $sqlCourierOrder->where('ms_distributor.Depo', $depoUser);
         }
 
         $data = $sqlCourierOrder;

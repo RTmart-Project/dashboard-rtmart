@@ -63,6 +63,16 @@
               <div class="col-12 col-md-2 p-1">
                 <input type="text" name="to_date" id="to_date" class="form-control form-control-sm" readonly>
               </div>
+              @if (count($teams) > 1)
+              <div class="col-12 col-md-2 p-1">
+                <select class="form-control form-control-sm selectpicker border" name="filter_team" id="filter_team"
+                  title="Filter By Team" multiple data-live-search="true">
+                  @foreach ($teams as $team)
+                  <option value="{{ $team->TeamCode }}">{{ $team->TeamName }}</option>
+                  @endforeach
+                </select>
+              </div>
+              @endif
               <div class="col-12 col-md-4 p-1">
                 <button type="button" name="filter" id="filter" class="btn btn-sm btn-primary">Filter</button>
                 <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-1">Refresh</button>

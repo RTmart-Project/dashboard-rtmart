@@ -65,11 +65,18 @@ class RTSalesController extends Controller
     public function getTeam(Request $request)
     {
         $depoUser = Auth::user()->Depo;
+        $regionalUser = Auth::user()->Regional;
 
         $data = DB::table('ms_team_name')->select('TeamCode', 'TeamName');
 
         if ($depoUser != "ALL") {
             $data->where('TeamCode', $depoUser);
+        }
+        if ($regionalUser == "REGIONAL1" && $depoUser == "ALL") {
+            $data->whereIn('ms_team_name.TeamCode', ['SMG', 'YYK', 'UNR']);
+        }
+        if ($regionalUser == "REGIONAL2" && $depoUser == "ALL") {
+            $data->whereIn('ms_team_name.TeamCode', ['CRS', 'CKG', 'BDG']);
         }
 
         $data->get();
@@ -295,8 +302,13 @@ class RTSalesController extends Controller
     {
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
+        $team = $request->input('team');
 
         $data = $rTSalesService->callReportData($fromDate, $toDate);
+
+        if ($team) {
+            $data->where('msales.Team', $team);
+        }
 
         // Return Data Using DataTables with Ajax
         if ($request->ajax()) {
@@ -385,9 +397,7 @@ class RTSalesController extends Controller
 
         $update = DB::table('ms_visit_survey')
             ->where('VisitSurveyID', $visitSurveyID)
-            ->update([
-                'IsValid' => $dataValid
-            ]);
+            ->update(['IsValid' => $dataValid]);
 
         if ($update) {
             $status = "success";
@@ -475,7 +485,8 @@ class RTSalesController extends Controller
 
         $sales = DB::table('ms_sales')
             ->where('IsActive', 1)
-            ->select('SalesCode', 'SalesName')->get();
+            ->select('SalesCode', 'SalesName')
+            ->get();
 
         return view('rtsales.storeList.create', [
             'merchants' => $merchants,
@@ -543,7 +554,8 @@ class RTSalesController extends Controller
 
         $sales = DB::table('ms_sales')
             ->where('IsActive', 1)
-            ->select('SalesCode', 'SalesName')->get();
+            ->select('SalesCode', 'SalesName')
+            ->get();
 
         return view('rtsales.storeList.edit', [
             'storeID' => $storeID,
@@ -556,16 +568,10 @@ class RTSalesController extends Controller
     public function updateStore($storeID, Request $request)
     {
         $request->validate([
-            'store_name' => 'required',
-            'owner_name' => 'required',
-            'phone_number' => 'required',
-            'address' => 'required',
-            'latitude' => 'required',
-            'longitude' => 'required',
             'merchant' => 'nullable|exists:ms_merchant_account,MerchantID',
-            'sales' => 'required|exists:ms_sales,SalesCode',
-            'grade' => 'required|in:RETAIL,SO,WS',
-            'store_type' => 'required|in:NEW,EXISTING',
+            'sales' => 'exists:ms_sales,SalesCode',
+            'grade' => 'in:RETAIL,SO,WS',
+            'store_type' => 'in:NEW,EXISTING',
         ]);
 
         $data = [
@@ -589,9 +595,7 @@ class RTSalesController extends Controller
                 DB::table('ms_merchant_assessment')
                     ->where('StoreID', $storeID)
                     ->where('IsActive', 1)
-                    ->update([
-                        'MerchantID' => $request->input('merchant')
-                    ]);
+                    ->update(['MerchantID' => $request->input('merchant')]);
             });
             return redirect()->route('rtsales.storeList')->with('success', 'Data Store berhasil diubah');
         } catch (\Throwable $th) {
@@ -603,9 +607,8 @@ class RTSalesController extends Controller
     {
         $delete = DB::table('ms_store')
             ->where('StoreID', $storeID)
-            ->update([
-                'IsActive' => 0
-            ]);
+            ->update(['IsActive' => 0]);
+
         if ($delete) {
             return redirect()->route('rtsales.storeList')->with('success', 'Data Store berhasil dihapus');
         } else {
@@ -618,8 +621,10 @@ class RTSalesController extends Controller
         $visitDayName = $request->input('visitDayName');
         $startDate = $request->input('startDate');
         $endDate = $request->input('endDate');
+        $filterTeam = $request->input('filterTeam');
 
-        $data = $rTSalesService->callPlanData($visitDayName, $startDate, $endDate);
+        $data = $rTSalesService->callPlanData($visitDayName, $startDate, $endDate, $filterTeam);
+
         if ($request->ajax()) {
             return Datatables::of($data)
                 ->addColumn('Sales', function ($data) {
@@ -635,6 +640,23 @@ class RTSalesController extends Controller
 
     public function callplanIndex()
     {
-        return view('rtsales.callPlan.index');
+        $depoUser = Auth::user()->Depo;
+        $regionalUser = Auth::user()->Regional;
+
+        $team = DB::table('ms_team_name')->select('TeamCode', 'TeamName');
+
+        if ($depoUser != "ALL") {
+            $team->where('TeamCode', $depoUser);
+        }
+        if ($regionalUser == "REGIONAL1" && $depoUser == "ALL") {
+            $team->whereIn('ms_team_name.TeamCode', ['SMG', 'YYK', 'UNR']);
+        }
+        if ($regionalUser == "REGIONAL2" && $depoUser == "ALL") {
+            $team->whereIn('ms_team_name.TeamCode', ['CRS', 'CKG', 'BDG']);
+        }
+
+        $team = $team->get();
+
+        return view('rtsales.callPlan.index', ['teams' => $team]);
     }
 }

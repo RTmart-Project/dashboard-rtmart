@@ -2,11 +2,14 @@
 @section('title', 'Dashboard - Sales List')
 
 @section('css-pages')
+<link rel="stylesheet" href="{{url('/')}}/plugins/daterangepicker/daterangepicker.css">
 <!-- Datatables -->
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
 <meta name="role-id" content="{{ Auth::user()->RoleID }}">
+<!-- Main -->
+<link rel="stylesheet" href="{{url('/')}}/main/css/custom/select-filter.css">
 @endsection
 
 @section('header-menu', 'Sales')
@@ -102,8 +105,7 @@
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!-- Main JS -->
+<script src="{{url('/')}}/main/js/custom/select-filter.js"></script>
 <script src="{{url('/')}}/main/js/rtsales/saleslist/saleslist.js"></script>
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
-<script>
-</script>
 @endsection

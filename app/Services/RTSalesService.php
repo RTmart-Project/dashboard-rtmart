@@ -173,7 +173,7 @@ class RTSalesService
     return $newStoreID;
   }
 
-  public function callPlanData($visitDayName, $startDate, $endDate)
+  public function callPlanData($visitDayName, $startDate, $endDate, $filterTeam)
   {
     $depoUser = Auth::user()->Depo;
     $regionalUser = Auth::user()->Regional;
@@ -223,6 +223,10 @@ class RTSalesService
       ->whereIn('ms_visit_plan.VisitDayName', $visitDayName)
       ->orderByRaw("ANY_VALUE(ms_visit_plan.Sorting) DESC")
       ->groupBy('ms_visit_plan.VisitDayName', 'ms_visit_plan.SalesCode', 'ms_visit_plan.StoreID');
+
+    if ($filterTeam) {
+      $sql->whereIn('ms_sales.Team', $filterTeam);
+    }
 
     if ($depoUser != "ALL") {
       $sql->where('ms_sales.Team', $depoUser);
