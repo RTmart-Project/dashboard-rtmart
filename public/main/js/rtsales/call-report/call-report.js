@@ -16,6 +16,7 @@ $(document).ready(function () {
                 data: function (d) {
                     d.fromDate = $("#call-report #from_date").val();
                     d.toDate = $("#call-report #to_date").val();
+                    d.team = $("#call-report .filter-team select").val();
                 },
             },
             columns: [
@@ -99,13 +100,16 @@ $(document).ready(function () {
 
     // Create element for DateRange Filter
     $("div.filter-call-report").html(`<div class="input-group">
-                            <input type="text" name="from_date" id="from_date" class="form-control form-control-sm"
-                                readonly>
-                            <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm"
-                                readonly>
+                            <input type="text" name="from_date" id="from_date" class="form-control form-control-sm" readonly>
+                            <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
                             <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
-                            <button type="button" name="refresh" id="refresh"
-                                class="btn btn-sm btn-warning ml-2">Refresh</button>
+                            <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-2">Refresh</button>
+                            <div class="filter-team ml-2">
+                                <select class="form-control form-control-sm">
+                                <option selected disabled hidden>Filter Team</option>
+                                <option value="">Semua</option>
+                                </select>
+                            </div>
                         </div>`);
 
     // Setting Awal Daterangepicker
@@ -189,6 +193,29 @@ $(document).ready(function () {
 
     // Event listener saat tombol filter diklik
     $("#call-report #filter").click(function () {
+        $("#call-report .table-datatables").DataTable().ajax.reload();
+    });
+
+    // Load Team Code for filter
+    $.ajax({
+        type: "get",
+        url: "/rtsales/team/get",
+        success: function (data) {
+            let option;
+            const salesTeam = data.data;
+            for (const item of salesTeam) {
+                option += `<option value="${item.TeamCode}">${item.TeamName}</option>`;
+            }
+            if (salesTeam.length > 1) {
+                $("#call-report .filter-team select").append(option);
+            } else {
+                $("#call-report .filter-team select").remove();
+            }
+        },
+    });
+
+    // Event listener saat tombol select option diklik
+    $("#call-report .filter-team select").change(function () {
         $("#call-report .table-datatables").DataTable().ajax.reload();
     });
 });

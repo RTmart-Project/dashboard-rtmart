@@ -61,7 +61,7 @@ class MerchantService
                 ANY_VALUE(tx_merchant_order.ValidationNotes) AS ValidationNotes
             ")
             ->groupBy('tx_merchant_order.StockOrderID');
-        // ->toSql();
+
         if ($depoUser != "ALL") {
             $sqlMain->whereRaw("ms_distributor.Depo = '$depoUser'");
         }

@@ -10,10 +10,9 @@ class PaymentMethodController extends Controller
     public function getPaymentMethods(Request $request)
     {
         if ($request->ajax()) {
-            $sqlAllAccount = DB::table('ms_payment_method')
-                ->select('PaymentMethodID', 'PaymentMethodName')->get();
+            $data = DB::table('ms_payment_method')->select('PaymentMethodID', 'PaymentMethodName')->get();
 
-            return response($sqlAllAccount);
+            return response($data);
         }
     }
 }
