@@ -610,15 +610,14 @@ class DistributionController extends Controller
                 $subTotal += $item->Price * $item->Qty;
                 $orderQty = DB::table('tx_merchant_order_detail')
                     ->leftJoin('tx_merchant_delivery_order', function ($join) {
-                        $join->on('tx_merchant_delivery_order.StockOrderID', '=', 'tx_merchant_order_detail.StockOrderID');
-                        // $join->where('tx_merchant_delivery_order.StatusDO', 'S025');
+                        $join->on('tx_merchant_delivery_order.StockOrderID', 'tx_merchant_order_detail.StockOrderID');
                     })
                     ->leftJoin('tx_merchant_delivery_order_detail', function ($join) use ($item) {
-                        $join->on('tx_merchant_delivery_order_detail.DeliveryOrderID', '=', 'tx_merchant_delivery_order.DeliveryOrderID');
+                        $join->on('tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID');
                         $join->where('tx_merchant_delivery_order_detail.ProductID', $item->ProductID);
                     })
-                    ->where('tx_merchant_order_detail.StockOrderID', '=', $stockOrderID)
-                    ->where('tx_merchant_order_detail.ProductID', '=', $item->ProductID)
+                    ->where('tx_merchant_order_detail.StockOrderID', $stockOrderID)
+                    ->where('tx_merchant_order_detail.ProductID', $item->ProductID)
                     ->select(
                         'tx_merchant_order_detail.PromisedQuantity',
                         'tx_merchant_order_detail.ProductID',

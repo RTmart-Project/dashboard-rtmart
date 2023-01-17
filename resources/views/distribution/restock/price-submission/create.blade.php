@@ -53,7 +53,7 @@
               </div>
               <div class="col-12 col-md-3 mb-2">
                 <strong>Toko</strong>
-                <p>{{ $data->MerchantID }} - {{ $data->StoreName }} - {{ $data->OwnerFullName }} - {{ $data->PhoneNumber }}</p>
+                <p>{{ $data->MerchantID }} - {{ ucwords($data->StoreName) }} - {{ ucwords($data->OwnerFullName) }} - {{ $data->PhoneNumber }}</p>
               </div>
               <div class="col-12 col-md-3 mb-2">
                 <strong>Alamat Toko</strong>
