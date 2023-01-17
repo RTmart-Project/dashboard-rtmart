@@ -89,6 +89,7 @@ class SummaryController extends Controller
         $sales = DB::table('ms_sales')
             ->where('IsActive', 1)
             ->select('SalesCode', 'SalesName');
+
         if ($depoUser != "ALL") {
             $sales->where('Team', $depoUser);
         }
@@ -461,8 +462,7 @@ class SummaryController extends Controller
         $regionalUser = Auth::user()->Regional;
 
         $distributors = DB::table('ms_distributor')
-            ->where('IsActive', '=', 1)
-            ->whereNotNull('Email')
+            ->where('IsActive', 1)
             ->select('DistributorID', 'DistributorName');
 
         if ($depoUser != "ALL") {

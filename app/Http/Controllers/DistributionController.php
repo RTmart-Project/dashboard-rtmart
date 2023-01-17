@@ -292,7 +292,6 @@ class DistributionController extends Controller
             ->leftJoin('ms_status_order', 'ms_status_order.StatusOrderID', 'tx_merchant_order.StatusOrderID')
             ->leftJoin('tx_merchant_delivery_order as tmdo', function ($join) {
                 $join->on('tmdo.StockOrderID', 'tx_merchant_order.StockOrderID');
-                // $join->where('tmdo.StatusDO', '!=', 'S028');
             })
             ->leftJoin('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tmdo.DeliveryOrderID')
             ->leftJoin('ms_status_order as status_do', 'status_do.StatusOrderID', 'tx_merchant_delivery_order_detail.StatusExpedition')
@@ -732,7 +731,8 @@ class DistributionController extends Controller
         $vehicles = DB::table('ms_vehicle')
             ->whereNotIn('VehicleID', [1, 2, 3])
             ->select('*')
-            ->orderBy('VehicleName')->get();
+            ->orderBy('VehicleName')
+            ->get();
 
         return view('distribution.restock.detail', [
             'stockOrderID' => $stockOrderID,
@@ -868,15 +868,9 @@ class DistributionController extends Controller
 
             try {
                 DB::transaction(function () use ($stockOrderID, $statusOrder, $dataLog, $txMerchantOrder, $titleNotif, $bodyNotif, $baseImageUrl, $deliveryOrderService) {
-                    // if ($txMerchantOrder->PaymentMethodID == 14) {
-                    //     $deliveryOrderService->splitDeliveryOrder($stockOrderID, 3);
-                    // }
-
                     DB::table('tx_merchant_order')
-                        ->where('StockOrderID', '=', $stockOrderID)
-                        ->update([
-                            'StatusOrderID' => $statusOrder
-                        ]);
+                        ->where('StockOrderID', $stockOrderID)
+                        ->update(['StatusOrderID' => $statusOrder]);
                     DB::table('tx_merchant_order_log')
                         ->insert($dataLog);
 
@@ -947,7 +941,7 @@ class DistributionController extends Controller
             try {
                 DB::transaction(function () use ($stockOrderID, $data, $dataLog) {
                     DB::table('tx_merchant_order')
-                        ->where('StockOrderID', '=', $stockOrderID)
+                        ->where('StockOrderID', $stockOrderID)
                         ->update($data);
                     DB::table('tx_merchant_order_log')
                         ->insert($dataLog);
@@ -1000,7 +994,7 @@ class DistributionController extends Controller
             try {
                 DB::transaction(function () use ($stockOrderID, $selesai, $dataLog) {
                     DB::table('tx_merchant_order')
-                        ->where('StockOrderID', '=', $stockOrderID)
+                        ->where('StockOrderID', $stockOrderID)
                         ->update([
                             'StatusOrderID' => $selesai,
                             'IsRefund' => 1
@@ -1019,13 +1013,13 @@ class DistributionController extends Controller
     public function updateDeliveryOrder($deliveryOrderId)
     {
         $stockOrderID = DB::table('tx_merchant_delivery_order')
-            ->where('DeliveryOrderID', '=', $deliveryOrderId)
+            ->where('DeliveryOrderID', $deliveryOrderId)
             ->select('StockOrderID', 'DriverID', 'VehicleID', 'VehicleLicensePlate')->first();
 
         try {
             DB::transaction(function () use ($stockOrderID, $deliveryOrderId) {
                 DB::table('tx_merchant_delivery_order')
-                    ->where('DeliveryOrderID', '=', $deliveryOrderId)
+                    ->where('DeliveryOrderID', $deliveryOrderId)
                     ->update([
                         'StatusDO' => 'S025',
                         'FinishDate' => date('Y-m-d H:i:s')
@@ -1054,17 +1048,16 @@ class DistributionController extends Controller
         $baseImageUrl = config('app.base_image_url');
 
         $msMerchant = DB::table('tx_merchant_order')
-            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
-            ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tx_merchant_order.DistributorID')
+            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
             ->leftJoin('ms_area', 'ms_area.AreaID', 'ms_merchant_account.AreaID')
-            ->where('tx_merchant_order.StockOrderID', '=', $stockOrderID)
+            ->where('tx_merchant_order.StockOrderID', $stockOrderID)
             ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.Email', 'ms_merchant_account.MerchantFirebaseToken', 'ms_distributor.DistributorName', 'tx_merchant_order.OrderAddress', 'tx_merchant_order.PaymentMethodID', 'ms_area.PostalCode', 'ms_area.Province', 'ms_area.City', 'ms_area.Subdistrict', 'tx_merchant_order.DistributorNote', 'tx_merchant_order.MerchantNote')
             ->first();
 
         $newDeliveryOrderID = $deliveryOrderService->generateDeliveryOrderID();
 
         $createdDateDO = str_replace("T", " ", $request->input('created_date_do'));
-        // $vehicleLicensePlate = str_replace(" ", "-", $request->input('license_plate'));
 
         $productId = $request->input('product_id');
         $qty = $request->input('qty_do');
@@ -1076,9 +1069,6 @@ class DistributionController extends Controller
         if ($depoChannel == "rtmart") {
             $request->validate([
                 'created_date_do' => 'required',
-                // 'driver' => 'required',
-                // 'vehicle' => 'required',
-                // 'license_plate' => 'required',
                 'qty_do' => 'required',
                 'qty_do.*' => 'required|numeric|lte:max_qty_do.*|gte:1'
             ]);
@@ -1087,10 +1077,6 @@ class DistributionController extends Controller
                 'DeliveryOrderID' => $newDeliveryOrderID,
                 'StockOrderID' => $stockOrderID,
                 'StatusDO' => 'S028',
-                // 'DriverID' => $request->input('driver'),
-                // 'HelperID' => $request->input('helper'),
-                // 'VehicleID' => $request->input('vehicle'),
-                // 'VehicleLicensePlate' => $vehicleLicensePlate,
                 'Distributor' => "RT MART",
                 'CreatedDate' => $createdDateDO
             ];
@@ -1115,10 +1101,6 @@ class DistributionController extends Controller
                 'StockOrderID' => $stockOrderID,
                 'DeliveryOrderID' => $newDeliveryOrderID,
                 'StatusDO' => 'S028',
-                // 'DriverID' => $request->input('driver'),
-                // 'HelperID' => $request->input('helper'),
-                // 'VehicleID' => $request->input('vehicle'),
-                // 'VehicleLicensePlate' => $vehicleLicensePlate,
                 'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo . ' ' . Auth::user()->Name
             ];
 
@@ -1133,35 +1115,6 @@ class DistributionController extends Controller
                             ->insert($dataLogDO);
                     });
 
-                    // $fields = array(
-                    //     'registration_ids' => array($msMerchant->MerchantFirebaseToken),
-                    //     'data' => array(
-                    //         "date" => date("Y-m-d H:i:s"),
-                    //         "merchantID" => $msMerchant->MerchantID,
-                    //         "title" => "Pesanan Restok Dikirim",
-                    //         "body" => "Pesanan Anda sedang dikirim menuju alamat Anda oleh " . $msMerchant->DistributorName . " dengan nomor delivery " . $newDeliveryOrderID . ".",
-                    //         'large_icon' => $baseImageUrl . 'push/merchant_icon.png'
-                    //     )
-                    // );
-
-                    // $headers = array(
-                    //     'Authorization: key=' . config('app.firebase_auth_token'),
-                    //     'Content-Type: application/json'
-                    // );
-
-                    // $fields = json_encode($fields);
-                    // $ch = curl_init();
-                    // curl_setopt($ch, CURLOPT_URL, "https://fcm.googleapis.com/fcm/send");
-                    // curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-                    // curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-                    // curl_setopt($ch, CURLOPT_HEADER, FALSE);
-                    // curl_setopt($ch, CURLOPT_POST, TRUE);
-                    // curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
-                    // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-
-                    // curl_exec($ch);
-                    // curl_close($ch);
-
                     return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('success', 'Delivery Order berhasil dibuat');
                 } catch (\Throwable $th) {
                     return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
@@ -1172,9 +1125,6 @@ class DistributionController extends Controller
         } elseif ($depoChannel == "haistar") {
             $request->validate([
                 'created_date_do' => 'required',
-                // 'driver' => 'required',
-                // 'vehicle' => 'required',
-                // 'license_plate' => 'required',
                 'qty_do' => 'required',
                 'qty_do.*' => 'required|numeric|lte:max_qty_do.*|gte:1'
             ]);
@@ -1191,15 +1141,6 @@ class DistributionController extends Controller
                 $validation = $deliveryOrderService->validateRemainingQty($stockOrderID, "", $value['ProductID'], $value['Qty'], "CreateDO");
                 $value += ['Price' => $validation['price']];
 
-                // $checkStock = $haistarService->haistarGetStock($value['ProductID']);
-                // // $stockHaistar = 0;
-                // $arrayExistStock = $checkStock->data->detail;
-                // $existStock = array_sum(array_column($arrayExistStock, "exist_quantity"));
-
-                // if ($value['Qty'] > $existStock) {
-                //     return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Gagal, Stock Haistar tidak mencukupi!');
-                // }
-
                 $totalPrice += $value['Qty'] * $value['Price'];
 
                 $objectItems->item_code = $value['ProductID'];
@@ -1215,25 +1156,10 @@ class DistributionController extends Controller
                 $codPrice = "0";
             }
 
-            // Parameter Push Order Haistar
-            // $objectParams = new stdClass;
-            // $objectParams->code = $newDeliveryOrderID;
-            // $objectParams->cod_price = $codPrice;
-            // $objectParams->total_price = $totalPrice;
-            // $objectParams->total_product_price = "$totalPrice";
-            // $objectParams->items = $arrayItems;
-
-            // $haistarPushOrder = $haistarService->haistarPushOrder($stockOrderID, $objectParams);
-
-            // if ($haistarPushOrder->status == 200) {
             $dataDO = [
                 'DeliveryOrderID' => $newDeliveryOrderID,
                 'StockOrderID' => $stockOrderID,
                 'StatusDO' => 'S028',
-                // 'DriverID' => $request->input('driver'),
-                // 'HelperID' => $request->input('helper'),
-                // 'VehicleID' => $request->input('vehicle'),
-                // 'VehicleLicensePlate' => $vehicleLicensePlate,
                 'Distributor' => "HAISTAR",
                 'CreatedDate' => $createdDateDO
             ];
@@ -1242,10 +1168,6 @@ class DistributionController extends Controller
                 'StockOrderID' => $stockOrderID,
                 'DeliveryOrderID' => $newDeliveryOrderID,
                 'StatusDO' => 'S028',
-                // 'DriverID' => $request->input('driver'),
-                // 'HelperID' => $request->input('helper'),
-                // 'VehicleID' => $request->input('vehicle'),
-                // 'VehicleLicensePlate' => $vehicleLicensePlate,
                 'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo . ' ' . Auth::user()->Name
             ];
 
@@ -1259,42 +1181,10 @@ class DistributionController extends Controller
                         ->insert($dataLogDO);
                 });
 
-                // $fields = array(
-                //     'registration_ids' => array($msMerchant->MerchantFirebaseToken),
-                //     'data' => array(
-                //         "date" => date("Y-m-d H:i:s"),
-                //         "merchantID" => $msMerchant->MerchantID,
-                //         "title" => "Pesanan Restok Dikirim",
-                //         "body" => "Pesanan Anda sedang dikirim menuju alamat Anda oleh " . $msMerchant->DistributorName . " dengan nomor delivery " . $newDeliveryOrderID . ".",
-                //         'large_icon' => $baseImageUrl . 'push/merchant_icon.png'
-                //     )
-                // );
-
-                // $headers = array(
-                //     'Authorization: key=' . config('app.firebase_auth_token'),
-                //     'Content-Type: application/json'
-                // );
-
-                // $fields = json_encode($fields);
-                // $ch = curl_init();
-                // curl_setopt($ch, CURLOPT_URL, "https://fcm.googleapis.com/fcm/send");
-                // curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-                // curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-                // curl_setopt($ch, CURLOPT_HEADER, FALSE);
-                // curl_setopt($ch, CURLOPT_POST, TRUE);
-                // curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
-                // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-
-                // curl_exec($ch);
-                // curl_close($ch);
-
                 return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('success', 'Delivery Order berhasil dibuat');
             } catch (\Throwable $th) {
                 return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
             }
-            // } else {
-            //     return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', $haistarPushOrder->data);
-            // }
         } else {
             return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Gagal');
         }
@@ -1312,7 +1202,7 @@ class DistributionController extends Controller
         ]);
 
         $stockOrderID = DB::table('tx_merchant_delivery_order')
-            ->where('DeliveryOrderID', '=', $deliveryOrderId)
+            ->where('DeliveryOrderID', $deliveryOrderId)
             ->select('StockOrderID')->first();
 
         $qty = $request->input('edit_qty_do');
@@ -1691,6 +1581,7 @@ class DistributionController extends Controller
         $depoUser = Auth::user()->Depo;
         $regionalUser = Auth::user()->Regional;
         $filterStatusPS = [];
+
         if ($statusPriceSubmission == 'S040' || $statusPriceSubmission == 'S041') {
             array_push($filterStatusPS, 'S009', 'S010', 'S023', 'S011', 'S012', 'S018');
         } else {
@@ -1707,7 +1598,6 @@ class DistributionController extends Controller
             ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tmo.SalesCode')
             ->where('ms_price_submission.StatusPriceSubmission', $statusPriceSubmission)
             ->whereIn('tmo.StatusOrderID', $filterStatusPS)
-            // ->whereIn('tmo.StatusOrderID', ['S009', 'S010', 'S023'])
             ->selectRaw("
                 ms_price_submission.PriceSubmissionID,
                 tmo.StockOrderID,
@@ -1796,9 +1686,6 @@ class DistributionController extends Controller
                 ) AS CostLogistic
             ");
 
-        // if ($depoUser == "ALL") {
-        //     $sql->whereIn('ms_merchant_account.DistributorID', ['D-2004-000002', 'D-2212-000001', 'D-2004-000006', 'D-2004-000005', 'D-2004-000001']);
-        // }
         if ($depoUser != "ALL") {
             $sql->where('ms_distributor.Depo', $depoUser);
         }
@@ -2398,7 +2285,6 @@ class DistributionController extends Controller
             'payment_slip' => 'required'
         ]);
 
-
         $imageName = date('YmdHis') . '_' . $deliveryOrderID . '.' . $request->file('payment_slip')->extension();
         $request->file('payment_slip')->move($this->saveImageUrl . 'paylater_slip_payment/', $imageName);
 
@@ -2511,12 +2397,12 @@ class DistributionController extends Controller
     public function addProduct()
     {
         $getDistributorSql = DB::table('ms_distributor')
-            ->where('IsActive', '=', 1)
+            ->where('IsActive', 1)
             ->where('Email', '!=', NULL)
             ->select('DistributorID', 'DistributorName', 'Email', 'Address', 'CreatedDate');
 
         if (Auth::user()->Depo != "ALL") {
-            $getDistributorSql->where('Depo', '=', Auth::user()->Depo);
+            $getDistributorSql->where('Depo', Auth::user()->Depo);
         }
 
         $getDistributor = $getDistributorSql->get();
@@ -2642,13 +2528,13 @@ class DistributionController extends Controller
         try {
             DB::transaction(function () use ($distributorId, $productId, $gradeId, $request, $data) {
                 $update = DB::table('ms_distributor_product_price')
-                    ->where('DistributorID', '=', $distributorId)
-                    ->where('ProductID', '=', $productId);
+                    ->where('DistributorID', $distributorId)
+                    ->where('ProductID', $productId);
                 $update->update([
                     'IsPreOrder' => $request->input('is_pre_order'),
                     'IsActive' => $request->input('is_active')
                 ]);
-                $update->where('GradeID', '=', $gradeId)
+                $update->where('GradeID', $gradeId)
                     ->update([
                         'Price' => $request->input('price'),
                         // 'IsPreOrder' => $request->input('is_pre_order'),
