@@ -89,6 +89,7 @@ class SummaryController extends Controller
         $sales = DB::table('ms_sales')
             ->where('IsActive', 1)
             ->select('SalesCode', 'SalesName');
+
         if ($depoUser != "ALL") {
             $sales->where('Team', $depoUser);
         }
@@ -461,24 +462,22 @@ class SummaryController extends Controller
         $regionalUser = Auth::user()->Regional;
 
         $distributors = DB::table('ms_distributor')
-            ->where('IsActive', '=', 1)
-            ->whereNotNull('Email')
+            ->where('IsActive', 1)
             ->select('DistributorID', 'DistributorName');
 
         if ($depoUser != "ALL") {
             $distributors->where('Depo', $depoUser);
         }
-        if ($regionalUser == "REGIONAL1" && $depoUser == "ALL") {
-            $distributors->whereIn('Depo', ['SMG', 'YYK', 'UNR']);
+        if ($regionalUser != NULL && $depoUser == "ALL") {
+            $distributors->where('Regional', $regionalUser);
         }
-        if ($regionalUser == "REGIONAL2" && $depoUser == "ALL") {
-            $distributors->whereIn('Depo', ['CRS', 'CKG', 'BDG']);
-        }
+
         $distributors = $distributors->get();
 
         $sales = DB::table('ms_sales')
             ->where('IsActive', 1)
             ->select('SalesCode', 'SalesName');
+
         if ($depoUser != "ALL") {
             $sales->where('Team', $depoUser);
         }
@@ -488,6 +487,7 @@ class SummaryController extends Controller
         if ($regionalUser == "REGIONAL2" && $depoUser == "ALL") {
             $sales->whereIn('Team', ['CRS', 'CKG', 'BDG']);
         }
+
         $sales = $sales->get();
 
         return view('summary.merchant.index', [

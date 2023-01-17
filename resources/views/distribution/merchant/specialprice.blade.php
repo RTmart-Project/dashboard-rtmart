@@ -35,10 +35,10 @@
                                             <h6><strong>Merchant ID : </strong>{{ $merchant->MerchantID }}</h6>
                                         </div>
                                         <div class="col-md-6 col-12">
-                                            <h6><strong>Nama Toko : </strong>{{ $merchant->StoreName }}</h6>
+                                            <h6><strong>Nama Toko : </strong>{{ ucwords($merchant->StoreName) }}</h6>
                                         </div>
                                         <div class="col-md-6 col-12">
-                                            <h6><strong>Nama Pemilik : </strong>{{ $merchant->OwnerFullName }}</h6>
+                                            <h6><strong>Nama Pemilik : </strong>{{ ucwords($merchant->OwnerFullName) }}</h6>
                                         </div>
                                         <div class="col-md-6 col-12">
                                             <h6><strong>No. Telp : </strong><a

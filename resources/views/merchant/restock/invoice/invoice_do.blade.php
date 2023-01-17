@@ -194,9 +194,11 @@
 							<label class="mb-1">Pembeli</label> <br>
 							ID Toko : <b> {{ $merchant->MerchantID }} </b> <br>
 							Nama Toko : <b> {{ $merchant->StoreName }} </b> <br>
-							Nama Pemilik : <b> {{ $merchant->OwnerFullName }} </b> <br>
+							Nama Pemilik : <b> {{ ucwords($merchant->OwnerFullName) }} </b> <br>
 							No HP Pemilik : <b> {{ $merchant->PhoneNumber }} </b> <br>
+							@if ($merchant->SalesName)
 							Nama Sales : <b> {{ $merchant->SalesName }} </b>
+							@endif
 						</td>
 
 						<td class="responsive-td">
