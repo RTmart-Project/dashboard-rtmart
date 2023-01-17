@@ -60,8 +60,7 @@ class SettlementService
             AND tx_merchant_delivery_order_detail.StatusExpedition = 'S031'
         ) AS TotalSettlement,
         tx_merchant_delivery_order_payment_log.CreatedDate AS SettlementDate,
-        tx_merchant_delivery_order_payment_log.ActionBy
-      ");
+        tx_merchant_delivery_order_payment_log.ActionBy");
 
     return $sql;
   }

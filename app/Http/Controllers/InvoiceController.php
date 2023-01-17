@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class InvoiceController extends Controller
@@ -11,7 +10,7 @@ class InvoiceController extends Controller
     {
         $merchant = DB::table('tx_merchant_order')
             ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
-            ->leftJoin('ms_sales', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesCode')
+            ->leftJoin('ms_sales', 'tx_merchant_order.SalesCode', 'ms_sales.SalesCode')
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tx_merchant_order.StatusOrderID')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', 'tx_merchant_order.PaymentMethodID')
             ->where('tx_merchant_order.StockOrderID', $stockOrderId)
@@ -40,23 +39,23 @@ class InvoiceController extends Controller
     public function invoiceDO($deliveryOrderId)
     {
         $merchant = DB::table('tx_merchant_order')
-            ->join('tx_merchant_delivery_order', 'tx_merchant_delivery_order.StockOrderID', '=', 'tx_merchant_order.StockOrderID')
-            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
-            ->leftJoin('ms_sales', 'ms_merchant_account.ReferralCode', 'ms_sales.SalesCode')
-            ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_delivery_order.StatusDO')
-            ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
+            ->join('tx_merchant_delivery_order', 'tx_merchant_delivery_order.StockOrderID', 'tx_merchant_order.StockOrderID')
+            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
+            ->leftJoin('ms_sales', 'tx_merchant_order.SalesCode', 'ms_sales.SalesCode')
+            ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tx_merchant_delivery_order.StatusDO')
+            ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', 'tx_merchant_order.PaymentMethodID')
             ->leftJoin('tx_merchant_delivery_order_log', function ($join) {
                 $join->on('tx_merchant_delivery_order_log.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID');
-                $join->where('tx_merchant_delivery_order_log.StatusDO', '=', 'S024');
+                $join->where('tx_merchant_delivery_order_log.StatusDO', 'S024');
             })
             ->leftJoin('ms_user', 'ms_user.UserID', 'tx_merchant_delivery_order.DriverID')
-            ->where('tx_merchant_delivery_order.DeliveryOrderID', '=', $deliveryOrderId)
+            ->where('tx_merchant_delivery_order.DeliveryOrderID', $deliveryOrderId)
             ->select('tx_merchant_order.StockOrderID', 'ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'ms_status_order.StatusOrder', 'ms_payment_method.PaymentMethodName', 'tx_merchant_delivery_order.DeliveryOrderID', 'tx_merchant_delivery_order.CreatedDate', 'tx_merchant_delivery_order.FinishDate', 'ms_user.Name', 'tx_merchant_delivery_order.Distributor', 'tx_merchant_order.PaymentMethodID', 'tx_merchant_delivery_order.IsPaid', 'tx_merchant_delivery_order.Discount', 'tx_merchant_delivery_order.ServiceCharge', 'tx_merchant_delivery_order.DeliveryFee', 'tx_merchant_delivery_order.StatusDO', 'tx_merchant_delivery_order_log.ProcessTime as DeliveryDate', 'tx_merchant_delivery_order.PaymentDate', 'ms_sales.SalesName')
             ->first();
 
         $detailDeliveryOrder = DB::table('tx_merchant_delivery_order_detail')
-            ->join('ms_product', 'ms_product.ProductID', '=', 'tx_merchant_delivery_order_detail.ProductID')
-            ->where('tx_merchant_delivery_order_detail.DeliveryOrderID', '=', $deliveryOrderId)
+            ->join('ms_product', 'ms_product.ProductID', 'tx_merchant_delivery_order_detail.ProductID')
+            ->where('tx_merchant_delivery_order_detail.DeliveryOrderID', $deliveryOrderId)
             ->where('tx_merchant_delivery_order_detail.StatusExpedition', '!=', 'S037')
             ->select('tx_merchant_delivery_order_detail.Qty', 'tx_merchant_delivery_order_detail.Price', 'ms_product.ProductName')
             ->get();

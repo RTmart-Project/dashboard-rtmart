@@ -58,8 +58,8 @@
                                                 style="object-fit: cover; width: 130px; height: 130px;">
                                         </div>
                                         <div class="col-6 col-md-3">
-                                            <p>{{ $merchantOrder->StoreName }}</p>
-                                            <p>{{ $merchantOrder->OwnerFullName }}</p>
+                                            <p>{{ ucwords($merchantOrder->StoreName) }}</p>
+                                            <p>{{ ucwords($merchantOrder->OwnerFullName) }}</p>
                                             <p>{{ $merchantOrder->MerchantID }}</p>
                                             <p>{{ $merchantOrder->PhoneNumber }}</p>
                                             <p class="mb-md-0">{{ $merchantOrder->DistributorName }}</p>
@@ -340,11 +340,6 @@
                                                 Batalkan Pesanan
                                             </a>
                                             @endif
-                                            {{-- <a href="#" class="btn btn-success btn-kirim mx-3"
-                                                data-order-id="{{ $stockOrderID }}"
-                                                data-store-name="{{ $merchantOrder->StoreName }}">
-                                                Kirim Pesanan
-                                            </a> --}}
                                             @if ($merchantOrder->PaymentMethodID == 11)
                                             <a href="#" class="btn btn-secondary btn-refund"
                                                 data-order-id="{{ $stockOrderID }}"

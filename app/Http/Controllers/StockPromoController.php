@@ -23,7 +23,7 @@ class StockPromoController extends Controller
         }
         if (Auth::user()->Depo != "ALL") {
             $depoUser = Auth::user()->Depo;
-            $sql->where('ms_distributor.Depo', '=', $depoUser);
+            $sql->where('ms_distributor.Depo', $depoUser);
         }
         if (Auth::user()->InvestorID != null) {
             $investorUser = Auth::user()->InvestorID;
@@ -48,17 +48,6 @@ class StockPromoController extends Controller
                     return '<span class="badge badge-' . $color . '">' . $data->StatusName . '</span>';
                 })
                 ->addColumn('Action', function ($data) {
-                    // if (($data->InvoiceNumber == null || $data->InvoiceFile == null) && ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI")) && str_contains($data->PurchaseID, "PRCH")) {
-                    //     $editInvoice = '<a href="/stock/purchase/edit/invoice/' . $data->PurchaseID . '" class="btn btn-xs btn-primary text-nowrap">Edit Invoice</a>';
-                    // } else {
-                    //     $editInvoice = '';
-                    // }
-
-                    // if ($data->StatusBy == null && ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "FI"))) {
-                    //     $ubah = '<a class="btn btn-xs btn-warning" href="/stock/purchase/edit/' . $data->PurchaseID . '">Ubah</a>';
-                    // } else {
-                    //     $ubah = '';
-                    // }
                     $action = '<div class="d-flex flex-wrap" style="gap:5px">
                                 <a href="/stock-promo/inbound/detail/' . $data->StockPromoInboundID . '" class="btn btn-xs btn-info">Detail</a>
                                </div>';
