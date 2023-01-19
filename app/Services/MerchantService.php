@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\DB;
 
 class MerchantService
 {
-
     public function merchantRestock()
     {
         $depoUser = Auth::user()->Depo;
@@ -27,7 +26,8 @@ class MerchantService
             })
             ->leftJoin('ms_merchant_partner', 'ms_merchant_partner.MerchantID', 'tx_merchant_order.MerchantID')
             ->leftJoin('ms_partner', 'ms_partner.PartnerID', 'ms_merchant_partner.PartnerID')
-            ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tx_merchant_order.SalesCode')
+            // ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tx_merchant_order.SalesCode')
+            ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
             ->whereRaw('ms_merchant_account.IsTesting = 0')
             ->selectRaw("
                 tx_merchant_order.StockOrderID,
@@ -155,7 +155,8 @@ class MerchantService
             ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tx_merchant_order.StatusOrderID')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', 'tx_merchant_order.PaymentMethodID')
-            ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tx_merchant_order.SalesCode')
+            // ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tx_merchant_order.SalesCode')
+            ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
             ->leftJoin('ms_merchant_assessment', function ($join) {
                 $join->on('ms_merchant_assessment.MerchantID', 'tx_merchant_order.MerchantID');
                 $join->whereRaw("ms_merchant_assessment.IsActive = 1");

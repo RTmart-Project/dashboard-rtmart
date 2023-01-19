@@ -156,7 +156,7 @@
 								Nama Pemilik : <b> {{ ucwords($merchant->OwnerFullName) }} </b> <br>
 								No HP Pemilik : <b> {{ $merchant->PhoneNumber }} </b> <br>
 								@if ($merchant->SalesName)
-								Nama Sales : <b> {{ $merchant->SalesName }} </b>
+								Nama Sales : <b> {{ ucwords($merchant->SalesName) }} </b>
 								@endif
 							</td>
 							<td class="responsive-td">
