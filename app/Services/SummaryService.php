@@ -1002,7 +1002,8 @@ class SummaryService
         $join->on('ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID');
         $join->whereRaw("ms_merchant_account.IsTesting = 0");
       })
-      ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tx_merchant_order.SalesCode')
+      ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
+      // ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tx_merchant_order.SalesCode')
       ->leftJoin('tx_merchant_delivery_order', function ($join) {
         $join->on('tx_merchant_delivery_order.StockOrderID', 'tx_merchant_order.StockOrderID');
         $join->whereRaw("tx_merchant_delivery_order.StatusDO = 'S025'");

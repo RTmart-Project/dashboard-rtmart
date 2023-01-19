@@ -155,7 +155,8 @@ class DistributionController extends Controller
             ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', 'ms_distributor_merchant_grade.GradeID')
             ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', 'tx_merchant_order.PaymentMethodID')
-            ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tx_merchant_order.SalesCode')
+            // ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tx_merchant_order.SalesCode')
+            ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
             ->leftJoin('ms_price_submission', function ($join) {
                 $join->on('ms_price_submission.StockOrderID', 'tx_merchant_order.StockOrderID');
                 $join->where('ms_price_submission.StatusPriceSubmission', '!=', 'S041');
@@ -591,7 +592,8 @@ class DistributionController extends Controller
             $dateDlmPengiriman = DB::table('tx_merchant_delivery_order_log')
                 ->where('DeliveryOrderID', $value->DeliveryOrderID)
                 ->where('StatusDO', 'S024')
-                ->selectRaw("MAX(ProcessTime) AS DateKirim")->first();
+                ->selectRaw("MAX(ProcessTime) AS DateKirim")
+                ->first();
             $value->DateKirim = $dateDlmPengiriman->DateKirim;
 
             $deliveryOrderDetail = DB::table('tx_merchant_delivery_order_detail')
@@ -601,7 +603,8 @@ class DistributionController extends Controller
                 ->where('tx_merchant_delivery_order_detail.DeliveryOrderID', '=', $value->DeliveryOrderID)
                 ->where('tx_merchant_delivery_order_detail.StatusExpedition', '!=', 'S037')
                 ->select('tx_merchant_delivery_order_detail.ProductID', 'tx_merchant_delivery_order_detail.Qty', 'tx_merchant_delivery_order_detail.Price', 'ms_product.ProductName', 'ms_product.ProductImage', 'tx_merchant_delivery_order_detail.Distributor', 'ms_status_order.StatusOrder')
-                ->get()->toArray();
+                ->get()
+                ->toArray();
             $value->DetailProduct = $deliveryOrderDetail;
 
             $subTotal = 0;
@@ -688,7 +691,6 @@ class DistributionController extends Controller
                 ->join('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderID', '=', 'tx_merchant_delivery_order.DeliveryOrderID')
                 ->where('tx_merchant_delivery_order.StockOrderID', '=', $stockOrderID)
                 ->where('tx_merchant_delivery_order_detail.ProductID', '=', $value->ProductID)
-                // ->where('tx_merchant_delivery_order.StatusDO', '!=', 'S026')
                 ->where('tx_merchant_delivery_order_detail.StatusExpedition', '!=', 'S037')
                 ->selectRaw('IFNULL(SUM(tx_merchant_delivery_order_detail.Qty), 0) as Qty')
                 ->first();
@@ -1699,6 +1701,7 @@ class DistributionController extends Controller
         }
 
         $data = $sql;
+
         if ($request->ajax()) {
             return Datatables::of($data)
                 ->editColumn('StockOrderID', function ($data) {
