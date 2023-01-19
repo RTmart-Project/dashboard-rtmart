@@ -21,7 +21,8 @@ class SettlementService
         $join->on('ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID');
         $join->whereRaw("(ms_merchant_account.Partner != 'TRADING' OR ms_merchant_account.Partner IS NULL)");
       })
-      ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tx_merchant_order.SalesCode')
+      ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
+      // ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tx_merchant_order.SalesCode')
       ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tmdo.StatusDO')
       ->leftJoin('tx_merchant_delivery_order_payment_log', function ($join) {
         $join->on('tx_merchant_delivery_order_payment_log.DeliveryOrderID', 'tmdo.DeliveryOrderID');
