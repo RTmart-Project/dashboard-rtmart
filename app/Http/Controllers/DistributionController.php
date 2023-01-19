@@ -81,7 +81,7 @@ class DistributionController extends Controller
                     return '<a href="https://wa.me/' . $data->PhoneNumber . '" target="_blank">' . $data->PhoneNumber . '</a>';
                 })
                 ->filterColumn('Sales', function ($query, $keyword) {
-                    $sql = "CONCAT(tmo.SalesCode,' - ',ms_sales.SalesName)  like ?";
+                    $sql = "CONCAT(ms_sales.SalesCode,' - ',ms_sales.SalesName)  like ?";
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 })
                 ->editColumn('IsValid', function ($data) {
@@ -163,7 +163,7 @@ class DistributionController extends Controller
             })
             ->where('ms_merchant_account.IsTesting', 0)
             ->where('tx_merchant_order.StatusOrderID', $statusOrder)
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'ms_distributor.DistributorName', 'tx_merchant_order.ShipmentDate', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CancelReasonNote', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order.SalesCode as ReferralCode', 'ms_sales.SalesName', 'ms_distributor_grade.Grade', 'tx_merchant_order.IsValid', 'tx_merchant_order.ValidationNotes', 'ms_price_submission.StatusPriceSubmission');
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'ms_distributor.DistributorName', 'tx_merchant_order.ShipmentDate', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.CancelReasonNote', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'ms_sales.SalesCode as ReferralCode', 'ms_sales.SalesName', 'ms_distributor_grade.Grade', 'tx_merchant_order.IsValid', 'tx_merchant_order.ValidationNotes', 'ms_price_submission.StatusPriceSubmission');
 
         if ($depoUser != "ALL") {
             $sqlGetRestock->where('ms_distributor.Depo', $depoUser);
@@ -303,7 +303,8 @@ class DistributionController extends Controller
             ->leftJoin('ms_product', 'ms_product.ProductID', 'tx_merchant_delivery_order_detail.ProductID')
             ->leftJoin('ms_user', 'ms_user.UserID', 'tmdo.DriverID')
             ->leftJoin('ms_vehicle', 'ms_vehicle.VehicleID', 'tmdo.VehicleID')
-            ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'tx_merchant_order.SalesCode')
+            ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
+            // ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'tx_merchant_order.SalesCode')
             ->leftJoin('tx_merchant_order_detail', function ($join) {
                 $join->on('tx_merchant_order_detail.StockOrderID', 'tmdo.StockOrderID');
                 $join->on('tx_merchant_order_detail.ProductID', 'tx_merchant_delivery_order_detail.ProductID');
@@ -360,7 +361,7 @@ class DistributionController extends Controller
                 'ms_user.Name',
                 'ms_vehicle.VehicleName',
                 'tmdo.VehicleLicensePlate',
-                'tx_merchant_order.SalesCode as ReferralCode',
+                'ms_sales.SalesCode as ReferralCode',
                 'ms_sales.SalesName'
             );
 
@@ -1597,7 +1598,7 @@ class DistributionController extends Controller
             ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'tmo.MerchantID')
             ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', 'ms_distributor_merchant_grade.GradeID')
             ->join('ms_distributor', 'ms_distributor.DistributorID', 'tmo.DistributorID')
-            ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tmo.SalesCode')
+            ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
             ->where('ms_price_submission.StatusPriceSubmission', $statusPriceSubmission)
             ->whereIn('tmo.StatusOrderID', $filterStatusPS)
             ->selectRaw("
@@ -1609,7 +1610,7 @@ class DistributionController extends Controller
                 ms_merchant_account.StoreName,
                 ms_distributor_grade.Grade,
                 ms_distributor.DistributorName,
-                tmo.SalesCode,
+                ms_sales.SalesCode,
                 ms_sales.SalesName,
                 ms_price_submission.CreatedDate,
                 ms_price_submission.CreatedBy,
@@ -1775,7 +1776,7 @@ class DistributionController extends Controller
                     <a class="btn btn-xs btn-danger btn-reject" data-price-submission-id="' . $data->PriceSubmissionID . '" data-stock-order-id="' . $data->StockOrderID . '">Tolak</a>';
                 })
                 ->filterColumn('Sales', function ($query, $keyword) {
-                    $sql = "CONCAT(tmo.SalesCode,' - ',ms_sales.SalesName)  like ?";
+                    $sql = "CONCAT(ms_sales.SalesCode,' - ',ms_sales.SalesName)  like ?";
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 })
                 ->rawColumns(['StockOrderID', 'FinalEstMarginSubmission', 'Detail', 'Confirmation'])
@@ -1792,10 +1793,11 @@ class DistributionController extends Controller
             ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', 'ms_distributor_merchant_grade.GradeID')
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tx_merchant_order.DistributorID')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
-            ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'tx_merchant_order.SalesCode')
+            ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
+            // ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'tx_merchant_order.SalesCode')
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tx_merchant_order.StatusOrderID')
             ->where('ms_price_submission.PriceSubmissionID', $priceSubmissionID)
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.DistributorID', 'ms_distributor.DistributorName', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order.SalesCode', 'ms_sales.SalesName', 'ms_distributor_grade.Grade', 'ms_status_order.StatusOrder', 'ms_price_submission.PriceSubmissionID', 'ms_price_submission.StatusPriceSubmission', 'ms_price_submission.CreatedBy', 'ms_price_submission.CreatedDate as SubmissionDate', 'ms_price_submission.ConfirmBy', 'ms_price_submission.ConfirmDate', 'ms_price_submission.Note', 'tx_merchant_order.PaymentMethodID')
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.DistributorID', 'ms_distributor.DistributorName', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'ms_merchant_account.SalesCode', 'ms_sales.SalesName', 'ms_distributor_grade.Grade', 'ms_status_order.StatusOrder', 'ms_price_submission.PriceSubmissionID', 'ms_price_submission.StatusPriceSubmission', 'ms_price_submission.CreatedBy', 'ms_price_submission.CreatedDate as SubmissionDate', 'ms_price_submission.ConfirmBy', 'ms_price_submission.ConfirmDate', 'ms_price_submission.Note', 'tx_merchant_order.PaymentMethodID')
             ->first();
 
         $countPOselesai = DB::table('tx_merchant_order')
@@ -2000,10 +2002,11 @@ class DistributionController extends Controller
             ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', 'ms_distributor_merchant_grade.GradeID')
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tx_merchant_order.DistributorID')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
-            ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'tx_merchant_order.SalesCode')
+            ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
+            // ->leftJoin('ms_sales', 'ms_sales.SalesCode', '=', 'tx_merchant_order.SalesCode')
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tx_merchant_order.StatusOrderID')
             ->where('tx_merchant_order.StockOrderID', $stockOrderID)
-            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.DistributorID', 'ms_distributor.DistributorName', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'tx_merchant_order.SalesCode', 'ms_sales.SalesName', 'ms_distributor_grade.Grade', 'ms_status_order.StatusOrder', 'tx_merchant_order.PaymentMethodID')
+            ->select('tx_merchant_order.StockOrderID', 'tx_merchant_order.CreatedDate', 'tx_merchant_order.DistributorID', 'ms_distributor.DistributorName', 'tx_merchant_order.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.Partner', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'tx_merchant_order.StatusOrderID', 'tx_merchant_order.TotalPrice', 'tx_merchant_order.DiscountPrice', 'tx_merchant_order.DiscountVoucher', 'tx_merchant_order.NettPrice', 'tx_merchant_order.ServiceChargeNett', 'tx_merchant_order.DeliveryFee', 'ms_payment_method.PaymentMethodName', 'ms_sales.SalesCode', 'ms_sales.SalesName', 'ms_distributor_grade.Grade', 'ms_status_order.StatusOrder', 'tx_merchant_order.PaymentMethodID')
             ->first();
 
         $countPOselesai = DB::table('tx_merchant_order')
