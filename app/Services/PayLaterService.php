@@ -46,7 +46,7 @@ class PayLaterService
         ANY_VALUE(ms_status_order.StatusOrder) AS StatusOrder,
         ANY_VALUE(ms_distributor.DistributorName) AS DistributorName,
         MAX(tx_merchant_delivery_order_log.ProcessTime) AS DeliveryDate,
-        CONCAT(ANY_VALUE(tx_merchant_order.SalesCode), ' ', ANY_VALUE(ms_sales.SalesName)) AS Sales,
+        CONCAT(ANY_VALUE(ms_sales.SalesCode), ' ', ANY_VALUE(ms_sales.SalesName)) AS Sales,
         (
           SELECT CONCAT('DO ke-', COUNT(*)) FROM tx_merchant_delivery_order
           WHERE tx_merchant_delivery_order.CreatedDate <= tmdo.CreatedDate

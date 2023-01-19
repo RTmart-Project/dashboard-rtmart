@@ -985,7 +985,7 @@ class SummaryService
                 tx_merchant_order.StockOrderID,
                 ANY_VALUE(tx_merchant_order.CreatedDate) AS DatePO,
                 ANY_VALUE(ms_distributor.DistributorName) AS DistributorName,
-                ANY_VALUE(tx_merchant_order.SalesCode) AS SalesCode,
+                ANY_VALUE(ms_sales.SalesCode) AS SalesCode,
                 ANY_VALUE(ms_sales.SalesName) AS SalesName,
                 tx_merchant_delivery_order.DeliveryOrderID,
                 tx_merchant_delivery_order.CreatedDate AS DateDO,
@@ -1030,7 +1030,7 @@ class SummaryService
 
     if ($salesCode) {
       $stringSalesCode = "'" . implode("', '", $salesCode) . "'";
-      $subSql->whereRaw("tx_merchant_order.SalesCode IN ($stringSalesCode)");
+      $subSql->whereRaw("ms_sales.SalesCode IN ($stringSalesCode)");
     }
 
     if ($depoUser != "ALL" && !$distributorID) {

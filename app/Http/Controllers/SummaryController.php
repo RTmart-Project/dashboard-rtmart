@@ -152,13 +152,13 @@ class SummaryController extends Controller
         $depoUser = Auth::user()->Depo;
         $regionalUser = Auth::user()->Regional;
 
-        if ($depoUser == "ALL" && !$regionalUser && !$distributorID) {
+        if ($depoUser == "ALL" && !$regionalUser && $distributorID = null) {
             $distributorID = "D-2004-000002,D-2212-000001,D-2004-000006,D-2004-000005,D-2004-000001";
         }
-        if ($regionalUser == "REGIONAL1" && $depoUser == "ALL" && !$distributorID) {
+        if ($regionalUser == "REGIONAL1" && $depoUser == "ALL" && $distributorID = null) {
             $distributorID = "D-2004-000002,D-2212-000001";
         }
-        if ($regionalUser == "REGIONAL2" && $depoUser == "ALL" && !$distributorID) {
+        if ($regionalUser == "REGIONAL2" && $depoUser == "ALL" && $distributorID = null) {
             $distributorID = "D-2004-000006,D-2004-000005,D-2004-000001";
         }
 
