@@ -10,7 +10,8 @@ class InvoiceController extends Controller
     {
         $merchant = DB::table('tx_merchant_order')
             ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
-            ->leftJoin('ms_sales', 'tx_merchant_order.SalesCode', 'ms_sales.SalesCode')
+            // ->leftJoin('ms_sales', 'tx_merchant_order.SalesCode', 'ms_sales.SalesCode')
+            ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tx_merchant_order.StatusOrderID')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', 'tx_merchant_order.PaymentMethodID')
             ->where('tx_merchant_order.StockOrderID', $stockOrderId)
@@ -41,7 +42,8 @@ class InvoiceController extends Controller
         $merchant = DB::table('tx_merchant_order')
             ->join('tx_merchant_delivery_order', 'tx_merchant_delivery_order.StockOrderID', 'tx_merchant_order.StockOrderID')
             ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
-            ->leftJoin('ms_sales', 'tx_merchant_order.SalesCode', 'ms_sales.SalesCode')
+            // ->leftJoin('ms_sales', 'tx_merchant_order.SalesCode', 'ms_sales.SalesCode')
+            ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
             ->join('ms_status_order', 'ms_status_order.StatusOrderID', 'tx_merchant_delivery_order.StatusDO')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', 'tx_merchant_order.PaymentMethodID')
             ->leftJoin('tx_merchant_delivery_order_log', function ($join) {

@@ -321,7 +321,7 @@ class DeliveryOrderService
         GROUP_CONCAT(CONCAT(ms_product.ProductName, ' (', tx_merchant_delivery_order_detail.Qty, 'pcs)') SEPARATOR ',<br> ') AS Products,
         ANY_VALUE(ms_merchant_account.PhoneNumber) AS PhoneNumber,
         ANY_VALUE(ms_merchant_account.StoreAddress) AS StoreAddress,
-        ANY_VALUE(CONCAT(tx_merchant_order.SalesCode, ' - ', ms_sales.SalesName)) AS Sales,
+        ANY_VALUE(CONCAT(ms_sales.SalesCode, ' - ', ms_sales.SalesName)) AS Sales,
         ANY_VALUE(ms_merchant_account.Partner) AS Partner,
         ANY_VALUE(IFNULL(ms_distributor_grade.Grade, 'Retail')) AS Grade,
         ANY_VALUE(tx_merchant_order.OrderLatitude) AS OrderLatitude,
