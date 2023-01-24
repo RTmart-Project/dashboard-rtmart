@@ -28,7 +28,8 @@ class RTSalesService
         GROUP_CONCAT(ms_product_group.ProductGroupName) AS ProductGroupName,
         CONCAT(ms_sales.TeamBy, ' ', ANY_VALUE(ms_team_name.TeamName)) AS Team
       ")
-      ->groupBy('ms_sales.SalesCode');
+      ->groupBy('ms_sales.SalesCode')
+      ->orderBy('ms_sales.IsActive', 'DESC');
 
     return $sql;
   }

@@ -80,7 +80,7 @@ $(document).ready(function () {
                     data: "BirthDateCouple",
                     name: "ms_merchant_account.BirthDateCouple",
                 },
-                // 11
+                // index ke 11
                 {
                     data: "CountTrx",
                     name: "CountTrx",

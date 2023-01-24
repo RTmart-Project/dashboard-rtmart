@@ -58,7 +58,7 @@
                 <select class="form-control form-control-sm selectpicker border" name="status" id="status"
                   title="Filter Status Membership" multiple>
                   @foreach ($statusMembership as $status)
-                    <option value="{{ $status->StatusCouplePreneurID }}">{{ $status->StatusName }}</option>
+                  <option value="{{ $status->StatusCouplePreneurID }}">{{ $status->StatusName }}</option>
                   @endforeach
                 </select>
               </div>
@@ -162,7 +162,7 @@
         </button>
       </div>
       <div class="modal-body" id="form-crowdo">
-        
+
       </div>
     </div>
   </div>
