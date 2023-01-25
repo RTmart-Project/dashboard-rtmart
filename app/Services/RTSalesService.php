@@ -90,7 +90,7 @@ class RTSalesService
                     FROM tx_merchant_order
                     JOIN ms_merchant_account ON ms_merchant_account.MerchantID = tx_merchant_order.MerchantID
                     WHERE ms_merchant_account.ReferralCode = msales.SalesCode
-                    AND (tx_merchant_order.CreatedDate BETWEEN '$startDateFormat' AND '$endDateFormat')
+                    AND (tx_merchant_order.CreatedDate BETWEEN '$startDateFormat 00:00:00' AND '$endDateFormat 23:59:59')
                 ) AS Omzet
             ")
       ->groupBy('msales.SalesCode', 'msales.SalesName', 'msales.TeamBy', 'msales.Team');
