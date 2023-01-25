@@ -113,15 +113,19 @@ class MerchantMembershipService
     } else if ($status == 7) {
       $statusMembership = 2;
     }
+
     $sql = DB::transaction(function () use ($merchantID, $status, $dataCouplePreneurCrowdoLog, $statusMembership, $data, $dataCrowdo) {
       DB::table('ms_merchant_account')->where('MerchantID', $merchantID)->update([
         'StatusCrowdo' => $status,
         'ValidationStatusMembershipCouple' => $statusMembership
       ]);
+
       if ($status == 6) {
         DB::table('ms_merchant_account')->where('MerchantID', $merchantID)->update($dataCrowdo);
       }
+
       DB::table('ms_merchant_couple_preneur_crowdo_log')->insert($dataCouplePreneurCrowdoLog);
+
       if ($status == 6 || $status == 7) {
         DB::table('ms_merchant_couple_preneur_log')->insert([
           'MerchantID' => $merchantID,
