@@ -41,11 +41,12 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || (Auth::user()->RoleID == "AH")
-                    || Auth::user()->RoleID == "BM")
+                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI"
+                    || Auth::user()->RoleID == "AH" || Auth::user()->RoleID == "BM")
                     <div class="card-header">
-                        <a href="{{ route('distributor.addDistributor') }}" class="btn btn-sm btn-success"><i
-                                class="fas fa-plus"></i> Tambah Distributor</a>
+                        <a href="{{ route('distributor.addDistributor') }}" class="btn btn-sm btn-success">
+                            <i class="fas fa-plus"></i> Tambah Distributor
+                        </a>
                     </div>
                     @endif
                     <div class="card-body mt-2">
@@ -56,12 +57,13 @@
                                         <table class="table table-datatables">
                                             <thead>
                                                 <tr>
-                                                    <th>Distributor ID</th>
+                                                    <th>ID Distributor</th>
                                                     <th>Nama Distributor</th>
                                                     <th>Email</th>
-                                                    <th style="width: 40%">Alamat</th>
-                                                    <th>Created Date</th>
-                                                    <th>Action</th>
+                                                    <th style="width: 40%">Alamat Distributor</th>
+                                                    <th>Tanggal Dibuat</th>
+                                                    <th>Status</th>
+                                                    <th>Aksi</th>
                                                     <th>Produk</th>
                                                 </tr>
                                             </thead>

@@ -41,11 +41,12 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <a href="{{ route('distributor.account') }}" class="btn btn-sm btn-light mb-2"><i
-                                class="fas fa-arrow-left"></i>
-                            Kembali</a>
+                        <a href="{{ route('distributor.account') }}" class="btn btn-sm btn-light mb-2">
+                            <i class="fas fa-arrow-left"></i> Kembali
+                        </a>
                         <h6><strong>Distributor ID : </strong>{{ $distributorId }}</h6>
                         <h6><strong>Nama Distributor : </strong>{{ $distributor->DistributorName }}</h6>
+                        <h6><strong>Status : </strong>{{ ($distributor->IsActive == 1) ? "Aktif" : "Tidak Aktif" }}</h6>
                         <h6><strong>Alamat : </strong>{{ $distributor->Address }}</h6>
                     </div>
 
@@ -57,9 +58,9 @@
                                         <table class="table table-datatables">
                                             <thead>
                                                 <tr>
-                                                    <th>Product ID</th>
+                                                    <th>ID Produk</th>
                                                     <th>Nama Produk</th>
-                                                    <th>Gambar</th>
+                                                    <th>Foto Produk</th>
                                                     <th>Kategori</th>
                                                     <th>Tipe</th>
                                                     <th>Jenis</th>
@@ -67,6 +68,7 @@
                                                     <th>Harga</th>
                                                     <th>Grade</th>
                                                     <th>Pre Order</th>
+                                                    <th>Status</th>
                                                     <th>Action</th>
                                                 </tr>
                                             </thead>

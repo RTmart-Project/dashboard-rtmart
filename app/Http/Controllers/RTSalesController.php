@@ -211,7 +211,6 @@ class RTSalesController extends Controller
 
     public function updateSales(Request $request, $salesCode)
     {
-
         $request->validate([
             'sales_name' => 'string',
             'sales_level' => 'numeric',
@@ -219,7 +218,7 @@ class RTSalesController extends Controller
             'product_group.*' => 'exists:ms_product_group,ProductGroupID',
             'work_status' => 'exists:ms_sales_work_status,SalesWorkStatusID',
             // 'phone_number' => 'digits_between:10,13',
-            'email' => 'email:rfc',
+            // 'email' => 'email:rfc',
         ]);
 
         $data = [
@@ -282,6 +281,7 @@ class RTSalesController extends Controller
                     ->where('SalesCode', '=', $salesCode)
                     ->delete();
             });
+
             return redirect()->route('rtsales.saleslist')->with('success', 'Data Sales berhasil dihapus');
         } catch (\Throwable $th) {
             return redirect()->route('rtsales.saleslist')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
@@ -394,7 +394,6 @@ class RTSalesController extends Controller
             $dataValid = 0;
         }
 
-
         $update = DB::table('ms_visit_survey')
             ->where('VisitSurveyID', $visitSurveyID)
             ->update(['IsValid' => $dataValid]);
@@ -406,7 +405,6 @@ class RTSalesController extends Controller
             $status = "failed";
             $message = "Terjadi Kesalahan";
         }
-
 
         return response()->json([
             'status' => $status,

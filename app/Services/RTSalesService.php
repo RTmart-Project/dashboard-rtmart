@@ -55,8 +55,8 @@ class RTSalesService
     $endDate = new DateTime($toDate) ?? new DateTime();
     $startDateFormat = $startDate->format('Y-m-d');
     $endDateFormat = $endDate->format('Y-m-d');
-
     $rangeDayName = array();
+
     for ($date = $startDate; $date <= $endDate; $date->modify('+1 day')) {
       array_push($rangeDayName, $date->format('l'));
     }
@@ -78,19 +78,19 @@ class RTSalesService
                 msales.Team,
                 ANY_VALUE(ms_team_name.TeamName) AS NamaTeam,
                 (SELECT COUNT(ms_visit_plan.VisitPlanID) 
-                    FROM ms_visit_plan
-                    WHERE ms_visit_plan.SalesCode = msales.SalesCode
-                    AND ms_visit_plan.VisitDayName IN ($implodeRangeDayName)
+                  FROM ms_visit_plan
+                  WHERE ms_visit_plan.SalesCode = msales.SalesCode
+                  AND ms_visit_plan.VisitDayName IN ($implodeRangeDayName)
                 ) AS TargetCall,
                 COUNT(VisitResult.VisitResultID) AS Actual,
                 IFNULL(SUM(TIMESTAMPDIFF(MINUTE, VisitResult.SigninTime, VisitResult.SignoutTime)), 0) AS Duration,
                 IFNULL(MIN(VisitResult.SigninTime), 0) AS CheckIn,
                 IFNULL(MAX(VisitResult.SignoutTime), 0) AS CheckOut,
                 (SELECT IFNULL(SUM(tx_merchant_order.NettPrice), 0)
-                    FROM tx_merchant_order
-                    JOIN ms_merchant_account ON ms_merchant_account.MerchantID = tx_merchant_order.MerchantID
-                    WHERE ms_merchant_account.ReferralCode = msales.SalesCode
-                    AND (tx_merchant_order.CreatedDate BETWEEN '$startDateFormat 00:00:00' AND '$endDateFormat 23:59:59')
+                  FROM tx_merchant_order
+                  JOIN ms_merchant_account ON ms_merchant_account.MerchantID = tx_merchant_order.MerchantID
+                  WHERE ms_merchant_account.ReferralCode = msales.SalesCode
+                  AND (tx_merchant_order.CreatedDate BETWEEN '$startDateFormat 00:00:00' AND '$endDateFormat 23:59:59')
                 ) AS Omzet
             ")
       ->groupBy('msales.SalesCode', 'msales.SalesName', 'msales.TeamBy', 'msales.Team');

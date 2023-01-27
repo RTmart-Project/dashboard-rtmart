@@ -127,6 +127,7 @@ class DistributionController extends Controller
         $isValid = $request->input('is_valid');
         $validationNotes = $request->input('validation_notes');
         $update = $restockService->updateRestockValidation($stockOrderID, $isValid, $validationNotes);
+
         if ($update) {
             return redirect()->route('distribution.validationRestock')->with('success', 'Data PO berhasil divalidasi');
         } else {
@@ -759,11 +760,13 @@ class DistributionController extends Controller
             ->join('ms_distributor', 'ms_distributor.DistributorID', '=', 'tx_merchant_order.DistributorID')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
             ->where('StockOrderID', '=', $stockOrderID)
-            ->select('tx_merchant_order.PaymentMethodID', 'tx_merchant_order.DistributorID', 'tx_merchant_order.MerchantID', 'ms_merchant_account.MerchantFirebaseToken', 'ms_distributor.DistributorName', 'ms_payment_method.PaymentMethodCategory')->first();
+            ->select('tx_merchant_order.PaymentMethodID', 'tx_merchant_order.DistributorID', 'tx_merchant_order.MerchantID', 'ms_merchant_account.MerchantFirebaseToken', 'ms_distributor.DistributorName', 'ms_payment_method.PaymentMethodCategory')
+            ->first();
 
         $txMerchantOrderDetail = DB::table('tx_merchant_order_detail')
             ->where('StockOrderID', '=', $stockOrderID)
-            ->select('*')->get();
+            ->select('*')
+            ->get();
 
         $pesananBaru = "S009";
         $dikonfirmasi = "S010";
@@ -1017,7 +1020,8 @@ class DistributionController extends Controller
     {
         $stockOrderID = DB::table('tx_merchant_delivery_order')
             ->where('DeliveryOrderID', $deliveryOrderId)
-            ->select('StockOrderID', 'DriverID', 'VehicleID', 'VehicleLicensePlate')->first();
+            ->select('StockOrderID', 'DriverID', 'VehicleID', 'VehicleLicensePlate')
+            ->first();
 
         try {
             DB::transaction(function () use ($stockOrderID, $deliveryOrderId) {

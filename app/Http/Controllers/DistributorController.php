@@ -30,28 +30,35 @@ class DistributorController extends Controller
         $regionalUser = Auth::user()->Regional;
 
         $sqlAllAccount = DB::table('ms_distributor')
-            ->where('IsActive', 1)
-            ->select('DistributorID', 'DistributorName', 'Email', 'Address', 'CreatedDate')
-            ->orderByDesc('CreatedDate');
+            ->select('DistributorID', 'DistributorName', 'Email', 'Address', 'IsActive', 'CreatedDate')
+            ->where('DistributorID', '!=', 'D-0000-000000');
+
+        $data = $sqlAllAccount;
 
         if ($fromDate != '' && $toDate != '') {
-            $sqlAllAccount->whereDate('CreatedDate', '>=', $fromDate)
+            $data->whereDate('CreatedDate', '>=', $fromDate)
                 ->whereDate('CreatedDate', '<=', $toDate);
         }
 
         if ($depoUser != "ALL") {
-            $sqlAllAccount->where('ms_distributor.Depo', $depoUser);
+            $data->where('ms_distributor.Depo', $depoUser);
         }
         if ($regionalUser != NULL && $depoUser == "ALL") {
-            $sqlAllAccount->where('ms_distributor.Regional', $regionalUser);
+            $data->where('ms_distributor.Regional', $regionalUser);
         }
 
-
-        $data = $sqlAllAccount->get();
         if ($request->ajax()) {
             return Datatables::of($data)
                 ->editColumn('CreatedDate', function ($data) {
                     return date('d M Y H:i', strtotime($data->CreatedDate));
+                })
+                ->editColumn('IsActive', function ($data) {
+                    if ($data->IsActive === 1) {
+                        $isActive = "<span class='badge badge-success'>Aktif</span>";
+                    } else {
+                        $isActive = "<span class='badge badge-danger'>Tidak Aktif</span>";
+                    }
+                    return $isActive;
                 })
                 ->addColumn('Product', function ($data) {
                     $productBtn = '<a href="/distributor/account/product/' . $data->DistributorID . '" class="btn-sm btn-info">Detail</a>';
@@ -61,7 +68,11 @@ class DistributorController extends Controller
                     $actionBtn = '<a href="/distributor/account/edit/' . $data->DistributorID . '" class="btn-sm btn-warning">Edit</a>';
                     return $actionBtn;
                 })
-                ->rawColumns(['CreatedDate', 'Product', 'Action'])
+                ->filterColumn('DistributorID', function ($query, $keyword) {
+                    $sql = "DistributorID LIKE ?";
+                    $query->whereRaw($sql, ["%$keyword%"]);
+                })
+                ->rawColumns(['IsActive', 'CreatedDate', 'Product', 'Action'])
                 ->make(true);
         }
     }
@@ -132,8 +143,8 @@ class DistributorController extends Controller
     public function productDetails($distributorId)
     {
         $distributor = DB::table('ms_distributor')
-            ->where('ms_distributor.DistributorID', '=', $distributorId)
-            ->select('DistributorName', 'Address')
+            ->where('ms_distributor.DistributorID', $distributorId)
+            ->select('DistributorName', 'Address', 'IsActive')
             ->first();
 
         return view('distributor.product.index', [
@@ -151,7 +162,21 @@ class DistributorController extends Controller
             ->join('ms_product_type', 'ms_product_type.ProductTypeID', '=', 'ms_product.ProductTypeID')
             ->join('ms_product_uom', 'ms_product_uom.ProductUOMID', '=', 'ms_product.ProductUOMID')
             ->where('ms_distributor_product_price.DistributorID', '=', $distributorId)
-            ->select('ms_distributor_product_price.DistributorID', 'ms_distributor_product_price.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage', 'ms_product_category.ProductCategoryName', 'ms_product_type.ProductTypeName', 'ms_product_uom.ProductUOMName', 'ms_product.ProductUOMDesc', 'ms_distributor_product_price.Price', 'ms_distributor_product_price.GradeID', 'ms_distributor_grade.Grade', 'ms_distributor_product_price.IsPreOrder');
+            ->select(
+                'ms_distributor_product_price.DistributorID',
+                'ms_distributor_product_price.ProductID',
+                'ms_product.ProductName',
+                'ms_product.ProductImage',
+                'ms_product_category.ProductCategoryName',
+                'ms_product_type.ProductTypeName',
+                'ms_product_uom.ProductUOMName',
+                'ms_product.ProductUOMDesc',
+                'ms_distributor_product_price.Price',
+                'ms_distributor_product_price.GradeID',
+                'ms_distributor_product_price.IsActive',
+                'ms_distributor_grade.Grade',
+                'ms_distributor_product_price.IsPreOrder'
+            );
 
         $data = $distributorProducts->get();
 
@@ -177,18 +202,28 @@ class DistributorController extends Controller
                 })
                 ->editColumn('IsPreOrder', function ($data) {
                     if ($data->IsPreOrder == 1) {
-                        $preOrder = "Ya";
+                        // $preOrder = "Ya";
+                        $preOrder = "<span class='badge badge-success'>Ya</span>";
                     } else {
-                        $preOrder = "Tidak";
+                        // $preOrder = "Tidak";
+                        $preOrder = "<span class='badge badge-danger'>Tidak</span>";
                     }
                     return $preOrder;
+                })
+                ->editColumn('IsActive', function ($data) {
+                    if ($data->IsActive === 1) {
+                        $isActive = "<span class='badge badge-success'>Aktif</span>";
+                    } else {
+                        $isActive = "<span class='badge badge-danger'>Tidak Aktif</span>";
+                    }
+                    return $isActive;
                 })
                 ->addColumn('Action', function ($data) {
                     $actionBtn = '<a href="/distributor/account/product/edit/' . $data->DistributorID . '/' . $data->ProductID . '/' . $data->GradeID . '" class="btn btn-sm btn-warning mr-1">Edit</a>
                     <a data-distributor-id="' . $data->DistributorID . '" data-product-id="' . $data->ProductID . '" data-grade-id="' . $data->GradeID . '" data-product-name="' . $data->ProductName . '" data-grade-name="' . $data->Grade . '" href="#" class="btn-delete btn btn-sm btn-danger">Delete</a>';
                     return $actionBtn;
                 })
-                ->rawColumns(['Grade', 'ProductImage', 'Action'])
+                ->rawColumns(['Grade', 'ProductImage', 'Action', 'IsPreOrder', 'IsActive'])
                 ->make(true);
         }
     }
