@@ -30,22 +30,22 @@ class DistributorController extends Controller
         $regionalUser = Auth::user()->Regional;
 
         $sqlAllAccount = DB::table('ms_distributor')
-            ->select('DistributorID', 'DistributorName', 'Email', 'Address', 'IsActive', 'CreatedDate');
-            // ->orderBy('IsActive', 'ASC');
+            ->select('DistributorID', 'DistributorName', 'Email', 'Address', 'IsActive', 'CreatedDate')
+            ->where('DistributorID', '!=', 'D-0000-000000');
+
+        $data = $sqlAllAccount;
 
         if ($fromDate != '' && $toDate != '') {
-            $sqlAllAccount->whereDate('CreatedDate', '>=', $fromDate)
+            $data->whereDate('CreatedDate', '>=', $fromDate)
                 ->whereDate('CreatedDate', '<=', $toDate);
         }
 
         if ($depoUser != "ALL") {
-            $sqlAllAccount->where('ms_distributor.Depo', $depoUser);
+            $data->where('ms_distributor.Depo', $depoUser);
         }
         if ($regionalUser != NULL && $depoUser == "ALL") {
-            $sqlAllAccount->where('ms_distributor.Regional', $regionalUser);
+            $data->where('ms_distributor.Regional', $regionalUser);
         }
-
-        $data = $sqlAllAccount->get();
 
         if ($request->ajax()) {
             return Datatables::of($data)
@@ -67,6 +67,10 @@ class DistributorController extends Controller
                 ->addColumn('Action', function ($data) {
                     $actionBtn = '<a href="/distributor/account/edit/' . $data->DistributorID . '" class="btn-sm btn-warning">Edit</a>';
                     return $actionBtn;
+                })
+                ->filterColumn('DistributorID', function ($query, $keyword) {
+                    $sql = "DistributorID LIKE ?";
+                    $query->whereRaw($sql, ["%$keyword%"]);
                 })
                 ->rawColumns(['IsActive', 'CreatedDate', 'Product', 'Action'])
                 ->make(true);
