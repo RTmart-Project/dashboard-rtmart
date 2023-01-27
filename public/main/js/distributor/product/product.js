@@ -62,6 +62,10 @@ $(document).ready(function () {
                     name: "IsPreOrder",
                 },
                 {
+                    data: "IsActive",
+                    name: "IsActive",
+                },
+                {
                     data: "Action",
                     name: "Action",
                     searchable: false,
