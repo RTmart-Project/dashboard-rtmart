@@ -36,17 +36,21 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <a href="{{ route('distributor.account') }}" class="btn btn-sm btn-light"><i class="fas fa-arrow-left"></i>
-                            Kembali</a>
+                        <a href="{{ route('distributor.account') }}" class="btn btn-sm btn-light">
+                            <i class="fas fa-arrow-left"></i>
+                            Kembali
+                        </a>
                     </div>
                     <div class="card-body">
-                        <form id="edit-distributor" method="post" action="{{ route('distributor.updateAccount', ['distributorId' => $distributorById->DistributorID]) }}">
+                        <form id="edit-distributor" method="post"
+                            action="{{ route('distributor.updateAccount', ['distributorId' => $distributorById->DistributorID]) }}">
                             @csrf
                             <div class="row">
                                 <div class="col-md-4 col-12">
                                     <div class="form-group">
                                         <label>Distributor ID</label>
-                                        <input type="text" class="form-control" value="{{ $distributorById->DistributorID }}" readonly>
+                                        <input type="text" class="form-control"
+                                            value="{{ $distributorById->DistributorID }}" readonly>
                                     </div>
                                 </div>
                                 <div class="col-md-4 col-12">
@@ -54,7 +58,8 @@
                                         <label for="name">Nama Distributor</label>
                                         <input type="text" name="name"
                                             class="form-control @if($errors->has('name')) is-invalid @endif" id="name"
-                                            placeholder="Masukkan Nama Distributor" value="{{ $distributorById->DistributorName }}" required>
+                                            placeholder="Masukkan Nama Distributor"
+                                            value="{{ $distributorById->DistributorName }}" required>
                                         @if($errors->has('name'))
                                         <span class="error invalid-feedback">{{ $errors->first('name') }}</span>
                                         @endif
@@ -77,10 +82,11 @@
                                 <div class="col-md-12 col-12">
                                     <div class="form-group">
                                         <label for="address">Alamat</label>
-                                        <textarea name="address" id="address" rows="5" class="form-control 
+                                        <textarea name="address" id="address" rows="5"
+                                            class="form-control 
                                             @if($errors->has('address')) is-invalid @endif">{{ $distributorById->Address }}</textarea>
                                         @if($errors->has('address'))
-                                            <span class="error invalid-feedback">{{ $errors->first('address') }}</span>
+                                        <span class="error invalid-feedback">{{ $errors->first('address') }}</span>
                                         @endif
                                     </div>
                                 </div>

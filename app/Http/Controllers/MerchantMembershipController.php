@@ -42,7 +42,6 @@ class MerchantMembershipController extends Controller
         }
 
         if ($filterStatus) {
-            // $stringStatus = "'" . implode("', '", $filterStatus) . "'";
             $sqlMembership->whereIn('ms_merchant_account.ValidationStatusMembershipCouple', $filterStatus);
         }
 
@@ -220,7 +219,6 @@ class MerchantMembershipController extends Controller
             $this->merchantMembershipService->updateStatusCrowdo($merchantID, $status, $dataCrowdo, $dataCouplePreneurCrowdoLog);
             return redirect()->route('merchant.membership')->with('success', 'Status Crowdo Merchant berhasil di-update');
         } catch (\Throwable $th) {
-            dd($th->getMessage());
             return redirect()->route('merchant.membership')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
         }
     }
