@@ -43,6 +43,10 @@ $(document).ready(function () {
                     type: "date",
                 },
                 {
+                    data: "IsActive",
+                    name: "IsActive",
+                },
+                {
                     data: "Action",
                     name: "Action",
                     orderable: false,
@@ -80,7 +84,7 @@ $(document).ready(function () {
                     visible: roleID != "HL" ? true : false,
                 },
             ],
-            order: [4, "desc"],
+            order: [5, 'asc'],
             lengthChange: false,
             responsive: true,
             autoWidth: false,

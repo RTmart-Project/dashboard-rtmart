@@ -30,9 +30,8 @@ class DistributorController extends Controller
         $regionalUser = Auth::user()->Regional;
 
         $sqlAllAccount = DB::table('ms_distributor')
-            ->where('IsActive', 1)
-            ->select('DistributorID', 'DistributorName', 'Email', 'Address', 'CreatedDate')
-            ->orderByDesc('CreatedDate');
+            ->select('DistributorID', 'DistributorName', 'Email', 'Address', 'IsActive', 'CreatedDate');
+            // ->orderBy('IsActive', 'ASC');
 
         if ($fromDate != '' && $toDate != '') {
             $sqlAllAccount->whereDate('CreatedDate', '>=', $fromDate)
@@ -46,12 +45,20 @@ class DistributorController extends Controller
             $sqlAllAccount->where('ms_distributor.Regional', $regionalUser);
         }
 
-
         $data = $sqlAllAccount->get();
+
         if ($request->ajax()) {
             return Datatables::of($data)
                 ->editColumn('CreatedDate', function ($data) {
                     return date('d M Y H:i', strtotime($data->CreatedDate));
+                })
+                ->editColumn('IsActive', function ($data) {
+                    if ($data->IsActive === 1) {
+                        $isActive = "<span class='badge badge-success'>Aktif</span>";
+                    } else {
+                        $isActive = "<span class='badge badge-danger'>Tidak Aktif</span>";
+                    }
+                    return $isActive;
                 })
                 ->addColumn('Product', function ($data) {
                     $productBtn = '<a href="/distributor/account/product/' . $data->DistributorID . '" class="btn-sm btn-info">Detail</a>';
@@ -61,7 +68,7 @@ class DistributorController extends Controller
                     $actionBtn = '<a href="/distributor/account/edit/' . $data->DistributorID . '" class="btn-sm btn-warning">Edit</a>';
                     return $actionBtn;
                 })
-                ->rawColumns(['CreatedDate', 'Product', 'Action'])
+                ->rawColumns(['IsActive', 'CreatedDate', 'Product', 'Action'])
                 ->make(true);
         }
     }

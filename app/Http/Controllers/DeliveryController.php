@@ -529,6 +529,7 @@ class DeliveryController extends Controller
                     ->where('MerchantExpeditionID', $expeditionID)
                     ->update($dataUpdateExpedition);
                 DB::table('tx_merchant_expedition_log')->insert($dataExpeditionLog);
+
                 foreach ($getDOandSO as $key => $value) {
                     $getDOdetail = DB::table('tx_merchant_delivery_order')
                         ->join('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID')
@@ -549,8 +550,6 @@ class DeliveryController extends Controller
 
                     if ($status == "finish") {
                         $statusDO = "S025";
-                        // $countSelesai = $getDOdetail->where('tx_merchant_expedition_detail.StatusExpeditionDetail', '!=', 'S031')->count();
-                        // if ($countSelesai == 0) {
                         DB::table('tx_merchant_delivery_order')
                             ->where('DeliveryOrderID', $value->DeliveryOrderID)
                             ->where('StockOrderID', $value->StockOrderID)
@@ -558,7 +557,6 @@ class DeliveryController extends Controller
                                 'StatusDO' => $statusDO,
                                 'FinishDate' => date('Y-m-d H:i:s')
                             ]);
-                        // }
                     } else {
                         $statusDO = $value->StatusDO;
                         DB::table('tx_merchant_delivery_order_detail')
@@ -603,6 +601,7 @@ class DeliveryController extends Controller
                     ]);
                 }
             });
+
             return redirect()->route('delivery.expedition')->with('success', $message);
         } catch (\Throwable $th) {
             return redirect()->route('delivery.expedition')->with('failed', $th->getMessage());
@@ -666,18 +665,8 @@ class DeliveryController extends Controller
                     (clone $expeditionDetail)->update([
                         'StatusExpeditionDetail' => $statusExpedition
                     ]);
+
                     $deliveryOrderService->cancelProductExpedition($expeditionDetailID, $DOdetail->Qty, "GOOD STOCK");
-                    // DB::table('tx_merchant_delivery_order')
-                    //     ->whereRaw("DeliveryOrderID = (SELECT DeliveryOrderID FROM `tx_merchant_delivery_order_detail` 
-                    //         WHERE `DeliveryOrderDetailID` = (SELECT DeliveryOrderDetailID 
-                    //             FROM `tx_merchant_expedition_detail` 
-                    //             WHERE `MerchantExpeditionDetailID` = $expeditionDetailID
-                    //             )
-                    //         )
-                    //     ")
-                    //     ->update([
-                    //         'StatusDO' => "S026"
-                    //     ]);
                 }
             });
             return redirect()->back()->with('success', $message);
@@ -770,18 +759,15 @@ class DeliveryController extends Controller
                     DB::table('tx_merchant_delivery_order_detail')
                         ->where('DeliveryOrderID', $deliveryOrderID)
                         ->where('Distributor', 'HAISTAR')
-                        ->update([
-                            'StatusExpedition' => 'S038'
-                        ]);
+                        ->update(['StatusExpedition' => 'S038']);
                     DB::table('tx_merchant_expedition_detail')
                         ->where('MerchantExpeditionID', $expeditionID)
                         ->whereRaw("DeliveryOrderDetailID IN (
                             SELECT DeliveryOrderDetailID FROM tx_merchant_delivery_order_detail
                             WHERE DeliveryOrderID = '$deliveryOrderID' AND Distributor = 'HAISTAR')")
-                        ->update([
-                            'StatusExpeditionDetail' => 'S038'
-                        ]);
+                        ->update(['StatusExpeditionDetail' => 'S038']);
                 });
+
                 return redirect()->back()->with('success', 'Request Cancel berhasil dibuat');
             } catch (\Throwable $th) {
                 return redirect()->back()->with('failed', 'Terjadi kesalahan');
