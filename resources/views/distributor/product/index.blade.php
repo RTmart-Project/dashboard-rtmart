@@ -67,6 +67,7 @@
                                                     <th>Harga</th>
                                                     <th>Grade</th>
                                                     <th>Pre Order</th>
+                                                    <th>Status</th>
                                                     <th>Action</th>
                                                 </tr>
                                             </thead>
