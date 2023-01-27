@@ -36,9 +36,10 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <a href="{{ route('distributor.account') }}" class="btn btn-sm btn-light"><i
-                                class="fas fa-arrow-left"></i>
-                            Kembali</a>
+                        <a href="{{ route('distributor.account') }}" class="btn btn-sm btn-light">
+                            <i class="fas fa-arrow-left"></i>
+                            Kembali
+                        </a>
                     </div>
                     <div class="card-body">
                         <form id="add-distributor" method="post" action="{{ route('distributor.insertDistributor') }}">
@@ -48,10 +49,11 @@
                                     <div class="form-group">
                                         <label for="distributorname">Nama Distributor</label>
                                         <input type="text" name="distributorname"
-                                            class="form-control @if($errors->has('name')) is-invalid @endif" id="distributorname"
-                                            placeholder="Masukkan Nama Distributor">
+                                            class="form-control @if($errors->has('name')) is-invalid @endif"
+                                            id="distributorname" placeholder="Masukkan Nama Distributor">
                                         @if($errors->has('distributorname'))
-                                        <span class="error invalid-feedback">{{ $errors->first('distributorname') }}</span>
+                                        <span class="error invalid-feedback">{{ $errors->first('distributorname')
+                                            }}</span>
                                         @endif
                                     </div>
                                 </div>

@@ -127,26 +127,6 @@
               </div>
             </div>
           </div>
-          {{-- <div class="col-md-4 col-6">
-            <div class="info-box">
-              <span class="info-box-icon bg-success elevation-1"><i class="fas fa-shopping-cart"></i></span>
-              <div class="info-box-content">
-                <span class="info-box-text no-wrap h6 mb-2"><a id="count-total-po-link" target="_blank">Jumlah
-                    PO</a></span>
-                <span class="info-box-number h6 m-0" id="count-total-po"></span>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4 col-6">
-            <div class="info-box">
-              <span class="info-box-icon bg-success elevation-1"><i class="fas fa-store"></i></span>
-              <div class="info-box-content">
-                <span class="info-box-text no-wrap h6 mb-2"><a id="count-merchant-po-link" target="_blank">Jumlah
-                    Toko</a></span>
-                <span class="info-box-number h6 m-0" id="count-merchant-po"></span>
-              </div>
-            </div>
-          </div> --}}
           <div class="col-md-4 col-6">
             <div class="info-box">
               <span class="info-box-icon bg-success elevation-1"><i class="fas fa-search-dollar"></i></span>
@@ -217,26 +197,6 @@
               </div>
             </div>
           </div>
-          {{-- <div class="col-md-4 col-6">
-            <div class="info-box">
-              <span class="info-box-icon bg-info elevation-1"><i class="fas fa-truck"></i></span>
-              <div class="info-box-content">
-                <span class="info-box-text no-wrap h6 mb-2"><a id="count-total-do-link" target="_blank">Jumlah
-                    DO</a></span>
-                <span class="info-box-number h6 m-0" id="count-total-do"></span>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-4 col-6">
-            <div class="info-box">
-              <span class="info-box-icon bg-info elevation-1"><i class="fas fa-store"></i></span>
-              <div class="info-box-content">
-                <span class="info-box-text no-wrap h6 mb-2"><a id="count-merchant-do-link" target="_blank">Jumlah
-                    Toko</a></span>
-                <span class="info-box-number h6 m-0" id="count-merchant-do"></span>
-              </div>
-            </div>
-          </div> --}}
           <div class="col-md-4 col-6">
             <div class="info-box">
               <span class="info-box-icon bg-info elevation-1"><i class="fas fa-search-dollar"></i></span>

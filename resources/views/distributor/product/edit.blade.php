@@ -34,7 +34,8 @@
                     <div class="card-header">
                         <a href="{{ route('distributor.productDetails', ['distributorId' => $distributorId]) }}"
                             class="btn btn-sm btn-light mb-2"><i class="fas fa-arrow-left"></i>
-                            Kembali</a>
+                            Kembali
+                        </a>
                         <h6><strong>Distributor ID : </strong>{{ $distributorId }}</h6>
                         <h6><strong>Nama Distributor : </strong>{{ $distributorProduct->DistributorName }}</h6>
                         <h6><strong>Alamat : </strong>{{ $distributorProduct->Address }}</h6>

@@ -843,22 +843,37 @@ class SummaryService
 
   public function dataFilter($startDate, $endDate, $distributorID, $salesCode, $typePO, $partner)
   {
-    $sqlFilterDepo = DB::table('ms_distributor')->whereIn('DistributorID', explode(",", $distributorID))->select('DistributorName')->get()->toArray();
+    $sqlFilterDepo = DB::table('ms_distributor')
+      ->whereIn('DistributorID', explode(",", $distributorID))
+      ->select('DistributorName')
+      ->get()->toArray();
+
     $arrayDepo = array_map(function ($value) {
       return $value->DistributorName;
     }, $sqlFilterDepo);
+
     $filterDepo = implode(" <b>|</b> ", $arrayDepo);
 
-    $sqlFilterSales = DB::table('ms_sales')->whereIn('SalesCode', explode(",", $salesCode))->select('SalesCode', 'SalesName')->get()->toArray();
+    $sqlFilterSales = DB::table('ms_sales')
+      ->whereIn('SalesCode', explode(",", $salesCode))
+      ->select('SalesCode', 'SalesName')
+      ->get()->toArray();
+
     $arraySales = array_map(function ($value) {
       return $value->SalesCode . ' - ' . $value->SalesName;
     }, $sqlFilterSales);
+
     $filterSales = implode(" <b>|</b> ", $arraySales);
 
-    $sqlFilterPartner = DB::table('ms_partner')->whereIn('PartnerID', explode(",", $partner))->select('Name')->get()->toArray();
+    $sqlFilterPartner = DB::table('ms_partner')
+      ->whereIn('PartnerID', explode(",", $partner))
+      ->select('Name')
+      ->get()->toArray();
+
     $arrayPartner = array_map(function ($value) {
       return $value->Name;
     }, $sqlFilterPartner);
+
     $filterPartner = implode(" <b>|</b> ", $arrayPartner);
 
     $dataFilter = new stdClass;

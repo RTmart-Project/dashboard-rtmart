@@ -71,7 +71,7 @@
               </div>
               <div class="col-6">
                 <h6><strong>Partner : </strong>{!! $dataFilter->partner !!}</h6>
-                <h6><strong>Distributor : </strong>{!! $dataFilter->distributor !!}</h6>
+                <h6><strong>Distributor : </strong>{{ $dataFilter->distributor }}</h6>
                 <h6><strong>Sales : </strong>{!! $dataFilter->sales !!}</h6>
               </div>
             </div>
