@@ -143,8 +143,8 @@ class DistributorController extends Controller
     public function productDetails($distributorId)
     {
         $distributor = DB::table('ms_distributor')
-            ->where('ms_distributor.DistributorID', '=', $distributorId)
-            ->select('DistributorName', 'Address')
+            ->where('ms_distributor.DistributorID', $distributorId)
+            ->select('DistributorName', 'Address', 'IsActive')
             ->first();
 
         return view('distributor.product.index', [
@@ -202,9 +202,11 @@ class DistributorController extends Controller
                 })
                 ->editColumn('IsPreOrder', function ($data) {
                     if ($data->IsPreOrder == 1) {
-                        $preOrder = "Ya";
+                        // $preOrder = "Ya";
+                        $preOrder = "<span class='badge badge-success'>Ya</span>";
                     } else {
-                        $preOrder = "Tidak";
+                        // $preOrder = "Tidak";
+                        $preOrder = "<span class='badge badge-danger'>Tidak</span>";
                     }
                     return $preOrder;
                 })
@@ -221,7 +223,7 @@ class DistributorController extends Controller
                     <a data-distributor-id="' . $data->DistributorID . '" data-product-id="' . $data->ProductID . '" data-grade-id="' . $data->GradeID . '" data-product-name="' . $data->ProductName . '" data-grade-name="' . $data->Grade . '" href="#" class="btn-delete btn btn-sm btn-danger">Delete</a>';
                     return $actionBtn;
                 })
-                ->rawColumns(['Grade', 'ProductImage', 'Action', 'IsActive'])
+                ->rawColumns(['Grade', 'ProductImage', 'Action', 'IsPreOrder', 'IsActive'])
                 ->make(true);
         }
     }
