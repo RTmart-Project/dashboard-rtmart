@@ -20,7 +20,6 @@
 <!-- Main content -->
 <div class="content">
   <div class="container-fluid">
-
     <!-- Table -->
     <div class="row">
       <div class="col-12">
@@ -85,13 +84,15 @@
                           <div class="col-12 col-md-4">
                             <div class="form-group">
                               <label for="nominal">Nominal Bayar</label>
-                              <input type="text" name="nominal" class="form-control autonumeric" id="nominal" placeholder="Masukkan Nominal Bayar" required>
+                              <input type="text" name="nominal" class="form-control autonumeric" id="nominal"
+                                placeholder="Masukkan Nominal Bayar" required>
                             </div>
                           </div>
                           <div class="col-12 col-md-4">
                             <div class="form-group">
                               <label for="payment_slip">Bukti Bayar</label>
-                              <input type="file" name="payment_slip" class="form-control" id="payment_slip" onchange="loadFile(event)" required>
+                              <input type="file" name="payment_slip" class="form-control" id="payment_slip"
+                                onchange="loadFile(event)" required>
                             </div>
                           </div>
                           <div class="col-12 text-md-center d-none" id="img_output">
@@ -108,7 +109,8 @@
                 </div>
 
                 {{-- Modal Konfirmasi --}}
-                <div class="modal fade" id="modalKonfirmasi" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel2" aria-hidden="true">
+                <div class="modal fade" id="modalKonfirmasi" tabindex="-1" role="dialog"
+                  aria-labelledby="exampleModalLabel2" aria-hidden="true">
                   <div class="modal-dialog" role="document">
                     <div class="modal-content">
                       <div class="modal-header">
@@ -121,14 +123,14 @@
                         <h5>Apakah data pelunasan yang dimasukkan sudah benar?</h5>
                       </div>
                       <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal" data-toggle="modal" data-target="#modal-payment">Kembali</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal" data-toggle="modal"
+                          data-target="#modal-payment">Kembali</button>
                         <button type="submit" class="btn btn-success">Ya</button>
                       </div>
                     </div>
                   </div>
                 </div>
               </form>
-              
             </div>
           </div>
         </div>
