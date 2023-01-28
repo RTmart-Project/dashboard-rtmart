@@ -337,6 +337,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,RBTAD,HL,SM,SV,AD']], function () {
         Route::get('/distributor/account', [DistributorController::class, 'account'])->name('distributor.account');
         Route::get('/distributor/account/get', [DistributorController::class, 'getAccounts'])->withoutMiddleware('checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,RBTAD,SM')->name('distributor.getAccounts');
+        Route::get('/distributor/account/getAllDistributor', [DistributorController::class, 'getAllAccounts'])->withoutMiddleware('checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,RBTAD,SM')->name('distributor.getAccounts');
         Route::get('/distributor/account/add', [DistributorController::class, 'addDistributor'])->name('distributor.addDistributor');
         Route::post('/distributor/account/insert', [DistributorController::class, 'insertDistributor'])->name('distributor.insertDistributor');
         Route::get('/distributor/account/edit/{distributorId}', [DistributorController::class, 'editAccount'])->name('distributor.editAccount');

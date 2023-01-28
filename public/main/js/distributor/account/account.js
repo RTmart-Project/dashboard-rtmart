@@ -14,7 +14,7 @@ $(document).ready(function () {
             serverSide: false,
             stateServe: true,
             ajax: {
-                url: "/distributor/account/get",
+                url: "/distributor/account/getAllDistributor",
                 data: function (d) {
                     d.fromDate = $("#distributor-account #from_date").val();
                     d.toDate = $("#distributor-account #to_date").val();
