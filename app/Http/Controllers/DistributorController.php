@@ -31,6 +31,62 @@ class DistributorController extends Controller
 
         $sqlAllAccount = DB::table('ms_distributor')
             ->select('DistributorID', 'DistributorName', 'Email', 'Address', 'IsActive', 'CreatedDate')
+            ->where('IsActive', 1)
+            ->where('DistributorID', '!=', 'D-0000-000000');
+
+        $data = $sqlAllAccount;
+
+        if ($fromDate != '' && $toDate != '') {
+            $data->whereDate('CreatedDate', '>=', $fromDate)
+                ->whereDate('CreatedDate', '<=', $toDate);
+        }
+
+        if ($depoUser != "ALL") {
+            $data->where('ms_distributor.Depo', $depoUser);
+        }
+        if ($regionalUser != NULL && $depoUser == "ALL") {
+            $data->where('ms_distributor.Regional', $regionalUser);
+        }
+
+        if ($request->ajax()) {
+            return Datatables::of($data)
+                ->editColumn('CreatedDate', function ($data) {
+                    return date('d M Y H:i', strtotime($data->CreatedDate));
+                })
+                ->editColumn('IsActive', function ($data) {
+                    if ($data->IsActive === 1) {
+                        $isActive = "<span class='badge badge-success'>Aktif</span>";
+                    } else {
+                        $isActive = "<span class='badge badge-danger'>Tidak Aktif</span>";
+                    }
+                    return $isActive;
+                })
+                ->addColumn('Product', function ($data) {
+                    $productBtn = '<a href="/distributor/account/product/' . $data->DistributorID . '" class="btn-sm btn-info">Detail</a>';
+                    return $productBtn;
+                })
+                ->addColumn('Action', function ($data) {
+                    $actionBtn = '<a href="/distributor/account/edit/' . $data->DistributorID . '" class="btn-sm btn-warning">Edit</a>';
+                    return $actionBtn;
+                })
+                ->filterColumn('DistributorID', function ($query, $keyword) {
+                    $sql = "DistributorID LIKE ?";
+                    $query->whereRaw($sql, ["%$keyword%"]);
+                })
+                ->rawColumns(['IsActive', 'CreatedDate', 'Product', 'Action'])
+                ->make(true);
+        }
+    }
+
+    public function getAllAccounts(Request $request)
+    {
+        $fromDate = $request->input('fromDate');
+        $toDate = $request->input('toDate');
+        $depoUser = Auth::user()->Depo;
+        $regionalUser = Auth::user()->Regional;
+
+        $sqlAllAccount = DB::table('ms_distributor')
+            ->select('DistributorID', 'DistributorName', 'Email', 'Address', 'IsActive', 'CreatedDate')
             ->where('DistributorID', '!=', 'D-0000-000000');
 
         $data = $sqlAllAccount;

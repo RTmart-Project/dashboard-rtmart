@@ -164,6 +164,7 @@ class SummaryController extends Controller
 
         if ($typePO != null) {
             $filterPO = explode(",", $typePO);
+            $typePO = implode(", ", $filterPO);
         } else {
             $filterPO = $typePO;
         }
