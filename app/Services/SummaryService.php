@@ -597,7 +597,6 @@ class SummaryService
         ANY_VALUE(mma.OwnerFullName) AS OwnerFullName,
         ANY_VALUE(mma.PhoneNumber) AS PhoneNumber,
         ANY_VALUE(mma.StoreAddress) AS StoreAddress,
-        -- ANY_VALUE(mma.Partner) AS Partner,
         GROUP_CONCAT(ms_partner.Name SEPARATOR ', ') AS Partners,
         ANY_VALUE(ms_distributor.DistributorName) AS DistributorName,
         ANY_VALUE(ms_payment_method.PaymentMethodName) AS PaymentMethodName,
@@ -733,7 +732,6 @@ class SummaryService
         ANY_VALUE(mma.OwnerFullName) AS OwnerFullName,
         ANY_VALUE(mma.PhoneNumber) AS PhoneNumber,
         ANY_VALUE(mma.StoreAddress) AS StoreAddress,
-        -- ANY_VALUE(mma.Partner) AS Partner,
         GROUP_CONCAT(ms_partner.Name SEPARATOR ', ') AS Partners,
         ANY_VALUE(ms_distributor.DistributorName) AS DistributorName,
         ANY_VALUE(ms_payment_method.PaymentMethodName) AS PaymentMethodName,
@@ -743,6 +741,7 @@ class SummaryService
         ANY_VALUE(tmdod.Qty) AS Qty,
         ANY_VALUE(tmdod.Price) AS Price,
         ANY_VALUE(tmdod.Qty) * ANY_VALUE(tmdod.Price) as ValueProduct,
+        ANY_VALUE(tmo.Type) AS Type,
         tmdo.Discount,
         tmdo.ServiceCharge,
         tmdo.DeliveryFee,
@@ -852,7 +851,7 @@ class SummaryService
       return $value->DistributorName;
     }, $sqlFilterDepo);
 
-    $filterDepo = implode(" <b>|</b> ", $arrayDepo);
+    $filterDepo = implode(" | ", $arrayDepo);
 
     $sqlFilterSales = DB::table('ms_sales')
       ->whereIn('SalesCode', explode(",", $salesCode))
@@ -863,7 +862,7 @@ class SummaryService
       return $value->SalesCode . ' - ' . $value->SalesName;
     }, $sqlFilterSales);
 
-    $filterSales = implode(" <b>|</b> ", $arraySales);
+    $filterSales = implode(" | ", $arraySales);
 
     $sqlFilterPartner = DB::table('ms_partner')
       ->whereIn('PartnerID', explode(",", $partner))
@@ -874,7 +873,10 @@ class SummaryService
       return $value->Name;
     }, $sqlFilterPartner);
 
-    $filterPartner = implode(" <b>|</b> ", $arrayPartner);
+    $filterPartner = implode(" | ", $arrayPartner);
+
+    $typePO = explode(',', $typePO);
+    $typePO = implode(", ", $typePO);
 
     $dataFilter = new stdClass;
     $dataFilter->startDate = $startDate;
