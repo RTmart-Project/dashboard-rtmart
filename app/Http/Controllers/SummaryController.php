@@ -88,7 +88,8 @@ class SummaryController extends Controller
 
         $sales = DB::table('ms_sales')
             ->where('IsActive', 1)
-            ->select('SalesCode', 'SalesName');
+            ->select('SalesCode', 'SalesName')
+            ->orderBy('Team', 'ASC');
 
         if ($depoUser != "ALL") {
             $sales->where('Team', $depoUser);
@@ -164,7 +165,6 @@ class SummaryController extends Controller
 
         if ($typePO != null) {
             $filterPO = explode(",", $typePO);
-            $typePO = implode(", ", $filterPO);
         } else {
             $filterPO = $typePO;
         }
@@ -195,7 +195,6 @@ class SummaryController extends Controller
         $dataTotalValueDO = $summaryService->totalValueDO($startDate, $endDate, $distributorID, $salesCode, $typePO, $partner);
         $dataCountDO = $summaryService->countDO($startDate, $endDate, $distributorID, $salesCode, $typePO);
         $dataCountMerchantDO = $summaryService->countMerchantDO($startDate, $endDate, $distributorID, $salesCode, $typePO);
-
         $dataFilter = $summaryService->dataFilter($startDate, $endDate, $distributorID, $salesCode, $typePO, $partner);
 
         if ($request->ajax()) {
@@ -289,8 +288,9 @@ class SummaryController extends Controller
                     ->make(true);
             } elseif ($type == "totalValueDO") {
                 return DataTables::of($dataTotalValueDO)
-                    ->editColumn('DatePO', function ($dataTotalValuePO) {
-                        return date('d M Y H:i', strtotime($dataTotalValuePO->DatePO));
+                    ->editColumn('DatePO', function ($dataTotalValueDO) {
+                        // return date('d M Y H:i', strtotime($dataTotalValuePO->DatePO));
+                        return date('d M Y H:i', strtotime($dataTotalValueDO->DatePO));
                     })
                     ->editColumn('CreatedDate', function ($dataTotalValueDO) {
                         return date('d M Y H:i', strtotime($dataTotalValueDO->CreatedDate));
@@ -477,7 +477,8 @@ class SummaryController extends Controller
 
         $sales = DB::table('ms_sales')
             ->where('IsActive', 1)
-            ->select('SalesCode', 'SalesName');
+            ->select('SalesCode', 'SalesName')
+            ->orderBy('Team', 'ASC');
 
         if ($depoUser != "ALL") {
             $sales->where('Team', $depoUser);

@@ -76,6 +76,10 @@ $(document).ready(function () {
                     name: "mma.StoreAddress",
                 },
                 {
+                    data: "Type",
+                    name: "tmo.Type",
+                },
+                {
                     data: "Partners",
                     name: "ms_partner.Name",
                 },

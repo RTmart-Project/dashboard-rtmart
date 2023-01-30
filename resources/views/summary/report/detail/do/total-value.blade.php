@@ -85,6 +85,7 @@
                           <th>Nama Pemilik</th>
                           <th>No. Telp</th>
                           <th>Alamat Toko</th>
+                          <th>Tipe</th>
                           <th>Partner</th>
                           <th>Nama Distributor</th>
                           <th>Metode Pembayaran</th>
