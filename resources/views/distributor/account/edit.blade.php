@@ -2,7 +2,7 @@
 @section('title', 'Dashboard - Edit Distributor')
 
 @section('css-pages')
-
+<link rel="stylesheet" href="{{ url('/') }}/plugins/bootstrap-select/bootstrap-select.min.css">
 @endsection
 
 @section('header-menu', 'Ubah Distributor')
@@ -46,20 +46,20 @@
                             action="{{ route('distributor.updateAccount', ['distributorId' => $distributorById->DistributorID]) }}">
                             @csrf
                             <div class="row">
-                                <div class="col-md-4 col-12">
+                                {{-- <div class="col-md-4 col-12">
                                     <div class="form-group">
                                         <label>Distributor ID</label>
                                         <input type="text" class="form-control"
                                             value="{{ $distributorById->DistributorID }}" readonly>
                                     </div>
-                                </div>
+                                </div> --}}
                                 <div class="col-md-4 col-12">
                                     <div class="form-group">
                                         <label for="name">Nama Distributor</label>
                                         <input type="text" name="name"
                                             class="form-control @if($errors->has('name')) is-invalid @endif" id="name"
                                             placeholder="Masukkan Nama Distributor"
-                                            value="{{ $distributorById->DistributorName }}" required>
+                                            value="{{ $distributorById->DistributorName }}">
                                         @if($errors->has('name'))
                                         <span class="error invalid-feedback">{{ $errors->first('name') }}</span>
                                         @endif
@@ -70,9 +70,22 @@
                                         <label for="email">Email</label>
                                         <input type="email" name="email"
                                             class="form-control @if($errors->has('email')) is-invalid @endif" id="email"
-                                            placeholder="Masukkan Email" value="{{ $distributorById->Email }}" required>
+                                            placeholder="Masukkan Email" value="{{ $distributorById->Email }}">
                                         @if($errors->has('email'))
                                         <span class="error invalid-feedback">{{ $errors->first('email') }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <div class="form-group">
+                                        <label for="status">Status</label>
+                                        <select name="status" id="status" class="form-control selectpicker border"
+                                            data-live-search="true" title="Status">
+                                            <option value="1" {{ $distributorById->IsActive == 1 ? 'selected' : ''}}>Aktif</option>
+                                            <option value="0" {{ $distributorById->IsActive == 0 ? 'selected' : ''}}>Tidak Aktif</option>
+                                        </select>
+                                        @if($errors->has('status'))
+                                        <span class="error invalid-feedback">{{ $errors->first('status') }}</span>
                                         @endif
                                     </div>
                                 </div>
@@ -105,5 +118,5 @@
 @endsection
 
 @section('js-pages')
-
+<script src="{{ url('/') }}/plugins/bootstrap-select/bootstrap-select.min.js"></script>
 @endsection
