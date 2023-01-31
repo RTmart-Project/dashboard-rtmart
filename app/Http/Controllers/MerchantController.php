@@ -293,7 +293,7 @@ class MerchantController extends Controller
 
         $distributor = DB::table('ms_distributor')->select('DistributorID', 'DistributorName')->where('IsActive', 1)->get();
 
-        $sales = DB::table('ms_sales')->select('SalesCode', 'SalesName')->where('IsActive', 1)->get();
+        $sales = DB::table('ms_sales')->select('SalesCode', 'SalesName')->where('IsActive', 1)->orderBy('Team')->get();
 
         $partners  = DB::table('ms_partner')->where('IsActive', 1)->get();
 
