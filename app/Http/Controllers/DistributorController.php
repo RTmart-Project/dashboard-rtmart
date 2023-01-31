@@ -157,8 +157,8 @@ class DistributorController extends Controller
     public function editAccount($distributorId)
     {
         $distributorById = DB::table('ms_distributor')
-            ->where('DistributorID', '=', $distributorId)
-            ->select('DistributorID', 'DistributorName', 'Email', 'Address')
+            ->where('DistributorID', $distributorId)
+            ->select('DistributorID', 'DistributorName', 'Email', 'Address', 'IsActive')
             ->first();
 
         return view('distributor.account.edit', [
@@ -182,11 +182,12 @@ class DistributorController extends Controller
         $data = [
             'DistributorName' => $request->input('name'),
             'Email' => $request->input('email'),
-            'Address' => $request->input('address')
+            'Address' => $request->input('address'),
+            'IsActive' => $request->input('status')
         ];
 
         $updateDistributor = DB::table('ms_distributor')
-            ->where('DistributorID', '=', $distributorId)
+            ->where('DistributorID', $distributorId)
             ->update($data);
 
         if ($updateDistributor) {

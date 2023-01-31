@@ -153,13 +153,13 @@ class SummaryController extends Controller
         $depoUser = Auth::user()->Depo;
         $regionalUser = Auth::user()->Regional;
 
-        if ($depoUser == "ALL" && !$regionalUser && $distributorID == null) {
+        if ($depoUser == "ALL" && !$regionalUser && $distributorID != null) {
             $distributorID = "D-2004-000002, D-2212-000001, D-2004-000006, D-2004-000005, D-2004-000001";
         }
-        if ($regionalUser == "REGIONAL1" && $depoUser == "ALL" && $distributorID == null) {
+        if ($regionalUser == "REGIONAL1" && $depoUser == "ALL" && $distributorID != null) {
             $distributorID = "D-2004-000002, D-2212-000001";
         }
-        if ($regionalUser == "REGIONAL2" && $depoUser == "ALL" && $distributorID == null) {
+        if ($regionalUser == "REGIONAL2" && $depoUser == "ALL" && $distributorID != null) {
             $distributorID = "D-2004-000006, D-2004-000005, D-2004-000001";
         }
 
@@ -186,6 +186,7 @@ class SummaryController extends Controller
         } else {
             $filterPartner = $partner;
         }
+        
         $data = $summaryService->summaryReport($startDate, $endDate, $filterDistributor, $filterSales, $filterPO, $filterPartner);
 
         $dataTotalValuePO = $summaryService->totalValuePO($type, $startDate, $endDate, $distributorID, $salesCode, $typePO, $partner);
@@ -339,7 +340,7 @@ class SummaryController extends Controller
                     ->addColumn('GrandTotal', function ($dataTotalValueDO) {
                         return $dataTotalValueDO->SubTotal - $dataTotalValueDO->Discount + $dataTotalValueDO->ServiceCharge + $dataTotalValueDO->DeliveryFee;
                     })
-                    ->rawColumns(['StatusOrder', 'StockOrderID', 'MerchantExpeditionID'])
+                    ->rawColumns(['StatusOrder', 'StockOrderID', 'MerchantExpeditionID', 'Sales'])
                     ->make(true);
             } elseif ($type == "countDO") {
                 return DataTables::of($dataCountDO)

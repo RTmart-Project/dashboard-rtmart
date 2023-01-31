@@ -47,13 +47,6 @@
                             <div class="row">
                                 <div class="col-md-4 col-12">
                                     <div class="form-group">
-                                        <label>Merchant ID</label>
-                                        <input type="text" class="form-control" value="{{ $merchantById->MerchantID }}"
-                                            readonly>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 col-12">
-                                    <div class="form-group">
                                         <label for="store_name">Nama Toko</label>
                                         <input type="text" name="store_name"
                                             class="form-control @if($errors->has('store_name')) is-invalid @endif"
@@ -95,9 +88,8 @@
                                             class="form-control selectpicker border @if($errors->has('distributor')) is-invalid @endif"
                                             name="distributor" id="distributor" data-live-search="true" required>
                                             @foreach ($distributor as $value)
-                                            <option value="{{ $value->DistributorID }}" {{ ($merchantById->
-                                                DistributorID) == ($value->DistributorID) ? 'selected' : '' }}>{{
-                                                $value->DistributorName }}</option>
+                                            <option value="{{ $value->DistributorID }}" {{ ($merchantById->DistributorID) == ($value->DistributorID) ? 'selected' : '' }}>
+                                                {{ $value->DistributorName }}</option>
                                             @endforeach
                                         </select>
                                         @if($errors->has('distributor'))
@@ -156,8 +148,7 @@
                                             title="Pilih Sales"
                                             class="form-control selectpicker border @if($errors->has('referral_code')) is-invalid @endif">
                                             @foreach ($sales as $value)
-                                            <option value="{{ $value->SalesCode }}" {{ ($merchantById->ReferralCode) ==
-                                                ($value->SalesCode) ? 'selected' : '' }}>
+                                            <option value="{{ $value->SalesCode }}" {{ ($merchantById->ReferralCode) == ($value->SalesCode) ? 'selected' : '' }}>
                                                 {{ $value->SalesCode }} - {{ $value->SalesName }}
                                             </option>
                                             @endforeach
@@ -176,11 +167,10 @@
                                             title="Pilih Partner" multiple
                                             class="form-control selectpicker border @if($errors->has('partner')) is-invalid @endif">
                                             @foreach ($partners as $partner)
-                                            <option value="{{ $partner->PartnerID }}" @foreach ($merchantPartner as
-                                                $item) {{ collect($item->PartnerID)->contains($partner->PartnerID) ?
-                                                'selected' : '' }}
-                                                @endforeach
-                                                >
+                                            <option value="{{ $partner->PartnerID }}" 
+                                                @foreach ($merchantPartner as $item) 
+                                                {{ collect($item->PartnerID)->contains($partner->PartnerID) ? 'selected' : '' }}
+                                                @endforeach>
                                                 {{ $partner->Name }}
                                             </option>
                                             @endforeach
@@ -202,37 +192,7 @@
                                         @endif
                                     </div>
                                 </div>
-
-                                {{-- <div class="col-md-4 col-12">
-                                    <div class="form-group">
-                                        <label for="is_blocked">Status Block</label>
-                                        <select name="is_blocked" id="is_blocked" required
-                                            class="form-control selectpicker border @if($errors->has('is_blocked')) is-invalid @endif">
-                                            <option value="1" {{ $merchantById->IsBlocked == 1 ? 'selected' :
-                                                ''}}>Blocked</option>
-                                            <option value="0" {{ $merchantById->IsBlocked == 0 ? 'selected' : ''}}>Not
-                                                Blocked</option>
-                                        </select>
-                                        @if($errors->has('is_blocked'))
-                                        <span class="error invalid-feedback">{{ $errors->first('is_blocked') }}</span>
-                                        @endif
-                                    </div>
-                                </div>
-
-                                <div class="col-md-4 col-12">
-                                    <div class="form-group">
-                                        <label for="blocked_message">Catatan Status Block</label>
-                                        <textarea name="blocked_message" id="blocked_message" rows="2"
-                                            class="form-control @if($errors->has('blocked_message')) is-invalid @endif">{{ $merchantById->BlockedMessage }}</textarea>
-                                        @if($errors->has('blocked_message'))
-                                        <span class="error invalid-feedback">{{ $errors->first('blocked_message')
-                                            }}</span>
-                                        @endif
-                                    </div>
-                                </div> --}}
-
                             </div>
-
                             <div class="form-group float-right">
                                 <button type="submit" class="btn btn-warning">Ubah</button>
                             </div>
