@@ -94,17 +94,20 @@ class SummaryController extends Controller
         if ($depoUser != "ALL") {
             $sales->where('Team', $depoUser);
         }
+
         if ($regionalUser == "REGIONAL1" && $depoUser == "ALL") {
-            $sales->whereRaw("Team IN ('SMG', 'YYK', 'UNR')");
+            // $sales->whereRaw("Team IN ('SMG', 'YYK', 'UNR')");
+            $sales->whereIn('Team', ['SMG', 'UNR', 'YYK']);
         }
+
         if ($regionalUser == "REGIONAL2" && $depoUser == "ALL") {
-            $sales->whereRaw("Team IN ('CRS', 'CKG', 'BDG')");
+            // $sales->whereRaw("Team IN ('CRS', 'CKG', 'BDG')");
+            $sales->whereIn('Team', ['CRS', 'CKG', 'BDG']);
         }
 
         $sales = $sales->get();
 
-        $typePO = DB::table('tx_merchant_order')
-            ->distinct('Type')->select('Type')->get();
+        $typePO = DB::table('tx_merchant_order')->distinct('Type')->select('Type')->get();
 
         $partners = DB::table('ms_partner')->where('IsActive', 1)->get();
 
@@ -127,15 +130,15 @@ class SummaryController extends Controller
         $depoUser = Auth::user()->Depo;
         $regionalUser = Auth::user()->Regional;
 
-        if ($depoUser == "ALL" && !$regionalUser && !$distributorID) {
-            $distributorID = ['D-2004-000002', 'D-2212-000001', 'D-2004-000006', 'D-2004-000005', 'D-2004-000001'];
-        }
-        if (($regionalUser == "REGIONAL1" && $depoUser == "ALL") && !$distributorID) {
-            $distributorID = ['D-2004-000002', 'D-2212-000001'];
-        }
-        if (($regionalUser == "REGIONAL2" && $depoUser == "ALL") && !$distributorID) {
-            $distributorID = ['D-2004-000006', 'D-2004-000005', 'D-2004-000001'];
-        }
+        // if ($depoUser == "ALL" && !$regionalUser && !$distributorID) {
+        //     $distributorID = ['D-2004-000002', 'D-2212-000001', 'D-2004-000006', 'D-2004-000005', 'D-2004-000001'];
+        // }
+        // if (($regionalUser == "REGIONAL1" && $depoUser == "ALL") && !$distributorID) {
+        //     $distributorID = ['D-2004-000002', 'D-2212-000001'];
+        // }
+        // if (($regionalUser == "REGIONAL2" && $depoUser == "ALL") && !$distributorID) {
+        //     $distributorID = ['D-2004-000006', 'D-2004-000005', 'D-2004-000001'];
+        // }
 
         $data = $summaryService->summaryReport($startDate, $endDate, $distributorID, $salesCode, $typePO, $partner);
 
@@ -153,15 +156,15 @@ class SummaryController extends Controller
         $depoUser = Auth::user()->Depo;
         $regionalUser = Auth::user()->Regional;
 
-        if ($depoUser == "ALL" && !$regionalUser && !$distributorID) {
-            $distributorID = "D-2004-000002, D-2212-000001, D-2004-000006, D-2004-000005, D-2004-000001";
-        }
-        if ($regionalUser == "REGIONAL1" && $depoUser == "ALL" && !$distributorID) {
-            $distributorID = "D-2004-000002, D-2212-000001";
-        }
-        if ($regionalUser == "REGIONAL2" && $depoUser == "ALL" && !$distributorID) {
-            $distributorID = "D-2004-000006, D-2004-000005, D-2004-000001";
-        }
+        // if ($depoUser == "ALL" && !$regionalUser && !$distributorID) {
+        //     $distributorID = "D-2004-000002, D-2212-000001, D-2004-000006, D-2004-000005, D-2004-000001";
+        // }
+        // if ($regionalUser == "REGIONAL1" && $depoUser == "ALL" && !$distributorID) {
+        //     $distributorID = "D-2004-000002, D-2212-000001";
+        // }
+        // if ($regionalUser == "REGIONAL2" && $depoUser == "ALL" && !$distributorID) {
+        //     $distributorID = "D-2004-000006, D-2004-000005, D-2004-000001";
+        // }
 
         if ($typePO != null) {
             $filterPO = explode(",", $typePO);
@@ -186,7 +189,7 @@ class SummaryController extends Controller
         } else {
             $filterPartner = $partner;
         }
-        
+
         $data = $summaryService->summaryReport($startDate, $endDate, $filterDistributor, $filterSales, $filterPO, $filterPartner);
 
         $dataTotalValuePO = $summaryService->totalValuePO($type, $startDate, $endDate, $distributorID, $salesCode, $typePO, $partner);
