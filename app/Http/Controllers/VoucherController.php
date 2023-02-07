@@ -128,8 +128,9 @@ class VoucherController extends Controller
             ->select('PaymentMethodID', 'PaymentMethodName')->get();
 
         $distributorLocation = DB::table('ms_distributor')
-            ->where('DistributorID', '!=', 'D-0000-000000')
-            ->select('DistributorID', 'DistributorName')->get();
+            ->where('IsActive', 1)
+            ->select('DistributorID', 'DistributorName')
+            ->get();
 
         $termBrand = DB::table('ms_brand_type')
             ->select('BrandID', 'Brand')->get();
@@ -395,8 +396,9 @@ class VoucherController extends Controller
             ->select('PaymentMethodID', 'PaymentMethodName')->get();
 
         $distributorLocation = DB::table('ms_distributor')
-            ->where('DistributorID', '!=', 'D-0000-000000')
-            ->select('DistributorID', 'DistributorName')->get();
+            ->where('IsActive', 1)
+            ->select('DistributorID', 'DistributorName')
+            ->get();
 
         $termBrand = DB::table('ms_brand_type')
             ->select('BrandID', 'Brand')->get();
@@ -453,32 +455,28 @@ class VoucherController extends Controller
     {
         $request->validate(
             [
-                'active' => 'required|in:1,0',
+                'active' => 'in:1,0',
                 'voucher_code' => [
-                    'required', 'string', Rule::unique('ms_voucher', 'VoucherCode')->ignore($voucherCodeDB, 'VoucherCode')
+                    'string', Rule::unique('ms_voucher', 'VoucherCode')->ignore($voucherCodeDB, 'VoucherCode')
                 ],
-                'voucher_name' => 'required|string',
-                'voucher_type' => 'required|integer|exists:ms_voucher_type,VoucherTypeID',
-                'percentage' => 'required|integer|max:100',
-                'max_nominal' => 'required',
-                'is_for' => 'required|in:Customer,Merchant,All',
-                'check_power_merchant' => 'required|in:1,0',
-                'start_date' => 'required|date',
-                'end_date' => 'required|date|after:start_date',
-                'quota_per_user' => 'required|integer',
-                'max_quota' => 'required|integer|gt:quota_per_user',
+                'voucher_name' => 'string',
+                'voucher_type' => 'integer|exists:ms_voucher_type,VoucherTypeID',
+                'percentage' => 'integer|max:100',
+                'is_for' => 'in:Customer,Merchant,All',
+                'check_power_merchant' => 'in:1,0',
+                'start_date' => 'date',
+                'end_date' => 'date|after:start_date',
+                'quota_per_user' => 'integer',
+                'max_quota' => 'integer|gt:quota_per_user',
                 'banner' => 'image',
-                'minimum_transaction' => 'required',
-                'minimum_quantity' => 'required|integer',
-                'minimum_tx_history' => 'required',
-                'minimum_qty_history' => 'required|integer',
+                'minimum_quantity' => 'integer',
+                'minimum_qty_history' => 'integer',
                 'start_date_new_user' => 'date',
                 'end_date_new_user' => 'date|after:start_date_new_user',
                 'start_date_merchant_restock' => 'date',
                 'end_date_merchant_restock' => 'date|after:start_date_merchant_restock',
                 'start_date_customer_tx' => 'date',
                 'end_date_customer_tx' => 'date|after:start_date_customer_tx',
-                'details' => 'required',
                 'payment_method' => 'exists:ms_payment_method,PaymentMethodID',
                 'distributor_location' => 'exists:ms_distributor,DistributorID',
                 'term_brand' => 'exists:ms_brand_type,BrandID',
