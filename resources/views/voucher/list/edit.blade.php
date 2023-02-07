@@ -106,7 +106,7 @@
                                         <div class="input-group mb-3">
                                             <input type="number" id="percentage" name="percentage" class="form-control
                                                 @if ($errors->has('percentage')) is-invalid @endif" 
-                                                placeholder="Masukkan Persentase Voucher" value="{{ $voucher->PercentageValue }}" required>
+                                                placeholder="Masukkan Persentase Voucher" value="{{ intval($voucher->PercentageValue) }}" required>
                                             <div class="input-group-append">
                                                 <span class="input-group-text"><i class="fas fa-percent"></i></span>
                                             </div>
