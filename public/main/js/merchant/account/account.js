@@ -141,7 +141,7 @@ $(document).ready(function () {
             aoColumnDefs: [
                 {
                     aTargets: [15],
-                    visible: roleID == "IT" ? true : false,
+                    visible: roleID == "IT" || roleID == "BM" ? true : false,
                 },
                 {
                     aTargets: [7, 8],
