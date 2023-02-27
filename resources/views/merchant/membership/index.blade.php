@@ -71,7 +71,6 @@
 
           <div class="card-body">
             <div class="tab-content">
-
               <div class="tab-pane active" id="merchant-membership-table">
                 <div class="row">
                   <div class="col-12">
@@ -115,6 +114,7 @@
                           <th>Catatan</th>
                           <th>Photo</th>
                           <th>Action</th>
+                          <th>Disclaimer</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -123,7 +123,6 @@
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
         </div>

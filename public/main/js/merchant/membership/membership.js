@@ -190,6 +190,12 @@ $(document).ready(function () {
                     searchable: false,
                     orderable: false,
                 },
+                {
+                    data: "Disclaimer",
+                    name: "Disclaimer",
+                    searchable: false,
+                    orderable: false,
+                }
             ],
             buttons: [
                 {

@@ -12,6 +12,7 @@ use App\Services\BannerService\BannerSliderService;
 class BannerSliderController extends Controller
 {
     protected $bannerSliderService, $saveImageUrl, $baseImageUrl;
+
     public function __construct(BannerSliderService $bannerSliderService)
     {
         $this->bannerSliderService = $bannerSliderService;
@@ -69,6 +70,7 @@ class BannerSliderController extends Controller
     public function create()
     {
         $targets = $this->bannerSliderService->targetBannerSlider();
+
         return view('banner.banner-slider.create', [
             'targets' => $targets
         ]);
@@ -77,6 +79,7 @@ class BannerSliderController extends Controller
     public function listTargetID($target)
     {
         $data = $this->bannerSliderService->listTargetIDBannerSlider($target);
+
         return $data;
     }
 
@@ -123,6 +126,7 @@ class BannerSliderController extends Controller
             $targets = array_map(function () {
                 return func_get_args();
             }, $targetID);
+
             foreach ($targets as $key => $value) {
                 $value = array_combine(['SourceID'], $value);
                 $value += ['PromoID' => $promoID];
@@ -143,6 +147,7 @@ class BannerSliderController extends Controller
             $targets = array_map(function () {
                 return func_get_args();
             }, $targetID);
+
             foreach ($targets as $key => $value) {
                 $value = array_combine(['TargetID'], $value);
                 $value += ['PromoID' => $promoID];
@@ -172,7 +177,8 @@ class BannerSliderController extends Controller
     {
         $sql = DB::table('ms_promo')
             ->select('PromoID', 'PromoTitle', 'PromoDesc', 'PromoImage', 'PromoStartDate', 'PromoEndDate', 'PromoStatus', 'SourceID', 'PromoTarget', 'PromoExpiryDate', 'ClassActivityPage', 'ActivityButtonText')
-            ->where('PromoID', $promoId)->first();
+            ->where('PromoID', $promoId)
+            ->first();
 
         $targetID = DB::table('ms_promo')
             ->selectRaw("CASE
@@ -198,13 +204,13 @@ class BannerSliderController extends Controller
     public function update(Request $request, $promoId)
     {
         $request->validate([
-            'title' => 'required|min:5',
-            'start_date' => 'required|before_or_equal:end_date',
-            'end_date' => 'required|after_or_equal:start_date',
-            'target' => 'required|string|exists:ms_promo,PromoTarget',
+            'title' => 'min:5',
+            'start_date' => 'before_or_equal:end_date',
+            'end_date' => 'after_or_equal:start_date',
+            'target' => 'string|exists:ms_promo,PromoTarget',
             'promostatus' => 'between:0,1',
             'banner_image' => 'image',
-            'description' => 'required|string',
+            'description' => 'string',
         ]);
 
         $target = $request->input('target');
@@ -239,6 +245,7 @@ class BannerSliderController extends Controller
             $targets = array_map(function () {
                 return func_get_args();
             }, $res['TargetID']);
+
             foreach ($targets as $key => $value) {
                 $value = array_combine(['TargetID'], $value);
                 $value += ['PromoID' => $promoId];
@@ -262,6 +269,7 @@ class BannerSliderController extends Controller
             $targets = array_map(function () {
                 return func_get_args();
             }, $res['TargetID']);
+
             foreach ($targets as $key => $value) {
                 $value = array_combine(['SourceID'], $value);
                 $value += ['PromoID' => $promoId];
@@ -283,12 +291,14 @@ class BannerSliderController extends Controller
         try {
             DB::transaction(function () use ($data, $target, $promoId) {
                 DB::table('ms_promo')->where('PromoID', $promoId)->delete();
+
                 if ($target === "MERCHANT_GLOBAL" || $target === "CUSTOMER_GLOBAL") {
                     DB::table('ms_promo')->insert($data);
                 } else {
                     DB::table('ms_promo')->insert($data);
                 }
             });
+
             return redirect()->route('banner.slider')->with(['success' => 'Data Banner Slider berhasil diubah']);
         } catch (Exception $e) {
             return redirect()->route('banner.slider')->with(['failed', 'Gagal, terjadi kesalahan sistem atau jaringan']);
@@ -301,6 +311,7 @@ class BannerSliderController extends Controller
             DB::transaction(function () use ($promoId) {
                 DB::table('ms_promo')->where('PromoID', $promoId)->delete();
             });
+
             return redirect()->route('banner.slider')->with('success', 'Data Banner berhasil dihapus');
         } catch (\Throwable $th) {
             return redirect()->route('banner.slider')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
