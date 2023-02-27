@@ -9,7 +9,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            padding: 50px 80px;
+            padding: 20px 80px;
         }
     </style>
 </head>
@@ -336,6 +336,7 @@
         <p>
             {{ $merchant->UsernameIDCard }}<strong></strong>
         </p>
+        <p style="font-size: 11px; margin-top: 330px">Dokumen ini telah disetujui secara sah oleh peminjam melalui aplikasi RTmart Merchant</p>
     </div>
 </body>
 
