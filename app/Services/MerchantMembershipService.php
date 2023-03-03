@@ -57,6 +57,7 @@ class MerchantMembershipService
         'ms_merchant_account.MembershipCoupleConfirmDate',
         'ms_merchant_account.MembershipCoupleConfirmBy',
         'ms_merchant_account.ValidationNoteMembershipCouple',
+        DB::raw("IF(ms_distributor.Regional = 'REGIONAL1', TRUE, FALSE) AS Disclaimer"),
         DB::raw("
           (
             SELECT COUNT(StockOrderID)

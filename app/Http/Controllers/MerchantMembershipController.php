@@ -16,6 +16,7 @@ class MerchantMembershipController extends Controller
     {
         $this->merchantMembershipService = $merchantMembershipService;
     }
+
     public function index()
     {
         $statusMembership = DB::table('ms_status_couple_preneur')
@@ -24,7 +25,7 @@ class MerchantMembershipController extends Controller
             ->get();
 
         return view('merchant.membership.index', [
-            'statusMembership' => $statusMembership
+            'statusMembership' => $statusMembership,
         ]);
     }
 
@@ -129,11 +130,19 @@ class MerchantMembershipController extends Controller
                                 Update Status Crowdo
                             </button>";
                 })
+                ->addColumn('Disclaimer', function ($data) {
+                    if ($data->Disclaimer == 1) {
+                        $disclaimer = "<a href='/merchant/membership/disclaimer/$data->MerchantID' target='_blank' class='btn btn-sm btn-info'>Lihat</a>";
+                    } else {
+                        $disclaimer = '';
+                    }
+                    return $disclaimer;
+                })
                 ->filterColumn('Sales', function ($query, $keyword) {
                     $sql = "CONCAT(ms_merchant_account.ReferralCode,' - ', ms_sales.SalesName)  like ?";
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 })
-                ->rawColumns(['StatusNameCrowdo', 'StatusName', 'Photo', 'Action'])
+                ->rawColumns(['StatusNameCrowdo', 'StatusName', 'Photo', 'Action', 'Disclaimer'])
                 ->make();
         }
     }
@@ -221,5 +230,20 @@ class MerchantMembershipController extends Controller
         } catch (\Throwable $th) {
             return redirect()->route('merchant.membership')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
         }
+    }
+
+    public function disclaimer($merchantID)
+    {
+        $merchant = DB::table('ms_merchant_account AS mma')
+            ->join('ms_merchant_couple_preneur_log AS mmcpl', 'mma.MerchantID', 'mmcpl.MerchantID')
+            ->select(DB::raw("MAX(mmcpl.ID) AS SeriesNumber"), 'mma.MerchantID', 'mma.UsernameIDCard', 'mma.NumberIDCard', 'mma.StoreAddress', 'mma.MembershipCoupleSubmitDate')
+            ->where('mma.MerchantID', $merchantID)
+            ->groupBy('mma.MerchantID')
+            ->first();
+
+        $seriesNumber = date('y') . '.' . substr("0000" . $merchant->SeriesNumber, strlen($merchant->SeriesNumber)) . '.' . '001/B-KRTM/III';
+        $merchant->SeriesNumber = $seriesNumber;
+
+        return view('merchant.membership.disclaimer', ['merchant' => $merchant]);
     }
 }
