@@ -250,6 +250,7 @@ class VoucherController extends Controller
             'MinimumQty' => $request->input('minimum_quantity'),
             'MinimumTrxAccumulative' => $request->input('minimum_tx_history'),
             'MinimumQtyAccumulative' => $request->input('minimum_qty_history'),
+            'MinumumTotalMargin' => $request->input('minimum_margin'),
             'StartDateNewUser' => $startDateNewUser,
             'EndDateNewUser' => $endDateNewUser,
             'MerchantRestockStartDate' => $startDateMerchantRestock,
