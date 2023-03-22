@@ -540,6 +540,7 @@ class VoucherController extends Controller
             'IsCheckPowerMerchant' => $request->input('check_power_merchant'),
             'StartDate' => $startDateVoucher,
             'EndDate' => $endDateVoucher,
+            'MinumumTotalMargin' => $request->input('minimum_margin'),
             'QuotaPerUser' => $request->input('quota_per_user'),
             'MaxQuota' => $request->input('max_quota'),
             'MinimumTrx' => $request->input('minimum_transaction'),
