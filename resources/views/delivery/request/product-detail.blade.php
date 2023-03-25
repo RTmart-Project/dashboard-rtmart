@@ -179,12 +179,13 @@
         <p class="mt-2 mb-1">
           <b>Max Nominal Kirim :
             @if ($item[0]->CountCreatedDO == 0)
-            <span id="max-nominal">{{ Helper::formatCurrency(($item[0]->TotalPrice - $item[0]->SumPriceCreatedDO) / 1,
-              'Rp ') }}</span>
-            @else
-            <span id="max-nominal">{{ Helper::formatCurrency(($item[0]->TotalPrice - $item[0]->SumPriceCreatedDO) /
-              $item[0]->CountCreatedDO,
-              'Rp ') }}</span>
+              <span id="max-nominal">
+                {{ Helper::formatCurrency(($item[0]->TotalPrice - $item[0]->SumPriceCreatedDO) / 1, 'Rp ') }}
+              </span>
+              @else
+              <span id="max-nominal">
+                {{ Helper::formatCurrency(($item[0]->TotalPrice - $item[0]->SumPriceCreatedDO) / $item[0]->CountCreatedDO, 'Rp ') }}
+              <span>
             @endif
           </b>
         </p>

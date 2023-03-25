@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Helper;
 use App\Services\MerchantMembershipService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -150,6 +152,7 @@ class MerchantMembershipController extends Controller
     public function photo($merchantID)
     {
         $data = $this->merchantMembershipService->merchantMembershipPhoto($merchantID);
+
         return $data;
     }
 
@@ -196,6 +199,7 @@ class MerchantMembershipController extends Controller
 
         try {
             $this->merchantMembershipService->merchantMembershipConfirm($merchantID, $status, $dataMerchantAccount, $dataMerchantCouplePreneurLog);
+
             return redirect()->route('merchant.membership')->with('success', 'Data membership merchant berhasil dikonfirmasi');
         } catch (\Throwable $th) {
             return redirect()->route('merchant.membership')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
@@ -234,16 +238,42 @@ class MerchantMembershipController extends Controller
 
     public function disclaimer($merchantID)
     {
+        $dayName = Carbon::now()->locale('id')->translatedFormat('l');
+        $date = Carbon::now()->locale('id')->translatedFormat('d F Y');
+
+        // $merchant = DB::table('ms_merchant_account AS mma')
+        //     ->join('ms_merchant_couple_preneur_log AS mmcpl', 'mma.MerchantID', 'mmcpl.MerchantID')
+        //     ->select(DB::raw("MAX(mmcpl.ID) AS SeriesNumber"), 'mma.MerchantID', 'mma.UsernameIDCard', 'mma.NumberIDCard', 'mma.StoreAddress', 'mma.MembershipCoupleSubmitDate')
+        //     ->where('mma.MerchantID', $merchantID)
+        //     ->groupBy('mma.MerchantID')
+        //     ->first();
+
+        // $merchant = DB::table('ms_merchant_account AS mma')
+        //     ->join('ms_history_disclaimer AS mhd', 'mma.MerchantID', 'mhd.merchant_id')
+        //     ->selectRaw("ANY_VALUE(mhd.disclaimer_id) AS disclaimer_id, COUNT(mhd.disclaimer_id) as total, 
+        //     ANY_VALUE(mma.MerchantID) AS MerchantID, ANY_VALUE(mma.UsernameIDCard) AS UsernameIDCard, 
+        //     ANY_VALUE(mma.NumberIDCard) AS NumberIDCard, ANY_VALUE(mma.StoreAddress) AS StoreAddress")
+        //     ->where('mma.MerchantID', '=', $merchantID)
+        //     ->orderByDesc('mhd.disclaimer_id')
+        //     ->first();
+
         $merchant = DB::table('ms_merchant_account AS mma')
-            ->join('ms_merchant_couple_preneur_log AS mmcpl', 'mma.MerchantID', 'mmcpl.MerchantID')
-            ->select(DB::raw("MAX(mmcpl.ID) AS SeriesNumber"), 'mma.MerchantID', 'mma.UsernameIDCard', 'mma.NumberIDCard', 'mma.StoreAddress', 'mma.MembershipCoupleSubmitDate')
-            ->where('mma.MerchantID', $merchantID)
+            ->join('ms_history_disclaimer AS mhd', 'mma.MerchantID', 'mhd.merchant_id')
+            ->selectRaw("MAX(mhd.disclaimer_id) AS disclaimer_id, COUNT(*) as TotalSubmit, 
+                ANY_VALUE(mma.MerchantID) AS MerchantID, ANY_VALUE(mma.UsernameIDCard) AS UsernameIDCard, 
+                ANY_VALUE(mma.NumberIDCard) AS NumberIDCard, ANY_VALUE(mma.StoreAddress) AS StoreAddress,
+                ANY_VALUE(mhd.nominal) AS Nominal")
+            ->where('mma.MerchantID', '=', $merchantID)
             ->groupBy('mma.MerchantID')
             ->first();
 
-        $seriesNumber = date('y') . '.' . substr("0000" . $merchant->SeriesNumber, strlen($merchant->SeriesNumber)) . '.' . '001/B-KRTM/III';
-        $merchant->SeriesNumber = $seriesNumber;
+        $merchant->Penyebut = Helper::convertToWords($merchant->Nominal);
+        $merchant->Nominal = Helper::formatCurrency($merchant->Nominal, '');
 
-        return view('merchant.membership.disclaimer', ['merchant' => $merchant]);
+        $orderSeriesNumber = substr("0000" . $merchant->disclaimer_id, strlen($merchant->disclaimer_id));
+        $orderTotalSubmit = substr("000" . $merchant->TotalSubmit, strlen($merchant->TotalSubmit));
+        $merchant->SeriesNumber = date('y') . ".$orderSeriesNumber.$orderTotalSubmit/B-KRTM/III";
+
+        return view('merchant.membership.disclaimer', ['merchant' => $merchant, 'dayName' => $dayName, 'date' => $date]);
     }
 }
