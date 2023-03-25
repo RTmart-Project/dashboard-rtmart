@@ -150,7 +150,7 @@ class DeliveryController extends Controller
     {
         $arrayDeliveryOrderID = $request->arrayDeliveryOrderID;
 
-        if ($arrayDeliveryOrderID == "") {
+        if (empty($arrayDeliveryOrderID)) {
             return "400";
         }
 
@@ -158,13 +158,10 @@ class DeliveryController extends Controller
 
         $data = $deliveryOrderService->getMultipleDeliveryOrder($stringDeliveryOrderID, $arrayDeliveryOrderID)->get();
 
-        foreach ($data as $key => $value) {
+        foreach ($data as $value) {
             $value->IsHaistarProduct = 0;
-            if ($value->IsHaistar == 1) {
-                $productHaistar = $haistarService->haistarGetStock($value->ProductID);
-                if ($productHaistar->status == "success") {
-                    $value->IsHaistarProduct = 1;
-                }
+            if ($value->IsHaistar == 1 && $haistarService->haistarGetStock($value->ProductID)->status == "success") {
+                $value->IsHaistarProduct = 1;
             }
         }
 

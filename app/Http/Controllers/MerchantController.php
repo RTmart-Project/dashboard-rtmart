@@ -234,9 +234,7 @@ class MerchantController extends Controller
     public function updateBlock($merchantID, Request $request)
     {
         $user = Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo;
-        $sqlMerchant = DB::table('ms_merchant_account')
-            ->where('MerchantID', $merchantID)
-            ->select('IsBlocked')->first();
+        $sqlMerchant = DB::table('ms_merchant_account')->where('MerchantID', $merchantID)->select('IsBlocked')->first();
 
         if ($sqlMerchant->IsBlocked == 1) {
             $isBlocked = 0;
@@ -261,12 +259,10 @@ class MerchantController extends Controller
 
         try {
             DB::transaction(function () use ($merchantID, $dataUpdate, $dataLogBlock) {
-                DB::table('ms_merchant_account')
-                    ->where('MerchantID', '=', $merchantID)
-                    ->update($dataUpdate);
-                DB::table('ms_merchant_account_block_log')
-                    ->insert($dataLogBlock);
+                DB::table('ms_merchant_account')->where('MerchantID', $merchantID)->update($dataUpdate);
+                DB::table('ms_merchant_account_block_log')->insert($dataLogBlock);
             });
+
             return redirect()->route('merchant.account')->with('success', 'Data status block merchant berhasil diubah');
         } catch (\Throwable $th) {
             return redirect()->route('merchant.account')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
@@ -276,19 +272,20 @@ class MerchantController extends Controller
     public function getGrade($distributorId)
     {
         $grade = DB::table('ms_distributor_grade')
-            ->where('ms_distributor_grade.DistributorID', '=', $distributorId)
+            ->where('ms_distributor_grade.DistributorID', $distributorId)
             ->select('ms_distributor_grade.GradeID', 'ms_distributor_grade.Grade')
             ->get();
+
         return response()->json($grade);
     }
 
     public function editAccount($merchantId)
     {
         $merchantById = DB::table('ms_merchant_account')
-            ->leftJoin('ms_distributor', 'ms_distributor.DistributorID', '=', 'ms_merchant_account.DistributorID')
+            ->leftJoin('ms_distributor', 'ms_distributor.DistributorID', 'ms_merchant_account.DistributorID')
             ->leftJoin('ms_distributor_merchant_grade', 'ms_distributor_merchant_grade.MerchantID', 'ms_merchant_account.MerchantID')
             ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.StoreAddress', 'ms_distributor.DistributorID', 'ms_distributor.DistributorName', 'ms_distributor_merchant_grade.GradeID', 'ms_merchant_account.ReferralCode', 'ms_merchant_account.Latitude', 'ms_merchant_account.Longitude', 'ms_merchant_account.ReferralCode', 'ms_merchant_account.IsBlocked', 'ms_merchant_account.BlockedMessage')
-            ->where('ms_merchant_account.MerchantID', '=', $merchantId)
+            ->where('ms_merchant_account.MerchantID', $merchantId)
             ->first();
 
         $distributor = DB::table('ms_distributor')->select('DistributorID', 'DistributorName')->where('IsActive', 1)->get();
@@ -300,8 +297,8 @@ class MerchantController extends Controller
         $merchantPartner = DB::table('ms_merchant_partner')->where('MerchantID', $merchantId)->get();
 
         $grade = DB::table('ms_merchant_account')
-            ->join('ms_distributor_grade', 'ms_distributor_grade.DistributorID', '=', 'ms_merchant_account.DistributorID')
-            ->where('ms_merchant_account.MerchantID', '=', $merchantId)
+            ->join('ms_distributor_grade', 'ms_distributor_grade.DistributorID', 'ms_merchant_account.DistributorID')
+            ->where('ms_merchant_account.MerchantID', $merchantId)
             ->select('ms_distributor_grade.GradeID', 'ms_distributor_grade.Grade')
             ->get();
 
@@ -1089,9 +1086,7 @@ class MerchantController extends Controller
 
             DB::table('ms_merchant_assessment')
                 ->where('MerchantAssessmentID', $assessmentID)
-                ->update([
-                    'IsDownload' => 0
-                ]);
+                ->update(['IsDownload' => 0]);
 
             $status = "success";
             $message = "Data berhasil di un-ceklis";
