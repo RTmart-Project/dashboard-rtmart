@@ -241,22 +241,6 @@ class MerchantMembershipController extends Controller
         $dayName = Carbon::now()->locale('id')->translatedFormat('l');
         $date = Carbon::now()->locale('id')->translatedFormat('d F Y');
 
-        // $merchant = DB::table('ms_merchant_account AS mma')
-        //     ->join('ms_merchant_couple_preneur_log AS mmcpl', 'mma.MerchantID', 'mmcpl.MerchantID')
-        //     ->select(DB::raw("MAX(mmcpl.ID) AS SeriesNumber"), 'mma.MerchantID', 'mma.UsernameIDCard', 'mma.NumberIDCard', 'mma.StoreAddress', 'mma.MembershipCoupleSubmitDate')
-        //     ->where('mma.MerchantID', $merchantID)
-        //     ->groupBy('mma.MerchantID')
-        //     ->first();
-
-        // $merchant = DB::table('ms_merchant_account AS mma')
-        //     ->join('ms_history_disclaimer AS mhd', 'mma.MerchantID', 'mhd.merchant_id')
-        //     ->selectRaw("ANY_VALUE(mhd.disclaimer_id) AS disclaimer_id, COUNT(mhd.disclaimer_id) as total, 
-        //     ANY_VALUE(mma.MerchantID) AS MerchantID, ANY_VALUE(mma.UsernameIDCard) AS UsernameIDCard, 
-        //     ANY_VALUE(mma.NumberIDCard) AS NumberIDCard, ANY_VALUE(mma.StoreAddress) AS StoreAddress")
-        //     ->where('mma.MerchantID', '=', $merchantID)
-        //     ->orderByDesc('mhd.disclaimer_id')
-        //     ->first();
-
         $merchant = DB::table('ms_merchant_account AS mma')
             ->join('ms_history_disclaimer AS mhd', 'mma.MerchantID', 'mhd.merchant_id')
             ->selectRaw("MAX(mhd.disclaimer_id) AS disclaimer_id, COUNT(*) as TotalSubmit, 
