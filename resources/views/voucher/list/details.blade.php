@@ -102,6 +102,9 @@
                                     <p class="mb-1"><strong>Minimum Kuantiti Pembelian : </strong>{{ $voucher->MinimumQty }}</p>
                                 </div>
                             </div>
+                            <p class="mb-1"><strong>Minimum Margin : </strong>
+                                {{ $voucher->MinumumTotalMargin }}%
+                            </p>
                             <div class="row">
                                 <div class="col-12 col-md-6">
                                     <p class="mb-1"><strong>Minimum Nominal Transaksi (History) : </strong>{{ Helper::formatCurrency($voucher->MinimumTrxAccumulative, 'Rp ')}}</p>

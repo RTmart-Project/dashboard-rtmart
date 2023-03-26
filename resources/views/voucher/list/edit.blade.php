@@ -49,7 +49,7 @@
                                         <label for="active">Voucher Aktif</label>
                                         <select class="form-control selectpicker border 
                                             @if($errors->has('active')) is-invalid @endif"
-                                            name="active" id="active" title="Apakah Voucher Aktif?" required>
+                                            name="active" id="active" title="Apakah Voucher Aktif?">
                                             <option value="1" {{ ($voucher->IsActive == 1) ? 'selected' : '' }}>Ya</option>
                                             <option value="0" {{ ($voucher->IsActive == 0) ? 'selected' : '' }}>Tidak</option>
                                         </select>
@@ -63,7 +63,7 @@
                                         <label for="voucher_code">Kode Voucher</label>
                                         <input type="text" id="voucher_code" name="voucher_code" class="form-control
                                             @if ($errors->has('voucher_code')) is-invalid @endif" 
-                                            placeholder="Masukkan Kode Voucher" value="{{ $voucher->VoucherCode }}" required>
+                                            placeholder="Masukkan Kode Voucher" value="{{ $voucher->VoucherCode }}">
                                         @if($errors->has('voucher_code'))
                                             <span class="error invalid-feedback">{{ $errors->first('voucher_code') }}</span>
                                         @endif
@@ -74,7 +74,7 @@
                                         <label for="voucher_name">Nama Voucher</label>
                                         <input type="text" id="voucher_name" name="voucher_name" class="form-control
                                             @if ($errors->has('voucher_name')) is-invalid @endif" 
-                                            placeholder="Masukkan Nama Voucher" value="{{ $voucher->VoucherName }}" required>
+                                            placeholder="Masukkan Nama Voucher" value="{{ $voucher->VoucherName }}">
                                         @if($errors->has('voucher_name'))
                                             <span class="error invalid-feedback">{{ $errors->first('voucher_name') }}</span>
                                         @endif
@@ -85,7 +85,7 @@
                                         <label for="voucher_type">Jenis Voucher</label>
                                         <select class="form-control selectpicker border
                                             @if($errors->has('voucher_type')) is-invalid @endif"
-                                            name="voucher_type" id="voucher_type" title="Pilih Jenis Voucher" required>
+                                            name="voucher_type" id="voucher_type" title="Pilih Jenis Voucher">
                                             @foreach ($voucherType as $value)
                                                 <option value="{{ $value->VoucherTypeID }}"
                                                     {{ ($voucher->VoucherTypeID) == ($value->VoucherTypeID) ? 'selected' : '' }}>
@@ -106,7 +106,7 @@
                                         <div class="input-group mb-3">
                                             <input type="number" id="percentage" name="percentage" class="form-control
                                                 @if ($errors->has('percentage')) is-invalid @endif" 
-                                                placeholder="Masukkan Persentase Voucher" value="{{ intval($voucher->PercentageValue) }}" required>
+                                                placeholder="Masukkan Persentase Voucher" value="{{ intval($voucher->PercentageValue) }}">
                                             <div class="input-group-append">
                                                 <span class="input-group-text"><i class="fas fa-percent"></i></span>
                                             </div>
@@ -125,7 +125,7 @@
                                             </div>
                                             <input type="number" id="max_nominal" name="max_nominal" class="form-control
                                                 @if ($errors->has('max_nominal')) is-invalid @endif" 
-                                                placeholder="Masukkan Maksimum Nominal Voucher" value="{{ $voucher->MaxNominalValue }}" required>
+                                                placeholder="Masukkan Maksimum Nominal Voucher" value="{{ $voucher->MaxNominalValue }}">
                                             @if($errors->has('max_nominal'))
                                                 <span class="error invalid-feedback">{{ $errors->first('max_nominal') }}</span>
                                             @endif
@@ -137,7 +137,7 @@
                                         <label for="is_for">Untuk</label>
                                         <select class="form-control selectpicker border 
                                             @if($errors->has('is_for')) is-invalid @endif"
-                                            name="is_for" id="is_for" title="Pilih Voucher untuk siapa" required>
+                                            name="is_for" id="is_for" title="Pilih Voucher untuk siapa">
                                             <option value="Customer" {{ ($voucher->IsFor == "Customer") ? 'selected' : '' }}>Customer</option>
                                             <option value="Merchant" {{ ($voucher->IsFor == "Merchant") ? 'selected' : '' }}>Merchant</option>
                                             <option value="All" {{ ($voucher->IsFor == "All") ? 'selected' : '' }}>Customer dan Merchant</option>
@@ -154,7 +154,7 @@
                                         <label for="start_date">Waktu Mulai Berlaku Voucher</label>
                                         <input type="datetime-local" class="form-control
                                             @if($errors->has('start_date')) is-invalid @endif" 
-                                            name="start_date" id="start_date" value="{{ date('Y-m-d\TH:i', strtotime($voucher->StartDate)) }}" required>
+                                            name="start_date" id="start_date" value="{{ date('Y-m-d\TH:i', strtotime($voucher->StartDate)) }}">
                                         @if($errors->has('start_date'))
                                             <span class="error invalid-feedback">{{ $errors->first('start_date') }}</span>
                                         @endif
@@ -165,7 +165,7 @@
                                         <label for="end_date">Waktu Selesai Berlaku Voucher</label>
                                         <input type="datetime-local" class="form-control
                                             @if($errors->has('end_date')) is-invalid @endif" 
-                                            name="end_date" id="end_date" value="{{ date('Y-m-d\TH:i', strtotime($voucher->EndDate)) }}" required>
+                                            name="end_date" id="end_date" value="{{ date('Y-m-d\TH:i', strtotime($voucher->EndDate)) }}">
                                         @if($errors->has('end_date'))
                                             <span class="error invalid-feedback">{{ $errors->first('end_date') }}</span>
                                         @endif
@@ -176,7 +176,7 @@
                                         <label for="check_power_merchant">Cek Power Merchant</label>
                                         <select class="form-control selectpicker border 
                                             @if($errors->has('check_power_merchant')) is-invalid @endif"
-                                            name="check_power_merchant" id="check_power_merchant" title="Pilih Voucher untuk siapa" required>
+                                            name="check_power_merchant" id="check_power_merchant" title="Pilih Voucher untuk siapa">
                                             <option value="1" {{ ($voucher->IsCheckPowerMerchant == "1") ? 'selected' : '' }}>Ya</option>
                                             <option value="0" {{ ($voucher->IsCheckPowerMerchant == "0") ? 'selected' : '' }}>Tidak</option>
                                         </select>
@@ -192,7 +192,7 @@
                                         <label for="quota_per_user">Kuota per User</label>
                                         <input type="number" class="form-control
                                             @if($errors->has('quota_per_user')) is-invalid @endif" name="quota_per_user" 
-                                            id="quota_per_user" placeholder="Masukkan Kuota per User" value="{{ $voucher->QuotaPerUser }}" required>
+                                            id="quota_per_user" placeholder="Masukkan Kuota per User" value="{{ $voucher->QuotaPerUser }}">
                                         @if($errors->has('quota_per_user'))
                                             <span class="error invalid-feedback">{{ $errors->first('quota_per_user') }}</span>
                                         @endif
@@ -203,7 +203,7 @@
                                         <label for="max_quota">Kuota Keseluruhan</label>
                                         <input type="number" class="form-control
                                             @if($errors->has('max_quota')) is-invalid @endif" name="max_quota" id="max_quota" 
-                                            placeholder="Masukkan Kuota Keseluruhan" value="{{ $voucher->MaxQuota }}" required>
+                                            placeholder="Masukkan Kuota Keseluruhan" value="{{ $voucher->MaxQuota }}">
                                         @if($errors->has('max_quota'))
                                             <span class="error invalid-feedback">{{ $errors->first('max_quota') }}</span>
                                         @endif
@@ -238,7 +238,7 @@
                                             </div>
                                             <input type="number" id="minimum_transaction" name="minimum_transaction" class="form-control
                                                 @if ($errors->has('minimum_transaction')) is-invalid @endif" 
-                                                placeholder="Masukkan Minimum Nominal Transaksi" value="{{ $voucher->MinimumTrx }}" required>
+                                                placeholder="Masukkan Minimum Nominal Transaksi" value="{{ $voucher->MinimumTrx }}">
                                             @if($errors->has('minimum_transaction'))
                                                 <span class="error invalid-feedback">{{ $errors->first('minimum_transaction') }}</span>
                                             @endif
@@ -254,7 +254,7 @@
                                             </div>
                                             <input type="number" id="minimum_quantity" name="minimum_quantity" class="form-control
                                                 @if ($errors->has('minimum_quantity')) is-invalid @endif" 
-                                                placeholder="Masukkan Minimum Kuantiti Pembelian" value="{{ $voucher->MinimumQty }}" required>
+                                                placeholder="Masukkan Minimum Kuantiti Pembelian" value="{{ $voucher->MinimumQty }}">
                                             @if($errors->has('minimum_quantity'))
                                                 <span class="error invalid-feedback">{{ $errors->first('minimum_quantity') }}</span>
                                             @endif
@@ -272,7 +272,7 @@
                                             </div>
                                             <input type="number" id="minimum_tx_history" name="minimum_tx_history" class="form-control
                                                 @if ($errors->has('minimum_tx_history')) is-invalid @endif" 
-                                                placeholder="Nominal Transaksi Secara Akumulasi" value="{{ $voucher->MinimumTrxAccumulative }}" required>
+                                                placeholder="Nominal Transaksi Secara Akumulasi" value="{{ $voucher->MinimumTrxAccumulative }}">
                                             @if($errors->has('minimum_tx_history'))
                                                 <span class="error invalid-feedback">{{ $errors->first('minimum_tx_history') }}</span>
                                             @endif
@@ -288,9 +288,28 @@
                                             </div>
                                             <input type="number" id="minimum_qty_history" name="minimum_qty_history" class="form-control
                                                 @if ($errors->has('minimum_qty_history')) is-invalid @endif" 
-                                                placeholder="Kuantiti Pembelian Secara Akumulasi" value="{{ $voucher->MinimumQtyAccumulative }}" required>
+                                                placeholder="Kuantiti Pembelian Secara Akumulasi" value="{{ $voucher->MinimumQtyAccumulative }}">
                                             @if($errors->has('minimum_qty_history'))
                                                 <span class="error invalid-feedback">{{ $errors->first('minimum_qty_history') }}</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="minimum_margin">Minimum Total Margin</label>
+                                        <div class="input-group mb-3">
+                                            <input type="number" id="minimum_margin" name="minimum_margin" class="form-control
+                                                @if ($errors->has('minimum_margin')) is-invalid @endif"
+                                                placeholder="Masukkan Minimal Total Margin"
+                                                value="{{ $voucher->MinumumTotalMargin }}">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text"><i class="fas fa-percent"></i></span>
+                                            </div>
+                                            @if($errors->has('minimum_margin'))
+                                            <span class="error invalid-feedback">{{ $errors->first('minimum_margin') }}</span>
                                             @endif
                                         </div>
                                     </div>

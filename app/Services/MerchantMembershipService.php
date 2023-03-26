@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\DB;
 
 class MerchantMembershipService
 {
-
   public function merchantMembershipData()
   {
     $sqlMembership = DB::table('ms_merchant_account')
@@ -94,6 +93,7 @@ class MerchantMembershipService
     $sql = DB::transaction(function () use ($merchantID, $status, $dataMerchantAccount, $dataMerchantCouplePreneurLog) {
       DB::table('ms_merchant_account')->where('MerchantID', $merchantID)->update($dataMerchantAccount);
       DB::table('ms_merchant_couple_preneur_log')->insert($dataMerchantCouplePreneurLog);
+
       if ($status === "approve") {
         DB::table('ms_merchant_partner')->updateOrInsert(['MerchantID' => $merchantID], ['PartnerID' => 1]);
       }

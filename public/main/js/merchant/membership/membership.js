@@ -481,29 +481,25 @@ $(document).ready(function () {
         const store = $(this).data("store");
         const statusCrowdo = $(this).data("status-crowdo");
 
-        let formCrowdo = `<form action="/merchant/membership/updateCrowdo/${merchantID}" method="post">
-                            <input type="hidden" name="_token" value="${csrf}">
-                            <div class="form-group">
-                                <label for="note" class="m-0">Status :</label>
-                                <select class="form-control" name="status-crowdo" id="status-crowdo" required>
-                                    <option value="" selected hidden disabled>-- Pilih Status --</option>
-                                    <option value="5" ${
-                                        statusCrowdo == 5 ? "selected" : ""
-                                    }>Submitted</option>
-                                    <option value="6" ${
-                                        statusCrowdo == 6 ? "selected" : ""
-                                    }>Approved</option>
-                                    <option value="7" ${
-                                        statusCrowdo == 7 ? "selected" : ""
-                                    }>Rejected</option>
-                                </select>
-                            </div>
-                            <div id="data-crowdo" class="row"></div>
-                            <div class="modal-footer justify-content-end pb-0">
-                                <button type="submit" class="btn btn-warning">Update</button>
-                                <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
-                            </div>
-                        </form>`;
+        let formCrowdo = `
+            <form action="/merchant/membership/updateCrowdo/${merchantID}" method="post">
+                <input type="hidden" name="_token" value="${csrf}">
+                <div class="form-group">
+                    <label for="note" class="m-0">Status :</label>
+                    <select class="form-control" name="status-crowdo" id="status-crowdo" required>
+                        <option value="" selected hidden disabled>-- Pilih Status --</option>
+                        <option value="5" ${statusCrowdo == 5 ? "selected" : ""}>Submitted</option>
+                        <option value="6" ${statusCrowdo == 6 ? "selected" : ""}>Approved</option>
+                        <option value="7" ${statusCrowdo == 7 ? "selected" : ""}>Rejected</option>
+                    </select>
+                </div>
+                <div id="data-crowdo" class="row"></div>
+                <div class="modal-footer justify-content-end pb-0">
+                    <button type="submit" class="btn btn-warning">Update</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+                </div>
+            </form>
+        `;
 
         $("#form-crowdo").html(formCrowdo);
         $("#form-crowdo").on("change", "#status-crowdo", function () {
@@ -543,58 +539,4 @@ $(document).ready(function () {
         $("#store").html(`${merchantID} - ${store}`);
         $("#modal-crowdo").modal("show");
     });
-
-    // $("#merchant-membership-table").on(
-    //     "click",
-    //     ".btn-update-crowdo",
-    //     function (e) {
-    //         e.preventDefault();
-    //         const merchantID = $(this).data("merchant-id");
-    //         const store = $(this).data("store");
-    //         const statusCrowdo = $(this).data("status-crowdo");
-    //         $.confirm({
-    //             title: "Update Status Crowdo",
-    //             content: `<b>${merchantID} - ${store}</b>?
-    //               <form action="/merchant/membership/updateCrowdo/${merchantID}" method="post">
-    //                 <input type="hidden" name="_token" value="${csrf}">
-    //                 <label for="note" class="m-0">Status :</label>
-    //                 <select class="form-control" name="status-crowdo" id="status-crowdo">
-    //                     <option value="" selected hidden disabled>-- Pilih Status --</option>
-    //                     <option value="5" ${
-    //                         statusCrowdo == 5 ? "selected" : ""
-    //                     }>Submitted</option>
-    //                     <option value="6" ${
-    //                         statusCrowdo == 6 ? "selected" : ""
-    //                     }>Approved</option>
-    //                     <option value="7" ${
-    //                         statusCrowdo == 7 ? "selected" : ""
-    //                     }>Rejected</option>
-    //                 </select>
-    //               </form>`,
-    //             closeIcon: true,
-    //             typeAnimated: true,
-    //             buttons: {
-    //                 update: {
-    //                     btnClass: "btn-warning",
-    //                     draggable: true,
-    //                     dragWindowGap: 0,
-    //                     action: function () {
-    //                         let status = this.$content
-    //                             .find("#status-crowdo")
-    //                             .val();
-    //                         if (!status) {
-    //                             $.alert(
-    //                                 "Harap Pilih Status Crowdo",
-    //                                 "Update Status Crowdo"
-    //                             );
-    //                             return false;
-    //                         }
-    //                         this.$content.find("form").submit();
-    //                     },
-    //                 },
-    //                 batal: function () {},
-    //             },
-    //         });
-    //     }
-    // );
 });
