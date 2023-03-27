@@ -60,7 +60,6 @@
                         {{ $investor->InvestorName }}
                       </option>
                       @endforeach
-                      {{-- <option value="Lainnya" {{ old('investor')=='Lainnya' ? 'selected' : '' }}>- Tambah Baru -</option> --}}
                     </select>
                     <input type="hidden" id="investor-interest" value="{{ $data->Interest }}">
                     @if($errors->has('investor'))
@@ -70,13 +69,6 @@
                     <span id="note-purchase-detail">
                       *Jika ganti pilihan investor maka detail produk akan ter-reset
                     </span>
-
-                    {{-- <input type="text" name="other_investor" id="other_investor"
-                      class="form-control mt-2 {{ old('other_investor') ? '' : 'd-none' }} @if($errors->has('other_investor')) is-invalid @endif"
-                      placeholder="Isi Nama investor" value="{{ old('other_investor') }}" autocomplete="off">
-                    @if($errors->has('other_investor'))
-                    <span class="error invalid-feedback">{{ $errors->first('other_investor') }}</span> --}}
-                    {{-- @endif --}}
                   </div>
                 </div>
                 <div class="col-md-4 col-12">
