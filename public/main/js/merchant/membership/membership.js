@@ -507,8 +507,9 @@ $(document).ready(function () {
             let dataCrowdo = `
                 <div class="col-12 col-md-6">
                     <div class="form-group">
-                        <label for="loan_id">Loan ID</label>
-                        <input type="text" class="form-control" name="loan_id" id="loan_id" required/>
+                        <label for="note" class="m-0">Partner :</label>
+                        <select class="form-control" name="partner" id="partner" required>
+                        </select>
                     </div>
                 </div>
                 <div class="col-12 col-md-6">
@@ -532,6 +533,21 @@ $(document).ready(function () {
             `;
             if (statusCrowdo == 6) {
                 $("#data-crowdo").html(dataCrowdo);
+                // get partner
+                $.ajax({
+                    type: "get",
+                    url: "/partner/get",
+                    success: function (data) {
+                        let option;
+
+                        data.forEach((d) => {
+                            option += `<option value=${d.PartnerID}>${d.Name}</option>`;
+                        })
+            
+                        // $('#partner').append(option);
+                        $('#partner').html(`<option value="null" selected disabled>-- Pilih Partner --</option>`+option);
+                    },
+                });
             } else {
                 $("#data-crowdo").html("");
             }
