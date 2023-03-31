@@ -209,16 +209,25 @@ class MerchantMembershipController extends Controller
     public function updateCrowdo($merchantID, Request $request)
     {
         $status = $request->input('status-crowdo');
-        $loanID = $request->input('loan_id');
+        // $loanID = $request->input('loan_id'); // March 27 23 by 26kito
+        $partner = $request->input('partner');
         $amount = $request->input('amount');
         $batch = $request->input('batch');
         $approvedDate = $request->input('approved_date');
 
         $dataCrowdo = [
-            'CrowdoLoanID' => $loanID,
+            // 'CrowdoLoanID' => $loanID,
             'CrowdoAmount' => $amount,
             'CrowdoBatch' => $batch,
             'CrowdoApprovedDate' => $approvedDate
+        ];
+
+        $dataMembership = [
+            'merchant_id' => $merchantID,
+            'partner_id' => $partner,
+            'nominal' => $amount,
+            'batch_number' => $batch,
+            'approval_date' => $approvedDate
         ];
 
         $dataCouplePreneurCrowdoLog = [
@@ -229,7 +238,7 @@ class MerchantMembershipController extends Controller
         ];
 
         try {
-            $this->merchantMembershipService->updateStatusCrowdo($merchantID, $status, $dataCrowdo, $dataCouplePreneurCrowdoLog);
+            $this->merchantMembershipService->updateStatusCrowdo($merchantID, $dataMembership, $status, $dataCrowdo, $dataCouplePreneurCrowdoLog);
             return redirect()->route('merchant.membership')->with('success', 'Status Crowdo Merchant berhasil di-update');
         } catch (\Throwable $th) {
             return redirect()->route('merchant.membership')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
@@ -243,19 +252,29 @@ class MerchantMembershipController extends Controller
 
         $merchant = DB::table('ms_merchant_account AS mma')
             ->join('ms_history_disclaimer AS mhd', 'mma.MerchantID', 'mhd.merchant_id')
-            ->selectRaw("MAX(mhd.disclaimer_id) AS disclaimer_id, COUNT(*) as TotalSubmit, 
+            ->selectRaw("mhd.disclaimer_id, 
                 ANY_VALUE(mma.MerchantID) AS MerchantID, ANY_VALUE(mma.UsernameIDCard) AS UsernameIDCard, 
                 ANY_VALUE(mma.NumberIDCard) AS NumberIDCard, ANY_VALUE(mma.StoreAddress) AS StoreAddress,
                 ANY_VALUE(mhd.nominal) AS Nominal")
             ->where('mma.MerchantID', '=', $merchantID)
-            ->groupBy('mma.MerchantID')
+            ->whereRaw('mhd.disclaimer_id = (SELECT MAX(disclaimer_id) FROM ms_history_disclaimer WHERE merchant_id = ?)', [$merchantID])
+            ->groupBy('mma.MerchantID', 'mhd.disclaimer_id')
             ->first();
+
+        // get the submission count for each disclaimer id
+        $submissionCount = DB::table('ms_history_disclaimer')
+            ->select('disclaimer_id', DB::raw('COUNT(*) as submission_count'))
+            ->where('merchant_id', '=', $merchantID)
+            ->groupBy('disclaimer_id')
+            ->get();
+
+        $merchant->SubmissionCount = $submissionCount->sum('submission_count');
 
         $merchant->Penyebut = Helper::convertToWords($merchant->Nominal);
         $merchant->Nominal = Helper::formatCurrency($merchant->Nominal, '');
 
         $orderSeriesNumber = substr("0000" . $merchant->disclaimer_id, strlen($merchant->disclaimer_id));
-        $orderTotalSubmit = substr("000" . $merchant->TotalSubmit, strlen($merchant->TotalSubmit));
+        $orderTotalSubmit = substr("000" . $merchant->SubmissionCount, strlen($merchant->SubmissionCount));
         $merchant->SeriesNumber = date('y') . ".$orderSeriesNumber.$orderTotalSubmit/B-KRTM/III";
 
         return view('merchant.membership.disclaimer', ['merchant' => $merchant, 'dayName' => $dayName, 'date' => $date]);

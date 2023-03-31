@@ -102,7 +102,7 @@ class MerchantMembershipService
     return $sql;
   }
 
-  public function updateStatusCrowdo($merchantID, $status, $dataCrowdo, $dataCouplePreneurCrowdoLog)
+  public function updateStatusCrowdo($merchantID, $dataMembership, $status, $dataCrowdo, $dataCouplePreneurCrowdoLog)
   {
     $membership = DB::table('ms_merchant_account')->where('MerchantID', $merchantID)->select('ValidationStatusMembershipCouple')->first();
     $statusMembership = $membership->ValidationStatusMembershipCouple;
@@ -115,7 +115,7 @@ class MerchantMembershipService
       $statusMembership = 2;
     }
 
-    $sql = DB::transaction(function () use ($merchantID, $status, $dataCouplePreneurCrowdoLog, $statusMembership, $data, $dataCrowdo) {
+    $sql = DB::transaction(function () use ($merchantID, $dataMembership, $status, $dataCouplePreneurCrowdoLog, $statusMembership, $data, $dataCrowdo) {
       DB::table('ms_merchant_account')->where('MerchantID', $merchantID)->update([
         'StatusCrowdo' => $status,
         'ValidationStatusMembershipCouple' => $statusMembership
@@ -123,6 +123,7 @@ class MerchantMembershipService
 
       if ($status == 6) {
         DB::table('ms_merchant_account')->where('MerchantID', $merchantID)->update($dataCrowdo);
+        DB::table('ms_history_disclaimer')->insert($dataMembership);
       }
 
       DB::table('ms_merchant_couple_preneur_crowdo_log')->insert($dataCouplePreneurCrowdoLog);

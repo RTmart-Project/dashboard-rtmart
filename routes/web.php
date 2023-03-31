@@ -15,6 +15,7 @@ use App\Http\Controllers\DistributionController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\MerchantMembershipController;
 use App\Http\Controllers\MonthlyReportController;
+use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RTSalesController;
@@ -506,6 +507,9 @@ Route::group(['middleware' => ['auth']], function () {
             });
         });
     });
+
+    // Partner
+    Route::get('/partner/get', [PartnerController::class, 'getPartner']);
 
     // Payment Method
     Route::get('/payment/method/get', [PaymentMethodController::class, 'getPaymentMethods'])->name('payment.getPaymentMethods');
