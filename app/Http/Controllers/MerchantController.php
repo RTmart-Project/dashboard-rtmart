@@ -1491,6 +1491,7 @@ class MerchantController extends Controller
         $toDate = $request->input('toDate');
         $filterAssessment = $request->input('filterAssessment');
         $filterValid = $request->input('filterValid');
+        $distributorId = $request->input('distributorId');
 
         $startDate = new DateTime($fromDate) ?? new DateTime();
         $endDate = new DateTime($toDate) ?? new DateTime();
@@ -1558,6 +1559,10 @@ class MerchantController extends Controller
             $sqlAllAccount->where('RestockProduct.IsDownload', 1);
         } elseif ($filterValid == "invalid") {
             $sqlAllAccount->where('RestockProduct.IsDownload', 0);
+        }
+
+        if ($distributorId) {
+            $sqlAllAccount->where('RestockProduct.DistributorID', $distributorId);
         }
 
         // Get data response

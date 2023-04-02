@@ -251,9 +251,7 @@ $(document).ready(function () {
             for (const item of dataDistributor) {
                 option += `<option value="${item.DistributorID}">${item.DistributorName}</option>`;
             }
-            $("#distributor-merchant .select-filter-custom select").append(
-                option
-            );
+            $("#distributor-merchant .select-filter-custom select").append(option);
             customDropdownFilter.createCustomDropdowns();
         },
     });

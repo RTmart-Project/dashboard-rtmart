@@ -10,6 +10,7 @@ use Yajra\DataTables\DataTables;
 class CourierController extends Controller
 {
     private $courierService;
+
     public function __construct(CourierService $courierService)
     {
         $this->courierService = $courierService;

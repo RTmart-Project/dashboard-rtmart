@@ -1,9 +1,6 @@
 @extends('layouts.master')
+
 @section('title', 'Dashboard - Edit Operational Hour')
-
-@section('css-pages')
-
-@endsection
 
 @section('header-menu', 'Ubah Jam Operasional')
 

@@ -273,8 +273,6 @@ $(document).ready(function () {
         $("#merchant-account #from_date").val("");
         $("#merchant-account #to_date").val("");
         $("#merchant-account .table-datatables").DataTable().search("");
-        // $('#merchant-account .select-filter-custom select').val('').change();
-        // $('#merchant-account .select-filter-custom select option[value=]').attr('selected', 'selected');
         $("#merchant-account .table-datatables")
             .DataTable()
             .ajax.reload(null, false);
@@ -295,14 +293,11 @@ $(document).ready(function () {
             for (const item of dataDistributor) {
                 option += `<option value="${item.DistributorID}">${item.DistributorName}</option>`;
             }
-            // $("#merchant-account .filter-depo select").append(option);
             if (dataDistributor.length > 1) {
                 $("#merchant-account .filter-depo select").append(option);
             } else {
                 $(".filter-depo").remove();
             }
-            // customDropdownFilter.createCustomDropdowns();
-            // $('#merchant-account .select-filter-custom select').val("All").change();
         },
     });
 
