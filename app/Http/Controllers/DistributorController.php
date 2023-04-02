@@ -44,6 +44,7 @@ class DistributorController extends Controller
         if ($depoUser != "ALL") {
             $data->where('ms_distributor.Depo', $depoUser);
         }
+
         if ($regionalUser != NULL && $depoUser == "ALL") {
             $data->where('ms_distributor.Regional', $regionalUser);
         }
@@ -345,6 +346,7 @@ class DistributorController extends Controller
                     ]);
                 DB::table('ms_product_price_log')->insert($data);
             });
+
             return redirect()->route('distributor.productDetails', ['distributorId' => $distributorId])->with('success', 'Data produk distributor telah diubah');
         } catch (\Throwable $th) {
             return redirect()->route('distributor.productDetails', ['distributorId' => $distributorId])->with('failed', 'Terjadi kesalahan sistem atau jaringan');
@@ -383,6 +385,7 @@ class DistributorController extends Controller
                     ->delete();
                 DB::table('ms_product_price_log')->insert($data);
             });
+
             return redirect()->route('distributor.productDetails', ['distributorId' => $distributorId])->with('success', 'Data produk distributor telah dihapus');
         } catch (\Throwable $th) {
             return redirect()->route('distributor.productDetails', ['distributorId' => $distributorId])->with('failed', 'Terjadi kesalahan sistem atau jaringan');

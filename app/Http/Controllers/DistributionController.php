@@ -147,6 +147,7 @@ class DistributionController extends Controller
         $fromShipmentDate = $request->input('fromShipmentDate');
         $toShipmentDate = $request->input('toShipmentDate');
         $paymentMethodId = $request->input('paymentMethodId');
+        $distributorId = $request->input('distributorId');
         $depoUser = Auth::user()->Depo;
         $regionalUser = Auth::user()->Regional;
 
@@ -169,8 +170,13 @@ class DistributionController extends Controller
         if ($depoUser != "ALL") {
             $sqlGetRestock->where('ms_distributor.Depo', $depoUser);
         }
+
         if ($regionalUser != NULL && $depoUser == "ALL") {
             $sqlGetRestock->where('ms_distributor.Regional', $regionalUser);
+        }
+
+        if ($distributorId) {
+            $sqlGetRestock->where('ms_distributor.DistributorID', $distributorId);
         }
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.

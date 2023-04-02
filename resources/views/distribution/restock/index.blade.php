@@ -3,6 +3,7 @@
 
 @section('css-pages')
 <meta name="role-id" content="{{ Auth::user()->RoleID }}">
+<meta name="depo" content="{{ Auth::user()->Depo }}">
 <!-- daterange picker -->
 <link rel="stylesheet" href="{{url('/')}}/plugins/daterangepicker/daterangepicker.css">
 <!-- Datatables -->
@@ -44,11 +45,6 @@
                 <div class="card">
                     <div class="card-header p-2">
                         <ul class="nav nav-pills" id="tab-restock">
-                            {{-- <li class="nav-item">
-                                <a class="nav-link active" href="#restock" data-toggle="tab">
-                                    Restock
-                                </a>
-                            </li> --}}
                             <li class="nav-item">
                                 <a class="nav-link active" href="#restock-all-product" data-toggle="tab">
                                     Restock All Product
@@ -79,34 +75,6 @@
                     </div><!-- /.card-header -->
                     <div class="card-body">
                         <div class="tab-content">
-                            <!-- Restock -->
-                            {{-- <div class="tab-pane active" id="restock">
-                                <div class="row">
-                                    <div class="col-12">
-                                        <table class="table table-datatables table-striped">
-                                            <thead>
-                                                <tr>
-                                                    <th>Stock Order ID</th>
-                                                    <th>Tgl Transaksi</th>
-                                                    <th>Distributor</th>
-                                                    <th>Merchant ID</th>
-                                                    <th>Nama Toko</th>
-                                                    <th>Sales</th>
-                                                    <th>Partner</th>
-                                                    <th>Total Transaksi</th>
-                                                    <th>Status Restock</th>
-                                                    <th>Metode Pembayaran</th>
-                                                    <th>No. Telp</th>
-                                                    <th>Alamat</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div> --}}
-
                             <!-- Restock All Product -->
                             <div class="tab-pane active" id="restock-all-product">
                                 <div class="row">
@@ -142,7 +110,8 @@
                                                     <th>Diskon</th>
                                                     <th>Harga stlh Diskon</th>
                                                     <th>Total Harga Produk</th>
-                                                    {{-- @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM") --}}
+                                                    {{-- @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID ==
+                                                    "FI" || Auth::user()->RoleID == "BM") --}}
                                                     <th>Harga Beli Estimasi</th>
                                                     <th>Margin Estimasi (Rp)</th>
                                                     <th>Margin Estimasi (%)</th>
@@ -436,7 +405,6 @@
 <!-- Main JS -->
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
 <script src="{{url('/')}}/main/js/custom/select-filter.js"></script>
-{{-- <script src="{{url('/')}}/main/js/distribution/restock/restock.js"></script> --}}
 <script src="{{url('/')}}/main/js/distribution/restock/restock-product.js"></script>
 <script src="{{url('/')}}/main/js/distribution/restock/semua-restock.js"></script>
 <script src="{{url('/')}}/main/js/distribution/restock/pesanan-baru.js"></script>
@@ -448,7 +416,52 @@
 <script src="{{url('/')}}/main/js/helper/keep-tab-refresh.js"></script>
 <script src="https://unpkg.com/autonumeric"></script>
 <script>
-    // Recall Responsive DataTables
+let depo = $('meta[name="depo"]').attr("content");
+
+const selectElement = depo === "ALL"
+? `<div class="select-filter-custom ml-2 distributor-select">
+        <select>
+            <option value="" selected disabled>Pilih Distributor</option>
+        </select>
+    </div>`
+: '';
+
+// Load Distributor ID and Name for filter
+$.ajax({
+    type: "get",
+    url: "/distributor/account/get",
+    success: function (data) {
+        let option;
+        const dataDistributor = data.data;
+        for (const item of dataDistributor) {
+            option += `<option value="${item.DistributorID}">${item.DistributorName}</option>`;
+        }
+        $(".distributor-select select").append(option);
+    },
+});
+
+// Load PaymentMethod ID and Name for filter
+$.ajax({
+    type: "get",
+    url: "/payment/method/get",
+    success: function (data) {
+        let option;
+
+        for (const item of data) {
+            option += `<option value="${item.PaymentMethodID}">${item.PaymentMethodName}</option>`;
+        }
+
+        $("#pesanan-baru .payment-method select").append(option);
+        $("#telah-dikonfirmasi .payment-method select").append(option);
+        $("#dalam-proses .payment-method select").append(option);
+        $("#telah-dikirim .payment-method select").append(option);
+        $("#telah-selesai .payment-method select").append(option);
+        $("#telah-dibatalkan .payment-method select").append(option);
+        customDropdownFilter.createCustomDropdowns();
+    },
+});
+
+// Recall Responsive DataTables
 $('a[data-toggle="tab"]').on('shown.bs.tab', function(e) {
     $('.table-datatables:visible').each(function(e) {
         $(this).DataTable().columns.adjust().responsive.recalc();

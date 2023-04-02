@@ -18,9 +18,8 @@ $(document).ready(function () {
                 data: function (d) {
                     d.fromDate = $("#telah-dikonfirmasi #from_date").val();
                     d.toDate = $("#telah-dikonfirmasi #to_date").val();
-                    d.paymentMethodId = $(
-                        "#telah-dikonfirmasi .select-filter-custom select"
-                    ).val();
+                    d.distributorId = $("#telah-dikonfirmasi .distributor-select select").val();
+                    d.paymentMethodId = $("#telah-dikonfirmasi .payment-method select").val();
                 },
             },
             columns: [
@@ -151,17 +150,20 @@ $(document).ready(function () {
     }
 
     // Create element for DateRange Filter
-    $("div.filter-telah-dikonfirmasi").html(`<div class="input-group">
-                            <input type="text" name="from_date" id="from_date" class="form-control form-control-sm" readonly>
-                            <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
-                            <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
-                            <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-2">Refresh</button>
-                            <div class="select-filter-custom ml-2">
-                                <select>
-                                    <option value="">All</option>
-                                </select>
-                            </div>
-                        </div>`);
+    $("div.filter-telah-dikonfirmasi").html(`
+        <div class="input-group">
+            <input type="text" name="from_date" id="from_date" class="form-control form-control-sm" readonly>
+            <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
+            <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
+            <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-2">Refresh</button>
+            ${selectElement}
+            <div class="select-filter-custom ml-2 payment-method">
+                <select>
+                    <option value="">All</option>
+                </select>
+            </div>
+        </div>
+    `);
 
     // Setting Awal Daterangepicker
     $("#telah-dikonfirmasi #from_date").daterangepicker({
