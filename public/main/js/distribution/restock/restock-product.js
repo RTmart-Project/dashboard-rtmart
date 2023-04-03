@@ -25,9 +25,8 @@ $(document).ready(function () {
                 data: function (d) {
                     d.fromDate = $("#restock-all-product #from_date").val();
                     d.toDate = $("#restock-all-product #to_date").val();
-                    d.paymentMethodId = $(
-                        "#restock-all-product .select-filter-custom select"
-                    ).val();
+                    d.distributorId = $("#restock-all-product .distributor-select select").val();
+                    // d.paymentMethodId = $("#restock-all-product .select-filter-custom select").val();
                 },
             },
             columns: [
@@ -247,12 +246,15 @@ $(document).ready(function () {
     }
 
     // Create element for DateRange Filter
-    $("div.filter-restock-all-product").html(`<div class="input-group">
-                          <input type="text" name="from_date" id="from_date" class="form-control form-control-sm" readonly>
-                          <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
-                          <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
-                          <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-2">Refresh</button>
-                      </div>`);
+    $("div.filter-restock-all-product").html(`
+        <div class="input-group">
+            <input type="text" name="from_date" id="from_date" class="form-control form-control-sm" readonly>
+            <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
+            <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
+            <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-2">Refresh</button>
+            ${selectElement}
+        </div>
+    `);
 
     // Setting Awal Daterangepicker
     $("#restock-all-product #from_date").daterangepicker({

@@ -18,9 +18,8 @@ $(document).ready(function () {
                 data: function (d) {
                     d.fromDate = $("#pesanan-baru #from_date").val();
                     d.toDate = $("#pesanan-baru #to_date").val();
-                    d.paymentMethodId = $(
-                        "#pesanan-baru .select-filter-custom select"
-                    ).val();
+                    d.distributorId = $("#pesanan-baru .distributor-select select").val();
+                    d.paymentMethodId = $("#pesanan-baru .payment-method select").val();
                 },
             },
             columns: [
@@ -145,17 +144,20 @@ $(document).ready(function () {
     }
 
     // Create element for DateRange Filter
-    $("div.filter-pesanan-baru").html(`<div class="input-group">
-                            <input type="text" name="from_date" id="from_date" class="form-control form-control-sm" readonly>
-                            <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
-                            <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
-                            <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-2">Refresh</button>
-                            <div class="select-filter-custom ml-2">
-                                <select>
-                                    <option value="">All</option>
-                                </select>
-                            </div>
-                        </div>`);
+    $("div.filter-pesanan-baru").html(`
+        <div class="input-group">
+            <input type="text" name="from_date" id="from_date" class="form-control form-control-sm" readonly>
+            <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
+            <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
+            <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-2">Refresh</button>
+            ${selectElement}
+            <div class="select-filter-custom ml-2 payment-method">
+                <select>
+                    <option value="">All</option>
+                </select>
+            </div>
+        </div>
+    `);
 
     // Setting Awal Daterangepicker
     $("#pesanan-baru #from_date").daterangepicker({
@@ -246,25 +248,25 @@ $(document).ready(function () {
     });
 
     // Load PaymentMethod ID and Name for filter
-    $.ajax({
-        type: "get",
-        url: "/payment/method/get",
-        success: function (data) {
-            let option;
-            for (const item of data) {
-                option += `<option value="${item.PaymentMethodID}">${item.PaymentMethodName}</option>`;
-            }
-            $("#pesanan-baru .select-filter-custom select").append(option);
-            $("#telah-dikonfirmasi .select-filter-custom select").append(
-                option
-            );
-            $("#dalam-proses .select-filter-custom select").append(option);
-            $("#telah-dikirim .select-filter-custom select").append(option);
-            $("#telah-selesai .select-filter-custom select").append(option);
-            $("#telah-dibatalkan .select-filter-custom select").append(option);
-            customDropdownFilter.createCustomDropdowns();
-        },
-    });
+    // $.ajax({
+    //     type: "get",
+    //     url: "/payment/method/get",
+    //     success: function (data) {
+    //         let option;
+
+    //         for (const item of data) {
+    //             option += `<option value="${item.PaymentMethodID}">${item.PaymentMethodName}</option>`;
+    //         }
+
+    //         $("#pesanan-baru .payment-method select").append(option);
+    //         $("#telah-dikonfirmasi .payment-method select").append(option);
+    //         $("#dalam-proses .payment-method select").append(option);
+    //         $("#telah-dikirim .payment-method select").append(option);
+    //         $("#telah-selesai .payment-method select").append(option);
+    //         $("#telah-dibatalkan .payment-method select").append(option);
+    //         customDropdownFilter.createCustomDropdowns();
+    //     },
+    // });
 
     // Event listener saat tombol select option diklik
     $("#pesanan-baru .select-filter-custom select").change(function () {

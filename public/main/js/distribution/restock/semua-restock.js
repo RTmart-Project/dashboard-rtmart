@@ -300,7 +300,8 @@ $(document).ready(function () {
                     </div>
                 </div>
                 <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-2">Refresh</button>
-            </div>`);
+            </div>
+        `);
 
         // Setting Awal Daterangepicker
         $("#semua-restock #from_date").daterangepicker({

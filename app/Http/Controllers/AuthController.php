@@ -42,8 +42,8 @@ class AuthController extends Controller
                 'CreatedDate' => date('Y-m-d H:i:s')
             ];
 
-            DB::table('ms_user_activity_log')
-                ->insert($data);
+            DB::table('ms_user_activity_log')->insert($data);
+
             return redirect('/home')->with('success', 'Berhasil. Selamat datang!');
         }
 
@@ -79,6 +79,7 @@ class AuthController extends Controller
     {
         $isRTRabat = Auth::user()->IsDashboardRTRabat;
         Auth::logout();
+
         if ($isRTRabat == 1) {
             return redirect()->route('auth.login.rabat');
         } else {

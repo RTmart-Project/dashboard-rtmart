@@ -1,4 +1,5 @@
 @extends('layouts.master')
+
 @section('title', 'Dashboard - Merchant Membership')
 
 @section('css-pages')
@@ -191,6 +192,4 @@
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
 <script src="{{url('/')}}/plugins/bootstrap-select/bootstrap-select.min.js"></script>
 <script src="{{url('/')}}/plugins/sweetalert2/sweetalert2.min.js"></script>
-<script>
-</script>
 @endsection

@@ -552,6 +552,7 @@ $(document).ready(function () {
                 $("#data-crowdo").html("");
             }
         });
+
         $("#store").html(`${merchantID} - ${store}`);
         $("#modal-crowdo").modal("show");
     });
