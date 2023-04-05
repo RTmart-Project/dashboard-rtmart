@@ -153,11 +153,17 @@ $(document).ready(function () {
             ${selectElement}
             <div class="select-filter-custom ml-2 payment-method">
                 <select>
+                    
                     <option value="">All</option>
                 </select>
             </div>
         </div>
     `);
+
+    $(document).on('change', '.distributor-select select', () => {
+        let distributorId = $("#pesanan-baru .distributor-select select").val();
+        console.log(distributorId)
+    })
 
     // Setting Awal Daterangepicker
     $("#pesanan-baru #from_date").daterangepicker({
@@ -246,27 +252,6 @@ $(document).ready(function () {
     $("#pesanan-baru #filter").click(function () {
         $("#pesanan-baru .table-datatables").DataTable().ajax.reload();
     });
-
-    // Load PaymentMethod ID and Name for filter
-    // $.ajax({
-    //     type: "get",
-    //     url: "/payment/method/get",
-    //     success: function (data) {
-    //         let option;
-
-    //         for (const item of data) {
-    //             option += `<option value="${item.PaymentMethodID}">${item.PaymentMethodName}</option>`;
-    //         }
-
-    //         $("#pesanan-baru .payment-method select").append(option);
-    //         $("#telah-dikonfirmasi .payment-method select").append(option);
-    //         $("#dalam-proses .payment-method select").append(option);
-    //         $("#telah-dikirim .payment-method select").append(option);
-    //         $("#telah-selesai .payment-method select").append(option);
-    //         $("#telah-dibatalkan .payment-method select").append(option);
-    //         customDropdownFilter.createCustomDropdowns();
-    //     },
-    // });
 
     // Event listener saat tombol select option diklik
     $("#pesanan-baru .select-filter-custom select").change(function () {

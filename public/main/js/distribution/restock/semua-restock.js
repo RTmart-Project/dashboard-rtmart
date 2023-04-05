@@ -289,7 +289,6 @@ $(document).ready(function () {
             <div class="input-group">
                 <input type="text" name="from_date" id="from_date" class="form-control form-control-sm" readonly>
                 <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
-                
                 <div class="dropdown">
                     <button class="btn btn-primary btn-sm dropdown-toggle ml-2" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Filter
