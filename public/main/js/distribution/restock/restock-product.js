@@ -256,6 +256,11 @@ $(document).ready(function () {
         </div>
     `);
 
+    $(document).on('change', '.distributor-select select', () => {
+        let distributorId = $("#restock-all-product .distributor-select select").val();
+        console.log(distributorId)
+    })
+
     // Setting Awal Daterangepicker
     $("#restock-all-product #from_date").daterangepicker({
         singleDatePicker: true,
