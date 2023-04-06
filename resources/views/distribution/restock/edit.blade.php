@@ -165,98 +165,65 @@
                                 <div class="col-md-3 col-12">
                                     <label class="mb-0">Catatan Validasi</label>
                                     <p>
-                                        {{ $merchantOrder->ValidationNotes != null ? $merchantOrder->ValidationNotes :
-                                        '-'}}
+                                        {{ $merchantOrder->ValidationNotes != null ? $merchantOrder->ValidationNotes : '-'}}
                                     </p>
                                 </div>
                             </div>
                             <div>
-                                @foreach ($merchantOrderDetail as $key => $value)
-                                <div class="row detail-product border-top">
-                                    <div class="col-md-3 col-12 text-center align-self-center mt-2">
-                                        @if (!$value->ProductImage)
-                                        asas
-                                        @else
-                                        <img src="{{ config('app.base_image_url') . '/product/'. $value->ProductImage }}"
-                                            alt="" width="100">
-                                        @endif
-                                        <p class="mb-0">{{ $value->ProductName }}</p>
-                                        <input type="hidden" name="product_id[]" value="{{ $value->ProductID }}">
-                                    </div>
-                                    <div class="col-md-9 col-12 align-self-center">
-                                        <div class="row">
-                                            <div class="col-md-4 col-12">
-                                                <div class="form-group">
-                                                    <label class="mb-0">Kuantitas Beli</label>
-                                                    <div class="input-group mb-3">
-                                                        <input type="number" name="minimum_tx_product[]" class="form-control col-md-8
-                                                            @if ($errors->has('minimum_tx_product')) is-invalid @endif"
-                                                            value="{{ $value->PromisedQuantity }}">
-                                                        @if($errors->has('minimum_tx_product'))
-                                                        <span class="error invalid-feedback">{{
-                                                            $errors->first('minimum_tx_product') }}</span>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4 col-12">
-                                                <div class="form-group">
-                                                    <label class="mb-0">Harga Satuan</label>
-                                                    <div class="input-group mb-3">
-                                                        <div class="input-group-prepend">
-                                                            <span class="input-group-text">Rp </span>
+                                <form id="edit-restock-form"
+                                    action="{{ url('/distribution/restock/update/'.$stockOrderID) }}" method="POST">
+                                    @csrf
+                                    @foreach ($merchantOrderDetail as $key => $value)
+                                    <div class="row detail-product border-top">
+                                        <div class="col-md-3 col-12 text-center align-self-center mt-2">
+                                            <img src="{{ config('app.base_image_url') . '/product/'. $value->ProductImage }}"
+                                                alt="" width="100">
+                                            <p class="mb-0">{{ $value->ProductName }}</p>
+                                            <input type="hidden" name="product_id[]" value="{{ $value->ProductID }}">
+                                        </div>
+                                        <div class="col-md-9 col-12 align-self-center">
+                                            <div class="row">
+                                                <div class="col-md-4 col-12">
+                                                    <div class="form-group">
+                                                        <label class="mb-0" for="purchase_qty{{ $value->ProductID }}">
+                                                            Kuantitas Beli
+                                                        </label>
+                                                        <div class="input-group mb-3">
+                                                            <input type="number" name="purchase_qty[]" class="form-control col-md-8 purchase_qty
+                                                            @if ($errors->has('purchase_qty')) is-invalid @endif"
+                                                                id="purchase_qty{{ $value->ProductID }}"
+                                                                value="{{ $value->PromisedQuantity }}">
+                                                            @if($errors->has('purchase_qty'))
+                                                            <span class="error invalid-feedback">{{
+                                                                $errors->first('purchase_qty') }}</span>
+                                                            @endif
                                                         </div>
-                                                        <input type="number" name="minimum_tx_product[]" class="form-control col-md-8
-                                                            @if ($errors->has('minimum_tx_product')) is-invalid @endif"
-                                                            value="{{ $value->Nett }}">
-                                                        @if($errors->has('minimum_tx_product'))
-                                                        <span class="error invalid-feedback">{{
-                                                            $errors->first('minimum_tx_product') }}</span>
-                                                        @endif
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="col-md-4 col-12">
-                                                <label class="mb-0">Total Harga Produk</label>
-                                                <p class="font-weight-bold">
-                                                    {{ Helper::formatCurrency($value->PromisedQuantity * ($value->Nett),
-                                                    'Rp ') }}
-                                                </p>
+                                                <div class="col-md-4 col-12">
+                                                    <div class="form-group">
+                                                        <label class="mb-0">Harga Satuan</label>
+                                                        <div class="input-group mb-3">
+                                                            <div class="input-group-prepend">
+                                                                <span class="input-group-text">Rp </span>
+                                                            </div>
+                                                            <input type="number" name="product_price[]" class="form-control col-md-8
+                                                            @if ($errors->has('product_price')) is-invalid @endif"
+                                                                value="{{ $value->Nett }}">
+                                                            @if($errors->has('product_price'))
+                                                            <span class="error invalid-feedback">{{
+                                                                $errors->first('product_price') }}</span>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                @endforeach
+                                    @endforeach
+                                </form>
                             </div>
                             <hr>
-                            <div class="row">
-                                <div class="col-12 d-md-flex justify-content-end">
-                                    <div class="col-md-6 col-12">
-                                        <div class="row">
-                                            <div class="col-6 text-right">
-                                                <label>SubTotal :</label>
-                                            </div>
-                                            <div class="col-6">
-                                                <p class="font-weight-bold mb-0" id="sub_total">
-                                                    {{ Helper::formatCurrency($merchantOrder->TotalPrice, 'Rp ') }}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-6 text-right">
-                                                <label>GrandTotal :</label>
-                                            </div>
-                                            <div class="col-6">
-                                                <p class="font-weight-bold text-success mb-0" id="grand_total">
-                                                    {{ Helper::formatCurrency($merchantOrder->NettPrice +
-                                                    $merchantOrder->ServiceChargeNett + $merchantOrder->DeliveryFee, 'Rp
-                                                    ') }}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                             <div class="row konfirmasi m-0">
                                 <div class="col-12">
                                     <div class="row d-md-flex justify-content-center">
@@ -285,67 +252,6 @@
 <script src="{{ url('/') }}/plugins/bootstrap-select/bootstrap-select.min.js"></script>
 @yield('js-detail-restock')
 <script>
-    // Event listener saat mengetik qty edit delivery order
-    $('.edit-qty-do').on('keyup', function (e) {
-        e.preventDefault();
-        const priceProduct = $(this).next().text().replaceAll("x @Rp ", "").replaceAll(".", "");
-        const qtyDO = $(this).val();
-        
-        const totalPriceProduct = Number(qtyDO) * Number(priceProduct);
-        $(this).parent().parent().next().children().last().html('Rp ' + thousands_separators(totalPriceProduct));
-        
-        const totalPriceAllProductArr = $(this).closest('.detail-do-wrapper').find('.price-total').text().replace("Rp ", "").replaceAll("Rp ", ",").replaceAll(".", "").split(",");
-
-        let priceAllProductNumber = totalPriceAllProductArr.map(Number);
-        let subTotalDO = 0;
-        $.each(priceAllProductNumber, function() {
-            subTotalDO += this;
-        });
-
-        $(this).closest('.detail-do-wrapper').find('.price-subtotal').html('Rp ' + thousands_separators(subTotalDO));
-    });
-
-    function updatePrice() {
-        let subTotal = 0;
-        $('.add-do').each(function() {
-            const qty = $(this).find('.qty-do').val();
-            const price = $(this).find('.nett-price').text().replaceAll("@Rp ", "").replaceAll(".", "");
-            let totalPriceProduct = (Number(qty) * Number(price));
-            subTotal += totalPriceProduct;
-        });
-        $('.subtotal-do').text(thousands_separators(subTotal));
-    }
-
-    // Event listener saat mengetik qty create delivery order
-    $('.qty-do').on('keyup', function (e) {
-        e.preventDefault();
-        const priceProduct = $(this).closest('.add-do').find('.nett-price').text().replaceAll("@Rp ", "").replaceAll(".", "");
-        const qtyDO = $(this).closest('.add-do').find('.qty-do').val();
-        const totalPriceElm = $(this).closest('.add-do').find('.total-price');
-        const totalPriceProduct = Number(qtyDO) * Number(priceProduct);
-        totalPriceElm.html(thousands_separators(totalPriceProduct));
-
-        updatePrice();
-    });
-
-    $(':checkbox').change(function() {
-        $(this).closest(".add-do").find("#qty_do, #product_id, #price, #max_qty_do").prop('disabled', !$(this).is(':checked'));
-        if ($(':checkbox:checked').length > 0) {
-            $("#btn-do").prop('disabled', false);
-        } else {
-            $("#btn-do").prop('disabled', true);
-        }
-    });
-
-    $('.check_rtmart').change(function() {
-        if ($('.check_rtmart:checked').length > 0) {
-            $('.check_haistar').prop('disabled', true);
-            $('#form-add-do').attr('action', '{{ route('distribution.createDeliveryOrder', ['stockOrderID' => $stockOrderID, 'depoChannel' => 'rtmart']) }}');
-        } else {
-            $('.check_haistar').prop('disabled', false);
-        }
-    });
-
     // Event listener saat tombol batal diklik
     $('.konfirmasi').on('click', '.btn-batal', function (e) {
         e.preventDefault();
@@ -353,32 +259,20 @@
         const storeName = $(this).data("store-name");
         $.confirm({
             type: 'red',
+            draggable: false,
             typeAnimated: true,
-            title: 'Batalkan Pesanan',
-            content: `Yakin ingin membatalkan pesanan <b>${orderID}</b> dari <b>${storeName}</b>? <br>
-                <label class="mt-2 mb-0">Alasan Batal:</label>
-                <form action="/distribution/restock/update/${orderID}/reject" method="post">
-                    @csrf
-                    <input type="text" class="form-control cancel_reason" name="cancel_reason" autocomplete="off">
-                </form>`,
+            title: 'Ubah Pesanan',
+            content: `Yakin ingin mengubah pesanan <b>${orderID}</b> dari <b>${storeName}</b>?`,
             closeIcon: true,
             buttons: {
-                batalkan: {
+                ubah: {
                     btnClass: 'btn-red',
-                    draggable: true,
                     dragWindowGap: 0,
                     action: function () {
-                        let cancel_reason = this.$content.find('.cancel_reason').val();
-
-                        if (!cancel_reason) {
-                            $.alert('Alasan tidak boleh kosong', 'Alasan Batal');
-                            return false;
-                        }
-
-                        let form = this.$content.find('form').submit();
+                        $('#edit-restock-form').submit();
                     }
                 },
-                kembali: function () {}
+                kembali: () => {}
             }
         });
     });

@@ -250,10 +250,12 @@ class DistributionController extends Controller
                     return $validation;
                 })
                 ->addColumn('Action', function ($data) {
-                    $actionBtn = '
-                        <a class="btn btn-sm btn-secondary" href="/distribution/restock/detail/' . $data->StockOrderID . '">Lihat</a>
-                        <a class="btn btn-sm btn-warning" href="/distribution/restock/edit/' . $data->StockOrderID . '">Ubah</a>
-                    ';
+                    $actionBtn = '<a class="btn btn-sm btn-secondary" href="/distribution/restock/detail/' . $data->StockOrderID . '">Lihat</a>';
+
+                    if (Auth::user()->RoleID == 'IT') {
+                        $actionBtn .= '<a class="btn btn-sm btn-warning" href="/distribution/restock/edit/' . $data->StockOrderID . '">Ubah</a>';
+                    }
+
                     return $actionBtn;
                 })
                 ->addColumn('PriceSubmission', function ($data) {
@@ -817,145 +819,51 @@ class DistributionController extends Controller
             ->select('tx_merchant_order_detail.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage', 'tx_merchant_order_detail.Quantity', 'tx_merchant_order_detail.PromisedQuantity', 'tx_merchant_order_detail.Price', 'tx_merchant_order_detail.Discount', 'tx_merchant_order_detail.Nett')
             ->get();
 
-        $deliveryOrder = DB::table('tx_merchant_delivery_order AS do')
-            ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'do.StatusDO')
-            ->leftJoin('ms_user AS driver', 'driver.UserID', 'do.DriverID')
-            ->leftJoin('ms_user AS helper', 'helper.UserID', 'do.HelperID')
-            ->leftJoin('ms_vehicle', 'ms_vehicle.VehicleID', 'do.VehicleID')
-            ->where('do.StockOrderID', '=', $stockOrderID)
-            ->where('do.StatusDO', '!=', 'S026')
-            ->select('do.*', 'ms_status_order.StatusOrder', 'driver.Name', 'helper.Name AS HelperName', 'ms_vehicle.VehicleName')
-            ->get();
-
-        foreach ($deliveryOrder as $key => $value) {
-            $dateDlmPengiriman = DB::table('tx_merchant_delivery_order_log')
-                ->where('DeliveryOrderID', $value->DeliveryOrderID)
-                ->where('StatusDO', 'S024')
-                ->selectRaw("MAX(ProcessTime) AS DateKirim")
-                ->first();
-            $value->DateKirim = $dateDlmPengiriman->DateKirim;
-
-            $deliveryOrderDetail = DB::table('tx_merchant_delivery_order_detail')
-                ->leftJoin('ms_status_order', 'ms_status_order.StatusOrderID', 'tx_merchant_delivery_order_detail.StatusExpedition')
-                ->join('ms_product', 'ms_product.ProductID', '=', 'tx_merchant_delivery_order_detail.ProductID')
-                ->join('tx_merchant_delivery_order', 'tx_merchant_delivery_order.DeliveryOrderID', '=', 'tx_merchant_delivery_order_detail.DeliveryOrderID')
-                ->where('tx_merchant_delivery_order_detail.DeliveryOrderID', '=', $value->DeliveryOrderID)
-                ->where('tx_merchant_delivery_order_detail.StatusExpedition', '!=', 'S037')
-                ->select('tx_merchant_delivery_order_detail.ProductID', 'tx_merchant_delivery_order_detail.Qty', 'tx_merchant_delivery_order_detail.Price', 'ms_product.ProductName', 'ms_product.ProductImage', 'tx_merchant_delivery_order_detail.Distributor', 'ms_status_order.StatusOrder')
-                ->get()
-                ->toArray();
-            $value->DetailProduct = $deliveryOrderDetail;
-
-            $subTotal = 0;
-            foreach ($deliveryOrderDetail as $key => $item) {
-                $subTotal += $item->Price * $item->Qty;
-                $orderQty = DB::table('tx_merchant_order_detail')
-                    ->leftJoin('tx_merchant_delivery_order', function ($join) {
-                        $join->on('tx_merchant_delivery_order.StockOrderID', 'tx_merchant_order_detail.StockOrderID');
-                    })
-                    ->leftJoin('tx_merchant_delivery_order_detail', function ($join) use ($item) {
-                        $join->on('tx_merchant_delivery_order_detail.DeliveryOrderID', 'tx_merchant_delivery_order.DeliveryOrderID');
-                        $join->where('tx_merchant_delivery_order_detail.ProductID', $item->ProductID);
-                    })
-                    ->where('tx_merchant_order_detail.StockOrderID', $stockOrderID)
-                    ->where('tx_merchant_order_detail.ProductID', $item->ProductID)
-                    ->select(
-                        'tx_merchant_order_detail.PromisedQuantity',
-                        'tx_merchant_order_detail.ProductID',
-                        DB::raw("IFNULL(SUM(IF(tx_merchant_delivery_order.StatusDO = 'S025', tx_merchant_delivery_order_detail.Qty, 0)), 0) AS QtyDOSelesai"),
-                        DB::raw("IFNULL(SUM(IF(tx_merchant_delivery_order.StatusDO = 'S024', tx_merchant_delivery_order_detail.Qty, 0)), 0) AS QtyDODlmPengiriman")
-                    )
-                    ->groupBy('tx_merchant_order_detail.PromisedQuantity', 'tx_merchant_order_detail.ProductID')
-                    ->first();
-                $item->OrderQty = $orderQty->PromisedQuantity;
-                $item->QtyDOSelesai = $orderQty->QtyDOSelesai;
-                $item->QtyDODlmPengiriman = $orderQty->QtyDODlmPengiriman;
-
-                $item->IsHaistarProduct = 0;
-            }
-            $dueDate = strtotime("$value->FinishDate +5 day");
-            if ($value->IsPaid == 0) {
-                $timeDiff = time() - $dueDate;
-            } else {
-                $timeDiff = strtotime($value->PaymentDate) - $dueDate;
-            }
-            $lateDays = round($timeDiff / (60 * 60 * 24));
-
-            $grandTotal = $subTotal + $value->ServiceCharge + $value->DeliveryFee - $value->Discount;
-
-            if ($lateDays > 0 && $merchantOrder->PaymentMethodID == 14) {
-                $sqlLateBillFee = DB::table('tx_merchant_delivery_order_bill')
-                    ->where('PaymentMethodID', $merchantOrder->PaymentMethodID)
-                    ->whereRaw("$lateDays BETWEEN OverdueStartDay AND OverdueToDay")
-                    ->select('TypeFee', 'NominalFee')
-                    ->first();
-
-                if ($sqlLateBillFee->TypeFee == "PERCENT") {
-                    $lateFee = $grandTotal * $sqlLateBillFee->NominalFee / 100;
-                    $grandTotal += $lateFee;
-                }
-
-                if ($sqlLateBillFee->TypeFee == 'NOMINAL') {
-                    $lateFee = $sqlLateBillFee->NominalFee;
-                    $grandTotal += $lateFee;
-                }
-            } else {
-                $lateFee = 0;
-            }
-
-            $value->SubTotal = $subTotal;
-            $value->LateFee = $lateFee;
-            $value->GrandTotal = $grandTotal;
-        }
-
-        $productAddDO = DB::table('tx_merchant_order_detail')
-            ->join('ms_product', 'ms_product.ProductID', '=', 'tx_merchant_order_detail.ProductID')
-            ->where('tx_merchant_order_detail.StockOrderID', '=', $stockOrderID)
-            ->select('tx_merchant_order_detail.ProductID', 'tx_merchant_order_detail.PromisedQuantity', 'tx_merchant_order_detail.Nett', 'ms_product.ProductName', 'ms_product.ProductImage')
-            ->get();
-
-        $promisedQty = 0;
-        $deliveryOrderQty = 0;
-
-
-        $drivers = DB::table('ms_user')
-            ->where('RoleID', 'DRV')
-            ->where('IsTesting', 0)
-            ->select('UserID', 'Name')
-            ->orderBy('Name');
-
-        $helpers = DB::table('ms_user')
-            ->where('RoleID', 'HLP')
-            ->where('IsTesting', 0)
-            ->select('UserID', 'Name')
-            ->orderBy('Name');
-
-        if (Auth::user()->Depo == "ALL") {
-            $dataDrivers = $drivers->get();
-            $dataHelpers = $helpers->get();
-        } else {
-            $dataDrivers = $drivers->where('Depo', Auth::user()->Depo)->get();
-            $dataHelpers = $helpers->where('Depo', Auth::user()->Depo)->get();
-        }
-
-        $vehicles = DB::table('ms_vehicle')
-            ->whereNotIn('VehicleID', [1, 2, 3])
-            ->select('*')
-            ->orderBy('VehicleName')
-            ->get();
-
         return view('distribution.restock.edit', [
             'stockOrderID' => $stockOrderID,
             'merchantOrder' => $merchantOrder,
             'merchantOrderDetail' => $merchantOrderDetail,
-            'deliveryOrder' => $deliveryOrder,
-            'productAddDO' => $productAddDO,
-            'promisedQty' => $promisedQty,
-            'deliveryOrderQty' => $deliveryOrderQty,
-            'drivers' => $dataDrivers,
-            'helpers' => $dataHelpers,
-            'vehicles' => $vehicles
         ]);
+    }
+
+    public function updateRestock(Request $request, $stockOrderID)
+    {
+        $productID = $request->product_id;
+        $purchaseQty = $request->purchase_qty;
+        $productPrice = $request->product_price;
+
+        $totalPrice = 0;
+        foreach ($productID as $key => $value) {
+            $totalPrice += $purchaseQty[$key] * $productPrice[$key];
+        }
+
+        DB::transaction(function () use ($stockOrderID, $productID, $purchaseQty, $productPrice, $totalPrice) {
+            foreach ($productID as $key => $value) {
+                DB::table('tx_merchant_order_detail')
+                    ->where('StockOrderID', $stockOrderID)
+                    ->where('ProductID', $value)
+                    ->update([
+                        // 'Quantity' => $purchaseQty[$key],
+                        'Price' => $productPrice[$key],
+                        // 'PromisedQuantity' => $purchaseQty[$key],
+                        'Nett' => $productPrice[$key],
+                    ]);
+
+                DB::table('tx_merchant_delivery_order_detail AS tmdod')
+                    ->join('tx_merchant_delivery_order AS tmdo', 'tmdo.DeliveryOrderID', 'tmdod.DeliveryOrderID')
+                    ->join('tx_merchant_order AS tmo', 'tmdo.StockOrderID', 'tmo.StockOrderID')
+                    ->where('tmdo.StockOrderID', $stockOrderID)
+                    ->where('tmdod.ProductID', $value)
+                    ->update([
+                        'tmo.TotalPrice' => $totalPrice,
+                        'tmo.NettPrice' => $totalPrice,
+                        // 'tmdod.Qty' => $purchaseQty[$key],
+                        'tmdod.Price' => $productPrice[$key]
+                    ]);
+            }
+        });
+
+        return redirect()->back();
     }
 
     public function updateStatusRestock(Request $request, $stockOrderID, $status, DeliveryOrderService $deliveryOrderService)
@@ -1249,7 +1157,7 @@ class DistributionController extends Controller
         }
     }
 
-    public function createDeliveryOrder(Request $request, $stockOrderID, $depoChannel, HaistarService $haistarService, DeliveryOrderService $deliveryOrderService)
+    public function createDeliveryOrder(Request $request, $stockOrderID, $depoChannel, DeliveryOrderService $deliveryOrderService)
     {
         $baseImageUrl = config('app.base_image_url');
 
@@ -1294,7 +1202,7 @@ class DistributionController extends Controller
                 $value += ['DeliveryOrderID' => $newDeliveryOrderID];
                 $value += ['Distributor' => 'RT MART'];
 
-                $validation = $deliveryOrderService->validateRemainingQty($stockOrderID, "", $value['ProductID'], $value['Qty'], "CreateDO");
+                $validation = $deliveryOrderService->validateRemainingQty($stockOrderID, $newDeliveryOrderID, $value['ProductID'], $value['Qty'], "CreateDO");
                 $value += ['Price' => $validation['price']];
                 if ($validation['status'] == false) {
                     $validationStatus = false;
