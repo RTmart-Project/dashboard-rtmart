@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\Helper;
 use App\Services\DeliveryOrderService;
 use App\Services\HaistarService;
 use App\Services\MerchantService;
@@ -787,10 +786,6 @@ class DistributionController extends Controller
                 'tx_merchant_order.PaymentMethodID',
                 'tx_merchant_order.TotalPrice',
                 'tx_merchant_order.NettPrice',
-                'tx_merchant_order.DiscountPrice',
-                'tx_merchant_order.DiscountVoucher',
-                'tx_merchant_order.ServiceChargeNett',
-                'tx_merchant_order.DeliveryFee',
                 'tx_merchant_order.CreatedDate',
                 'tx_merchant_order.ShipmentDate',
                 'tx_merchant_order.MerchantNote',
@@ -800,7 +795,6 @@ class DistributionController extends Controller
                 'tx_merchant_order.CancelReasonNote',
                 'ms_status_order.StatusOrder',
                 'ms_payment_method.PaymentMethodName',
-                'ms_distributor.IsHaistar',
                 'tx_merchant_order.IsValid',
                 'tx_merchant_order.ValidationNotes',
                 'ms_distributor.DistributorName',

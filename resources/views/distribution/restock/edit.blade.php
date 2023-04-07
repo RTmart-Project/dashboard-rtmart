@@ -246,17 +246,12 @@
 @endsection
 @section('js-pages')
 <script src="https://unpkg.com/autonumeric"></script>
-<script defer type="text/javascript"
-    src="https://maps.googleapis.com/maps/api/js?callback=initMap&v=3&key=AIzaSyC9kPfmVtf71uGeDfHMMHDzHAl-FEBtOEw&libraries=places">
-</script>
 <script src="{{ url('/') }}/plugins/bootstrap-select/bootstrap-select.min.js"></script>
-@yield('js-detail-restock')
 <script>
-    // Event listener saat tombol batal diklik
-    $('.konfirmasi').on('click', '.btn-batal', function (e) {
+    $('.konfirmasi').on('click', '.btn-batal', (e) => {
         e.preventDefault();
-        const orderID = $(this).data("order-id");
-        const storeName = $(this).data("store-name");
+        const orderID = $('.btn-batal').data('order-id');
+        const storeName = $('.btn-batal').data('store-name');
         $.confirm({
             type: 'red',
             draggable: false,
