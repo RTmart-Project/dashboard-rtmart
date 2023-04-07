@@ -88,14 +88,11 @@ class RTSalesController extends Controller
 
     public function addSales()
     {
-        $sqlTeam = DB::table('ms_team_name')
-            ->select('*')->get();
+        $sqlTeam = DB::table('ms_team_name')->get();
 
-        $sqlProductGroup = DB::table('ms_product_group')
-            ->select('*')->get();
+        $sqlProductGroup = DB::table('ms_product_group')->get();
 
-        $sqlWorkStatus = DB::table('ms_sales_work_status')
-            ->select('*')->get();
+        $sqlWorkStatus = DB::table('ms_sales_work_status')->get();
 
         return view('rtsales.saleslist.add', [
             'teams' => $sqlTeam,
@@ -119,17 +116,12 @@ class RTSalesController extends Controller
 
         $prefixSalesCode = $request->input('prefix_sales_code');
         $team = $request->input('team');
-        if ($prefixSalesCode) {
-            $salesCode = $prefixSalesCode . '-' . $team;
-            $maxSalesCode = DB::table('ms_sales')
-                ->where('SalesCode', 'like', '%' . $salesCode . '%')
-                ->max('SalesCode');
-        } else {
-            $salesCode = $team;
-            $maxSalesCode = DB::table('ms_sales')
-                ->where('SalesCode', 'like', $salesCode . '%')
-                ->max('SalesCode');
-        }
+
+        $salesCode = $prefixSalesCode ? $prefixSalesCode . '-' . $team : $team;
+
+        $maxSalesCode = DB::table('ms_sales')
+            ->where('SalesCode', 'like', '%' . $salesCode . '%')
+            ->max('SalesCode');
 
         if ($maxSalesCode == null) {
             $newSalesCode = $salesCode . '001';
@@ -140,7 +132,7 @@ class RTSalesController extends Controller
         }
 
         $data = [
-            'SalesName' => ucwords($request->input('sales_name')),
+            'SalesName' => ucwords(strtolower($request->input('sales_name'))),
             'SalesCode' => $newSalesCode,
             'SalesLevel' => $request->input('sales_level'),
             'Team' => $request->input('team'),
@@ -162,8 +154,8 @@ class RTSalesController extends Controller
 
         try {
             DB::transaction(function () use ($data, $productGroup) {
-                DB::table('ms_sales')
-                    ->insert($data);
+                DB::table('ms_sales')->insert($data);
+
                 foreach ($productGroup as &$value) {
                     $value = array_combine(['ProductGroupID', 'SalesCode'], $value);
                     DB::table('ms_sales_product_group')
@@ -388,7 +380,7 @@ class RTSalesController extends Controller
 
     public function updateIsValid($visitSurveyID, $isValid)
     {
-        if ($isValid === "true") {
+        if ($isValid == "true") {
             $dataValid = 1;
         } else {
             $dataValid = 0;
@@ -435,6 +427,7 @@ class RTSalesController extends Controller
         if ($depoUser != "ALL") {
             $sqlStoreList->where('ms_distributor.Depo', $depoUser);
         }
+
         if ($regionalUser != NULL && $depoUser == "ALL") {
             $sqlStoreList->where('ms_distributor.Regional', $regionalUser);
         }
@@ -525,6 +518,7 @@ class RTSalesController extends Controller
         ];
 
         $insert = DB::table('ms_store')->insert($data);
+
         if ($insert) {
             return redirect()->route('rtsales.storeList')->with('success', 'Data Store berhasil ditambahkan');
         } else {
@@ -595,6 +589,7 @@ class RTSalesController extends Controller
                     ->where('IsActive', 1)
                     ->update(['MerchantID' => $request->input('merchant')]);
             });
+
             return redirect()->route('rtsales.storeList')->with('success', 'Data Store berhasil diubah');
         } catch (\Throwable $th) {
             return redirect()->route('rtsales.storeList')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
