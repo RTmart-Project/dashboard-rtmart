@@ -16,8 +16,7 @@ class Controller extends BaseController
     {
         $sql = DB::table('ms_investor')
             ->where('InvestorID', $id)
-            ->select('*')
-            ->first('');
+            ->first();
 
         return $sql;
     }

@@ -178,18 +178,13 @@ class RTSalesController extends Controller
             ->select('SalesName', 'SalesCode', 'SalesLevel', 'Team', 'TeamBy', 'Email', 'PhoneNumber', 'Password', 'SalesWorkStatus', 'IsActive')
             ->first();
 
-        $sqlSalesProductGroup = DB::table('ms_sales_product_group')
-            ->where('SalesCode', '=', $salesCode)
-            ->select('*')->get();
+        $sqlSalesProductGroup = DB::table('ms_sales_product_group')->where('SalesCode', '=', $salesCode)->get();
 
-        $sqlTeam = DB::table('ms_team_name')
-            ->select('*')->get();
+        $sqlTeam = DB::table('ms_team_name')->get();
 
-        $sqlProductGroup = DB::table('ms_product_group')
-            ->select('*')->get();
+        $sqlProductGroup = DB::table('ms_product_group')->get();
 
-        $sqlWorkStatus = DB::table('ms_sales_work_status')
-            ->select('*')->get();
+        $sqlWorkStatus = DB::table('ms_sales_work_status')->get();
 
         return view('rtsales.saleslist.edit', [
             'salesCode' => $salesCode,
@@ -209,8 +204,6 @@ class RTSalesController extends Controller
             'team' => 'exists:ms_team_name,TeamCode',
             'product_group.*' => 'exists:ms_product_group,ProductGroupID',
             'work_status' => 'exists:ms_sales_work_status,SalesWorkStatusID',
-            // 'phone_number' => 'digits_between:10,13',
-            // 'email' => 'email:rfc',
         ]);
 
         $data = [
@@ -220,8 +213,6 @@ class RTSalesController extends Controller
             'TeamBy' => $request->input('team_by'),
             'SalesWorkStatus' => $request->input('work_status'),
             'PhoneNumber' => $request->input('phone_number'),
-            // 'Email' => $request->input('email'),
-            // 'Password' => $request->input('password'),
             'IsActive' => $request->input('is_active')
         ];
 
@@ -235,6 +226,7 @@ class RTSalesController extends Controller
         $productGroup = array_map(function () {
             return func_get_args();
         }, $productGroupId);
+
         foreach ($productGroup as $key => $value) {
             $productGroup[$key][] = $salesCode;
         }
