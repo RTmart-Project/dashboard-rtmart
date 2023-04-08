@@ -375,7 +375,6 @@ class CustomerController extends Controller
         $customer = DB::table('tx_product_order')
             ->join('ms_customer_account', 'ms_customer_account.CustomerID', '=', 'tx_product_order.CustomerID')
             ->where('tx_product_order.OrderID', '=', $orderId)
-            ->select('*')
             ->first();
 
         $customerOrderHistory = DB::table('tx_product_order_log')

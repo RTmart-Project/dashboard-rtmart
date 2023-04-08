@@ -413,28 +413,27 @@ class VoucherController extends Controller
 
         $voucher = DB::table('ms_voucher')
             ->where('VoucherCode', '=', $voucherCode)
-            ->select('*')
             ->first();
 
         $voucherPaymentMethod = DB::table('ms_voucher_term_payment_method')
             ->where('VoucherCode', '=', $voucherCode)
-            ->select('*')->get();
+            ->get();
 
         $voucherDistributorLocation = DB::table('ms_voucher_term_distributor_location')
             ->where('VoucherCode', '=', $voucherCode)
-            ->select('*')->get();
+            ->get();
 
         $voucherBrand = DB::table('ms_voucher_term_brand')
             ->where('VoucherCode', '=', $voucherCode)
-            ->select('*')->get();
+            ->get();
 
         $voucherCategory = DB::table('ms_voucher_term_category')
             ->where('VoucherCode', '=', $voucherCode)
-            ->select('*')->get();
+            ->get();
 
         $voucherProduct = DB::table('ms_voucher_term_product')
             ->where('VoucherCode', '=', $voucherCode)
-            ->select('*')->get();
+            ->get();
 
         return view('voucher.list.edit', [
             'voucherType' => $voucherType,

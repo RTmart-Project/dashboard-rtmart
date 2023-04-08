@@ -74,16 +74,16 @@ class ProductController extends Controller
 
     public function getProductById($productId)
     {
-        $product = DB::table('ms_product')->where('ProductID', $productId)->select('*')->first();
+        $product = DB::table('ms_product')->where('ProductID', $productId)->first();
         return $product;
     }
 
     public function addList()
     {
-        $categoryProduct = DB::table('ms_product_category')->select('*')->get();
-        $typeProduct = DB::table('ms_product_type')->select('*')->get();
-        $brandProduct = DB::table('ms_brand_type')->select('*')->get();
-        $uomProduct = DB::table('ms_product_uom')->select('*')->get();
+        $categoryProduct = DB::table('ms_product_category')->get();
+        $typeProduct = DB::table('ms_product_type')->get();
+        $brandProduct = DB::table('ms_brand_type')->get();
+        $uomProduct = DB::table('ms_product_uom')->get();
 
         return view('product.list.new', [
             'categoryProduct' => $categoryProduct,
@@ -158,14 +158,14 @@ class ProductController extends Controller
 
     public function editList($product)
     {
-        $categoryProduct = DB::table('ms_product_category')->select('*')->get();
-        $typeProduct = DB::table('ms_product_type')->select('*')->get();
-        $brandProduct = DB::table('ms_brand_type')->select('*')->get();
-        $uomProduct = DB::table('ms_product_uom')->select('*')->get();
+        $categoryProduct = DB::table('ms_product_category')->get();
+        $typeProduct = DB::table('ms_product_type')->get();
+        $brandProduct = DB::table('ms_brand_type')->get();
+        $uomProduct = DB::table('ms_product_uom')->get();
 
         $productById = DB::table('ms_product')
             ->where('ProductID', '=', $product)
-            ->select('*')->first();
+            ->first();
 
         return view('product.list.edit', [
             'productById' => $productById,
@@ -280,7 +280,7 @@ class ProductController extends Controller
     {
         $categoryById = DB::table('ms_product_category')
             ->where('ProductCategoryID', '=', $category)
-            ->select('*')->first();
+            ->first();
 
         return view('product.category.edit', [
             'categoryById' => $categoryById
@@ -361,7 +361,7 @@ class ProductController extends Controller
     {
         $uomById = DB::table('ms_product_uom')
             ->where('ProductUOMID', '=', $uom)
-            ->select('*')->first();
+            ->first();
 
         return view('product.uom.edit', [
             'uomById' => $uomById
@@ -455,7 +455,7 @@ class ProductController extends Controller
     {
         $typeById = DB::table('ms_product_type')
             ->where('ProductTypeID', '=', $type)
-            ->select('*')->first();
+            ->first();
 
         return view('product.type.edit', [
             'typeById' => $typeById
@@ -548,7 +548,7 @@ class ProductController extends Controller
     {
         $brandById = DB::table('ms_brand_type')
             ->where('BrandID', '=', $brand)
-            ->select('*')->first();
+            ->first();
 
         if ($brandById->BrandImage == null) {
             $brandById->BrandImage = 'not-found.png';

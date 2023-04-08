@@ -957,7 +957,7 @@ class StockController extends Controller
     public function detailPurchase(PurchaseService $purchaseService, $purchaseID)
     {
         $purchaseByID = $purchaseService->getStockPurchaseByID($purchaseID);
-        $suppliers = DB::table('ms_suppliers')->select('*')->orderBy('SupplierID')->get();
+        $suppliers = DB::table('ms_suppliers')->orderBy('SupplierID')->get();
 
         return view('stock.purchase.detail', [
             'purchaseByID' => $purchaseByID,

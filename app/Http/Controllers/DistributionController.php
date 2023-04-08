@@ -744,7 +744,6 @@ class DistributionController extends Controller
 
         $vehicles = DB::table('ms_vehicle')
             ->whereNotIn('VehicleID', [1, 2, 3])
-            ->select('*')
             ->orderBy('VehicleName')
             ->get();
 
@@ -1387,7 +1386,7 @@ class DistributionController extends Controller
 
         $deliveryOrder = DB::table('tx_merchant_delivery_order')
             ->where('DeliveryOrderID', '=', $deliveryOrderId)
-            ->select('*')->first();
+            ->first();
 
         $dataLogDO = [
             'StockOrderID' => $deliveryOrder->StockOrderID,
