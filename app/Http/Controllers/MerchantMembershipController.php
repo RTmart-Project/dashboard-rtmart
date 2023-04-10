@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\Helper;
-use App\Services\MerchantMembershipService;
 use Carbon\Carbon;
+use App\Helpers\Helper;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
+use App\Services\MerchantMembershipService;
 
 class MerchantMembershipController extends Controller
 {
@@ -275,7 +275,11 @@ class MerchantMembershipController extends Controller
 
         $orderSeriesNumber = substr("0000" . $merchant->disclaimer_id, strlen($merchant->disclaimer_id));
         $orderTotalSubmit = substr("000" . $merchant->SubmissionCount, strlen($merchant->SubmissionCount));
-        $merchant->SeriesNumber = date('y') . ".$orderSeriesNumber.$orderTotalSubmit/B-KRTM/III";
+
+        // get roman number for month
+        $month = Helper::convertMonthToRomanNumerals(date('m'));
+
+        $merchant->SeriesNumber = date('y') . ".$orderSeriesNumber.$orderTotalSubmit/B-KRTM/$month";
 
         return view('merchant.membership.disclaimer', ['merchant' => $merchant, 'dayName' => $dayName, 'date' => $date]);
     }
