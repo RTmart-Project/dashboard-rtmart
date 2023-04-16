@@ -10,7 +10,6 @@ class VehicleService
   {
     $vehicles = DB::table('ms_vehicle')
       ->whereNotIn('VehicleID', [1, 2, 3])
-      ->select('*')
       ->orderBy('VehicleName');
 
     return $vehicles;

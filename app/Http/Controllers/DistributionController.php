@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\Helper;
 use App\Services\DeliveryOrderService;
 use App\Services\HaistarService;
 use App\Services\MerchantService;
@@ -157,7 +156,6 @@ class DistributionController extends Controller
             ->leftJoin('ms_distributor_grade', 'ms_distributor_grade.GradeID', 'ms_distributor_merchant_grade.GradeID')
             ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
             ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', 'tx_merchant_order.PaymentMethodID')
-            // ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'tx_merchant_order.SalesCode')
             ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
             ->leftJoin('ms_price_submission', function ($join) {
                 $join->on('ms_price_submission.StockOrderID', 'tx_merchant_order.StockOrderID');
@@ -184,6 +182,7 @@ class DistributionController extends Controller
             $sqlGetRestock->whereDate('tx_merchant_order.CreatedDate', '>=', $fromDate)
                 ->whereDate('tx_merchant_order.CreatedDate', '<=', $toDate);
         }
+
         if ($fromShipmentDate != '' && $toShipmentDate != '') {
             $sqlGetRestock->whereDate('tx_merchant_order.ShipmentDate', '>=', $fromShipmentDate)
                 ->whereDate('tx_merchant_order.ShipmentDate', '<=', $toShipmentDate);
@@ -251,6 +250,11 @@ class DistributionController extends Controller
                 })
                 ->addColumn('Action', function ($data) {
                     $actionBtn = '<a class="btn btn-sm btn-secondary" href="/distribution/restock/detail/' . $data->StockOrderID . '">Lihat</a>';
+
+                    if (Auth::user()->RoleID == 'IT') {
+                        $actionBtn .= '<a class="btn btn-sm btn-warning" href="/distribution/restock/edit/' . $data->StockOrderID . '">Ubah</a>';
+                    }
+
                     return $actionBtn;
                 })
                 ->addColumn('PriceSubmission', function ($data) {
@@ -740,7 +744,6 @@ class DistributionController extends Controller
 
         $vehicles = DB::table('ms_vehicle')
             ->whereNotIn('VehicleID', [1, 2, 3])
-            ->select('*')
             ->orderBy('VehicleName')
             ->get();
 
@@ -759,6 +762,103 @@ class DistributionController extends Controller
         ]);
     }
 
+    public function editRestock($stockOrderID)
+    {
+        $merchantOrder = DB::table('tx_merchant_order')
+            ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
+            ->leftJoin('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_order.StatusOrderID')
+            ->leftJoin('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
+            ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
+            ->where('tx_merchant_order.StockOrderID', '=', $stockOrderID)
+            ->select(
+                'ms_merchant_account.StoreImage',
+                'ms_merchant_account.StoreName',
+                'ms_merchant_account.OwnerFullName',
+                'tx_merchant_order.MerchantID',
+                'ms_merchant_account.PhoneNumber',
+                'ms_merchant_account.StoreAddress',
+                'ms_merchant_account.StoreAddressNote',
+                'ms_merchant_account.Latitude',
+                'ms_merchant_account.Longitude',
+                'tx_merchant_order.StockOrderID',
+                'tx_merchant_order.StatusOrderID',
+                'tx_merchant_order.PaymentMethodID',
+                'tx_merchant_order.TotalPrice',
+                'tx_merchant_order.NettPrice',
+                'tx_merchant_order.CreatedDate',
+                'tx_merchant_order.ShipmentDate',
+                'tx_merchant_order.MerchantNote',
+                'tx_merchant_order.DistributorNote',
+                'tx_merchant_order.Rating',
+                'tx_merchant_order.Feedback',
+                'tx_merchant_order.CancelReasonNote',
+                'ms_status_order.StatusOrder',
+                'ms_payment_method.PaymentMethodName',
+                'tx_merchant_order.IsValid',
+                'tx_merchant_order.ValidationNotes',
+                'ms_distributor.DistributorName',
+                DB::raw("coalesce(( 6371 * acos( cos( radians(tx_merchant_order.OrderLatitude))
+                    * cos( radians(ms_distributor.Latitude))
+                    * cos( radians(ms_distributor.Longitude) - radians(tx_merchant_order.OrderLongitude)) 
+                    + sin( radians(tx_merchant_order.OrderLatitude)) 
+                    * sin( radians(ms_distributor.Latitude)))),0) AS RadiusDistance
+                ")
+            )
+            ->first();
+
+        $merchantOrderDetail = DB::table('tx_merchant_order_detail')
+            ->leftJoin('ms_product', 'ms_product.ProductID', '=', 'tx_merchant_order_detail.ProductID')
+            ->where('tx_merchant_order_detail.StockOrderID', '=', $stockOrderID)
+            ->select('tx_merchant_order_detail.ProductID', 'ms_product.ProductName', 'ms_product.ProductImage', 'tx_merchant_order_detail.Quantity', 'tx_merchant_order_detail.PromisedQuantity', 'tx_merchant_order_detail.Price', 'tx_merchant_order_detail.Discount', 'tx_merchant_order_detail.Nett')
+            ->get();
+
+        return view('distribution.restock.edit', [
+            'stockOrderID' => $stockOrderID,
+            'merchantOrder' => $merchantOrder,
+            'merchantOrderDetail' => $merchantOrderDetail,
+        ]);
+    }
+
+    public function updateRestock(Request $request, $stockOrderID)
+    {
+        $productID = $request->product_id;
+        $purchaseQty = $request->purchase_qty;
+        $productPrice = $request->product_price;
+
+        $totalPrice = 0;
+        foreach ($productID as $key => $value) {
+            $totalPrice += $purchaseQty[$key] * $productPrice[$key];
+        }
+
+        DB::transaction(function () use ($stockOrderID, $productID, $purchaseQty, $productPrice, $totalPrice) {
+            foreach ($productID as $key => $value) {
+                DB::table('tx_merchant_order_detail')
+                    ->where('StockOrderID', $stockOrderID)
+                    ->where('ProductID', $value)
+                    ->update([
+                        // 'Quantity' => $purchaseQty[$key],
+                        'Price' => $productPrice[$key],
+                        // 'PromisedQuantity' => $purchaseQty[$key],
+                        'Nett' => $productPrice[$key],
+                    ]);
+
+                DB::table('tx_merchant_delivery_order_detail AS tmdod')
+                    ->join('tx_merchant_delivery_order AS tmdo', 'tmdo.DeliveryOrderID', 'tmdod.DeliveryOrderID')
+                    ->join('tx_merchant_order AS tmo', 'tmdo.StockOrderID', 'tmo.StockOrderID')
+                    ->where('tmdo.StockOrderID', $stockOrderID)
+                    ->where('tmdod.ProductID', $value)
+                    ->update([
+                        'tmo.TotalPrice' => $totalPrice,
+                        'tmo.NettPrice' => $totalPrice,
+                        // 'tmdod.Qty' => $purchaseQty[$key],
+                        'tmdod.Price' => $productPrice[$key]
+                    ]);
+            }
+        });
+
+        return redirect()->back();
+    }
+
     public function updateStatusRestock(Request $request, $stockOrderID, $status, DeliveryOrderService $deliveryOrderService)
     {
         $txMerchantOrder = DB::table('tx_merchant_order')
@@ -769,12 +869,6 @@ class DistributionController extends Controller
             ->select('tx_merchant_order.PaymentMethodID', 'tx_merchant_order.DistributorID', 'tx_merchant_order.MerchantID', 'ms_merchant_account.MerchantFirebaseToken', 'ms_distributor.DistributorName', 'ms_payment_method.PaymentMethodCategory')
             ->first();
 
-        $txMerchantOrderDetail = DB::table('tx_merchant_order_detail')
-            ->where('StockOrderID', '=', $stockOrderID)
-            ->select('*')
-            ->get();
-
-        $pesananBaru = "S009";
         $dikonfirmasi = "S010";
         $dalamProses = "S023";
         $dikirim = "S012";
@@ -1056,7 +1150,7 @@ class DistributionController extends Controller
         }
     }
 
-    public function createDeliveryOrder(Request $request, $stockOrderID, $depoChannel, HaistarService $haistarService, DeliveryOrderService $deliveryOrderService)
+    public function createDeliveryOrder(Request $request, $stockOrderID, $depoChannel, DeliveryOrderService $deliveryOrderService)
     {
         $baseImageUrl = config('app.base_image_url');
 
@@ -1101,7 +1195,7 @@ class DistributionController extends Controller
                 $value += ['DeliveryOrderID' => $newDeliveryOrderID];
                 $value += ['Distributor' => 'RT MART'];
 
-                $validation = $deliveryOrderService->validateRemainingQty($stockOrderID, "", $value['ProductID'], $value['Qty'], "CreateDO");
+                $validation = $deliveryOrderService->validateRemainingQty($stockOrderID, $newDeliveryOrderID, $value['ProductID'], $value['Qty'], "CreateDO");
                 $value += ['Price' => $validation['price']];
                 if ($validation['status'] == false) {
                     $validationStatus = false;
@@ -1292,7 +1386,7 @@ class DistributionController extends Controller
 
         $deliveryOrder = DB::table('tx_merchant_delivery_order')
             ->where('DeliveryOrderID', '=', $deliveryOrderId)
-            ->select('*')->first();
+            ->first();
 
         $dataLogDO = [
             'StockOrderID' => $deliveryOrder->StockOrderID,

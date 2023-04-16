@@ -16,9 +16,7 @@ $(document).ready(function () {
                 data: function (d) {
                     d.fromDate = $("#survey-report #from_date").val();
                     d.toDate = $("#survey-report #to_date").val();
-                    d.filterValid = $(
-                        "#survey-report .filter-valid select"
-                    ).val();
+                    d.filterValid = $("#survey-report .filter-valid select").val();
                 },
             },
             columns: [
@@ -147,20 +145,22 @@ $(document).ready(function () {
     });
 
     // Create element for DateRange Filter
-    $("div.filter-survey-report").html(`<div class="input-group">
-                            <input type="text" name="from_date" id="from_date" class="form-control form-control-sm" readonly>
-                            <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
-                            <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
-                            <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-2">Refresh</button>
-                            <div class="filter-valid ml-2">
-                                <select class="form-control form-control-sm">
-                                    <option selected disabled hidden>Filter Valid</option>
-                                    <option value="">All</option>
-                                    <option value="valid">Valid Checked</option>
-                                    <option value="invalid">Valid Unchecked</option>
-                                </select>
-                            </div>
-                        </div>`);
+    $("div.filter-survey-report").html(`
+        <div class="input-group">
+            <input type="text" name="from_date" id="from_date" class="form-control form-control-sm" readonly>
+            <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
+            <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
+            <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-2">Refresh</button>
+            <div class="filter-valid ml-2">
+                <select class="form-control form-control-sm">
+                    <option selected disabled hidden>Filter Valid</option>
+                    <option value="">All</option>
+                    <option value="valid">Valid Checked</option>
+                    <option value="invalid">Valid Unchecked</option>
+                </select>
+            </div>
+        </div>
+    `);
 
     // Setting Awal Daterangepicker
     $("#survey-report #from_date").daterangepicker({

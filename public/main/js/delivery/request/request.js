@@ -276,10 +276,12 @@ $(document).ready(function () {
 
     // First Next Step
     $("#first-next-step").click(function () {
-        let overlay = `<div class="overlay mt-4">
-                    <i class="fas fa-3x fa-spinner fa-spin"></i>
-                  </div>
-                  <p class="text-center mt-3">Loading ...</p>`;
+        let overlay = `
+            <div class="overlay mt-4">
+                <i class="fas fa-3x fa-spinner fa-spin"></i>
+            </div>
+            <p class="text-center mt-3">Loading ...</p>
+        `;
         $("#delivery-order-result").html(overlay);
         $.ajax({
             url: `/delivery/request/getDeliveryOrderByID`,
@@ -293,9 +295,11 @@ $(document).ready(function () {
             success: function (result) {
                 let div = "";
                 if (result == "400") {
-                    div += `<div class="callout callout-danger p-2 my-2">
-                      <h5 class="text-center">Anda belum memilih Delivery Order ID. Harap pilih terlebih dahulu</h5>
-                    </div>`;
+                    div += `
+                        <div class="callout callout-danger p-2 my-2">
+                            <h5 class="text-center">Anda belum memilih Delivery Order ID. Harap pilih terlebih dahulu</h5>
+                        </div>
+                    `;
                 } else {
                     div += result;
                 }
@@ -666,12 +670,14 @@ $(document).ready(function () {
     });
 
     $("#create-expedition-btn").click(function (e) {
-        $("body").append(`<div class="card m-0" style="z-index:99999;">
-                            <div class="overlay position-fixed flex-column">
-                                <i class="fas fa-4x fa-spinner fa-spin"></i>
-                                <h4 class="mt-4">Please do not refresh the page</h4>
-                            </div>
-                        </div>`);
+        $("body").append(`
+            <div class="card m-0" style="z-index:99999;">
+                <div class="overlay position-fixed flex-column">
+                    <i class="fas fa-4x fa-spinner fa-spin"></i>
+                    <h4 class="mt-4">Please do not refresh the page</h4>
+                </div>
+            </div>
+        `);
         $.ajax({
             url: `/delivery/request/createExpedition`,
             headers: {

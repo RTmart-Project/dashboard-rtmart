@@ -85,7 +85,7 @@ class MonthlyReportController extends Controller
         $sql = DB::table('ms_monthly_report')
             ->where('AreaName', 'like', '%' . $request->area . '%')
             ->where('Periode', 'like', '%' . $request->periode . '%')
-            ->select('*')->first();
+            ->first();
 
         return $sql;
     }

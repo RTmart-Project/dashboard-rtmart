@@ -213,6 +213,7 @@ class DeliveryController extends Controller
         $totalPrice = 0;
         foreach ($dataExpedition->dataDetail as $key => $value) {
             $stockHaistarResponse = 200;
+
             if ($value->distributor == "HAISTAR") {
                 $detailDO = $deliveryOrderService->getDOfromDetailDO($value->deliveryOrderDetailID);
                 $checkStock = $haistarService->haistarGetStock($detailDO->ProductID);
@@ -289,15 +290,16 @@ class DeliveryController extends Controller
                             break;
                         }
                     }
+
                     if (!empty($dataForRTmart)) {
                         foreach ($dataForRTmart as $key => $value) {
                             $detailDO = $deliveryOrderService->getDOfromDetailDO($value->deliveryOrderDetailID);
-                            // $updateVoucherDO =
                             $deliveryOrderService->updateDetailDeliveryOrder($detailDO->DeliveryOrderID, $detailDO->ProductID, $value->qtyExpedition, "S030", "RT MART");
                             $merchantExpeditionDetailID = $deliveryOrderService->insertExpeditionDetail($newMerchantExpeditionID, $detailDO->DeliveryOrderID, $detailDO->ProductID, "S030");
                             $deliveryOrderService->reduceStock($detailDO->ProductID, $detailDO->DistributorID, $value->qtyExpedition, $value->deliveryOrderDetailID, $merchantExpeditionDetailID, $value->sourceProduct, $value->sourceProductInvestor);
                         }
                     }
+
                     $deliveryOrderService->insertTable("tx_merchant_expedition", $dataInsertExpedition);
                     $deliveryOrderService->insertTable("tx_merchant_expedition_log", $dataInsertExpeditionLog);
                     foreach ($dataExpedition->dataDeliveryOrderID as $key => $value) {
@@ -322,6 +324,7 @@ class DeliveryController extends Controller
                             ]);
                     }
                 });
+
                 $status = "success";
                 $message = "Data Ekspedisi berhasil dibuat";
             } catch (\Throwable $th) {

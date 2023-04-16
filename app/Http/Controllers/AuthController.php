@@ -204,7 +204,7 @@ class AuthController extends Controller
     {
         $roleUser = DB::table('ms_roles')
             ->whereNotIn('RoleID', ['R001', 'R002', 'R003', 'R004', 'R005', 'R006'])
-            ->select('*')->get();
+            ->get();
 
         $depo = DB::table('ms_distributor')
             ->select('Depo', 'DistributorName')
@@ -279,11 +279,11 @@ class AuthController extends Controller
     {
         $userById = DB::table('ms_user')
             ->where('UserID', '=', $user)
-            ->select('*')->first();
+            ->first();
 
         $roleUser = DB::table('ms_roles')
             ->whereNotIn('RoleID', ['R001', 'R002', 'R003', 'R004', 'R005', 'R006'])
-            ->select('*')->get();
+            ->get();
 
         return view('setting.user.edit', [
             'userById' => $userById,
@@ -369,8 +369,7 @@ class AuthController extends Controller
     public function getRoles(Request $request)
     {
         $sqlRoles = DB::table('ms_roles')
-            ->whereNotIn('RoleID', ['R001', 'R002', 'R003', 'R004', 'R005', 'R006'])
-            ->select('*');
+            ->whereNotIn('RoleID', ['R001', 'R002', 'R003', 'R004', 'R005', 'R006']);
 
         $data = $sqlRoles->get();
 
@@ -415,7 +414,7 @@ class AuthController extends Controller
     {
         $roleById = DB::table('ms_roles')
             ->where('RoleID', '=', $role)
-            ->select('*')->first();
+            ->first();
 
         return view('setting.role.edit', [
             'roleById' => $roleById
