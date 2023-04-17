@@ -63,6 +63,7 @@ class MerchantMembershipController extends Controller
                     } else {
                         $badge = '<span class="badge badge-warning">' . $data->StatusName . '</span>';
                     }
+
                     return $badge;
                 })
                 ->editColumn('StatusNameCrowdo', function ($data) {
@@ -75,6 +76,7 @@ class MerchantMembershipController extends Controller
                     } else {
                         $badge = '<span class="badge badge-info">' . $data->StatusNameCrowdo . '</span>';
                     }
+
                     return $badge;
                 })
                 ->editColumn('MembershipCoupleSubmitDate', function ($data) {
@@ -86,6 +88,7 @@ class MerchantMembershipController extends Controller
                     } else {
                         $date = "";
                     }
+
                     return $date;
                 })
                 ->editColumn('BirthDateCouple', function ($data) {
@@ -94,6 +97,7 @@ class MerchantMembershipController extends Controller
                     } else {
                         $date = "";
                     }
+
                     return $date;
                 })
                 ->addColumn('StoreSize', function ($data) {
@@ -102,6 +106,7 @@ class MerchantMembershipController extends Controller
                     } else {
                         $storeSize = "";
                     }
+
                     return $storeSize;
                 })
                 ->editColumn('MembershipCoupleConfirmDate', function ($data) {
@@ -110,6 +115,7 @@ class MerchantMembershipController extends Controller
                     } else {
                         $date = "-";
                     }
+
                     return $date;
                 })
                 ->editColumn('CrowdoApprovedDate', function ($data) {
@@ -118,13 +124,15 @@ class MerchantMembershipController extends Controller
                     } else {
                         $date = "-";
                     }
+
                     return $date;
                 })
                 ->addColumn('Photo', function ($data) {
-                    return "<button data-merchant-id='$data->MerchantID' data-store='$data->StoreName'
-                                id='survey-photo' type='button' class='btn btn-xs btn-info btn-photo'>
-                                Lihat
-                            </button>";
+                    return "
+                        <button data-merchant-id='$data->MerchantID' data-store='$data->StoreName' id='survey-photo' type='button' class='btn btn-xs btn-info btn-photo'>
+                            Lihat
+                        </button>
+                    ";
                 })
                 ->addColumn('Action', function ($data) {
                     return "<button class='btn btn-xs btn-warning btn-update-crowdo' 
@@ -138,6 +146,7 @@ class MerchantMembershipController extends Controller
                     } else {
                         $disclaimer = '';
                     }
+
                     return $disclaimer;
                 })
                 ->filterColumn('Sales', function ($query, $keyword) {

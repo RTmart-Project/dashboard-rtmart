@@ -7,6 +7,7 @@ class Helper
     public static function formatCurrency($value, $beforeValue = "Rp. ", $afterValue = "")
     {
         $output = $beforeValue . number_format($value, 0, ',', '.') . $afterValue;
+
         return $output;
     }
 
@@ -15,6 +16,7 @@ class Helper
         $output = array_filter($array, function ($item) use ($objectFilter, $valueFilter) {
             return $item->$objectFilter == $valueFilter;
         });
+
         return array_values($output)[0];
     }
 
@@ -25,6 +27,7 @@ class Helper
             $nilai = abs($nilai);
             $huruf = array("", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas");
             $temp = "";
+
             if ($nilai < 12) {
                 $temp = " " . $huruf[$nilai];
             } else if ($nilai < 20) {
@@ -46,6 +49,7 @@ class Helper
             } else if ($nilai < 1000000000000000) {
                 $temp = penyebut($nilai / 1000000000000) . " trilyun" . penyebut(fmod($nilai, 1000000000000));
             }
+
             return $temp;
         }
 
