@@ -403,7 +403,6 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/photo/{merchantID}', [MerchantMembershipController::class, 'photo'])->name('merchant.membershipPhoto');
             Route::post('/confirm/{merchantID}/{status}', [MerchantMembershipController::class, 'confirm'])->name('merchant.membershipConfirm');
             Route::post('/updateCrowdo/{merchantID}', [MerchantMembershipController::class, 'updateCrowdo'])->name('merchant.membershipUpdateCrowdo');
-            Route::get('/disclaimer/{MerchantID}', [MerchantMembershipController::class, 'disclaimer'])->name('merchant.disclaimer');
         });
     });
 
@@ -537,3 +536,4 @@ Route::group(['middleware' => ['guest']], function () {
 
 Route::get('/restock/invoice/{stockOrderId}', [InvoiceController::class, 'invoiceSO'])->name('restock.invoice');
 Route::get('/restock/deliveryOrder/invoice/{deliveryOrderId}', [InvoiceController::class, 'invoiceDO'])->name('restockDeliveryOrder.invoice');
+Route::get('/merchant/membership/disclaimer/{MerchantID}', [MerchantMembershipController::class, 'disclaimer'])->name('merchant.disclaimer');
