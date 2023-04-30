@@ -83,28 +83,28 @@
                           <th>Nama Pemilik</th>
                           <th>No. HP</th>
                           <th>Status</th>
-                          <th>No. KTP</th>
-                          <th>Nama KTP</th>
-                          <th>Tgl Lahir</th>
-                          <th>Nama Ibu Kandung</th>
-                          <th>No. KTP Pasangan</th>
-                          <th>Nama KTP Pasangan</th>
-                          <th>Tgl Lahir Pasangan</th>
+                          {{-- <th>No. KTP</th> --}}
+                          {{-- <th>Nama KTP</th> --}}
+                          {{-- <th>Tgl Lahir</th> --}}
+                          {{-- <th>Nama Ibu Kandung</th> --}}
+                          {{-- <th>No. KTP Pasangan</th> --}}
+                          {{-- <th>Nama KTP Pasangan</th> --}}
+                          {{-- <th>Tgl Lahir Pasangan</th> --}}
                           <th>Total Transaksi</th>
                           <th>Value Transaksi</th>
                           <th>Alamat</th>
-                          <th>Kelurahan</th>
-                          <th>Kecamatan</th>
-                          <th>Kabupaten / Kota</th>
-                          <th>Provinsi</th>
-                          <th>Kode Pos</th>
+                          {{-- <th>Kelurahan</th> --}}
+                          {{-- <th>Kecamatan</th> --}}
+                          {{-- <th>Kabupaten / Kota</th> --}}
+                          {{-- <th>Provinsi</th> --}}
+                          {{-- <th>Kode Pos</th> --}}
                           <th>Distributor</th>
-                          <th>Ukuran Toko</th>
-                          <th>Omset /bulan</th>
-                          <th>Jumlah Karyawan</th>
-                          <th>Sales</th>
+                          {{-- <th>Ukuran Toko</th> --}}
+                          {{-- <th>Omset /bulan</th> --}}
+                          {{-- <th>Jumlah Karyawan</th> --}}
+                          {{-- <th>Sales</th> --}}
                           <th>Status Crowdo</th>
-                          <th>Loan ID Crowdo</th>
+                          {{-- <th>Loan ID Crowdo</th> --}}
                           <th>Amount Crowdo</th>
                           <th>Batch Crowdo</th>
                           <th>Tanggal Approve Crowdo</th>
