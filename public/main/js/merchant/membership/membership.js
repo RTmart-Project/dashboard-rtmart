@@ -4,6 +4,7 @@ $(document).ready(function () {
 
     merchantMembership();
 
+    // data delete on this, is to change show data
     function merchantMembership(
         startDate = null,
         endDate = null,
