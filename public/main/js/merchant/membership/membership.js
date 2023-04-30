@@ -52,34 +52,34 @@ $(document).ready(function () {
                     data: "MaritalStatusName",
                     name: "ms_marital_status.MaritalStatusName",
                 },
-                {
-                    data: "NumberIDCard",
-                    name: "ms_merchant_account.NumberIDCard",
-                },
-                {
-                    data: "UsernameIDCard",
-                    name: "ms_merchant_account.UsernameIDCard",
-                },
-                {
-                    data: "BirthDate",
-                    name: "ms_merchant_account.BirthDate",
-                },
-                {
-                    data: "MotherName",
-                    name: "ms_merchant_account.MotherName",
-                },
-                {
-                    data: "NumberIDCardCouple",
-                    name: "ms_merchant_account.NumberIDCardCouple",
-                },
-                {
-                    data: "UsernameIDCardCouple",
-                    name: "ms_merchant_account.UsernameIDCardCouple",
-                },
-                {
-                    data: "BirthDateCouple",
-                    name: "ms_merchant_account.BirthDateCouple",
-                },
+                // {
+                //     data: "NumberIDCard",
+                //     name: "ms_merchant_account.NumberIDCard",
+                // },
+                // {
+                //     data: "UsernameIDCard",
+                //     name: "ms_merchant_account.UsernameIDCard",
+                // },
+                // {
+                //     data: "BirthDate",
+                //     name: "ms_merchant_account.BirthDate",
+                // },
+                // {
+                //     data: "MotherName",
+                //     name: "ms_merchant_account.MotherName",
+                // },
+                // {
+                //     data: "NumberIDCardCouple",
+                //     name: "ms_merchant_account.NumberIDCardCouple",
+                // },
+                // {
+                //     data: "UsernameIDCardCouple",
+                //     name: "ms_merchant_account.UsernameIDCardCouple",
+                // },
+                // {
+                //     data: "BirthDateCouple",
+                //     name: "ms_merchant_account.BirthDateCouple",
+                // },
                 // index ke 11
                 {
                     data: "CountTrx",
@@ -95,57 +95,57 @@ $(document).ready(function () {
                     data: "StoreAddress",
                     name: "ms_merchant_account.StoreAddress",
                 },
-                {
-                    data: "AreaName",
-                    name: "ms_area.AreaName",
-                },
-                {
-                    data: "Subdistrict",
-                    name: "ms_area.Subdistrict",
-                },
-                {
-                    data: "City",
-                    name: "ms_area.City",
-                },
-                {
-                    data: "Province",
-                    name: "ms_area.Province",
-                },
-                {
-                    data: "PostalCode",
-                    name: "ms_area.PostalCode",
-                },
+                // {
+                //     data: "AreaName",
+                //     name: "ms_area.AreaName",
+                // },
+                // {
+                //     data: "Subdistrict",
+                //     name: "ms_area.Subdistrict",
+                // },
+                // {
+                //     data: "City",
+                //     name: "ms_area.City",
+                // },
+                // {
+                //     data: "Province",
+                //     name: "ms_area.Province",
+                // },
+                // {
+                //     data: "PostalCode",
+                //     name: "ms_area.PostalCode",
+                // },
                 {
                     data: "DistributorName",
                     name: "ms_distributor.DistributorName",
                 },
-                {
-                    data: "StoreSize",
-                    name: "StoreSize",
-                    searchable: false,
-                    orderable: false,
-                },
+                // {
+                //     data: "StoreSize",
+                //     name: "StoreSize",
+                //     searchable: false,
+                //     orderable: false,
+                // },
                 //21
-                {
-                    data: "StoreOmzet",
-                    name: "ms_merchant_account.StoreOmzet",
-                },
-                {
-                    data: "StoreEmployees",
-                    name: "ms_merchant_account.StoreEmployees",
-                },
-                {
-                    data: "Sales",
-                    name: "Sales",
-                },
+                // {
+                //     data: "StoreOmzet",
+                //     name: "ms_merchant_account.StoreOmzet",
+                // },
+                // {
+                //     data: "StoreEmployees",
+                //     name: "ms_merchant_account.StoreEmployees",
+                // },
+                // {
+                //     data: "Sales",
+                //     name: "Sales",
+                // },
                 {
                     data: "StatusNameCrowdo",
                     name: "StatusCrowdo.StatusName",
                 },
-                {
-                    data: "CrowdoLoanID",
-                    name: "ms_merchant_account.CrowdoLoanID",
-                },
+                // {
+                //     data: "CrowdoLoanID",
+                //     name: "ms_merchant_account.CrowdoLoanID",
+                // },
                 {
                     data: "CrowdoAmount",
                     name: "ms_merchant_account.CrowdoAmount",
@@ -215,8 +215,7 @@ $(document).ready(function () {
                         },
                         columns: [
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
-                            15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
-                            28, 29, 30, 31, 32, 33, 34,
+                            15, 16, 17, 18, 19, 20,
                         ],
                         orthogonal: "export",
                     },
@@ -234,7 +233,7 @@ $(document).ready(function () {
                     },
                 },
                 {
-                    aTargets: [13, 22, 27],
+                    aTargets: [3, 12, 17],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             return data;
@@ -250,11 +249,11 @@ $(document).ready(function () {
                     },
                 },
                 {
-                    aTargets: [36],
+                    aTargets: [20],
                     visible: roleID == "IT" ? true : false,
                 },
             ],
-            order: [31, "desc"],
+            order: [11, "desc"],
             lengthChange: false,
             responsive: true,
             autoWidth: false,
