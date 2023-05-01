@@ -81,18 +81,41 @@
                           <th>Merchant ID</th>
                           <th>Nama Toko</th>
                           <th>Nama Pemilik</th>
+                          <th>No. HP</th>
+                          <th>Status</th>
                           <th>No. KTP</th>
                           <th>Nama KTP</th>
                           <th>Tgl Lahir</th>
+                          <th>Nama Ibu Kandung</th>
+                          <th>No. KTP Pasangan</th>
+                          <th>Nama KTP Pasangan</th>
+                          <th>Tgl Lahir Pasangan</th>
+                          <th>Total Transaksi</th>
+                          <th>Value Transaksi</th>
                           <th>Alamat</th>
-                          <th>Status</th>
-                          <th>Tanggal Submit</th>
-                          <th>Tanggal Aksi</th>
-                          <th>Aksi Oleh</th>
-                          <th>Catatan</th>
+                          <th>Kelurahan</th>
+                          <th>Kecamatan</th>
+                          <th>Kabupaten / Kota</th>
+                          <th>Provinsi</th>
+                          <th>Kode Pos</th>
+                          <th>Distributor</th>
+                          <th>Ukuran Toko</th>
+                          <th>Omset /bulan</th>
+                          <th>Jumlah Karyawan</th>
+                          <th>Sales</th>
+                          <th>Status Crowdo</th>
+                          <th>Loan ID Crowdo</th>
+                          <th>Amount Crowdo</th>
+                          <th>Batch Crowdo</th>
+                          <th>Tanggal Approve Crowdo</th>
                           <th>Status Membership</th>
+                          <th>Tanggal Submit</th>
+                          <th>Tanggal Konfirmasi</th>
+                          <th>Dikonfirmasi Oleh</th>
+                          <th>Catatan</th>
                           <th>Photo</th>
                           <th>Action</th>
+                          <th>Disclaimer</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -133,7 +156,7 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Update Status - <span id="store"></span></h5>
+        <h5 class="modal-title">Update Status Crowdo - <span id="store"></span></h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
