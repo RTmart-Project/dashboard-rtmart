@@ -466,10 +466,11 @@
           title: `Harga Pengajuan ${product} harus lebih dari 0!`,
         });
         return (open = false);
-      } else if (productID === "P-000002" && estPercentMarginSubmission < 10) {
+        // this code old estPercentMarginSubmission <= 10% 
+      } else if (productID === "P-000002" && estPercentMarginSubmission <= 3) {
         Toast.fire({
           icon: "error",
-          title: `Estimasi Margin Pengajuan ${product} harus lebih dari 10%!`,
+          title: `Estimasi Margin Pengajuan ${product} harus lebih dari 3%!`,
         });
         return (open = false);
       } else if (Number(priceSubmission) > Number(price)) {
@@ -480,6 +481,7 @@
         return (open = false);
       }
     });
+
     if (grandTotalEstMarginSubmission < 0) {
       $('#alert-margin-final').modal('show');
       return (open = false);

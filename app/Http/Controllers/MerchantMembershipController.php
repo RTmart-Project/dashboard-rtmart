@@ -82,15 +82,15 @@ class MerchantMembershipController extends Controller
                 ->editColumn('MembershipCoupleSubmitDate', function ($data) {
                     return date('d-M-Y H:i:s', strtotime($data->MembershipCoupleSubmitDate));
                 })
-                ->editColumn('BirthDate', function ($data) {
-                    if ($data->BirthDate !== null) {
-                        $date = date('d-M-Y', strtotime($data->BirthDate));
-                    } else {
-                        $date = "";
-                    }
+                // ->editColumn('BirthDate', function ($data) {
+                //     if ($data->BirthDate !== null) {
+                //         $date = date('d-M-Y', strtotime($data->BirthDate));
+                //     } else {
+                //         $date = "";
+                //     }
 
-                    return $date;
-                })
+                //     return $date;
+                // })
                 // ->editColumn('BirthDateCouple', function ($data) {
                 //     if ($data->BirthDateCouple !== null) {
                 //         $date = date('d-M-Y', strtotime($data->BirthDateCouple));
