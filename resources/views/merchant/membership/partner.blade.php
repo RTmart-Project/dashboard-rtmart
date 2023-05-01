@@ -85,14 +85,16 @@
                           <th>Nama KTP</th>
                           <th>Tgl Lahir</th>
                           <th>Alamat</th>
-                          <th>Status</th>
-                          <th>Tanggal Submit</th>
-                          <th>Tanggal Aksi</th>
-                          <th>Aksi Oleh</th>
-                          <th>Catatan</th>
                           <th>Status Membership</th>
-                          <th>Photo</th>
+                          <th>Batch</th>
+                          <th>Status Pembayaran</th>
                           <th>Action</th>
+                          {{-- <th>Tanggal Submit</th>
+                          <th>Tanggal Konfirmasi</th>
+                          <th>Dikonfirmasi Oleh</th>
+                          <th>Catatan</th>
+                          <th>Photo</th>
+                          <th>Action</th> --}}
                         </tr>
                       </thead>
                       <tbody>
@@ -133,7 +135,7 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Update Status - <span id="store"></span></h5>
+        <h5 class="modal-title">Update Payment Membership - <span id="store"></span></h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -165,7 +167,7 @@
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!-- Main JS -->
-<script src="{{url('/')}}/main/js/merchant/membership/membership.js"></script>
+<script src="{{url('/')}}/main/js/merchant/membership/membership-partner.js"></script>
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
 <script src="{{url('/')}}/plugins/bootstrap-select/bootstrap-select.min.js"></script>
 <script src="{{url('/')}}/plugins/sweetalert2/sweetalert2.min.js"></script>

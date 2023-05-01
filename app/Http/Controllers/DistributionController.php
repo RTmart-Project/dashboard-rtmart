@@ -2651,6 +2651,7 @@ class DistributionController extends Controller
                     ]);
                 DB::table('ms_product_price_log')->insert($data);
             });
+
             return redirect()->route('distribution.product')->with('success', 'Produk berhasil diubah');
         } catch (\Throwable $th) {
             return redirect()->route('distribution.product')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
