@@ -45,6 +45,14 @@ $(document).ready(function () {
                     name: "ms_merchant_account.OwnerFullName",
                 },
                 {
+                    data: "PhoneNumber",
+                    name: "ms_merchant_account.PhoneNumber",
+                },
+                {
+                    data: "MaritalStatusName",
+                    name: "ms_marital_status.MaritalStatusName",
+                },
+                {
                     data: "NumberIDCard",
                     name: "ms_merchant_account.NumberIDCard",
                 },
@@ -57,32 +65,118 @@ $(document).ready(function () {
                     name: "ms_merchant_account.BirthDate",
                 },
                 {
+                    data: "MotherName",
+                    name: "ms_merchant_account.MotherName",
+                },
+                {
+                    data: "NumberIDCardCouple",
+                    name: "ms_merchant_account.NumberIDCardCouple",
+                },
+                {
+                    data: "UsernameIDCardCouple",
+                    name: "ms_merchant_account.UsernameIDCardCouple",
+                },
+                {
+                    data: "BirthDateCouple",
+                    name: "ms_merchant_account.BirthDateCouple",
+                },
+                // index ke 11
+                {
+                    data: "CountTrx",
+                    name: "CountTrx",
+                    searchable: false,
+                },
+                {
+                    data: "SumTrx",
+                    name: "SumTrx",
+                    searchable: false,
+                },
+                {
                     data: "StoreAddress",
                     name: "ms_merchant_account.StoreAddress",
+                },
+                {
+                    data: "AreaName",
+                    name: "ms_area.AreaName",
+                },
+                {
+                    data: "Subdistrict",
+                    name: "ms_area.Subdistrict",
+                },
+                {
+                    data: "City",
+                    name: "ms_area.City",
+                },
+                {
+                    data: "Province",
+                    name: "ms_area.Province",
+                },
+                {
+                    data: "PostalCode",
+                    name: "ms_area.PostalCode",
+                },
+                {
+                    data: "DistributorName",
+                    name: "ms_distributor.DistributorName",
+                },
+                {
+                    data: "StoreSize",
+                    name: "StoreSize",
+                    searchable: false,
+                    orderable: false,
+                },
+                //21
+                {
+                    data: "StoreOmzet",
+                    name: "ms_merchant_account.StoreOmzet",
+                },
+                {
+                    data: "StoreEmployees",
+                    name: "ms_merchant_account.StoreEmployees",
+                },
+                {
+                    data: "Sales",
+                    name: "Sales",
                 },
                 {
                     data: "StatusNameCrowdo",
                     name: "StatusCrowdo.StatusName",
                 },
                 {
-                    data: "MembershipCoupleSubmitDate",
-                    name: "ms_merchant_account.MembershipCoupleSubmitDate",
+                    data: "CrowdoLoanID",
+                    name: "ms_merchant_account.CrowdoLoanID",
                 },
                 {
-                    data: "action_date",
-                    name: "ms_history_membership.action_date",
+                    data: "CrowdoAmount",
+                    name: "ms_merchant_account.CrowdoAmount",
                 },
                 {
-                    data: "action_by",
-                    name: "ms_history_membership.action_by",
+                    data: "CrowdoBatch",
+                    name: "ms_merchant_account.CrowdoBatch",
                 },
                 {
-                    data: "ValidationNoteMembershipCouple",
-                    name: "ms_merchant_account.ValidationNoteMembershipCouple",
+                    data: "CrowdoApprovedDate",
+                    name: "ms_merchant_account.CrowdoApprovedDate",
                 },
                 {
                     data: "StatusName",
                     name: "StatusMembership.StatusName",
+                },
+                {
+                    data: "MembershipCoupleSubmitDate",
+                    name: "ms_merchant_account.MembershipCoupleSubmitDate",
+                },
+                {
+                    data: "MembershipCoupleConfirmDate",
+                    name: "ms_merchant_account.MembershipCoupleConfirmDate",
+                },
+                {
+                    data: "MembershipCoupleConfirmBy",
+                    name: "ms_merchant_account.MembershipCoupleConfirmBy",
+                },
+                {
+                    data: "ValidationNoteMembershipCouple",
+                    name: "ms_merchant_account.ValidationNoteMembershipCouple",
                 },
                 {
                     data: "Photo",
@@ -96,6 +190,12 @@ $(document).ready(function () {
                     searchable: false,
                     orderable: false,
                 },
+                {
+                    data: "Disclaimer",
+                    name: "Disclaimer",
+                    searchable: false,
+                    orderable: false,
+                }
             ],
             buttons: [
                 {
@@ -114,44 +214,47 @@ $(document).ready(function () {
                             page: "all",
                         },
                         columns: [
-                            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
+                            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14,
+                            15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27,
+                            28, 29, 30, 31, 32, 33, 34,
                         ],
                         orthogonal: "export",
                     },
                 },
             ],
-            // aoColumnDefs: [
-            //     {
-            //         aTargets: [5, 9],
-            //         mRender: function (data, type, full) {
-            //             if (type === "export") {
-            //                 return "'" + data;
-            //             } else {
-            //                 return data;
-            //             }
-            //         },
-            //     },
-            //     {
-            //         aTargets: [13, 22, 27],
-            //         mRender: function (data, type, full) {
-            //             if (type === "export") {
-            //                 return data;
-            //             } else {
-            //                 if (data == null || data == "") {
-            //                     return data;
-            //                 } else {
-            //                     const currencySeperatorFormat = thousands_separators(data);
-            //                     return currencySeperatorFormat;
-            //                 }
-            //             }
-            //         },
-            //     },
-            //     {
-            //         aTargets: [36],
-            //         visible: roleID == "IT" ? true : false,
-            //     },
-            // ],
-            // order: [31, "desc"],
+            aoColumnDefs: [
+                {
+                    aTargets: [5, 9],
+                    mRender: function (data, type, full) {
+                        if (type === "export") {
+                            return "'" + data;
+                        } else {
+                            return data;
+                        }
+                    },
+                },
+                {
+                    aTargets: [13, 22, 27],
+                    mRender: function (data, type, full) {
+                        if (type === "export") {
+                            return data;
+                        } else {
+                            if (data == null || data == "") {
+                                return data;
+                            } else {
+                                const currencySeperatorFormat =
+                                    thousands_separators(data);
+                                return currencySeperatorFormat;
+                            }
+                        }
+                    },
+                },
+                {
+                    aTargets: [36],
+                    visible: roleID == "IT" ? true : false,
+                },
+            ],
+            order: [31, "desc"],
             lengthChange: false,
             responsive: true,
             autoWidth: false,
@@ -244,7 +347,6 @@ $(document).ready(function () {
         const baseImg = $('meta[name="base-image"]').attr("content");
         const merchantID = $(this).data("merchant-id");
         const store = $(this).data("store");
-
         $.ajax({
             type: "get",
             url: `/merchant/membership/photo/${merchantID}`,
@@ -269,35 +371,35 @@ $(document).ready(function () {
                 }
 
                 const div = `
-                    <div class="m-2">
-                        <h5 class="mb-1 text-center">
-                        ${res.AsIDCard == "none" || res.AsIDCard == null
+                <div class="m-2">
+                    <h5 class="mb-1 text-center">
+                    ${res.AsIDCard == "none" || res.AsIDCard == null
                         ? res.UsernameIDCard
                         : res.AsIDCard.toUpperCase()
                     }
-                        </h5>
-                    <img class="rounded" width="300" height="200" style="object-fit: cover" src="${baseImg}rtsales/merchantassessment/${res.PhotoIDCard}">
-                    <h6 class="my-1 text-center">${res.UsernameIDCard}</h6>
-                    <h6 class="text-center">${res.NumberIDCard}</h6>
-                    </div>
-                    ${dataCouple}
-                    <div class="m-2">
-                    <h5 class="mb-1 text-center">FOTO TOKO</h5>
-                    <img class="rounded" width="300" height="200" style="object-fit: cover" src="${baseImg}rtsales/merchantassessment/${res.StorePhotoMembership}">
-                    </div>
-                `;
+                    </h5>
+                  <img
+                    class="rounded" width="300" height="200" style="object-fit: cover" src="${baseImg}rtsales/merchantassessment/${res.PhotoIDCard}">
+                  <h6 class="my-1 text-center">${res.UsernameIDCard}</h6>
+                  <h6 class="text-center">${res.NumberIDCard}</h6>
+                </div>
+                ${dataCouple}
+                <div class="m-2">
+                  <h5 class="mb-1 text-center">FOTO TOKO</h5>
+                  <img
+                    class="rounded" width="300" height="200" style="object-fit: cover"
+                    src="${baseImg}rtsales/merchantassessment/${res.StorePhotoMembership
+                    }">
+                </div>`;
                 $("#merchant").html(store);
                 $("#photo").html(div);
-                // if (res.ValidationStatusMembershipCouple === 1) {
-                //     const confirmBtn = `
-                //         <button class="btn btn-sm btn-success mr-1 btn-terima" data-merchant-id="${merchantID}" data-store="${store}">Terima</button>
-                //         <button class="btn btn-sm btn-danger ml-1 btn-tolak" data-merchant-id="${merchantID}" data-store="${store}">Tolak</button>
-                //     `;
-                //     $("#confirm").html(confirmBtn);
-                // } else {
-                //     $("#confirm").html("");
-                // }
-
+                if (res.ValidationStatusMembershipCouple === 1) {
+                    const confirmBtn = `<button class="btn btn-sm btn-success mr-1 btn-terima" data-merchant-id="${merchantID}" data-store="${store}">Terima</button>
+                                  <button class="btn btn-sm btn-danger ml-1 btn-tolak" data-merchant-id="${merchantID}" data-store="${store}">Tolak</button>`;
+                    $("#confirm").html(confirmBtn);
+                } else {
+                    $("#confirm").html("");
+                }
                 $("#modal-photo").modal("show");
             },
         });
@@ -376,9 +478,9 @@ $(document).ready(function () {
                     <label for="note" class="m-0">Status :</label>
                     <select class="form-control" name="status-crowdo" id="status-crowdo" required>
                         <option value="" selected hidden disabled>-- Pilih Status --</option>
-                        <option value="5">Submitted</option>
-                        <option value="6">Approved</option>
-                        <option value="7">Rejected</option>
+                        <option value="5" ${statusCrowdo == 5 ? "selected" : ""}>Submitted</option>
+                        <option value="6" ${statusCrowdo == 6 ? "selected" : ""}>Approved</option>
+                        <option value="7" ${statusCrowdo == 7 ? "selected" : ""}>Rejected</option>
                     </select>
                 </div>
                 <div id="data-crowdo" class="row"></div>
@@ -414,59 +516,13 @@ $(document).ready(function () {
                 </div>
                 <div class="col-12 col-md-6">
                     <div class="form-group">
-                        <label for="action_date">Approved Date</label>
-                        <input type="date" class="form-control" name="action_date" id="action_date" required/>
+                        <label for="approved_date">Approved Date</label>
+                        <input type="date" class="form-control" name="approved_date" id="approved_date" required/>
                     </div>
                 </div>
             `;
-
-            // get partner
-            $.ajax({
-                type: "get",
-                url: "/partner/get",
-                success: function (data) {
-                    let option;
-
-                    data.forEach((d) => {
-                        option += `<option value=${d.PartnerID}>${d.Name}</option>`;
-                    })
-
-                    // $('#partner').append(option);
-                    $('#partner').html(`<option value="null" selected disabled>-- Pilih Partner --</option>` + option);
-                },
-            });
-
             if (statusCrowdo == 6) {
                 $("#data-crowdo").html(dataCrowdo);
-            } else if (statusCrowdo == 7) {
-                let rejected = `
-                    <div class="col-12 col-md-6">
-                        <div class="form-group">
-                            <label for="note" class="m-0">Partner :</label>
-                            <select class="form-control" name="partner" id="partner" required>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-6">
-                        <div class="form-group">
-                            <label for="batch">Batch</label>
-                            <input type="number" class="form-control" name="batch" id="batch" min="1" required/>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-6">
-                        <div class="form-group">
-                            <label for="action_date">Rejected Date</label>
-                            <input type="date" class="form-control" name="action_date" id="action_date" required/>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-12">
-                        <div class="form-group">
-                            <label for="rejected_reason">Rejected Reason</label>
-                            <textarea class="form-control" name="rejected_reason" id="rejected_reason" required/></textarea>
-                        </div>
-                    </div>
-                `;
-                $("#data-crowdo").html(rejected);
                 // get partner
                 $.ajax({
                     type: "get",
@@ -478,32 +534,12 @@ $(document).ready(function () {
                             option += `<option value=${d.PartnerID}>${d.Name}</option>`;
                         })
 
+                        // $('#partner').append(option);
                         $('#partner').html(`<option value="null" selected disabled>-- Pilih Partner --</option>` + option);
                     },
                 });
             } else {
-                let submitted = `
-                    <div class="col-12 col-md-6">
-                        <div class="form-group">
-                            <label for="note" class="m-0">Partner :</label>
-                            <select class="form-control" name="partner" id="partner" required>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-6">
-                        <div class="form-group">
-                            <label for="batch">Batch</label>
-                            <input type="number" class="form-control" name="batch" id="batch" min="1" required/>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-6">
-                        <div class="form-group">
-                            <label for="action_date">Submit Date</label>
-                            <input type="date" class="form-control" name="action_date" id="action_date" required/>
-                        </div>
-                    </div>
-                `;
-                $("#data-crowdo").html(submitted);
+                $("#data-crowdo").html("");
             }
         });
 

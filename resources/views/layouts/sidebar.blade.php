@@ -2,7 +2,8 @@
 <a href="#" class="brand-link">
     <img src="{{ url('/') }}/dist/img/rtmart_logo.png" alt="RTmart" class="brand-image ml-2" style="opacity: .8">
     <span class="brand-text font-weight-light">
-        Dashboard</span>
+        Dashboard
+    </span>
 </a>
 
 <!-- Sidebar -->
@@ -458,11 +459,9 @@
                     </p>
                 </a>
                 <ul class="nav nav-treeview">
-                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID ==
-                    "BM") ||
+                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "RBTAD") || (Auth::user()->RoleID == "BM") ||
                     (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "HR") ||
-                    (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO") || Auth::user()->RoleID == "HL" ||
-                    Auth::user()->RoleID == "SM")
+                    (Auth::user()->RoleID == "AH") || (Auth::user()->RoleID == "DMO") || Auth::user()->RoleID == "HL" || Auth::user()->RoleID == "SM")
                     <li class="nav-item">
                         <a href="{{ route('merchant.account') }}"
                             class="nav-link {{ Request::is('merchant/account*') ? 'active' : '' }}">
@@ -471,8 +470,7 @@
                         </a>
                     </li>
                     @endif
-                    @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID ==
-                    "CEO" || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH"))
+                    {{-- @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID == "CEO" || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH"))
                     <li class="nav-item">
                         <a href="{{ route('merchant.membership') }}"
                             class="nav-link {{ Request::is('merchant/membership*') ? 'active' : '' }}">
@@ -480,7 +478,32 @@
                             <p>Membership</p>
                         </a>
                     </li>
-                    @endif
+                    @endif --}}
+                    <li class="nav-item {{ Request::is('merchant/membership*') ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ Request::is('merchant/membership*') ? 'active' : '' }}">
+                            <i class="far {{ Request::is('merchant/membership*') ? 'fa-dot-circle' : 'fa-circle' }} nav-icon"></i>
+                            <p>Master Membership
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") ||
+                            Auth::user()->RoleID == "CEO" || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH"))
+                            <li class="nav-item">
+                                <a href="{{ route('merchant.membership') }}" class="nav-link {{ Request::is('merchant/membership') ? 'active' : '' }}">
+                                    <i class="far {{ Request::is('merchant/membership') ? 'fa-dot-circle' : 'fa-circle' }} nav-icon"></i>
+                                    <p>Membership</p>
+                                </a>
+                            </li>
+                            @endif
+                            <li class="nav-item">
+                                <a href="{{ url("merchant/membership/kospin") }}" class="nav-link {{ Request::is('merchant/membership/kospin') ? 'active' : '' }}">
+                                    <i class="far {{ Request::is('merchant/membership/kospin') ? 'fa-dot-circle' : 'fa-circle' }} nav-icon"></i>
+                                    <p>Kospin Sekartama</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
                     @if ((Auth::user()->RoleID == "IT") || (Auth::user()->RoleID == "BM") || Auth::user()->RoleID ==
                     "CEO" || (Auth::user()->RoleID == "FI") || (Auth::user()->RoleID == "AH"))
                     <li class="nav-item">

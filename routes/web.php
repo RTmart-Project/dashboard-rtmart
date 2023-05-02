@@ -399,10 +399,13 @@ Route::group(['middleware' => ['auth']], function () {
 
         Route::group(['prefix' => 'merchant/membership'], function () {
             Route::get('/', [MerchantMembershipController::class, 'index'])->name('merchant.membership');
+            Route::get('/{partnerName}', [MerchantMembershipController::class, 'partnerView'])->name('merchant.membership.partner');
             Route::post('/data', [MerchantMembershipController::class, 'data'])->name('merchant.membershipData');
+            Route::post('/partner/data', [MerchantMembershipController::class, 'partnerData'])->name('merchant.partner.membershipData');
             Route::get('/photo/{merchantID}', [MerchantMembershipController::class, 'photo'])->name('merchant.membershipPhoto');
             Route::post('/confirm/{merchantID}/{status}', [MerchantMembershipController::class, 'confirm'])->name('merchant.membershipConfirm');
             Route::post('/updateCrowdo/{merchantID}', [MerchantMembershipController::class, 'updateCrowdo'])->name('merchant.membershipUpdateCrowdo');
+            Route::post('/updatePayment/{merchantID}/{membershipID}', [MerchantMembershipController::class, 'updatePayment'])->name('merchant.membershipUpdatePayment');
         });
     });
 

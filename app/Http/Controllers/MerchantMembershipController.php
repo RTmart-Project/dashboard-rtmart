@@ -52,9 +52,9 @@ class MerchantMembershipController extends Controller
 
         if ($request->ajax()) {
             return DataTables::of($data)
-                ->addColumn('Sales', function ($data) {
-                    return $data->ReferralCode . ' - ' . $data->SalesName;
-                })
+                // ->addColumn('Sales', function ($data) {
+                //     return $data->ReferralCode . ' - ' . $data->SalesName;
+                // })
                 ->editColumn('StatusName', function ($data) {
                     if ($data->ValidationStatusMembershipCouple === 2) {
                         $badge = '<span class="badge badge-danger">' . $data->StatusName . '</span>';
@@ -109,6 +109,137 @@ class MerchantMembershipController extends Controller
 
                 //     return $storeSize;
                 // })
+                // ->editColumn('MembershipCoupleConfirmDate', function ($data) {
+                //     if ($data->MembershipCoupleConfirmDate !== null) {
+                //         $date = date('d-M-Y H:i:s', strtotime($data->MembershipCoupleConfirmDate));
+                //     } else {
+                //         $date = "-";
+                //     }
+
+                //     return $date;
+                // })
+                // ->editColumn('CrowdoApprovedDate', function ($data) {
+                //     if ($data->CrowdoApprovedDate !== null) {
+                //         $date = date('d-M-Y', strtotime($data->CrowdoApprovedDate));
+                //     } else {
+                //         $date = "-";
+                //     }
+
+                //     return $date;
+                // })
+                ->addColumn('Photo', function ($data) {
+                    return "
+                        <button data-merchant-id='$data->MerchantID' data-store='$data->StoreName' id='survey-photo' type='button' class='btn btn-xs btn-info btn-photo'>
+                            Lihat
+                        </button>
+                    ";
+                })
+                ->addColumn('Action', function ($data) {
+                    if ($data->status_payment_id == null || $data->status_payment_id == 3) {
+                        return "<button class='btn btn-xs btn-warning btn-update-crowdo' data-merchant-id='$data->MerchantID' data-store='$data->StoreName' data-status-crowdo='$data->StatusCrowdo'>
+                                    Update
+                                </button>";
+                    }
+                })
+                ->addColumn('Disclaimer', function ($data) {
+                    if ($data->Disclaimer == 1) {
+                        $disclaimer = "<a href='/merchant/membership/disclaimer/$data->MerchantID' target='_blank' class='btn btn-sm btn-info'>Lihat</a>";
+                    } else {
+                        $disclaimer = '';
+                    }
+
+                    return $disclaimer;
+                })
+                // ->filterColumn('Sales', function ($query, $keyword) {
+                //     $sql = "CONCAT(ms_merchant_account.ReferralCode,' - ', ms_sales.SalesName)  like ?";
+                //     $query->whereRaw($sql, ["%{$keyword}%"]);
+                // })
+                ->rawColumns(['StatusNameCrowdo', 'StatusName', 'Photo', 'Action', 'Disclaimer'])
+                ->make();
+        }
+    }
+
+    public function partnerView()
+    {
+        $statusMembership = DB::table('ms_status_couple_preneur')
+            ->where('StatusCouplePreneurID', '!=', 0)
+            ->where('StatusNote', 'MEMBERSHIP')
+            ->get();
+
+        return view('merchant.membership.partner', [
+            'statusMembership' => $statusMembership,
+        ]);
+    }
+
+    public function partnerData(Request $request)
+    {
+        $startDate = $request->input('startDate');
+        $endDate = $request->input('endDate');
+        $filterStatus = $request->input('filterStatus');
+
+        $sqlMembership = $this->merchantMembershipService->merchantMembershipDataPartner();
+
+        if ($startDate != '' && $endDate != '') {
+            $sqlMembership->whereDate('ms_merchant_account.MembershipCoupleSubmitDate', '>=', $startDate)
+                ->whereDate('ms_merchant_account.MembershipCoupleSubmitDate', '<=', $endDate);
+        }
+
+        if ($filterStatus) {
+            $sqlMembership->whereIn('ms_merchant_account.ValidationStatusMembershipCouple', $filterStatus);
+        }
+
+        $data = $sqlMembership;
+
+        if ($request->ajax()) {
+            return DataTables::of($data)
+                ->editColumn('StatusName', function ($data) {
+                    if ($data->ValidationStatusMembershipCouple === 2) {
+                        $badge = '<span class="badge badge-danger">' . $data->StatusName . '</span>';
+                    } elseif ($data->ValidationStatusMembershipCouple === 3) {
+                        $badge = '<span class="badge badge-success">' . $data->StatusName . '</span>';
+                    } else {
+                        $badge = '<span class="badge badge-warning">' . $data->StatusName . '</span>';
+                    }
+
+                    return $badge;
+                })
+                ->editColumn('StatusNameCrowdo', function ($data) {
+                    if ($data->StatusCrowdo == 5) {
+                        $badge = '<span class="badge badge-warning">' . $data->StatusNameCrowdo . '</span>';
+                    } elseif ($data->StatusCrowdo == 6) {
+                        $badge = '<span class="badge badge-success">' . $data->StatusNameCrowdo . '</span>';
+                    } elseif ($data->StatusCrowdo == 7) {
+                        $badge = '<span class="badge badge-danger">' . $data->StatusNameCrowdo . '</span>';
+                    } else {
+                        $badge = '<span class="badge badge-info">' . $data->StatusNameCrowdo . '</span>';
+                    }
+
+                    return $badge;
+                })
+                ->editColumn('StatusPaymentName', function ($data) {
+                    $badge = "";
+                    if ($data->status_payment_id == 1) {
+                        $badge = '<span class="badge badge-info">' . $data->StatusPaymentName . '</span>';
+                    } elseif ($data->status_payment_id == 2) {
+                        $badge = '<span class="badge badge-danger">' . $data->StatusPaymentName . '</span>';
+                    } elseif ($data->status_payment_id == 3) {
+                        $badge = '<span class="badge badge-success">' . $data->StatusPaymentName . '</span>';
+                    }
+
+                    return $badge;
+                })
+                ->editColumn('MembershipCoupleSubmitDate', function ($data) {
+                    return date('d-M-Y H:i:s', strtotime($data->MembershipCoupleSubmitDate));
+                })
+                ->editColumn('BirthDate', function ($data) {
+                    if ($data->BirthDate !== null) {
+                        $date = date('d-M-Y', strtotime($data->BirthDate));
+                    } else {
+                        $date = "";
+                    }
+
+                    return $date;
+                })
                 ->editColumn('MembershipCoupleConfirmDate', function ($data) {
                     if ($data->MembershipCoupleConfirmDate !== null) {
                         $date = date('d-M-Y H:i:s', strtotime($data->MembershipCoupleConfirmDate));
@@ -135,10 +266,13 @@ class MerchantMembershipController extends Controller
                     ";
                 })
                 ->addColumn('Action', function ($data) {
-                    return "<button class='btn btn-xs btn-warning btn-update-crowdo' 
-                                data-merchant-id='$data->MerchantID' data-store='$data->StoreName' data-status-crowdo='$data->StatusCrowdo'>
-                                Update Status Crowdo
-                            </button>";
+                    if ($data->StatusCouplePreneurID == 3) {
+                        return "
+                            <button class='btn btn-xs btn-warning btn-update-crowdo' data-membership-id='$data->disclaimer_id' data-merchant-id='$data->MerchantID' data-status-crowdo='$data->StatusCrowdo' data-status-payment-id='$data->status_payment_id'>
+                                Update
+                            </button>
+                        ";
+                    }
                 })
                 ->addColumn('Disclaimer', function ($data) {
                     if ($data->Disclaimer == 1) {
@@ -149,11 +283,7 @@ class MerchantMembershipController extends Controller
 
                     return $disclaimer;
                 })
-                ->filterColumn('Sales', function ($query, $keyword) {
-                    $sql = "CONCAT(ms_merchant_account.ReferralCode,' - ', ms_sales.SalesName)  like ?";
-                    $query->whereRaw($sql, ["%{$keyword}%"]);
-                })
-                ->rawColumns(['StatusNameCrowdo', 'StatusName', 'Photo', 'Action', 'Disclaimer'])
+                ->rawColumns(['StatusNameCrowdo', 'StatusName', 'Photo', 'Action', 'Disclaimer', 'StatusPaymentName'])
                 ->make();
         }
     }
@@ -217,12 +347,27 @@ class MerchantMembershipController extends Controller
 
     public function updateCrowdo($merchantID, Request $request)
     {
+        if ($request->partner == null) {
+            return redirect()->route('merchant.membership')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
+        }
+
         $status = $request->input('status-crowdo');
         // $loanID = $request->input('loan_id'); // March 27 23 by 26kito
         $partner = $request->input('partner');
         $amount = $request->input('amount');
         $batch = $request->input('batch');
+        $user = Auth::user()->Name . ' - ' . Auth::user()->RoleID;
+        $newStatusMembership = '';
         $approvedDate = $request->input('approved_date');
+        $actionDate = $request->input('action_date');
+        $rejectedReason = $request->input('rejected_reason');
+        if ($status == 5) {
+            $newStatusMembership = 1;
+        } else if ($status == 6) {
+            $newStatusMembership = 2;
+        } else if ($status == 7) {
+            $newStatusMembership = 3;
+        }
 
         $dataCrowdo = [
             // 'CrowdoLoanID' => $loanID,
@@ -231,27 +376,48 @@ class MerchantMembershipController extends Controller
             'CrowdoApprovedDate' => $approvedDate
         ];
 
+        $maxDisclaimerID = DB::table('ms_history_membership')->max('disclaimer_id');
+        $disclaimerID = $maxDisclaimerID + 1;
+
         $dataMembership = [
+            'disclaimer_id' => $disclaimerID,
             'merchant_id' => $merchantID,
             'partner_id' => $partner,
             'nominal' => $amount,
             'batch_number' => $batch,
-            'approval_date' => $approvedDate
+            'status_membership' => $newStatusMembership,
+            'action_date' => $actionDate,
+            'rejected_reason' => $rejectedReason,
+            'action_by' => $user
         ];
 
         $dataCouplePreneurCrowdoLog = [
             'MerchantID' => $merchantID,
             'StatusCrowdo' => $status,
+            // 'NoteMembershipCouple' => $rejectedReason,
             'CreatedDate' => date('Y-m-d H:i:s'),
-            'ActionBy' => Auth::user()->Name . ' ' . Auth::user()->RoleID . ' ' . Auth::user()->Depo
+            'ActionBy' => $user
         ];
 
         try {
             $this->merchantMembershipService->updateStatusCrowdo($merchantID, $dataMembership, $status, $dataCrowdo, $dataCouplePreneurCrowdoLog);
+
             return redirect()->route('merchant.membership')->with('success', 'Status Crowdo Merchant berhasil di-update');
         } catch (\Throwable $th) {
             return redirect()->route('merchant.membership')->with('failed', 'Terjadi kesalahan sistem atau jaringan');
         }
+    }
+
+    public function updatePayment($merchantID, $membershipID, Request $request)
+    {
+        $statusPaymentID = $request->status_payment;
+
+        DB::table('ms_history_membership')
+            ->where('merchant_id', $merchantID)
+            ->where('disclaimer_id', $membershipID)
+            ->update(['status_payment_id' => $statusPaymentID]);
+
+        return redirect()->back()->with('success', 'Status Crowdo Merchant berhasil di-update');
     }
 
     public function disclaimer($merchantID)
@@ -260,18 +426,18 @@ class MerchantMembershipController extends Controller
         $date = Carbon::now()->locale('id')->translatedFormat('d F Y');
 
         $merchant = DB::table('ms_merchant_account AS mma')
-            ->join('ms_history_disclaimer AS mhd', 'mma.MerchantID', 'mhd.merchant_id')
+            ->join('ms_history_membership AS mhd', 'mma.MerchantID', 'mhd.merchant_id')
             ->selectRaw("mhd.disclaimer_id, 
                 ANY_VALUE(mma.MerchantID) AS MerchantID, ANY_VALUE(mma.UsernameIDCard) AS UsernameIDCard, 
                 ANY_VALUE(mma.NumberIDCard) AS NumberIDCard, ANY_VALUE(mma.StoreAddress) AS StoreAddress,
                 ANY_VALUE(mhd.nominal) AS Nominal")
             ->where('mma.MerchantID', '=', $merchantID)
-            ->whereRaw('mhd.disclaimer_id = (SELECT MAX(disclaimer_id) FROM ms_history_disclaimer WHERE merchant_id = ?)', [$merchantID])
+            ->whereRaw('mhd.disclaimer_id = (SELECT MAX(disclaimer_id) FROM ms_history_membership WHERE merchant_id = ?)', [$merchantID])
             ->groupBy('mma.MerchantID', 'mhd.disclaimer_id')
             ->first();
 
         // get the submission count for each disclaimer id
-        $submissionCount = DB::table('ms_history_disclaimer')
+        $submissionCount = DB::table('ms_history_membership')
             ->select('disclaimer_id', DB::raw('COUNT(*) as submission_count'))
             ->where('merchant_id', '=', $merchantID)
             ->groupBy('disclaimer_id')
