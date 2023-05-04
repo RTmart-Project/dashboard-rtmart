@@ -398,6 +398,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/merchant/otp/get', [MerchantController::class, 'getOtps'])->name('merchant.getOtps');
 
         Route::group(['prefix' => 'merchant/membership'], function () {
+            Route::get('/rejected-reason', [MerchantMembershipController::class, 'rejectedReason'])->name('merchant.membership.rejectedReason');
             Route::get('/', [MerchantMembershipController::class, 'index'])->name('merchant.membership');
             Route::get('/{partnerName}', [MerchantMembershipController::class, 'partnerView'])->name('merchant.membership.partner');
             Route::post('/data', [MerchantMembershipController::class, 'data'])->name('merchant.membershipData');
