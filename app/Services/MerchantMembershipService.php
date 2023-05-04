@@ -19,20 +19,25 @@ class MerchantMembershipService
           ->where('ms_history_membership.disclaimer_id', '=', DB::raw('(SELECT MAX(disclaimer_id) FROM ms_history_membership WHERE merchant_id = ms_merchant_account.MerchantID)'));
       })
       ->leftJoin('ms_marital_status', 'ms_marital_status.MaritalStatusID', 'ms_merchant_account.MaritalStatusID')
+      ->leftJoin('ms_membership_status_rejection', 'ms_history_membership.rejected_id', 'ms_membership_status_rejection.id')
       ->where('ms_merchant_account.IsTesting', 0)
       ->where('ms_merchant_account.ValidationStatusMembershipCouple', '!=', 0)
       ->selectRaw("ANY_VALUE(ms_merchant_account.MerchantID) AS MerchantID, 
-      ms_merchant_account.StoreName, ms_merchant_account.OwnerFullName, 
-      ms_merchant_account.PhoneNumber, ms_marital_status.MaritalStatusName, 
-      ms_merchant_account.NumberIDCard, ms_merchant_account.UsernameIDCard,
-      ms_merchant_account.BirthDate, ms_merchant_account.StoreAddress, ms_merchant_account.ReferralCode, 
-      ms_merchant_account.ValidationStatusMembershipCouple, StatusMembership.StatusName, 
-      ms_merchant_account.StatusCrowdo, ms_merchant_account.CrowdoApprovedDate, StatusCrowdo.StatusName AS StatusNameCrowdo,
-      ms_merchant_account.MembershipCoupleSubmitDate, ANY_VALUE(ms_history_membership.action_date) AS action_date, 
-      ANY_VALUE(ms_history_membership.action_by) AS action_by, 
-      ANY_VALUE(ms_history_membership.status_payment_id) AS status_payment_id,
-      ms_merchant_account.ValidationNoteMembershipCouple, IF(ms_distributor.Regional = 'REGIONAL1', TRUE, FALSE) AS Disclaimer")
-      ->groupBy('ms_merchant_account.MerchantID');
+        ms_merchant_account.StoreName, ms_merchant_account.OwnerFullName, 
+        ms_merchant_account.PhoneNumber, ms_marital_status.MaritalStatusName, 
+        ms_merchant_account.NumberIDCard, ms_merchant_account.UsernameIDCard,
+        ms_merchant_account.BirthDate, ms_merchant_account.StoreAddress, ms_merchant_account.ReferralCode, 
+        ms_merchant_account.ValidationStatusMembershipCouple, StatusMembership.StatusName, 
+        ms_merchant_account.StatusCrowdo, ms_merchant_account.CrowdoApprovedDate, StatusCrowdo.StatusName AS StatusNameCrowdo,
+        ms_merchant_account.MembershipCoupleSubmitDate, ANY_VALUE(ms_history_membership.action_date) AS action_date, 
+        ANY_VALUE(ms_history_membership.action_by) AS action_by, 
+        ANY_VALUE(ms_history_membership.status_payment_id) AS status_payment_id,
+        ANY_VALUE(ms_history_membership.rejected_id) AS rejected_id,
+        IFNULL(ANY_VALUE(ms_history_membership.rejected_reason), ANY_VALUE(ms_membership_status_rejection.status_name)) AS rejected_reason, 
+        ms_merchant_account.ValidationNoteMembershipCouple, 
+        IF(ms_distributor.Regional = 'REGIONAL1', TRUE, FALSE) AS Disclaimer")
+      ->groupBy('ms_merchant_account.MerchantID')
+      ->orderBy('ms_merchant_account.MembershipCoupleSubmitDate', 'DESC');
     // ->select(
     //   'ms_merchant_account.MerchantID',
     //   'ms_merchant_account.StoreName',

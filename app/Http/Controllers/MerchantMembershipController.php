@@ -127,6 +127,9 @@ class MerchantMembershipController extends Controller
 
                 //     return $date;
                 // })
+                ->addColumn('ActionDate', function($data) {
+                    return $data->action_date;
+                })
                 ->addColumn('Photo', function ($data) {
                     return "
                         <button data-merchant-id='$data->MerchantID' data-store='$data->StoreName' id='survey-photo' type='button' class='btn btn-xs btn-info btn-photo'>
@@ -135,7 +138,7 @@ class MerchantMembershipController extends Controller
                     ";
                 })
                 ->addColumn('Action', function ($data) {
-                    if ($data->status_payment_id == null || $data->status_payment_id == 3) {
+                    if (($data->status_payment_id == null || $data->status_payment_id == 3) && $data->rejected_id != 1) {
                         return "<button class='btn btn-xs btn-warning btn-update-crowdo' data-merchant-id='$data->MerchantID' data-store='$data->StoreName' data-status-crowdo='$data->StatusCrowdo'>
                                     Update
                                 </button>";
@@ -150,11 +153,11 @@ class MerchantMembershipController extends Controller
 
                     return $disclaimer;
                 })
-                // ->filterColumn('Sales', function ($query, $keyword) {
-                //     $sql = "CONCAT(ms_merchant_account.ReferralCode,' - ', ms_sales.SalesName)  like ?";
-                //     $query->whereRaw($sql, ["%{$keyword}%"]);
-                // })
-                ->rawColumns(['StatusNameCrowdo', 'StatusName', 'Photo', 'Action', 'Disclaimer'])
+                ->filterColumn('MerchantID', function ($query, $keyword) {
+                    $sql = "ms_merchant_account.MerchantID like ?";
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                })
+                ->rawColumns(['StatusNameCrowdo', 'StatusName', 'Photo', 'Action', 'Disclaimer', 'ActionDate'])
                 ->make();
         }
     }
@@ -360,7 +363,9 @@ class MerchantMembershipController extends Controller
         $newStatusMembership = '';
         $approvedDate = $request->input('approved_date');
         $actionDate = $request->input('action_date');
+        $rejectedID = $request->input('rejected_id');
         $rejectedReason = $request->input('rejected_reason');
+
         if ($status == 5) {
             $newStatusMembership = 1;
         } else if ($status == 6) {
@@ -387,6 +392,7 @@ class MerchantMembershipController extends Controller
             'batch_number' => $batch,
             'status_membership' => $newStatusMembership,
             'action_date' => $actionDate,
+            'rejected_id' => $rejectedID,
             'rejected_reason' => $rejectedReason,
             'action_by' => $user
         ];
@@ -457,5 +463,12 @@ class MerchantMembershipController extends Controller
         $merchant->SeriesNumber = date('y') . ".$orderSeriesNumber.$orderTotalSubmit/B-KRTM/$month";
 
         return view('merchant.membership.disclaimer', ['merchant' => $merchant, 'dayName' => $dayName, 'date' => $date]);
+    }
+
+    public function rejectedReason()
+    {
+        $data = DB::table('ms_membership_status_rejection')->get();
+
+        return $data;
     }
 }
