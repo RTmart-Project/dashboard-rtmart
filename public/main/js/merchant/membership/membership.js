@@ -35,6 +35,7 @@ $(document).ready(function () {
                 {
                     data: "MerchantID",
                     name: "ms_merchant_account.MerchantID",
+                    searchable: true,
                 },
                 {
                     data: "StoreName",
@@ -69,16 +70,22 @@ $(document).ready(function () {
                     name: "ms_merchant_account.MembershipCoupleSubmitDate",
                 },
                 {
-                    data: "action_date",
-                    name: "ms_history_membership.action_date",
+                    data: "ActionDate",
+                    name: "ActionDate",
+                    orderable: true,
                 },
                 {
                     data: "action_by",
                     name: "ms_history_membership.action_by",
                 },
+                // {
+                //     data: "ValidationNoteMembershipCouple",
+                //     name: "ms_merchant_account.ValidationNoteMembershipCouple",
+                // },
                 {
-                    data: "ValidationNoteMembershipCouple",
-                    name: "ms_merchant_account.ValidationNoteMembershipCouple",
+                    data: "rejected_reason",
+                    name: "rejected_reason",
+                    searchable: false
                 },
                 {
                     data: "StatusName",
@@ -381,7 +388,7 @@ $(document).ready(function () {
                         <option value="7">Rejected</option>
                     </select>
                 </div>
-                <div id="data-crowdo" class="row"></div>
+                <div id="data-crowdo" class="form-row"></div>
                 <div class="modal-footer justify-content-end pb-0">
                     <button type="submit" class="btn btn-warning">Update</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
@@ -459,13 +466,13 @@ $(document).ready(function () {
                             <input type="date" class="form-control" name="action_date" id="action_date" required/>
                         </div>
                     </div>
-                    <div class="col-12 col-md-12">
-                        <div class="form-group">
-                            <label for="rejected_reason">Rejected Reason</label>
-                            <textarea class="form-control" name="rejected_reason" id="rejected_reason" required/></textarea>
-                        </div>
+                    <div class="col-12 col-md-6">
+                        <label for="note" class="m-0">Rejected Reason :</label>
+                        <select class="form-control" name="rejected_id" id="rejected_id" required>
+                        </select>
                     </div>
                 `;
+
                 $("#data-crowdo").html(rejected);
                 // get partner
                 $.ajax({
@@ -481,6 +488,39 @@ $(document).ready(function () {
                         $('#partner').html(`<option value="null" selected disabled>-- Pilih Partner --</option>` + option);
                     },
                 });
+
+                $.ajax({
+                    type: "get",
+                    url: "/merchant/membership/rejected-reason",
+                    success: function (data) {
+                        let option;
+
+                        console.log(data)
+                        data.forEach((d) => {
+                            option += `<option value=${d.id}>${d.status_name}</option>`;
+                        })
+
+                        $('#rejected_id').html(`<option value="null" selected disabled>-- Pilih Alasan Ditolak --</option>` + option);
+                    },
+                });
+
+                $(document).on('change', '#rejected_id', () => {
+                    rejected_val = $('#rejected_id').val();
+                    if (rejected_val == 3) {
+                        let rejectReason = `
+                            <div class="col-12 col-md-12 rejected_reason">
+                                <div class="form-group">
+                                    <label for="rejected_reason">Rejected Reason</label>
+                                    <textarea class="form-control" name="rejected_reason" id="rejected_reason" required/></textarea>
+                                </div>
+                            </div>
+                        `;
+
+                        $("#data-crowdo").append(rejectReason);
+                    } else {
+                        $("#data-crowdo .rejected_reason").remove();
+                    }
+                })
             } else {
                 let submitted = `
                     <div class="col-12 col-md-6">
