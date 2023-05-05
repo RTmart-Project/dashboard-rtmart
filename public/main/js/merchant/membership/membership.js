@@ -506,7 +506,7 @@ $(document).ready(function () {
 
                 $(document).on('change', '#rejected_id', () => {
                     rejected_val = $('#rejected_id').val();
-                    if (rejected_val == 3) {
+                    if (rejected_val == 5) {
                         let rejectReason = `
                             <div class="col-12 col-md-12 rejected_reason">
                                 <div class="form-group">
