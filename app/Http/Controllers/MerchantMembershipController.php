@@ -52,9 +52,6 @@ class MerchantMembershipController extends Controller
 
         if ($request->ajax()) {
             return DataTables::of($data)
-                // ->addColumn('Sales', function ($data) {
-                //     return $data->ReferralCode . ' - ' . $data->SalesName;
-                // })
                 ->editColumn('StatusName', function ($data) {
                     if ($data->ValidationStatusMembershipCouple === 2) {
                         $badge = '<span class="badge badge-danger">' . $data->StatusName . '</span>';
@@ -82,51 +79,6 @@ class MerchantMembershipController extends Controller
                 ->editColumn('MembershipCoupleSubmitDate', function ($data) {
                     return date('d-M-Y H:i:s', strtotime($data->MembershipCoupleSubmitDate));
                 })
-                // ->editColumn('BirthDate', function ($data) {
-                //     if ($data->BirthDate !== null) {
-                //         $date = date('d-M-Y', strtotime($data->BirthDate));
-                //     } else {
-                //         $date = "";
-                //     }
-
-                //     return $date;
-                // })
-                // ->editColumn('BirthDateCouple', function ($data) {
-                //     if ($data->BirthDateCouple !== null) {
-                //         $date = date('d-M-Y', strtotime($data->BirthDateCouple));
-                //     } else {
-                //         $date = "";
-                //     }
-
-                //     return $date;
-                // })
-                // ->addColumn('StoreSize', function ($data) {
-                //     if ($data->StoreLength != null && $data->StoreWidth != null) {
-                //         $storeSize = $data->StoreLength . "x" . $data->StoreWidth . "m";
-                //     } else {
-                //         $storeSize = "";
-                //     }
-
-                //     return $storeSize;
-                // })
-                // ->editColumn('MembershipCoupleConfirmDate', function ($data) {
-                //     if ($data->MembershipCoupleConfirmDate !== null) {
-                //         $date = date('d-M-Y H:i:s', strtotime($data->MembershipCoupleConfirmDate));
-                //     } else {
-                //         $date = "-";
-                //     }
-
-                //     return $date;
-                // })
-                // ->editColumn('CrowdoApprovedDate', function ($data) {
-                //     if ($data->CrowdoApprovedDate !== null) {
-                //         $date = date('d-M-Y', strtotime($data->CrowdoApprovedDate));
-                //     } else {
-                //         $date = "-";
-                //     }
-
-                //     return $date;
-                // })
                 ->addColumn('ActionDate', function($data) {
                     return $data->action_date;
                 })
@@ -144,15 +96,15 @@ class MerchantMembershipController extends Controller
                                 </button>";
                     }
                 })
-                ->addColumn('Disclaimer', function ($data) {
-                    if ($data->Disclaimer == 1) {
-                        $disclaimer = "<a href='/merchant/membership/disclaimer/$data->MerchantID' target='_blank' class='btn btn-sm btn-info'>Lihat</a>";
-                    } else {
-                        $disclaimer = '';
-                    }
+                // ->addColumn('Disclaimer', function ($data) {
+                //     if ($data->Disclaimer == 1) {
+                //         $disclaimer = "<a href='/merchant/membership/disclaimer/$data->MerchantID' target='_blank' class='btn btn-sm btn-info'>Lihat</a>";
+                //     } else {
+                //         $disclaimer = '';
+                //     }
 
-                    return $disclaimer;
-                })
+                //     return $disclaimer;
+                // })
                 ->filterColumn('MerchantID', function ($query, $keyword) {
                     $sql = "ms_merchant_account.MerchantID like ?";
                     $query->whereRaw($sql, ["%{$keyword}%"]);
