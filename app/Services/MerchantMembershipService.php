@@ -31,7 +31,7 @@ class MerchantMembershipService
         ANY_VALUE(ms_history_membership.action_by) AS action_by, 
         ANY_VALUE(ms_history_membership.status_payment_id) AS status_payment_id,
         ANY_VALUE(ms_history_membership.rejected_id) AS rejected_id,
-        IFNULL(ANY_VALUE(ms_history_membership.rejected_reason), ANY_VALUE(ms_membership_status_rejection.status_name)) AS rejected_reason, 
+        ANY_VALUE(ms_history_membership.rejected_reason) AS rejected_reason, 
         ms_merchant_account.ValidationNoteMembershipCouple")
       ->groupBy('ms_merchant_account.MerchantID')
       ->orderBy('ms_merchant_account.MembershipCoupleSubmitDate', 'DESC');

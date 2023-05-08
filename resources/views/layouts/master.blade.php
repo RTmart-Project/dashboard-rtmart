@@ -95,24 +95,25 @@ scratch. This page gets rid of all links and provides the needed markup only.
     @yield('js-pages')
     <script>
         $(document).ready(function() {
-        const messageNotifSuccess = $('body .wrapper').data("notif-success");
-        const messageNotifFailed = $('body .wrapper').data("notif-failed");
-        if (messageNotifSuccess != "") {
-            iziToast.success({
-                title: 'Berhasil',
-                message: messageNotifSuccess,
-                position: 'topRight',
-            });
-        }
+            const messageNotifSuccess = $('body .wrapper').data("notif-success");
+            const messageNotifFailed = $('body .wrapper').data("notif-failed");
 
-        if (messageNotifFailed != "") {
-            iziToast.error({
-                title: 'Gagal',
-                message: messageNotifFailed,
-                position: 'topRight',
-            });
-        }
-    });
+            if (messageNotifSuccess != "") {
+                iziToast.success({
+                    title: 'Berhasil',
+                    message: messageNotifSuccess,
+                    position: 'topRight',
+                });
+            }
+
+            if (messageNotifFailed != "") {
+                iziToast.error({
+                    title: 'Gagal',
+                    message: messageNotifFailed,
+                    position: 'topRight',
+                });
+            }
+        });
     </script>
 
 </body>
