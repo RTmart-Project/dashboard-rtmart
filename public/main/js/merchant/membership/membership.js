@@ -77,6 +77,7 @@ $(document).ready(function () {
                 {
                     data: "action_by",
                     name: "ms_history_membership.action_by",
+                    orderable: false,
                 },
                 // {
                 //     data: "ValidationNoteMembershipCouple",
@@ -85,6 +86,7 @@ $(document).ready(function () {
                 {
                     data: "rejected_reason",
                     name: "rejected_reason",
+                    orderable: false,
                     searchable: false
                 },
                 {
@@ -446,6 +448,32 @@ $(document).ready(function () {
             if (statusCrowdo == 6) {
                 $("#data-crowdo").html(dataCrowdo);
             } else if (statusCrowdo == 7) {
+                // let rejected = `
+                //     <div class="col-12 col-md-6">
+                //         <div class="form-group">
+                //             <label for="note" class="m-0">Partner :</label>
+                //             <select class="form-control" name="partner" id="partner" required>
+                //             </select>
+                //         </div>
+                //     </div>
+                //     <div class="col-12 col-md-6">
+                //         <div class="form-group">
+                //             <label for="batch">Batch</label>
+                //             <input type="number" class="form-control" name="batch" id="batch" min="1" required/>
+                //         </div>
+                //     </div>
+                //     <div class="col-12 col-md-6">
+                //         <div class="form-group">
+                //             <label for="action_date">Rejected Date</label>
+                //             <input type="date" class="form-control" name="action_date" id="action_date" required/>
+                //         </div>
+                //     </div>
+                //     <div class="col-12 col-md-6">
+                //         <label for="note" class="m-0">Rejected Reason :</label>
+                //         <select class="form-control" name="rejected_id" id="rejected_id" required>
+                //         </select>
+                //     </div>
+                // `;
                 let rejected = `
                     <div class="col-12 col-md-6">
                         <div class="form-group">
@@ -466,10 +494,7 @@ $(document).ready(function () {
                             <input type="date" class="form-control" name="action_date" id="action_date" required/>
                         </div>
                     </div>
-                    <div class="col-12 col-md-6">
-                        <label for="note" class="m-0">Rejected Reason :</label>
-                        <select class="form-control" name="rejected_id" id="rejected_id" required>
-                        </select>
+                    <div class="col-12 col-md-12" id="rejected-checkbox">
                     </div>
                 `;
 
@@ -493,32 +518,49 @@ $(document).ready(function () {
                     type: "get",
                     url: "/merchant/membership/rejected-reason",
                     success: function (data) {
-                        let option;
+                        let checkbox;
 
-                        console.log(data)
                         data.forEach((d) => {
-                            option += `<option value=${d.id}>${d.status_name}</option>`;
+                            checkbox += `
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" name="rejected_id[]" value="${d.status_name}" id="rejected_${d.id}">
+                                    <label for="rejected_${d.id}" class="m-0 form-check-label">${d.status_name}</label>
+                                </div>
+                            `;
                         })
 
-                        $('#rejected_id').html(`<option value="null" selected disabled>-- Pilih Alasan Ditolak --</option>` + option);
+                        var div = checkbox.split('undefined');
+
+                        $('#rejected-checkbox').html(
+                            `<div class="form-group">
+                                <label>Rejected Reason</label>
+                            </div>`+
+                            div[1]
+                        );
                     },
                 });
 
-                $(document).on('change', '#rejected_id', () => {
-                    rejected_val = $('#rejected_id').val();
-                    if (rejected_val == 5) {
-                        let rejectReason = `
-                            <div class="col-12 col-md-12 rejected_reason">
-                                <div class="form-group">
-                                    <label for="rejected_reason">Rejected Reason</label>
-                                    <textarea class="form-control" name="rejected_reason" id="rejected_reason" required/></textarea>
-                                </div>
-                            </div>
-                        `;
+                $("form").on("submit", function (event) {
+                    // Define an empty array to store the checked checkbox values
+                    let checkedValues = [];
 
-                        $("#data-crowdo").append(rejectReason);
-                    } else {
-                        $("#data-crowdo .rejected_reason").remove();
+                    // Loop through each checkbox
+                    $('#rejected-checkbox input[type=checkbox]').each(function () {
+                        // Check if the checkbox is checked
+                        if ($(this).is(':checked')) {
+                            // Get the value of the checked checkbox and add it to the array
+                            checkedValues.push($(this).val());
+                        }
+                    });
+
+                    if (checkedValues.length == 0) {
+                        event.preventDefault();
+                        iziToast.error({
+                            title: 'Gagal',
+                            message: 'Alasan ditolak wajib diisi!',
+                            position: 'topRight',
+                            timeout: 5000,
+                        });
                     }
                 })
             } else {
@@ -543,6 +585,7 @@ $(document).ready(function () {
                         </div>
                     </div>
                 `;
+
                 $("#data-crowdo").html(submitted);
             }
         });

@@ -47,11 +47,11 @@
             <p class="mb-1">{{ $product->ProductName }}</p>
             <input type="hidden" name="product_id[]" value="{{ $product->ProductID }}">
             @if ($product->StatusOrder == "Selesai")
-                <span class="badge badge-success">{{ $product->StatusOrder }}</span>
+            <span class="badge badge-success">{{ $product->StatusOrder }}</span>
             @elseif ($product->StatusOrder == "Dibatalkan")
-                <span class="badge badge-danger">{{ $product->StatusOrder }}</span>
+            <span class="badge badge-danger">{{ $product->StatusOrder }}</span>
             @else
-                <span class="badge badge-warning">{{ $product->StatusOrder }}</span>
+            <span class="badge badge-warning">{{ $product->StatusOrder }}</span>
             @endif
           </div>
           <div class="col-3 align-self-center">
@@ -144,7 +144,7 @@
               <b>SubTotal : </b>
               <span class="price-subtotal">{{ Helper::formatCurrency($item->SubTotal, 'Rp ') }}</span>
             </div>
-            
+
             @if ($item->StatusDO == "S024" || $item->StatusDO == "S025")
             @if ($item->Discount != null && $item->Discount != 0)
             <div class="justify-content-between mb-1 d-flex">
@@ -152,14 +152,14 @@
               <span class="price-subtotal">{{ Helper::formatCurrency($item->Discount, 'Rp ') }}</span>
             </div>
             @endif
-            
+
             @if ($item->ServiceCharge != null && $item->ServiceCharge != 0)
             <div class="justify-content-between mb-1 d-flex">
               <b>Biaya Layanan : </b>
               <span class="price-subtotal">{{ Helper::formatCurrency($item->ServiceCharge, 'Rp ') }}</span>
             </div>
             @endif
-            
+
             @if ($item->DeliveryFee != null && $item->DeliveryFee != 0)
             <div class="justify-content-between mb-1 d-flex">
               <b>Biaya Pengiriman : </b>
@@ -179,25 +179,12 @@
               <span class="price-subtotal">{{ Helper::formatCurrency($item->GrandTotal, 'Rp ') }}</span>
             </div>
             @endif
-
-            @if ($item->StatusOrder == "Dalam Pengiriman" && $item->Distributor != "HAISTAR")
-            {{-- <div class="text-center">
-              <button type="submit" id="update_qty" class="btn btn-xs btn-primary text-white mb-2 w-50">Simpan</button>
-            </div> --}}
-            @endif
           </div>
         </div>
       </form>
       <div class="row m-0 pt-2">
         <div class="col-3 col-md-4 align-self-center">
           <b>{{ $item->StatusOrder }}</b> <br>
-          {{-- @if ($item->StatusOrder == "Dalam Pengiriman" && $item->Distributor != "HAISTAR")
-          <a href="#" class="btn btn-xs btn-success btn-finish-do mb-2"
-            data-do-id="{{ $item->DeliveryOrderID }}">Selesaikan Order</a>
-          @elseif ($item->StatusOrder == "Dalam Pengiriman" && $item->Distributor == "HAISTAR")
-          <a href="#" class="btn btn-xs btn-danger btn-cancel-do-haistar mb-2"
-            data-do-id="{{ $item->DeliveryOrderID }}">Batalkan Order Haistar</a>
-          @endif --}}
         </div>
         <div class="col-6 col-md-5 align-self-center">
           Dikirim {{ date('d M Y H:i', strtotime($item->DateKirim)) }}<br>
@@ -218,18 +205,8 @@
   @if ($count == 0)
   <div class="callout callout-info my-2">
     <h5>Belum ada delivery order.</h5>
-    {{-- <h6 class="d-inline mr-2">Lihat</h6>
-    <button type="button" class="btn btn-warning mb-2" data-toggle="modal" data-target="#request-do"
-      data-dismiss="modal">
-      Request Delivery Order
-    </button>
-    <h6 class="d-inline mx-2">atau</h6>
-    <button type="button" class="btn btn-primary mb-2" data-target="#add-do" data-toggle="modal" data-dismiss="modal">
-      Buat Delivery Order
-    </button> --}}
   </div>
   @endif
 </div>
-{{-- <div class="modal-footer justify-content-end">
 
 </div> --}}

@@ -79,7 +79,7 @@ class MerchantMembershipController extends Controller
                 ->editColumn('MembershipCoupleSubmitDate', function ($data) {
                     return date('d-M-Y H:i:s', strtotime($data->MembershipCoupleSubmitDate));
                 })
-                ->addColumn('ActionDate', function($data) {
+                ->addColumn('ActionDate', function ($data) {
                     return $data->action_date;
                 })
                 ->addColumn('Photo', function ($data) {
@@ -90,21 +90,12 @@ class MerchantMembershipController extends Controller
                     ";
                 })
                 ->addColumn('Action', function ($data) {
-                    if (($data->status_payment_id == null || $data->status_payment_id == 3) && $data->rejected_id != 1) {
+                    if (($data->status_payment_id == null || $data->status_payment_id == 3) && strpos($data->rejected_reason, "BI Checking") === false) {
                         return "<button class='btn btn-xs btn-warning btn-update-crowdo' data-merchant-id='$data->MerchantID' data-store='$data->StoreName' data-status-crowdo='$data->StatusCrowdo'>
                                     Update
                                 </button>";
                     }
                 })
-                // ->addColumn('Disclaimer', function ($data) {
-                //     if ($data->Disclaimer == 1) {
-                //         $disclaimer = "<a href='/merchant/membership/disclaimer/$data->MerchantID' target='_blank' class='btn btn-sm btn-info'>Lihat</a>";
-                //     } else {
-                //         $disclaimer = '';
-                //     }
-
-                //     return $disclaimer;
-                // })
                 ->filterColumn('MerchantID', function ($query, $keyword) {
                     $sql = "ms_merchant_account.MerchantID like ?";
                     $query->whereRaw($sql, ["%{$keyword}%"]);
@@ -316,7 +307,13 @@ class MerchantMembershipController extends Controller
         $approvedDate = $request->input('approved_date');
         $actionDate = $request->input('action_date');
         $rejectedID = $request->input('rejected_id');
-        $rejectedReason = $request->input('rejected_reason');
+        if ($rejectedID) {
+            if (count($rejectedID) > 1) {
+                $rejectedID = implode(", ", $request->input('rejected_id'));
+            } else {
+                $rejectedID = $rejectedID[0];
+            }
+        }
 
         if ($status == 5) {
             $newStatusMembership = 1;
@@ -344,8 +341,7 @@ class MerchantMembershipController extends Controller
             'batch_number' => $batch,
             'status_membership' => $newStatusMembership,
             'action_date' => $actionDate,
-            'rejected_id' => $rejectedID,
-            'rejected_reason' => $rejectedReason,
+            'rejected_reason' => $rejectedID,
             'action_by' => $user
         ];
 
@@ -384,18 +380,18 @@ class MerchantMembershipController extends Controller
         $date = Carbon::now()->locale('id')->translatedFormat('d F Y');
 
         $merchant = DB::table('ms_merchant_account AS mma')
-            ->join('ms_history_membership AS mhd', 'mma.MerchantID', 'mhd.merchant_id')
+            ->join('ms_history_disclaimer AS mhd', 'mma.MerchantID', 'mhd.merchant_id')
             ->selectRaw("mhd.disclaimer_id, 
                 ANY_VALUE(mma.MerchantID) AS MerchantID, ANY_VALUE(mma.UsernameIDCard) AS UsernameIDCard, 
                 ANY_VALUE(mma.NumberIDCard) AS NumberIDCard, ANY_VALUE(mma.StoreAddress) AS StoreAddress,
                 ANY_VALUE(mhd.nominal) AS Nominal")
             ->where('mma.MerchantID', '=', $merchantID)
-            ->whereRaw('mhd.disclaimer_id = (SELECT MAX(disclaimer_id) FROM ms_history_membership WHERE merchant_id = ?)', [$merchantID])
+            ->whereRaw('mhd.disclaimer_id = (SELECT MAX(disclaimer_id) FROM ms_history_disclaimer WHERE merchant_id = ?)', [$merchantID])
             ->groupBy('mma.MerchantID', 'mhd.disclaimer_id')
             ->first();
 
         // get the submission count for each disclaimer id
-        $submissionCount = DB::table('ms_history_membership')
+        $submissionCount = DB::table('ms_history_disclaimer')
             ->select('disclaimer_id', DB::raw('COUNT(*) as submission_count'))
             ->where('merchant_id', '=', $merchantID)
             ->groupBy('disclaimer_id')
