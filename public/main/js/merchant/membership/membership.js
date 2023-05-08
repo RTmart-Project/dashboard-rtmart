@@ -520,17 +520,24 @@ $(document).ready(function () {
 
                         data.forEach((d) => {
                             // checkbox += `<checkbox value=${d.id}>${d.status_name}</checkbox>`;
-                            checkbox += `
+
+                            if(d == 'undefined'){
+                                console.log('undifined');
+                            } else {
+                                checkbox += `
                                 <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="checkbox" name="rejected_id[]" value="${d.id}" id="rejected_${d.id}">
-                                    <label for="rejected_${d.id}" class="m-0 form-check-label">${d.status_name}</label>
+                                <input class="form-check-input" type="checkbox" name="rejected_id[]" value="${d.id}" id="rejected_${d.id}">
+                                <label for="rejected_${d.id}" class="m-0 form-check-label">${d.status_name}</label>
                                 </div>
-                            `;
+                                `;
+                            }
                         })
 
-                        console.log(checkbox)
+                        // you know this code is shit, but i not many time to fix this fucking bug!
+                        var div = checkbox.split('undefined');
+
                         // $('#rejected_id').html(`<checkbox value="null" selected disabled>-- Pilih Alasan Ditolak --</checkbox>` + checkbox);
-                        $('#rejected-checkbox').html(checkbox);
+                        $('#rejected-checkbox').html(div[1]);
                     },
                 });
 
