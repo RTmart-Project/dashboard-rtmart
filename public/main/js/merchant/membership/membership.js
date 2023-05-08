@@ -77,6 +77,7 @@ $(document).ready(function () {
                 {
                     data: "action_by",
                     name: "ms_history_membership.action_by",
+                    orderable: false,
                 },
                 // {
                 //     data: "ValidationNoteMembershipCouple",
@@ -85,6 +86,7 @@ $(document).ready(function () {
                 {
                     data: "rejected_reason",
                     name: "rejected_reason",
+                    orderable: false,
                     searchable: false
                 },
                 {
@@ -519,45 +521,48 @@ $(document).ready(function () {
                         let checkbox;
 
                         data.forEach((d) => {
-                            // checkbox += `<checkbox value=${d.id}>${d.status_name}</checkbox>`;
-
-                            if(d == 'undefined'){
-                                console.log('undifined');
-                            } else {
-                                checkbox += `
+                            checkbox += `
                                 <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox" name="rejected_id[]" value="${d.id}" id="rejected_${d.id}">
-                                <label for="rejected_${d.id}" class="m-0 form-check-label">${d.status_name}</label>
+                                    <input class="form-check-input" type="checkbox" name="rejected_id[]" value="${d.status_name}" id="rejected_${d.id}">
+                                    <label for="rejected_${d.id}" class="m-0 form-check-label">${d.status_name}</label>
                                 </div>
-                                `;
-                            }
+                            `;
                         })
 
-                        // you know this code is shit, but i not many time to fix this fucking bug!
                         var div = checkbox.split('undefined');
 
-                        // $('#rejected_id').html(`<checkbox value="null" selected disabled>-- Pilih Alasan Ditolak --</checkbox>` + checkbox);
-                        $('#rejected-checkbox').html(div[1]);
+                        $('#rejected-checkbox').html(
+                            `<div class="form-group">
+                                <label>Rejected Reason</label>
+                            </div>`+
+                            div[1]
+                        );
                     },
                 });
 
-                // $(document).on('change', '#rejected_id', () => {
-                //     rejected_val = $('#rejected_id').val();
-                //     if (rejected_val == 5) {
-                //         let rejectReason = `
-                //             <div class="col-12 col-md-12 rejected_reason">
-                //                 <div class="form-group">
-                //                     <label for="rejected_reason">Rejected Reason</label>
-                //                     <textarea class="form-control" name="rejected_reason" id="rejected_reason" required/></textarea>
-                //                 </div>
-                //             </div>
-                //         `;
+                $("form").on("submit", function (event) {
+                    // Define an empty array to store the checked checkbox values
+                    let checkedValues = [];
 
-                //         $("#data-crowdo").append(rejectReason);
-                //     } else {
-                //         $("#data-crowdo .rejected_reason").remove();
-                //     }
-                // })
+                    // Loop through each checkbox
+                    $('#rejected-checkbox input[type=checkbox]').each(function () {
+                        // Check if the checkbox is checked
+                        if ($(this).is(':checked')) {
+                            // Get the value of the checked checkbox and add it to the array
+                            checkedValues.push($(this).val());
+                        }
+                    });
+
+                    if (checkedValues.length == 0) {
+                        event.preventDefault();
+                        iziToast.error({
+                            title: 'Gagal',
+                            message: 'Alasan ditolak wajib diisi!',
+                            position: 'topRight',
+                            timeout: 5000,
+                        });
+                    }
+                })
             } else {
                 let submitted = `
                     <div class="col-12 col-md-6">
