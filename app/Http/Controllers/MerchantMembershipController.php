@@ -384,18 +384,18 @@ class MerchantMembershipController extends Controller
         $date = Carbon::now()->locale('id')->translatedFormat('d F Y');
 
         $merchant = DB::table('ms_merchant_account AS mma')
-            ->join('ms_history_membership AS mhd', 'mma.MerchantID', 'mhd.merchant_id')
+            ->join('ms_history_disclaimer AS mhd', 'mma.MerchantID', 'mhd.merchant_id')
             ->selectRaw("mhd.disclaimer_id, 
                 ANY_VALUE(mma.MerchantID) AS MerchantID, ANY_VALUE(mma.UsernameIDCard) AS UsernameIDCard, 
                 ANY_VALUE(mma.NumberIDCard) AS NumberIDCard, ANY_VALUE(mma.StoreAddress) AS StoreAddress,
                 ANY_VALUE(mhd.nominal) AS Nominal")
             ->where('mma.MerchantID', '=', $merchantID)
-            ->whereRaw('mhd.disclaimer_id = (SELECT MAX(disclaimer_id) FROM ms_history_membership WHERE merchant_id = ?)', [$merchantID])
+            ->whereRaw('mhd.disclaimer_id = (SELECT MAX(disclaimer_id) FROM ms_history_disclaimer WHERE merchant_id = ?)', [$merchantID])
             ->groupBy('mma.MerchantID', 'mhd.disclaimer_id')
             ->first();
 
         // get the submission count for each disclaimer id
-        $submissionCount = DB::table('ms_history_membership')
+        $submissionCount = DB::table('ms_history_disclaimer')
             ->select('disclaimer_id', DB::raw('COUNT(*) as submission_count'))
             ->where('merchant_id', '=', $merchantID)
             ->groupBy('disclaimer_id')
