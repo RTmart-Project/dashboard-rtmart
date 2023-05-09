@@ -126,8 +126,26 @@ class RTSalesController extends Controller
         if ($maxSalesCode == null) {
             $newSalesCode = $salesCode . '001';
         } else {
-            $maxSalesCodeNumber = substr($maxSalesCode, -3);
-            $newSalesCodeNumber = $maxSalesCodeNumber + 1;
+            // old shit code 
+            // $maxSalesCodeNumber = substr($maxSalesCode, -3);
+            // $newSalesCodeNumber = $maxSalesCodeNumber + 1;
+
+            // get last code
+            $lastCode = DB::table('ms_sales')
+            ->where('salesCode', 'like', '%'. $salesCode. '%')
+            ->orderBy('SalesID', 'DESC')
+            ->first();
+
+            // split the number
+            $lastNumber = explode($salesCode, $lastCode->SalesCode);
+            $newCode = $lastNumber[1]+1;
+
+            if($newCode < 100){
+                $newSalesCodeNumber = '0'.$newCode;
+            } else {
+                $newSalesCodeNumber = $newCode;
+            }
+
             $newSalesCode = $salesCode . str_pad($newSalesCodeNumber, 3, '0', STR_PAD_LEFT);
         }
 
