@@ -307,12 +307,21 @@ class MerchantMembershipController extends Controller
         $approvedDate = $request->input('approved_date');
         $actionDate = $request->input('action_date');
         $rejectedID = $request->input('rejected_id');
+        $rejectedReason = $request->input('rejected_reason');
         if ($rejectedID) {
             if (count($rejectedID) > 1) {
                 $rejectedID = implode(", ", $request->input('rejected_id'));
             } else {
                 $rejectedID = $rejectedID[0];
             }
+        }
+
+        if ($rejectedID && $rejectedReason) {
+            $rejectedID .= ", $rejectedReason";
+        }
+
+        if ($rejectedReason && $rejectedID == null) {
+            $rejectedID = $rejectedReason;
         }
 
         if ($status == 5) {
