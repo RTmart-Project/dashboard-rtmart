@@ -376,7 +376,6 @@ $(document).ready(function () {
     $("table").on("click", ".btn-update-crowdo", function () {
         const merchantID = $(this).data("merchant-id");
         const store = $(this).data("store");
-        const statusCrowdo = $(this).data("status-crowdo");
 
         let formCrowdo = `
             <form action="/merchant/membership/updateCrowdo/${merchantID}" method="post">
@@ -448,32 +447,6 @@ $(document).ready(function () {
             if (statusCrowdo == 6) {
                 $("#data-crowdo").html(dataCrowdo);
             } else if (statusCrowdo == 7) {
-                // let rejected = `
-                //     <div class="col-12 col-md-6">
-                //         <div class="form-group">
-                //             <label for="note" class="m-0">Partner :</label>
-                //             <select class="form-control" name="partner" id="partner" required>
-                //             </select>
-                //         </div>
-                //     </div>
-                //     <div class="col-12 col-md-6">
-                //         <div class="form-group">
-                //             <label for="batch">Batch</label>
-                //             <input type="number" class="form-control" name="batch" id="batch" min="1" required/>
-                //         </div>
-                //     </div>
-                //     <div class="col-12 col-md-6">
-                //         <div class="form-group">
-                //             <label for="action_date">Rejected Date</label>
-                //             <input type="date" class="form-control" name="action_date" id="action_date" required/>
-                //         </div>
-                //     </div>
-                //     <div class="col-12 col-md-6">
-                //         <label for="note" class="m-0">Rejected Reason :</label>
-                //         <select class="form-control" name="rejected_id" id="rejected_id" required>
-                //         </select>
-                //     </div>
-                // `;
                 let rejected = `
                     <div class="col-12 col-md-6">
                         <div class="form-group">
@@ -538,6 +511,28 @@ $(document).ready(function () {
                             div[1]
                         );
                     },
+                });
+
+                $(document).on('click', 'input[type="checkbox"][value="Alasan Lainnya"]', function () {
+                    if ($(this).is(':checked')) {
+                        $(this).removeAttr('name');
+
+                        if ($("#data-crowdo .rejected_reason").length == 0) {
+                            let rejectReason = `
+                                <div class="col-12 col-md-12 rejected_reason">
+                                    <div class="form-group">
+                                        <label for="rejected_reason">Alasan:</label>
+                                        <textarea class="form-control" name="rejected_reason" id="rejected_reason" required/></textarea>
+                                    </div>
+                                </div>
+                            `;
+
+                            $("#data-crowdo").append(rejectReason);
+                        }
+                    } else {
+                        $(this).attr('name', 'rejected_id[]');
+                        $("#data-crowdo .rejected_reason").remove();
+                    }
                 });
 
                 $("form").on("submit", function (event) {
