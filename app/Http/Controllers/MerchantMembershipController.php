@@ -204,13 +204,13 @@ class MerchantMembershipController extends Controller
 
                     return $date;
                 })
-                ->addColumn('Photo', function ($data) {
-                    return "
-                        <button data-merchant-id='$data->MerchantID' data-store='$data->StoreName' id='survey-photo' type='button' class='btn btn-xs btn-info btn-photo'>
-                            Lihat
-                        </button>
-                    ";
-                })
+                // ->addColumn('Photo', function ($data) {
+                //     return "
+                //         <button data-merchant-id='$data->MerchantID' data-store='$data->StoreName' id='survey-photo' type='button' class='btn btn-xs btn-info btn-photo'>
+                //             Lihat
+                //         </button>
+                //     ";
+                // })
                 ->addColumn('Action', function ($data) {
                     if ($data->StatusCouplePreneurID == 3) {
                         return "
@@ -230,7 +230,7 @@ class MerchantMembershipController extends Controller
                     return $disclaimer;
                 })
                 ->filterColumn('MerchantID', function ($query, $keyword) {
-                    $sql = "ms_merchant_account.MerchantID like ?";
+                    $sql = "ms_merchant_account.MerchantID LIKE ?";
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 })
                 ->rawColumns(['StatusNameCrowdo', 'StatusName', 'Photo', 'Action', 'Disclaimer', 'StatusPaymentName'])

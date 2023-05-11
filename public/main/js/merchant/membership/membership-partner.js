@@ -40,42 +40,53 @@ $(document).ready(function () {
                 {
                     data: "StoreName",
                     name: "ms_merchant_account.StoreName",
+                    searchable: true,
                 },
                 {
                     data: "OwnerFullName",
                     name: "ms_merchant_account.OwnerFullName",
+                    searchable: true,
                 },
                 {
                     data: "NumberIDCard",
                     name: "ms_merchant_account.NumberIDCard",
+                    searchable: true,
                 },
                 {
                     data: "UsernameIDCard",
                     name: "ms_merchant_account.UsernameIDCard",
+                    searchable: true,
                 },
                 {
                     data: "BirthDate",
                     name: "ms_merchant_account.BirthDate",
+                    searchable: false,
                 },
                 {
                     data: "StoreAddress",
                     name: "ms_merchant_account.StoreAddress",
+                    searchable: true,
                 },
                 {
                     data: "StatusName",
                     name: "StatusMembership.StatusName",
+                    searchable: false,
                 },
                 {
                     data: "batch_number",
                     name: "ms_history_membership.batch_number",
+                    searchable: false,
                 },
                 {
                     data: "StatusPaymentName",
                     name: "StatusPaymentName",
+                    searchable: false,
                 },
                 {
                     data: "Action",
                     name: "Action",
+                    searchable: false,
+                    orderable: false,
                 },
             ],
             buttons: [

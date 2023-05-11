@@ -58,7 +58,8 @@ class MerchantMembershipService
           ->groupBy('ms_history_membership.merchant_id');
       })
       ->select(
-        DB::raw("ms_merchant_account.MerchantID"),
+        'ms_merchant_account.MerchantID',
+        'ms_history_membership.merchant_id',
         'ms_merchant_account.StoreName',
         'ms_merchant_account.OwnerFullName',
         'ms_merchant_account.PhoneNumber',
@@ -84,8 +85,8 @@ class MerchantMembershipService
         DB::raw("ANY_VALUE(ms_membership_status_payment.status_name) AS StatusPaymentName"),
         DB::raw("ANY_VALUE(ms_history_membership.batch_number) AS batch_number"),
         DB::raw("IF(ms_distributor.Regional = 'REGIONAL1', TRUE, FALSE) AS Disclaimer"),
-      )
-      ->groupBy('ms_history_membership.merchant_id');
+      );
+    // ->groupBy('ms_history_membership.merchant_id');
 
     return $sqlMembership;
   }
