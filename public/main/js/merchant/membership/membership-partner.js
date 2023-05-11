@@ -33,8 +33,9 @@ $(document).ready(function () {
             },
             columns: [
                 {
-                    data: "MerchantID",
-                    name: "ms_merchant_account.MerchantID",
+                    data: "merchant_id",
+                    name: "ms_history_membership.merchant_id",
+                    searchable: true,
                 },
                 {
                     data: "StoreName",
@@ -100,38 +101,6 @@ $(document).ready(function () {
                     },
                 },
             ],
-            // aoColumnDefs: [
-            //     {
-            //         aTargets: [5, 9],
-            //         mRender: function (data, type, full) {
-            //             if (type === "export") {
-            //                 return "'" + data;
-            //             } else {
-            //                 return data;
-            //             }
-            //         },
-            //     },
-            //     {
-            //         aTargets: [13, 22, 27],
-            //         mRender: function (data, type, full) {
-            //             if (type === "export") {
-            //                 return data;
-            //             } else {
-            //                 if (data == null || data == "") {
-            //                     return data;
-            //                 } else {
-            //                     const currencySeperatorFormat = thousands_separators(data);
-            //                     return currencySeperatorFormat;
-            //                 }
-            //             }
-            //         },
-            //     },
-            //     {
-            //         aTargets: [36],
-            //         visible: roleID == "IT" ? true : false,
-            //     },
-            // ],
-            // order: [31, "desc"],
             lengthChange: false,
             responsive: true,
             autoWidth: false,

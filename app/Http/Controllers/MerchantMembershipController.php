@@ -229,6 +229,10 @@ class MerchantMembershipController extends Controller
 
                     return $disclaimer;
                 })
+                ->filterColumn('MerchantID', function ($query, $keyword) {
+                    $sql = "ms_merchant_account.MerchantID like ?";
+                    $query->whereRaw($sql, ["%{$keyword}%"]);
+                })
                 ->rawColumns(['StatusNameCrowdo', 'StatusName', 'Photo', 'Action', 'Disclaimer', 'StatusPaymentName'])
                 ->make();
         }
