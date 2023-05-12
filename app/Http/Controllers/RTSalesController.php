@@ -132,16 +132,16 @@ class RTSalesController extends Controller
 
             // get last code
             $lastCode = DB::table('ms_sales')
-            ->where('salesCode', 'like', '%'. $salesCode. '%')
-            ->orderBy('SalesID', 'DESC')
-            ->first();
+                ->where('salesCode', 'like', '%' . $salesCode . '%')
+                ->orderBy('SalesID', 'DESC')
+                ->first();
 
             // split the number
             $lastNumber = explode($salesCode, $lastCode->SalesCode);
-            $newCode = $lastNumber[1]+1;
+            $newCode = $lastNumber[1] + 1;
 
-            if($newCode < 100){
-                $newSalesCodeNumber = '0'.$newCode;
+            if ($newCode < 100) {
+                $newSalesCodeNumber = '0' . $newCode;
             } else {
                 $newSalesCodeNumber = $newCode;
             }
