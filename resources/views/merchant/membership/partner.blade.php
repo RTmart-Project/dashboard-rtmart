@@ -87,14 +87,10 @@
                           <th>Alamat</th>
                           <th>Status Membership</th>
                           <th>Batch</th>
+                          <th>VA</th>
                           <th>Status Pembayaran</th>
                           <th>Action</th>
-                          {{-- <th>Tanggal Submit</th>
-                          <th>Tanggal Konfirmasi</th>
-                          <th>Dikonfirmasi Oleh</th>
-                          <th>Catatan</th>
-                          <th>Photo</th>
-                          <th>Action</th> --}}
+                          <th>Disclaimer</th>
                         </tr>
                       </thead>
                       <tbody>
