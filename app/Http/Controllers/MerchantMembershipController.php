@@ -214,18 +214,18 @@ class MerchantMembershipController extends Controller
                 ->addColumn('Action', function ($data) {
                     if ($data->StatusCouplePreneurID == 3) {
                         return "
-                            <button class='btn btn-xs btn-warning btn-update-crowdo' data-membership-id='$data->disclaimer_id' data-merchant-id='$data->MerchantID' data-status-crowdo='$data->StatusCrowdo' data-status-payment-id='$data->status_payment_id'>
+                            <button class='btn btn-xs btn-warning btn-update-crowdo' data-membership-id='$data->id' data-merchant-id='$data->MerchantID' data-status-crowdo='$data->StatusCrowdo' data-status-payment-id='$data->status_payment_id'>
                                 Update
                             </button>
                         ";
                     }
                 })
                 ->addColumn('Disclaimer', function ($data) {
-                    if ($data->Disclaimer == 1) {
-                        $disclaimer = "<a href='/merchant/membership/disclaimer/$data->MerchantID' target='_blank' class='btn btn-sm btn-info'>Lihat</a>";
-                    } else {
-                        $disclaimer = '';
-                    }
+                    // if ($data->Disclaimer == 1) {
+                    $disclaimer = "<a href='/merchant/membership/disclaimer/$data->MerchantID' target='_blank' class='btn btn-sm btn-info'>Lihat</a>";
+                    // } else {
+                    //     $disclaimer = '';
+                    // }
 
                     return $disclaimer;
                 })
@@ -302,7 +302,6 @@ class MerchantMembershipController extends Controller
         }
 
         $status = $request->input('status-crowdo');
-        // $loanID = $request->input('loan_id'); // March 27 23 by 26kito
         $partner = $request->input('partner');
         $amount = $request->input('amount');
         $batch = $request->input('batch');
@@ -312,6 +311,13 @@ class MerchantMembershipController extends Controller
         $actionDate = $request->input('action_date');
         $rejectedID = $request->input('rejected_id');
         $rejectedReason = $request->input('rejected_reason');
+        $dataDisclaimer = [];
+        $dataVA = [];
+        $fixedBill = intval($amount - ((3 / 100) * $amount));
+        $getMerchantPhoneNumber = DB::table('ms_merchant_account')->where('MerchantID', $merchantID)->value('PhoneNumber');
+        $parsedPhoneNumber = substr_replace($getMerchantPhoneNumber, "0", 0, 2);
+        $va = "13920" . $parsedPhoneNumber;
+
         if ($rejectedID) {
             if (count($rejectedID) > 1) {
                 $rejectedID = implode(", ", $request->input('rejected_id'));
@@ -331,6 +337,25 @@ class MerchantMembershipController extends Controller
         if ($status == 5) {
             $newStatusMembership = 1;
         } else if ($status == 6) {
+            $dataDisclaimer = [
+                'merchant_id' => $merchantID,
+                'nominal' => $amount,
+                'batch_number' => $batch
+            ];
+
+            $dataVA = [
+                'MerchantFundingID' => "FD-" . date('Ymdhis'),
+                'MerchantID' => $merchantID,
+                'Nominal' => $fixedBill,
+                'Partner' => 'KOSPIN SEKARTAMA',
+                'CreatedDate' => date('Y-m-d h:m:s'),
+                'VirtualAccountNumber' => $va,
+                'PaymentMethodID' => 4,
+                'PaymentChannel' => 'BCA',
+                'IsPaid' => 0,
+                'VACreatedDate' => date('Y-m-d h:m:s'),
+            ];
+
             $newStatusMembership = 2;
         } else if ($status == 7) {
             $newStatusMembership = 3;
@@ -343,11 +368,11 @@ class MerchantMembershipController extends Controller
             'CrowdoApprovedDate' => $approvedDate
         ];
 
-        $maxDisclaimerID = DB::table('ms_history_membership')->max('disclaimer_id');
+        $maxDisclaimerID = DB::table('ms_history_membership')->max('id');
         $disclaimerID = $maxDisclaimerID + 1;
 
         $dataMembership = [
-            'disclaimer_id' => $disclaimerID,
+            'id' => $disclaimerID,
             'merchant_id' => $merchantID,
             'partner_id' => $partner,
             'nominal' => $amount,
@@ -367,7 +392,7 @@ class MerchantMembershipController extends Controller
         ];
 
         try {
-            $this->merchantMembershipService->updateStatusCrowdo($merchantID, $dataMembership, $status, $dataCrowdo, $dataCouplePreneurCrowdoLog);
+            $this->merchantMembershipService->updateStatusCrowdo($merchantID, $dataDisclaimer, $dataVA, $dataMembership, $status, $dataCrowdo, $dataCouplePreneurCrowdoLog);
 
             return redirect()->route('merchant.membership')->with('success', 'Status Crowdo Merchant berhasil di-update');
         } catch (\Throwable $th) {
@@ -381,7 +406,7 @@ class MerchantMembershipController extends Controller
 
         DB::table('ms_history_membership')
             ->where('merchant_id', $merchantID)
-            ->where('disclaimer_id', $membershipID)
+            ->where('id', $membershipID)
             ->update(['status_payment_id' => $statusPaymentID]);
 
         return redirect()->back()->with('success', 'Status Crowdo Merchant berhasil di-update');
@@ -406,7 +431,7 @@ class MerchantMembershipController extends Controller
         // get the submission count for each disclaimer id
         $submissionCount = DB::table('ms_history_disclaimer')
             ->select('disclaimer_id', DB::raw('COUNT(*) as submission_count'))
-            ->where('merchant_id', '=', $merchantID)
+            ->where('merchant_id', $merchantID)
             ->groupBy('disclaimer_id')
             ->get();
 

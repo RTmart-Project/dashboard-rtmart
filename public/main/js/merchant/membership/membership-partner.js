@@ -78,6 +78,11 @@ $(document).ready(function () {
                     searchable: false,
                 },
                 {
+                    data: "VirtualAccountNumber",
+                    name: "tx_merchant_funding.VirtualAccountNumber",
+                    searchable: true,
+                },
+                {
                     data: "StatusPaymentName",
                     name: "StatusPaymentName",
                     searchable: false,
@@ -88,6 +93,12 @@ $(document).ready(function () {
                     searchable: false,
                     orderable: false,
                 },
+                {
+                    data: "Disclaimer",
+                    name: "Disclaimer",
+                    searchable: false,
+                    orderable: false,
+                }
             ],
             buttons: [
                 {

@@ -42,7 +42,6 @@ class DeliveryController extends Controller
     {
         $fromDate = $request->input('fromDate');
         $toDate = $request->input('toDate');
-        // $checkboxFilter = $request->checkFilter;
         $urutanDO = $request->input('urutanDO');
         $depoUser = Auth::user()->Depo;
         $regionalUser = Auth::user()->Regional;
@@ -52,6 +51,7 @@ class DeliveryController extends Controller
         if ($depoUser != "ALL") {
             $sqlDeliveryRequest->where('ms_distributor.Depo', $depoUser);
         }
+
         if ($regionalUser != NULL && $depoUser == "ALL") {
             $sqlDeliveryRequest->where('ms_distributor.Regional', $regionalUser);
         }
