@@ -86,7 +86,6 @@ class MerchantMembershipService
         DB::raw("ANY_VALUE(ms_history_membership.status_payment_id) AS status_payment_id"),
         DB::raw("ANY_VALUE(ms_membership_status_payment.status_name) AS StatusPaymentName"),
         DB::raw("ANY_VALUE(ms_history_membership.batch_number) AS batch_number"),
-        DB::raw("IF(ms_distributor.Regional = 'REGIONAL1', TRUE, FALSE) AS Disclaimer"),
       );
     // ->groupBy('ms_history_membership.merchant_id');
 
