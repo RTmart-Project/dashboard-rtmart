@@ -221,11 +221,11 @@ class MerchantMembershipController extends Controller
                     }
                 })
                 ->addColumn('Disclaimer', function ($data) {
-                    // if ($data->Disclaimer == 1) {
-                    $disclaimer = "<a href='/merchant/membership/disclaimer/$data->MerchantID' target='_blank' class='btn btn-sm btn-info'>Lihat</a>";
-                    // } else {
-                    //     $disclaimer = '';
-                    // }
+                    if ($data->ValidationStatusMembershipCouple == 3) {
+                        $disclaimer = "<a href='/merchant/membership/disclaimer/$data->MerchantID' target='_blank' class='btn btn-sm btn-info'>Lihat</a>";
+                    } else {
+                        $disclaimer = '';
+                    }
 
                     return $disclaimer;
                 })
