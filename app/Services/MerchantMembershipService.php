@@ -138,7 +138,7 @@ class MerchantMembershipService
 
       $checkVA = DB::table('tx_merchant_funding')->where('MerchantID', $merchantID)->first();
 
-      if ($checkVA) {
+      if ($checkVA && $dataVA) {
         DB::table('tx_merchant_funding')->where('MerchantID', $merchantID)->update($dataVA);
       } else {
         DB::table('tx_merchant_funding')->insert($dataVA);
