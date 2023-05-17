@@ -305,12 +305,12 @@ class MerchantMembershipController extends Controller
         $partner = $request->input('partner');
         $amount = $request->input('amount');
         $batch = $request->input('batch');
-        $user = Auth::user()->Name . ' - ' . Auth::user()->RoleID;
-        $newStatusMembership = '';
         $approvedDate = $request->input('approved_date');
         $actionDate = $request->input('action_date');
         $rejectedID = $request->input('rejected_id');
         $rejectedReason = $request->input('rejected_reason');
+        $user = Auth::user()->Name . ' - ' . Auth::user()->RoleID;
+        $newStatusMembership = '';
         $dataDisclaimer = [];
         $dataVA = [];
         $fixedBill = intval($amount - ((3 / 100) * $amount));
@@ -337,7 +337,18 @@ class MerchantMembershipController extends Controller
         if ($status == 5) {
             $newStatusMembership = 1;
         } else if ($status == 6) {
+            $checkDisclaimerID = DB::table('ms_history_disclaimer')->where('merchant_id', $merchantID)->first();
+
+            $maxDisclaimerID = DB::table('ms_history_disclaimer')->max('disclaimer_id');
+
+            if ($checkDisclaimerID) {
+                $newDisclaimerID = $checkDisclaimerID->disclaimer_id;
+            } else {
+                $newDisclaimerID = $maxDisclaimerID + 1;
+            }
+
             $dataDisclaimer = [
+                'disclaimer_id' => $newDisclaimerID,
                 'merchant_id' => $merchantID,
                 'nominal' => $amount,
                 'batch_number' => $batch
@@ -368,11 +379,10 @@ class MerchantMembershipController extends Controller
             'CrowdoApprovedDate' => $approvedDate
         ];
 
-        $maxDisclaimerID = DB::table('ms_history_membership')->max('id');
-        $disclaimerID = $maxDisclaimerID + 1;
+
 
         $dataMembership = [
-            'id' => $disclaimerID,
+            // 'id' => $disclaimerID,
             'merchant_id' => $merchantID,
             'partner_id' => $partner,
             'nominal' => $amount,
@@ -424,7 +434,7 @@ class MerchantMembershipController extends Controller
                 ANY_VALUE(mma.NumberIDCard) AS NumberIDCard, ANY_VALUE(mma.StoreAddress) AS StoreAddress,
                 ANY_VALUE(mhd.nominal) AS Nominal")
             ->where('mma.MerchantID', '=', $merchantID)
-            ->whereRaw('mhd.disclaimer_id = (SELECT MAX(disclaimer_id) FROM ms_history_disclaimer WHERE merchant_id = ?)', [$merchantID])
+            ->whereRaw('mhd.id = (SELECT MAX(id) FROM ms_history_disclaimer WHERE merchant_id = ?)', [$merchantID])
             ->groupBy('mma.MerchantID', 'mhd.disclaimer_id')
             ->first();
 
