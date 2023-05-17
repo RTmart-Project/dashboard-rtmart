@@ -14,7 +14,7 @@ class MerchantMembershipService
       ->leftJoin('ms_status_couple_preneur as StatusCrowdo', 'StatusCrowdo.StatusCouplePreneurID', 'ms_merchant_account.StatusCrowdo')
       ->leftJoin('ms_history_membership', function ($join) {
         $join->on('ms_merchant_account.MerchantID', '=', 'ms_history_membership.merchant_id')
-          ->where('ms_history_membership.disclaimer_id', '=', DB::raw('(SELECT MAX(disclaimer_id) FROM ms_history_membership WHERE merchant_id = ms_merchant_account.MerchantID)'));
+          ->where('ms_history_membership.id', '=', DB::raw('(SELECT MAX(id) FROM ms_history_membership WHERE merchant_id = ms_merchant_account.MerchantID)'));
       })
       ->leftJoin('ms_membership_status_rejection', 'ms_history_membership.rejected_id', 'ms_membership_status_rejection.id')
       ->where('ms_merchant_account.IsTesting', 0)
@@ -46,14 +46,15 @@ class MerchantMembershipService
       ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
       ->join('ms_status_couple_preneur as StatusMembership', 'StatusMembership.StatusCouplePreneurID', 'ms_merchant_account.ValidationStatusMembershipCouple')
       ->join('ms_history_membership', 'ms_merchant_account.MerchantID', 'ms_history_membership.merchant_id')
+      ->leftJoin('tx_merchant_funding', 'ms_history_membership.merchant_id', 'tx_merchant_funding.MerchantID')
       ->leftJoin('ms_membership_status_payment', 'ms_history_membership.status_payment_id', 'ms_membership_status_payment.id')
       ->leftJoin('ms_status_couple_preneur as StatusCrowdo', 'StatusCrowdo.StatusCouplePreneurID', 'ms_merchant_account.StatusCrowdo')
       ->leftJoin('ms_area', 'ms_area.AreaID', 'ms_merchant_account.AreaID')
       ->where('ms_history_membership.partner_id', 5)
       ->where('ms_merchant_account.IsTesting', 0)
       ->where('ms_merchant_account.ValidationStatusMembershipCouple', '!=', 0)
-      ->whereIn('ms_history_membership.disclaimer_id', function ($query) {
-        $query->selectRaw('MAX(ms_history_membership.disclaimer_id)')
+      ->whereIn('ms_history_membership.id', function ($query) {
+        $query->selectRaw('MAX(ms_history_membership.id)')
           ->from('ms_history_membership')
           ->groupBy('ms_history_membership.merchant_id');
       })
@@ -69,6 +70,7 @@ class MerchantMembershipService
         'ms_merchant_account.StoreAddress',
         'ms_merchant_account.ValidationStatusMembershipCouple',
         'StatusMembership.StatusName',
+        'tx_merchant_funding.VirtualAccountNumber',
         'ms_merchant_account.StatusCrowdo',
         'ms_merchant_account.CrowdoLoanID',
         'ms_merchant_account.CrowdoAmount',
@@ -80,11 +82,10 @@ class MerchantMembershipService
         'ms_merchant_account.MembershipCoupleConfirmBy',
         'ms_merchant_account.ValidationNoteMembershipCouple',
         DB::raw("ANY_VALUE(StatusMembership.StatusCouplePreneurID) AS StatusCouplePreneurID"),
-        DB::raw("ANY_VALUE(ms_history_membership.disclaimer_id) AS disclaimer_id"),
+        DB::raw("ANY_VALUE(ms_history_membership.id) AS id"),
         DB::raw("ANY_VALUE(ms_history_membership.status_payment_id) AS status_payment_id"),
         DB::raw("ANY_VALUE(ms_membership_status_payment.status_name) AS StatusPaymentName"),
         DB::raw("ANY_VALUE(ms_history_membership.batch_number) AS batch_number"),
-        DB::raw("IF(ms_distributor.Regional = 'REGIONAL1', TRUE, FALSE) AS Disclaimer"),
       );
     // ->groupBy('ms_history_membership.merchant_id');
 
@@ -115,7 +116,7 @@ class MerchantMembershipService
     return $sql;
   }
 
-  public function updateStatusCrowdo($merchantID, $dataMembership, $status, $dataCrowdo, $dataCouplePreneurCrowdoLog)
+  public function updateStatusCrowdo($merchantID, $dataDisclaimer, $dataVA, $dataMembership, $status, $dataCrowdo, $dataCouplePreneurCrowdoLog)
   {
     $membership = DB::table('ms_merchant_account')->where('MerchantID', $merchantID)->select('ValidationStatusMembershipCouple')->first();
     $statusMembership = $membership->ValidationStatusMembershipCouple;
@@ -130,7 +131,19 @@ class MerchantMembershipService
       $statusMembership = 1;
     }
 
-    $sql = DB::transaction(function () use ($merchantID, $dataMembership, $status, $dataCouplePreneurCrowdoLog, $statusMembership, $data, $dataCrowdo) {
+    $sql = DB::transaction(function () use ($merchantID, $dataDisclaimer, $dataVA, $dataMembership, $status, $dataCouplePreneurCrowdoLog, $statusMembership, $data, $dataCrowdo) {
+      if ($dataDisclaimer) {
+        DB::Table('ms_history_disclaimer')->insert($dataDisclaimer);
+      }
+
+      $checkVA = DB::table('tx_merchant_funding')->where('MerchantID', $merchantID)->first();
+
+      if ($checkVA && $dataVA) {
+        DB::table('tx_merchant_funding')->where('MerchantID', $merchantID)->update($dataVA);
+      } else {
+        DB::table('tx_merchant_funding')->insert($dataVA);
+      }
+
       DB::table('ms_merchant_account')
         ->where('MerchantID', $merchantID)
         ->update([
