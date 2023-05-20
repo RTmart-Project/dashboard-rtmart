@@ -349,7 +349,7 @@ $(document).ready(function () {
             <form action="/merchant/membership/updateCrowdo/${merchantID}" method="post">
                 <input type="hidden" name="_token" value="${csrf}">
                 <div class="form-group">
-                    <label for="note" class="m-0">Status :</label>
+                    <label for="note">Status :</label>
                     <select class="form-control" name="status-crowdo" id="status-crowdo" required>
                         <option value="" selected hidden disabled>-- Pilih Status --</option>
                         <option value="5">Submitted</option>
@@ -369,27 +369,27 @@ $(document).ready(function () {
         $("#form-crowdo").on("change", "#status-crowdo", function () {
             const statusCrowdo = $(this).val();
             let dataCrowdo = `
-                <div class="col-12 col-md-6">
-                    <div class="form-group">
-                        <label for="note" class="m-0">Partner :</label>
+                <div class="form-row col-12">
+                    <div class="form-group col-12 col-md-6">
+                        <label for="note">Partner :</label>
                         <select class="form-control" name="partner" id="partner" required>
                         </select>
                     </div>
-                </div>
-                <div class="col-12 col-md-6">
-                    <div class="form-group">
+                    <div class="form-group col-12 col-md-6">
                         <label for="amount">Amount</label>
                         <input type="number" class="form-control autonumeric" name="amount" id="amount" min="1" required/>
                     </div>
                 </div>
-                <div class="col-12 col-md-6">
-                    <div class="form-group">
+                <div class="form-row col-12">
+                    <div class="form-group col-12 col-md-3">
                         <label for="batch">Batch</label>
                         <input type="number" class="form-control" name="batch" id="batch" min="1" required/>
                     </div>
-                </div>
-                <div class="col-12 col-md-6">
-                    <div class="form-group">
+                    <div class="form-group col-12 col-md-3">
+                        <label for="batch">No. PMP</label>
+                        <input type="number" class="form-control" name="batch" id="batch" min="1" required/>
+                    </div>
+                    <div class="form-group col-12 col-md-6">
                         <label for="action_date">Approved Date</label>
                         <input type="date" class="form-control" name="action_date" id="action_date" required/>
                     </div>
@@ -418,7 +418,7 @@ $(document).ready(function () {
                 let rejected = `
                     <div class="col-12 col-md-6">
                         <div class="form-group">
-                            <label for="note" class="m-0">Partner :</label>
+                            <label for="note">Partner :</label>
                             <select class="form-control" name="partner" id="partner" required>
                             </select>
                         </div>
@@ -530,7 +530,7 @@ $(document).ready(function () {
                 let submitted = `
                     <div class="col-12 col-md-6">
                         <div class="form-group">
-                            <label for="note" class="m-0">Partner :</label>
+                            <label for="note">Partner :</label>
                             <select class="form-control" name="partner" id="partner" required>
                             </select>
                         </div>
