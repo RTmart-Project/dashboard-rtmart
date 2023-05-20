@@ -379,8 +379,6 @@ class MerchantMembershipController extends Controller
             'CrowdoApprovedDate' => $approvedDate
         ];
 
-
-
         $dataMembership = [
             // 'id' => $disclaimerID,
             'merchant_id' => $merchantID,
