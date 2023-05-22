@@ -309,6 +309,7 @@ class MerchantMembershipController extends Controller
         $actionDate = $request->input('action_date');
         $rejectedID = $request->input('rejected_id');
         $rejectedReason = $request->input('rejected_reason');
+        $pmpNumber = $request->input('pmpNumber');
         $user = Auth::user()->Name . ' - ' . Auth::user()->RoleID;
         $newStatusMembership = '';
         $dataDisclaimer = [];
@@ -336,7 +337,7 @@ class MerchantMembershipController extends Controller
 
         if ($status == 5) {
             $newStatusMembership = 1;
-        } else if ($status == 6) {
+        } else if ($status == 6) { // Jika membership diterima/approved
             $checkDisclaimerID = DB::table('ms_history_disclaimer')->where('merchant_id', $merchantID)->first();
 
             $maxDisclaimerID = DB::table('ms_history_disclaimer')->max('disclaimer_id');
@@ -348,7 +349,7 @@ class MerchantMembershipController extends Controller
             }
 
             $dataDisclaimer = [
-                'disclaimer_id' => $newDisclaimerID,
+                'disclaimer_id' => $pmpNumber,
                 'merchant_id' => $merchantID,
                 'nominal' => $amount,
                 'batch_number' => $batch
@@ -368,7 +369,7 @@ class MerchantMembershipController extends Controller
             ];
 
             $newStatusMembership = 2;
-        } else if ($status == 7) {
+        } else if ($status == 7) { // Jika membership ditolak/rejected
             $newStatusMembership = 3;
         }
 
