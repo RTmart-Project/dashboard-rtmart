@@ -386,8 +386,8 @@ $(document).ready(function () {
                         <input type="number" class="form-control" name="batch" id="batch" min="1" required/>
                     </div>
                     <div class="form-group col-12 col-md-3">
-                        <label for="batch">No. PMP</label>
-                        <input type="number" class="form-control" name="batch" id="batch" min="1" required/>
+                        <label for="pmpNumber">No. PMP</label>
+                        <input type="number" class="form-control" name="pmpNumber" id="pmpNumber" min="1" required/>
                     </div>
                     <div class="form-group col-12 col-md-6">
                         <label for="action_date">Approved Date</label>
