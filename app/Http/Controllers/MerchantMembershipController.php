@@ -374,14 +374,12 @@ class MerchantMembershipController extends Controller
         }
 
         $dataCrowdo = [
-            // 'CrowdoLoanID' => $loanID,
             'CrowdoAmount' => $amount,
             'CrowdoBatch' => $batch,
             'CrowdoApprovedDate' => $approvedDate
         ];
 
         $dataMembership = [
-            // 'id' => $disclaimerID,
             'merchant_id' => $merchantID,
             'partner_id' => $partner,
             'nominal' => $amount,
