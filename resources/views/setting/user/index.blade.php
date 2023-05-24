@@ -41,12 +41,12 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <a href="/setting/users/new" class="btn btn-sm btn-success"><i class="fas fa-plus"></i> Tambah
-                            Pengguna</a>
+                        <a href="/setting/users/new" class="btn btn-sm btn-success">
+                            <i class="fas fa-plus"></i> Tambah Pengguna
+                        </a>
                     </div>
                     <div class="card-body mt-2">
                         <div class="tab-content">
-
                             <div class="tab-pane active" id="setting-users">
                                 <div class="row">
                                     <div class="col-12">
@@ -72,7 +72,6 @@
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
