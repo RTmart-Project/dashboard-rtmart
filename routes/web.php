@@ -1,30 +1,31 @@
 <?php
 
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PpobController;
-use App\Http\Controllers\MerchantController;
-use App\Http\Controllers\CustomerController;
-use App\Http\Controllers\DistributorController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\Banner\BannerSliderController;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\StockController;
 use App\Http\Controllers\CourierController;
-use App\Http\Controllers\DeliveryController;
-use App\Http\Controllers\DistributionController;
 use App\Http\Controllers\InvoiceController;
-use App\Http\Controllers\MerchantMembershipController;
-use App\Http\Controllers\MonthlyReportController;
 use App\Http\Controllers\PartnerController;
-use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RTSalesController;
 use App\Http\Controllers\SettingController;
-use App\Http\Controllers\SettlementController;
-use App\Http\Controllers\StockController;
-use App\Http\Controllers\StockPromoController;
 use App\Http\Controllers\SummaryController;
 use App\Http\Controllers\VoucherController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\DeliveryController;
+use App\Http\Controllers\MerchantController;
+use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\SettlementController;
+use App\Http\Controllers\StockPromoController;
+use App\Http\Controllers\DistributorController;
+use App\Http\Controllers\DistributionController;
+use App\Http\Controllers\MonthlyReportController;
+use App\Http\Controllers\PaymentMethodController;
+use App\Http\Controllers\MerchantMembershipController;
+use App\Http\Controllers\Banner\BannerSliderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -274,8 +275,8 @@ Route::group(['middleware' => ['auth']], function () {
         });
     });
 
+    // Product List
     Route::group(['prefix' => 'master/product/list', 'middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,DMO,RBTAD']], function () {
-        // Product List
         Route::get('/', [ProductController::class, 'list'])->name('product.list');
         Route::get('/get', [ProductController::class, 'getLists'])->name('product.getLists');
         Route::get('/add', [ProductController::class, 'addList'])->name('product.addList');
@@ -284,8 +285,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/update/{product}', [ProductController::class, 'updateList'])->name('product.updateList');
     });
 
+    // Product Category
     Route::group(['prefix' => 'master/product/category', 'middleware' => ['checkRoleUser:IT,BM,CEO,FI,DMO']], function () {
-        // Product Category
         Route::get('/', [ProductController::class, 'category'])->name('product.category');
         Route::get('/get', [ProductController::class, 'getCategories'])->name('product.getCategories');
         Route::get('/add', [ProductController::class, 'addCategory'])->name('product.addCategory');
@@ -304,8 +305,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/update/{uom}', [ProductController::class, 'updateUom'])->name('product.updateUom');
     });
 
+    // Product Type
     Route::group(['prefix' => 'master/product/type', 'middleware' => ['checkRoleUser:IT,BM,CEO,FI,DMO']], function () {
-        // Product Type
         Route::get('/', [ProductController::class, 'type'])->name('product.type');
         Route::get('/get', [ProductController::class, 'getTypes'])->name('product.getTypes');
         Route::get('/add', [ProductController::class, 'addType'])->name('product.addType');
@@ -314,8 +315,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/update/{type}', [ProductController::class, 'updateType'])->name('product.updateType');
     });
 
+    // Product Brand
     Route::group(['prefix' => 'master/product/brand', 'middleware' => ['checkRoleUser:IT,BM,CEO,FI,DMO']], function () {
-        // Product Brand
         Route::get('/', [ProductController::class, 'brand'])->name('product.brand');
         Route::get('/get', [ProductController::class, 'getBrands'])->name('product.getBrands');
         Route::get('/add', [ProductController::class, 'addBrand'])->name('product.addBrand');
@@ -355,6 +356,22 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/distributor/account/product/edit/{distributorId}/{productId}/{gradeId}', [DistributorController::class, 'editProduct'])->name('distributor.editProduct');
         Route::post('/distributor/account/product/update/{distributorId}/{productId}/{gradeId}', [DistributorController::class, 'updateProduct'])->name('distributor.updateProduct');
         Route::get('/distributor/account/product/delete/{distributorId}/{productId}/{gradeId}', [DistributorController::class, 'deleteProduct'])->name('distributor.deleteProduct');
+    });
+
+    // Supplier
+    Route::group(['middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,RBTAD,HL,SM,SV,AD']], function () {
+        Route::get('/supplier/account', [SupplierController::class, 'account'])->name('supplier.account');
+        Route::get('/supplier/account/getAllSupplier', [SupplierController::class, 'getAllAccounts'])->withoutMiddleware('checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,RBTAD,SM')->name('supplier.getAllAccounts');
+        Route::get('/supplier/account/get', [SupplierController::class, 'getAccounts'])->withoutMiddleware('checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,RBTAD,SM')->name('supplier.getAccounts');
+        Route::get('/supplier/account/add', [SupplierController::class, 'addSupplier'])->name('supplier.addSupplier');
+        Route::post('/supplier/account/insert', [SupplierController::class, 'insertsupplier'])->name('supplier.insertSupplier');
+        Route::get('/supplier/account/edit/{supplierId}', [SupplierController::class, 'editAccount'])->name('supplier.editAccount');
+        Route::post('/supplier/account/update/{supplierId}', [SupplierController::class, 'updateAccount'])->name('supplier.updateAccount');
+        Route::get('/supplier/account/product/{supplierId}', [SupplierController::class, 'productDetails'])->name('supplier.productDetails');
+        Route::get('/supplier/account/product/get/{supplierId}', [SupplierController::class, 'getProductDetails'])->name('supplier.getProductDetails');
+        Route::get('/supplier/account/product/edit/{supplierId}/{productId}/{gradeId}', [SupplierController::class, 'editProduct'])->name('supplier.editProduct');
+        Route::post('/supplier/account/product/update/{supplierId}/{productId}/{gradeId}', [SupplierController::class, 'updateProduct'])->name('supplier.updateProduct');
+        Route::get('/supplier/account/product/delete/{supplierId}/{productId}/{gradeId}', [SupplierController::class, 'deleteProduct'])->name('supplier.deleteProduct');
     });
 
     // Merchant

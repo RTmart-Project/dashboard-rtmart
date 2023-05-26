@@ -387,7 +387,8 @@ class MerchantMembershipController extends Controller
             'status_membership' => $newStatusMembership,
             'action_date' => $actionDate,
             'rejected_reason' => $rejectedID,
-            'action_by' => $user
+            'action_by' => $user,
+            'created_date' => date('Y-m-d h:i:s')
         ];
 
         $dataCouplePreneurCrowdoLog = [
