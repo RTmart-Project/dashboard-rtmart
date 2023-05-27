@@ -183,6 +183,7 @@ class RTSalesController extends Controller
                         ]);
                 }
             });
+
             return redirect()->route('rtsales.saleslist')->with('success', 'Data Sales berhasil ditambahkan');
         } catch (\Throwable $th) {
             return redirect()->route('rtsales.saleslist')->with('failed', 'Terjadi kesalahan sistem atau jaringan');

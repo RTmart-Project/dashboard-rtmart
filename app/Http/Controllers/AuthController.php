@@ -232,8 +232,7 @@ class AuthController extends Controller
         $role = $request->input('role_id');
 
         $maxUserId = DB::table('ms_user')
-            ->where('ms_user.IsTesting', '=', 0)
-            ->where('ms_user.RoleID', '=', $role)
+            ->where('RoleID', '=', $role)
             ->max('UserID');
 
         if ($maxUserId == null) {
@@ -243,6 +242,12 @@ class AuthController extends Controller
             $oldUserIdNumber = end($maxUserIdNumber);
             $newUserIdNumber = $oldUserIdNumber + 1;
             $newUserId = $role . '-' . str_pad($newUserIdNumber, 5, '0', STR_PAD_LEFT);
+        }
+
+        $checkUserID = DB::table('ms_user')->where('UserID', $newUserId)->first();
+
+        if ($checkUserID) {
+            return redirect()->route('setting.users')->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
         }
 
         $inputAccess = array_flip($request->input('access'));

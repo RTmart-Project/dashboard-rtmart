@@ -1,5 +1,5 @@
 @extends('layouts.master')
-@section('title', 'Dashboard - Setting Users')
+@section('title', 'Dashboard - Supplier Account')
 
 @section('css-pages')
 <!-- daterange picker -->
@@ -8,9 +8,10 @@
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+<meta name="role-id" content="{{ Auth::user()->RoleID }}">
 @endsection
 
-@section('header-menu', 'Pengaturan Pengguna')
+@section('header-menu', 'Akun Supplier')
 
 @section('content')
 <!-- Content Header (Page header) -->
@@ -40,30 +41,23 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
+                    @if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI")
                     <div class="card-header">
-                        <a href="/setting/users/new" class="btn btn-sm btn-success">
-                            <i class="fas fa-plus"></i> Tambah Pengguna
+                        <a href="{{ route('supplier.addSupplier') }}" class="btn btn-sm btn-success">
+                            <i class="fas fa-plus"></i> Tambah Supplier
                         </a>
                     </div>
+                    @endif
                     <div class="card-body mt-2">
                         <div class="tab-content">
-                            <div class="tab-pane active" id="setting-users">
+                            <div class="tab-pane active" id="supplier-account">
                                 <div class="row">
                                     <div class="col-12">
                                         <table class="table table-datatables">
                                             <thead>
                                                 <tr>
-                                                    <th>User ID</th>
-                                                    <th>Email</th>
-                                                    <th>Nama</th>
-                                                    <th>Aktivitas Terakhir</th>
-                                                    <th>Tgl Aktivitas Terakhir</th>
-                                                    <th>No. Telp</th>
-                                                    <th>Role</th>
-                                                    <th>Depo</th>
-                                                    <th>Tanggal Registrasi</th>
-                                                    <th>Detail Aktivitas</th>
-                                                    <th>Action</th>
+                                                    <th>ID Supplier</th>
+                                                    <th>Nama Supplier</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -101,7 +95,7 @@
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!-- Main JS -->
-<script src="{{url('/')}}/main/js/setting/users/users.js"></script>
+<script src="{{url('/')}}/main/js/supplier/account/account.js"></script>
 <script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
 <script>
 </script>
