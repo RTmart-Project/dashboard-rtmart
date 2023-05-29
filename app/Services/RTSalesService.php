@@ -232,9 +232,11 @@ class RTSalesService
     if ($depoUser != "ALL") {
       $sql->where('ms_sales.Team', $depoUser);
     }
+
     if ($regionalUser == "REGIONAL1" && $depoUser == "ALL") {
       $sql->whereRaw("ms_sales.Team IN ('SMG', 'YYK', 'UNR')");
     }
+
     if ($regionalUser == "REGIONAL2" && $depoUser == "ALL") {
       $sql->whereRaw("ms_sales.Team IN ('CRS', 'CKG', 'BDG')");
     }

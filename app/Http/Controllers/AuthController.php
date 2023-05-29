@@ -222,7 +222,6 @@ class AuthController extends Controller
         $request->validate([
             'email' => 'required|string|email|unique:ms_user,Email',
             'name' => 'required|string',
-            'phonenumber' => 'required|numeric|unique:ms_user,PhoneNumber',
             'role_id' => 'required|string|exists:ms_roles,RoleID',
             'depo' => 'required',
             'password' => 'required|string',
@@ -232,7 +231,7 @@ class AuthController extends Controller
         $role = $request->input('role_id');
 
         $maxUserId = DB::table('ms_user')
-            ->where('RoleID', '=', $role)
+            ->where('RoleID', $role)
             ->max('UserID');
 
         if ($maxUserId == null) {
@@ -243,9 +242,9 @@ class AuthController extends Controller
             $newUserIdNumber = $oldUserIdNumber + 1;
             $newUserId = $role . '-' . str_pad($newUserIdNumber, 5, '0', STR_PAD_LEFT);
         }
-
+        
         $checkUserID = DB::table('ms_user')->where('UserID', $newUserId)->first();
-
+        
         if ($checkUserID) {
             return redirect()->route('setting.users')->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
         }
@@ -269,6 +268,7 @@ class AuthController extends Controller
             'LastDate' => $currentTime,
             'IsTesting' => 0
         ];
+
         $data = array_merge($data, $outputAccess);
 
         $createUser = DB::table('ms_user')->insert($data);
