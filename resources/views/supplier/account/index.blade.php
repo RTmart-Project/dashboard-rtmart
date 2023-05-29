@@ -2,13 +2,10 @@
 @section('title', 'Dashboard - Supplier Account')
 
 @section('css-pages')
-<!-- daterange picker -->
-<link rel="stylesheet" href="{{url('/')}}/plugins/daterangepicker/daterangepicker.css">
 <!-- Datatables -->
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
 <link rel="stylesheet" href="{{url('/')}}/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
-<meta name="role-id" content="{{ Auth::user()->RoleID }}">
 @endsection
 
 @section('header-menu', 'Akun Supplier')
@@ -79,8 +76,6 @@
 <!-- InputMask -->
 <script src="{{url('/')}}/plugins/moment/moment.min.js"></script>
 <script src="{{url('/')}}/plugins/inputmask/jquery.inputmask.min.js"></script>
-<!-- date-range-picker -->
-<script src="{{url('/')}}/plugins/daterangepicker/daterangepicker.js"></script>
 <!-- DataTables  & Plugins -->
 <script src="{{url('/')}}/plugins/datatables/jquery.dataTables.min.js"></script>
 <script src="{{url('/')}}/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
@@ -88,15 +83,6 @@
 <script src="{{url('/')}}/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
 <script src="{{url('/')}}/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
 <script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
-<script src="{{url('/')}}/plugins/jszip/jszip.min.js"></script>
-<script src="{{url('/')}}/plugins/pdfmake/pdfmake.min.js"></script>
-<script src="{{url('/')}}/plugins/pdfmake/vfs_fonts.js"></script>
-<script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
-<script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.print.min.js"></script>
-<script src="{{url('/')}}/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <!-- Main JS -->
 <script src="{{url('/')}}/main/js/supplier/account/account.js"></script>
-<script src="{{url('/')}}/main/js/helper/export-datatable.js"></script>
-<script>
-</script>
 @endsection

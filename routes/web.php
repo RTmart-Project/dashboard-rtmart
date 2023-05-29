@@ -295,8 +295,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/update/{category}', [ProductController::class, 'updateCategory'])->name('product.updateCategory');
     });
 
+    // Product UOM
     Route::group(['prefix' => 'master/product/uom', 'middleware' => ['checkRoleUser:IT,BM,CEO,FI,DMO']], function () {
-        // Product UOM
         Route::get('/', [ProductController::class, 'uom'])->name('product.uom');
         Route::get('/get', [ProductController::class, 'getUoms'])->name('product.getUoms');
         Route::get('/add', [ProductController::class, 'addUom'])->name('product.addUom');
@@ -362,16 +362,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,RBTAD,HL,SM,SV,AD']], function () {
         Route::get('/supplier/account', [SupplierController::class, 'account'])->name('supplier.account');
         Route::get('/supplier/account/getAllSupplier', [SupplierController::class, 'getAllAccounts'])->withoutMiddleware('checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,RBTAD,SM')->name('supplier.getAllAccounts');
-        Route::get('/supplier/account/get', [SupplierController::class, 'getAccounts'])->withoutMiddleware('checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,RBTAD,SM')->name('supplier.getAccounts');
         Route::get('/supplier/account/add', [SupplierController::class, 'addSupplier'])->name('supplier.addSupplier');
         Route::post('/supplier/account/insert', [SupplierController::class, 'insertsupplier'])->name('supplier.insertSupplier');
-        Route::get('/supplier/account/edit/{supplierId}', [SupplierController::class, 'editAccount'])->name('supplier.editAccount');
-        Route::post('/supplier/account/update/{supplierId}', [SupplierController::class, 'updateAccount'])->name('supplier.updateAccount');
-        Route::get('/supplier/account/product/{supplierId}', [SupplierController::class, 'productDetails'])->name('supplier.productDetails');
-        Route::get('/supplier/account/product/get/{supplierId}', [SupplierController::class, 'getProductDetails'])->name('supplier.getProductDetails');
-        Route::get('/supplier/account/product/edit/{supplierId}/{productId}/{gradeId}', [SupplierController::class, 'editProduct'])->name('supplier.editProduct');
-        Route::post('/supplier/account/product/update/{supplierId}/{productId}/{gradeId}', [SupplierController::class, 'updateProduct'])->name('supplier.updateProduct');
-        Route::get('/supplier/account/product/delete/{supplierId}/{productId}/{gradeId}', [SupplierController::class, 'deleteProduct'])->name('supplier.deleteProduct');
     });
 
     // Merchant
@@ -406,7 +398,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/merchant/assessment/downloadKTP', [MerchantController::class, 'downloadKTP'])->name('merchant.downloadKTP');
     });
 
-    Route::group(['middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,HR']], function () {
+    Route::group(['middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,HR,SM']], function () {
         Route::get('/merchant/powermerchant', [MerchantController::class, 'powerMerchant'])->name('merchant.powermerchant');
         Route::get('/merchant/powermerchant/get', [MerchantController::class, 'getPowerMerchant'])->name('merchant.getPowerMerchant');
         Route::post('/merchant/powermerchant/insert', [MerchantController::class, 'insertPowerMerchant'])->name('merchant.insertPowerMerchant');

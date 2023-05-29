@@ -26,21 +26,7 @@ $(document).ready(function () {
             ],
             buttons: [
                 {
-                    extend: "excelHtml5",
-                    filename: function () {
-                        return exportDatatableHelper.generateFilename(
-                            "DistributorAccounts"
-                        );
-                    },
-                    text: "Export",
-                    titleAttr: "Excel",
-                    exportOptions: {
-                        modifier: {
-                            page: "all",
-                        },
-                        columns: [0, 1],
-                        orthogonal: "export",
-                    },
+                    className: 'd-none'
                 },
             ],
             lengthChange: false,
