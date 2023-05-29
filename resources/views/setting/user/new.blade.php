@@ -73,7 +73,7 @@
                                         <label for="phonenumber">Nomor Telepon</label>
                                         <input type="number" name="phonenumber"
                                             class="form-control @if($errors->has('phonenumber')) is-invalid @endif"
-                                            id="phonenumber" placeholder="Masukkan Nomor Telepon Pengguna" value="{{ old('phonenumber') }}" required>
+                                            id="phonenumber" placeholder="Masukkan Nomor Telepon Pengguna" value="{{ old('phonenumber') }}">
                                         @if($errors->has('phonenumber'))
                                         <span class="error invalid-feedback">{{ $errors->first('phonenumber') }}</span>
                                         @endif

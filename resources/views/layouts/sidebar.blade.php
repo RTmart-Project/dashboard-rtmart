@@ -629,6 +629,7 @@
                     @endif
                     @if (Auth::user()->RoleID == 'IT' ||
                     Auth::user()->RoleID == 'BM' ||
+                    Auth::user()->RoleID == 'SM' ||
                     Auth::user()->RoleID == 'CEO' ||
                     Auth::user()->RoleID == 'FI' ||
                     Auth::user()->RoleID == 'AH')
@@ -676,10 +677,8 @@
                     @endif
                     @if (Auth::user()->RoleID == 'IT' ||
                     Auth::user()->RoleID == 'BM' ||
+                    Auth::user()->RoleID == 'SM' ||
                     Auth::user()->RoleID == 'CEO' ||
-                    Auth::user()->RoleID == 'CEO' ||
-                    Auth::user()->RoleID == 'FI' ||
-                    Auth::user()->RoleID == 'HR' ||
                     Auth::user()->RoleID == 'AH')
                     <li class="nav-item">
                         <a href="{{ route('merchant.powermerchant') }}"
