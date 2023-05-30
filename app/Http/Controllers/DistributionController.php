@@ -2489,7 +2489,7 @@ class DistributionController extends Controller
                 ->addColumn('Action', function ($data) {
                     if (
                         Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" ||
-                        Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "AD"
+                        Auth::user()->RoleID == "BM"
                     ) {
                         $actionBtn = '<a href="#" data-distributor-id="' . $data->DistributorID . '" data-product-id="' . $data->ProductID . '" data-grade-id="' . $data->GradeID . '" data-product-name="' . $data->ProductName . '" data-grade-name="' . $data->Grade . '" data-price="' . $data->Price . '" data-pre-order="' . $data->IsPreOrder . '" 
                         data-is-active="' . $data->IsActive . '" class="btn-edit btn btn-sm btn-warning mr-1">Edit</a>
@@ -2497,6 +2497,7 @@ class DistributionController extends Controller
                     } else {
                         $actionBtn = '';
                     }
+
                     return $actionBtn;
                 })
                 ->rawColumns(['Grade', 'ProductImage', 'IsPreOrder', 'Action'])
