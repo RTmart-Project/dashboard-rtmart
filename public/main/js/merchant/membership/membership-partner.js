@@ -105,7 +105,7 @@ $(document).ready(function () {
                     extend: "excelHtml5",
                     filename: function () {
                         return exportDatatableHelper.generateFilename(
-                            "MerchantMembership"
+                            "MerchantMembershipPartner"
                         );
                     },
                     action: exportDatatableHelper.newExportAction,
@@ -117,7 +117,7 @@ $(document).ready(function () {
                             page: "all",
                         },
                         columns: [
-                            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13,
+                            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
                         ],
                         orthogonal: "export",
                     },

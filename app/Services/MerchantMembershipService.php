@@ -87,7 +87,6 @@ class MerchantMembershipService
         DB::raw("ANY_VALUE(ms_membership_status_payment.status_name) AS StatusPaymentName"),
         DB::raw("ANY_VALUE(ms_history_membership.batch_number) AS batch_number"),
       );
-    // ->groupBy('ms_history_membership.merchant_id');
 
     return $sqlMembership;
   }
