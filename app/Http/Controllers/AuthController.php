@@ -100,14 +100,15 @@ class AuthController extends Controller
         // Get data, jika tanggal filter kosong tampilkan semua data.
         $sqlUsers = DB::table('ms_user')
             ->join('ms_roles', 'ms_roles.RoleID', '=', 'ms_user.RoleID')
-            ->leftJoin('ms_user_activity_log', function ($join) {
-                $join->on('ms_user_activity_log.UserID', 'ms_user.UserID');
-                $join->whereRaw("ms_user_activity_log.UserActivityLogID = (
-                    SELECT MAX(UserActivityLogID) FROM ms_user_activity_log WHERE ms_user_activity_log.UserID = ms_user.UserID
-                )");
-            })
+            // ->leftJoin('ms_user_activity_log', function ($join) {
+            //     $join->on('ms_user_activity_log.UserID', 'ms_user.UserID');
+            //     $join->whereRaw("ms_user_activity_log.UserActivityLogID = (
+            //         SELECT MAX(UserActivityLogID) FROM ms_user_activity_log WHERE ms_user_activity_log.UserID = ms_user.UserID
+            //     )");
+            // })
             ->where('ms_user.IsTesting', '=', 0)
-            ->select('ms_user.*', 'ms_roles.RoleName', 'ms_user_activity_log.URL', 'ms_user_activity_log.CreatedDate as LastActivityDate')
+            // ->select('ms_user.*', 'ms_roles.RoleName', 'ms_user_activity_log.URL', 'ms_user_activity_log.CreatedDate as LastActivityDate')
+            ->select('ms_user.*', 'ms_roles.RoleName')
             ->orderByDesc('ms_user.CreatedDate');
 
         // Jika tanggal tidak kosong, filter data berdasarkan tanggal.
@@ -122,23 +123,23 @@ class AuthController extends Controller
         // Return Data Using DataTables with Ajax
         if ($request->ajax()) {
             return Datatables::of($data)
-                ->editColumn('URL', function ($data) {
-                    if ($data->URL != null) {
-                        $url = $data->URL;
-                    } else {
-                        $url = "-";
-                    }
-                    return $url;
-                })
-                ->editColumn('LastActivityDate', function ($data) {
-                    if ($data->LastActivityDate != null) {
-                        $lastActivityDate = date('d M Y H:i', strtotime($data->LastActivityDate));
-                    } else {
-                        $lastActivityDate = "-";
-                    }
+                // ->editColumn('URL', function ($data) {
+                //     if ($data->URL != null) {
+                //         $url = $data->URL;
+                //     } else {
+                //         $url = "-";
+                //     }
+                //     return $url;
+                // })
+                // ->editColumn('LastActivityDate', function ($data) {
+                //     if ($data->LastActivityDate != null) {
+                //         $lastActivityDate = date('d M Y H:i', strtotime($data->LastActivityDate));
+                //     } else {
+                //         $lastActivityDate = "-";
+                //     }
 
-                    return $lastActivityDate;
-                })
+                //     return $lastActivityDate;
+                // })
                 ->editColumn('CreatedDate', function ($data) {
                     if ($data->CreatedDate != null) {
                         $createdDate = date('d M Y H:i', strtotime($data->CreatedDate));
@@ -148,14 +149,14 @@ class AuthController extends Controller
 
                     return $createdDate;
                 })
+                ->addColumn('Detail', function ($data) {
+                    $detailBtn = '<a href="/setting/users/log/' . $data->UserID . '" class="btn-sm btn-info">Detail</a>';
+                    return $detailBtn;
+                })
                 ->addColumn('Action', function ($data) {
                     $actionBtn = '<a href="/setting/users/edit/' . $data->UserID . '" class="btn btn-sm btn-warning">Edit</a>
                     <a data-user-name="' . $data->Name . '" data-user-id="' . $data->UserID . '" href="#" class="btn btn-sm btn-danger reset-password">Reset Password</a>';
                     return $actionBtn;
-                })
-                ->addColumn('Detail', function ($data) {
-                    $detailBtn = '<a href="/setting/users/log/' . $data->UserID . '" class="btn-sm btn-info">Detail</a>';
-                    return $detailBtn;
                 })
                 ->rawColumns(['Detail', 'Action'])
                 ->make(true);
@@ -242,9 +243,9 @@ class AuthController extends Controller
             $newUserIdNumber = $oldUserIdNumber + 1;
             $newUserId = $role . '-' . str_pad($newUserIdNumber, 5, '0', STR_PAD_LEFT);
         }
-        
+
         $checkUserID = DB::table('ms_user')->where('UserID', $newUserId)->first();
-        
+
         if ($checkUserID) {
             return redirect()->route('setting.users')->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
         }

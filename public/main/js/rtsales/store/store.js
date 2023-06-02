@@ -46,14 +46,14 @@ $(document).ready(function () {
                     data: "StoreAddress",
                     name: "ms_store.StoreAddress",
                 },
-                {
-                    data: "Districts",
-                    name: "ms_store.Districts",
-                },
-                {
-                    data: "SubDistricts",
-                    name: "ms_store.SubDistricts",
-                },
+                // {
+                //     data: "Districts",
+                //     name: "ms_store.Districts",
+                // },
+                // {
+                //     data: "SubDistricts",
+                //     name: "ms_store.SubDistricts",
+                // },
                 {
                     data: "MerchantID",
                     name: "ms_store.MerchantID",
@@ -101,14 +101,14 @@ $(document).ready(function () {
                         modifier: {
                             page: "all",
                         },
-                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+                        columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
                         orthogonal: "export",
                     },
                 },
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [14],
+                    aTargets: [12],
                     visible: roleID == "IT" ? true : false
                 }
             ],
