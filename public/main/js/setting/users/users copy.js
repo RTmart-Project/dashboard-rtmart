@@ -24,12 +24,21 @@ $(document).ready(function () {
                     name: "UserID",
                 },
                 {
+                    data: "Email",
+                    name: "Email",
+                },
+                {
                     data: "Name",
                     name: "Name",
                 },
                 {
-                    data: "Email",
-                    name: "Email",
+                    data: "URL",
+                    name: "URL",
+                },
+                {
+                    data: "LastActivityDate",
+                    name: "LastActivityDate",
+                    type: "date",
                 },
                 {
                     data: "PhoneNumber",

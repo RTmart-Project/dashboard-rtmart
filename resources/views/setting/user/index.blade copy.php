@@ -54,8 +54,10 @@
                                             <thead>
                                                 <tr>
                                                     <th>User ID</th>
-                                                    <th>Nama</th>
                                                     <th>Email</th>
+                                                    <th>Nama</th>
+                                                    <th>Aktivitas Terakhir</th>
+                                                    <th>Tgl Aktivitas Terakhir</th>
                                                     <th>No. Telp</th>
                                                     <th>Role</th>
                                                     <th>Depo</th>
