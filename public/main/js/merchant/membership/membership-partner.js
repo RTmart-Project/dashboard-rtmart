@@ -79,7 +79,7 @@ $(document).ready(function () {
                 },
                 {
                     data: "VirtualAccountNumber",
-                    name: "tx_merchant_funding.VirtualAccountNumber",
+                    name: "VirtualAccountNumber",
                     searchable: true,
                 },
                 {
@@ -120,6 +120,27 @@ $(document).ready(function () {
                             0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
                         ],
                         orthogonal: "export",
+                    },
+                },
+            ],
+            aoColumnDefs: [
+                {
+                    aTargets: [9],
+                    mRender: function (data, type, full) {
+                        if (type === "export") {
+                            if (data == null || data == "") {
+                                return data;
+                            } else {
+                                const formatVA = `'${data}'`;
+                                return formatVA;
+                            }
+                        } else {
+                            if (data == null || data == "") {
+                                return data;
+                            } else {
+                                return data;
+                            }
+                        }
                     },
                 },
             ],
