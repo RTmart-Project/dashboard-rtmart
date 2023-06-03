@@ -204,6 +204,10 @@ class MerchantMembershipController extends Controller
 
                     return $date;
                 })
+                ->addColumn('VirtualAccountNumber', function ($data) {
+                    // Convert the number to a string
+                    return strval($data->VirtualAccountNumber);
+                })
                 // ->addColumn('Photo', function ($data) {
                 //     return "
                 //         <button data-merchant-id='$data->MerchantID' data-store='$data->StoreName' id='survey-photo' type='button' class='btn btn-xs btn-info btn-photo'>
@@ -233,7 +237,7 @@ class MerchantMembershipController extends Controller
                     $sql = "ms_merchant_account.MerchantID LIKE ?";
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 })
-                ->rawColumns(['StatusNameCrowdo', 'StatusName', 'Photo', 'Action', 'Disclaimer', 'StatusPaymentName'])
+                ->rawColumns(['StatusNameCrowdo', 'StatusName', 'Photo', 'VirtualAccountNumber', 'Action', 'Disclaimer', 'StatusPaymentName'])
                 ->make();
         }
     }
