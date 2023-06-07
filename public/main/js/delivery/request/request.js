@@ -3,15 +3,16 @@ $(document).ready(function () {
     let csrf = $('meta[name="csrf_token"]').attr("content");
     let roleID = $('meta[name="role-id"]').attr("content");
 
-    $(".check-subdistrict").change(function () {
-        let checked = $(this).val();
-        if ($(this).is(":checked")) {
-            checkboxFilter.push(checked);
-        } else {
-            checkboxFilter.splice($.inArray(checked, checkboxFilter), 1);
-        }
-        $("#delivery-request .table-datatables").DataTable().ajax.reload();
-    });
+    // $(".check-subdistrict").change(function () {
+    //     let checked = $(this).val();
+    //     if ($(this).is(":checked")) {
+    //         checkboxFilter.push(checked);
+    //     } else {
+    //         checkboxFilter.splice($.inArray(checked, checkboxFilter), 1);
+    //     }
+
+    //     $("#delivery-request .table-datatables").DataTable().ajax.reload();
+    // });
     // DataTables
     dataTablesDeliveryRequest();
 
@@ -155,19 +156,19 @@ $(document).ready(function () {
 
     // Create element for DateRange Filter
     $("div.filter-delivery-request").html(`<div class="input-group">
-                          <input type="text" name="from_date" id="from_date" class="form-control form-control-sm" readonly>
-                          <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
-                          <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
-                          <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-2">Refresh</button>
-                          <div class="select-filter-custom ml-2">
-                                <select class="form-control form-control-sm">
-                                    <option value="">All</option>
-                                    <option value="DO ke-1">DO ke-1</option>
-                                    <option value="DO ke-2">DO ke-2</option>
-                                    <option value="DO ke-3">DO ke-3</option>
-                                </select>
-                            </div>
-                      </div>`);
+        <input type="text" name="from_date" id="from_date" class="form-control form-control-sm" readonly>
+        <input type="text" name="to_date" id="to_date" class="ml-2 form-control form-control-sm" readonly>
+        <button type="submit" id="filter" class="ml-2 btn btn-sm btn-primary">Filter</button>
+        <button type="button" name="refresh" id="refresh" class="btn btn-sm btn-warning ml-2">Refresh</button>
+        <div class="select-filter-custom ml-2">
+            <select class="form-control form-control-sm">
+                <option value="">All</option>
+                <option value="DO ke-1">DO ke-1</option>
+                <option value="DO ke-2">DO ke-2</option>
+                <option value="DO ke-3">DO ke-3</option>
+            </select>
+        </div>
+    </div>`);
 
     // Setting Awal Daterangepicker
     $("#delivery-request #from_date").daterangepicker({
@@ -227,6 +228,7 @@ $(document).ready(function () {
             dateStartChange();
         }
     );
+
     // Disabled input from date ketika to date berubah
     $("#delivery-request .filter-delivery-request").on(
         "change",

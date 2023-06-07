@@ -43,13 +43,20 @@ class MerchantMembershipService
   {
     $sqlMembership = DB::table('ms_merchant_account')
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_merchant_account.DistributorID')
-      ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
+      // ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
       ->join('ms_status_couple_preneur AS StatusMembership', 'StatusMembership.StatusCouplePreneurID', 'ms_merchant_account.ValidationStatusMembershipCouple')
       ->join('ms_history_membership', 'ms_merchant_account.MerchantID', 'ms_history_membership.merchant_id')
       ->leftJoin('tx_merchant_funding', 'ms_history_membership.merchant_id', 'tx_merchant_funding.MerchantID')
       ->leftJoin('ms_membership_status_payment', 'ms_history_membership.status_payment_id', 'ms_membership_status_payment.id')
+      ->leftJoin('ms_membership_status_shipment', 'ms_history_membership.status_shipment_id', 'ms_membership_status_shipment.id')
       ->leftJoin('ms_status_couple_preneur AS StatusCrowdo', 'StatusCrowdo.StatusCouplePreneurID', 'ms_merchant_account.StatusCrowdo')
-      ->leftJoin('ms_area', 'ms_area.AreaID', 'ms_merchant_account.AreaID')
+      ->leftJoin('tx_merchant_order', function ($join) {
+        $join->on('ms_history_membership.merchant_id', 'tx_merchant_order.MerchantID');
+        $join->whereRaw("DATE_FORMAT(tx_merchant_order.CreatedDate, '%Y-%m-%d') >= ms_merchant_account.CrowdoApprovedDate");
+        $join->where('ms_merchant_account.ValidationStatusMembershipCouple', 3);
+        $join->where('tx_merchant_order.PaymentMethodID', 14);
+      })
+      // ->leftJoin('ms_area', 'ms_area.AreaID', 'ms_merchant_account.AreaID')
       ->where('ms_history_membership.partner_id', 5)
       ->where('ms_merchant_account.IsTesting', 0)
       ->where('ms_merchant_account.ValidationStatusMembershipCouple', '!=', 0)
@@ -70,7 +77,8 @@ class MerchantMembershipService
         'ms_merchant_account.StoreAddress',
         'ms_merchant_account.ValidationStatusMembershipCouple',
         'StatusMembership.StatusName',
-        'tx_merchant_funding.VirtualAccountNumber',
+        DB::raw("ANY_VALUE(tx_merchant_funding.VirtualAccountNumber) AS VirtualAccountNumber"),
+        // 'tx_merchant_funding.VirtualAccountNumber',
         'ms_merchant_account.StatusCrowdo',
         'ms_merchant_account.CrowdoLoanID',
         'ms_merchant_account.CrowdoAmount',
@@ -81,12 +89,17 @@ class MerchantMembershipService
         'ms_merchant_account.MembershipCoupleConfirmDate',
         'ms_merchant_account.MembershipCoupleConfirmBy',
         'ms_merchant_account.ValidationNoteMembershipCouple',
+        // 'tx_merchant_order.StockOrderID',
+        DB::raw("ANY_VALUE(tx_merchant_order.StockOrderID) AS StockOrderID"),
         DB::raw("ANY_VALUE(StatusMembership.StatusCouplePreneurID) AS StatusCouplePreneurID"),
         DB::raw("ANY_VALUE(ms_history_membership.id) AS id"),
         DB::raw("ANY_VALUE(ms_history_membership.status_payment_id) AS status_payment_id"),
         DB::raw("ANY_VALUE(ms_membership_status_payment.status_name) AS StatusPaymentName"),
+        DB::raw("ANY_VALUE(ms_history_membership.status_shipment_id) AS status_shipment_id"),
+        DB::raw("ANY_VALUE(ms_membership_status_shipment.status_name) AS StatusShipmentName"),
         DB::raw("ANY_VALUE(ms_history_membership.batch_number) AS batch_number"),
-      );
+      )
+      ->groupBy('ms_history_membership.merchant_id');
 
     return $sqlMembership;
   }
@@ -122,9 +135,9 @@ class MerchantMembershipService
 
     $data = $this->merchantMembershipPhoto($merchantID);
 
-    if ($status == 6) {
+    if ($status == 6) { // Jika membership diterima/approved
       $statusMembership = 3;
-    } else if ($status == 7) {
+    } else if ($status == 7) { // Jika membership ditolak/rejected
       $statusMembership = 2;
     } else if ($status == 5) {
       $statusMembership = 1;

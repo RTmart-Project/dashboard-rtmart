@@ -149,27 +149,48 @@ class MerchantMembershipController extends Controller
 
                     return $badge;
                 })
-                ->editColumn('StatusNameCrowdo', function ($data) {
-                    if ($data->StatusCrowdo == 5) {
-                        $badge = '<span class="badge badge-warning">' . $data->StatusNameCrowdo . '</span>';
-                    } elseif ($data->StatusCrowdo == 6) {
-                        $badge = '<span class="badge badge-success">' . $data->StatusNameCrowdo . '</span>';
-                    } elseif ($data->StatusCrowdo == 7) {
-                        $badge = '<span class="badge badge-danger">' . $data->StatusNameCrowdo . '</span>';
-                    } else {
-                        $badge = '<span class="badge badge-info">' . $data->StatusNameCrowdo . '</span>';
-                    }
+                // ->editColumn('StatusNameCrowdo', function ($data) {
+                //     if ($data->StatusCrowdo == 5) {
+                //         $badge = '<span class="badge badge-warning">' . $data->StatusNameCrowdo . '</span>';
+                //     } elseif ($data->StatusCrowdo == 6) {
+                //         $badge = '<span class="badge badge-success">' . $data->StatusNameCrowdo . '</span>';
+                //     } elseif ($data->StatusCrowdo == 7) {
+                //         $badge = '<span class="badge badge-danger">' . $data->StatusNameCrowdo . '</span>';
+                //     } else {
+                //         $badge = '<span class="badge badge-info">' . $data->StatusNameCrowdo . '</span>';
+                //     }
 
-                    return $badge;
-                })
+                //     return $badge;
+                // })
                 ->editColumn('StatusPaymentName', function ($data) {
                     $badge = "";
+
                     if ($data->status_payment_id == 1) {
                         $badge = '<span class="badge badge-info">' . $data->StatusPaymentName . '</span>';
                     } elseif ($data->status_payment_id == 2) {
                         $badge = '<span class="badge badge-danger">' . $data->StatusPaymentName . '</span>';
                     } elseif ($data->status_payment_id == 3) {
                         $badge = '<span class="badge badge-success">' . $data->StatusPaymentName . '</span>';
+                    }
+
+                    return $badge;
+                })
+                ->addColumn('StatusPO', function ($data) {
+                    $badge = "";
+
+                    if ($data->StockOrderID) {
+                        $badge = '<span class="badge badge-info">Sudah PO</span>';
+                    } else {
+                        $badge = '<span class="badge badge-danger">Belum PO</span>';
+                    }
+
+                    return $badge;
+                })
+                ->editColumn('StatusShipmentName', function ($data) {
+                    $badge = "";
+
+                    if ($data->ValidationStatusMembershipCouple != 2) {
+                        $badge = '<span class="badge badge-info">' . $data->StatusShipmentName . '</span>';
                     }
 
                     return $badge;
@@ -208,17 +229,19 @@ class MerchantMembershipController extends Controller
                     // Convert the number to a string
                     return strval($data->VirtualAccountNumber);
                 })
-                // ->addColumn('Photo', function ($data) {
-                //     return "
-                //         <button data-merchant-id='$data->MerchantID' data-store='$data->StoreName' id='survey-photo' type='button' class='btn btn-xs btn-info btn-photo'>
-                //             Lihat
-                //         </button>
-                //     ";
-                // })
+                ->editColumn('StockOrderID', function ($data) {
+                    if ($data->StockOrderID) {
+                        $link = "<a href='/distribution/restock/detail/$data->StockOrderID' target='_blank' class='btn btn-sm btn-info'>Lihat</a";
+                    } else {
+                        $link = "";
+                    }
+
+                    return $link;
+                })
                 ->addColumn('Action', function ($data) {
                     if ($data->StatusCouplePreneurID == 3) {
                         return "
-                            <button class='btn btn-xs btn-warning btn-update-crowdo' data-membership-id='$data->id' data-merchant-id='$data->MerchantID' data-status-crowdo='$data->StatusCrowdo' data-status-payment-id='$data->status_payment_id'>
+                            <button class='btn btn-xs btn-warning btn-update-crowdo' data-membership-id='$data->id' data-merchant-id='$data->MerchantID' data-status-crowdo='$data->StatusCrowdo' data-status-payment-id='$data->status_payment_id' data-status-shipment-id='$data->status_shipment_id'>
                                 Update
                             </button>
                         ";
@@ -237,7 +260,7 @@ class MerchantMembershipController extends Controller
                     $sql = "ms_merchant_account.MerchantID LIKE ?";
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 })
-                ->rawColumns(['StatusNameCrowdo', 'StatusName', 'Photo', 'VirtualAccountNumber', 'Action', 'Disclaimer', 'StatusPaymentName'])
+                ->rawColumns(['StatusNameCrowdo', 'StatusName', 'Photo', 'VirtualAccountNumber', 'Action', 'Disclaimer', 'StatusPaymentName', 'StatusShipmentName', 'StockOrderID', 'StatusPO'])
                 ->make();
         }
     }
@@ -380,7 +403,8 @@ class MerchantMembershipController extends Controller
         $dataCrowdo = [
             'CrowdoAmount' => $amount,
             'CrowdoBatch' => $batch,
-            'CrowdoApprovedDate' => $approvedDate
+            'CrowdoApprovedDate' => $approvedDate,
+            'MembershipCoupleConfirmDate' => $approvedDate
         ];
 
         $dataMembership = [
@@ -415,11 +439,15 @@ class MerchantMembershipController extends Controller
     public function updatePayment($merchantID, $membershipID, Request $request)
     {
         $statusPaymentID = $request->status_payment;
+        $statusShipmentID = $request->status_shipment;
 
         DB::table('ms_history_membership')
             ->where('merchant_id', $merchantID)
             ->where('id', $membershipID)
-            ->update(['status_payment_id' => $statusPaymentID]);
+            ->update([
+                'status_payment_id' => $statusPaymentID,
+                'status_shipment_id' => $statusShipmentID
+            ]);
 
         return redirect()->back()->with('success', 'Status Crowdo Merchant berhasil di-update');
     }
