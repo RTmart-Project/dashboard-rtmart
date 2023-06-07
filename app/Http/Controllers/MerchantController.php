@@ -381,6 +381,7 @@ class MerchantController extends Controller
                 DB::table('ms_merchant_account')
                     ->where('MerchantID', $merchantId)
                     ->update($data);
+
                 if ($merchantGrade) {
                     DB::table('ms_distributor_merchant_grade')
                         ->where('MerchantID', $merchantId)
@@ -389,7 +390,8 @@ class MerchantController extends Controller
                     DB::table('ms_distributor_merchant_grade')
                         ->insert($dataGrade);
                 }
-                if ($merchant->ReferralCode != $referralCode) {
+
+                if ($referralCode && $merchant->ReferralCode != $referralCode) {
                     DB::table('ms_sales_merchant_relation_log')
                         ->insert([
                             'MerchantID' => $merchantId,
@@ -399,6 +401,7 @@ class MerchantController extends Controller
                             'ActionBy' => $user
                         ]);
                 }
+
                 DB::table('ms_merchant_partner')->where('MerchantID', $merchantId)->delete();
                 if ($arrayMerchantPartner != null) {
                     DB::table('ms_merchant_partner')->insert($arrayMerchantPartner);

@@ -122,6 +122,7 @@ class DeliveryController extends Controller
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 })
                 ->rawColumns(['Checkbox', 'CreatedDate', 'Products'])
+                ->setTotalRecords(10)
                 ->make(true);
         }
     }
@@ -158,6 +159,7 @@ class DeliveryController extends Controller
 
         foreach ($data as $value) {
             $value->IsHaistarProduct = 0;
+
             if ($value->IsHaistar == 1 && $haistarService->haistarGetStock($value->ProductID)->status == "success") {
                 $value->IsHaistarProduct = 1;
             }
@@ -357,6 +359,7 @@ class DeliveryController extends Controller
         if ($depoUser != "ALL") {
             $sqlExpedition->where('ms_distributor.Depo', $depoUser);
         }
+
         if ($regionalUser != NULL && $depoUser == "ALL") {
             $sqlExpedition->where('ms_distributor.Regional', $regionalUser);
         }
@@ -411,27 +414,28 @@ class DeliveryController extends Controller
                     return $btn;
                 })
                 ->filterColumn('MerchantID', function ($query, $keyword) {
-                    $query->whereRaw("ms_merchant_account.MerchantID like ?", ["%$keyword%"]);
+                    $query->whereRaw("ms_merchant_account.MerchantID LIKE ?", ["%$keyword%"]);
                 })
                 ->filterColumn('StoreName', function ($query, $keyword) {
-                    $query->whereRaw("ms_merchant_account.StoreName like ?", ["%$keyword%"]);
+                    $query->whereRaw("ms_merchant_account.StoreName LIKE ?", ["%$keyword%"]);
                 })
                 ->filterColumn('expd.CreatedDate', function ($query, $keyword) {
-                    $query->whereRaw("DATE_FORMAT(expd.CreatedDate,'%d %b %Y %H:%i') like ?", ["%$keyword%"]);
+                    $query->whereRaw("DATE_FORMAT(expd.CreatedDate,'%d %b %Y %H:%i') LIKE ?", ["%$keyword%"]);
                 })
                 ->filterColumn('ms_status_order.StatusOrder', function ($query, $keyword) {
-                    $query->whereRaw("ms_status_order.StatusOrder like ?", ["%$keyword%"]);
+                    $query->whereRaw("ms_status_order.StatusOrder LIKE ?", ["%$keyword%"]);
                 })
                 ->filterColumn('DriverName', function ($query, $keyword) {
-                    $query->whereRaw("driver.Name like ?", ["%$keyword%"]);
+                    $query->whereRaw("driver.Name LIKE ?", ["%$keyword%"]);
                 })
                 ->filterColumn('HelperName', function ($query, $keyword) {
-                    $query->whereRaw("helper.Name like ?", ["%$keyword%"]);
+                    $query->whereRaw("helper.Name LIKE ?", ["%$keyword%"]);
                 })
                 ->filterColumn('ms_vehicle.VehicleName', function ($query, $keyword) {
-                    $query->whereRaw("ms_vehicle.VehicleName like ?", ["%$keyword%"]);
+                    $query->whereRaw("ms_vehicle.VehicleName LIKE ?", ["%$keyword%"]);
                 })
                 ->rawColumns(['Detail', 'StatusOrder'])
+                ->setTotalRecords(30)
                 ->make(true);
         }
     }

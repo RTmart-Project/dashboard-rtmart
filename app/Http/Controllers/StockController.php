@@ -321,6 +321,7 @@ class StockController extends Controller
                 })
                 ->addColumn('Detail', function ($data) {
                     $detail = '<a class="btn btn-xs btn-secondary" href="/stock/plan-purchase/detail/' . $data->PurchasePlanID . '">Lihat</a>';
+
                     return $detail;
                 })
                 ->addColumn('Action', function ($data) {
@@ -339,6 +340,7 @@ class StockController extends Controller
                         $confirm = '';
                         $edit = '';
                     }
+
                     return $edit . $confirm;
                 })
                 ->rawColumns(['StatusName', 'FlagPurchasePlan', 'Detail', 'Action'])
@@ -603,6 +605,7 @@ class StockController extends Controller
         } else {
             $statusID = 10;
         }
+
         $confirm = DB::table('ms_purchase_plan')
             ->where('PurchasePlanID', $purchasePlanID)
             ->update([
