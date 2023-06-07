@@ -89,8 +89,11 @@
                           <th>Batch</th>
                           <th>VA</th>
                           <th>Status Pembayaran</th>
+                          <th>Status PO</th>
+                          <th>Status Pengiriman</th>
                           <th>Action</th>
                           <th>Disclaimer</th>
+                          <th>Detail PO</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -131,7 +134,7 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Update Payment Membership - <span id="store"></span></h5>
+        <h5 class="modal-title">Update Membership - <span id="store"></span></h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>

@@ -241,11 +241,11 @@ class DeliveryOrderService
       })
       ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
       ->join(DB::raw("($sql2) as sql2"), function ($join) {
-        $join->on('tx_merchant_delivery_order.StockOrderID', '=', 'sql2.StockOrderID');
-        $join->on('tx_merchant_delivery_order_detail.ProductID', '=', 'sql2.ProductID');
+        $join->on('tx_merchant_delivery_order.StockOrderID', 'sql2.StockOrderID');
+        $join->on('tx_merchant_delivery_order_detail.ProductID', 'sql2.ProductID');
       })
       ->join(DB::raw("($sql1) as sql1"), function ($join) {
-        $join->on('tx_merchant_delivery_order.StockOrderID', '=', 'sql1.StockOrderID');
+        $join->on('tx_merchant_delivery_order.StockOrderID', 'sql1.StockOrderID');
       })
       ->leftJoin('ms_stock_product', function ($join) {
         $join->on('ms_stock_product.ProductID', 'tx_merchant_delivery_order_detail.ProductID');
@@ -325,7 +325,8 @@ class DeliveryOrderService
         ANY_VALUE(tx_merchant_order.OrderLatitude) AS OrderLatitude,
         ANY_VALUE(tx_merchant_order.OrderLongitude) AS OrderLongitude
       ")
-      ->groupBy('tmdo.DeliveryOrderID');
+      ->groupBy('tmdo.DeliveryOrderID')
+      ->orderByDesc('tmdo.CreatedDate');
 
     return $sql;
   }

@@ -57,7 +57,7 @@ $(document).ready(function () {
                     name: "ms_merchant_account.UsernameIDCard",
                     searchable: true,
                 },
-                {
+                { // index ke 5
                     data: "BirthDate",
                     name: "ms_merchant_account.BirthDate",
                     searchable: false,
@@ -82,9 +82,19 @@ $(document).ready(function () {
                     name: "VirtualAccountNumber",
                     searchable: true,
                 },
-                {
+                { // index ke 10
                     data: "StatusPaymentName",
                     name: "StatusPaymentName",
+                    searchable: false,
+                },
+                {
+                    data: "StatusPO",
+                    name: "StatusPO",
+                    searchable: false,
+                },
+                {
+                    data: "StatusShipmentName",
+                    name: "StatusShipmentName",
                     searchable: false,
                 },
                 {
@@ -98,7 +108,11 @@ $(document).ready(function () {
                     name: "Disclaimer",
                     searchable: false,
                     orderable: false,
-                }
+                },
+                {
+                    data: "StockOrderID",
+                    name: "tx_merchant_order.StockOrderID",
+                },
             ],
             buttons: [
                 {
@@ -117,7 +131,7 @@ $(document).ready(function () {
                             page: "all",
                         },
                         columns: [
-                            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+                            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
                         ],
                         orthogonal: "export",
                     },
@@ -204,6 +218,7 @@ $(document).ready(function () {
     $("#from_date").on("change", function () {
         dateStartChange();
     });
+
     // Disabled input from date ketika to date berubah
     $("#to_date").on("change", function () {
         dateEndChange();
@@ -298,17 +313,29 @@ $(document).ready(function () {
         const merchantID = $(this).data("merchant-id");
         const membershipID = $(this).data("membership-id");
         const statusPaymentID = $(this).data("status-payment-id");
+        const statusShipmentID = $(this).data("status-shipment-id");
 
         let formCrowdo = `
             <form action="/merchant/membership/updatePayment/${merchantID}/${membershipID}" method="post">
                 <input type="hidden" name="_token" value="${csrf}">
                 <div class="form-group">
-                    <label for="note" class="m-0">Status :</label>
+                    <label for="note" class="m-0">Status Pembayaran:</label>
                     <select class="form-control" name="status_payment" id="status_payment" required>
                         <option value="" selected hidden disabled>-- Pilih Status --</option>
                         <option value="1" ${statusPaymentID == 1 ? "selected" : ""}>Belum Cair</option>
                         <option value="2" ${statusPaymentID == 2 ? "selected" : ""}>Belum Lunas</option>
                         <option value="3" ${statusPaymentID == 3 ? "selected" : ""}>Telah Lunas</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="note" class="m-0">Status Pengiriman:</label>
+                    <select class="form-control" name="status_shipment" id="status_shipment" required>
+                        <option value="" selected hidden disabled>-- Pilih Status Pengiriman--</option>
+                        <option value="1" ${statusShipmentID == 1 ? "selected" : ""}>Belum Ada Pengiriman</option>
+                        <option value="2" ${statusShipmentID == 2 ? "selected" : ""}>Pengiriman 1</option>
+                        <option value="3" ${statusShipmentID == 3 ? "selected" : ""}>Pengiriman 2</option>
+                        <option value="4" ${statusShipmentID == 3 ? "selected" : ""}>Pengiriman 3</option>
+                        <option value="5" ${statusShipmentID == 3 ? "selected" : ""}>Pengiriman Selesai</option>
                     </select>
                 </div>
                 <div class="modal-footer justify-content-end pb-0">
