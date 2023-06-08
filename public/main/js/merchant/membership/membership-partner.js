@@ -57,7 +57,7 @@ $(document).ready(function () {
                     name: "ms_merchant_account.OwnerFullName",
                     searchable: true,
                 },
-                {
+                { // index ke 5
                     data: "NumberIDCard",
                     name: "ms_merchant_account.NumberIDCard",
                     searchable: true,
@@ -67,7 +67,7 @@ $(document).ready(function () {
                     name: "ms_merchant_account.UsernameIDCard",
                     searchable: true,
                 },
-                { // index ke 5
+                {
                     data: "BirthDate",
                     name: "ms_merchant_account.BirthDate",
                     searchable: false,
@@ -82,7 +82,7 @@ $(document).ready(function () {
                     name: "StatusMembership.StatusName",
                     searchable: false,
                 },
-                {
+                { // index ke 10
                     data: "batch_number",
                     name: "ms_history_membership.batch_number",
                     searchable: false,
@@ -97,7 +97,7 @@ $(document).ready(function () {
                     name: "grand_total",
                     searchable: false,
                 },
-                { // index ke 10
+                {
                     data: "StatusPaymentName",
                     name: "StatusPaymentName",
                     searchable: false,
@@ -107,7 +107,7 @@ $(document).ready(function () {
                     name: "StatusPO",
                     searchable: false,
                 },
-                {
+                { // index ke 15
                     data: "StatusShipmentName",
                     name: "StatusShipmentName",
                     searchable: false,
@@ -146,7 +146,7 @@ $(document).ready(function () {
                             page: "all",
                         },
                         columns: [
-                            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
+                            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
                         ],
                         orthogonal: "export",
                     },
