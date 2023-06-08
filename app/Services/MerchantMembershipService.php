@@ -43,10 +43,8 @@ class MerchantMembershipService
   {
     $sqlMembership = DB::table('ms_merchant_account')
       ->join('ms_distributor', 'ms_distributor.DistributorID', 'ms_merchant_account.DistributorID')
-      // ->leftJoin('ms_sales', 'ms_sales.SalesCode', 'ms_merchant_account.ReferralCode')
       ->join('ms_status_couple_preneur AS StatusMembership', 'StatusMembership.StatusCouplePreneurID', 'ms_merchant_account.ValidationStatusMembershipCouple')
       ->join('ms_history_membership', 'ms_merchant_account.MerchantID', 'ms_history_membership.merchant_id')
-      ->join('ms_history_disclaimer', 'ms_history_membership.merchant_id', 'ms_history_disclaimer.merchant_id')
       ->leftJoin('tx_merchant_funding', 'ms_history_membership.merchant_id', 'tx_merchant_funding.MerchantID')
       ->leftJoin('ms_membership_status_payment', 'ms_history_membership.status_payment_id', 'ms_membership_status_payment.id')
       ->leftJoin('ms_membership_status_shipment', 'ms_history_membership.status_shipment_id', 'ms_membership_status_shipment.id')
@@ -57,7 +55,6 @@ class MerchantMembershipService
         $join->where('ms_merchant_account.ValidationStatusMembershipCouple', 3);
         $join->where('tx_merchant_order.PaymentMethodID', 14);
       })
-      // ->leftJoin('ms_area', 'ms_area.AreaID', 'ms_merchant_account.AreaID')
       ->where('ms_history_membership.partner_id', 5)
       ->where('ms_merchant_account.IsTesting', 0)
       ->where('ms_merchant_account.ValidationStatusMembershipCouple', '!=', 0)
@@ -79,7 +76,6 @@ class MerchantMembershipService
         'ms_merchant_account.ValidationStatusMembershipCouple',
         'StatusMembership.StatusName',
         DB::raw("ANY_VALUE(tx_merchant_funding.VirtualAccountNumber) AS VirtualAccountNumber"),
-        // 'tx_merchant_funding.VirtualAccountNumber',
         'ms_merchant_account.StatusCrowdo',
         'ms_merchant_account.CrowdoLoanID',
         'ms_merchant_account.CrowdoAmount',
@@ -90,9 +86,8 @@ class MerchantMembershipService
         'ms_merchant_account.MembershipCoupleConfirmDate',
         'ms_merchant_account.MembershipCoupleConfirmBy',
         'ms_merchant_account.ValidationNoteMembershipCouple',
-        // 'tx_merchant_order.StockOrderID',
-        DB::raw("ANY_VALUE(ms_history_disclaimer.no_pmp) AS no_pmp"),
         DB::raw("ANY_VALUE(ms_history_membership.grand_total) AS grand_total"),
+        DB::raw("ANY_VALUE(ms_history_membership.no_pmp) AS no_pmp"),
         DB::raw("ANY_VALUE(tx_merchant_order.StockOrderID) AS StockOrderID"),
         DB::raw("ANY_VALUE(StatusMembership.StatusCouplePreneurID) AS StatusCouplePreneurID"),
         DB::raw("ANY_VALUE(ms_history_membership.id) AS id"),

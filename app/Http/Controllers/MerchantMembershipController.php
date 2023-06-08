@@ -332,7 +332,6 @@ class MerchantMembershipController extends Controller
         $partner = $request->input('partner');
         $amount = $request->input('amount');
         $batch = $request->input('batch');
-        $approvedDate = $request->input('approved_date');
         $actionDate = $request->input('action_date');
         $rejectedID = $request->input('rejected_id');
         $rejectedReason = $request->input('rejected_reason');
@@ -341,6 +340,8 @@ class MerchantMembershipController extends Controller
         $newStatusMembership = '';
         $dataDisclaimer = [];
         $dataVA = [];
+        $formatPMP = NULL;
+        $adminTotalFee = NULL;
         $fixedBill = intval($amount - ((3 / 100) * $amount));
         $getMerchantPhoneNumber = DB::table('ms_merchant_account')->where('MerchantID', $merchantID)->value('PhoneNumber');
         $parsedPhoneNumber = substr_replace($getMerchantPhoneNumber, "0", 0, 2);
@@ -365,6 +366,7 @@ class MerchantMembershipController extends Controller
         if ($status == 5) {
             $newStatusMembership = 1;
         } else if ($status == 6) { // Jika membership diterima/approved
+            $adminTotalFee = intval((3 / 100) * $amount);
             $checkDisclaimerID = DB::table('ms_history_disclaimer')->where('merchant_id', $merchantID)->first();
 
             $maxDisclaimerID = DB::table('ms_history_disclaimer')->max('disclaimer_id');
@@ -375,11 +377,33 @@ class MerchantMembershipController extends Controller
                 $newDisclaimerID = $maxDisclaimerID + 1;
             }
 
+            // Format PMP
+            // get the submission count
+            $checkSubmissionCount = DB::table('ms_history_disclaimer')
+                ->where('merchant_id', $merchantID)
+                ->count('*');
+
+            if ($checkSubmissionCount == 0) {
+                $submissionCount = 1;
+            } else {
+                $submissionCount = $checkSubmissionCount + 1;
+            }
+
+            $orderSeriesNumber = substr("0000" . $pmpNumber, strlen($pmpNumber));
+            $orderTotalSubmit = substr("000" . $submissionCount, strlen($submissionCount));
+
+            // get roman number for month
+            $month = Helper::convertMonthToRomanNumerals(date('m'));
+
+            $formatPMP = date('y') . ".$orderSeriesNumber.$orderTotalSubmit/B-KRTM/$month";
+            // End of Format PMP
+
             $dataDisclaimer = [
                 'disclaimer_id' => $pmpNumber,
                 'merchant_id' => $merchantID,
                 'nominal' => $amount,
-                'batch_number' => $batch
+                'batch_number' => $batch,
+                'no_pmp' => $formatPMP
             ];
 
             $dataVA = [
@@ -403,15 +427,19 @@ class MerchantMembershipController extends Controller
         $dataCrowdo = [
             'CrowdoAmount' => $amount,
             'CrowdoBatch' => $batch,
-            'CrowdoApprovedDate' => $approvedDate,
-            'MembershipCoupleConfirmDate' => $approvedDate
+            'CrowdoApprovedDate' => $actionDate,
+            'MembershipCoupleConfirmDate' => $actionDate
         ];
 
         $dataMembership = [
             'merchant_id' => $merchantID,
             'partner_id' => $partner,
             'nominal' => $amount,
+            'admin_fee' => 3,
+            'admin_total' => $adminTotalFee,
+            'grand_total' => $fixedBill,
             'batch_number' => $batch,
+            'no_pmp' => $formatPMP,
             'status_membership' => $newStatusMembership,
             'action_date' => $actionDate,
             'rejected_reason' => $rejectedID,
