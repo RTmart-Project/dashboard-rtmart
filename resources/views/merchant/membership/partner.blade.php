@@ -85,15 +85,15 @@
                           <th>Nama Pemilik</th>
                           <th>No. KTP</th>
                           <th>Nama KTP</th>
-                          <th>Tgl Lahir</th>
+                          {{-- <th>Tgl Lahir</th> --}}
                           <th>Alamat</th>
                           <th>Status Membership</th>
                           <th>Batch</th>
                           <th>VA</th>
                           <th>Nominal Pencairan</th>
-                          <th>Status Pembayaran</th>
                           <th>Status PO</th>
                           <th>Status Pengiriman</th>
+                          <th>Status Pembayaran</th>
                           <th>Action</th>
                           <th>Disclaimer</th>
                           <th>Detail PO</th>

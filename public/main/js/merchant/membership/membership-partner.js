@@ -67,11 +67,11 @@ $(document).ready(function () {
                     name: "ms_merchant_account.UsernameIDCard",
                     searchable: true,
                 },
-                {
-                    data: "BirthDate",
-                    name: "ms_merchant_account.BirthDate",
-                    searchable: false,
-                },
+                // {
+                //     data: "BirthDate",
+                //     name: "ms_merchant_account.BirthDate",
+                //     searchable: false,
+                // },
                 {
                     data: "StoreAddress",
                     name: "ms_merchant_account.StoreAddress",
@@ -82,12 +82,12 @@ $(document).ready(function () {
                     name: "StatusMembership.StatusName",
                     searchable: false,
                 },
-                { // index ke 10
+                {
                     data: "batch_number",
                     name: "ms_history_membership.batch_number",
                     searchable: false,
                 },
-                {
+                { // index ke 10 
                     data: "VirtualAccountNumber",
                     name: "VirtualAccountNumber",
                     searchable: true,
@@ -98,21 +98,21 @@ $(document).ready(function () {
                     searchable: false,
                 },
                 {
-                    data: "StatusPaymentName",
-                    name: "StatusPaymentName",
-                    searchable: false,
-                },
-                {
                     data: "StatusPO",
                     name: "StatusPO",
                     searchable: false,
                 },
-                { // index ke 15
+                {
                     data: "StatusShipmentName",
                     name: "StatusShipmentName",
                     searchable: false,
                 },
                 {
+                    data: "StatusPaymentName",
+                    name: "StatusPaymentName",
+                    searchable: false,
+                },
+                { // index ke 15
                     data: "Action",
                     name: "Action",
                     searchable: false,
@@ -146,7 +146,7 @@ $(document).ready(function () {
                             page: "all",
                         },
                         columns: [
-                            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
+                            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
                         ],
                         orthogonal: "export",
                     },
@@ -154,7 +154,7 @@ $(document).ready(function () {
             ],
             aoColumnDefs: [
                 {
-                    aTargets: [9],
+                    aTargets: [10],
                     mRender: function (data, type, full) {
                         if (type === "export") {
                             if (data == null || data == "") {
