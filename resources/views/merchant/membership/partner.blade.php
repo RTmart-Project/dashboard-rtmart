@@ -79,6 +79,8 @@
                       <thead>
                         <tr>
                           <th>Merchant ID</th>
+                          <th>Approval Date</th>
+                          <th>Nomor PMP</th>
                           <th>Nama Toko</th>
                           <th>Nama Pemilik</th>
                           <th>No. KTP</th>
@@ -88,6 +90,7 @@
                           <th>Status Membership</th>
                           <th>Batch</th>
                           <th>VA</th>
+                          <th>Nominal Pencairan</th>
                           <th>Status Pembayaran</th>
                           <th>Status PO</th>
                           <th>Status Pengiriman</th>
