@@ -38,6 +38,16 @@ $(document).ready(function () {
                     searchable: true,
                 },
                 {
+                    data: "CrowdoApprovedDate",
+                    name: "CrowdoApprovedDate",
+                    searchable: false,
+                },
+                {
+                    data: "no_pmp",
+                    name: "no_pmp",
+                    searchable: false,
+                },
+                {
                     data: "StoreName",
                     name: "ms_merchant_account.StoreName",
                     searchable: true,
@@ -81,6 +91,11 @@ $(document).ready(function () {
                     data: "VirtualAccountNumber",
                     name: "VirtualAccountNumber",
                     searchable: true,
+                },
+                {
+                    data: "grand_total",
+                    name: "grand_total",
+                    searchable: false,
                 },
                 { // index ke 10
                     data: "StatusPaymentName",
