@@ -467,14 +467,12 @@ class MerchantMembershipController extends Controller
     public function updatePayment($merchantID, $membershipID, Request $request)
     {
         $statusPaymentID = $request->status_payment;
-        $statusShipmentID = $request->status_shipment;
 
         DB::table('ms_history_membership')
             ->where('merchant_id', $merchantID)
             ->where('id', $membershipID)
             ->update([
                 'status_payment_id' => $statusPaymentID,
-                'status_shipment_id' => $statusShipmentID
             ]);
 
         return redirect()->back()->with('success', 'Status Crowdo Merchant berhasil di-update');
