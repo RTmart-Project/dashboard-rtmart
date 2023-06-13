@@ -241,7 +241,7 @@ class MerchantMembershipController extends Controller
                 ->addColumn('Action', function ($data) {
                     if ($data->StatusCouplePreneurID == 3) {
                         return "
-                            <button class='btn btn-xs btn-warning btn-update-crowdo' data-membership-id='$data->id' data-merchant-id='$data->MerchantID' data-status-crowdo='$data->StatusCrowdo' data-status-payment-id='$data->status_payment_id' data-status-shipment-id='$data->status_shipment_id'>
+                            <button class='btn btn-xs btn-warning btn-update-crowdo' data-membership-id='$data->id' data-merchant-id='$data->MerchantID' data-status-payment-id='$data->status_payment_id'>
                                 Update
                             </button>
                         ";

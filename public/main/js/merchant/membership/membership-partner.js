@@ -328,7 +328,6 @@ $(document).ready(function () {
         const merchantID = $(this).data("merchant-id");
         const membershipID = $(this).data("membership-id");
         const statusPaymentID = $(this).data("status-payment-id");
-        const statusShipmentID = $(this).data("status-shipment-id");
 
         let formCrowdo = `
             <form action="/merchant/membership/updatePayment/${merchantID}/${membershipID}" method="post">
@@ -340,17 +339,6 @@ $(document).ready(function () {
                         <option value="1" ${statusPaymentID == 1 ? "selected" : ""}>Belum Cair</option>
                         <option value="2" ${statusPaymentID == 2 ? "selected" : ""}>Belum Lunas</option>
                         <option value="3" ${statusPaymentID == 3 ? "selected" : ""}>Telah Lunas</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="note" class="m-0">Status Pengiriman:</label>
-                    <select class="form-control" name="status_shipment" id="status_shipment" required>
-                        <option value="" selected hidden disabled>-- Pilih Status Pengiriman--</option>
-                        <option value="1" ${statusShipmentID == 1 ? "selected" : ""}>Belum Ada Pengiriman</option>
-                        <option value="2" ${statusShipmentID == 2 ? "selected" : ""}>Pengiriman 1</option>
-                        <option value="3" ${statusShipmentID == 3 ? "selected" : ""}>Pengiriman 2</option>
-                        <option value="4" ${statusShipmentID == 3 ? "selected" : ""}>Pengiriman 3</option>
-                        <option value="5" ${statusShipmentID == 3 ? "selected" : ""}>Pengiriman Selesai</option>
                     </select>
                 </div>
                 <div class="modal-footer justify-content-end pb-0">
