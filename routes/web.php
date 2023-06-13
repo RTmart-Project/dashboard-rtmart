@@ -149,7 +149,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/get/{status}', [DeliveryController::class, 'getExpedition'])->name('delivery.getExpedition');
             Route::get('/all-product/get/{status}', [DeliveryController::class, 'getExpeditionAllProduct'])->name('delivery.getExpeditionAllProduct');
             Route::get('/detail/{expeditionID}', [DeliveryController::class, 'detailExpedition'])->name('delivery.detailExpedition');
-            Route::get('/confirmExpedition/{status}/{expeditionID}', [DeliveryController::class, 'confirmExpedition'])->name('delivery.confirmExpedition');
+            Route::get('/confirmExpedition/{status}/{expeditionID}/{merchantID}', [DeliveryController::class, 'confirmExpedition'])->name('delivery.confirmExpedition');
             Route::post('/confirmProduct/{status}/{expeditionDetailID}', [DeliveryController::class, 'confirmProduct'])->name('delivery.confirmProduct');
             Route::get('/resendHaistar/{deliveryOrderID}', [DeliveryController::class, 'resendHaistar'])->name('delivery.resendHaistar');
             Route::get('/requestCancelHaistar/{deliveryOrderID}/{expeditionID}', [DeliveryController::class, 'requestCancelHaistar'])->name('delivery.requestCancelHaistar');
