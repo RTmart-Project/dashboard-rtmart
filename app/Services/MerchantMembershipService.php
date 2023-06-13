@@ -172,7 +172,7 @@ class MerchantMembershipService
         DB::table('ms_history_membership')
           ->where('merchant_id', $merchantID)
           ->where('status_membership', 2)
-          ->update(['status_payment_id' => 1]);
+          ->update(['status_payment_id' => 1, 'status_shipment_id' => 1]);
       }
 
       if ($status == 7) {
