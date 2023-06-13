@@ -168,7 +168,11 @@ class MerchantMembershipService
 
       if ($status == 6) {
         DB::table('ms_merchant_account')->where('MerchantID', $merchantID)->update($dataCrowdo);
-        DB::table('ms_history_membership')->where('merchant_id', $merchantID)->update(['status_payment_id' => 1]);
+
+        DB::table('ms_history_membership')
+          ->where('merchant_id', $merchantID)
+          ->where('status_membership', 2)
+          ->update(['status_payment_id' => 1]);
       }
 
       if ($status == 7) {

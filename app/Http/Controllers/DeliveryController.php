@@ -495,7 +495,7 @@ class DeliveryController extends Controller
         ]);
     }
 
-    public function confirmExpedition($status, $expeditionID, DeliveryOrderService $deliveryOrderService)
+    public function confirmExpedition($status, $expeditionID, $merchantID, DeliveryOrderService $deliveryOrderService)
     {
         $getDOandSO = DB::table('tx_merchant_expedition')
             ->join('tx_merchant_expedition_detail', 'tx_merchant_expedition_detail.MerchantExpeditionID', 'tx_merchant_expedition.MerchantExpeditionID')
@@ -526,11 +526,55 @@ class DeliveryController extends Controller
         ];
 
         try {
-            DB::transaction(function () use ($status, $expeditionID, $dataUpdateExpedition, $dataExpeditionLog, $getDOandSO, $deliveryOrderService) {
+            DB::transaction(function () use ($status, $expeditionID, $merchantID, $dataUpdateExpedition, $dataExpeditionLog, $getDOandSO, $deliveryOrderService) {
                 DB::table('tx_merchant_expedition')
                     ->where('MerchantExpeditionID', $expeditionID)
                     ->update($dataUpdateExpedition);
                 DB::table('tx_merchant_expedition_log')->insert($dataExpeditionLog);
+
+                $checkMembership = DB::table('ms_history_membership')
+                    ->join('ms_merchant_account', 'ms_history_membership.merchant_id', 'ms_merchant_account.MerchantID')
+                    ->join('tx_merchant_order', function ($join) {
+                        $join->on('ms_history_membership.merchant_id', 'tx_merchant_order.MerchantID');
+                        $join->whereRaw("DATE_FORMAT(tx_merchant_order.CreatedDate, '%Y-%m-%d') >= ms_merchant_account.CrowdoApprovedDate");
+                        $join->where('tx_merchant_order.PaymentMethodID', 14);
+                    })
+                    ->where('ms_history_membership.merchant_id', $merchantID)
+                    ->where('ms_merchant_account.ValidationStatusMembershipCouple', 3)
+                    ->where('ms_history_membership.status_membership', 2)
+                    ->first();
+
+                if ($checkMembership) {
+                    $productAddDO = DB::table('tx_merchant_order_detail')
+                        ->join('ms_product', 'ms_product.ProductID', '=', 'tx_merchant_order_detail.ProductID')
+                        ->where('tx_merchant_order_detail.StockOrderID', '=', $getDOandSO[0]->StockOrderID)
+                        ->select('tx_merchant_order_detail.ProductID', 'tx_merchant_order_detail.PromisedQuantity', 'tx_merchant_order_detail.Nett', 'ms_product.ProductName', 'ms_product.ProductImage')
+                        ->get();
+
+                    $promisedQty = 0;
+                    $deliveryOrderQty = 0;
+
+                    foreach ($productAddDO as $key => $value) {
+                        $productQtyDO = DB::table('tx_merchant_delivery_order')
+                            ->join('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderID', '=', 'tx_merchant_delivery_order.DeliveryOrderID')
+                            ->where('tx_merchant_delivery_order.StockOrderID', '=', $getDOandSO[0]->StockOrderID)
+                            ->where('tx_merchant_delivery_order_detail.ProductID', '=', $value->ProductID)
+                            ->where('tx_merchant_delivery_order_detail.StatusExpedition', '!=', 'S037')
+                            ->selectRaw('IFNULL(SUM(tx_merchant_delivery_order_detail.Qty), 0) as Qty')
+                            ->first();
+
+                        $promisedQty += $value->PromisedQuantity;
+                        $deliveryOrderQty += $productQtyDO->Qty;
+                    }
+
+                    ($promisedQty == $deliveryOrderQty) ? $statusShipment = 3 : $statusShipment = 2;
+
+                    DB::table('ms_history_membership')
+                        ->where('id', $checkMembership->id)
+                        ->where('ms_history_membership.merchant_id', $merchantID)
+                        ->where('ms_history_membership.status_membership', 2)
+                        ->update(['status_shipment_id' => $statusShipment]);
+                }
 
                 foreach ($getDOandSO as $key => $value) {
                     $getDOdetail = DB::table('tx_merchant_delivery_order')

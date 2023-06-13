@@ -26,12 +26,12 @@
             <div class="d-flex flex-column align-items-center">
               <div>
                 <button class="btn btn-sm btn-success btn-finish-expedition mb-1"
-                  data-expedition="{{ $expd[0]->MerchantExpeditionID }}" {{ $countStatus->DlmPengiriman > 0 ? 'disabled' : '' }}>
+                  data-expedition="{{ $expd[0]->MerchantExpeditionID }}" data-merchantid="{{ $expd[0]->MerchantID }}" {{ $countStatus->DlmPengiriman > 0 ? 'disabled' : '' }}>
                   <i class="fas fa-check"></i> Selesaikan Ekspedisi
                 </button>
                 @if ($countStatus->Selesai == 0)
                 <button class="btn btn-sm btn-danger btn-cancel-expedition mb-1"
-                  data-expedition="{{ $expd[0]->MerchantExpeditionID }}"
+                  data-expedition="{{ $expd[0]->MerchantExpeditionID }}" data-merchantid="{{ $expd[0]->MerchantID }}"
                   {{ $countStatus->CountHaistar > 0 ? 'disabled' : '' }}>
                   <i class="fas fa-times"></i> Batalkan Ekspedisi
                 </button>
@@ -293,6 +293,8 @@
   $('.btn-finish-expedition').on('click', function (e) {
       e.preventDefault();
       const expedition = $(this).data("expedition");
+      const merchantid = $(this).data("merchantid");
+
       $.confirm({
           title: 'Konfirmasi Order',
           content: `Apakah yakin ingin menyelesaikan ekspedisi <b>${expedition}</b>?`,
@@ -305,7 +307,7 @@
                   draggable: true,
                   dragWindowGap: 0,
                   action: function () {
-                      window.location = '/delivery/on-going/confirmExpedition/finish/' + expedition
+                      window.location = `/delivery/on-going/confirmExpedition/finish/${expedition}/${merchantid}`
                   }
               },
               tidak: function () {
