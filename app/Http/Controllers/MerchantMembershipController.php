@@ -480,19 +480,20 @@ class MerchantMembershipController extends Controller
 
     public function disclaimer($merchantID)
     {
-        $dayName = Carbon::now()->locale('id')->translatedFormat('l');
-        $date = Carbon::now()->locale('id')->translatedFormat('d F Y');
 
         $merchant = DB::table('ms_merchant_account AS mma')
             ->join('ms_history_disclaimer AS mhd', 'mma.MerchantID', 'mhd.merchant_id')
             ->selectRaw("mhd.disclaimer_id, 
                 ANY_VALUE(mma.MerchantID) AS MerchantID, ANY_VALUE(mma.UsernameIDCard) AS UsernameIDCard, 
                 ANY_VALUE(mma.NumberIDCard) AS NumberIDCard, ANY_VALUE(mma.StoreAddress) AS StoreAddress,
-                ANY_VALUE(mhd.nominal) AS Nominal")
+                ANY_VALUE(mhd.nominal) AS Nominal, ANY_VALUE(mma.CrowdoApprovedDate) AS ApprovedDate")
             ->where('mma.MerchantID', '=', $merchantID)
             ->whereRaw('mhd.id = (SELECT MAX(id) FROM ms_history_disclaimer WHERE merchant_id = ?)', [$merchantID])
             ->groupBy('mma.MerchantID', 'mhd.disclaimer_id')
             ->first();
+
+        $dayName = Carbon::parse($merchant->ApprovedDate)->locale('id')->translatedFormat('l');;
+        $date = Carbon::parse($merchant->ApprovedDate)->locale('id')->translatedFormat('d F Y');;
 
         // get the submission count for each disclaimer id
         $submissionCount = DB::table('ms_history_disclaimer')
