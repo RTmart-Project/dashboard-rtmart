@@ -186,6 +186,7 @@ class MerchantMembershipController extends Controller
 
                     return $badge;
                 })
+
                 ->editColumn('StatusShipmentName', function ($data) {
                     $badge = "";
 
@@ -195,6 +196,25 @@ class MerchantMembershipController extends Controller
 
                     return $badge;
                 })
+
+                ->editColumn('StatusOrder', function ($data) {
+                    $badge = "";
+
+                    if ($data->StatusOrderId == 'S012') {
+                        $badge = '<span class="badge badge-info">'.$data->StatusOrder.'</span>';
+                    } elseif ($data->StatusOrderId == 'S011') {
+                        $badge = '<span class="badge badge-danger">'.$data->StatusOrder.'</span>';
+                    } elseif ($data->StatusOrderId == 'S018') {
+                        $badge = '<span class="badge badge-success">'.$data->StatusOrder.'</span>';
+                    } elseif ($data->StatusOrderId == 'S023') {
+                        $badge = '<span class="badge badge-warning">'.$data->StatusOrder.'</span>';
+                    } elseif ($data->StatusOrderId == 'S010') {
+                        $badge = '<span class="badge badge-warning">'.$data->StatusOrder.'</span>';
+                    }
+
+                    return $badge;
+                })
+
                 ->editColumn('MembershipCoupleSubmitDate', function ($data) {
                     return date('d-M-Y H:i:s', strtotime($data->MembershipCoupleSubmitDate));
                 })
@@ -260,7 +280,7 @@ class MerchantMembershipController extends Controller
                     $sql = "ms_merchant_account.MerchantID LIKE ?";
                     $query->whereRaw($sql, ["%{$keyword}%"]);
                 })
-                ->rawColumns(['StatusNameCrowdo', 'StatusName', 'Photo', 'VirtualAccountNumber', 'Action', 'Disclaimer', 'StatusPaymentName', 'StatusShipmentName', 'StockOrderID', 'StatusPO'])
+                ->rawColumns(['StatusNameCrowdo', 'StatusName', 'Photo', 'VirtualAccountNumber', 'Action', 'Disclaimer', 'StatusPaymentName', 'StatusOrder', 'StockOrderID', 'StatusPO'])
                 ->make();
         }
     }

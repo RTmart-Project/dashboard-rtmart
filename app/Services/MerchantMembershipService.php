@@ -12,6 +12,8 @@ class MerchantMembershipService
     $sqlMembership = DB::table('ms_merchant_account')
       ->join('ms_status_couple_preneur as StatusMembership', 'StatusMembership.StatusCouplePreneurID', 'ms_merchant_account.ValidationStatusMembershipCouple')
       ->leftJoin('ms_status_couple_preneur as StatusCrowdo', 'StatusCrowdo.StatusCouplePreneurID', 'ms_merchant_account.StatusCrowdo')
+      ->leftjoin('tx_merchant_order as c', 'c.MerchantID', 'ms_merchant_account.MerchantID')
+      ->leftjoin('ms_status_order as e', 'e.StatusOrderID', 'c.StatusOrderID')
       ->leftJoin('ms_history_membership', function ($join) {
         $join->on('ms_merchant_account.MerchantID', '=', 'ms_history_membership.merchant_id')
           ->where('ms_history_membership.id', '=', DB::raw('(SELECT MAX(id) FROM ms_history_membership WHERE merchant_id = ms_merchant_account.MerchantID)'));
@@ -55,6 +57,7 @@ class MerchantMembershipService
         $join->where('ms_merchant_account.ValidationStatusMembershipCouple', 3);
         $join->where('tx_merchant_order.PaymentMethodID', 14);
       })
+      ->leftJoin('ms_status_order', 'tx_merchant_order.StatusOrderID', 'ms_status_order.StatusOrderID')
       ->where('ms_history_membership.partner_id', 5)
       ->where('ms_merchant_account.IsTesting', 0)
       ->where('ms_merchant_account.ValidationStatusMembershipCouple', '!=', 0)
@@ -95,6 +98,8 @@ class MerchantMembershipService
         DB::raw("ANY_VALUE(ms_membership_status_payment.status_name) AS StatusPaymentName"),
         DB::raw("ANY_VALUE(ms_history_membership.status_shipment_id) AS status_shipment_id"),
         DB::raw("ANY_VALUE(ms_membership_status_shipment.status_name) AS StatusShipmentName"),
+        DB::raw("ANY_VALUE(ms_status_order.StatusOrder) AS StatusOrder"),
+        DB::raw("ANY_VALUE(ms_status_order.StatusOrderId) AS StatusOrderId"),
         DB::raw("ANY_VALUE(ms_history_membership.batch_number) AS batch_number"),
       )
       ->groupBy('ms_history_membership.merchant_id');

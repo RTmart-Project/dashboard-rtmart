@@ -102,9 +102,10 @@ $(document).ready(function () {
                     name: "StatusPO",
                     searchable: false,
                 },
-                {
-                    data: "StatusShipmentName",
-                    name: "StatusShipmentName",
+                {   //data: "StatusShipmentName",
+                    //name: "StatusShipmentName",
+                    data: "StatusOrder",
+                    name: "StatusOrder",
                     searchable: false,
                 },
                 {
