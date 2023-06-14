@@ -154,8 +154,12 @@ class AuthController extends Controller
                     return $detailBtn;
                 })
                 ->addColumn('Action', function ($data) {
-                    $actionBtn = '<a href="/setting/users/edit/' . $data->UserID . '" class="btn btn-sm btn-warning">Edit</a>
-                    <a data-user-name="' . $data->Name . '" data-user-id="' . $data->UserID . '" href="#" class="btn btn-sm btn-danger reset-password">Reset Password</a>';
+                    if (Auth::user()->RoleID == 'IT') {
+                        $actionBtn = '
+                            <a href="/setting/users/edit/' . $data->UserID . '" class="btn btn-sm btn-warning">Edit</a>
+                            <a data-user-name="' . $data->Name . '" data-user-id="' . $data->UserID . '" href="#" class="btn btn-sm btn-danger reset-password">Reset Password</a>
+                        ';
+                    }
                     return $actionBtn;
                 })
                 ->rawColumns(['Detail', 'Action'])
@@ -210,6 +214,7 @@ class AuthController extends Controller
         $depo = DB::table('ms_distributor')
             ->select('Depo', 'DistributorName')
             ->where('Depo', '!=', '')
+            ->where('IsActive', 1)
             ->get();
 
         return view('setting.user.new', [
