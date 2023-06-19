@@ -89,6 +89,7 @@ class MerchantMembershipService
         DB::raw("ANY_VALUE(ms_history_membership.grand_total) AS grand_total"),
         DB::raw("ANY_VALUE(ms_history_membership.no_pmp) AS no_pmp"),
         DB::raw("ANY_VALUE(tx_merchant_order.StockOrderID) AS StockOrderID"),
+        DB::raw("ANY_VALUE(tx_merchant_order.CreatedDate) AS POCreatedDate"),
         DB::raw("ANY_VALUE(StatusMembership.StatusCouplePreneurID) AS StatusCouplePreneurID"),
         DB::raw("ANY_VALUE(ms_history_membership.id) AS id"),
         DB::raw("ANY_VALUE(ms_history_membership.status_payment_id) AS status_payment_id"),
