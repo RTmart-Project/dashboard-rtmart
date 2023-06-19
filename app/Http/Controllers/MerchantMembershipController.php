@@ -188,12 +188,34 @@ class MerchantMembershipController extends Controller
                 })
                 ->editColumn('StatusShipmentName', function ($data) {
                     $badge = "";
+                    $dueDate = "";
 
                     if ($data->ValidationStatusMembershipCouple != 2) {
                         $badge = '<span class="badge badge-info">' . $data->StatusShipmentName . '</span>';
                     }
 
-                    return $badge;
+                    $PODate = $data->POCreatedDate;
+                    $createdDate = Carbon::parse($PODate);
+                    $flagDate = $createdDate->copy()->addDays(7);
+                    $currentDate = Carbon::now();
+
+                    if ($currentDate->greaterThan($flagDate)) {
+                        $daysDifference = $currentDate->diffInDays($createdDate) - 7;
+                        $flag = 'H+' . ($daysDifference + 1);
+                    } elseif ($currentDate->equalTo($flagDate)) {
+                        $flag = 'H-0';
+                    } else {
+                        $daysDifference = $flagDate->diffInDays($currentDate);
+                        $flag = 'H-' . $daysDifference;
+                    }
+
+                    if ($data->StockOrderID) {
+                        $dueDate = "<a class='badge badge-danger'>$flag</a>";
+                    } else {
+                        $dueDate = '';
+                    }
+
+                    return $badge . '<br>' . $dueDate;
                 })
                 ->editColumn('MembershipCoupleSubmitDate', function ($data) {
                     return date('d-M-Y H:i:s', strtotime($data->MembershipCoupleSubmitDate));
