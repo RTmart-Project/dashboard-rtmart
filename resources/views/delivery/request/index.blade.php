@@ -81,39 +81,6 @@
                   @endif
                   <div class="card-body p-0 pt-2">
                     <div class="row">
-                      {{-- Area --}}
-                      {{-- <div class="col-5 col-sm-4 col-md-3 col-xl-2">
-                        <input class="form-control form-control-sm mb-2" type="search" placeholder="Cari Kecamatan"
-                          aria-label="Search" id="search-subdistrict">
-                        <div class="card-wrapper">
-                          @foreach ($areas->groupBy('City')->all() as $area)
-                          <div class="city-card card card-outline card-primary mb-2">
-                            <div class="card-header d-flex justify-content-between p-2">
-                              <h3 class="card-title city-title font-weight-bolder flex-grow-1"
-                                data-card-widget="collapse" style="cursor: pointer">
-                                {{ $area[0]->City }}
-                              </h3>
-                              <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                  <i class="fas fa-minus"></i>
-                                </button>
-                              </div>
-                            </div>
-                            <div class="subdistrict-wrapper card-body p-2">
-                              @foreach ($area as $item)
-                              <div class="subdistrict form-group d-flex align-items-center m-0" style="gap:5px;">
-                                <input type="checkbox" class="check-subdistrict"
-                                  id="{{ Str::slug($item->Subdistrict) }}" value="{{ $item->Subdistrict }}"
-                                  style="cursor: pointer">
-                                <label for="{{ Str::slug($item->Subdistrict) }}" class="font-weight-normal m-0"
-                                  style="cursor: pointer">{{ $item->Subdistrict }}</label>
-                              </div>
-                              @endforeach
-                            </div>
-                          </div>
-                          @endforeach
-                        </div>
-                      </div> --}}
                       <div class="col-12 col-sm-12 col-md-12 col-xl-12">
                         <div class="tab-content">
                           <!-- All -->
@@ -143,6 +110,7 @@
                               </div>
                             </div>
                           </div>
+                          <div id="custom-message" style="display: none;"></div>
                         </div>
                       </div>
                     </div>
@@ -385,20 +353,20 @@
     }
   });
 
-  $('#delivery-order-result').on('change', '.check_haistar', function () {
-    $(this).closest(".request-do").find("#qty-request-do, #product-id").prop('disabled', !$(this).is(':checked'));
-    if ($(this).is(":checked")) {
-      let priceTotal = $(this).closest('.request-do').find('.price-total').text().replaceAll("Rp ", "").replaceAll(".", "");
-      let subTotal = $(this).closest('.request-do-wrapper').find('.price-subtotal').text().replaceAll("Rp ", "").replaceAll(".", "");
-      let newSubTotal = Number(subTotal) + Number(priceTotal);
-      $(this).closest('.request-do-wrapper').find('.price-subtotal').html('Rp ' + thousands_separators(newSubTotal));
-    } else {
-      let priceTotal = $(this).closest('.request-do').find('.price-total').text().replaceAll("Rp ", "").replaceAll(".", "");
-      let subTotal = $(this).closest('.request-do-wrapper').find('.price-subtotal').text().replaceAll("Rp ", "").replaceAll(".", "");
-      let newSubTotal = Number(subTotal) - Number(priceTotal);
-      $(this).closest('.request-do-wrapper').find('.price-subtotal').html('Rp ' + thousands_separators(newSubTotal));
-    }
-  });
+  // $('#delivery-order-result').on('change', '.check_haistar', function () {
+  //   $(this).closest(".request-do").find("#qty-request-do, #product-id").prop('disabled', !$(this).is(':checked'));
+  //   if ($(this).is(":checked")) {
+  //     let priceTotal = $(this).closest('.request-do').find('.price-total').text().replaceAll("Rp ", "").replaceAll(".", "");
+  //     let subTotal = $(this).closest('.request-do-wrapper').find('.price-subtotal').text().replaceAll("Rp ", "").replaceAll(".", "");
+  //     let newSubTotal = Number(subTotal) + Number(priceTotal);
+  //     $(this).closest('.request-do-wrapper').find('.price-subtotal').html('Rp ' + thousands_separators(newSubTotal));
+  //   } else {
+  //     let priceTotal = $(this).closest('.request-do').find('.price-total').text().replaceAll("Rp ", "").replaceAll(".", "");
+  //     let subTotal = $(this).closest('.request-do-wrapper').find('.price-subtotal').text().replaceAll("Rp ", "").replaceAll(".", "");
+  //     let newSubTotal = Number(subTotal) - Number(priceTotal);
+  //     $(this).closest('.request-do-wrapper').find('.price-subtotal').html('Rp ' + thousands_separators(newSubTotal));
+  //   }
+  // });
 
   // Event listener saat mengetik qty do
   $('#delivery-order-result').on('keyup', '.qty-request-do', function (e) {
