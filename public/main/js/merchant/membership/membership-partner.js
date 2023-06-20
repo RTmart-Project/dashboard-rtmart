@@ -176,6 +176,23 @@ $(document).ready(function () {
                             }
                         }
                     },
+                    aTargets: [5],
+                    mRender: function (data, type, full) {
+                        if (type === "export") {
+                            if (data == null || data == "") {
+                                return data;
+                            } else {
+                                const KTP = `'${data}`;
+                                return KTP;
+                            }
+                        } else {
+                            if (data == null || data == "") {
+                                return data;
+                            } else {
+                                return data;
+                            }
+                        }
+                    },
                 },
             ],
             lengthChange: false,
