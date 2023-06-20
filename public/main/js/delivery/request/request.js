@@ -3,16 +3,6 @@ $(document).ready(function () {
     let csrf = $('meta[name="csrf_token"]').attr("content");
     let roleID = $('meta[name="role-id"]').attr("content");
 
-    // $(".check-subdistrict").change(function () {
-    //     let checked = $(this).val();
-    //     if ($(this).is(":checked")) {
-    //         checkboxFilter.push(checked);
-    //     } else {
-    //         checkboxFilter.splice($.inArray(checked, checkboxFilter), 1);
-    //     }
-
-    //     $("#delivery-request .table-datatables").DataTable().ajax.reload();
-    // });
     // DataTables
     dataTablesDeliveryRequest();
 
@@ -531,14 +521,14 @@ $(document).ready(function () {
                 .text()
                 .replaceAll("Rp ", "")
                 .replaceAll(".", "");
-            if (Number(subtotalNominal) > Number(maxNominal)) {
-                Toast.fire({
-                    icon: "error",
-                    title:
-                        deliveryOrderID + " melebihi maksimum nominal kirim!",
-                });
-                return (next = false);
-            }
+            // if (Number(subtotalNominal) > Number(maxNominal)) {
+            //     Toast.fire({
+            //         icon: "error",
+            //         title:
+            //             deliveryOrderID + " melebihi maksimum nominal kirim!",
+            //     });
+            //     return (next = false);
+            // }
         });
         $("#preview-product input[type=checkbox]").parent().addClass("d-none");
         $("#preview-product .label-product").removeClass("d-flex");

@@ -25,12 +25,12 @@
   <div class="card-body px-3 py-2 request-do-wrapper">
     @php
     $subtotal = 0;
-    $firstInLoopHaistar = true;
+    // $firstInLoopHaistar = true;
     $firstInLoopRTmart = true;
     @endphp
 
     {{-- Loop Haistar Product --}}
-    @foreach ($item as $product)
+    {{-- @foreach ($item as $product)
     @if ($product->IsHaistarProduct == 1)
     @php
     $subtotal += $product->QtyDO * $product->PriceDO;
@@ -101,7 +101,7 @@
     $firstInLoopHaistar = false;
     @endphp
     @endif
-    @endforeach
+    @endforeach --}}
 
     {{-- Loop RTmart Product --}}
     @foreach ($item as $product)
@@ -176,7 +176,7 @@
 
     <div class="row">
       <div class="col-3 offset-9 text-center">
-        <p class="mt-2 mb-1">
+        {{-- <p class="mt-2 mb-1">
           <b>Max Nominal Kirim :
             @if ($item[0]->CountCreatedDO == 0)
               <span id="max-nominal">
@@ -188,8 +188,8 @@
               <span>
             @endif
           </b>
-        </p>
-        <p class="mb-1">
+        </p> --}}
+        <p class="mt-3 mb-1">
           <b>SubTotal : </b>
           <span class="price-subtotal" id="price-subtotal">Rp 0</span>
         </p>
