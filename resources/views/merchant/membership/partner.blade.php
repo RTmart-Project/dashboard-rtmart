@@ -92,6 +92,7 @@
                           <th>VA</th>
                           <th>Nominal Pencairan</th>
                           <th>Status PO</th>
+                          <th>Nominal PO</th>
                           <th>Status Pengiriman</th>
                           <th>Status Pembayaran</th>
                           <th>Action</th>

@@ -103,6 +103,11 @@ $(document).ready(function () {
                     searchable: false,
                 },
                 {
+                    data: "NettPrice",
+                    name: "NettPrice",
+                    searchable: false,
+                },
+                {
                     data: "StatusShipmentName",
                     name: "StatusShipmentName",
                     searchable: false,
@@ -146,7 +151,7 @@ $(document).ready(function () {
                             page: "all",
                         },
                         columns: [
-                            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14
+                            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15
                         ],
                         orthogonal: "export",
                     },
@@ -160,7 +165,7 @@ $(document).ready(function () {
                             if (data == null || data == "") {
                                 return data;
                             } else {
-                                const formatVA = `'${data}'`;
+                                const formatVA = `'${data}`;
                                 return formatVA;
                             }
                         } else {
