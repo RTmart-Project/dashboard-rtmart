@@ -91,7 +91,7 @@ class MerchantMembershipController extends Controller
                 })
                 ->addColumn('Action', function ($data) {
                     if (($data->status_payment_id == null || $data->status_payment_id == 3) && strpos($data->rejected_reason, "BI Checking") === false) {
-                        return "<button class='btn btn-xs btn-warning btn-update-crowdo' data-merchant-id='$data->MerchantID' data-store='$data->StoreName' data-status-crowdo='$data->StatusCrowdo'>
+                        return "<button class='btn btn-xs btn-warning btn-update-crowdo' data-merchant-id='$data->MerchantID' data-status-membership='$data->status_membership' data-store='$data->StoreName'>
                                     Update
                                 </button>";
                     }
@@ -215,7 +215,7 @@ class MerchantMembershipController extends Controller
                         $dueDate = '';
                     }
 
-                    return $badge . '<br>' . $dueDate;
+                    return $badge . ' <br> ' . $dueDate;
                 })
                 ->editColumn('MembershipCoupleSubmitDate', function ($data) {
                     return date('d-M-Y H:i:s', strtotime($data->MembershipCoupleSubmitDate));

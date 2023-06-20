@@ -344,6 +344,7 @@ $(document).ready(function () {
     $("table").on("click", ".btn-update-crowdo", function () {
         const merchantID = $(this).data("merchant-id");
         const store = $(this).data("store");
+        const statusMembership = $(this).data("status-membership");
 
         let formCrowdo = `
             <form action="/merchant/membership/updateCrowdo/${merchantID}" method="post">
@@ -352,9 +353,9 @@ $(document).ready(function () {
                     <label for="note">Status :</label>
                     <select class="form-control" name="status-crowdo" id="status-crowdo" required>
                         <option value="" selected hidden disabled>-- Pilih Status --</option>
-                        <option value="5">Submitted</option>
-                        <option value="6">Approved</option>
-                        <option value="7">Rejected</option>
+                        <option value="5" ${statusMembership === 1 ? 'disabled' : ''}>Submitted</option>
+                        <option value="6" ${statusMembership === null || statusMembership !== 1 ? 'disabled' : ''}>Approved</option>
+                        <option value="7" ${statusMembership === null || statusMembership !== 1 ? 'disabled' : ''}>Rejected</option>
                     </select>
                 </div>
                 <div id="data-crowdo" class="form-row"></div>
@@ -364,7 +365,7 @@ $(document).ready(function () {
                 </div>
             </form>
         `;
-
+        
         $("#form-crowdo").html(formCrowdo);
         $("#form-crowdo").on("change", "#status-crowdo", function () {
             const statusCrowdo = $(this).val();
@@ -407,7 +408,6 @@ $(document).ready(function () {
                         option += `<option value=${d.PartnerID}>${d.Name}</option>`;
                     })
 
-                    // $('#partner').append(option);
                     $('#partner').html(`<option value="null" selected disabled>-- Pilih Partner --</option>` + option);
                 },
             });
