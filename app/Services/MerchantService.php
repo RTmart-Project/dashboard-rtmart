@@ -207,6 +207,7 @@ class MerchantService
         if ($depoUser != "ALL") {
             $sql->whereRaw("ms_distributor.Depo = '$depoUser'");
         }
+
         if ($regionalUser != NULL && $depoUser == "ALL") {
             $sql->whereRaw("ms_distributor.Regional = '$regionalUser'");
         }

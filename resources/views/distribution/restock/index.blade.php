@@ -416,7 +416,7 @@
 <script src="{{url('/')}}/main/js/helper/keep-tab-refresh.js"></script>
 <script src="https://unpkg.com/autonumeric"></script>
 <script>
-    let depo = $('meta[name="depo"]').attr("content");
+let depo = $('meta[name="depo"]').attr("content");
 
 const selectElement = depo === "ALL"
 ? `<div class="select-filter-custom ml-2 distributor-select">
