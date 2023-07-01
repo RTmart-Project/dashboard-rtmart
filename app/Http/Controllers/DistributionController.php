@@ -197,90 +197,182 @@ class DistributionController extends Controller
 
         // Return Data Using DataTables with Ajax
         if ($request->ajax()) {
-            return Datatables::of($data)
-                ->addIndexColumn()
-                ->editColumn('CreatedDate', function ($data) {
-                    return date('d M Y H:i', strtotime($data->CreatedDate));
-                })
-                ->editColumn('Grade', function ($data) {
-                    if ($data->Grade != null) {
-                        $grade = $data->Grade;
-                    } else {
-                        $grade = 'Retail';
-                    }
-                    return $grade;
-                })
-                ->addColumn('Sales', function ($data) {
-                    return $data->ReferralCode . ' ' . $data->SalesName;
-                })
-                ->editColumn('TotalTrx', function ($data) {
-                    return $data->TotalPrice - $data->DiscountPrice - $data->DiscountVoucher + $data->ServiceChargeNett + $data->DeliveryFee;
-                })
-                ->editColumn('Partner', function ($data) {
-                    if ($data->Partner != null) {
-                        $partner = '<a class="badge badge-info">' . $data->Partner . '</a>';
-                    } else {
-                        $partner = '';
-                    }
-                    return $partner;
-                })
-                ->editColumn('ShipmentDate', function ($data) {
-                    return date('d M Y', strtotime($data->ShipmentDate));
-                })
-                ->addColumn('Invoice', function ($data) {
-                    if ($data->StatusOrderID == "S012" || $data->StatusOrderID == "S018") {
-                        $textBtn = "Invoice";
-                    } else {
-                        $textBtn = "Proforma";
-                    }
-                    $stockOrderId = '<a href="/restock/invoice/' . $data->StockOrderID . '" target="_blank" class="btn btn-sm btn-info">' . $textBtn . '</a>';
-                    return $stockOrderId;
-                })
-                ->editColumn('IsValid', function ($data) {
-                    if ($data->IsValid == "VALID") {
-                        $validation = '<span class="badge badge-success">' . $data->IsValid . '</span>';
-                    } elseif ($data->IsValid == "NOT VALID") {
-                        $validation = '<span class="badge badge-danger">' . $data->IsValid . '</span>';
-                    } elseif ($data->IsValid == "UNKNOWN") {
-                        $validation = '<span class="badge badge-warning">' . $data->IsValid . '</span>';
-                    } else {
-                        $validation = '<span class="badge badge-info">Belum Divalidasi</span>';
-                    }
-                    return $validation;
-                })
-                ->addColumn('Action', function ($data) {
-                    $actionBtn = '<a class="btn btn-sm btn-secondary" href="/distribution/restock/detail/' . $data->StockOrderID . '">Lihat</a>';
+            $searchValue = $request->input('search')['value'];
 
-                    if (Auth::user()->RoleID == 'IT') {
-                        $actionBtn .= '<a class="btn btn-sm btn-warning" href="/distribution/restock/edit/' . $data->StockOrderID . '">Ubah</a>';
-                    }
+            if ($searchValue || ($fromDate && $toDate)) {
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->editColumn('CreatedDate', function ($data) {
+                        return date('d M Y H:i', strtotime($data->CreatedDate));
+                    })
+                    ->editColumn('Grade', function ($data) {
+                        if ($data->Grade != null) {
+                            $grade = $data->Grade;
+                        } else {
+                            $grade = 'Retail';
+                        }
+                        return $grade;
+                    })
+                    ->addColumn('Sales', function ($data) {
+                        return $data->ReferralCode . ' ' . $data->SalesName;
+                    })
+                    ->editColumn('TotalTrx', function ($data) {
+                        return $data->TotalPrice - $data->DiscountPrice - $data->DiscountVoucher + $data->ServiceChargeNett + $data->DeliveryFee;
+                    })
+                    ->editColumn('Partner', function ($data) {
+                        if ($data->Partner != null) {
+                            $partner = '<a class="badge badge-info">' . $data->Partner . '</a>';
+                        } else {
+                            $partner = '';
+                        }
+                        return $partner;
+                    })
+                    ->editColumn('ShipmentDate', function ($data) {
+                        return date('d M Y', strtotime($data->ShipmentDate));
+                    })
+                    ->addColumn('Invoice', function ($data) {
+                        if ($data->StatusOrderID == "S012" || $data->StatusOrderID == "S018") {
+                            $textBtn = "Invoice";
+                        } else {
+                            $textBtn = "Proforma";
+                        }
+                        $stockOrderId = '<a href="/restock/invoice/' . $data->StockOrderID . '" target="_blank" class="btn btn-sm btn-info">' . $textBtn . '</a>';
+                        return $stockOrderId;
+                    })
+                    ->editColumn('IsValid', function ($data) {
+                        if ($data->IsValid == "VALID") {
+                            $validation = '<span class="badge badge-success">' . $data->IsValid . '</span>';
+                        } elseif ($data->IsValid == "NOT VALID") {
+                            $validation = '<span class="badge badge-danger">' . $data->IsValid . '</span>';
+                        } elseif ($data->IsValid == "UNKNOWN") {
+                            $validation = '<span class="badge badge-warning">' . $data->IsValid . '</span>';
+                        } else {
+                            $validation = '<span class="badge badge-info">Belum Divalidasi</span>';
+                        }
+                        return $validation;
+                    })
+                    ->addColumn('Action', function ($data) {
+                        $actionBtn = '<a class="btn btn-sm btn-secondary" href="/distribution/restock/detail/' . $data->StockOrderID . '">Lihat</a>';
 
-                    return $actionBtn;
-                })
-                ->addColumn('PriceSubmission', function ($data) {
-                    if ($data->StatusPriceSubmission == "S041" || $data->StatusPriceSubmission == null) {
-                        $btn = '<a class="btn btn-sm btn-warning" href="/distribution/restock/price-submission/create/' . $data->StockOrderID . '">Buat Pengajuan</a>';
-                    } else {
-                        $btn = '';
-                    }
-                    return $btn;
-                })
-                ->filterColumn('tx_merchant_order.CreatedDate', function ($query, $keyword) {
-                    $query->whereRaw("DATE_FORMAT(tx_merchant_order.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
-                })
-                ->filterColumn('tx_merchant_order.ShipmentDate', function ($query, $keyword) {
-                    $query->whereRaw("DATE_FORMAT(tx_merchant_order.ShipmentDate,'%d-%b-%Y') like ?", ["%$keyword%"]);
-                })
-                ->filterColumn('TotalTrx', function ($query, $keyword) {
-                    $query->whereRaw("tx_merchant_order.TotalPrice - tx_merchant_order.DiscountPrice - tx_merchant_order.DiscountVoucher + tx_merchant_order.ServiceChargeNett + tx_merchant_order.DeliveryFee like ?", ["%$keyword%"]);
-                })
-                ->filterColumn('Sales', function ($query, $keyword) {
-                    $sql = "CONCAT(ms_merchant_account.ReferralCode,' - ',ms_sales.SalesName)  like ?";
-                    $query->whereRaw($sql, ["%{$keyword}%"]);
-                })
-                ->rawColumns(['Invoice', 'Partner', 'Action', 'IsValid', 'PriceSubmission'])
-                ->make(true);
+                        if (Auth::user()->RoleID == 'IT') {
+                            $actionBtn .= '<a class="btn btn-sm btn-warning" href="/distribution/restock/edit/' . $data->StockOrderID . '">Ubah</a>';
+                        }
+
+                        return $actionBtn;
+                    })
+                    ->addColumn('PriceSubmission', function ($data) {
+                        if ($data->StatusPriceSubmission == "S041" || $data->StatusPriceSubmission == null) {
+                            $btn = '<a class="btn btn-sm btn-warning" href="/distribution/restock/price-submission/create/' . $data->StockOrderID . '">Buat Pengajuan</a>';
+                        } else {
+                            $btn = '';
+                        }
+                        return $btn;
+                    })
+                    ->filterColumn('tx_merchant_order.CreatedDate', function ($query, $keyword) {
+                        $query->whereRaw("DATE_FORMAT(tx_merchant_order.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
+                    })
+                    ->filterColumn('tx_merchant_order.ShipmentDate', function ($query, $keyword) {
+                        $query->whereRaw("DATE_FORMAT(tx_merchant_order.ShipmentDate,'%d-%b-%Y') like ?", ["%$keyword%"]);
+                    })
+                    ->filterColumn('TotalTrx', function ($query, $keyword) {
+                        $query->whereRaw("tx_merchant_order.TotalPrice - tx_merchant_order.DiscountPrice - tx_merchant_order.DiscountVoucher + tx_merchant_order.ServiceChargeNett + tx_merchant_order.DeliveryFee like ?", ["%$keyword%"]);
+                    })
+                    ->filterColumn('Sales', function ($query, $keyword) {
+                        $sql = "CONCAT(ms_merchant_account.ReferralCode,' - ',ms_sales.SalesName)  like ?";
+                        $query->whereRaw($sql, ["%{$keyword}%"]);
+                    })
+                    ->rawColumns(['Invoice', 'Partner', 'Action', 'IsValid', 'PriceSubmission'])
+                    ->make(true);
+            } else {
+                return DataTables::of([])->make(true);
+            }
         }
+
+        // if ($request->ajax()) {
+        //     return Datatables::of($data)
+        //         ->addIndexColumn()
+        //         ->editColumn('CreatedDate', function ($data) {
+        //             return date('d M Y H:i', strtotime($data->CreatedDate));
+        //         })
+        //         ->editColumn('Grade', function ($data) {
+        //             if ($data->Grade != null) {
+        //                 $grade = $data->Grade;
+        //             } else {
+        //                 $grade = 'Retail';
+        //             }
+        //             return $grade;
+        //         })
+        //         ->addColumn('Sales', function ($data) {
+        //             return $data->ReferralCode . ' ' . $data->SalesName;
+        //         })
+        //         ->editColumn('TotalTrx', function ($data) {
+        //             return $data->TotalPrice - $data->DiscountPrice - $data->DiscountVoucher + $data->ServiceChargeNett + $data->DeliveryFee;
+        //         })
+        //         ->editColumn('Partner', function ($data) {
+        //             if ($data->Partner != null) {
+        //                 $partner = '<a class="badge badge-info">' . $data->Partner . '</a>';
+        //             } else {
+        //                 $partner = '';
+        //             }
+        //             return $partner;
+        //         })
+        //         ->editColumn('ShipmentDate', function ($data) {
+        //             return date('d M Y', strtotime($data->ShipmentDate));
+        //         })
+        //         ->addColumn('Invoice', function ($data) {
+        //             if ($data->StatusOrderID == "S012" || $data->StatusOrderID == "S018") {
+        //                 $textBtn = "Invoice";
+        //             } else {
+        //                 $textBtn = "Proforma";
+        //             }
+        //             $stockOrderId = '<a href="/restock/invoice/' . $data->StockOrderID . '" target="_blank" class="btn btn-sm btn-info">' . $textBtn . '</a>';
+        //             return $stockOrderId;
+        //         })
+        //         ->editColumn('IsValid', function ($data) {
+        //             if ($data->IsValid == "VALID") {
+        //                 $validation = '<span class="badge badge-success">' . $data->IsValid . '</span>';
+        //             } elseif ($data->IsValid == "NOT VALID") {
+        //                 $validation = '<span class="badge badge-danger">' . $data->IsValid . '</span>';
+        //             } elseif ($data->IsValid == "UNKNOWN") {
+        //                 $validation = '<span class="badge badge-warning">' . $data->IsValid . '</span>';
+        //             } else {
+        //                 $validation = '<span class="badge badge-info">Belum Divalidasi</span>';
+        //             }
+        //             return $validation;
+        //         })
+        //         ->addColumn('Action', function ($data) {
+        //             $actionBtn = '<a class="btn btn-sm btn-secondary" href="/distribution/restock/detail/' . $data->StockOrderID . '">Lihat</a>';
+
+        //             if (Auth::user()->RoleID == 'IT') {
+        //                 $actionBtn .= '<a class="btn btn-sm btn-warning" href="/distribution/restock/edit/' . $data->StockOrderID . '">Ubah</a>';
+        //             }
+
+        //             return $actionBtn;
+        //         })
+        //         ->addColumn('PriceSubmission', function ($data) {
+        //             if ($data->StatusPriceSubmission == "S041" || $data->StatusPriceSubmission == null) {
+        //                 $btn = '<a class="btn btn-sm btn-warning" href="/distribution/restock/price-submission/create/' . $data->StockOrderID . '">Buat Pengajuan</a>';
+        //             } else {
+        //                 $btn = '';
+        //             }
+        //             return $btn;
+        //         })
+        //         ->filterColumn('tx_merchant_order.CreatedDate', function ($query, $keyword) {
+        //             $query->whereRaw("DATE_FORMAT(tx_merchant_order.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
+        //         })
+        //         ->filterColumn('tx_merchant_order.ShipmentDate', function ($query, $keyword) {
+        //             $query->whereRaw("DATE_FORMAT(tx_merchant_order.ShipmentDate,'%d-%b-%Y') like ?", ["%$keyword%"]);
+        //         })
+        //         ->filterColumn('TotalTrx', function ($query, $keyword) {
+        //             $query->whereRaw("tx_merchant_order.TotalPrice - tx_merchant_order.DiscountPrice - tx_merchant_order.DiscountVoucher + tx_merchant_order.ServiceChargeNett + tx_merchant_order.DeliveryFee like ?", ["%$keyword%"]);
+        //         })
+        //         ->filterColumn('Sales', function ($query, $keyword) {
+        //             $sql = "CONCAT(ms_merchant_account.ReferralCode,' - ',ms_sales.SalesName)  like ?";
+        //             $query->whereRaw($sql, ["%{$keyword}%"]);
+        //         })
+        //         ->rawColumns(['Invoice', 'Partner', 'Action', 'IsValid', 'PriceSubmission'])
+        //         ->make(true);
+        // }
     }
 
     public function getAllRestockAndDO(Request $request)
@@ -394,6 +486,150 @@ class DistributionController extends Controller
         // Get data response
         $data = $sqlAllRestockAndDO;
 
+        if ($request->ajax()) {
+            $searchValue = $request->input('search')['value'];
+
+            if ($searchValue || ($fromDate && $toDate)) {
+                return Datatables::of($data)
+                    ->addIndexColumn()
+                    ->editColumn('CreatedDate', function ($data) {
+                        return date('d M Y H:i', strtotime($data->CreatedDate));
+                    })
+                    ->addColumn('MarginReal', function ($data) {
+                        if ($data->PurchasePrice == null) {
+                            $marginReal = "";
+                        } else {
+                            if ($data->Qty == null) {
+                                $marginReal = "";
+                            } else {
+                                $marginReal = (($data->Price - $data->PurchasePrice) * $data->Qty);
+                            }
+                        }
+                        return $marginReal;
+                    })
+                    ->addColumn('MarginRealPercentage', function ($data) {
+                        $marginReal = (($data->Price - $data->PurchasePrice) * $data->Qty) - $data->Discount;
+                        if ($data->PurchasePrice == null) {
+                            $marginRealPercentage = "";
+                        } else {
+                            if ($data->TotalPriceDO == 0) {
+                                $marginRealPercentage = "";
+                            } else {
+                                $marginRealPercentage = round($marginReal / $data->TotalPriceDO * 100, 2);
+                            }
+                        }
+
+                        return $marginRealPercentage;
+                    })
+                    ->editColumn('Grade', function ($data) {
+                        if ($data->Grade != null) {
+                            $grade = $data->Grade;
+                        } else {
+                            $grade = 'Retail';
+                        }
+                        return $grade;
+                    })
+                    ->addColumn('Sales', function ($data) {
+                        return $data->ReferralCode . ' ' . $data->SalesName;
+                    })
+                    ->editColumn('Partner', function ($data) {
+                        if ($data->Partner != null) {
+                            $partner = '<a class="badge badge-info">' . $data->Partner . '</a>';
+                        } else {
+                            $partner = '';
+                        }
+                        return $partner;
+                    })
+                    ->editColumn('StatusOrder', function ($data) {
+                        $pesananBaru = "S009";
+                        $dikonfirmasi = "S010";
+                        $dalamProses = "S023";
+                        $dikirim = "S012";
+                        $selesai = "S018";
+                        $dibatalkan = "S011";
+
+                        if ($data->StatusOrderID == $pesananBaru) {
+                            $statusOrder = '<span class="badge badge-secondary">' . $data->StatusOrder . '</span>';
+                        } elseif ($data->StatusOrderID == $dikonfirmasi) {
+                            $statusOrder = '<span class="badge badge-primary">' . $data->StatusOrder . '</span>';
+                        } elseif ($data->StatusOrderID == $dalamProses) {
+                            $statusOrder = '<span class="badge badge-warning">' . $data->StatusOrder . '</span>';
+                        } elseif ($data->StatusOrderID == $dikirim) {
+                            $statusOrder = '<span class="badge badge-info">' . $data->StatusOrder . '</span>';
+                        } elseif ($data->StatusOrderID == $selesai) {
+                            $statusOrder = '<span class="badge badge-success">' . $data->StatusOrder . '</span>';
+                        } elseif ($data->StatusOrderID == $dibatalkan) {
+                            $statusOrder = '<span class="badge badge-danger">' . $data->StatusOrder . '</span>';
+                        } else {
+                            $statusOrder = 'Status tidak ditemukan';
+                        }
+
+                        return $statusOrder;
+                    })
+                    ->editColumn('IsValid', function ($data) {
+                        if ($data->IsValid == "VALID") {
+                            $validation = '<span class="badge badge-success">' . $data->IsValid . '</span>';
+                        } elseif ($data->IsValid == "NOT VALID") {
+                            $validation = '<span class="badge badge-danger">' . $data->IsValid . '</span>';
+                        } elseif ($data->IsValid == "UNKNOWN") {
+                            $validation = '<span class="badge badge-warning">' . $data->IsValid . '</span>';
+                        } else {
+                            $validation = '<span class="badge badge-info">Belum Divalidasi</span>';
+                        }
+                        return $validation;
+                    })
+                    ->editColumn('TanggalDO', function ($data) {
+                        if ($data->TanggalDO) {
+                            $tanggalDO = date('d M Y H:i', strtotime($data->TanggalDO));
+                        } else {
+                            $tanggalDO = "";
+                        }
+
+                        return $tanggalDO;
+                    })
+                    ->editColumn('StatusDetailDO', function ($data) {
+                        if ($data->StatusDetailDO == "Dalam Perjalanan") {
+                            $statusOrder = '<span class="badge badge-warning">' . $data->StatusDetailDO . '</span>';
+                        } elseif ($data->StatusDetailDO == "Selesai") {
+                            $statusOrder = '<span class="badge badge-success">' . $data->StatusDetailDO . '</span>';
+                        } elseif ($data->StatusDetailDO == "Dibatalkan") {
+                            $statusOrder = '<span class="badge badge-danger">' . $data->StatusDetailDO . '</span>';
+                        } else {
+                            $statusOrder = '<span class="badge badge-info">' . $data->StatusDetailDO . '</span>';
+                        }
+
+                        return $statusOrder;
+                    })
+                    ->editColumn('ReceiptImage', function ($data) {
+                        if ($data->ReceiptImage == null) {
+                            $receiptImage = "";
+                        } else {
+                            $receiptImage = '<a target="_blank" href="' . $this->baseImageUrl . 'receipt_image_expedition/' . $data->ReceiptImage . '">Lihat Bukti</a>';
+                        }
+                        return $receiptImage;
+                    })
+                    ->filterColumn('tx_merchant_order.CreatedDate', function ($query, $keyword) {
+                        $query->whereRaw("DATE_FORMAT(tx_merchant_order.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
+                    })
+                    ->filterColumn('TotalTrx', function ($query, $keyword) {
+                        $query->whereRaw("tx_merchant_order.TotalPrice - tx_merchant_order.DiscountPrice - tx_merchant_order.DiscountVoucher + tx_merchant_order.ServiceChargeNett + tx_merchant_order.DeliveryFee like ?", ["%$keyword%"]);
+                    })
+                    ->filterColumn('TanggalDO', function ($query, $keyword) {
+                        $query->whereRaw("DATE_FORMAT(tmdo.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
+                    })
+                    ->filterColumn('StatusDetailDO', function ($query, $keyword) {
+                        $query->whereRaw("ms_status_order.StatusOrder like ?", ["%$keyword%"]);
+                    })
+                    ->filterColumn('Sales', function ($query, $keyword) {
+                        $sql = "CONCAT(ms_merchant_account.ReferralCode,' - ',ms_sales.SalesName)  like ?";
+                        $query->whereRaw($sql, ["%{$keyword}%"]);
+                    })
+                    ->rawColumns(['Partner', 'StatusOrder', 'StatusDetailDO', 'ReceiptImage', 'IsValid'])
+                    ->make(true);
+            } else {
+                return DataTables::of([])->make(true);
+            }
+        }
         // Return Data Using DataTables with Ajax
         if ($request->ajax()) {
             return Datatables::of($data)
@@ -924,27 +1160,27 @@ class DistributionController extends Controller
                         'Content-Type: application/json'
                     );
 
-                    $fields = json_encode($fields);
-                    $ch = curl_init();
-                    curl_setopt($ch, CURLOPT_URL, "https://fcm.googleapis.com/fcm/send");
-                    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-                    curl_setopt($ch, CURLOPT_HEADER, FALSE);
-                    curl_setopt($ch, CURLOPT_POST, TRUE);
-                    curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
-                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+                    // $fields = json_encode($fields);
+                    // $ch = curl_init();
+                    // curl_setopt($ch, CURLOPT_URL, "https://fcm.googleapis.com/fcm/send");
+                    // curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                    // curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+                    // curl_setopt($ch, CURLOPT_HEADER, FALSE);
+                    // curl_setopt($ch, CURLOPT_POST, TRUE);
+                    // curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+                    // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
 
-                    $response = curl_exec($ch);
-                    curl_close($ch);
+                    // $response = curl_exec($ch);
+                    // curl_close($ch);
 
-                    DB::table('ms_notification_log')->insert([
-                        'Target' => $txMerchantOrder->MerchantID,
-                        'Message' => 'Pesanan Restok Dibatalkan',
-                        'JSONSend' => $fields,
-                        'JSONReceive' => $response,
-                        'CreatedAt' => date('Y-m-d H:i:s'),
-                        'Status' => 'SUCCESS'
-                    ]);
+                    // DB::table('ms_notification_log')->insert([
+                    //     'Target' => $txMerchantOrder->MerchantID,
+                    //     'Message' => 'Pesanan Restok Dibatalkan',
+                    //     'JSONSend' => $fields,
+                    //     'JSONReceive' => $response,
+                    //     'CreatedAt' => date('Y-m-d H:i:s'),
+                    //     'Status' => 'SUCCESS'
+                    // ]);
                 });
 
                 return redirect()->route('distribution.restock')->with('success', 'Data pesanan berhasil dibatalkan');
@@ -996,27 +1232,27 @@ class DistributionController extends Controller
                         'Content-Type: application/json'
                     );
 
-                    $fields = json_encode($fields);
-                    $ch = curl_init();
-                    curl_setopt($ch, CURLOPT_URL, "https://fcm.googleapis.com/fcm/send");
-                    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-                    curl_setopt($ch, CURLOPT_HEADER, FALSE);
-                    curl_setopt($ch, CURLOPT_POST, TRUE);
-                    curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
-                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+                    // $fields = json_encode($fields);
+                    // $ch = curl_init();
+                    // curl_setopt($ch, CURLOPT_URL, "https://fcm.googleapis.com/fcm/send");
+                    // curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                    // curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+                    // curl_setopt($ch, CURLOPT_HEADER, FALSE);
+                    // curl_setopt($ch, CURLOPT_POST, TRUE);
+                    // curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+                    // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
 
-                    $response = curl_exec($ch);
-                    curl_close($ch);
+                    // $response = curl_exec($ch);
+                    // curl_close($ch);
 
-                    DB::table('ms_notification_log')->insert([
-                        'Target' => $txMerchantOrder->MerchantID,
-                        'Message' => $bodyNotif,
-                        'JSONSend' => $fields,
-                        'JSONReceive' => $response,
-                        'CreatedAt' => date('Y-m-d H:i:s'),
-                        'Status' => 'SUCCESS'
-                    ]);
+                    // DB::table('ms_notification_log')->insert([
+                    //     'Target' => $txMerchantOrder->MerchantID,
+                    //     'Message' => $bodyNotif,
+                    //     'JSONSend' => $fields,
+                    //     'JSONReceive' => $response,
+                    //     'CreatedAt' => date('Y-m-d H:i:s'),
+                    //     'Status' => 'SUCCESS'
+                    // ]);
                 });
 
                 return redirect()->route('distribution.restock')->with('success', 'Data pesanan berhasil diproses');
@@ -1069,18 +1305,18 @@ class DistributionController extends Controller
                     'Content-Type: application/json'
                 );
 
-                $fields = json_encode($fields);
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, "https://fcm.googleapis.com/fcm/send");
-                curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-                curl_setopt($ch, CURLOPT_HEADER, FALSE);
-                curl_setopt($ch, CURLOPT_POST, TRUE);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
-                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+                // $fields = json_encode($fields);
+                // $ch = curl_init();
+                // curl_setopt($ch, CURLOPT_URL, "https://fcm.googleapis.com/fcm/send");
+                // curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+                // curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+                // curl_setopt($ch, CURLOPT_HEADER, FALSE);
+                // curl_setopt($ch, CURLOPT_POST, TRUE);
+                // curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+                // curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
 
-                curl_exec($ch);
-                curl_close($ch);
+                // curl_exec($ch);
+                // curl_close($ch);
 
                 return redirect()->route('distribution.restock')->with('success', 'Data pesanan berhasil dikirim');
             } catch (\Throwable $th) {

@@ -1367,125 +1367,243 @@ class MerchantController extends Controller
 
         // Return Data Using DataTables with Ajax
         if ($request->ajax()) {
-            return Datatables::of($data)
-                ->editColumn('CreatedDate', function ($data) {
-                    return date('d-M-Y H:i', strtotime($data->CreatedDate));
-                })
-                ->addColumn('MarginRealPercentage', function ($data) {
-                    if ($data->MarginReal == null || $data->MarginReal == 0) {
-                        $marginReal = "-";
-                    } else {
-                        $marginReal = round(($data->MarginReal / $data->NettPrice) * 100, 2);
-                    }
-                    return $marginReal;
-                })
-                ->addColumn('MarginEstimationPercentage', function ($data) {
-                    // if ($data->MarginEstimation == null) {
-                    //     $data->MarginEstimation = 0;
-                    // }
+            $searchValue = $request->input('search')['value'];
 
-                    // if ($data->NettPrice - $data->TotalPriceNotInStock == 0) {
-                    //     $marginEstimation = 0;
-                    // } else {
-                    $marginEstimation = round((($data->MarginEstimation / ($data->NettPrice)) * 100), 2);
-                    // }
-                    return $marginEstimation;
-                })
-                ->addColumn('TotalMargin', function ($data) {
-                    return $data->MarginReal + $data->MarginEstimation;
-                })
-                ->addColumn('TotalMarginPercentage', function ($data) {
-                    // if ($data->NettPrice - $data->TotalPriceNotInStock == 0) {
-                    //     $totalMarginPercentage = 0;
-                    // } else {
-                    $totalMarginPercentage = round((($data->MarginReal + $data->MarginEstimation) / ($data->NettPrice)) * 100, 2);
-                    // }
-                    return $totalMarginPercentage;
-                })
-                ->editColumn('Ket', function ($data) {
-                    if ($data->NumberIDCard != null) {
-                        if ($data->IsDownload == 1) {
-                            $ket = "Foto KTP Valid";
+            if ($searchValue || ($fromDate && $toDate)) {
+                return Datatables::of($data)
+                    ->editColumn('CreatedDate', function ($data) {
+                        return date('d-M-Y H:i', strtotime($data->CreatedDate));
+                    })
+                    ->addColumn('MarginRealPercentage', function ($data) {
+                        if ($data->MarginReal == null || $data->MarginReal == 0) {
+                            $marginReal = "-";
                         } else {
-                            $ket = "Foto KTP Tidak Valid";
+                            $marginReal = round(($data->MarginReal / $data->NettPrice) * 100, 2);
                         }
-                    } else {
-                        $ket = "-";
-                    }
 
-                    return $ket;
-                })
-                ->addColumn('Notes', function ($data) {
-                    $notes = "";
-                    return $notes;
-                })
-                ->editColumn('Grade', function ($data) {
-                    if ($data->Grade != null) {
-                        $grade = $data->Grade;
-                    } else {
-                        $grade = 'Retail';
-                    }
-                    return $grade;
-                })
-                ->addColumn('Invoice', function ($data) {
-                    if ($data->StatusOrderID == "S009") {
-                        $invoice = "";
-                    } else {
-                        $invoice = '<a href="/restock/invoice/' . $data->StockOrderID . '" target="_blank" class="btn-sm btn-primary">Cetak</a>';
-                    }
-                    return $invoice;
-                })
-                ->addColumn('Action', function ($data) {
-                    $actionBtn = '<a href="/merchant/restock/detail/' . $data->StockOrderID . '" class="btn-sm btn-info detail-order">Detail</a>';
-                    return $actionBtn;
-                })
-                ->addColumn('TotalAmount', function ($data) {
-                    return $data->NettPrice + $data->ServiceChargeNett + $data->DeliveryFee;
-                })
-                ->editColumn('StatusOrder', function ($data) {
-                    $pesananBaru = "S009";
-                    $dikonfirmasi = "S010";
-                    $dalamProses = "S023";
-                    $dikirim = "S012";
-                    $selesai = "S018";
-                    $dibatalkan = "S011";
+                        return $marginReal;
+                    })
+                    ->addColumn('MarginEstimationPercentage', function ($data) {
+                        $marginEstimation = round((($data->MarginEstimation / ($data->NettPrice)) * 100), 2);
 
-                    if ($data->StatusOrderID == $pesananBaru) {
-                        $statusOrder = '<span class="badge badge-secondary">' . $data->StatusOrder . '</span>';
-                    } elseif ($data->StatusOrderID == $dikonfirmasi) {
-                        $statusOrder = '<span class="badge badge-primary">' . $data->StatusOrder . '</span>';
-                    } elseif ($data->StatusOrderID == $dalamProses) {
-                        $statusOrder = '<span class="badge badge-warning">' . $data->StatusOrder . '</span>';
-                    } elseif ($data->StatusOrderID == $dikirim) {
-                        $statusOrder = '<span class="badge badge-info">' . $data->StatusOrder . '</span>';
-                    } elseif ($data->StatusOrderID == $selesai) {
-                        $statusOrder = '<span class="badge badge-success">' . $data->StatusOrder . '</span>';
-                    } elseif ($data->StatusOrderID == $dibatalkan) {
-                        $statusOrder = '<span class="badge badge-danger">' . $data->StatusOrder . '</span>';
-                    } else {
-                        $statusOrder = 'Status tidak ditemukan';
-                    }
+                        return $marginEstimation;
+                    })
+                    ->addColumn('TotalMargin', function ($data) {
+                        return $data->MarginReal + $data->MarginEstimation;
+                    })
+                    ->addColumn('TotalMarginPercentage', function ($data) {
+                        $totalMarginPercentage = round((($data->MarginReal + $data->MarginEstimation) / ($data->NettPrice)) * 100, 2);
 
-                    return $statusOrder;
-                })
-                ->editColumn('IsValid', function ($data) {
-                    if ($data->IsValid == "VALID") {
-                        $validation = '<span class="badge badge-success">' . $data->IsValid . '</span>';
-                    } elseif ($data->IsValid == "NOT VALID") {
-                        $validation = '<span class="badge badge-danger">' . $data->IsValid . '</span>';
-                    } elseif ($data->IsValid == "UNKNOWN") {
-                        $validation = '<span class="badge badge-warning">' . $data->IsValid . '</span>';
-                    } else {
-                        $validation = '<span class="badge badge-info">Belum Divalidasi</span>';
-                    }
-                    return $validation;
-                })
-                ->filterColumn('tx_merchant_order.CreatedDate', function ($query, $keyword) {
-                    $query->whereRaw("DATE_FORMAT(tx_merchant_order.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
-                })
-                ->rawColumns(['Action', 'Invoice', 'StatusOrder', 'IsValid'])
-                ->make(true);
+                        return $totalMarginPercentage;
+                    })
+                    ->editColumn('Ket', function ($data) {
+                        if ($data->NumberIDCard != null) {
+                            if ($data->IsDownload == 1) {
+                                $ket = "Foto KTP Valid";
+                            } else {
+                                $ket = "Foto KTP Tidak Valid";
+                            }
+                        } else {
+                            $ket = "-";
+                        }
+
+                        return $ket;
+                    })
+                    ->addColumn('Notes', function ($data) {
+                        $notes = "";
+                        return $notes;
+                    })
+                    ->editColumn('Grade', function ($data) {
+                        if ($data->Grade != null) {
+                            $grade = $data->Grade;
+                        } else {
+                            $grade = 'Retail';
+                        }
+                        return $grade;
+                    })
+                    ->addColumn('Invoice', function ($data) {
+                        if ($data->StatusOrderID == "S009") {
+                            $invoice = "";
+                        } else {
+                            $invoice = '<a href="/restock/invoice/' . $data->StockOrderID . '" target="_blank" class="btn-sm btn-primary">Cetak</a>';
+                        }
+                        return $invoice;
+                    })
+                    ->addColumn('Action', function ($data) {
+                        $actionBtn = '<a href="/merchant/restock/detail/' . $data->StockOrderID . '" class="btn-sm btn-info detail-order">Detail</a>';
+                        return $actionBtn;
+                    })
+                    ->addColumn('TotalAmount', function ($data) {
+                        return $data->NettPrice + $data->ServiceChargeNett + $data->DeliveryFee;
+                    })
+                    ->editColumn('StatusOrder', function ($data) {
+                        $pesananBaru = "S009";
+                        $dikonfirmasi = "S010";
+                        $dalamProses = "S023";
+                        $dikirim = "S012";
+                        $selesai = "S018";
+                        $dibatalkan = "S011";
+
+                        if ($data->StatusOrderID == $pesananBaru) {
+                            $statusOrder = '<span class="badge badge-secondary">' . $data->StatusOrder . '</span>';
+                        } elseif ($data->StatusOrderID == $dikonfirmasi) {
+                            $statusOrder = '<span class="badge badge-primary">' . $data->StatusOrder . '</span>';
+                        } elseif ($data->StatusOrderID == $dalamProses) {
+                            $statusOrder = '<span class="badge badge-warning">' . $data->StatusOrder . '</span>';
+                        } elseif ($data->StatusOrderID == $dikirim) {
+                            $statusOrder = '<span class="badge badge-info">' . $data->StatusOrder . '</span>';
+                        } elseif ($data->StatusOrderID == $selesai) {
+                            $statusOrder = '<span class="badge badge-success">' . $data->StatusOrder . '</span>';
+                        } elseif ($data->StatusOrderID == $dibatalkan) {
+                            $statusOrder = '<span class="badge badge-danger">' . $data->StatusOrder . '</span>';
+                        } else {
+                            $statusOrder = 'Status tidak ditemukan';
+                        }
+
+                        return $statusOrder;
+                    })
+                    ->editColumn('IsValid', function ($data) {
+                        if ($data->IsValid == "VALID") {
+                            $validation = '<span class="badge badge-success">' . $data->IsValid . '</span>';
+                        } elseif ($data->IsValid == "NOT VALID") {
+                            $validation = '<span class="badge badge-danger">' . $data->IsValid . '</span>';
+                        } elseif ($data->IsValid == "UNKNOWN") {
+                            $validation = '<span class="badge badge-warning">' . $data->IsValid . '</span>';
+                        } else {
+                            $validation = '<span class="badge badge-info">Belum Divalidasi</span>';
+                        }
+                        return $validation;
+                    })
+                    ->filterColumn('tx_merchant_order.CreatedDate', function ($query, $keyword) {
+                        $query->whereRaw("DATE_FORMAT(tx_merchant_order.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
+                    })
+                    ->rawColumns(['Action', 'Invoice', 'StatusOrder', 'IsValid'])
+                    ->make(true);
+            } else {
+                return DataTables::of([])->make(true);
+            }
         }
+
+        // if ($request->ajax()) {
+        //     return Datatables::of($data)
+        //         ->editColumn('CreatedDate', function ($data) {
+        //             return date('d-M-Y H:i', strtotime($data->CreatedDate));
+        //         })
+        //         ->addColumn('MarginRealPercentage', function ($data) {
+        //             if ($data->MarginReal == null || $data->MarginReal == 0) {
+        //                 $marginReal = "-";
+        //             } else {
+        //                 $marginReal = round(($data->MarginReal / $data->NettPrice) * 100, 2);
+        //             }
+        //             return $marginReal;
+        //         })
+        //         ->addColumn('MarginEstimationPercentage', function ($data) {
+        //             // if ($data->MarginEstimation == null) {
+        //             //     $data->MarginEstimation = 0;
+        //             // }
+
+        //             // if ($data->NettPrice - $data->TotalPriceNotInStock == 0) {
+        //             //     $marginEstimation = 0;
+        //             // } else {
+        //             $marginEstimation = round((($data->MarginEstimation / ($data->NettPrice)) * 100), 2);
+        //             // }
+        //             return $marginEstimation;
+        //         })
+        //         ->addColumn('TotalMargin', function ($data) {
+        //             return $data->MarginReal + $data->MarginEstimation;
+        //         })
+        //         ->addColumn('TotalMarginPercentage', function ($data) {
+        //             // if ($data->NettPrice - $data->TotalPriceNotInStock == 0) {
+        //             //     $totalMarginPercentage = 0;
+        //             // } else {
+        //             $totalMarginPercentage = round((($data->MarginReal + $data->MarginEstimation) / ($data->NettPrice)) * 100, 2);
+        //             // }
+        //             return $totalMarginPercentage;
+        //         })
+        //         ->editColumn('Ket', function ($data) {
+        //             if ($data->NumberIDCard != null) {
+        //                 if ($data->IsDownload == 1) {
+        //                     $ket = "Foto KTP Valid";
+        //                 } else {
+        //                     $ket = "Foto KTP Tidak Valid";
+        //                 }
+        //             } else {
+        //                 $ket = "-";
+        //             }
+
+        //             return $ket;
+        //         })
+        //         ->addColumn('Notes', function ($data) {
+        //             $notes = "";
+        //             return $notes;
+        //         })
+        //         ->editColumn('Grade', function ($data) {
+        //             if ($data->Grade != null) {
+        //                 $grade = $data->Grade;
+        //             } else {
+        //                 $grade = 'Retail';
+        //             }
+        //             return $grade;
+        //         })
+        //         ->addColumn('Invoice', function ($data) {
+        //             if ($data->StatusOrderID == "S009") {
+        //                 $invoice = "";
+        //             } else {
+        //                 $invoice = '<a href="/restock/invoice/' . $data->StockOrderID . '" target="_blank" class="btn-sm btn-primary">Cetak</a>';
+        //             }
+        //             return $invoice;
+        //         })
+        //         ->addColumn('Action', function ($data) {
+        //             $actionBtn = '<a href="/merchant/restock/detail/' . $data->StockOrderID . '" class="btn-sm btn-info detail-order">Detail</a>';
+        //             return $actionBtn;
+        //         })
+        //         ->addColumn('TotalAmount', function ($data) {
+        //             return $data->NettPrice + $data->ServiceChargeNett + $data->DeliveryFee;
+        //         })
+        //         ->editColumn('StatusOrder', function ($data) {
+        //             $pesananBaru = "S009";
+        //             $dikonfirmasi = "S010";
+        //             $dalamProses = "S023";
+        //             $dikirim = "S012";
+        //             $selesai = "S018";
+        //             $dibatalkan = "S011";
+
+        //             if ($data->StatusOrderID == $pesananBaru) {
+        //                 $statusOrder = '<span class="badge badge-secondary">' . $data->StatusOrder . '</span>';
+        //             } elseif ($data->StatusOrderID == $dikonfirmasi) {
+        //                 $statusOrder = '<span class="badge badge-primary">' . $data->StatusOrder . '</span>';
+        //             } elseif ($data->StatusOrderID == $dalamProses) {
+        //                 $statusOrder = '<span class="badge badge-warning">' . $data->StatusOrder . '</span>';
+        //             } elseif ($data->StatusOrderID == $dikirim) {
+        //                 $statusOrder = '<span class="badge badge-info">' . $data->StatusOrder . '</span>';
+        //             } elseif ($data->StatusOrderID == $selesai) {
+        //                 $statusOrder = '<span class="badge badge-success">' . $data->StatusOrder . '</span>';
+        //             } elseif ($data->StatusOrderID == $dibatalkan) {
+        //                 $statusOrder = '<span class="badge badge-danger">' . $data->StatusOrder . '</span>';
+        //             } else {
+        //                 $statusOrder = 'Status tidak ditemukan';
+        //             }
+
+        //             return $statusOrder;
+        //         })
+        //         ->editColumn('IsValid', function ($data) {
+        //             if ($data->IsValid == "VALID") {
+        //                 $validation = '<span class="badge badge-success">' . $data->IsValid . '</span>';
+        //             } elseif ($data->IsValid == "NOT VALID") {
+        //                 $validation = '<span class="badge badge-danger">' . $data->IsValid . '</span>';
+        //             } elseif ($data->IsValid == "UNKNOWN") {
+        //                 $validation = '<span class="badge badge-warning">' . $data->IsValid . '</span>';
+        //             } else {
+        //                 $validation = '<span class="badge badge-info">Belum Divalidasi</span>';
+        //             }
+        //             return $validation;
+        //         })
+        //         ->filterColumn('tx_merchant_order.CreatedDate', function ($query, $keyword) {
+        //             $query->whereRaw("DATE_FORMAT(tx_merchant_order.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
+        //         })
+        //         ->rawColumns(['Action', 'Invoice', 'StatusOrder', 'IsValid'])
+        //         ->make(true);
+        // }
     }
 
     public function getRestockProduct(Request $request, MerchantService $merchantService)
@@ -1495,83 +1613,641 @@ class MerchantController extends Controller
         $filterAssessment = $request->input('filterAssessment');
         $filterValid = $request->input('filterValid');
         $distributorId = $request->input('distributorId');
-
-        $startDate = new DateTime($fromDate) ?? new DateTime();
-        $endDate = new DateTime($toDate) ?? new DateTime();
-        $startDateFormat = $startDate->format('Y-m-d');
-        $endDateFormat = $endDate->format('Y-m-d');
-
         $paymentMethodId = $request->input('paymentMethodId');
 
-        $sqlMain = $merchantService->merchantRestockAllProduct()->toSql();
+        if ($fromDate && $toDate) {
+            $startDate = new DateTime($fromDate);
+            $endDate = new DateTime($toDate);
+            $startDateFormat = $startDate->format('Y-m-d');
+            $endDateFormat = $endDate->format('Y-m-d');
 
-        $sqlAllAccount = DB::table(DB::raw("($sqlMain) AS RestockProduct"))
-            ->whereDate('RestockProduct.CreatedDate', '>=', $startDateFormat)
-            ->whereDate('RestockProduct.CreatedDate', '<=', $endDateFormat)
-            ->selectRaw("
-                RestockProduct.*,
-                (SELECT IFNULL(SUM(tx_merchant_delivery_order_detail.Qty), 0) FROM tx_merchant_delivery_order_detail 
-                    WHERE tx_merchant_delivery_order_detail.DeliveryOrderID IN (
-                        SELECT DeliveryOrderID FROM tx_merchant_delivery_order WHERE tx_merchant_delivery_order.StockOrderID = RestockProduct.StockOrderID 
-                        AND tx_merchant_delivery_order.StatusDO = 'S025'
-                    ) AND tx_merchant_delivery_order_detail.ProductID = RestockProduct.ProductID
-                ) AS DOSelesai,
+            $sqlMain = $merchantService->merchantRestockAllProduct()->toSql();
 
-                (SELECT IFNULL(SUM(Qty), 0) FROM tx_merchant_delivery_order_detail 
-                    WHERE DeliveryOrderID IN (
-                        SELECT DeliveryOrderID FROM tx_merchant_delivery_order WHERE StockOrderID = RestockProduct.StockOrderID 
-                        AND (StatusDO = 'S024' OR StatusDO = 'S025')
-                    ) AND ProductID = RestockProduct.ProductID
-                    AND (StatusExpedition = 'S030' OR StatusExpedition = 'S031')
-                ) AS QtyDOkirim,
+            $sqlAllAccount = DB::table(DB::raw("($sqlMain) AS RestockProduct"))
+                ->whereDate('RestockProduct.CreatedDate', '>=', $startDateFormat)
+                ->whereDate('RestockProduct.CreatedDate', '<=', $endDateFormat)
+                ->selectRaw("
+                    RestockProduct.*,
+                    (SELECT IFNULL(SUM(tx_merchant_delivery_order_detail.Qty), 0) FROM tx_merchant_delivery_order_detail 
+                        WHERE tx_merchant_delivery_order_detail.DeliveryOrderID IN (
+                            SELECT DeliveryOrderID FROM tx_merchant_delivery_order WHERE tx_merchant_delivery_order.StockOrderID = RestockProduct.StockOrderID 
+                            AND tx_merchant_delivery_order.StatusDO = 'S025'
+                        ) AND tx_merchant_delivery_order_detail.ProductID = RestockProduct.ProductID
+                    ) AS DOSelesai,
+                    (SELECT IFNULL(SUM(Qty), 0) FROM tx_merchant_delivery_order_detail 
+                        WHERE DeliveryOrderID IN (
+                            SELECT DeliveryOrderID FROM tx_merchant_delivery_order WHERE StockOrderID = RestockProduct.StockOrderID 
+                            AND (StatusDO = 'S024' OR StatusDO = 'S025')
+                        ) AND ProductID = RestockProduct.ProductID
+                        AND (StatusExpedition = 'S030' OR StatusExpedition = 'S031')
+                    ) AS QtyDOkirim,
+                    (SELECT ms_stock_product_log.PurchasePrice FROM ms_stock_product_log
+                        LEFT JOIN tx_merchant_expedition_detail ON tx_merchant_expedition_detail.MerchantExpeditionDetailID = ms_stock_product_log.MerchantExpeditionDetailID
+                        LEFT JOIN tx_merchant_delivery_order_detail ON tx_merchant_delivery_order_detail.DeliveryOrderDetailID = tx_merchant_expedition_detail.DeliveryOrderDetailID
+                        WHERE tx_merchant_delivery_order_detail.DeliveryOrderID IN (
+                            SELECT DeliveryOrderID FROM tx_merchant_delivery_order 
+                            WHERE StockOrderID = RestockProduct.StockOrderID 
+                            AND (StatusDO = 'S024' OR StatusDO = 'S025')
+                        ) AND tx_merchant_delivery_order_detail.ProductID = RestockProduct.ProductID
+                        AND (tx_merchant_delivery_order_detail.StatusExpedition = 'S030' OR tx_merchant_delivery_order_detail.StatusExpedition = 'S031')
+                        ORDER BY ms_stock_product_log.CreatedDate LIMIT 1
+                    ) AS PurchasePriceReal,
+                    (SELECT PurchasePrice FROM ms_stock_product 
+                        WHERE ProductID = RestockProduct.ProductID 
+                            AND DistributorID = RestockProduct.DistributorID 
+                            AND ConditionStock = 'GOOD STOCK' 
+                            AND Qty > 0
+                            AND DATE(CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
+                        ORDER BY LevelType, CreatedDate
+                        LIMIT 1
+                    ) AS PurchasePriceEstimation
+                ");
 
-                (SELECT ms_stock_product_log.PurchasePrice FROM ms_stock_product_log
-                    LEFT JOIN tx_merchant_expedition_detail ON tx_merchant_expedition_detail.MerchantExpeditionDetailID = ms_stock_product_log.MerchantExpeditionDetailID
-                    LEFT JOIN tx_merchant_delivery_order_detail ON tx_merchant_delivery_order_detail.DeliveryOrderDetailID = tx_merchant_expedition_detail.DeliveryOrderDetailID
-                    WHERE tx_merchant_delivery_order_detail.DeliveryOrderID IN (
-                        SELECT DeliveryOrderID FROM tx_merchant_delivery_order 
-                        WHERE StockOrderID = RestockProduct.StockOrderID 
-                        AND (StatusDO = 'S024' OR StatusDO = 'S025')
-                    ) AND tx_merchant_delivery_order_detail.ProductID = RestockProduct.ProductID
-                    AND (tx_merchant_delivery_order_detail.StatusExpedition = 'S030' OR tx_merchant_delivery_order_detail.StatusExpedition = 'S031')
-                    ORDER BY ms_stock_product_log.CreatedDate LIMIT 1
-                ) AS PurchasePriceReal,
+            if ($paymentMethodId != null) {
+                $sqlAllAccount->where('RestockProduct.PaymentMethodID', $paymentMethodId);
+            }
 
-                (SELECT PurchasePrice FROM ms_stock_product 
-                    WHERE ProductID = RestockProduct.ProductID 
-                        AND DistributorID = RestockProduct.DistributorID 
-                        AND ConditionStock = 'GOOD STOCK' 
-                        AND Qty > 0
-                        AND DATE(CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
-                    ORDER BY LevelType, CreatedDate
-                    LIMIT 1
-                ) AS PurchasePriceEstimation
-            ");
+            if ($filterAssessment == "already-assessed") {
+                $sqlAllAccount->whereNotNull('RestockProduct.NumberIDCard');
+            } elseif ($filterAssessment == "not-assessed") {
+                $sqlAllAccount->whereNull('RestockProduct.NumberIDCard');
+            }
 
-        if ($paymentMethodId != null) {
-            $sqlAllAccount->where('RestockProduct.PaymentMethodID', $paymentMethodId);
+            if ($fromDate && $toDate) {
+                $sqlAllAccount->whereDate('RestockProduct.CreatedDate', '>=', $startDateFormat)
+                    ->whereDate('RestockProduct.CreatedDate', '<=', $endDateFormat);
+            }
+
+            if ($filterValid == "valid") {
+                $sqlAllAccount->where('RestockProduct.IsDownload', 1);
+            } elseif ($filterValid == "invalid") {
+                $sqlAllAccount->where('RestockProduct.IsDownload', 0);
+            }
+
+            if ($distributorId) {
+                $sqlAllAccount->where('RestockProduct.DistributorID', $distributorId);
+            }
+
+            $data = $sqlAllAccount;
+
+            if ($request->ajax()) {
+                return Datatables::of($data)
+                    ->editColumn('CreatedDate', function ($data) {
+                        return date('d-M-Y H:i', strtotime($data->CreatedDate));
+                    })
+                    ->editColumn('Grade', function ($data) {
+                        if ($data->Grade != null) {
+                            $grade = $data->Grade;
+                        } else {
+                            $grade = 'Retail';
+                        }
+
+                        return $grade;
+                    })
+                    ->editColumn('Ket', function ($data) {
+                        if ($data->NumberIDCard != null) {
+                            if ($data->IsDownload == 1) {
+                                $ket = "Foto KTP Valid";
+                            } else {
+                                $ket = "Foto KTP Tidak Valid";
+                            }
+                        } else {
+                            $ket = "-";
+                        }
+
+                        return $ket;
+                    })
+                    ->addColumn('Action', function ($data) {
+                        $actionBtn = '<a href="/merchant/restock/detail/' . $data->StockOrderID . '" class="btn-sm btn-info detail-order">Detail</a>';
+
+                        return $actionBtn;
+                    })
+                    ->addColumn('TotalAmount', function ($data) {
+                        return $data->NettPrice + $data->ServiceChargeNett + $data->DeliveryFee;
+                    })
+                    ->editColumn('StatusOrder', function ($data) {
+                        $pesananBaru = "S009";
+                        $dikonfirmasi = "S010";
+                        $dalamProses = "S023";
+                        $dikirim = "S012";
+                        $selesai = "S018";
+                        $dibatalkan = "S011";
+
+                        if ($data->StatusOrderID == $pesananBaru) {
+                            $statusOrder = '<span class="badge badge-secondary">' . $data->StatusOrder . '</span>';
+                        } elseif ($data->StatusOrderID == $dikonfirmasi) {
+                            $statusOrder = '<span class="badge badge-primary">' . $data->StatusOrder . '</span>';
+                        } elseif ($data->StatusOrderID == $dalamProses) {
+                            $statusOrder = '<span class="badge badge-warning">' . $data->StatusOrder . '</span>';
+                        } elseif ($data->StatusOrderID == $dikirim) {
+                            $statusOrder = '<span class="badge badge-info">' . $data->StatusOrder . '</span>';
+                        } elseif ($data->StatusOrderID == $selesai) {
+                            $statusOrder = '<span class="badge badge-success">' . $data->StatusOrder . '</span>';
+                        } elseif ($data->StatusOrderID == $dibatalkan) {
+                            $statusOrder = '<span class="badge badge-danger">' . $data->StatusOrder . '</span>';
+                        } else {
+                            $statusOrder = 'Status tidak ditemukan';
+                        }
+
+                        return $statusOrder;
+                    })
+                    ->editColumn('IsValid', function ($data) {
+                        if ($data->IsValid == "VALID") {
+                            $validation = '<span class="badge badge-success">' . $data->IsValid . '</span>';
+                        } elseif ($data->IsValid == "NOT VALID") {
+                            $validation = '<span class="badge badge-danger">' . $data->IsValid . '</span>';
+                        } elseif ($data->IsValid == "UNKNOWN") {
+                            $validation = '<span class="badge badge-warning">' . $data->IsValid . '</span>';
+                        } else {
+                            $validation = '<span class="badge badge-info">Belum Divalidasi</span>';
+                        }
+
+                        return $validation;
+                    })
+                    ->editColumn('PurchasePriceEstimation', function ($data) {
+                        if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO") {
+                            if ($data->PurchasePriceEstimation == null) {
+                                $purchasePriceEstimation = $data->MsProductPrice;
+                            } else {
+                                $purchasePriceEstimation = $data->PurchasePriceEstimation;
+                            }
+                        } else {
+                            $purchasePriceEstimation = "";
+                        }
+
+                        return $purchasePriceEstimation;
+                    })
+                    ->addColumn('MarginEstimation', function ($data) {
+                        if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO") {
+                            if ($data->PurchasePriceEstimation == null) {
+                                $purchasePriceEstimation = $data->MsProductPrice;
+                            } else {
+                                $purchasePriceEstimation = $data->PurchasePriceEstimation;
+                            }
+
+                            $marginEstimation = ($data->Nett - $purchasePriceEstimation) * ($data->PromisedQuantity - $data->QtyDOkirim);
+                        } else {
+                            $marginEstimation = "";
+                        }
+
+                        return $marginEstimation;
+                    })
+                    ->addColumn('MarginEstimationPercentage', function ($data) {
+                        if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO") {
+                            if ($data->PurchasePriceEstimation == null) {
+                                $purchasePriceEstimation = $data->MsProductPrice;
+                            } else {
+                                $purchasePriceEstimation = $data->PurchasePriceEstimation;
+                            }
+
+                            $marginEstimation = ($data->Nett - $purchasePriceEstimation) * ($data->PromisedQuantity - $data->QtyDOkirim);
+                            $divided = ($data->PromisedQuantity - $data->QtyDOkirim) * $data->Nett;
+
+                            if ($divided == 0) {
+                                $marginEstimationPercentage = 0;
+                            } else {
+                                $marginEstimationPercentage = round(($marginEstimation / $divided) * 100, 2);
+                            }
+                        } else {
+                            $marginEstimationPercentage = "";
+                        }
+
+                        return $marginEstimationPercentage;
+                    })
+                    ->editColumn('PurchasePriceReal', function ($data) {
+                        if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM") {
+                            $purchasePriceReal = $data->PurchasePriceReal;
+                        } else {
+                            $purchasePriceReal = "";
+                        }
+
+                        return $purchasePriceReal;
+                    })
+                    ->addColumn('MarginReal', function ($data) {
+                        if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM") {
+                            if ($data->PurchasePriceReal == null) {
+                                $marginReal = "-";
+                            } else {
+                                $marginReal = ($data->Nett - $data->PurchasePriceReal) * $data->QtyDOkirim;
+                            }
+                        } else {
+                            $marginReal = "";
+                        }
+
+                        return $marginReal;
+                    })
+                    ->addColumn('MarginRealPercentage', function ($data) {
+                        if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM") {
+                            if ($data->PurchasePriceReal == null) {
+                                $marginReal = "-";
+                            } else {
+                                $marginReal = ($data->Nett - $data->PurchasePriceReal) * $data->QtyDOkirim;
+                            }
+
+                            if ($marginReal == "-" || $marginReal == 0) {
+                                $marginRealPercentage = "-";
+                            } else {
+                                $marginRealPercentage = round(($marginReal / ($data->QtyDOkirim * $data->Nett)) * 100, 2);
+                            }
+                        } else {
+                            $marginRealPercentage = "";
+                        }
+
+                        return $marginRealPercentage;
+                    })
+                    ->addColumn('TotalMargin', function ($data) {
+                        if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM") {
+                            if ($data->PurchasePriceEstimation == null) {
+                                $marginEstimation = 0;
+                            } else {
+                                $marginEstimation = ($data->Nett - $data->PurchasePriceEstimation) * ($data->PromisedQuantity - $data->QtyDOkirim);
+                            }
+
+                            if ($data->PurchasePriceReal == null) {
+                                $marginReal = 0;
+                            } else {
+                                $marginReal = ($data->Nett - $data->PurchasePriceReal) * $data->QtyDOkirim;
+                            }
+
+                            $totalMargin = $marginEstimation + $marginReal;
+                        } else {
+                            $totalMargin = "";
+                        }
+
+                        return $totalMargin;
+                    })
+                    ->addColumn('TotalMarginPercentage', function ($data) {
+                        if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM") {
+                            if ($data->PurchasePriceEstimation == null) {
+                                $purchasePriceEstimation = $data->MsProductPrice;
+                            } else {
+                                $purchasePriceEstimation = $data->PurchasePriceEstimation;
+                            }
+
+                            $marginEstimation = ($data->Nett - $purchasePriceEstimation) * ($data->PromisedQuantity - $data->QtyDOkirim);
+
+                            if ($data->PurchasePriceReal == null) {
+                                $marginReal = 0;
+                            } else {
+                                $marginReal = ($data->Nett - $data->PurchasePriceReal) * $data->QtyDOkirim;
+                            }
+
+                            $totalPrice = $data->PromisedQuantity * $data->Nett;
+
+                            if ($totalPrice == 0) {
+                                $totalMarginPercentage = 0;
+                            } else {
+                                $totalMarginPercentage = round((($marginEstimation + $marginReal) / $totalPrice) * 100, 2);
+                            }
+                        } else {
+                            $totalMarginPercentage = "";
+                        }
+
+                        return $totalMarginPercentage;
+                    })
+                    ->filterColumn('RestockProduct.CreatedDate', function ($query, $keyword) {
+                        $query->whereRaw("DATE_FORMAT(RestockProduct.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
+                    })
+                    ->addColumn('SubTotalPrice', function ($data) {
+                        $subTotalPrice = $data->Nett * $data->PromisedQuantity;
+
+                        return "$subTotalPrice";
+                    })
+                    ->addColumn('ValueDikirim', function ($data) {
+                        $valueDikirim = $data->Nett * $data->QtyDOkirim;
+
+                        return $valueDikirim;
+                    })
+                    ->addColumn('ValueSelesai', function ($data) {
+                        $valueSelesai = $data->Nett * $data->DOSelesai;
+
+                        return $valueSelesai;
+                    })
+                    ->editColumn('Price', function ($data) {
+                        return "$data->Price";
+                    })
+                    ->rawColumns(['Action', 'StatusOrder', 'IsValid'])
+                    ->make(true);
+            }
+        } else {
+            return DataTables::of([])->make(true);
         }
 
-        if ($filterAssessment == "already-assessed") {
-            $sqlAllAccount->whereNotNull('RestockProduct.NumberIDCard');
-        } elseif ($filterAssessment == "not-assessed") {
-            $sqlAllAccount->whereNull('RestockProduct.NumberIDCard');
-        }
+        // $sqlAllAccount = DB::table(DB::raw("($sqlMain) AS RestockProduct"))
+        //     // ->whereDate('RestockProduct.CreatedDate', '>=', $startDateFormat)
+        //     // ->whereDate('RestockProduct.CreatedDate', '<=', $endDateFormat)
+        //     ->selectRaw("
+        //         RestockProduct.*,
+        //         (SELECT IFNULL(SUM(tx_merchant_delivery_order_detail.Qty), 0) FROM tx_merchant_delivery_order_detail 
+        //             WHERE tx_merchant_delivery_order_detail.DeliveryOrderID IN (
+        //                 SELECT DeliveryOrderID FROM tx_merchant_delivery_order WHERE tx_merchant_delivery_order.StockOrderID = RestockProduct.StockOrderID 
+        //                 AND tx_merchant_delivery_order.StatusDO = 'S025'
+        //             ) AND tx_merchant_delivery_order_detail.ProductID = RestockProduct.ProductID
+        //         ) AS DOSelesai,
+        //         (SELECT IFNULL(SUM(Qty), 0) FROM tx_merchant_delivery_order_detail 
+        //             WHERE DeliveryOrderID IN (
+        //                 SELECT DeliveryOrderID FROM tx_merchant_delivery_order WHERE StockOrderID = RestockProduct.StockOrderID 
+        //                 AND (StatusDO = 'S024' OR StatusDO = 'S025')
+        //             ) AND ProductID = RestockProduct.ProductID
+        //             AND (StatusExpedition = 'S030' OR StatusExpedition = 'S031')
+        //         ) AS QtyDOkirim,
+        //         (SELECT ms_stock_product_log.PurchasePrice FROM ms_stock_product_log
+        //             LEFT JOIN tx_merchant_expedition_detail ON tx_merchant_expedition_detail.MerchantExpeditionDetailID = ms_stock_product_log.MerchantExpeditionDetailID
+        //             LEFT JOIN tx_merchant_delivery_order_detail ON tx_merchant_delivery_order_detail.DeliveryOrderDetailID = tx_merchant_expedition_detail.DeliveryOrderDetailID
+        //             WHERE tx_merchant_delivery_order_detail.DeliveryOrderID IN (
+        //                 SELECT DeliveryOrderID FROM tx_merchant_delivery_order 
+        //                 WHERE StockOrderID = RestockProduct.StockOrderID 
+        //                 AND (StatusDO = 'S024' OR StatusDO = 'S025')
+        //             ) AND tx_merchant_delivery_order_detail.ProductID = RestockProduct.ProductID
+        //             AND (tx_merchant_delivery_order_detail.StatusExpedition = 'S030' OR tx_merchant_delivery_order_detail.StatusExpedition = 'S031')
+        //             ORDER BY ms_stock_product_log.CreatedDate LIMIT 1
+        //         ) AS PurchasePriceReal,
+        //         (SELECT PurchasePrice FROM ms_stock_product 
+        //             WHERE ProductID = RestockProduct.ProductID 
+        //                 AND DistributorID = RestockProduct.DistributorID 
+        //                 AND ConditionStock = 'GOOD STOCK' 
+        //                 AND Qty > 0
+        //                 AND DATE(CreatedDate) >= DATE(NOW() - INTERVAL 7 DAY)
+        //             ORDER BY LevelType, CreatedDate
+        //             LIMIT 1
+        //         ) AS PurchasePriceEstimation
+        //     ");
 
-        if ($filterValid == "valid") {
-            $sqlAllAccount->where('RestockProduct.IsDownload', 1);
-        } elseif ($filterValid == "invalid") {
-            $sqlAllAccount->where('RestockProduct.IsDownload', 0);
-        }
+        // if ($paymentMethodId != null) {
+        //     $sqlAllAccount->where('RestockProduct.PaymentMethodID', $paymentMethodId);
+        // }
 
-        if ($distributorId) {
-            $sqlAllAccount->where('RestockProduct.DistributorID', $distributorId);
-        }
+        // if ($filterAssessment == "already-assessed") {
+        //     $sqlAllAccount->whereNotNull('RestockProduct.NumberIDCard');
+        // } elseif ($filterAssessment == "not-assessed") {
+        //     $sqlAllAccount->whereNull('RestockProduct.NumberIDCard');
+        // }
+
+        // if ($fromDate && $toDate) {
+        //     $sqlAllAccount->whereDate('RestockProduct.CreatedDate', '>=', $startDateFormat)
+        //         ->whereDate('RestockProduct.CreatedDate', '<=', $endDateFormat);
+        // }
+
+        // if ($filterValid == "valid") {
+        //     $sqlAllAccount->where('RestockProduct.IsDownload', 1);
+        // } elseif ($filterValid == "invalid") {
+        //     $sqlAllAccount->where('RestockProduct.IsDownload', 0);
+        // }
+
+        // if ($distributorId) {
+        //     $sqlAllAccount->where('RestockProduct.DistributorID', $distributorId);
+        // }
 
         // Get data response
-        $data = $sqlAllAccount;
+        // $data = $results;
 
         // Return Data Using DataTables with Ajax
+        if ($request->ajax()) {
+            $searchValue = $request->input('search')['value'];
+
+            if ($searchValue || ($startDateFormat && $endDateFormat)) {
+                return Datatables::of($data)
+                    ->editColumn('CreatedDate', function ($data) {
+                        return date('d-M-Y H:i', strtotime($data->CreatedDate));
+                    })
+                    ->editColumn('Grade', function ($data) {
+                        if ($data->Grade != null) {
+                            $grade = $data->Grade;
+                        } else {
+                            $grade = 'Retail';
+                        }
+
+                        return $grade;
+                    })
+                    ->editColumn('Ket', function ($data) {
+                        if ($data->NumberIDCard != null) {
+                            if ($data->IsDownload == 1) {
+                                $ket = "Foto KTP Valid";
+                            } else {
+                                $ket = "Foto KTP Tidak Valid";
+                            }
+                        } else {
+                            $ket = "-";
+                        }
+
+                        return $ket;
+                    })
+                    ->addColumn('Action', function ($data) {
+                        $actionBtn = '<a href="/merchant/restock/detail/' . $data->StockOrderID . '" class="btn-sm btn-info detail-order">Detail</a>';
+
+                        return $actionBtn;
+                    })
+                    ->addColumn('TotalAmount', function ($data) {
+                        return $data->NettPrice + $data->ServiceChargeNett + $data->DeliveryFee;
+                    })
+                    ->editColumn('StatusOrder', function ($data) {
+                        $pesananBaru = "S009";
+                        $dikonfirmasi = "S010";
+                        $dalamProses = "S023";
+                        $dikirim = "S012";
+                        $selesai = "S018";
+                        $dibatalkan = "S011";
+
+                        if ($data->StatusOrderID == $pesananBaru) {
+                            $statusOrder = '<span class="badge badge-secondary">' . $data->StatusOrder . '</span>';
+                        } elseif ($data->StatusOrderID == $dikonfirmasi) {
+                            $statusOrder = '<span class="badge badge-primary">' . $data->StatusOrder . '</span>';
+                        } elseif ($data->StatusOrderID == $dalamProses) {
+                            $statusOrder = '<span class="badge badge-warning">' . $data->StatusOrder . '</span>';
+                        } elseif ($data->StatusOrderID == $dikirim) {
+                            $statusOrder = '<span class="badge badge-info">' . $data->StatusOrder . '</span>';
+                        } elseif ($data->StatusOrderID == $selesai) {
+                            $statusOrder = '<span class="badge badge-success">' . $data->StatusOrder . '</span>';
+                        } elseif ($data->StatusOrderID == $dibatalkan) {
+                            $statusOrder = '<span class="badge badge-danger">' . $data->StatusOrder . '</span>';
+                        } else {
+                            $statusOrder = 'Status tidak ditemukan';
+                        }
+
+                        return $statusOrder;
+                    })
+                    ->editColumn('IsValid', function ($data) {
+                        if ($data->IsValid == "VALID") {
+                            $validation = '<span class="badge badge-success">' . $data->IsValid . '</span>';
+                        } elseif ($data->IsValid == "NOT VALID") {
+                            $validation = '<span class="badge badge-danger">' . $data->IsValid . '</span>';
+                        } elseif ($data->IsValid == "UNKNOWN") {
+                            $validation = '<span class="badge badge-warning">' . $data->IsValid . '</span>';
+                        } else {
+                            $validation = '<span class="badge badge-info">Belum Divalidasi</span>';
+                        }
+
+                        return $validation;
+                    })
+                    ->editColumn('PurchasePriceEstimation', function ($data) {
+                        if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO") {
+                            if ($data->PurchasePriceEstimation == null) {
+                                $purchasePriceEstimation = $data->MsProductPrice;
+                            } else {
+                                $purchasePriceEstimation = $data->PurchasePriceEstimation;
+                            }
+                        } else {
+                            $purchasePriceEstimation = "";
+                        }
+
+                        return $purchasePriceEstimation;
+                    })
+                    ->addColumn('MarginEstimation', function ($data) {
+                        if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO") {
+                            if ($data->PurchasePriceEstimation == null) {
+                                $purchasePriceEstimation = $data->MsProductPrice;
+                            } else {
+                                $purchasePriceEstimation = $data->PurchasePriceEstimation;
+                            }
+
+                            $marginEstimation = ($data->Nett - $purchasePriceEstimation) * ($data->PromisedQuantity - $data->QtyDOkirim);
+                        } else {
+                            $marginEstimation = "";
+                        }
+
+                        return $marginEstimation;
+                    })
+                    ->addColumn('MarginEstimationPercentage', function ($data) {
+                        if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM" || Auth::user()->RoleID == "CEO") {
+                            if ($data->PurchasePriceEstimation == null) {
+                                $purchasePriceEstimation = $data->MsProductPrice;
+                            } else {
+                                $purchasePriceEstimation = $data->PurchasePriceEstimation;
+                            }
+
+                            $marginEstimation = ($data->Nett - $purchasePriceEstimation) * ($data->PromisedQuantity - $data->QtyDOkirim);
+                            $divided = ($data->PromisedQuantity - $data->QtyDOkirim) * $data->Nett;
+
+                            if ($divided == 0) {
+                                $marginEstimationPercentage = 0;
+                            } else {
+                                $marginEstimationPercentage = round(($marginEstimation / $divided) * 100, 2);
+                            }
+                        } else {
+                            $marginEstimationPercentage = "";
+                        }
+
+                        return $marginEstimationPercentage;
+                    })
+                    ->editColumn('PurchasePriceReal', function ($data) {
+                        if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM") {
+                            $purchasePriceReal = $data->PurchasePriceReal;
+                        } else {
+                            $purchasePriceReal = "";
+                        }
+
+                        return $purchasePriceReal;
+                    })
+                    ->addColumn('MarginReal', function ($data) {
+                        if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM") {
+                            if ($data->PurchasePriceReal == null) {
+                                $marginReal = "-";
+                            } else {
+                                $marginReal = ($data->Nett - $data->PurchasePriceReal) * $data->QtyDOkirim;
+                            }
+                        } else {
+                            $marginReal = "";
+                        }
+
+                        return $marginReal;
+                    })
+                    ->addColumn('MarginRealPercentage', function ($data) {
+                        if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM") {
+                            if ($data->PurchasePriceReal == null) {
+                                $marginReal = "-";
+                            } else {
+                                $marginReal = ($data->Nett - $data->PurchasePriceReal) * $data->QtyDOkirim;
+                            }
+
+                            if ($marginReal == "-" || $marginReal == 0) {
+                                $marginRealPercentage = "-";
+                            } else {
+                                $marginRealPercentage = round(($marginReal / ($data->QtyDOkirim * $data->Nett)) * 100, 2);
+                            }
+                        } else {
+                            $marginRealPercentage = "";
+                        }
+
+                        return $marginRealPercentage;
+                    })
+                    ->addColumn('TotalMargin', function ($data) {
+                        if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM") {
+                            if ($data->PurchasePriceEstimation == null) {
+                                $marginEstimation = 0;
+                            } else {
+                                $marginEstimation = ($data->Nett - $data->PurchasePriceEstimation) * ($data->PromisedQuantity - $data->QtyDOkirim);
+                            }
+
+                            if ($data->PurchasePriceReal == null) {
+                                $marginReal = 0;
+                            } else {
+                                $marginReal = ($data->Nett - $data->PurchasePriceReal) * $data->QtyDOkirim;
+                            }
+
+                            $totalMargin = $marginEstimation + $marginReal;
+                        } else {
+                            $totalMargin = "";
+                        }
+
+                        return $totalMargin;
+                    })
+                    ->addColumn('TotalMarginPercentage', function ($data) {
+                        if (Auth::user()->RoleID == "IT" || Auth::user()->RoleID == "FI" || Auth::user()->RoleID == "BM") {
+                            if ($data->PurchasePriceEstimation == null) {
+                                $purchasePriceEstimation = $data->MsProductPrice;
+                            } else {
+                                $purchasePriceEstimation = $data->PurchasePriceEstimation;
+                            }
+
+                            $marginEstimation = ($data->Nett - $purchasePriceEstimation) * ($data->PromisedQuantity - $data->QtyDOkirim);
+
+                            if ($data->PurchasePriceReal == null) {
+                                $marginReal = 0;
+                            } else {
+                                $marginReal = ($data->Nett - $data->PurchasePriceReal) * $data->QtyDOkirim;
+                            }
+
+                            $totalPrice = $data->PromisedQuantity * $data->Nett;
+
+                            if ($totalPrice == 0) {
+                                $totalMarginPercentage = 0;
+                            } else {
+                                $totalMarginPercentage = round((($marginEstimation + $marginReal) / $totalPrice) * 100, 2);
+                            }
+                        } else {
+                            $totalMarginPercentage = "";
+                        }
+
+                        return $totalMarginPercentage;
+                    })
+                    ->filterColumn('RestockProduct.CreatedDate', function ($query, $keyword) {
+                        $query->whereRaw("DATE_FORMAT(RestockProduct.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
+                    })
+                    ->addColumn('SubTotalPrice', function ($data) {
+                        $subTotalPrice = $data->Nett * $data->PromisedQuantity;
+
+                        return "$subTotalPrice";
+                    })
+                    ->addColumn('ValueDikirim', function ($data) {
+                        $valueDikirim = $data->Nett * $data->QtyDOkirim;
+
+                        return $valueDikirim;
+                    })
+                    ->addColumn('ValueSelesai', function ($data) {
+                        $valueSelesai = $data->Nett * $data->DOSelesai;
+
+                        return $valueSelesai;
+                    })
+                    ->editColumn('Price', function ($data) {
+                        return "$data->Price";
+                    })
+                    ->rawColumns(['Action', 'StatusOrder', 'IsValid'])
+                    ->make(true);
+            } else {
+                return DataTables::of([])->make(true);
+            }
+        }
+
         if ($request->ajax()) {
             return Datatables::of($data)
                 ->editColumn('CreatedDate', function ($data) {
@@ -1653,6 +2329,7 @@ class MerchantController extends Controller
                     } else {
                         $purchasePriceEstimation = "";
                     }
+
                     return $purchasePriceEstimation;
                 })
                 ->addColumn('MarginEstimation', function ($data) {
@@ -1666,6 +2343,7 @@ class MerchantController extends Controller
                     } else {
                         $marginEstimation = "";
                     }
+
                     return $marginEstimation;
                 })
                 ->addColumn('MarginEstimationPercentage', function ($data) {
@@ -1695,6 +2373,7 @@ class MerchantController extends Controller
                     } else {
                         $purchasePriceReal = "";
                     }
+
                     return $purchasePriceReal;
                 })
                 ->addColumn('MarginReal', function ($data) {
@@ -1707,6 +2386,7 @@ class MerchantController extends Controller
                     } else {
                         $marginReal = "";
                     }
+
                     return $marginReal;
                 })
                 ->addColumn('MarginRealPercentage', function ($data) {

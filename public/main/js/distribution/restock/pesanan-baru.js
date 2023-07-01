@@ -153,7 +153,6 @@ $(document).ready(function () {
             ${selectElement}
             <div class="select-filter-custom ml-2 payment-method">
                 <select>
-                    
                     <option value="">All</option>
                 </select>
             </div>

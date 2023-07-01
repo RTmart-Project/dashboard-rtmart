@@ -14,8 +14,8 @@ $(document).ready(function () {
             ajax: {
                 url: "/distribution/restock/get/S018",
                 data: function (d) {
-                    d.fromShipmentDate = $("#telah-selesai #from_date").val();
-                    d.toShipmentDate = $("#telah-selesai #to_date").val();
+                    d.fromDate = $("#telah-selesai #from_date").val();
+                    d.toDate = $("#telah-selesai #to_date").val();
                     d.distributorId = $("#telah-selesai .distributor-select select").val();
                     d.paymentMethodId = $("#telah-selesai .payment-method select").val();
                 },
