@@ -43,7 +43,6 @@ class DeliveryController extends Controller
         $urutanDO = $request->input('urutanDO');
         $depoUser = Auth::user()->Depo;
         $regionalUser = Auth::user()->Regional;
-
         $sqlDeliveryRequest = $deliveryOrderService->getDeliveryRequest();
 
         if ($depoUser != "ALL") {
@@ -69,62 +68,115 @@ class DeliveryController extends Controller
         $data = $sqlDeliveryRequest;
 
         if ($request->ajax()) {
-            return DataTables::of($data)
-                ->addColumn('Empty', function ($data) {
-                    return "";
-                })
-                ->editColumn('CreatedDate', function ($data) {
-                    $date = date('d-M-Y H:i', strtotime($data->CreatedDate));
-                    $dateDiff = $data->DueDate;
-                    if ($dateDiff == 0) {
-                        $dueDate = "<a class='badge badge-danger'>H " . $dateDiff . " (Hari H)</a>";
-                    } elseif (Str::contains($dateDiff, '-')) {
-                        if ($dateDiff == -1 || $dateDiff == -2) {
-                            $dueDate = "<a class='badge badge-warning'>H" . $dateDiff . "</a>";
-                        } else {
-                            $dueDate = "H" . $dateDiff;
-                        }
-                    } else {
-                        $dueDate = "<a class='badge badge-danger'>H+" . $dateDiff . "</a>";
-                    }
+            $searchValue = $request->input('search')['value'];
 
-                    return $date . '<br>' . $dueDate;
-                })
-                ->addColumn('Checkbox', function ($data) {
-                    // if (date('Y-m-d', strtotime($data->CreatedDate)) > date('Y-m-d')) {
-                    //     $checkbox = "<input type='checkbox' class='larger' disabled />";
-                    // } else {
-                    $checkbox = "<input type='checkbox' class='check-do-id larger' name='confirm[]' value='" . $data->DeliveryOrderID . "' />";
-                    // }
-                    return $checkbox;
-                })
-                // ->filterColumn('Area', function ($query, $keyword) {
-                //     $sql = "CONCAT(ms_area.AreaName, ', ', ms_area.Subdistrict) like ?";
-                //     $query->whereRaw($sql, ["%{$keyword}%"]);
-                // })
-                ->filterColumn('tmdo.CreatedDate', function ($query, $keyword) {
-                    $query->whereRaw("DATE_FORMAT(tmdo.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
-                })
-                ->filterColumn('DistributorName', function ($query, $keyword) {
-                    $sql = "ms_distributor.DistributorName like ?";
-                    $query->whereRaw($sql, ["%{$keyword}%"]);
-                })
-                ->filterColumn('StoreName', function ($query, $keyword) {
-                    $sql = "ms_merchant_account.StoreName like ?";
-                    $query->whereRaw($sql, ["%{$keyword}%"]);
-                })
-                ->filterColumn('PhoneNumber', function ($query, $keyword) {
-                    $sql = "ms_merchant_account.PhoneNumber like ?";
-                    $query->whereRaw($sql, ["%{$keyword}%"]);
-                })
-                ->filterColumn('Sales', function ($query, $keyword) {
-                    $sql = "CONCAT(ms_sales.SalesCode, ' - ', ms_sales.SalesName) like ?";
-                    $query->whereRaw($sql, ["%{$keyword}%"]);
-                })
-                ->rawColumns(['Checkbox', 'CreatedDate', 'Products'])
-                ->setTotalRecords(10)
-                ->make(true);
+            if ($searchValue || ($fromDate && $toDate)) {
+                return DataTables::of($data)
+                    // Rest of the code for columns, filters, and rawColumns
+                    ->addColumn('Empty', function ($data) {
+                        return "";
+                    })
+                    ->editColumn('CreatedDate', function ($data) {
+                        $date = date('d-M-Y H:i', strtotime($data->CreatedDate));
+                        $dateDiff = $data->DueDate;
+                        if ($dateDiff == 0) {
+                            $dueDate = "<a class='badge badge-danger'>H " . $dateDiff . " (Hari H)</a>";
+                        } elseif (Str::contains($dateDiff, '-')) {
+                            if ($dateDiff == -1 || $dateDiff == -2) {
+                                $dueDate = "<a class='badge badge-warning'>H" . $dateDiff . "</a>";
+                            } else {
+                                $dueDate = "H" . $dateDiff;
+                            }
+                        } else {
+                            $dueDate = "<a class='badge badge-danger'>H+" . $dateDiff . "</a>";
+                        }
+
+                        return $date . '<br>' . $dueDate;
+                    })
+                    ->addColumn('Checkbox', function ($data) {
+                        $checkbox = "<input type='checkbox' class='check-do-id larger' name='confirm[]' value='" . $data->DeliveryOrderID . "' />";
+
+                        return $checkbox;
+                    })
+                    ->filterColumn('tmdo.CreatedDate', function ($query, $keyword) {
+                        $query->whereRaw("DATE_FORMAT(tmdo.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
+                    })
+                    ->filterColumn('DistributorName', function ($query, $keyword) {
+                        $sql = "ms_distributor.DistributorName like ?";
+                        $query->whereRaw($sql, ["%{$keyword}%"]);
+                    })
+                    ->filterColumn('StoreName', function ($query, $keyword) {
+                        $sql = "ms_merchant_account.StoreName like ?";
+                        $query->whereRaw($sql, ["%{$keyword}%"]);
+                    })
+                    ->filterColumn('PhoneNumber', function ($query, $keyword) {
+                        $sql = "ms_merchant_account.PhoneNumber like ?";
+                        $query->whereRaw($sql, ["%{$keyword}%"]);
+                    })
+                    ->filterColumn('Sales', function ($query, $keyword) {
+                        $sql = "CONCAT(ms_sales.SalesCode, ' - ', ms_sales.SalesName) like ?";
+                        $query->whereRaw($sql, ["%{$keyword}%"]);
+                    })
+                    ->rawColumns(['Checkbox', 'CreatedDate', 'Products'])
+                    ->make(true);
+            } else {
+                return DataTables::of([])->make(true);
+            }
         }
+
+        // if ($request->ajax()) {
+        //     return DataTables::of($data)
+        //         ->addColumn('Empty', function ($data) {
+        //             return "";
+        //         })
+        //         ->editColumn('CreatedDate', function ($data) {
+        //             $date = date('d-M-Y H:i', strtotime($data->CreatedDate));
+        //             $dateDiff = $data->DueDate;
+        //             if ($dateDiff == 0) {
+        //                 $dueDate = "<a class='badge badge-danger'>H " . $dateDiff . " (Hari H)</a>";
+        //             } elseif (Str::contains($dateDiff, '-')) {
+        //                 if ($dateDiff == -1 || $dateDiff == -2) {
+        //                     $dueDate = "<a class='badge badge-warning'>H" . $dateDiff . "</a>";
+        //                 } else {
+        //                     $dueDate = "H" . $dateDiff;
+        //                 }
+        //             } else {
+        //                 $dueDate = "<a class='badge badge-danger'>H+" . $dateDiff . "</a>";
+        //             }
+
+        //             return $date . '<br>' . $dueDate;
+        //         })
+        //         ->addColumn('Checkbox', function ($data) {
+        //             // if (date('Y-m-d', strtotime($data->CreatedDate)) > date('Y-m-d')) {
+        //             //     $checkbox = "<input type='checkbox' class='larger' disabled />";
+        //             // } else {
+        //             $checkbox = "<input type='checkbox' class='check-do-id larger' name='confirm[]' value='" . $data->DeliveryOrderID . "' />";
+        //             // }
+        //             return $checkbox;
+        //         })
+        //         ->filterColumn('tmdo.CreatedDate', function ($query, $keyword) {
+        //             $query->whereRaw("DATE_FORMAT(tmdo.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
+        //         })
+        //         ->filterColumn('DistributorName', function ($query, $keyword) {
+        //             $sql = "ms_distributor.DistributorName like ?";
+        //             $query->whereRaw($sql, ["%{$keyword}%"]);
+        //         })
+        //         ->filterColumn('StoreName', function ($query, $keyword) {
+        //             $sql = "ms_merchant_account.StoreName like ?";
+        //             $query->whereRaw($sql, ["%{$keyword}%"]);
+        //         })
+        //         ->filterColumn('PhoneNumber', function ($query, $keyword) {
+        //             $sql = "ms_merchant_account.PhoneNumber like ?";
+        //             $query->whereRaw($sql, ["%{$keyword}%"]);
+        //         })
+        //         ->filterColumn('Sales', function ($query, $keyword) {
+        //             $sql = "CONCAT(ms_sales.SalesCode, ' - ', ms_sales.SalesName) like ?";
+        //             $query->whereRaw($sql, ["%{$keyword}%"]);
+        //         })
+        //         ->rawColumns(['Checkbox', 'CreatedDate', 'Products'])
+        //         ->setTotalRecords(10)
+        //         ->make(true);
+        // }
     }
 
     public function sumStockProduct($productID, $distributorID, $investorID, $label)
@@ -372,72 +424,146 @@ class DeliveryController extends Controller
         $data = $sqlExpedition;
 
         if ($request->ajax()) {
-            return DataTables::of($data)
-                ->editColumn('CreatedDate', function ($data) {
-                    return date('d M Y H:i', strtotime($data->CreatedDate));
-                })
-                ->editColumn('StatusOrder', function ($data) {
-                    if ($data->StatusExpedition == "S032") {
-                        $color = "warning";
-                    } elseif ($data->StatusExpedition == "S035") {
-                        $color = "success";
-                    } elseif ($data->StatusExpedition == "S036") {
-                        $color = "danger";
-                    } else {
-                        $color = "info";
-                    }
-                    return '<span class="badge badge-' . $color . '">' . $data->StatusOrder . '</span>';
-                })
-                ->editColumn('PhoneNumberValidation', function ($data) {
-                    if ($data->PhoneNumberValidation == 1) {
-                        $phoneNumberValidation = "Valid";
-                    } else {
-                        $phoneNumberValidation = "";
-                    }
-                    return $phoneNumberValidation;
-                })
-                ->editColumn('AddressValidation', function ($data) {
-                    if ($data->AddressValidation == 1) {
-                        $addressValidation = "Valid";
-                    } else {
-                        $addressValidation = "";
-                    }
-                    return $addressValidation;
-                })
-                ->addColumn('Detail', function ($data) {
-                    if ($data->StatusExpedition == "S032") {
-                        $link = "on-going";
-                    } else {
-                        $link = "history";
-                    }
-                    $btn = '<a class="btn btn-sm btn-secondary" href="/delivery/' . $link . '/detail/' . $data->MerchantExpeditionID . '">Lihat</a>';
-                    return $btn;
-                })
-                ->filterColumn('MerchantID', function ($query, $keyword) {
-                    $query->whereRaw("ms_merchant_account.MerchantID LIKE ?", ["%$keyword%"]);
-                })
-                ->filterColumn('StoreName', function ($query, $keyword) {
-                    $query->whereRaw("ms_merchant_account.StoreName LIKE ?", ["%$keyword%"]);
-                })
-                ->filterColumn('expd.CreatedDate', function ($query, $keyword) {
-                    $query->whereRaw("DATE_FORMAT(expd.CreatedDate,'%d %b %Y %H:%i') LIKE ?", ["%$keyword%"]);
-                })
-                ->filterColumn('ms_status_order.StatusOrder', function ($query, $keyword) {
-                    $query->whereRaw("ms_status_order.StatusOrder LIKE ?", ["%$keyword%"]);
-                })
-                ->filterColumn('DriverName', function ($query, $keyword) {
-                    $query->whereRaw("driver.Name LIKE ?", ["%$keyword%"]);
-                })
-                ->filterColumn('HelperName', function ($query, $keyword) {
-                    $query->whereRaw("helper.Name LIKE ?", ["%$keyword%"]);
-                })
-                ->filterColumn('ms_vehicle.VehicleName', function ($query, $keyword) {
-                    $query->whereRaw("ms_vehicle.VehicleName LIKE ?", ["%$keyword%"]);
-                })
-                ->rawColumns(['Detail', 'StatusOrder'])
-                ->setTotalRecords(30)
-                ->make(true);
+            $searchValue = $request->input('search')['value'];
+
+            if ($searchValue || ($fromDate && $toDate)) {
+                return DataTables::of($data)
+                    ->editColumn('CreatedDate', function ($data) {
+                        return date('d M Y H:i', strtotime($data->CreatedDate));
+                    })
+                    ->editColumn('StatusOrder', function ($data) {
+                        if ($data->StatusExpedition == "S032") {
+                            $color = "warning";
+                        } elseif ($data->StatusExpedition == "S035") {
+                            $color = "success";
+                        } elseif ($data->StatusExpedition == "S036") {
+                            $color = "danger";
+                        } else {
+                            $color = "info";
+                        }
+                        return '<span class="badge badge-' . $color . '">' . $data->StatusOrder . '</span>';
+                    })
+                    ->editColumn('PhoneNumberValidation', function ($data) {
+                        if ($data->PhoneNumberValidation == 1) {
+                            $phoneNumberValidation = "Valid";
+                        } else {
+                            $phoneNumberValidation = "";
+                        }
+                        return $phoneNumberValidation;
+                    })
+                    ->editColumn('AddressValidation', function ($data) {
+                        if ($data->AddressValidation == 1) {
+                            $addressValidation = "Valid";
+                        } else {
+                            $addressValidation = "";
+                        }
+                        return $addressValidation;
+                    })
+                    ->addColumn('Detail', function ($data) {
+                        if ($data->StatusExpedition == "S032") {
+                            $link = "on-going";
+                        } else {
+                            $link = "history";
+                        }
+                        $btn = '<a class="btn btn-sm btn-secondary" href="/delivery/' . $link . '/detail/' . $data->MerchantExpeditionID . '">Lihat</a>';
+                        return $btn;
+                    })
+                    ->filterColumn('MerchantID', function ($query, $keyword) {
+                        $query->whereRaw("ms_merchant_account.MerchantID LIKE ?", ["%$keyword%"]);
+                    })
+                    ->filterColumn('StoreName', function ($query, $keyword) {
+                        $query->whereRaw("ms_merchant_account.StoreName LIKE ?", ["%$keyword%"]);
+                    })
+                    ->filterColumn('expd.CreatedDate', function ($query, $keyword) {
+                        $query->whereRaw("DATE_FORMAT(expd.CreatedDate,'%d %b %Y %H:%i') LIKE ?", ["%$keyword%"]);
+                    })
+                    ->filterColumn('ms_status_order.StatusOrder', function ($query, $keyword) {
+                        $query->whereRaw("ms_status_order.StatusOrder LIKE ?", ["%$keyword%"]);
+                    })
+                    ->filterColumn('DriverName', function ($query, $keyword) {
+                        $query->whereRaw("driver.Name LIKE ?", ["%$keyword%"]);
+                    })
+                    ->filterColumn('HelperName', function ($query, $keyword) {
+                        $query->whereRaw("helper.Name LIKE ?", ["%$keyword%"]);
+                    })
+                    ->filterColumn('ms_vehicle.VehicleName', function ($query, $keyword) {
+                        $query->whereRaw("ms_vehicle.VehicleName LIKE ?", ["%$keyword%"]);
+                    })
+                    ->rawColumns(['Detail', 'StatusOrder'])
+                    ->setTotalRecords(30)
+                    ->make(true);
+            } else {
+                return DataTables::of([])->make(true);
+            }
         }
+
+        // if ($request->ajax()) {
+        //     return DataTables::of($data)
+        //         ->editColumn('CreatedDate', function ($data) {
+        //             return date('d M Y H:i', strtotime($data->CreatedDate));
+        //         })
+        //         ->editColumn('StatusOrder', function ($data) {
+        //             if ($data->StatusExpedition == "S032") {
+        //                 $color = "warning";
+        //             } elseif ($data->StatusExpedition == "S035") {
+        //                 $color = "success";
+        //             } elseif ($data->StatusExpedition == "S036") {
+        //                 $color = "danger";
+        //             } else {
+        //                 $color = "info";
+        //             }
+        //             return '<span class="badge badge-' . $color . '">' . $data->StatusOrder . '</span>';
+        //         })
+        //         ->editColumn('PhoneNumberValidation', function ($data) {
+        //             if ($data->PhoneNumberValidation == 1) {
+        //                 $phoneNumberValidation = "Valid";
+        //             } else {
+        //                 $phoneNumberValidation = "";
+        //             }
+        //             return $phoneNumberValidation;
+        //         })
+        //         ->editColumn('AddressValidation', function ($data) {
+        //             if ($data->AddressValidation == 1) {
+        //                 $addressValidation = "Valid";
+        //             } else {
+        //                 $addressValidation = "";
+        //             }
+        //             return $addressValidation;
+        //         })
+        //         ->addColumn('Detail', function ($data) {
+        //             if ($data->StatusExpedition == "S032") {
+        //                 $link = "on-going";
+        //             } else {
+        //                 $link = "history";
+        //             }
+        //             $btn = '<a class="btn btn-sm btn-secondary" href="/delivery/' . $link . '/detail/' . $data->MerchantExpeditionID . '">Lihat</a>';
+        //             return $btn;
+        //         })
+        //         ->filterColumn('MerchantID', function ($query, $keyword) {
+        //             $query->whereRaw("ms_merchant_account.MerchantID LIKE ?", ["%$keyword%"]);
+        //         })
+        //         ->filterColumn('StoreName', function ($query, $keyword) {
+        //             $query->whereRaw("ms_merchant_account.StoreName LIKE ?", ["%$keyword%"]);
+        //         })
+        //         ->filterColumn('expd.CreatedDate', function ($query, $keyword) {
+        //             $query->whereRaw("DATE_FORMAT(expd.CreatedDate,'%d %b %Y %H:%i') LIKE ?", ["%$keyword%"]);
+        //         })
+        //         ->filterColumn('ms_status_order.StatusOrder', function ($query, $keyword) {
+        //             $query->whereRaw("ms_status_order.StatusOrder LIKE ?", ["%$keyword%"]);
+        //         })
+        //         ->filterColumn('DriverName', function ($query, $keyword) {
+        //             $query->whereRaw("driver.Name LIKE ?", ["%$keyword%"]);
+        //         })
+        //         ->filterColumn('HelperName', function ($query, $keyword) {
+        //             $query->whereRaw("helper.Name LIKE ?", ["%$keyword%"]);
+        //         })
+        //         ->filterColumn('ms_vehicle.VehicleName', function ($query, $keyword) {
+        //             $query->whereRaw("ms_vehicle.VehicleName LIKE ?", ["%$keyword%"]);
+        //         })
+        //         ->rawColumns(['Detail', 'StatusOrder'])
+        //         ->setTotalRecords(30)
+        //         ->make(true);
+        // }
     }
 
     public function getExpeditionAllProduct($status, Request $request, DeliveryOrderService $deliveryOrderService)

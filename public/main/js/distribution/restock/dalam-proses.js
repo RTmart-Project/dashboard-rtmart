@@ -16,8 +16,8 @@ $(document).ready(function () {
             ajax: {
                 url: "/distribution/restock/get/S023",
                 data: function (d) {
-                    d.fromShipmentDate = $("#dalam-proses #from_date").val();
-                    d.toShipmentDate = $("#dalam-proses #to_date").val();
+                    d.fromDate = $("#dalam-proses #from_date").val();
+                    d.toDate = $("#dalam-proses #to_date").val();
                     d.distributorId = $("#dalam-proses .distributor-select select").val();
                     d.paymentMethodId = $("#dalam-proses .payment-method select").val();
                 },
