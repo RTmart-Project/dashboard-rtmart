@@ -105,15 +105,15 @@
 
     {{-- Loop RTmart Product --}}
     @foreach ($item as $product)
-    @if ($product->IsHaistarProduct == 0)
-    @php
-    $subtotal += $product->QtyDO * $product->PriceDO;
-    @endphp
+    {{-- @if ($product->IsHaistarProduct == 0) --}}
+    {{-- @php --}}
+    {{-- $subtotal += $product->QtyDO * $product->PriceDO; --}}
+    {{-- @endphp --}}
     @if ($firstInLoopRTmart == true)
     <div class="d-flex label-product">
       <label class="m-0">Produk RTmart</label>
     </div>
-    @endif
+    {{-- @endif --}}
     <div class="row text-center border-bottom m-0 request-do">
       <div class="col-1 align-self-center">
         <input type="checkbox" class="check_rtmart larger" value="{{ $product->DeliveryOrderDetailID }}">
@@ -158,7 +158,7 @@
         <label class="d-block" for="label">Source Produk</label>
         <select id="investor" class="form-control form-control-sm source-investor">
           @foreach ($investors as $investor)
-              <option value="{{ $investor->InvestorID }}" {{ $investor->InvestorID == 1 ? 'selected' : ''}}>{{ $investor->InvestorName }}</option>
+            <option value="{{ $investor->InvestorID }}" {{ $investor->InvestorID == 1 ? 'selected' : ''}}>{{ $investor->InvestorName }}</option>
           @endforeach
         </select>
         <select id="label" class="form-control form-control-sm source-product">

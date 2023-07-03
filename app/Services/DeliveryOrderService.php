@@ -632,14 +632,14 @@ class DeliveryOrderService
       ->where('MerchantExpeditionID', $merchantExpeditionID)
       ->selectRaw("
         COUNT(DISTINCT CASE 
-              WHEN tx_merchant_expedition_detail.StatusExpeditionDetail = 'S030' OR tx_merchant_expedition_detail.StatusExpeditionDetail = 'S029' 
-              THEN tx_merchant_expedition_detail.DeliveryOrderDetailID 
-              END)
+          WHEN tx_merchant_expedition_detail.StatusExpeditionDetail = 'S030' OR tx_merchant_expedition_detail.StatusExpeditionDetail = 'S029' 
+          THEN tx_merchant_expedition_detail.DeliveryOrderDetailID 
+          END)
         AS DlmPengiriman,
         COUNT(DISTINCT CASE 
-              WHEN tx_merchant_expedition_detail.StatusExpeditionDetail = 'S031'
-              THEN tx_merchant_expedition_detail.DeliveryOrderDetailID 
-              END)
+          WHEN tx_merchant_expedition_detail.StatusExpeditionDetail = 'S031'
+          THEN tx_merchant_expedition_detail.DeliveryOrderDetailID 
+          END)
         AS Selesai,
         (
           SELECT COUNT(tx_merchant_delivery_order_detail.DeliveryOrderDetailID)

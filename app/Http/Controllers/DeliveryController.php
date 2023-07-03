@@ -43,6 +43,7 @@ class DeliveryController extends Controller
         $urutanDO = $request->input('urutanDO');
         $depoUser = Auth::user()->Depo;
         $regionalUser = Auth::user()->Regional;
+
         $sqlDeliveryRequest = $deliveryOrderService->getDeliveryRequest();
 
         if ($depoUser != "ALL") {
@@ -197,7 +198,7 @@ class DeliveryController extends Controller
         return "Stok " . $investorName->InvestorName . " " . $label . " : " . $sumStockProduct;
     }
 
-    public function getDeliveryOrderByID(DeliveryOrderService $deliveryOrderService, HaistarService $haistarService, Request $request)
+    public function getDeliveryOrderByID(DeliveryOrderService $deliveryOrderService, Request $request)
     {
         $arrayDeliveryOrderID = $request->arrayDeliveryOrderID;
 
@@ -209,13 +210,13 @@ class DeliveryController extends Controller
 
         $data = $deliveryOrderService->getMultipleDeliveryOrder($stringDeliveryOrderID, $arrayDeliveryOrderID)->get();
 
-        foreach ($data as $value) {
-            $value->IsHaistarProduct = 0;
+        // foreach ($data as $value) {
+        //     $value->IsHaistarProduct = 0;
 
-            if ($value->IsHaistar == 1 && $haistarService->haistarGetStock($value->ProductID)->status == "success") {
-                $value->IsHaistarProduct = 1;
-            }
-        }
+        //     if ($value->IsHaistar == 1 && $haistarService->haistarGetStock($value->ProductID)->status == "success") {
+        //         $value->IsHaistarProduct = 1;
+        //     }
+        // }
 
         return view('delivery.request.product-detail', [
             'detailProduct' => $data,
@@ -224,7 +225,7 @@ class DeliveryController extends Controller
         ]);
     }
 
-    public function createExpedition(Request $request, DeliveryOrderService $deliveryOrderService, HaistarService $haistarService)
+    public function createExpedition(Request $request, DeliveryOrderService $deliveryOrderService)
     {
         $dataExpedition = json_decode($request->dataExpedition);
 
@@ -253,7 +254,7 @@ class DeliveryController extends Controller
         ];
 
         $previousDeliveryOrderID = null;
-        $dataForHaistar = [];
+        // $dataForHaistar = [];
         $arrayDataDO = [
             'DeliveryOrderID' => '',
             'StockOrderID' => '',
@@ -261,132 +262,134 @@ class DeliveryController extends Controller
             'TotalPrice' => '',
             'Items' => []
         ];
+
         $dataForRTmart = [];
         $totalPrice = 0;
         foreach ($dataExpedition->dataDetail as $key => $value) {
-            $stockHaistarResponse = 200;
+            // $stockHaistarResponse = 200;
 
-            if ($value->distributor == "HAISTAR") {
-                $detailDO = $deliveryOrderService->getDOfromDetailDO($value->deliveryOrderDetailID);
-                $checkStock = $haistarService->haistarGetStock($detailDO->ProductID);
+            // if ($value->distributor == "HAISTAR") {
+            //     $detailDO = $deliveryOrderService->getDOfromDetailDO($value->deliveryOrderDetailID);
+            //     $checkStock = $haistarService->haistarGetStock($detailDO->ProductID);
 
-                $arrayExistStock = $checkStock->data->detail;
+            //     $arrayExistStock = $checkStock->data->detail;
 
-                $existStock = array_sum(array_column($arrayExistStock, "exist_quantity"));
+            //     $existStock = array_sum(array_column($arrayExistStock, "exist_quantity"));
 
-                if ((int)$value->qtyExpedition > $existStock) {
-                    $stockHaistarResponse = 400;
-                    break;
-                }
-                $deliveryOrderID = $detailDO->DeliveryOrderID;
-                if ($deliveryOrderID !== $previousDeliveryOrderID) {
-                    if ($previousDeliveryOrderID != null) {
-                        array_push($dataForHaistar, $arrayDataDO);
-                    }
-                    $arrayDataDO['Items'] = [];
-                    $arrayDataDO['DeliveryOrderID'] = $deliveryOrderID;
-                    $arrayDataDO['StockOrderID'] = $detailDO->StockOrderID;
-                    $arrayDataDO['PaymentMethodID'] = $detailDO->PaymentMethodID;
-                }
+            //     if ((int)$value->qtyExpedition > $existStock) {
+            //         $stockHaistarResponse = 400;
+            //         break;
+            //     }
 
-                $totalPrice += $value->qtyExpedition * $detailDO->Price;
-                $arrayDataDO['TotalPrice'] = $totalPrice;
-                $objectItems = new stdClass;
-                $objectItems->item_code = $detailDO->ProductID;
-                $objectItems->unit_price = $detailDO->Price;
-                $objectItems->quantity = $value->qtyExpedition;
-                array_push($arrayDataDO['Items'], clone $objectItems);
+            //     $deliveryOrderID = $detailDO->DeliveryOrderID;
 
-                $previousDeliveryOrderID = $deliveryOrderID;
-            } elseif ($value->distributor == "RT MART") {
-                array_push($dataForRTmart, $value);
-            } else {
-                return "error";
-            }
+            //     if ($deliveryOrderID !== $previousDeliveryOrderID) {
+            //         if ($previousDeliveryOrderID != null) {
+            //             array_push($dataForHaistar, $arrayDataDO);
+            //         }
+            //         $arrayDataDO['Items'] = [];
+            //         $arrayDataDO['DeliveryOrderID'] = $deliveryOrderID;
+            //         $arrayDataDO['StockOrderID'] = $detailDO->StockOrderID;
+            //         $arrayDataDO['PaymentMethodID'] = $detailDO->PaymentMethodID;
+            //     }
+
+            //     $totalPrice += $value->qtyExpedition * $detailDO->Price;
+            //     $arrayDataDO['TotalPrice'] = $totalPrice;
+            //     $objectItems = new stdClass;
+            //     $objectItems->item_code = $detailDO->ProductID;
+            //     $objectItems->unit_price = $detailDO->Price;
+            //     $objectItems->quantity = $value->qtyExpedition;
+            //     array_push($arrayDataDO['Items'], clone $objectItems);
+
+            //     $previousDeliveryOrderID = $deliveryOrderID;
+            // }
+            array_push($dataForRTmart, $value);
         }
-        array_push($dataForHaistar, $arrayDataDO);
+
+        // array_push($dataForHaistar, $arrayDataDO);
 
         $dataVoucherDeliveryOrder = $deliveryOrderService->calculateVoucherDObyMultiple($dataExpedition->dataDetail);
 
-        if ($stockHaistarResponse == 200) {
-            try {
-                DB::transaction(function () use ($dataInsertExpedition, $dataInsertExpeditionLog, $deliveryOrderService, $dataExpedition, $vehicleLicensePlate, $user, $newMerchantExpeditionID, $dataForHaistar, $haistarService, $dataForRTmart, $createdDate, $dataVoucherDeliveryOrder) {
-                    foreach ($dataForHaistar as $key => $value) {
-                        if ($value['DeliveryOrderID'] != "") {
-                            if ($value['PaymentMethodID'] == 1) {
-                                $codPrice = $value['TotalPrice'];
-                            } else {
-                                $codPrice = "0";
-                            }
-                            // Parameter Push Order Haistar
-                            $objectParams = new stdClass;
-                            $objectParams->code = $value['DeliveryOrderID'];
-                            $objectParams->cod_price = $codPrice;
-                            $objectParams->total_price = $value['TotalPrice'];
-                            $objectParams->total_product_price = $value['TotalPrice'];
-                            $objectParams->items = $value['Items'];
+        // if ($stockHaistarResponse == 200) {
+        try {
+            DB::transaction(function () use ($dataInsertExpedition, $dataInsertExpeditionLog, $deliveryOrderService, $dataExpedition, $vehicleLicensePlate, $user, $newMerchantExpeditionID, $dataForRTmart, $createdDate, $dataVoucherDeliveryOrder) {
+                // foreach ($dataForHaistar as $key => $value) {
+                //     if ($value['DeliveryOrderID'] != "") {
+                //         if ($value['PaymentMethodID'] == 1) {
+                //             $codPrice = $value['TotalPrice'];
+                //         } else {
+                //             $codPrice = "0";
+                //         }
+                //         // Parameter Push Order Haistar
+                //         $objectParams = new stdClass;
+                //         $objectParams->code = $value['DeliveryOrderID'];
+                //         $objectParams->cod_price = $codPrice;
+                //         $objectParams->total_price = $value['TotalPrice'];
+                //         $objectParams->total_product_price = $value['TotalPrice'];
+                //         $objectParams->items = $value['Items'];
 
-                            $haistarPushOrder = $haistarService->haistarPushOrder($value['StockOrderID'], $objectParams);
-                            $haistarResponse = $haistarPushOrder->status;
+                //         $haistarPushOrder = $haistarService->haistarPushOrder($value['StockOrderID'], $objectParams);
+                //         $haistarResponse = $haistarPushOrder->status;
 
-                            if ($haistarResponse == 200) {
-                                $statusDetailDO = "S030"; // Dalam Perjalanan
-                            } else {
-                                $statusDetailDO = "S034"; // Gagal
-                            }
-                            foreach ($value['Items'] as $key => $item) {
-                                $deliveryOrderService->updateDetailDeliveryOrder($value['DeliveryOrderID'], $item->item_code, $item->quantity, $statusDetailDO, "HAISTAR");
-                                $deliveryOrderService->insertExpeditionDetail($newMerchantExpeditionID, $value['DeliveryOrderID'], $item->item_code, $statusDetailDO);
-                            }
-                        } else {
-                            break;
-                        }
-                    }
+                //         if ($haistarResponse == 200) {
+                //             $statusDetailDO = "S030"; // Dalam Perjalanan
+                //         } else {
+                //             $statusDetailDO = "S034"; // Gagal
+                //         }
+                //         foreach ($value['Items'] as $key => $item) {
+                //             $deliveryOrderService->updateDetailDeliveryOrder($value['DeliveryOrderID'], $item->item_code, $item->quantity, $statusDetailDO, "HAISTAR");
+                //             $deliveryOrderService->insertExpeditionDetail($newMerchantExpeditionID, $value['DeliveryOrderID'], $item->item_code, $statusDetailDO);
+                //         }
+                //     } else {
+                //         break;
+                //     }
+                // }
 
-                    if (!empty($dataForRTmart)) {
-                        foreach ($dataForRTmart as $key => $value) {
-                            $detailDO = $deliveryOrderService->getDOfromDetailDO($value->deliveryOrderDetailID);
-                            $deliveryOrderService->updateDetailDeliveryOrder($detailDO->DeliveryOrderID, $detailDO->ProductID, $value->qtyExpedition, "S030", "RT MART");
-                            $merchantExpeditionDetailID = $deliveryOrderService->insertExpeditionDetail($newMerchantExpeditionID, $detailDO->DeliveryOrderID, $detailDO->ProductID, "S030");
-                            $deliveryOrderService->reduceStock($detailDO->ProductID, $detailDO->DistributorID, $value->qtyExpedition, $value->deliveryOrderDetailID, $merchantExpeditionDetailID, $value->sourceProduct, $value->sourceProductInvestor);
-                        }
-                    }
+                foreach ($dataForRTmart as $key => $value) {
+                    $detailDO = $deliveryOrderService->getDOfromDetailDO($value->deliveryOrderDetailID);
+                    $deliveryOrderService->updateDetailDeliveryOrder($detailDO->DeliveryOrderID, $detailDO->ProductID, $value->qtyExpedition, "S030", "RT MART");
+                    $merchantExpeditionDetailID = $deliveryOrderService->insertExpeditionDetail($newMerchantExpeditionID, $detailDO->DeliveryOrderID, $detailDO->ProductID, "S030");
+                    $deliveryOrderService->reduceStock($detailDO->ProductID, $detailDO->DistributorID, $value->qtyExpedition, $value->deliveryOrderDetailID, $merchantExpeditionDetailID, $value->sourceProduct, $value->sourceProductInvestor);
+                }
 
-                    $deliveryOrderService->insertTable("tx_merchant_expedition", $dataInsertExpedition);
-                    $deliveryOrderService->insertTable("tx_merchant_expedition_log", $dataInsertExpeditionLog);
-                    foreach ($dataExpedition->dataDeliveryOrderID as $key => $value) {
-                        $deliveryOrderService->updateDeliveryOrder($value->deliveryOrderID, "S024", $dataExpedition->driverID, $dataExpedition->helperID, $dataExpedition->vehicleID, $vehicleLicensePlate, $createdDate);
-                        $deliveryOrderService->insertDeliveryOrderLog($value->deliveryOrderID, "S024", $dataExpedition->driverID, $dataExpedition->helperID, $dataExpedition->vehicleID, $vehicleLicensePlate, $user, $createdDate);
-                        $deliveryOrderService->updateStatusStockOrder($value->deliveryOrderID);
-                    }
-                    if (!empty($dataExpedition->dataDeliveryOrderDetailNotChecked)) {
-                        foreach ($dataExpedition->dataDeliveryOrderDetailNotChecked as $key => $value) {
-                            DB::table('tx_merchant_delivery_order_detail')
-                                ->where('DeliveryOrderDetailID', $value->deliveryOrderDetailIDNotChecked)
-                                ->delete();
-                        }
-                    }
-                    foreach ($dataVoucherDeliveryOrder as $key => $value) {
-                        DB::table('tx_merchant_delivery_order')
-                            ->where('DeliveryOrderID', $value['DeliveryOrderID'])
-                            ->update([
-                                'Discount' => $value['Discount'],
-                                'ServiceCharge' => $value['ServiceCharge'],
-                                'DeliveryFee' => $value['DeliveryFee']
-                            ]);
-                    }
-                });
+                $deliveryOrderService->insertTable("tx_merchant_expedition", $dataInsertExpedition);
+                $deliveryOrderService->insertTable("tx_merchant_expedition_log", $dataInsertExpeditionLog);
 
-                $status = "success";
-                $message = "Data Ekspedisi berhasil dibuat";
-            } catch (\Throwable $th) {
-                $status = "failed";
-                $message = "Terjadi kesalahan";
-            }
-        } else {
+                foreach ($dataExpedition->dataDeliveryOrderID as $key => $value) {
+                    $deliveryOrderService->updateDeliveryOrder($value->deliveryOrderID, "S024", $dataExpedition->driverID, $dataExpedition->helperID, $dataExpedition->vehicleID, $vehicleLicensePlate, $createdDate);
+                    $deliveryOrderService->insertDeliveryOrderLog($value->deliveryOrderID, "S024", $dataExpedition->driverID, $dataExpedition->helperID, $dataExpedition->vehicleID, $vehicleLicensePlate, $user, $createdDate);
+                    $deliveryOrderService->updateStatusStockOrder($value->deliveryOrderID);
+                }
+
+                if (!empty($dataExpedition->dataDeliveryOrderDetailNotChecked)) {
+                    foreach ($dataExpedition->dataDeliveryOrderDetailNotChecked as $key => $value) {
+                        DB::table('tx_merchant_delivery_order_detail')
+                            ->where('DeliveryOrderDetailID', $value->deliveryOrderDetailIDNotChecked)
+                            ->delete();
+                    }
+                }
+
+                foreach ($dataVoucherDeliveryOrder as $key => $value) {
+                    DB::table('tx_merchant_delivery_order')
+                        ->where('DeliveryOrderID', $value['DeliveryOrderID'])
+                        ->update([
+                            'Discount' => $value['Discount'],
+                            'ServiceCharge' => $value['ServiceCharge'],
+                            'DeliveryFee' => $value['DeliveryFee']
+                        ]);
+                }
+            });
+
+            $status = "success";
+            $message = "Data Ekspedisi berhasil dibuat";
+        } catch (\Throwable $th) {
             $status = "failed";
-            $message = "Stock Haistar tidak mencukupi";
+            $message = "Terjadi kesalahan";
         }
+        // } else {
+        //     $status = "failed";
+        //     $message = "Stock Haistar tidak mencukupi";
+        // }
 
         return response()->json([
             'status' => $status,
@@ -574,9 +577,11 @@ class DeliveryController extends Controller
         $regionalUser = Auth::user()->Regional;
 
         $sqlExpeditionAllProduct = $deliveryOrderService->expeditionsAllProduct()->whereRaw("tx_merchant_expedition.StatusExpedition IN ($status)");
+
         if ($depoUser != "ALL") {
             $sqlExpeditionAllProduct->where('ms_distributor.Depo', $depoUser);
         }
+
         if ($regionalUser != NULL && $depoUser == "ALL") {
             $sqlExpeditionAllProduct->where('ms_distributor.Regional', $regionalUser);
         }
@@ -589,27 +594,34 @@ class DeliveryController extends Controller
         $data = $sqlExpeditionAllProduct;
 
         if ($request->ajax()) {
-            return DataTables::of($data)
-                ->editColumn('CreatedDate', function ($data) {
-                    return date('d M Y H:i', strtotime($data->CreatedDate));
-                })
-                ->editColumn('StatusOrder', function ($data) {
-                    if ($data->StatusExpedition == "S030") {
-                        $color = "warning";
-                    } elseif ($data->StatusExpedition == "S031") {
-                        $color = "success";
-                    } elseif ($data->StatusExpedition == "S037") {
-                        $color = "danger";
-                    } else {
-                        $color = "info";
-                    }
-                    return '<span class="badge badge-' . $color . '">' . $data->StatusOrder . '</span>';
-                })
-                ->filterColumn('tx_merchant_expedition.CreatedDate', function ($query, $keyword) {
-                    $query->whereRaw("DATE_FORMAT(tx_merchant_expedition.CreatedDate,'%d %b %Y %H:%i') like ?", ["%$keyword%"]);
-                })
-                ->rawColumns(['StatusOrder'])
-                ->make();
+            $searchValue = $request->input('search')['value'];
+
+            if ($searchValue || ($fromDate && $toDate)) {
+                return DataTables::of($data)
+                    ->editColumn('CreatedDate', function ($data) {
+                        return date('d M Y H:i', strtotime($data->CreatedDate));
+                    })
+                    ->editColumn('StatusOrder', function ($data) {
+                        if ($data->StatusExpedition == "S030") {
+                            $color = "warning";
+                        } elseif ($data->StatusExpedition == "S031") {
+                            $color = "success";
+                        } elseif ($data->StatusExpedition == "S037") {
+                            $color = "danger";
+                        } else {
+                            $color = "info";
+                        }
+
+                        return '<span class="badge badge-' . $color . '">' . $data->StatusOrder . '</span>';
+                    })
+                    ->filterColumn('tx_merchant_expedition.CreatedDate', function ($query, $keyword) {
+                        $query->whereRaw("DATE_FORMAT(tx_merchant_expedition.CreatedDate,'%d %b %Y %H:%i') like ?", ["%$keyword%"]);
+                    })
+                    ->rawColumns(['StatusOrder'])
+                    ->make();
+            } else {
+                return DataTables::of([])->make(true);
+            }
         }
     }
 
@@ -709,16 +721,16 @@ class DeliveryController extends Controller
                         ->where('tx_merchant_delivery_order.DeliveryOrderID', $value->DeliveryOrderID)
                         ->select('tx_merchant_delivery_order_detail.Distributor', 'tx_merchant_delivery_order.DeliveryOrderID', 'tx_merchant_delivery_order_detail.DeliveryOrderDetailID', 'tx_merchant_delivery_order_detail.Qty', 'tx_merchant_expedition_detail.DeliveryOrderDetailID', 'tx_merchant_expedition_detail.StatusExpeditionDetail', 'tx_merchant_expedition_detail.MerchantExpeditionDetailID');
 
-                    $countNotBatalorSelesai = (clone $getDOdetail)
-                        ->where('tx_merchant_delivery_order_detail.Distributor', 'HAISTAR')
-                        ->where('tx_merchant_expedition_detail.StatusExpeditionDetail', '!=', 'S037')
-                        ->where('tx_merchant_expedition_detail.StatusExpeditionDetail', '!=', 'S031')
-                        ->count();
+                    // $countNotBatalorSelesai = (clone $getDOdetail)
+                    //     ->where('tx_merchant_delivery_order_detail.Distributor', 'HAISTAR')
+                    //     ->where('tx_merchant_expedition_detail.StatusExpeditionDetail', '!=', 'S037')
+                    //     ->where('tx_merchant_expedition_detail.StatusExpeditionDetail', '!=', 'S031')
+                    //     ->count();
 
-                    if ($countNotBatalorSelesai > 0) {
-                        $messageError = "Terdapat Order Haistar yang belum dikonfirmasi";
-                        throw new Exception($messageError);
-                    }
+                    // if ($countNotBatalorSelesai > 0) {
+                    //     $messageError = "Terdapat Order Haistar yang belum dikonfirmasi";
+                    //     throw new Exception($messageError);
+                    // }
 
                     if ($status == "finish") {
                         $statusDO = "S025";

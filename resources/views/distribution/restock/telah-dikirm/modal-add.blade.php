@@ -27,11 +27,11 @@
     </div>
 
     {{-- Loop Haistar Product --}}
-    @php
+    {{-- @php
     $firstInLoop = true;
-    @endphp
+    @endphp --}}
 
-    @if ($isHasHaistar == 1)
+    {{-- @if ($isHasHaistar == 1)
     @foreach ($productAddDO as $item)
     @if ($item->PromisedQuantity != $item->QtyDO && $item->IsHaistarProduct == 1)
     @if ($firstInLoop == true)
@@ -73,7 +73,7 @@
     @endphp
     @endif
     @endforeach
-    @endif
+    @endif --}}
 
     {{-- Loop RTmart Product --}}
     @php
@@ -81,8 +81,9 @@
     @endphp
 
     @foreach ($productAddDO as $item)
-    @if ($item->PromisedQuantity != $item->QtyDO && $item->IsHaistarProduct == 0 && ($item->PromisedQuantity -
-    $item->QtyDO > 0)) @if ($firstInLoop==true) <label class="m-0">Produk RTmart</label>
+    @if ($item->PromisedQuantity != $item->QtyDO && ($item->PromisedQuantity - $item->QtyDO > 0))
+    @if ($firstInLoop==true)
+    <label class="m-0">Produk RTmart</label>
     @endif
     <div class="row text-center border-bottom m-0 add-do">
       <div class="col-1 align-self-center">
