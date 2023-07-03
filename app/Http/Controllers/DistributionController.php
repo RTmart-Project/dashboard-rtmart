@@ -771,12 +771,12 @@ class DistributionController extends Controller
         }
     }
 
-    public function restockDetail($stockOrderID, HaistarService $haistarService)
+    public function restockDetail($stockOrderID)
     {
         $merchantOrder = DB::table('tx_merchant_order')
-            ->leftJoin('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
-            ->leftJoin('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_order.StatusOrderID')
-            ->leftJoin('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
+            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', '=', 'tx_merchant_order.MerchantID')
+            ->join('ms_status_order', 'ms_status_order.StatusOrderID', '=', 'tx_merchant_order.StatusOrderID')
+            ->join('ms_payment_method', 'ms_payment_method.PaymentMethodID', '=', 'tx_merchant_order.PaymentMethodID')
             ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
             ->where('tx_merchant_order.StockOrderID', '=', $stockOrderID)
             ->select(
@@ -807,7 +807,7 @@ class DistributionController extends Controller
                 'tx_merchant_order.CancelReasonNote',
                 'ms_status_order.StatusOrder',
                 'ms_payment_method.PaymentMethodName',
-                'ms_distributor.IsHaistar',
+                // 'ms_distributor.IsHaistar',
                 'tx_merchant_order.IsValid',
                 'tx_merchant_order.ValidationNotes',
                 'ms_distributor.DistributorName',
@@ -876,18 +876,19 @@ class DistributionController extends Controller
                     )
                     ->groupBy('tx_merchant_order_detail.PromisedQuantity', 'tx_merchant_order_detail.ProductID')
                     ->first();
+
                 $item->OrderQty = $orderQty->PromisedQuantity;
                 $item->QtyDOSelesai = $orderQty->QtyDOSelesai;
                 $item->QtyDODlmPengiriman = $orderQty->QtyDODlmPengiriman;
 
-                $item->IsHaistarProduct = 0;
+                // $item->IsHaistarProduct = 0;
 
-                if ($merchantOrder->IsHaistar == 1) {
-                    $productHaistar = $haistarService->haistarGetStock($item->ProductID);
-                    if ($productHaistar->status == "success") {
-                        $item->IsHaistarProduct = 1;
-                    }
-                }
+                // if ($merchantOrder->IsHaistar == 1) {
+                //     $productHaistar = $haistarService->haistarGetStock($item->ProductID);
+                //     if ($productHaistar->status == "success") {
+                //         $item->IsHaistarProduct = 1;
+                //     }
+                // }
             }
             $dueDate = strtotime("$value->FinishDate +5 day");
             if ($value->IsPaid == 0) {
@@ -933,7 +934,7 @@ class DistributionController extends Controller
         $promisedQty = 0;
         $deliveryOrderQty = 0;
 
-        $isHasHaistar = 0;
+        // $isHasHaistar = 0;
         foreach ($productAddDO as $key => $value) {
             $productQtyDO = DB::table('tx_merchant_delivery_order')
                 ->join('tx_merchant_delivery_order_detail', 'tx_merchant_delivery_order_detail.DeliveryOrderID', '=', 'tx_merchant_delivery_order.DeliveryOrderID')
@@ -942,20 +943,21 @@ class DistributionController extends Controller
                 ->where('tx_merchant_delivery_order_detail.StatusExpedition', '!=', 'S037')
                 ->selectRaw('IFNULL(SUM(tx_merchant_delivery_order_detail.Qty), 0) as Qty')
                 ->first();
+
             $value->QtyDO = $productQtyDO->Qty;
 
             $promisedQty += $value->PromisedQuantity;
             $deliveryOrderQty += $productQtyDO->Qty;
 
-            $value->IsHaistarProduct = 0;
+            // $value->IsHaistarProduct = 0;
 
-            if ($merchantOrder->IsHaistar == 1) {
-                $productHaistar = $haistarService->haistarGetStock($value->ProductID);
-                if ($productHaistar->status == "success") {
-                    $value->IsHaistarProduct = 1;
-                    $isHasHaistar = 1;
-                }
-            }
+            // if ($merchantOrder->IsHaistar == 1) {
+            //     $productHaistar = $haistarService->haistarGetStock($value->ProductID);
+            //     if ($productHaistar->status == "success") {
+            //         $value->IsHaistarProduct = 1;
+            //         $isHasHaistar = 1;
+            //     }
+            // }
         }
 
         $drivers = DB::table('ms_user')
@@ -989,7 +991,7 @@ class DistributionController extends Controller
             'merchantOrderDetail' => $merchantOrderDetail,
             'deliveryOrder' => $deliveryOrder,
             'productAddDO' => $productAddDO,
-            'isHasHaistar' => $isHasHaistar,
+            // 'isHasHaistar' => $isHasHaistar,
             'promisedQty' => $promisedQty,
             'deliveryOrderQty' => $deliveryOrderQty,
             'drivers' => $dataDrivers,
@@ -1386,17 +1388,9 @@ class DistributionController extends Controller
         }
     }
 
-    public function createDeliveryOrder(Request $request, $stockOrderID, $depoChannel, DeliveryOrderService $deliveryOrderService)
+    public function createDeliveryOrder(Request $request, $stockOrderID, DeliveryOrderService $deliveryOrderService)
     {
         $baseImageUrl = config('app.base_image_url');
-
-        $msMerchant = DB::table('tx_merchant_order')
-            ->join('ms_merchant_account', 'ms_merchant_account.MerchantID', 'tx_merchant_order.MerchantID')
-            ->join('ms_distributor', 'ms_distributor.DistributorID', 'tx_merchant_order.DistributorID')
-            ->leftJoin('ms_area', 'ms_area.AreaID', 'ms_merchant_account.AreaID')
-            ->where('tx_merchant_order.StockOrderID', $stockOrderID)
-            ->select('ms_merchant_account.MerchantID', 'ms_merchant_account.StoreName', 'ms_merchant_account.OwnerFullName', 'ms_merchant_account.PhoneNumber', 'ms_merchant_account.Email', 'ms_merchant_account.MerchantFirebaseToken', 'ms_distributor.DistributorName', 'tx_merchant_order.OrderAddress', 'tx_merchant_order.PaymentMethodID', 'ms_area.PostalCode', 'ms_area.Province', 'ms_area.City', 'ms_area.Subdistrict', 'tx_merchant_order.DistributorNote', 'tx_merchant_order.MerchantNote')
-            ->first();
 
         $newDeliveryOrderID = $deliveryOrderService->generateDeliveryOrderID();
 
@@ -1409,117 +1403,52 @@ class DistributionController extends Controller
             return func_get_args();
         }, $productId, $qty);
 
-        if ($depoChannel == "rtmart") {
-            $request->validate([
-                'created_date_do' => 'required',
-                'qty_do' => 'required',
-                'qty_do.*' => 'required|numeric|lte:max_qty_do.*|gte:1'
-            ]);
+        $request->validate([
+            'created_date_do' => 'required',
+            'qty_do' => 'required',
+            'qty_do.*' => 'required|numeric|lte:max_qty_do.*|gte:1'
+        ]);
 
-            $dataDO = [
-                'DeliveryOrderID' => $newDeliveryOrderID,
-                'StockOrderID' => $stockOrderID,
-                'StatusDO' => 'S028',
-                'Distributor' => "RT MART",
-                'CreatedDate' => $createdDateDO
-            ];
+        $dataDO = [
+            'DeliveryOrderID' => $newDeliveryOrderID,
+            'StockOrderID' => $stockOrderID,
+            'StatusDO' => 'S028',
+            'Distributor' => "RT MART",
+            'CreatedDate' => $createdDateDO
+        ];
 
-            $validationStatus = true;
-            $arrayDetailDO = [];
-            foreach ($dataDetailDO as $key => $value) {
-                $value = array_combine(['ProductID', 'Qty'], $value);
-                $value += ['DeliveryOrderID' => $newDeliveryOrderID];
-                $value += ['Distributor' => 'RT MART'];
+        $validationStatus = true;
+        $arrayDetailDO = [];
+        foreach ($dataDetailDO as $key => $value) {
+            $value = array_combine(['ProductID', 'Qty'], $value);
+            $value += ['DeliveryOrderID' => $newDeliveryOrderID];
+            $value += ['Distributor' => 'RT MART'];
 
-                $validation = $deliveryOrderService->validateRemainingQty($stockOrderID, $newDeliveryOrderID, $value['ProductID'], $value['Qty'], "CreateDO");
-                $value += ['Price' => $validation['price']];
-                if ($validation['status'] == false) {
-                    $validationStatus = false;
-                    break;
-                }
-                array_push($arrayDetailDO, $value);
+            $validation = $deliveryOrderService->validateRemainingQty($stockOrderID, $newDeliveryOrderID, $value['ProductID'], $value['Qty'], "CreateDO");
+            $value += ['Price' => $validation['price']];
+
+            if ($validation['status'] == false) {
+                $validationStatus = false;
+                break;
             }
 
-            $dataLogDO = [
-                'StockOrderID' => $stockOrderID,
-                'DeliveryOrderID' => $newDeliveryOrderID,
-                'StatusDO' => 'S028',
-                'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo . ' ' . Auth::user()->Name
-            ];
+            array_push($arrayDetailDO, $value);
+        }
 
-            if ($validationStatus == true) {
-                try {
-                    DB::transaction(function () use ($dataDO, $arrayDetailDO, $dataLogDO) {
-                        DB::table('tx_merchant_delivery_order')
-                            ->insert($dataDO);
-                        DB::table('tx_merchant_delivery_order_detail')
-                            ->insert($arrayDetailDO);
-                        DB::table('tx_merchant_delivery_order_log')
-                            ->insert($dataLogDO);
-                    });
+        $dataLogDO = [
+            'StockOrderID' => $stockOrderID,
+            'DeliveryOrderID' => $newDeliveryOrderID,
+            'StatusDO' => 'S028',
+            'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo . ' ' . Auth::user()->Name
+        ];
 
-                    return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('success', 'Delivery Order berhasil dibuat');
-                } catch (\Throwable $th) {
-                    return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
-                }
-            } else {
-                return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Quantity yang dikirim tidak mencukupi');
-            }
-        } elseif ($depoChannel == "haistar") {
-            $request->validate([
-                'created_date_do' => 'required',
-                'qty_do' => 'required',
-                'qty_do.*' => 'required|numeric|lte:max_qty_do.*|gte:1'
-            ]);
-
-            $totalPrice = 0;
-            $arrayItems = [];
-            $objectItems = new stdClass;
-            foreach ($dataDetailDO as &$value) {
-                $value = array_combine(['ProductID', 'Qty'], $value);
-
-                $value += ['DeliveryOrderID' => $newDeliveryOrderID];
-                $value += ['Distributor' => 'HAISTAR'];
-
-                $validation = $deliveryOrderService->validateRemainingQty($stockOrderID, "", $value['ProductID'], $value['Qty'], "CreateDO");
-                $value += ['Price' => $validation['price']];
-
-                $totalPrice += $value['Qty'] * $value['Price'];
-
-                $objectItems->item_code = $value['ProductID'];
-                $objectItems->quantity = $value['Qty'] * 1;
-                $objectItems->unit_price = $value['Price'] * 1;
-
-                array_push($arrayItems, clone $objectItems);
-            }
-
-            if ($msMerchant->PaymentMethodID == 1) {
-                $codPrice = "$totalPrice";
-            } else {
-                $codPrice = "0";
-            }
-
-            $dataDO = [
-                'DeliveryOrderID' => $newDeliveryOrderID,
-                'StockOrderID' => $stockOrderID,
-                'StatusDO' => 'S028',
-                'Distributor' => "HAISTAR",
-                'CreatedDate' => $createdDateDO
-            ];
-
-            $dataLogDO = [
-                'StockOrderID' => $stockOrderID,
-                'DeliveryOrderID' => $newDeliveryOrderID,
-                'StatusDO' => 'S028',
-                'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo . ' ' . Auth::user()->Name
-            ];
-
+        if ($validationStatus == true) {
             try {
-                DB::transaction(function () use ($dataDO, $dataDetailDO, $dataLogDO) {
+                DB::transaction(function () use ($dataDO, $arrayDetailDO, $dataLogDO) {
                     DB::table('tx_merchant_delivery_order')
                         ->insert($dataDO);
                     DB::table('tx_merchant_delivery_order_detail')
-                        ->insert($dataDetailDO);
+                        ->insert($arrayDetailDO);
                     DB::table('tx_merchant_delivery_order_log')
                         ->insert($dataLogDO);
                 });
@@ -1529,7 +1458,7 @@ class DistributionController extends Controller
                 return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
             }
         } else {
-            return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Gagal');
+            return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Quantity yang dikirim tidak mencukupi');
         }
     }
 

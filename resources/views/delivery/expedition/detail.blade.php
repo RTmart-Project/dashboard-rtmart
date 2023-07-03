@@ -239,55 +239,55 @@
 <script src="{{url('/')}}/plugins/sweetalert2/sweetalert2.min.js"></script>
 <script>
   // Event listener saat tombol selesaikan ekspedisi diklik
-  $('.btn-resend-haistar').on('click', function (e) {
-      e.preventDefault();
-      const deliveryOrder = $(this).data("delivery-order");
-      $.confirm({
-          title: 'Resend Produk Haistar',
-          content: `Apakah yakin ingin mengirim ulang order haistar dengan ID <b>${deliveryOrder}</b>?`,
-          closeIcon: true,
-          type: 'blue',
-          typeAnimated: true,
-          buttons: {
-              ya: {
-                  btnClass: 'bg-lightblue',
-                  draggable: true,
-                  dragWindowGap: 0,
-                  action: function () {
-                      window.location = '/delivery/on-going/resendHaistar/' + deliveryOrder
-                  }
-              },
-              tidak: function () {
-              }
-          }
-      });
-  });
+  // $('.btn-resend-haistar').on('click', function (e) {
+  //     e.preventDefault();
+  //     const deliveryOrder = $(this).data("delivery-order");
+  //     $.confirm({
+  //         title: 'Resend Produk Haistar',
+  //         content: `Apakah yakin ingin mengirim ulang order haistar dengan ID <b>${deliveryOrder}</b>?`,
+  //         closeIcon: true,
+  //         type: 'blue',
+  //         typeAnimated: true,
+  //         buttons: {
+  //             ya: {
+  //                 btnClass: 'bg-lightblue',
+  //                 draggable: true,
+  //                 dragWindowGap: 0,
+  //                 action: function () {
+  //                     window.location = '/delivery/on-going/resendHaistar/' + deliveryOrder
+  //                 }
+  //             },
+  //             tidak: function () {
+  //             }
+  //         }
+  //     });
+  // });
 
   // Event listener saat tombol selesaikan ekspedisi diklik
-  $('.btn-req-cancel-haistar').on('click', function (e) {
-      e.preventDefault();
-      const deliveryOrder = $(this).data("delivery-order");
-      const expedition = $(this).data("expedition");
-      $.confirm({
-          title: 'Request Cancel Haistar',
-          content: `Apakah yakin ingin mengajukan pembatalan order haistar dengan ID <b>${deliveryOrder}</b>?`,
-          closeIcon: true,
-          type: 'red',
-          typeAnimated: true,
-          buttons: {
-              ya: {
-                  btnClass: 'btn-danger',
-                  draggable: true,
-                  dragWindowGap: 0,
-                  action: function () {
-                      window.location = '/delivery/on-going/requestCancelHaistar/' + deliveryOrder + '/' + expedition
-                  }
-              },
-              tidak: function () {
-              }
-          }
-      });
-  });
+  // $('.btn-req-cancel-haistar').on('click', function (e) {
+  //     e.preventDefault();
+  //     const deliveryOrder = $(this).data("delivery-order");
+  //     const expedition = $(this).data("expedition");
+  //     $.confirm({
+  //         title: 'Request Cancel Haistar',
+  //         content: `Apakah yakin ingin mengajukan pembatalan order haistar dengan ID <b>${deliveryOrder}</b>?`,
+  //         closeIcon: true,
+  //         type: 'red',
+  //         typeAnimated: true,
+  //         buttons: {
+  //             ya: {
+  //                 btnClass: 'btn-danger',
+  //                 draggable: true,
+  //                 dragWindowGap: 0,
+  //                 action: function () {
+  //                     window.location = '/delivery/on-going/requestCancelHaistar/' + deliveryOrder + '/' + expedition
+  //                 }
+  //             },
+  //             tidak: function () {
+  //             }
+  //         }
+  //     });
+  // });
 
   // Event listener saat tombol selesaikan ekspedisi diklik
   $('.btn-finish-expedition').on('click', function (e) {
