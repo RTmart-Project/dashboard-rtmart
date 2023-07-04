@@ -340,6 +340,7 @@
 
   $('#delivery-order-result').on('change', '.check_rtmart', function () {
     $(this).closest(".request-do").find("#qty-request-do, #product-id").prop('disabled', !$(this).is(':checked'));
+
     if ($(this).is(":checked")) {
       let priceTotal = $(this).closest('.request-do').find('.price-total').text().replaceAll("Rp ", "").replaceAll(".", "");
       let subTotal = $(this).closest('.request-do-wrapper').find('.price-subtotal').text().replaceAll("Rp ", "").replaceAll(".", "");
