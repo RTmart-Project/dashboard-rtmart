@@ -42,9 +42,10 @@
             <div class="col-12">
                 <div class="card">
                     <div class="card-header">
-                        <a href="{{ route('distribution.restock') }}" class="btn btn-sm btn-light"><i
-                                class="fas fa-arrow-left"></i>
-                            Kembali</a>
+                        <a href="{{ route('distribution.restock') }}" class="btn btn-sm btn-light">
+                            <i class="fas fa-arrow-left"></i>
+                            Kembali
+                        </a>
                     </div>
                     <div class="card-body">
                         <div class="post">
@@ -78,7 +79,8 @@
                                             <label class="mb-0">Longitude: </label>
                                             <p class="mb-1 longitude">{{ $merchantOrder->Longitude }}</p>
                                             <label class="mb-0">Jarak Radius: </label>
-                                            <p class="mb-1 longitude">{{ round($merchantOrder->RadiusDistance, 2) }} km</p>
+                                            <p class="mb-1 longitude">{{ round($merchantOrder->RadiusDistance, 2) }} km
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -88,7 +90,8 @@
                                             <h6 class="mt-3 mt-md-0">Peta Alamat Pemesanan</h6>
                                         </div>
                                         <div class="col-md-4 col-12 p-md-0">
-                                            <a class="btn btn-sm btn-success float-md-right" id="open-maps" target="_blank">
+                                            <a class="btn btn-sm btn-success float-md-right" id="open-maps"
+                                                target="_blank">
                                                 Buka di Maps
                                             </a>
                                         </div>
@@ -103,12 +106,14 @@
                                 <div class="col-md-3 col-12">
                                     <label class="mb-0">Stock Order ID</label>
                                     <p class="m-0">{{ $merchantOrder->StockOrderID }}</p>
-                                    @if ($merchantOrder->StatusOrderID == "S012" || $merchantOrder->StatusOrderID == "S018")
-                                        <a href="{{ route('restock.invoice', ['stockOrderId' => $merchantOrder->StockOrderID]) }}"
-                                            target="_blank" class="btn btn-sm btn-info mb-2">Lihat Invoice</a>
-                                    @elseif ($merchantOrder->StatusOrderID == "S023" || $merchantOrder->StatusOrderID == "S010")
-                                        <a href="{{ route('restock.invoice', ['stockOrderId' => $merchantOrder->StockOrderID]) }}"
-                                            target="_blank" class="btn btn-sm btn-info mb-2">Lihat Proforma Invoice</a>
+                                    @if ($merchantOrder->StatusOrderID == "S012" || $merchantOrder->StatusOrderID ==
+                                    "S018")
+                                    <a href="{{ route('restock.invoice', ['stockOrderId' => $merchantOrder->StockOrderID]) }}"
+                                        target="_blank" class="btn btn-sm btn-info mb-2">Lihat Invoice</a>
+                                    @elseif ($merchantOrder->StatusOrderID == "S023" || $merchantOrder->StatusOrderID ==
+                                    "S010")
+                                    <a href="{{ route('restock.invoice', ['stockOrderId' => $merchantOrder->StockOrderID]) }}"
+                                        target="_blank" class="btn btn-sm btn-info mb-2">Lihat Proforma Invoice</a>
                                     @endif
                                 </div>
                                 <div class="col-md-3 col-12">
@@ -169,19 +174,16 @@
                                 </div>
                                 <div class="col-md-3 col-12">
                                     <label class="mb-0">Catatan Validasi</label>
-                                    <p>{{ $merchantOrder->ValidationNotes != null ? $merchantOrder->ValidationNotes : '-'}}</p>
+                                    <p>{{ $merchantOrder->ValidationNotes != null ? $merchantOrder->ValidationNotes :
+                                        '-'}}</p>
                                 </div>
                             </div>
                             <div>
                                 @foreach ($merchantOrderDetail as $key => $value)
                                 <div class="row detail-product border-top">
                                     <div class="col-md-3 col-12 text-center align-self-center mt-2">
-                                        @if (!$value->ProductImage)
-                                        asas
-                                        @else
                                         <img src="{{ config('app.base_image_url') . '/product/'. $value->ProductImage }}"
                                             alt="" width="100">
-                                        @endif
 
                                         <p class="mb-0">{{ $value->ProductName }}</p>
                                         <input type="hidden" name="product_id[]" value="{{ $value->ProductID }}">
@@ -278,7 +280,8 @@
                                             <div class="col-6">
                                                 <p class="font-weight-bold text-success mb-0" id="grand_total">
                                                     {{ Helper::formatCurrency($merchantOrder->NettPrice +
-                                                    $merchantOrder->ServiceChargeNett + $merchantOrder->DeliveryFee, 'Rp ') }}
+                                                    $merchantOrder->ServiceChargeNett + $merchantOrder->DeliveryFee, 'Rp
+                                                    ') }}
                                                 </p>
                                             </div>
                                         </div>
@@ -287,7 +290,8 @@
                             </div>
                             <div class="row konfirmasi m-0">
                                 <div class="col-12 ">
-                                    @if ($merchantOrder->StatusOrderID == "S009" && Auth::user()->RoleID != "HL") {{-- Pesanan Baru --}}
+                                    @if ($merchantOrder->StatusOrderID == "S009" && Auth::user()->RoleID != "HL") {{--
+                                    Pesanan Baru --}}
                                     <div class="row d-md-flex justify-content-end">
                                         <div class="col-md-6 col-12 text-center">
                                             <a href="#" class="btn btn-danger btn-batal mr-3"
@@ -302,7 +306,8 @@
                                             </a>
                                         </div>
                                     </div>
-                                    @elseif ($merchantOrder->StatusOrderID == "S012" || $merchantOrder->StatusOrderID == "S023") {{-- Dalam Proses atau Telah Dikirim --}}
+                                    @elseif ($merchantOrder->StatusOrderID == "S012" || $merchantOrder->StatusOrderID ==
+                                    "S023") {{-- Dalam Proses atau Telah Dikirim --}}
                                     <div class="text-center text-md-right">
                                         <button type="button" class="btn btn-warning ml-md-3 mb-2" data-toggle="modal"
                                             data-target="#request-do">
@@ -318,7 +323,8 @@
                                             Buat Delivery Order
                                         </button>
                                         @endif
-                                        @if ($merchantOrder->StatusOrderID == "S012" && $merchantOrder->PaymentMethodID == 11)
+                                        @if ($merchantOrder->StatusOrderID == "S012" && $merchantOrder->PaymentMethodID
+                                        == 11)
                                         <div class="row d-md-flex justify-content-end">
                                             <div class="col-md-6 col-12 text-center">
                                                 <a href="#" class="btn btn-secondary btn-refund"
@@ -392,9 +398,9 @@
                                             <div class="card-header">
                                                 <h3 class="card-title font-weight-bold">
                                                     {{ $do->DeliveryOrderID }}
-                                                    @if ($do->Distributor == "HAISTAR")
+                                                    {{-- @if ($do->Distributor == "HAISTAR")
                                                     <span class="badge badge-info">HAISTAR</span>
-                                                    @endif
+                                                    @endif --}}
                                                 </h3>
                                                 <div class="card-tools">
                                                     <button type="button" class="btn btn-tool"
@@ -430,7 +436,8 @@
                                                         <p class="m-0"><b>Kendaraan : </b>{{ $do->VehicleName }} {{
                                                             $do->VehicleLicensePlate }}</p>
                                                     </div>
-                                                    <div class="col-4 col-md-3 d-flex flex-column justify-content-center">
+                                                    <div
+                                                        class="col-4 col-md-3 d-flex flex-column justify-content-center">
                                                         <p class="text-center m-0">
                                                             <b>SubTotal : </b>
                                                             <span class="price-subtotal">{{
@@ -472,7 +479,9 @@
                                                         <p class="text-center m-0">
                                                             <b>GrandTotal : </b>
                                                             <span class="price-subtotal">
-                                                                {{ Helper::formatCurrency($do->SubTotal + $do->ServiceCharge + $do->DeliveryFee - $do->Discount + $do->LateFee, 'Rp ')}}
+                                                                {{ Helper::formatCurrency($do->SubTotal +
+                                                                $do->ServiceCharge + $do->DeliveryFee - $do->Discount +
+                                                                $do->LateFee, 'Rp ')}}
                                                             </span>
                                                         </p>
                                                     </div>
@@ -578,21 +587,21 @@
 
     $('.check_rtmart').change(function() {
         if ($('.check_rtmart:checked').length > 0) {
-            $('.check_haistar').prop('disabled', true);
-            $('#form-add-do').attr('action', '{{ route('distribution.createDeliveryOrder', ['stockOrderID' => $stockOrderID, 'depoChannel' => 'rtmart']) }}');
+            // $('.check_haistar').prop('disabled', true);
+            $('#form-add-do').attr('action', '{{ route('distribution.createDeliveryOrder', ['stockOrderID' => $stockOrderID]) }}');
         } else {
-            $('.check_haistar').prop('disabled', false);
+            // $('.check_haistar').prop('disabled', false);
         }
     });
 
-    $('.check_haistar').change(function() {
-        if ($('.check_haistar:checked').length > 0) {
-            $('.check_rtmart').prop('disabled', true);
-            $('#form-add-do').attr('action', '{{ route('distribution.createDeliveryOrder', ['stockOrderID' => $stockOrderID, 'depoChannel' => 'haistar']) }}');
-        } else {
-            $('.check_rtmart').prop('disabled', false);
-        }
-    });
+    // $('.check_haistar').change(function() {
+    //     if ($('.check_haistar:checked').length > 0) {
+    //         $('.check_rtmart').prop('disabled', true);
+    //         $('#form-add-do').attr('action', '{{ route('distribution.createDeliveryOrder', ['stockOrderID' => $stockOrderID, 'depoChannel' => 'haistar']) }}');
+    //     } else {
+    //         $('.check_rtmart').prop('disabled', false);
+    //     }
+    // });
 
     // Event listener saat tombol refund diklik
     $('.konfirmasi').on('click', '.btn-refund', function (e) {
@@ -746,39 +755,39 @@
     });
 
     // Event listener saat tombol selesaikan order diklik
-    $('.btn-cancel-do-haistar').on('click', function (e) {
-        e.preventDefault();
-        const deliveryOrderId = $(this).data("do-id");
-        $.confirm({
-            title: 'Batalkan Order!',
-            content: `Apakah yakin ingin membatalkan order <b>${deliveryOrderId}</b>? <br>
-                    <label class="mt-2 mb-0">Alasan Batal:</label>
-                    <form action="/distribution/restock/cancel/deliveryOrder/${deliveryOrderId}" method="post">
-                        @csrf
-                        <input type="text" class="form-control cancel_reason" name="cancel_reason" autocomplete="off">
-                    </form>`,
-            closeIcon: true,
-            type: 'red',
-            typeAnimated: true,
-            buttons: {
-                ya: {
-                    btnClass: 'btn-danger',
-                    draggable: true,
-                    dragWindowGap: 0,
-                    action: function () {
-                        let cancel_reason = this.$content.find('.cancel_reason').val();
-                        if (!cancel_reason) {
-                            $.alert('Alasan tidak boleh kosong', 'Alasan Batal');
-                            return false;
-                        }
-                        let form = this.$content.find('form').submit();
-                    }
-                },
-                tidak: function () {
-                }
-            }
-        });
-    });
+    // $('.btn-cancel-do-haistar').on('click', function (e) {
+    //     e.preventDefault();
+    //     const deliveryOrderId = $(this).data("do-id");
+    //     $.confirm({
+    //         title: 'Batalkan Order!',
+    //         content: `Apakah yakin ingin membatalkan order <b>${deliveryOrderId}</b>? <br>
+    //                 <label class="mt-2 mb-0">Alasan Batal:</label>
+    //                 <form action="/distribution/restock/cancel/deliveryOrder/${deliveryOrderId}" method="post">
+    //                     @csrf
+    //                     <input type="text" class="form-control cancel_reason" name="cancel_reason" autocomplete="off">
+    //                 </form>`,
+    //         closeIcon: true,
+    //         type: 'red',
+    //         typeAnimated: true,
+    //         buttons: {
+    //             ya: {
+    //                 btnClass: 'btn-danger',
+    //                 draggable: true,
+    //                 dragWindowGap: 0,
+    //                 action: function () {
+    //                     let cancel_reason = this.$content.find('.cancel_reason').val();
+    //                     if (!cancel_reason) {
+    //                         $.alert('Alasan tidak boleh kosong', 'Alasan Batal');
+    //                         return false;
+    //                     }
+    //                     let form = this.$content.find('form').submit();
+    //                 }
+    //             },
+    //             tidak: function () {
+    //             }
+    //         }
+    //     });
+    // });
 
     const latitude = document.querySelector('.latitude').innerHTML;
     const longitude = document.querySelector('.longitude').innerHTML;
