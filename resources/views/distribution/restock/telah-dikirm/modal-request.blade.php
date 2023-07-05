@@ -203,10 +203,12 @@
                   dragWindowGap: 0,
                   action: function () {
                       let cancel_reason = this.$content.find('.cancel_reason').val();
+
                       if (!cancel_reason) {
                           $.alert('Alasan tidak boleh kosong', 'Alasan Batal');
                           return false;
                       }
+
                       let form = this.$content.find('form').submit();
                   }
               },

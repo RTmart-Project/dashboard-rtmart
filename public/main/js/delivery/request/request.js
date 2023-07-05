@@ -258,11 +258,13 @@ $(document).ready(function () {
 
     $("#delivery-request table").on("change", ".check-do-id", function () {
         let checkedDO = $(this).val();
+
         if ($(this).is(":checked")) {
             deliveryOrderID.push(checkedDO);
         } else {
             deliveryOrderID.splice($.inArray(checkedDO, deliveryOrderID), 1);
         }
+
         $("#do-selected").html(deliveryOrderID.join(", "));
     });
 
@@ -302,18 +304,11 @@ $(document).ready(function () {
     });
 
     $("#delivery-order-result").on("change", ".send-by", function () {
-        let value = $(this).val();
         let existStock = $(this).parent().parent().find("#exist-stock");
         let source = $(this).parent().parent().find(".select-source");
-        if (value == "RT MART") {
-            existStock.removeClass("d-none");
-            existStock.addClass("d-block");
-            source.removeClass("d-none");
-        } else {
-            existStock.removeClass("d-block");
-            existStock.addClass("d-none");
-            source.addClass("d-none");
-        }
+        existStock.removeClass("d-none");
+        existStock.addClass("d-block");
+        source.removeClass("d-none");
     });
 
     $("#delivery-order-result").on("change", ".source-product", function () {
@@ -338,24 +333,21 @@ $(document).ready(function () {
             .attr("selected", "selected");
     });
 
-    $("#delivery-order-result").on(
-        "change",
-        ".source-product, .source-investor",
-        function () {
-            const requestDO = $(this).closest(".request-do");
-            const productID = requestDO.find("#product-id").val();
-            const distributorID = requestDO.find("#distributor-id").val();
-            const productInvestor = requestDO.find(".source-investor").val();
-            const productLabel = requestDO.find(".source-product").val();
+    $("#delivery-order-result").on("change", ".source-product, .source-investor", function () {
+        const requestDO = $(this).closest(".request-do");
+        const productID = requestDO.find("#product-id").val();
+        const distributorID = requestDO.find("#distributor-id").val();
+        const productInvestor = requestDO.find(".source-investor").val();
+        const productLabel = requestDO.find(".source-product").val();
 
-            $.ajax({
-                type: "get",
-                url: `/delivery/request/sumStockProduct/${productID}/${distributorID}/${productInvestor}/${productLabel}`,
-                success: function (result) {
-                    requestDO.find("#exist-qty-perinvestor").html(result);
-                },
-            });
-        }
+        $.ajax({
+            type: "get",
+            url: `/delivery/request/sumStockProduct/${productID}/${distributorID}/${productInvestor}/${productLabel}`,
+            success: function (result) {
+                requestDO.find("#exist-qty-perinvestor").html(result);
+            },
+        });
+    }
     );
 
     let Toast = Swal.mixin({
@@ -368,11 +360,13 @@ $(document).ready(function () {
     // Second Next Step
     $("#second-next-step").click(function () {
         let next = true;
+
         if ($("#delivery-order-result :checkbox:checked").length < 1) {
             Toast.fire({
                 icon: "error",
                 title: "Pilih produk terlebih dahulu!",
             });
+
             return (next = false);
         }
 
@@ -397,11 +391,6 @@ $(document).ready(function () {
                     .siblings()
                     .find("#product-id")
                     .val();
-                let distributor = $(this)
-                    .parent()
-                    .siblings()
-                    .find("#distributor")
-                    .val();
 
                 let qty = $(this)
                     .parent()
@@ -414,21 +403,20 @@ $(document).ready(function () {
                     qty.next().next().next().next().children().text()
                 );
 
-                if (distributor == "RT MART") {
-                    if (Number(qtyVal) > Number(existQty)) {
-                        Toast.fire({
-                            icon: "error",
-                            title: productName + " melebihi qty stok tersedia!",
-                        });
-                        return (next = false);
-                    }
+                dataProduct.push({
+                    productName: productName,
+                    productID: productID,
+                    qty: qtyVal,
+                    existQty: existQty,
+                });
 
-                    dataProduct.push({
-                        productName: productName,
-                        productID: productID,
-                        qty: qtyVal,
-                        existQty: existQty,
+                if (Number(qtyVal) > Number(existQty)) {
+                    Toast.fire({
+                        icon: "error",
+                        title: productName + " melebihi qty stok tersedia!",
                     });
+
+                    return (next = false);
                 }
 
                 if (Number(qtyVal) > Number(maxQty)) {
@@ -436,13 +424,17 @@ $(document).ready(function () {
                         icon: "error",
                         title: productName + " melebihi maksimum quantity!",
                     });
+
                     return (next = false);
-                } else if (qtyVal < 1) {
+                }
+
+                if (qtyVal < 1) {
                     Toast.fire({
                         icon: "error",
                         title:
                             "Quantity " + productName + " harus lebih dari 0!",
                     });
+
                     return (next = false);
                 }
 
@@ -462,20 +454,14 @@ $(document).ready(function () {
                 const productInvestorValue = productInvestor.val();
                 const productInvestorText = $(this)
                     .closest(".request-do")
-                    .find(
-                        `.source-investor option[value="${productInvestorValue}"]`
-                    )
+                    .find(`.source-investor option[value="${productInvestorValue}"]`)
                     .text();
-                const newProductInvestorElemenet = `<span id='source-investor' class='d-none'>${productInvestorValue}</span>
-                <span class="d-block">${productInvestorText}</span>`;
-                productInvestor.replaceWith(newProductInvestorElemenet);
+                const newProductInvestorElemenet = `
+                    <span id='source-investor' class='d-none'>${productInvestorValue}</span>
+                    <span class="d-block">${productInvestorText}</span>
+                `;
 
-                // $(this)
-                //     .parent()
-                //     .siblings()
-                //     .siblings()
-                //     .siblings()
-                //     .addClass("col-3");
+                productInvestor.replaceWith(newProductInvestorElemenet);
             }
         });
 
@@ -494,10 +480,12 @@ $(document).ready(function () {
 
         $.each(resultDataProduct, function (key, value) {
             if (value.qty > value.existQty) {
+                console.log(`qty: ${value.existQty}`);
                 Toast.fire({
                     icon: "error",
                     title: value.productName + " melebihi qty stok tersedia",
                 });
+
                 return (next = false);
             }
         });
@@ -530,9 +518,11 @@ $(document).ready(function () {
             //     return (next = false);
             // }
         });
+
         $("#preview-product input[type=checkbox]").parent().addClass("d-none");
         $("#preview-product .label-product").removeClass("d-flex");
         $("#preview-product .label-product").addClass("d-none");
+
         if (next == true) {
             stepper.next();
         }
@@ -641,8 +631,7 @@ $(document).ready(function () {
             licensePlate: licensePlate,
             dataDetail: dataDeliveryOrderDetail,
             dataDeliveryOrderID: dataDeliveryOrderID,
-            dataDeliveryOrderDetailNotChecked:
-                dataDeliveryOrderDetailNotChecked,
+            dataDeliveryOrderDetailNotChecked: dataDeliveryOrderDetailNotChecked,
         });
     });
 

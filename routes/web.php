@@ -513,12 +513,12 @@ Route::group(['middleware' => ['auth']], function () {
             });
 
             // Haistar
-            Route::group(['prefix' => 'haistar'], function () {
-                Route::get('/', [SettingController::class, 'haistar'])->name('setting.haistar');
-                Route::get('/get', [SettingController::class, 'getHaistar'])->name('setting.getHaistar');
-                Route::post('/insert', [SettingController::class, 'insertHaistar'])->name('setting.insertHaistar');
-                Route::get('/delete/{distributorID}', [SettingController::class, 'deleteHaistar'])->name('setting.deleteHaistar');
-            });
+            // Route::group(['prefix' => 'haistar'], function () {
+            //     Route::get('/', [SettingController::class, 'haistar'])->name('setting.haistar');
+            //     Route::get('/get', [SettingController::class, 'getHaistar'])->name('setting.getHaistar');
+            //     Route::post('/insert', [SettingController::class, 'insertHaistar'])->name('setting.insertHaistar');
+            //     Route::get('/delete/{distributorID}', [SettingController::class, 'deleteHaistar'])->name('setting.deleteHaistar');
+            // });
         });
     });
 
