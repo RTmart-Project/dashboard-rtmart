@@ -46,12 +46,15 @@ class MerchantController extends Controller
                     ->whereMonth('ms_merchant_account.CreatedDate', '=', $thisMonth)
                     ->whereDay('ms_merchant_account.CreatedDate', '=', $thisDay);
             }
+
             if ($distributorId != "ALL") {
                 $merchantAccount->where('ms_merchant_account.DistributorID', $distributorId);
             }
+
             if ($depoUser != "ALL") {
                 $merchantAccount->where('ms_distributor.Depo', $depoUser);
             }
+
             if ($regionalUser != NULL && $depoUser == "ALL") {
                 $merchantAccount->where('ms_distributor.Regional', $regionalUser);
             }
@@ -164,70 +167,76 @@ class MerchantController extends Controller
 
         // Return Data Using DataTables with Ajax
         if ($request->ajax()) {
-            return Datatables::of($data)
-                ->editColumn('CreatedDate', function ($data) {
-                    return date('d-M-Y H:i', strtotime($data->CreatedDate));
-                })
-                ->editColumn('Partner', function ($data) {
-                    if ($data->Partner != null) {
-                        $partner = '<a class="badge badge-info">' . $data->Partner . '</a>';
-                    } else {
-                        $partner = '';
-                    }
-                    return $partner;
-                })
-                ->editColumn('Grade', function ($data) {
-                    if ($data->Grade == null) {
-                        $grade = "Retail";
-                    } else {
-                        $grade = $data->Grade;
-                    }
-                    return $grade;
-                })
-                ->addColumn('StatusBlock', function ($data) {
-                    if ($data->IsBlocked == 1) {
-                        $statusBlock = '<span class="badge badge-danger">Blocked</span>';
-                    } else {
-                        $statusBlock = '<span class="badge badge-success">Not Blocked</span>';
-                    }
-                    return $statusBlock;
-                })
-                ->addColumn('Product', function ($data) {
-                    $productBtn = '<a href="/merchant/account/product/' . $data->MerchantID . '" class="btn-sm btn-info detail-order">Detail</a>';
-                    $mapsBtn = '<a target="_blank" class="btn-sm btn-primary ml-1" href="https://www.google.co.id/maps/place/' . $data->Latitude . ',' . $data->Longitude . '">Buka Maps</a>';
-                    return $productBtn . $mapsBtn;
-                })
-                ->addColumn('Action', function ($data) {
-                    $edit = '<a href="/merchant/account/edit/' . $data->MerchantID . '" class="btn-sm btn-warning detail-order">Edit</a>';
+            $searchValue = $request->input('search')['value'];
 
-                    if ($data->IsBlocked == 1) {
-                        $textBlock = "Unblocked";
-                        $btn = "success";
-                    } else {
-                        $textBlock = "Blocked";
-                        $btn = "danger";
-                    }
-                    $updateBlock = '<a href="#" class="ml-1 btn-sm btn-' . $btn . ' btn-update-block" 
-                        data-merchant-id="' . $data->MerchantID . '"
-                        data-store-name="' . $data->StoreName . '"
-                        data-is-blocked="' . $data->IsBlocked . '">' . $textBlock . '</a>';
+            if ($searchValue || ($fromDate && $toDate)) {
+                return Datatables::of($data)
+                    ->editColumn('CreatedDate', function ($data) {
+                        return date('d-M-Y H:i', strtotime($data->CreatedDate));
+                    })
+                    ->editColumn('Partner', function ($data) {
+                        if ($data->Partner != null) {
+                            $partner = '<a class="badge badge-info">' . $data->Partner . '</a>';
+                        } else {
+                            $partner = '';
+                        }
+                        return $partner;
+                    })
+                    ->editColumn('Grade', function ($data) {
+                        if ($data->Grade == null) {
+                            $grade = "Retail";
+                        } else {
+                            $grade = $data->Grade;
+                        }
+                        return $grade;
+                    })
+                    ->addColumn('StatusBlock', function ($data) {
+                        if ($data->IsBlocked == 1) {
+                            $statusBlock = '<span class="badge badge-danger">Blocked</span>';
+                        } else {
+                            $statusBlock = '<span class="badge badge-success">Not Blocked</span>';
+                        }
+                        return $statusBlock;
+                    })
+                    ->addColumn('Product', function ($data) {
+                        $productBtn = '<a href="/merchant/account/product/' . $data->MerchantID . '" class="btn-sm btn-info detail-order">Detail</a>';
+                        $mapsBtn = '<a target="_blank" class="btn-sm btn-primary ml-1" href="https://www.google.co.id/maps/place/' . $data->Latitude . ',' . $data->Longitude . '">Buka Maps</a>';
+                        return $productBtn . $mapsBtn;
+                    })
+                    ->addColumn('Action', function ($data) {
+                        $edit = '<a href="/merchant/account/edit/' . $data->MerchantID . '" class="btn-sm btn-warning detail-order">Edit</a>';
 
-                    $actionBtn = $edit . $updateBlock;
-                    return $actionBtn;
-                })
-                ->addColumn('Assessment', function ($data) {
-                    if ($data->IsActive == 1) {
-                        $actionBtn = '<a href="/merchant/account/assessment/' . $data->MerchantID . '" class="btn-sm bg-lightblue detail-order">Lihat</a>';
-                    } else {
-                        $actionBtn = '';
-                    }
-                    return $actionBtn;
-                })
-                ->filterColumn('ms_merchant_account.CreatedDate', function ($query, $keyword) {
-                    $query->whereRaw("DATE_FORMAT(ms_merchant_account.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
-                })
-                ->rawColumns(['Partner', 'Product', 'Action', 'Assessment', 'StatusBlock'])
-                ->make(true);
+                        if ($data->IsBlocked == 1) {
+                            $textBlock = "Unblocked";
+                            $btn = "success";
+                        } else {
+                            $textBlock = "Blocked";
+                            $btn = "danger";
+                        }
+                        $updateBlock = '<a href="#" class="ml-1 btn-sm btn-' . $btn . ' btn-update-block" 
+                            data-merchant-id="' . $data->MerchantID . '"
+                            data-store-name="' . $data->StoreName . '"
+                            data-is-blocked="' . $data->IsBlocked . '">' . $textBlock . '</a>';
+
+                        $actionBtn = $edit . $updateBlock;
+                        return $actionBtn;
+                    })
+                    ->addColumn('Assessment', function ($data) {
+                        if ($data->IsActive == 1) {
+                            $actionBtn = '<a href="/merchant/account/assessment/' . $data->MerchantID . '" class="btn-sm bg-lightblue detail-order">Lihat</a>';
+                        } else {
+                            $actionBtn = '';
+                        }
+                        return $actionBtn;
+                    })
+                    ->filterColumn('ms_merchant_account.CreatedDate', function ($query, $keyword) {
+                        $query->whereRaw("DATE_FORMAT(ms_merchant_account.CreatedDate,'%d-%b-%Y %H:%i') like ?", ["%$keyword%"]);
+                    })
+                    ->rawColumns(['Partner', 'Product', 'Action', 'Assessment', 'StatusBlock'])
+                    ->make(true);
+            } else {
+                return DataTables::of([])->make(true);
+            }
         }
     }
 

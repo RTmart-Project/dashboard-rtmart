@@ -902,19 +902,10 @@
                         </a>
                     </li>
                     @endif
-                    {{-- @if (Auth::user()->RoleID == 'IT')
-                    <li class="nav-item">
-                        <a href="{{ route('setting.users') }}"
-                            class="nav-link {{ Request::is('setting/users*') ? 'active' : '' }}">
-                            <i class="far {{ Request::is('setting/users*') ? 'fa-dot-circle' : 'fa-circle' }} nav-icon"></i>
-                            <p>Pengguna</p>
-                        </a>
-                    </li>
-                    @endif --}}
                     @if (Auth::user()->RoleID == 'IT' || Auth::user()->RoleID == 'BM' || Auth::user()->RoleID == 'CEO')
-                    <li class="nav-item {{ Request::is('setting/users*') ? 'menu-open' : '' }}">
-                        <a href="#" class="nav-link {{ Request::is('setting/users*') ? 'active' : '' }}">
-                            <i class="far {{ Request::is('setting/users*') ? 'fa-dot-circle' : 'fa-circle' }} nav-icon"></i>
+                    <li class="nav-item {{ Request::is('*setting/*') ? 'menu-open' : '' }}">
+                        <a href="#" class="nav-link {{ Request::is('*setting/*') ? 'active' : '' }}">
+                            <i class="far {{ Request::is('*setting/*') ? 'fa-dot-circle' : 'fa-circle' }} nav-icon"></i>
                             <p>Pengguna
                                 <i class="right fas fa-angle-left"></i>
                             </p>
@@ -929,19 +920,19 @@
                                 </a>
                             </li>
                             @endif
+                            @if (Auth::user()->RoleID == 'IT')
+                            <li class="nav-item">
+                                <a href="{{ route('setting.role') }}"
+                                    class="nav-link {{ Request::is('*setting/role*') ? 'active' : '' }}">
+                                    <i class="far {{ Request::is('setting/role*') ? 'fa-dot-circle' : 'fa-circle' }} nav-icon"></i>
+                                    <p>Role</p>
+                                </a>
+                            </li>
+                            @endif
                         </ul>
                     </li>
                     @endif
-                    @if (Auth::user()->RoleID == 'IT')
-                    <li class="nav-item">
-                        <a href="{{ route('setting.role') }}"
-                            class="nav-link {{ Request::is('setting/role*') ? 'active' : '' }}">
-                            <i class="far {{ Request::is('setting/role*') ? 'fa-dot-circle' : 'fa-circle' }} nav-icon"></i>
-                            <p>Role</p>
-                        </a>
-                    </li>
-                    @endif
-                    @if (Auth::user()->RoleID == 'IT' || Auth::user()->RoleID == 'BM' || Auth::user()->RoleID == 'CEO')
+                    {{-- @if (Auth::user()->RoleID == 'IT' || Auth::user()->RoleID == 'BM' || Auth::user()->RoleID == 'CEO')
                     <li class="nav-item {{ Request::is('setting/module*') ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link {{ Request::is('setting/module*') ? 'active' : '' }}">
                             <i class="far {{ Request::is('setting/module*') ? 'fa-dot-circle' : 'fa-circle' }} nav-icon"></i>
@@ -970,11 +961,10 @@
                             @endif
                         </ul>
                     </li>
-                    @endif
+                    @endif --}}
                 </ul>
             </li>
             @endif
-
         </ul>
     </nav>
     <!-- /.sidebar-menu -->
