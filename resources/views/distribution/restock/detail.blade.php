@@ -754,41 +754,6 @@
         });
     });
 
-    // Event listener saat tombol selesaikan order diklik
-    // $('.btn-cancel-do-haistar').on('click', function (e) {
-    //     e.preventDefault();
-    //     const deliveryOrderId = $(this).data("do-id");
-    //     $.confirm({
-    //         title: 'Batalkan Order!',
-    //         content: `Apakah yakin ingin membatalkan order <b>${deliveryOrderId}</b>? <br>
-    //                 <label class="mt-2 mb-0">Alasan Batal:</label>
-    //                 <form action="/distribution/restock/cancel/deliveryOrder/${deliveryOrderId}" method="post">
-    //                     @csrf
-    //                     <input type="text" class="form-control cancel_reason" name="cancel_reason" autocomplete="off">
-    //                 </form>`,
-    //         closeIcon: true,
-    //         type: 'red',
-    //         typeAnimated: true,
-    //         buttons: {
-    //             ya: {
-    //                 btnClass: 'btn-danger',
-    //                 draggable: true,
-    //                 dragWindowGap: 0,
-    //                 action: function () {
-    //                     let cancel_reason = this.$content.find('.cancel_reason').val();
-    //                     if (!cancel_reason) {
-    //                         $.alert('Alasan tidak boleh kosong', 'Alasan Batal');
-    //                         return false;
-    //                     }
-    //                     let form = this.$content.find('form').submit();
-    //                 }
-    //             },
-    //             tidak: function () {
-    //             }
-    //         }
-    //     });
-    // });
-
     const latitude = document.querySelector('.latitude').innerHTML;
     const longitude = document.querySelector('.longitude').innerHTML;
     const address = document.querySelector('.address').innerHTML;
