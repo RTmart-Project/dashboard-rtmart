@@ -26,56 +26,6 @@
       <p>Pilih terlebih dahulu barang yang ingin dikirim</p>
     </div>
 
-    {{-- Loop Haistar Product --}}
-    {{-- @php
-    $firstInLoop = true;
-    @endphp --}}
-
-    {{-- @if ($isHasHaistar == 1)
-    @foreach ($productAddDO as $item)
-    @if ($item->PromisedQuantity != $item->QtyDO && $item->IsHaistarProduct == 1)
-    @if ($firstInLoop == true)
-    <label class="m-0">Produk Haistar</label>
-    @endif
-    <div class="row text-center border-bottom m-0 add-do">
-      <div class="col-1 align-self-center">
-        <input type="checkbox" class="check_haistar">
-      </div>
-      <div class="col-3 align-self-center">
-        <img src="{{ config('app.base_image_url') . '/product/'. $item->ProductImage }}" alt="" width="80">
-        <p class="mb-1">{{ $item->ProductName }}</p>
-        <input type="hidden" name="product_id[]" id="product_id" value="{{ $item->ProductID }}" disabled="disabled">
-      </div>
-      <div class="col-2 align-self-center">
-        <label>Qty Beli</label>
-        <p>{{ $item->PromisedQuantity }}x
-          <span class="nett-price">{{ Helper::formatCurrency($item->Nett, '@Rp ') }}</span>
-        </p>
-      </div>
-      <div class="col-2 align-self-center">
-        <label>Qty Belum Dikirim</label>
-        <p>{{ $item->PromisedQuantity - $item->QtyDO }}</p>
-        <input type="hidden" name="max_qty_do[]" id="max_qty_do" value="{{ $item->PromisedQuantity - $item->QtyDO }}"
-          disabled="disabled">
-      </div>
-      <div class="col-2 align-self-center">
-        <label>Qty Kirim</label>
-        <input type="number" name="qty_do[]" id="qty_do" class="form-control text-center qty-do"
-          max="{{ $item->PromisedQuantity - $item->QtyDO }}" min="1" disabled="disabled" required>
-      </div>
-      <div class="col-2 align-self-center">
-        <label>Total Harga</label>
-        <p>Rp <span class="total-price">0</span></p>
-      </div>
-    </div>
-    @php
-    $firstInLoop = false;
-    @endphp
-    @endif
-    @endforeach
-    @endif --}}
-
-    {{-- Loop RTmart Product --}}
     @php
     $firstInLoop = true;
     @endphp

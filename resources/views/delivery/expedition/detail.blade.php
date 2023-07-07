@@ -87,11 +87,11 @@
           <div class="card-body">
             @php
             $subtotal = 0;
-            $firstLoopHaistar = true;
+            // $firstLoopHaistar = true;
             @endphp
             @foreach ($order as $item)
             <div class="text-right">
-              @if ($firstLoopHaistar == true && $item->Distributor == "HAISTAR" && $item->StatusExpeditionDetail == "S034")
+              {{-- @if ($firstLoopHaistar == true && $item->Distributor == "HAISTAR" && $item->StatusExpeditionDetail == "S034")
               <a data-delivery-order="{{ $order[0]->DeliveryOrderID }}"
                 class="btn btn-sm bg-lightblue btn-resend-haistar">Resend Produk Haistar
               </a>
@@ -99,15 +99,15 @@
               <a data-delivery-order="{{ $order[0]->DeliveryOrderID }}" data-expedition="{{ $expd[0]->MerchantExpeditionID }}"
                 class="btn btn-sm bg-danger btn-req-cancel-haistar">Request Cancel Haistar
               </a>
-              @endif
+              @endif --}}
             </div>
             <div class="row text-center align-items-center">
               <div class="col-6 col-md-3">
                 <img src="{{ config('app.base_image_url') . '/product/'. $item->ProductImage }}" alt="" width="80">
                 <p class="m-0">{{ $item->ProductName }}</p>
-                @if ($item->Distributor == "HAISTAR")
+                {{-- @if ($item->Distributor == "HAISTAR")
                 <span class="badge badge-info">{{ $item->Distributor }}</span>
-                @endif
+                @endif --}}
               </div>
               <div class="col-6 col-md-3">
                 <label>Jumlah dikirim</label>
@@ -145,7 +145,7 @@
             <hr class="m-2">
             @php
             $subtotal += $item->Qty * $item->Price;
-            $firstLoopHaistar = false;
+            // $firstLoopHaistar = false;
             @endphp
             @endforeach
             <div class="row">

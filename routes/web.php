@@ -86,9 +86,7 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/update/deliveryOrder/{deliveryOrderId}', [DistributionController::class, 'updateDeliveryOrder'])->name('distribution.updateDeliveryOrder');
             Route::post('/create/deliveryOrder/{stockOrderID}', [DistributionController::class, 'createDeliveryOrder'])->name('distribution.createDeliveryOrder');
             Route::get('/update/qty/{deliveryOrderId}', [DistributionController::class, 'updateQtyDO'])->name('distribution.updateQtyDO');
-            Route::post('/cancel/deliveryOrder/{deliveryOrderId}', [DistributionController::class, 'cancelDeliveryOrder'])->name('distribution.cancelDeliveryOrder');
             Route::post('/reject/request/{deliveryOrderId}', [DistributionController::class, 'rejectRequestDO'])->name('distribution.rejectRequestDO');
-            // Route::post('/confirm/request/{deliveryOrderId}/{depoChannel}', [DistributionController::class, 'confirmRequestDO'])->name('distribution.confirmRequestDO');
         });
 
         Route::get('/restock/price-submission/create/{stockOrderID}', [DistributionController::class, 'createPriceSubmission'])->middleware('checkRoleUser:IT,BM,CEO,SM')->name('distribution.createPriceSubmission');
@@ -151,8 +149,6 @@ Route::group(['middleware' => ['auth']], function () {
             Route::get('/detail/{expeditionID}', [DeliveryController::class, 'detailExpedition'])->name('delivery.detailExpedition');
             Route::get('/confirmExpedition/{status}/{expeditionID}/{merchantID}', [DeliveryController::class, 'confirmExpedition'])->name('delivery.confirmExpedition');
             Route::post('/confirmProduct/{status}/{expeditionDetailID}', [DeliveryController::class, 'confirmProduct'])->name('delivery.confirmProduct');
-            // Route::get('/resendHaistar/{deliveryOrderID}', [DeliveryController::class, 'resendHaistar'])->name('delivery.resendHaistar');
-            // Route::get('/requestCancelHaistar/{deliveryOrderID}/{expeditionID}', [DeliveryController::class, 'requestCancelHaistar'])->name('delivery.requestCancelHaistar');
         });
 
         Route::group(['prefix' => 'history'], function () {
@@ -503,23 +499,23 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/setting/role/update/{role}', [AuthController::class, 'updateRole'])->name('setting.updateRole');
 
         // Module
-        Route::group(['prefix' => 'setting/module'], function () {
+        // Route::group(['prefix' => 'setting/module'], function () {
             // Fairbanc
-            Route::group(['prefix' => 'fairbanc'], function () {
-                Route::get('/', [SettingController::class, 'fairbanc'])->name('setting.fairbanc');
-                Route::get('/get', [SettingController::class, 'getFairbanc'])->name('setting.getFairbanc');
-                Route::post('/insert', [SettingController::class, 'insertFairbanc'])->name('setting.insertFairbanc');
-                Route::get('/delete/{merchantID}', [SettingController::class, 'deleteFairbanc'])->name('setting.deleteFairbanc');
-            });
+            // Route::group(['prefix' => 'fairbanc'], function () {
+            //     Route::get('/', [SettingController::class, 'fairbanc'])->name('setting.fairbanc');
+            //     Route::get('/get', [SettingController::class, 'getFairbanc'])->name('setting.getFairbanc');
+            //     Route::post('/insert', [SettingController::class, 'insertFairbanc'])->name('setting.insertFairbanc');
+            //     Route::get('/delete/{merchantID}', [SettingController::class, 'deleteFairbanc'])->name('setting.deleteFairbanc');
+            // });
 
             // Haistar
-            Route::group(['prefix' => 'haistar'], function () {
-                Route::get('/', [SettingController::class, 'haistar'])->name('setting.haistar');
-                Route::get('/get', [SettingController::class, 'getHaistar'])->name('setting.getHaistar');
-                Route::post('/insert', [SettingController::class, 'insertHaistar'])->name('setting.insertHaistar');
-                Route::get('/delete/{distributorID}', [SettingController::class, 'deleteHaistar'])->name('setting.deleteHaistar');
-            });
-        });
+            // Route::group(['prefix' => 'haistar'], function () {
+            //     Route::get('/', [SettingController::class, 'haistar'])->name('setting.haistar');
+            //     Route::get('/get', [SettingController::class, 'getHaistar'])->name('setting.getHaistar');
+            //     Route::post('/insert', [SettingController::class, 'insertHaistar'])->name('setting.insertHaistar');
+            //     Route::get('/delete/{distributorID}', [SettingController::class, 'deleteHaistar'])->name('setting.deleteHaistar');
+            // });
+        // });
     });
 
     // Partner

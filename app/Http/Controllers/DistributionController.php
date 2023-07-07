@@ -853,6 +853,7 @@ class DistributionController extends Controller
                 ->select('tx_merchant_delivery_order_detail.ProductID', 'tx_merchant_delivery_order_detail.Qty', 'tx_merchant_delivery_order_detail.Price', 'ms_product.ProductName', 'ms_product.ProductImage', 'tx_merchant_delivery_order_detail.Distributor', 'ms_status_order.StatusOrder')
                 ->get()
                 ->toArray();
+
             $value->DetailProduct = $deliveryOrderDetail;
 
             $subTotal = 0;
@@ -890,12 +891,15 @@ class DistributionController extends Controller
                 //     }
                 // }
             }
+
             $dueDate = strtotime("$value->FinishDate +5 day");
+
             if ($value->IsPaid == 0) {
                 $timeDiff = time() - $dueDate;
             } else {
                 $timeDiff = strtotime($value->PaymentDate) - $dueDate;
             }
+
             $lateDays = round($timeDiff / (60 * 60 * 24));
 
             $grandTotal = $subTotal + $value->ServiceCharge + $value->DeliveryFee - $value->Discount;
@@ -1445,12 +1449,11 @@ class DistributionController extends Controller
         if ($validationStatus == true) {
             try {
                 DB::transaction(function () use ($dataDO, $arrayDetailDO, $dataLogDO) {
-                    DB::table('tx_merchant_delivery_order')
-                        ->insert($dataDO);
-                    DB::table('tx_merchant_delivery_order_detail')
-                        ->insert($arrayDetailDO);
-                    DB::table('tx_merchant_delivery_order_log')
-                        ->insert($dataLogDO);
+                    DB::table('tx_merchant_delivery_order')->insert($dataDO);
+
+                    DB::table('tx_merchant_delivery_order_detail')->insert($arrayDetailDO);
+
+                    DB::table('tx_merchant_delivery_order_log')->insert($dataLogDO);
                 });
 
                 return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('success', 'Delivery Order berhasil dibuat');
@@ -1486,15 +1489,18 @@ class DistributionController extends Controller
 
         $arrayDetailDO = [];
         $validationStatus = true;
+
         foreach ($dataUpdateDO as $key => $value) {
             $value = array_combine(['ProductID', 'Qty'], $value);
             $value += ['DeliveryOrderID' => $deliveryOrderId];
 
             $validation = $deliveryOrderService->validateRemainingQty($stockOrderID->StockOrderID, $deliveryOrderId, $value['ProductID'], $value['Qty'], "EditDetailDO");
+
             if ($validation['status'] == false) {
                 $validationStatus = false;
                 break;
             }
+
             array_push($arrayDetailDO, $value);
         }
 
@@ -1532,8 +1538,8 @@ class DistributionController extends Controller
                     DB::table('tx_merchant_delivery_order')
                         ->where('DeliveryOrderID', '=', $deliveryOrderId)
                         ->update($dataDriver);
-                    DB::table('tx_merchant_delivery_order_log')
-                        ->insert($dataLogDO);
+
+                    DB::table('tx_merchant_delivery_order_log')->insert($dataLogDO);
                 });
 
                 return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID->StockOrderID])->with('success', 'Data Delivery Order berhasil diubah');
@@ -1542,47 +1548,6 @@ class DistributionController extends Controller
             }
         } else {
             return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID->StockOrderID])->with('failed', 'Quantity yang diubah tidak mencukupi');
-        }
-    }
-
-    public function cancelDeliveryOrder(Request $request, $deliveryOrderId, HaistarService $haistarService)
-    {
-        $cancelReason = $request->input('cancel_reason');
-
-        $deliveryOrder = DB::table('tx_merchant_delivery_order')
-            ->where('DeliveryOrderID', '=', $deliveryOrderId)
-            ->first();
-
-        $dataLogDO = [
-            'StockOrderID' => $deliveryOrder->StockOrderID,
-            'DeliveryOrderID' => $deliveryOrderId,
-            'StatusDO' => 'S027',
-            'DriverID' => $deliveryOrder->DriverID,
-            'VehicleID' => $deliveryOrder->VehicleID,
-            'VehicleLicensePlate' => $deliveryOrder->VehicleLicensePlate,
-            'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo . ' ' . Auth::user()->Name
-        ];
-
-        $haistarCancelOrder = $haistarService->haistarCancelOrder($deliveryOrderId, $cancelReason);
-
-        if ($haistarCancelOrder->status == 200) {
-            try {
-                DB::transaction(function () use ($deliveryOrderId, $cancelReason, $dataLogDO) {
-                    DB::table('tx_merchant_delivery_order')
-                        ->where('DeliveryOrderID', '=', $deliveryOrderId)
-                        ->update([
-                            'StatusDO' => 'S027',
-                            'CancelReason' => $cancelReason
-                        ]);
-                    DB::table('tx_merchant_delivery_order_log')
-                        ->insert($dataLogDO);
-                });
-                return redirect()->route('distribution.restockDetail', ['stockOrderID' => $deliveryOrder->StockOrderID])->with('success', 'Permintaan Batal Data Delivery Order berhasil');
-            } catch (\Throwable $th) {
-                return redirect()->route('distribution.restockDetail', ['stockOrderID' => $deliveryOrder->StockOrderID])->with('failed', 'Gagal, terjadi kesalahan sistem atau jaringan');
-            }
-        } else {
-            return redirect()->route('distribution.restockDetail', ['stockOrderID' => $deliveryOrder->StockOrderID])->with('failed', 'Gagal, terjadi kesalahan');
         }
     }
 
@@ -1597,176 +1562,10 @@ class DistributionController extends Controller
 
         try {
             $deliveryOrderService->rejectRequestDeliveryOrder($deliveryOrderId, $cancelReason, $stockOrderId);
+
             return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderId])->with('success', 'Delivery Order berhasil dibatalkan');
         } catch (\Throwable $th) {
             return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderId])->with('failed', 'Gagal, terjadi kesalahan');
-        }
-    }
-
-    public function confirmRequestDO($deliveryOrderId, $depoChannel, Request $request, DeliveryOrderService $deliveryOrderService, HaistarService $haistarService)
-    {
-        $request->validate([
-            'driver' => 'required',
-            'vehicle' => 'required',
-            'license_plate' => 'required'
-        ]);
-
-        $newDeliveryOrderID = $deliveryOrderService->generateDeliveryOrderID();
-
-        $stockOrderID = $request->input('stock_order_id');
-        $arrProductRTmart = $request->input('product_id_rtmart');
-        $arrQtyRTmart = $request->input('qty_request_do_rtmart');
-        $arrPriceRTmart = $request->input('price_rtmart');
-        $arrProductHaistar = $request->input('product_id_haistar');
-        $arrQtyHaistar = $request->input('qty_request_do_haistar');
-        $arrPriceHaistar = $request->input('price_haistar');
-        $driverID = $request->input('driver');
-        $helperID = $request->input('helper');
-        $vehicleID = $request->input('vehicle');
-        $licensePlate = $request->input('license_plate');
-        $createdDate = $request->input('created_date');
-
-        $getPaymentMethod = DB::table('tx_merchant_order')
-            ->where('StockOrderID', $stockOrderID)
-            ->select('PaymentMethodID')
-            ->first();
-
-        if ($depoChannel == "rtmart") {
-            $request->validate([
-                'qty_request_do_rtmart' => 'required',
-                'qty_request_do_rtmart.*' => 'required|numeric|lte:max_qty_request_do_rtmart.*|gte:0'
-            ]);
-
-            // generate DO ID
-            if ($arrProductHaistar == null) {
-                $confirmDeliveryOrderID = $deliveryOrderId;
-            } else {
-                $confirmDeliveryOrderID = $newDeliveryOrderID;
-            }
-
-            $distributor = "RT MART";
-            $dataDetailDO = $deliveryOrderService->dataDetailConfirmDO($deliveryOrderId, $arrProductRTmart, $arrQtyRTmart);
-        } elseif ($depoChannel == "haistar") {
-            $request->validate([
-                'qty_request_do_haistar' => 'required',
-                'qty_request_do_haistar.*' => 'required|numeric|lte:max_qty_request_do_haistar.*|gte:0'
-            ]);
-            if ($arrProductRTmart == null) {
-                $confirmDeliveryOrderID = $deliveryOrderId;
-            } else {
-                $confirmDeliveryOrderID = $newDeliveryOrderID;
-            }
-
-            $dataDetailDO = $deliveryOrderService->dataDetailConfirmDO($deliveryOrderId, $arrProductHaistar, $arrQtyHaistar);
-            $distributor = "HAISTAR";
-        } else {
-            return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Gagal, terjadi kesalahan');
-        }
-
-        $dataDO = [
-            'StockOrderID' => $stockOrderID,
-            'StatusDO' => 'S024',
-            'DriverID' => $driverID,
-            'HelperID' => $helperID,
-            'VehicleID' => $vehicleID,
-            'VehicleLicensePlate' => $licensePlate,
-            'CreatedDate' => $createdDate,
-            'Distributor' => $distributor
-        ];
-
-        $dataLogDO = [
-            'StockOrderID' => $stockOrderID,
-            'DeliveryOrderID' => $confirmDeliveryOrderID,
-            'StatusDO' => 'S024',
-            'DriverID' => $driverID,
-            'HelperID' => $helperID,
-            'VehicleID' => $vehicleID,
-            'VehicleLicensePlate' => $licensePlate,
-            'ActionBy' => 'DISTRIBUTOR ' . Auth::user()->Depo . ' ' . Auth::user()->Name
-        ];
-
-        $validationStatus = true;
-        $arrayDetailDO = [];
-        foreach ($dataDetailDO as &$value) {
-            $value = array_combine(['ProductID', 'Qty', 'DeliveryOrderID'], $value);
-
-            $validation = $deliveryOrderService->validateRemainingQty($stockOrderID, $deliveryOrderId, $value['ProductID'], $value['Qty'], "ConfirmRequestDO");
-            $value += ['Price' => $validation['price']];
-            if ($validation['status'] == false) {
-                $validationStatus = false;
-                break;
-            }
-            array_push($arrayDetailDO, $value);
-        }
-
-        if ($depoChannel == "haistar") {
-            $totalPrice = 0;
-            $arrayItems = [];
-            $objectItems = new stdClass;
-            foreach ($arrayDetailDO as &$value) {
-
-                $checkStock = $haistarService->haistarGetStock($value['ProductID']);
-
-                $arrayExistStock = $checkStock->data->detail;
-
-                $existStock = array_sum(array_column($arrayExistStock, "exist_quantity"));
-
-                if ((int)$value['Qty'] > $existStock) {
-                    return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Gagal, Stock Haistar tidak mencukupi!');
-                }
-                $totalPrice += (int)$value['Qty'] * (int)$value['Price'];
-
-                $objectItems->item_code = $value['ProductID'];
-                $objectItems->quantity = (int)$value['Qty'] * 1;
-                $objectItems->unit_price = (int)$value['Price'] * 1;
-
-                array_push($arrayItems, clone $objectItems);
-            }
-
-            if ($getPaymentMethod->PaymentMethodID == 1) {
-                $codPrice = "$totalPrice";
-            } else {
-                $codPrice = "0";
-            }
-
-            // Parameter Push Order Haistar
-            $objectParams = new stdClass;
-            $objectParams->code = $confirmDeliveryOrderID;
-            $objectParams->cod_price = $codPrice;
-            $objectParams->total_price = $totalPrice;
-            $objectParams->total_product_price = "$totalPrice";
-            $objectParams->items = $arrayItems;
-
-            $haistarPushOrder = $haistarService->haistarPushOrder($stockOrderID, $objectParams);
-            $haistarResponse = $haistarPushOrder->status;
-        } else {
-            $haistarResponse = 400;
-        }
-
-        if ($validationStatus == true) {
-            if ($haistarResponse == 200 || $depoChannel == "rtmart") {
-                try {
-                    DB::transaction(function () use ($confirmDeliveryOrderID, $dataDO, $arrayDetailDO, $dataLogDO, $deliveryOrderService) {
-                        DB::table('tx_merchant_delivery_order')
-                            ->updateOrInsert(
-                                [
-                                    'DeliveryOrderID' => $confirmDeliveryOrderID
-                                ],
-                                $dataDO
-                            );
-                        $deliveryOrderService->updateDataDetailConfirmDO($confirmDeliveryOrderID, $arrayDetailDO);
-                        DB::table('tx_merchant_delivery_order_log')
-                            ->insert($dataLogDO);
-                    });
-                    return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('success', 'Permintaan Delivery Order berhasil dikonfirmasi');
-                } catch (\Throwable $th) {
-                    return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Gagal, terjadi kesalahan');
-                }
-            } else {
-                return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', $haistarPushOrder->data);
-            }
-        } else {
-            return redirect()->route('distribution.restockDetail', ['stockOrderID' => $stockOrderID])->with('failed', 'Quantity yang dikirim tidak mencukupi');
         }
     }
 
@@ -1961,6 +1760,7 @@ class DistributionController extends Controller
         if ($depoUser != "ALL") {
             $sql->where('ms_distributor.Depo', $depoUser);
         }
+
         if ($regionalUser != NULL && $depoUser == "ALL") {
             $sql->where('ms_distributor.Regional', $regionalUser);
         }
@@ -2231,10 +2031,12 @@ class DistributionController extends Controller
         try {
             DB::transaction(function () use ($priceSubmissionID, $status, $merchantOrder, $dataPriceSubmission, $dataTxMerchantOrder, $dataTxMerchantOrderLog, $dataVoucherLog, $orderDetail) {
                 DB::table('ms_price_submission')->where('PriceSubmissionID', $priceSubmissionID)->update($dataPriceSubmission);
+
                 if ($status === "approve") {
                     DB::table('tx_merchant_order')->where('StockOrderID', $merchantOrder->StockOrderID)->update($dataTxMerchantOrder);
                     DB::table('tx_merchant_order_log')->insert($dataTxMerchantOrderLog);
                     DB::table('ms_voucher_log')->updateOrInsert(['OrderID' => $merchantOrder->StockOrderID], $dataVoucherLog);
+
                     foreach ($orderDetail as $key => $value) {
                         if ($value->PurchasePrice === null) {
                             $purchasePrice = $value->Price;
@@ -2245,6 +2047,7 @@ class DistributionController extends Controller
                             $sourcePurchasePrice = $value->StockProductID;
                             $type = 'ms_stock_product';
                         }
+
                         DB::table('ms_price_submission_log')
                             ->where('PriceSubmissionID', $priceSubmissionID)
                             ->where('StockOrderID', $merchantOrder->StockOrderID)
@@ -2257,6 +2060,7 @@ class DistributionController extends Controller
                     }
                 }
             });
+
             return redirect()->route('priceSubmission')->with('success', 'Pengajuan Harga berhasil dikonfirmasi');
         } catch (\Throwable $th) {
             return redirect()->route('priceSubmission')->with('failed', 'Terjadi Kesalahan');
@@ -2362,6 +2166,7 @@ class DistributionController extends Controller
         try {
             DB::transaction(function () use ($stockOrderID, $dataPriceSubmission, $dataOrderDetail) {
                 $priceSubmissionID = DB::table('ms_price_submission')->insertGetId($dataPriceSubmission);
+
                 foreach ($dataOrderDetail as $key => $value) {
                     DB::table('ms_price_submission_log')->insert([
                         'PriceSubmissionID' => $priceSubmissionID,
@@ -2369,6 +2174,7 @@ class DistributionController extends Controller
                         'ProductID' => $value['ProductID'],
                         'PriceSubmission' => $value['PriceSubmission']
                     ]);
+
                     DB::table('tx_merchant_order_detail')
                         ->where('StockOrderID', $stockOrderID)
                         ->where('ProductID', $value['ProductID'])
@@ -2377,6 +2183,7 @@ class DistributionController extends Controller
                         ]);
                 }
             });
+
             return redirect()->route('distribution.restock')->with('success', 'Pengajuan Harga berhasil dibuat');
         } catch (\Throwable $th) {
             return redirect()->route('distribution.restock')->with('failed', 'Terjadi Kesalahan');
@@ -2401,6 +2208,7 @@ class DistributionController extends Controller
         if ($depoUser != "ALL") {
             $sqlbillPayLater->where('ms_distributor.Depo', $depoUser);
         }
+
         if ($regionalUser != NULL && $depoUser == "ALL") {
             $sqlbillPayLater->where('ms_distributor.Regional', $regionalUser);
         }
@@ -2419,136 +2227,142 @@ class DistributionController extends Controller
         $data = $sqlbillPayLater;
 
         if ($request->ajax()) {
-            return DataTables::of($data)
-                ->editColumn('StockOrderID', function ($data) {
-                    $link = '<a href="/distribution/restock/detail/' . $data->StockOrderID . '" target="_blank">' . $data->StockOrderID . '</a>';
-                    return $link;
-                })
-                ->editColumn('FinishDate', function ($data) {
-                    if ($data->FinishDate == null) {
-                        $finishDate = "-";
-                    } else {
-                        $finishDate = date('d-M-Y H:i', strtotime($data->FinishDate));
-                    }
-                    return $finishDate;
-                })
-                ->editColumn('DeliveryDate', function ($data) {
-                    $date = date('d-M-Y H:i', strtotime($data->DeliveryDate));
-                    return $date;
-                })
-                ->editColumn('PaymentDate', function ($data) {
-                    if ($data->PaymentDate == null) {
-                        $paymentDate = "-";
-                    } else {
-                        $paymentDate = date('d-M-Y', strtotime($data->PaymentDate));
-                    }
-                    return $paymentDate;
-                })
-                ->addColumn('DueDate', function ($data) {
-                    if ($data->FinishDate == null) {
-                        $dueDate = "H+5 setelah barang diterima";
-                    } else {
-                        $dueDate = date("d-M-Y", strtotime("$data->FinishDate +5 day"));
-                    }
-                    return $dueDate;
-                })
-                ->addColumn('RemainingDay', function ($data) {
-                    $dueDate = strtotime("$data->FinishDate +5 day");
-                    $timeDiff = time() - $dueDate;
-                    $dateDiff = round($timeDiff / (60 * 60 * 24));
+            $searchValue = $request->input('search')['value'];
 
-                    if ($dateDiff == 0) {
-                        $remainingDay = "<a class='badge badge-danger'>H " . $dateDiff . " (Hari H)</a>";
-                    } elseif (Str::contains($dateDiff, '-')) {
-                        if ($dateDiff == -1 || $dateDiff == -2) {
-                            $remainingDay = "<a class='badge badge-warning'>H" . $dateDiff . "</a>";
+            if ($searchValue || ($fromDate && $toDate)) {
+                return DataTables::of($data)
+                    ->editColumn('StockOrderID', function ($data) {
+                        $link = '<a href="/distribution/restock/detail/' . $data->StockOrderID . '" target="_blank">' . $data->StockOrderID . '</a>';
+                        return $link;
+                    })
+                    ->editColumn('FinishDate', function ($data) {
+                        if ($data->FinishDate == null) {
+                            $finishDate = "-";
                         } else {
-                            $remainingDay = "H" . $dateDiff;
+                            $finishDate = date('d-M-Y H:i', strtotime($data->FinishDate));
                         }
-                    } else {
-                        $remainingDay = "<a class='badge badge-danger'>H+" . $dateDiff . "</a>";
-                    }
-
-                    if ($data->FinishDate != null && $data->IsPaid == 0) {
-                        $remainingDay = $remainingDay;
-                    } else {
-                        $remainingDay = "-";
-                    }
-
-                    return $remainingDay;
-                })
-                ->addColumn('BillNominal', function ($data) {
-                    // DENDA
-                    $dueDate = strtotime("$data->FinishDate +5 day");
-                    if ($data->IsPaid == 0) {
+                        return $finishDate;
+                    })
+                    ->editColumn('DeliveryDate', function ($data) {
+                        $date = date('d-M-Y H:i', strtotime($data->DeliveryDate));
+                        return $date;
+                    })
+                    ->editColumn('PaymentDate', function ($data) {
+                        if ($data->PaymentDate == null) {
+                            $paymentDate = "-";
+                        } else {
+                            $paymentDate = date('d-M-Y', strtotime($data->PaymentDate));
+                        }
+                        return $paymentDate;
+                    })
+                    ->addColumn('DueDate', function ($data) {
+                        if ($data->FinishDate == null) {
+                            $dueDate = "H+5 setelah barang diterima";
+                        } else {
+                            $dueDate = date("d-M-Y", strtotime("$data->FinishDate +5 day"));
+                        }
+                        return $dueDate;
+                    })
+                    ->addColumn('RemainingDay', function ($data) {
+                        $dueDate = strtotime("$data->FinishDate +5 day");
                         $timeDiff = time() - $dueDate;
-                    } else {
-                        $timeDiff = strtotime($data->PaymentDate) - $dueDate;
-                    }
-                    $lateDays = round($timeDiff / (60 * 60 * 24));
+                        $dateDiff = round($timeDiff / (60 * 60 * 24));
 
-                    $grandTotal = $data->SubTotal + $data->ServiceCharge + $data->DeliveryFee - $data->Discount;
-
-                    if ($lateDays > 0) {
-                        $sqlLateBillFee = DB::table('tx_merchant_delivery_order_bill')
-                            ->where('PaymentMethodID', $data->PaymentMethodID)
-                            ->whereRaw("$lateDays BETWEEN OverdueStartDay AND OverdueToDay")
-                            ->select('TypeFee', 'NominalFee')
-                            ->first();
-
-                        if ($sqlLateBillFee->TypeFee == "PERCENT") {
-                            $lateFee = $grandTotal * $sqlLateBillFee->NominalFee / 100;
-                            $grandTotal += round($lateFee);
+                        if ($dateDiff == 0) {
+                            $remainingDay = "<a class='badge badge-danger'>H " . $dateDiff . " (Hari H)</a>";
+                        } elseif (Str::contains($dateDiff, '-')) {
+                            if ($dateDiff == -1 || $dateDiff == -2) {
+                                $remainingDay = "<a class='badge badge-warning'>H" . $dateDiff . "</a>";
+                            } else {
+                                $remainingDay = "H" . $dateDiff;
+                            }
+                        } else {
+                            $remainingDay = "<a class='badge badge-danger'>H+" . $dateDiff . "</a>";
                         }
 
-                        if ($sqlLateBillFee->TypeFee == 'NOMINAL') {
-                            $lateFee = $sqlLateBillFee->NominalFee;
-                            $grandTotal += $lateFee;
+                        if ($data->FinishDate != null && $data->IsPaid == 0) {
+                            $remainingDay = $remainingDay;
+                        } else {
+                            $remainingDay = "-";
                         }
-                    } else {
-                        $lateFee = 0;
-                    }
 
-                    if ($data->StatusDO == "S024" || $data->StatusDO == "S025") {
-                        $bill = $grandTotal;
-                    } else {
-                        $bill = "-";
-                    }
-                    return $bill;
-                })
-                ->editColumn('IsPaid', function ($data) {
-                    if ($data->IsPaid == 1) {
-                        $isPaid = '<span class="badge badge-success">Sudah Lunas</span>';
-                    } else {
-                        $isPaid = '<span class="badge badge-danger">Belum Lunas</span>';
-                    }
-                    return $isPaid;
-                })
-                ->editColumn('PaymentSlip', function ($data) {
-                    $baseImageUrl = config('app.base_image_url');
-                    if ($data->PaymentSlip != null) {
-                        $paymentSlip = '<a data-store-name="' . $data->StoreName . '" data-do-id="' . $data->DeliveryOrderID . '" class="lihat-bukti" target="_blank" href="' . $baseImageUrl . 'paylater_slip_payment/' . $data->PaymentSlip . '">Lihat Bukti</a>';
-                    } else {
-                        $paymentSlip = "-";
-                    }
+                        return $remainingDay;
+                    })
+                    ->addColumn('BillNominal', function ($data) {
+                        // DENDA
+                        $dueDate = strtotime("$data->FinishDate +5 day");
+                        if ($data->IsPaid == 0) {
+                            $timeDiff = time() - $dueDate;
+                        } else {
+                            $timeDiff = strtotime($data->PaymentDate) - $dueDate;
+                        }
+                        $lateDays = round($timeDiff / (60 * 60 * 24));
 
-                    return $paymentSlip;
-                })
-                ->addColumn('Action', function ($data) {
-                    if ($data->FinishDate != null && $data->IsPaid == 0 && Auth::user()->RoleID != "AD" && Auth::user()->RoleID != "BM") {
-                        $action = '<a class="btn btn-xs btn-warning btn-payment my-1" data-do-id="' . $data->DeliveryOrderID . '" data-store-name="' . $data->StoreName . '">Update Pelunasan</a>';
-                    } else {
-                        $action = '';
-                    }
-                    $invoice = '<a class="btn btn-xs btn-info my-1 mr-1" target="_blank" href="/restock/deliveryOrder/invoice/' . $data->DeliveryOrderID . '">Delivery Invoice</a>';
+                        $grandTotal = $data->SubTotal + $data->ServiceCharge + $data->DeliveryFee - $data->Discount;
 
-                    return $invoice . $action;
-                })
-                ->filterColumn('Sales', function ($query, $keyword) {
-                    $query->whereRaw("CONCAT(ms_merchant_account.ReferralCode, ' ', ms_sales.SalesName) like ?", ["%$keyword%"]);
-                })
-                ->rawColumns(['StockOrderID', 'IsPaid', 'RemainingDay', 'PaymentSlip', 'Action'])
-                ->make(true);
+                        if ($lateDays > 0) {
+                            $sqlLateBillFee = DB::table('tx_merchant_delivery_order_bill')
+                                ->where('PaymentMethodID', $data->PaymentMethodID)
+                                ->whereRaw("$lateDays BETWEEN OverdueStartDay AND OverdueToDay")
+                                ->select('TypeFee', 'NominalFee')
+                                ->first();
+
+                            if ($sqlLateBillFee->TypeFee == "PERCENT") {
+                                $lateFee = $grandTotal * $sqlLateBillFee->NominalFee / 100;
+                                $grandTotal += round($lateFee);
+                            }
+
+                            if ($sqlLateBillFee->TypeFee == 'NOMINAL') {
+                                $lateFee = $sqlLateBillFee->NominalFee;
+                                $grandTotal += $lateFee;
+                            }
+                        } else {
+                            $lateFee = 0;
+                        }
+
+                        if ($data->StatusDO == "S024" || $data->StatusDO == "S025") {
+                            $bill = $grandTotal;
+                        } else {
+                            $bill = "-";
+                        }
+                        return $bill;
+                    })
+                    ->editColumn('IsPaid', function ($data) {
+                        if ($data->IsPaid == 1) {
+                            $isPaid = '<span class="badge badge-success">Sudah Lunas</span>';
+                        } else {
+                            $isPaid = '<span class="badge badge-danger">Belum Lunas</span>';
+                        }
+                        return $isPaid;
+                    })
+                    ->editColumn('PaymentSlip', function ($data) {
+                        $baseImageUrl = config('app.base_image_url');
+                        if ($data->PaymentSlip != null) {
+                            $paymentSlip = '<a data-store-name="' . $data->StoreName . '" data-do-id="' . $data->DeliveryOrderID . '" class="lihat-bukti" target="_blank" href="' . $baseImageUrl . 'paylater_slip_payment/' . $data->PaymentSlip . '">Lihat Bukti</a>';
+                        } else {
+                            $paymentSlip = "-";
+                        }
+
+                        return $paymentSlip;
+                    })
+                    ->addColumn('Action', function ($data) {
+                        if ($data->FinishDate != null && $data->IsPaid == 0 && Auth::user()->RoleID != "AD" && Auth::user()->RoleID != "BM") {
+                            $action = '<a class="btn btn-xs btn-warning btn-payment my-1" data-do-id="' . $data->DeliveryOrderID . '" data-store-name="' . $data->StoreName . '">Update Pelunasan</a>';
+                        } else {
+                            $action = '';
+                        }
+                        $invoice = '<a class="btn btn-xs btn-info my-1 mr-1" target="_blank" href="/restock/deliveryOrder/invoice/' . $data->DeliveryOrderID . '">Delivery Invoice</a>';
+
+                        return $invoice . $action;
+                    })
+                    ->filterColumn('Sales', function ($query, $keyword) {
+                        $query->whereRaw("CONCAT(ms_merchant_account.ReferralCode, ' ', ms_sales.SalesName) like ?", ["%$keyword%"]);
+                    })
+                    ->rawColumns(['StockOrderID', 'IsPaid', 'RemainingDay', 'PaymentSlip', 'Action'])
+                    ->make(true);
+            } else {
+                return DataTables::of([])->make(true);
+            }
         }
     }
 

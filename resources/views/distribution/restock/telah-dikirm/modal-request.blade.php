@@ -35,49 +35,12 @@
         <input type="hidden" name="stock_order_id" value="{{ $stockOrderID }}">
 
         @php
-        // $firstInLoopHaistar = true;
         $firstInLoopRTmart = true;
         @endphp
 
-        {{-- Loop Haistar Product --}}
-        {{-- @foreach ($item->DetailProduct as $product)
-        @if ($product->IsHaistarProduct == 1)
-        @if ($firstInLoopHaistar == true)
-        @endif
-        <div class="row text-center border-bottom m-0 request-do">
-          <div class="col-3 align-self-center">
-            <img src="{{ config('app.base_image_url') . '/product/'. $product->ProductImage }}" alt="" width="80">
-          </div>
-          <div class="col-3 align-self-center">
-            <label>Produk</label>
-            <p>{{ $product->ProductName }}</p>
-            <input type="hidden" name="product_id_haistar[]" id="product-id" value="{{ $product->ProductID }}">
-          </div>
-          <div class="col-3 align-self-center">
-            <label class="d-block">Qty</label>
-            <p>
-              <input type="hidden" name="max_qty_request_do_haistar[]"
-                value="{{ $product->OrderQty - $product->QtyDOSelesai - $product->QtyDODlmPengiriman }}">
-              <span class="price-do">{{ Helper::formatCurrency($product->Price, $product->Qty .' x @Rp ') }}</span><br>
-              <input type="hidden" name="price_haistar[]" value="{{ $product->Price }}">
-            </p>
-          </div>
-          <div class="col-3 align-self-center">
-            <label>Total Harga</label>
-            <p class="price-total">{{ Helper::formatCurrency($product->Qty * $product->Price, 'Rp ') }}</p>
-          </div>
-        </div>
-        @php
-        $firstInLoopHaistar = false;
-        @endphp
-        @endif
-        @endforeach --}}
-
         {{-- Loop RTmart Product --}}
         @foreach ($item->DetailProduct as $product)
-        {{-- @if ($product->IsHaistarProduct == 0) --}}
         @if ($firstInLoopRTmart == true)
-        {{-- @endif --}}
         <div class="row text-center border-bottom m-0 request-do">
           <div class="col-3 align-self-center">
             <img src="{{ config('app.base_image_url') . '/product/'. $product->ProductImage }}" alt="" width="80">
@@ -159,26 +122,6 @@
       $(this).closest('.request-do-wrapper').find('.price-subtotal').html('Rp ' + thousands_separators(subTotalDO));
   });
 
-  // $('.check_rtmart_request').change(function() {
-  //     if ($('.check_rtmart_request:checked').length > 0) {
-  //         $('.check_haistar_request').prop('disabled', true);
-  //         let deliveryOrderID = $(this).closest('.card-request-do').find('.do-id').text();
-  //         $(this).closest('.request-do-wrapper').find('.form-request-do').attr('action', `/distribution/restock/confirm/request/${deliveryOrderID}/rtmart`);
-  //     } else {
-  //         $('.check_haistar_request').prop('disabled', false);
-  //     }
-  // });
-
-  // $('.check_haistar_request').change(function() {
-  //     if ($('.check_haistar_request:checked').length > 0) {
-  //         $('.check_rtmart_request').prop('disabled', true);
-  //         let deliveryOrderID = $(this).closest('.card-request-do').find('.do-id').text();
-  //         $(this).closest('.request-do-wrapper').find('.form-request-do').attr('action', `/distribution/restock/confirm/request/${deliveryOrderID}/haistar`);
-  //     } else {
-  //         $('.check_rtmart_request').prop('disabled', false);
-  //     }
-  // });
-
   // Event listener saat tombol batal diklik
   $('.konfirmasi-request').on('click', '.btn-cancel-request-do', function (e) {
       e.preventDefault();
@@ -203,10 +146,12 @@
                   dragWindowGap: 0,
                   action: function () {
                       let cancel_reason = this.$content.find('.cancel_reason').val();
+
                       if (!cancel_reason) {
                           $.alert('Alasan tidak boleh kosong', 'Alasan Batal');
                           return false;
                       }
+
                       let form = this.$content.find('form').submit();
                   }
               },
