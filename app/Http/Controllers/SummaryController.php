@@ -127,18 +127,6 @@ class SummaryController extends Controller
         $salesCode = $request->salesCode;
         $typePO = $request->typePO;
         $partner = $request->partner;
-        $depoUser = Auth::user()->Depo;
-        $regionalUser = Auth::user()->Regional;
-
-        // if ($depoUser == "ALL" && !$regionalUser && !$distributorID) {
-        //     $distributorID = ['D-2004-000002', 'D-2212-000001', 'D-2004-000006', 'D-2004-000005', 'D-2004-000001'];
-        // }
-        // if (($regionalUser == "REGIONAL1" && $depoUser == "ALL") && !$distributorID) {
-        //     $distributorID = ['D-2004-000002', 'D-2212-000001'];
-        // }
-        // if (($regionalUser == "REGIONAL2" && $depoUser == "ALL") && !$distributorID) {
-        //     $distributorID = ['D-2004-000006', 'D-2004-000005', 'D-2004-000001'];
-        // }
 
         $data = $summaryService->summaryReport($startDate, $endDate, $distributorID, $salesCode, $typePO, $partner);
 
@@ -153,18 +141,6 @@ class SummaryController extends Controller
         $salesCode = $request->input('salesCode');
         $typePO = $request->input('typePO');
         $partner = $request->input('partner');
-        $depoUser = Auth::user()->Depo;
-        $regionalUser = Auth::user()->Regional;
-
-        // if ($depoUser == "ALL" && !$regionalUser && !$distributorID) {
-        //     $distributorID = "D-2004-000002, D-2212-000001, D-2004-000006, D-2004-000005, D-2004-000001";
-        // }
-        // if ($regionalUser == "REGIONAL1" && $depoUser == "ALL" && !$distributorID) {
-        //     $distributorID = "D-2004-000002, D-2212-000001";
-        // }
-        // if ($regionalUser == "REGIONAL2" && $depoUser == "ALL" && !$distributorID) {
-        //     $distributorID = "D-2004-000006, D-2004-000005, D-2004-000001";
-        // }
 
         if ($typePO != null) {
             $filterPO = explode(",", $typePO);
@@ -200,7 +176,7 @@ class SummaryController extends Controller
         $dataCountDO = $summaryService->countDO($startDate, $endDate, $distributorID, $salesCode, $typePO);
         $dataCountMerchantDO = $summaryService->countMerchantDO($startDate, $endDate, $distributorID, $salesCode, $typePO);
         $dataFilter = $summaryService->dataFilter($startDate, $endDate, $distributorID, $salesCode, $typePO, $partner);
-
+        
         if ($request->ajax()) {
             if ($type == "totalValuePO" || $type == "totalValuePOallStatus" || $type == "totalValuePOcancelled") {
                 return DataTables::of($dataTotalValuePO)
