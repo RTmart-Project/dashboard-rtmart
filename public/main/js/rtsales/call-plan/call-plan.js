@@ -14,8 +14,9 @@ $(document).ready(function () {
 
     const filterTeam = $('#filter_team').val();
 
-    callPlanData([dayNameNow], startDateMonth, dateNow, filterTeam);
+    // callPlanData([dayNameNow], startDateMonth, dateNow, filterTeam);
     $("#call-plan #visit_day").val([dayNameNow]);
+    callPlanData([dayNameNow], null, null, null);
 
     function callPlanData(visitDayName, startDate, endDate, filterTeam) {
         $.ajaxSetup({

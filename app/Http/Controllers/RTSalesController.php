@@ -630,15 +630,21 @@ class RTSalesController extends Controller
         $data = $rTSalesService->callPlanData($visitDayName, $startDate, $endDate, $filterTeam);
 
         if ($request->ajax()) {
-            return Datatables::of($data)
-                ->addColumn('Sales', function ($data) {
-                    return $data->SalesCode . ' - ' . $data->SalesName;
-                })
-                ->filterColumn('Sales', function ($query, $keyword) {
-                    $sql = "CONCAT(ms_visit_plan.SalesCode, ' ', ms_sales.SalesName) like ?";
-                    $query->whereRaw($sql, ["%{$keyword}%"]);
-                })
-                ->make();
+            $searchValue = $request->input('search')['value'];
+
+            if ($searchValue || ($startDate && $endDate)) {
+                return Datatables::of($data)
+                    ->addColumn('Sales', function ($data) {
+                        return $data->SalesCode . ' - ' . $data->SalesName;
+                    })
+                    ->filterColumn('Sales', function ($query, $keyword) {
+                        $sql = "CONCAT(ms_visit_plan.SalesCode, ' ', ms_sales.SalesName) like ?";
+                        $query->whereRaw($sql, ["%{$keyword}%"]);
+                    })
+                    ->make();
+            } else {
+                return DataTables::of([])->make(true);
+            }
         }
     }
 
