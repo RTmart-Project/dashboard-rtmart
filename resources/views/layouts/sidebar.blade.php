@@ -590,6 +590,7 @@
             Auth::user()->RoleID == 'DMO' ||
             Auth::user()->RoleID == 'HL' ||
             Auth::user()->RoleID == 'SM' ||
+            Auth::user()->RoleID == 'SKR' ||
             Auth::user()->RoleID == 'AD')
             <li class="nav-item {{ Request::is('merchant*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('merchant*') ? 'active' : '' }}">
@@ -623,6 +624,7 @@
                     Auth::user()->RoleID == 'SM' ||
                     Auth::user()->RoleID == 'CEO' ||
                     Auth::user()->RoleID == 'FI' ||
+                    Auth::user()->RoleID == 'SKR' ||
                     Auth::user()->RoleID == 'AH')
                     <li class="nav-item {{ Request::is('merchant/membership*') ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link {{ Request::is('merchant/membership*') ? 'active' : '' }}">
@@ -632,6 +634,12 @@
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
+                            @if (Auth::user()->RoleID == 'IT' ||
+                            Auth::user()->RoleID == 'BM' ||
+                            Auth::user()->RoleID == 'SM' ||
+                            Auth::user()->RoleID == 'CEO' ||
+                            Auth::user()->RoleID == 'FI' ||
+                            Auth::user()->RoleID == 'AH')
                             <li class="nav-item">
                                 <a href="{{ route('merchant.membership') }}"
                                     class="nav-link {{ Request::is('merchant/membership') ? 'active' : '' }}">
@@ -639,6 +647,14 @@
                                     <p>Membership</p>
                                 </a>
                             </li>
+                            @endif
+                            @if (Auth::user()->RoleID == 'IT' ||
+                            Auth::user()->RoleID == 'BM' ||
+                            Auth::user()->RoleID == 'SM' ||
+                            Auth::user()->RoleID == 'CEO' ||
+                            Auth::user()->RoleID == 'FI' ||
+                            Auth::user()->RoleID == 'SKR' ||
+                            Auth::user()->RoleID == 'AH')
                             <li class="nav-item">
                                 <a href="{{ url('merchant/membership/kospin') }}"
                                     class="nav-link {{ Request::is('merchant/membership/kospin') ? 'active' : '' }}">
@@ -646,6 +662,7 @@
                                     <p>Kospin Sekartama</p>
                                 </a>
                             </li>
+                            @endif
                         </ul>
                     </li>
                     @endif
