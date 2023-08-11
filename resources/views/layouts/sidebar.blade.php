@@ -591,6 +591,7 @@
             Auth::user()->RoleID == 'HL' ||
             Auth::user()->RoleID == 'SM' ||
             Auth::user()->RoleID == 'SKR' ||
+            Auth::user()->RoleID == 'CI' ||
             Auth::user()->RoleID == 'AD')
             <li class="nav-item {{ Request::is('merchant*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('merchant*') ? 'active' : '' }}">
@@ -610,6 +611,7 @@
                     Auth::user()->RoleID == 'DMO' ||
                     Auth::user()->RoleID == 'HL' ||
                     Auth::user()->RoleID == 'SM' ||
+                    Auth::user()->RoleID == 'CI' ||
                     Auth::user()->RoleID == 'AD')
                     <li class="nav-item">
                         <a href="{{ route('merchant.account') }}"
@@ -625,6 +627,7 @@
                     Auth::user()->RoleID == 'CEO' ||
                     Auth::user()->RoleID == 'FI' ||
                     Auth::user()->RoleID == 'SKR' ||
+                    Auth::user()->RoleID == 'CI' ||
                     Auth::user()->RoleID == 'AH')
                     <li class="nav-item {{ Request::is('merchant/membership*') ? 'menu-open' : '' }}">
                         <a href="#" class="nav-link {{ Request::is('merchant/membership*') ? 'active' : '' }}">
@@ -639,6 +642,7 @@
                             Auth::user()->RoleID == 'SM' ||
                             Auth::user()->RoleID == 'CEO' ||
                             Auth::user()->RoleID == 'FI' ||
+                            Auth::user()->RoleID == 'CI' ||
                             Auth::user()->RoleID == 'AH')
                             <li class="nav-item">
                                 <a href="{{ route('merchant.membership') }}"
@@ -654,6 +658,7 @@
                             Auth::user()->RoleID == 'CEO' ||
                             Auth::user()->RoleID == 'FI' ||
                             Auth::user()->RoleID == 'SKR' ||
+                            Auth::user()->RoleID == 'CI' ||
                             Auth::user()->RoleID == 'AH')
                             <li class="nav-item">
                                 <a href="{{ url('merchant/membership/kospin') }}"
@@ -670,6 +675,7 @@
                     Auth::user()->RoleID == 'BM' ||
                     Auth::user()->RoleID == 'CEO' ||
                     Auth::user()->RoleID == 'FI' ||
+                    Auth::user()->RoleID == 'CI' ||
                     Auth::user()->RoleID == 'AH')
                     <li class="nav-item">
                         <a href="{{ route('merchant.assessment') }}"
@@ -708,6 +714,7 @@
                     Auth::user()->RoleID == 'AH' ||
                     Auth::user()->RoleID == 'DMO' ||
                     Auth::user()->RoleID == 'AD' ||
+                    Auth::user()->RoleID == 'CI' ||
                     Auth::user()->RoleID == 'SM')
                     <li class="nav-item">
                         <a href="{{ route('merchant.restock') }}"
@@ -786,6 +793,7 @@
             Auth::user()->RoleID == 'FI' ||
             Auth::user()->RoleID == 'HR' ||
             Auth::user()->RoleID == 'AH' ||
+            Auth::user()->RoleID == 'CI' ||
             Auth::user()->RoleID == 'DMO')
             <li class="nav-item {{ Request::is('customer*') ? 'menu-open' : '' }}">
                 <a href="#" class="nav-link {{ Request::is('customer*') ? 'active' : '' }}">
@@ -803,6 +811,7 @@
                     Auth::user()->RoleID == 'FI' ||
                     Auth::user()->RoleID == 'HR' ||
                     Auth::user()->RoleID == 'AH' ||
+                    Auth::user()->RoleID == 'CI' ||
                     Auth::user()->RoleID == 'DMO')
                     <li class="nav-item">
                         <a href="{{ route('customer.account') }}"
@@ -833,6 +842,7 @@
                     Auth::user()->RoleID == 'FI' ||
                     Auth::user()->RoleID == 'HR' ||
                     Auth::user()->RoleID == 'AH' ||
+                    Auth::user()->RoleID == 'CI' ||
                     Auth::user()->RoleID == 'DMO')
                     <li class="nav-item">
                         <a href="{{ route('customer.transaction') }}"
