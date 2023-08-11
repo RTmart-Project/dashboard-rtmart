@@ -363,7 +363,7 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     // Merchant
-    Route::group(['middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,HL,RBTAD,SM,AD,SKR']], function () {
+    Route::group(['middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,HL,RBTAD,SM,AD,SKR,CI']], function () {
         Route::get('/merchant/account', [MerchantController::class, 'account'])->name('merchant.account');
         Route::get('/merchant/account/get', [MerchantController::class, 'getAccounts'])->name('merchant.getAccounts');
         Route::post('/merchant/account/update-block/{merchantID}', [MerchantController::class, 'updateBlock'])->name('merchant.updateBlock');
@@ -394,7 +394,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/merchant/assessment/downloadKTP', [MerchantController::class, 'downloadKTP'])->name('merchant.downloadKTP');
     });
 
-    Route::group(['middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,HR,SM,SKR']], function () {
+    Route::group(['middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,HR,SM,SKR,CI']], function () {
         Route::get('/merchant/powermerchant', [MerchantController::class, 'powerMerchant'])->name('merchant.powermerchant');
         Route::get('/merchant/powermerchant/get', [MerchantController::class, 'getPowerMerchant'])->name('merchant.getPowerMerchant');
         Route::post('/merchant/powermerchant/insert', [MerchantController::class, 'insertPowerMerchant'])->name('merchant.insertPowerMerchant');
@@ -416,7 +416,7 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     // Customer
-    Route::group(['middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,RBTAD']], function () {
+    Route::group(['middleware' => ['checkRoleUser:IT,BM,CEO,FI,AH,HR,DMO,RBTAD,CI']], function () {
         Route::get('/customer/account', [CustomerController::class, 'account'])->name('customer.account');
         Route::get('/customer/account/get', [CustomerController::class, 'getAccounts'])->name('customer.getAccounts');
         Route::get('/customer/transaction', [CustomerController::class, 'transaction'])->name('customer.transaction');
